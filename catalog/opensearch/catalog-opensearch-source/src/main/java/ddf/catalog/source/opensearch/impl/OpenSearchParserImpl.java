@@ -45,17 +45,17 @@ public class OpenSearchParserImpl implements OpenSearchParser {
   private static final String START_INDEX = "start";
 
   // geospatial constants
-  private static final double LAT_DEGREE_M = 111325;
+  private static final double RADIUS_OF_THE_EARTH_IN_METERS = 6371000;
 
-  private static final Integer MAX_LAT = 90;
+  private static final double MAX_LAT = 90;
 
-  private static final Integer MIN_LAT = -90;
+  private static final double MIN_LAT = -90;
 
-  private static final Integer MAX_LON = 180;
+  private static final double MAX_LON = 180;
 
-  private static final Integer MIN_LON = -180;
+  private static final double MIN_LON = -180;
 
-  private static final Integer MAX_ROTATION = 360;
+  private static final double MAX_ROTATION = MAX_LON - MIN_LON;
 
   private static final Integer MAX_BBOX_POINTS = 4;
 
@@ -337,38 +337,48 @@ public class OpenSearchParserImpl implements OpenSearchParser {
   }
 
   /**
-   * Takes in a point radius search and converts it to a (rough approximation) bounding box.
+   * Takes in a point radius search and converts it to a (rough approximation) bounding box using
+   * the haversine formula and a spherical approximation of the Earth.
    *
    * @param lon latitude in decimal degrees (WGS-84)
    * @param lat longitude in decimal degrees (WGS-84)
-   * @param radius radius, in meters
+   * @param radius search radius, in meters
    * @return Array of bounding box coordinates in the following order: West South East North. Also
    *     described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is the
    *     Y-axis).
    */
-  private double[] createBBoxFromPointRadius(double lon, double lat, double radius) {
+  private static double[] createBBoxFromPointRadius(
+      final double lon, final double lat, final double radius) {
     double minX;
     double minY;
     double maxX;
     double maxY;
 
-    double lonDifference = radius / (LAT_DEGREE_M * Math.cos(lat));
-    double latDifference = radius / LAT_DEGREE_M;
-    minX = lon - lonDifference;
-    if (minX < MIN_LON) {
-      minX += MAX_ROTATION;
-    }
-    maxX = lon + lonDifference;
-    if (maxX > MAX_LON) {
-      maxX -= MAX_ROTATION;
-    }
+    final double latDifference = Math.toDegrees(radius / RADIUS_OF_THE_EARTH_IN_METERS);
+    final double lonDifference =
+        Math.toDegrees(
+            Math.asin(
+                Math.sin(radius / RADIUS_OF_THE_EARTH_IN_METERS) / Math.cos(Math.toRadians(lat))));
+
     minY = lat - latDifference;
-    if (minY < MIN_LAT) {
-      minY = Math.abs(minY + MAX_LAT) - MAX_LAT;
-    }
     maxY = lat + latDifference;
-    if (maxY > MAX_LAT) {
-      maxY = MAX_LAT - (maxY - MAX_LAT);
+
+    if (minY > MIN_LAT && maxY < MAX_LAT) {
+      minX = lon - lonDifference;
+      if (minX < MIN_LON) {
+        minX += MAX_ROTATION;
+      }
+
+      maxX = lon + lonDifference;
+      if (maxX > MAX_LON) {
+        maxX -= MAX_ROTATION;
+      }
+    } else {
+      // The search area overlaps one of the poles.
+      minY = Math.max(minY, MIN_LAT);
+      maxY = Math.min(maxY, MAX_LAT);
+      minX = MIN_LON;
+      maxX = MAX_LON;
     }
 
     return new double[] {minX, minY, maxX, maxY};
@@ -385,7 +395,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    *     described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is the
    *     Y-axis).
    */
-  private double[] createBBoxFromPolygon(String[] polyAry) {
+  private static double[] createBBoxFromPolygon(final String[] polyAry) {
     double minX = Double.POSITIVE_INFINITY;
     double minY = Double.POSITIVE_INFINITY;
     double maxX = Double.NEGATIVE_INFINITY;

@@ -181,6 +181,12 @@
             <artifactId>commons-httpclient</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -245,12 +251,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
+                                            <minimum>0.62</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
+                                            <minimum>0.52</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
