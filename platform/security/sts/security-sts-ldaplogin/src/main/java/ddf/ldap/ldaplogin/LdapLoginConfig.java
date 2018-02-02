@@ -134,6 +134,7 @@ public class LdapLoginConfig {
         LOGGER.error("Error creating ldap connection factory", e);
       }
 
+      // TODO Switch to DictionaryMap.java
       Dictionary<String, String> serviceProps = new Hashtable<>();
       serviceProps.put("id", id);
 

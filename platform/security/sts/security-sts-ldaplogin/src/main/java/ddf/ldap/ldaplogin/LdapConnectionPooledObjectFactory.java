@@ -46,6 +46,9 @@ public class LdapConnectionPooledObjectFactory extends BasePooledObjectFactory<C
 
   @Override
   public boolean validateObject(PooledObject<Connection> p) {
-    return p.getObject() != null && !p.getObject().isClosed() && p.getObject().isValid();
+    return p != null
+        && p.getObject() != null
+        && !p.getObject().isClosed()
+        && p.getObject().isValid();
   }
 }
