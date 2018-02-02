@@ -29,6 +29,7 @@
 * com.google.guava:guava:jar:18.0
 * com.google.http-client:google-http-client:jar:1.22.0
 * com.googlecode.json-simple:json-simple:jar:1.1.1
+* com.fasterxml.jackson.core:jackson-core:jar:2.9.4
 * com.hazelcast:hazelcast:jar:3.2.1
 * com.jayway.restassured:rest-assured:jar:2.9.0
 * com.jhlabs:filters:jar:2.0.235-1
@@ -214,8 +215,6 @@
 * org.bouncycastle:bcpkix-jdk15on:jar:1.55
 * org.bouncycastle:bcprov-jdk15on:jar:1.55
 * org.codehaus.groovy:groovy-all:jar:2.4.7
-* org.codehaus.jackson:jackson-core-asl:jar:1.9.13
-* org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13
 * org.codehaus.woodstox:woodstox-core-asl:jar:4.4.1
 * org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0
 * org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0
