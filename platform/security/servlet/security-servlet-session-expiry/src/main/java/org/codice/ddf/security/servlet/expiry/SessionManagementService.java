@@ -126,7 +126,7 @@ public class SessionManagementService {
   public Response getInvalidate(@Context HttpServletRequest request) {
     StringBuffer requestURL = request.getRequestURL();
     String requestQueryString = request.getQueryString();
-    return Response.temporaryRedirect(
+    return Response.seeOther(
             URI.create(
                 requestURL
                     .substring(0, requestURL.indexOf(rootContext))
