@@ -23,5 +23,6 @@
         <bundle>mvn:org.objenesis/objenesis/${objenesis.version}</bundle>
         <bundle>mvn:org.awaitility/awaitility/${awaitility.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>mvn:org.xmlunit/xmlunit-matchers/${xmlunit.version}</bundle>
     </feature>
 </features>
