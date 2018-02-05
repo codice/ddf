@@ -15,7 +15,6 @@ package ddf.ldap.ldaplogin;
 
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.BIND_METHOD_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD_OPTIONS_KEY;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.KDC_ADDRESS_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM_OPTIONS_KEY;
@@ -23,7 +22,6 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE_OPTIONS_KEY;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_BASE_DN_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER_OPTIONS_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE_OPTIONS_KEY;
@@ -65,10 +63,12 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.forgerock.opendj.ldap.SSLContextBuilder;
-import org.forgerock.opendj.ldap.TrustManagers;
+import org.forgerock.opendj.ldap.Connection;
+import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LdapException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -97,10 +97,16 @@ public class LdapModuleTest {
   public LdapModuleTest() throws IOException {}
 
   @Before
-  public void startup() {
+  public void startup() throws LdapException {
 
     server = TestServer.getInstance();
-    module = TestModule.getInstance(TestServer.getClientOptions());
+    LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
+    LDAPConnectionFactory ldapConnectionFactory =
+        ldapLoginConfig.createLdapConnectionFactory(TestServer.getUrl("ldap"), false);
+    module =
+        TestModule.getInstance(
+            TestServer.getClientOptions(),
+            new GenericObjectPool<>(new LdapConnectionPooledObjectFactory(ldapConnectionFactory)));
   }
 
   @After
@@ -139,7 +145,6 @@ public class LdapModuleTest {
 
     server.useSimpleAuth().startListening();
     module
-        .putOption(CONNECTION_URL_OPTIONS_KEY, TestServer.getUrl("ldaps"))
         .setUsernameAndPassword(USER_CN, USER_PASSWORD)
         .login()
         .assertThatPrincipals(server.expectedPrincipals());
@@ -153,7 +158,6 @@ public class LdapModuleTest {
     server.useSimpleAuth();
     module
         .setUsernameAndPassword(USER_CN, USER_PASSWORD)
-        .putOption(SSL_STARTTLS_OPTIONS_KEY, "true")
         .login()
         .assertThatPrincipals(server.expectedPrincipals());
   }
@@ -210,25 +214,16 @@ public class LdapModuleTest {
 
     private TestModule() {}
 
-    public static TestModule getInstance(Map<String, String> options) {
+    public static TestModule getInstance(
+        Map<String, String> options, GenericObjectPool<Connection> connectionPool) {
       TestModule object = new TestModule();
       object.options = new HashMap<>(options);
       object.realModule = new SslLdapLoginModule();
       EncryptionService mockEncryptionService = mock(EncryptionService.class);
       when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
       object.realModule.setEncryptionService(mockEncryptionService);
-      object.realModule.setSslContext(getClientSSLContext());
+      object.realModule.setLdapConnectionPool(connectionPool);
       return object;
-    }
-
-    public static SSLContext getClientSSLContext() {
-
-      try {
-        return new SSLContextBuilder().setTrustManager(TrustManagers.trustAll()).getSSLContext();
-      } catch (GeneralSecurityException e) {
-        fail(e.getMessage());
-        return null;
-      }
     }
 
     public TestModule login() throws LoginException {
@@ -310,7 +305,6 @@ public class LdapModuleTest {
     public static Map<String, String> getClientOptions() {
 
       HashMap<String, String> options = new HashMap<>();
-      options.put(CONNECTION_URL_OPTIONS_KEY, getUrl("ldap"));
       options.put(CONNECTION_USERNAME_OPTIONS_KEY, getBasicAuthDn());
       options.put(CONNECTION_PASSWORD_OPTIONS_KEY, getBasicAuthPassword());
       options.put(USER_BASE_DN_OPTIONS_KEY, getBaseDistinguishedName());
@@ -323,7 +317,6 @@ public class LdapModuleTest {
           ROLE_BASE_DN_OPTIONS_KEY, String.format("ou=groups,%s", getBaseDistinguishedName()));
       options.put(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY, "cn");
       options.put(ROLE_SEARCH_SUBTREE_OPTIONS_KEY, "true");
-      options.put(SSL_STARTTLS_OPTIONS_KEY, "false");
       options.put(BIND_METHOD_OPTIONS_KEY, "Simple");
       options.put(REALM_OPTIONS_KEY, "");
       options.put(KDC_ADDRESS_OPTIONS_KEY, "");

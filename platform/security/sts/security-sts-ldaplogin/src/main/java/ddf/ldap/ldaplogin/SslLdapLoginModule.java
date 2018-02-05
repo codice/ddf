@@ -17,17 +17,13 @@ import com.google.common.collect.ImmutableSet;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.net.ssl.SSLContext;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -36,13 +32,13 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
@@ -54,20 +50,19 @@ import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
 import org.forgerock.opendj.ldap.responses.SearchResultReference;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
-import org.forgerock.util.Options;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
-  public static final String CONNECTION_URL_OPTIONS_KEY = "connection.url";
-
   public static final String CONNECTION_USERNAME_OPTIONS_KEY = "connection.username";
 
+  @SuppressWarnings("squid:S2068")
   public static final String CONNECTION_PASSWORD_OPTIONS_KEY = "connection.password";
 
   public static final String USER_BASE_DN_OPTIONS_KEY = "user.base.dn";
@@ -84,13 +79,13 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   public static final String ROLE_SEARCH_SUBTREE_OPTIONS_KEY = "role.search.subtree";
 
-  public static final String SSL_STARTTLS_OPTIONS_KEY = "ssl.starttls";
-
   public static final String BIND_METHOD_OPTIONS_KEY = "bindMethod";
 
   public static final String REALM_OPTIONS_KEY = "realm";
 
   public static final String KDC_ADDRESS_OPTIONS_KEY = "kdcAddress";
+
+  public static final String CONNECTION_POOL_ID_OPTIONS_KEY = "connectionPoolId";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
@@ -101,8 +96,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   private String kdcAddress;
 
   private String bindMethod = DEFAULT_AUTHENTICATION;
-
-  private String connectionURL;
 
   private String connectionUsername;
 
@@ -124,13 +117,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   private boolean roleSearchSubtree = true;
 
-  private boolean startTls = false;
-
-  private LDAPConnectionFactory ldapConnectionFactory;
-
-  private ServiceReference serviceReference;
-
-  private SSLContext sslContext;
+  private GenericObjectPool<Connection> ldapConnectionPool;
 
   protected boolean doLogin() throws LoginException {
 
@@ -186,18 +173,18 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     // ------------- CREATE CONNECTION #1 ----------------------------------
     try {
-      connection = ldapConnectionFactory.getConnection();
-    } catch (LdapException e) {
-      LOGGER.info("Unable to get LDAP Connection from factory.", e);
+      connection = ldapConnectionPool.borrowObject();
+    } catch (Exception e) {
+      LOGGER.info("Unable to obtain ldap connection from pool", e);
       return false;
     }
-    if (connection != null) {
-      try {
+    try {
 
+      if (connection != null) {
         // ------------- BIND #1 (CONNECTION USERNAME & PASSWORD) --------------
         try {
           BindRequest request;
-          switch (getBindMethod()) {
+          switch (bindMethod) {
             case "Simple":
               request = Requests.newSimpleBindRequest(connectionUsername, connectionPassword);
               break;
@@ -243,11 +230,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
         // --------- SEARCH #1, FIND USER DISTINGUISHED NAME -----------
         SearchScope scope;
-        if (userSearchSubtree) {
-          scope = SearchScope.WHOLE_SUBTREE;
-        } else {
-          scope = SearchScope.SINGLE_LEVEL;
-        }
+        scope = userSearchSubtree ? SearchScope.WHOLE_SUBTREE : SearchScope.SINGLE_LEVEL;
         userFilter = userFilter.replaceAll(Pattern.quote("%u"), Matcher.quoteReplacement(user));
         userFilter = userFilter.replace("\\", "\\\\");
         LOGGER.trace(
@@ -255,8 +238,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             user,
             userBaseDN,
             userFilter);
-        ConnectionEntryReader entryReader = connection.search(userBaseDN, scope, userFilter);
-        try {
+        try (ConnectionEntryReader entryReader = connection.search(userBaseDN, scope, userFilter)) {
           while (entryReader.hasNext() && entryReader.isReference()) {
             LOGGER.debug("Referral ignored while searching for user {}", user);
             entryReader.readReference();
@@ -273,61 +255,26 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
           LOGGER.info("Unable to read contents of LDAP user search.", e);
           return false;
         }
-      } finally {
 
-        // ------------ CLOSE CONNECTION -------------------------------
-        connection.close();
-      }
-    } else {
-      return false;
-    }
+        // ----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
+        // Validate user's credentials.
+        try {
+          LOGGER.trace("Attempting LDAP bind for user: {}", userDn);
+          BindResult bindResult = connection.bind(userDn, tmpPassword);
 
-    // ------------- CREATE CONNECTION #2 ----------------------------------
-    try {
-      connection = ldapConnectionFactory.getConnection();
-    } catch (LdapException e) {
-      LOGGER.info("Unable to get LDAP Connection from factory.", e);
-      return false;
-    }
-
-    if (connection != null) {
-      // ----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
-      // Validate user's credentials.
-      try {
-        LOGGER.trace("Attempting LDAP bind for user: {}", userDn);
-        BindResult bindResult = connection.bind(userDn, tmpPassword);
-
-        if (!bindResult.isSuccess()) {
-          LOGGER.info("Bind failed");
+          if (!bindResult.isSuccess()) {
+            LOGGER.info("Bind failed");
+            return false;
+          }
+        } catch (Exception e) {
+          LOGGER.info("Unable to bind user: {} to LDAP server.", userDn, e);
           return false;
         }
-      } catch (Exception e) {
-        LOGGER.info("Unable to bind user to LDAP server.", e);
-        return false;
-      } finally {
 
-        // ------------ CLOSE CONNECTION -------------------------------
-        connection.close();
-      }
+        LOGGER.trace("LDAP bind successful for user: {}", userDn);
 
-      LOGGER.trace("LDAP bind successful for user: {}", userDn);
-
-      // ---------- ADD USER AS PRINCIPAL --------------------------------
-      principals.add(new UserPrincipal(user));
-    } else {
-      LOGGER.trace("No LDAP connection available to attempt bind for user: {}", userDn);
-      return false;
-    }
-
-    // -------------- CREATE CONNECTION #3 ---------------------------------
-    try {
-      connection = ldapConnectionFactory.getConnection();
-    } catch (LdapException e) {
-      LOGGER.info("Unable to get LDAP Connection from factory.", e);
-      return false;
-    }
-    if (connection != null) {
-      try {
+        // ---------- ADD USER AS PRINCIPAL --------------------------------
+        principals.add(new UserPrincipal(user));
 
         // ----- BIND #3 (CONNECTION USERNAME & PASSWORD) --------------
         try {
@@ -345,12 +292,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
 
         // --------- SEARCH #3, GET ROLES ------------------------------
-        SearchScope scope;
-        if (roleSearchSubtree) {
-          scope = SearchScope.WHOLE_SUBTREE;
-        } else {
-          scope = SearchScope.SINGLE_LEVEL;
-        }
+        scope = roleSearchSubtree ? SearchScope.WHOLE_SUBTREE : SearchScope.SINGLE_LEVEL;
         roleFilter = roleFilter.replaceAll(Pattern.quote("%u"), Matcher.quoteReplacement(user));
         roleFilter =
             roleFilter.replaceAll(Pattern.quote("%dn"), Matcher.quoteReplacement(userBaseDN));
@@ -363,12 +305,11 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             roleBaseDN,
             roleFilter,
             roleNameAttribute);
-        ConnectionEntryReader entryReader =
-            connection.search(roleBaseDN, scope, roleFilter, roleNameAttribute);
-        SearchResultEntry entry;
 
         // ------------- ADD ROLES AS NEW PRINCIPALS -------------------
-        try {
+        try (ConnectionEntryReader entryReader =
+            connection.search(roleBaseDN, scope, roleFilter, roleNameAttribute)) {
+          SearchResultEntry entry;
           while (entryReader.hasNext()) {
             if (entryReader.isEntry()) {
               entry = entryReader.readEntry();
@@ -379,23 +320,22 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             } else {
               // Got a continuation reference.
               final SearchResultReference ref = entryReader.readReference();
-              LOGGER.debug("Skipping result reference: {}", ref.getURIs().toString());
+              LOGGER.debug("Skipping result reference: {}", ref.getURIs());
             }
           }
         } catch (Exception e) {
           LOGGER.debug("Exception while getting roles for user.", e);
           throw new LoginException("Can't get user " + user + " roles: " + e.getMessage());
         }
-      } finally {
-
-        // ------------ CLOSE CONNECTION -------------------------------
-        connection.close();
+      } else {
+        LOGGER.trace("LDAP Connection was null could not authenticate user.");
+        return false;
       }
-    } else {
-      return false;
-    }
 
-    return true;
+      return true;
+    } finally {
+      ldapConnectionPool.returnObject(connection);
+    }
   }
 
   @Override
@@ -407,8 +347,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   public boolean logout() throws LoginException {
     subject.getPrincipals().removeAll(principals);
     principals.clear();
-    ldapConnectionFactory.close();
-    ldapConnectionFactory = null;
     return true;
   }
 
@@ -428,7 +366,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       Map<String, ?> options) {
     super.initialize(subject, callbackHandler, options);
     installEncryptionService();
-    connectionURL = (String) options.get(CONNECTION_URL_OPTIONS_KEY);
     connectionUsername = (String) options.get(CONNECTION_USERNAME_OPTIONS_KEY);
     connectionPassword =
         getDecryptedPassword((String) options.get(CONNECTION_PASSWORD_OPTIONS_KEY));
@@ -439,19 +376,32 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     roleFilter = (String) options.get(ROLE_FILTER_OPTIONS_KEY);
     roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY);
     roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE_OPTIONS_KEY));
-    startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS_OPTIONS_KEY)));
-    setBindMethod((String) options.get(BIND_METHOD_OPTIONS_KEY));
+    bindMethod = (String) options.get(BIND_METHOD_OPTIONS_KEY);
     realm = (String) options.get(REALM_OPTIONS_KEY);
     kdcAddress = (String) options.get(KDC_ADDRESS_OPTIONS_KEY);
+    String connectionPoolId = (String) options.get(CONNECTION_POOL_ID_OPTIONS_KEY);
+    installLdapConnectionPool(connectionPoolId);
+  }
 
-    if (ldapConnectionFactory != null) {
-      ldapConnectionFactory.close();
-    }
-
-    try {
-      ldapConnectionFactory = createLdapConnectionFactory(connectionURL, startTls);
-    } catch (LdapException e) {
-      LOGGER.info("Unable to create LDAP Connection Factory. LDAP log in will not be possible.", e);
+  private void installLdapConnectionPool(String connectionPoolId) {
+    BundleContext bundleContext = getContext();
+    if (bundleContext != null) {
+      try {
+        Collection<ServiceReference<GenericObjectPool>> serviceReferences =
+            bundleContext.getServiceReferences(
+                GenericObjectPool.class, String.format("(id=%s)", connectionPoolId));
+        ServiceReference<GenericObjectPool> serviceReference =
+            serviceReferences
+                .stream()
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "No LDAPConnectionPool service found with id:" + connectionPoolId));
+        ldapConnectionPool = bundleContext.getService(serviceReference);
+      } catch (InvalidSyntaxException | IllegalStateException e) {
+        LOGGER.error("Unable to get LDAP Connection pool. LDAP log in will not be possible.", e);
+      }
     }
   }
 
@@ -473,69 +423,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       throw new LoginException(message);
     } catch (LoginException e) {
       throw new LoginException(message);
-    }
-  }
-
-  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
-      throws LdapException {
-    boolean useSsl = url.startsWith("ldaps");
-    boolean useTls = !url.startsWith("ldaps") && startTls;
-
-    Options lo = Options.defaultOptions();
-
-    try {
-      if (useSsl || useTls) {
-        LOGGER.trace("Setting up secure LDAP connection.");
-        initializeSslContext();
-        lo.set(LDAPConnectionFactory.SSL_CONTEXT, getSslContext());
-      } else {
-        LOGGER.trace("Setting up insecure LDAP connection.");
-      }
-    } catch (GeneralSecurityException e) {
-      LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
-    }
-
-    lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
-        Arrays.asList(System.getProperty("https.cipherSuites").split(",")));
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
-        Arrays.asList(System.getProperty("https.protocols").split(",")));
-    lo.set(
-        LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
-        SslLdapLoginModule.class.getClassLoader());
-
-    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
-    Integer port = useSsl ? 636 : 389;
-    try {
-      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
-    } catch (NumberFormatException ignore) {
-    }
-
-    auditRemoteConnection(host);
-
-    return new LDAPConnectionFactory(host, port, lo);
-  }
-
-  private void auditRemoteConnection(String host) {
-    try {
-      InetAddress inetAddress = InetAddress.getByName(host);
-      SecurityLogger.audit(
-          "Setting up remote connection to LDAP [{}].", inetAddress.getHostAddress());
-    } catch (Exception e) {
-      LOGGER.debug(
-          "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
-          e);
-      SecurityLogger.audit(
-          "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.", host);
-    }
-  }
-
-  private void initializeSslContext() throws NoSuchAlgorithmException {
-    // Only set if null so tests can inject a context.
-    if (getSslContext() == null) {
-      setSslContext(SSLContext.getDefault());
     }
   }
 
@@ -569,9 +456,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   private void installEncryptionService() {
 
     BundleContext bundleContext = getContext();
-    if (null != bundleContext) {
-      serviceReference = bundleContext.getServiceReference(EncryptionService.class.getName());
-      setEncryptionService((EncryptionService) bundleContext.getService(serviceReference));
+    if (bundleContext != null) {
+      ServiceReference serviceReference =
+          bundleContext.getServiceReference(EncryptionService.class.getName());
+      encryptionService = (EncryptionService) bundleContext.getService(serviceReference);
       bundleContext.ungetService(serviceReference);
     }
   }
@@ -579,9 +467,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   protected char[] getDecryptedPassword(String encryptedPassword) {
 
     char[] decryptedPassword = null;
-    if (getEncryptionService() != null) {
+    if (encryptionService != null) {
       try {
-        decryptedPassword = getEncryptionService().decryptValue(encryptedPassword).toCharArray();
+        decryptedPassword = encryptionService.decryptValue(encryptedPassword).toCharArray();
       } catch (SecurityException | IllegalStateException e) {
         LOGGER.info("Error decrypting connection password passed into LDAP configuration: ", e);
       }
@@ -600,20 +488,17 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     this.encryptionService = encryptionService;
   }
 
-  public SSLContext getSslContext() {
-    return sslContext;
-  }
-
-  public void setSslContext(SSLContext sslContext) {
-    this.sslContext = sslContext;
-  }
-
   String getBindMethod() {
     return bindMethod;
   }
 
   void setBindMethod(String bindMethod) {
     this.bindMethod = bindMethod;
+  }
+
+  // for testing
+  public void setLdapConnectionPool(GenericObjectPool<Connection> ldapConnectionPool) {
+    this.ldapConnectionPool = ldapConnectionPool;
   }
 
   private static class InvalidCharactersException extends LoginException {

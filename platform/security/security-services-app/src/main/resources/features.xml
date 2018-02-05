@@ -127,6 +127,7 @@
 
     <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"
              description="Security STS JAAS LDAP Login.">
+        <bundle dependency="true">mvn:org.apache.commons/commons-pool2/2.5.0</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
     </feature>
 
