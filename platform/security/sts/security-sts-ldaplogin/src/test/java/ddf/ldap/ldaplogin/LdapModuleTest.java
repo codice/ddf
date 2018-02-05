@@ -18,7 +18,7 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.KDC_ADDRESS;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE;
@@ -315,7 +315,7 @@ public class LdapModuleTest {
       options.put(ROLE_SEARCH_SUBTREE, "true");
       options.put(SSL_STARTTLS, "false");
       options.put(BIND_METHOD, "Simple");
-      options.put(REALM, "");
+      options.put(REALM_KEY, "");
       options.put(KDC_ADDRESS, "");
       return options;
     }

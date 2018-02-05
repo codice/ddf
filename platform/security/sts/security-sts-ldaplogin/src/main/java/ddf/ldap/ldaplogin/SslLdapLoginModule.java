@@ -84,7 +84,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   public static final String BIND_METHOD = "bindMethod";
 
-  public static final String REALM = "realm";
+  public static final String REALM_KEY = "realm";
 
   public static final String KDC_ADDRESS = "kdcAddress";
 
@@ -274,7 +274,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             return false;
           }
         } catch (Exception e) {
-          LOGGER.info("Unable to bind user to LDAP server.", e);
+          LOGGER.info("Unable to bind user: {} to LDAP server.", userDn, e);
           return false;
         }
 
@@ -387,7 +387,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
     roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
     setBindMethod((String) options.get(BIND_METHOD));
-    realm = (String) options.get(REALM);
+    realm = (String) options.get(REALM_KEY);
     kdcAddress = (String) options.get(KDC_ADDRESS);
     String connectionPoolId = (String) options.get(CONNECTION_POOL_ID);
     installLdapConnectionPool(connectionPoolId);
@@ -410,7 +410,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                             "No LDAPConnectionPool service found with id:" + connectionPoolId));
         ldapConnectionPool = bundleContext.getService(serviceReference);
       } catch (InvalidSyntaxException | IllegalStateException e) {
-        LOGGER.info("Unable to get LDAP Connection pool. LDAP log in will not be possible.", e);
+        LOGGER.error("Unable to get LDAP Connection pool. LDAP log in will not be possible.", e);
       }
     }
   }

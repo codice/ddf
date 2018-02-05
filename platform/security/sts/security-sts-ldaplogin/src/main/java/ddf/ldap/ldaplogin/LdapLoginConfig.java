@@ -22,6 +22,7 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE;
 
+import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
 import java.net.InetAddress;
 import java.security.GeneralSecurityException;
@@ -42,6 +43,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LDAPUrl;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.util.Options;
 import org.forgerock.util.time.Duration;
@@ -52,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 /** Registers LDAP as a JAAS realm. */
 public class LdapLoginConfig {
+  private static final String HTTPS_PROTOCOLS = "https.protocols";
 
   public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
 
@@ -189,23 +192,23 @@ public class LdapLoginConfig {
     lo.set(LDAPConnectionFactory.CONNECT_TIMEOUT, new Duration(30L, TimeUnit.SECONDS));
 
     lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
-        Arrays.asList(System.getProperty("https.cipherSuites", "").split(",")));
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
-        Arrays.asList(System.getProperty("https.protocols", "").split(",")));
+
+    String cipherSuites = System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES);
+    if (cipherSuites != null) {
+      lo.set(
+          LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES, Arrays.asList(cipherSuites.split(",")));
+    }
+    String protocols = System.getProperty(HTTPS_PROTOCOLS);
+    if (protocols != null) {
+      lo.set(LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS, Arrays.asList(protocols.split(",")));
+    }
     lo.set(
         LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
         SslLdapLoginModule.class.getClassLoader());
 
-    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
-    Integer port = useSsl ? 636 : 389;
-    try {
-      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
-    } catch (NumberFormatException ignore) {
-      // ignore this error will try with default
-    }
+    LDAPUrl parsedUrl = LDAPUrl.valueOf(url);
+    String host = parsedUrl.getHost();
+    Integer port = parsedUrl.getPort();
 
     auditRemoteConnection(host);
 
