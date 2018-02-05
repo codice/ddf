@@ -149,3 +149,16 @@ This installation directory will be referred to as `${home_directory}`.
 ----
 ${branding-lowercase}${at-symbol}local>
 ----
+
+=== Quick Install of ${branding} on a remote headless server
+
+If ${branding} is being installed on a remote server that has no user interface some additional steps must be taken prior to starting the system.
+
+. Update any references to localhost in the following files. These references to localhost should be updated to match either the hostname or IP of the system.
+** `${home_directory}/etc/system.properties`
+** `${home_directory}/etc/users.properties`
+** `${home_directory}/etc/users.attributes`
+. From the console go to ${home_directory}/etc/certs.
+.. If using a hostname run: `sh CertNew.sh -cn <hostname> -san "DNS:<hostname>"` (or `CertNew -cn <hostname> -san "DNS:<hostname>"` on windows).
+.. If using an IP address run: `sh CertNew.sh -cn <IP> -san "IP:<IP>"` (or `CertNew -cn <IP> -san "IP:<IP>"` on windows).
+. Proceed with starting the system and continue as usual.
