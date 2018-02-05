@@ -18,7 +18,7 @@ import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.KDC_ADDRESS;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM_KEY;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
 import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE;
@@ -65,10 +65,11 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.forgerock.opendj.ldap.SSLContextBuilder;
-import org.forgerock.opendj.ldap.TrustManagers;
+import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LdapException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -97,7 +98,7 @@ public class LdapModuleTest {
   public LdapModuleTest() throws IOException {}
 
   @Before
-  public void startup() {
+  public void startup() throws LdapException {
 
     server = TestServer.getInstance();
     module = TestModule.getInstance(TestServer.getClientOptions());
@@ -207,25 +208,19 @@ public class LdapModuleTest {
 
     private TestModule() {}
 
-    public static TestModule getInstance(Map<String, String> options) {
+    public static TestModule getInstance(Map<String, String> options) throws LdapException {
       TestModule object = new TestModule();
       object.options = new HashMap<>(options);
       object.realModule = new SslLdapLoginModule();
       EncryptionService mockEncryptionService = mock(EncryptionService.class);
       when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
       object.realModule.setEncryptionService(mockEncryptionService);
-      object.realModule.setSslContext(getClientSSLContext());
+      LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
+      LDAPConnectionFactory ldapConnectionFactory =
+          ldapLoginConfig.createLdapConnectionFactory(options.get(CONNECTION_URL), false);
+      object.realModule.setLdapConnectionPool(
+          new GenericObjectPool<>(new LdapConnectionPooledObjectFactory(ldapConnectionFactory)));
       return object;
-    }
-
-    public static SSLContext getClientSSLContext() {
-
-      try {
-        return new SSLContextBuilder().setTrustManager(TrustManagers.trustAll()).getSSLContext();
-      } catch (GeneralSecurityException e) {
-        fail(e.getMessage());
-        return null;
-      }
     }
 
     public TestModule login() throws LoginException {
@@ -320,7 +315,7 @@ public class LdapModuleTest {
       options.put(ROLE_SEARCH_SUBTREE, "true");
       options.put(SSL_STARTTLS, "false");
       options.put(BIND_METHOD, "Simple");
-      options.put(REALM, "");
+      options.put(REALM_KEY, "");
       options.put(KDC_ADDRESS, "");
       return options;
     }

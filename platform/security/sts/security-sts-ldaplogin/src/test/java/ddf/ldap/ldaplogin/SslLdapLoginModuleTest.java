@@ -27,7 +27,6 @@ import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
@@ -41,16 +40,12 @@ public class SslLdapLoginModuleTest {
 
   @Test
   public void testUnsuccessfulConnectionBind1() throws LoginException {
-    LDAPConnectionFactory mockedConnectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
     BindResult mockedBindResult = mock(BindResult.class);
     when(mockedBindResult.isSuccess()).thenReturn(false);
     Connection mockedConnection = mock(Connection.class);
     SslLdapLoginModule testLoginModule = mock(SslLdapLoginModule.class);
     try {
-      when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
       when(mockedConnection.bind(anyString(), any(char[].class))).thenReturn(mockedBindResult);
-      when(testLoginModule.createLdapConnectionFactory(any(String.class), any(Boolean.class)))
-          .thenReturn(mockedConnectionFactory);
     } catch (LdapException e) {
       LOGGER.debug("LDAP exception", e);
     }
