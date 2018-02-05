@@ -109,6 +109,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
@@ -730,7 +731,7 @@ public class RESTEndpoint implements RESTService {
         CreateInfo createInfo = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
-          if (contentParts != null && !contentParts.isEmpty()) {
+          if (CollectionUtils.isNotEmpty(contentParts)) {
             createInfo = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
@@ -815,7 +816,7 @@ public class RESTEndpoint implements RESTService {
         CreateInfo createInfo = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
-          if (contentParts != null && !contentParts.isEmpty()) {
+          if (CollectionUtils.isNotEmpty(contentParts)) {
             createInfo = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
@@ -1274,7 +1275,7 @@ public class RESTEndpoint implements RESTService {
   private boolean rangeHeaderExists(HttpServletRequest httpRequest) {
     boolean response = false;
 
-    if (null != httpRequest && null != httpRequest.getHeader(HEADER_RANGE)) {
+    if (httpRequest != null && httpRequest.getHeader(HEADER_RANGE) != null) {
       response = true;
     }
 
