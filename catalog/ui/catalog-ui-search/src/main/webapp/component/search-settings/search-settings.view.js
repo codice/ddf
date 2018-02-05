@@ -74,7 +74,7 @@ define([
             user.getPreferences().get('querySettings').set(this.propertySearchSettings.currentView.toJSON());
         },
         updateResultCountSettings: function () {
-            user.getPreferences().get({
+            user.getPreferences().set({
                 resultCount: this.propertyResultCount.currentView.model.getValue()[0]
             });
         },

@@ -26,6 +26,7 @@ var DropdownModel = require('component/dropdown/dropdown');
 var SearchTypeDropdownView = require('component/dropdown/search-type/dropdown.search-type.view');
 var _merge = require('lodash/merge');
 var ConfirmationView = require('component/confirmation/confirmation.view');
+var user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     template: template,
@@ -35,7 +36,29 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
         searchSettings: '.interaction-settings'
     },
     events: {
-        'click > .interaction-reset': 'triggerReset'
+        'click > .interaction-reset': 'triggerReset',
+        'click > .interaction-type-text': 'triggerTypeText',
+        'click > .interaction-type-basic': 'triggerTypeBasic',
+        'click > .interaction-type-advanced': 'triggerTypeAdvanced',
+        'click > .interaction-form': 'triggerCloseDropdown'
+    },
+    initialize: function() {
+        this.handleType();
+        this.listenTo(this.model, 'change:type', this.handleType);
+    },
+    handleType: function() {
+        this.$el.removeClass('is-text').removeClass('is-basic').removeClass('is-advanced');
+        switch(this.model.get('type')) {
+            case 'text':
+                this.$el.addClass('is-text');
+            break;
+            case 'basic':
+                this.$el.addClass('is-basic');
+            break;
+            case 'advanced':
+                this.$el.addClass('is-advanced');
+            break;
+        }
     },
     onRender: function(){
         this.generateSearchType();
@@ -60,6 +83,9 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
             replaceElement: true
         });
     },
+    triggerCloseDropdown: function() {
+        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+    },
     triggerReset: function() {
         this.listenTo(ConfirmationView.generateConfirmation({
             prompt: 'Are you sure you want to reset the search?',
@@ -70,11 +96,22 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
         function(confirmation) {
             if (confirmation.get('choice')) {
                 this.model.resetToDefaults();
-                this.handleClick();
+                this.triggerCloseDropdown();
             }
         }.bind(this));
     },
-    handleClick: function(){
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+    triggerType: function(type) {
+        this.model.set('type', type);
+        user.getQuerySettings().set('type', type);
+        user.savePreferences();
+    },
+    triggerTypeText: function() {
+        this.triggerType('text');
+    },
+    triggerTypeBasic: function() {
+        this.triggerType('basic');
+    },
+    triggerTypeAdvanced: function() {
+        this.triggerType('advanced');
     }
 }, MenuNavigationDecorator));
