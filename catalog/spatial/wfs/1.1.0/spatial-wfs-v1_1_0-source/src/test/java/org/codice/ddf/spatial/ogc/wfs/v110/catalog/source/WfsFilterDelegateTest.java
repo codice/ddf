@@ -329,7 +329,7 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWFSFilterDelegateNullSchema() {
-    new WfsFilterDelegate(null, null, null);
+    new WfsFilterDelegate(null, null);
   }
 
   @Test
@@ -411,7 +411,7 @@ public class WfsFilterDelegateTest {
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsEqualToStringStringBooleanAnyTextNullMetacardType() {
 
-    WfsFilterDelegate delegate = new WfsFilterDelegate(null, SUPPORTED_GEO, SRS_NAME);
+    WfsFilterDelegate delegate = new WfsFilterDelegate(null, SUPPORTED_GEO);
     delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
   }
 
@@ -1305,7 +1305,7 @@ public class WfsFilterDelegateTest {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, true, true);
 
     List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
-    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, notNullValue());
@@ -1329,7 +1329,7 @@ public class WfsFilterDelegateTest {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, false, false);
 
     List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
-    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1356,8 +1356,7 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType,
-            Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()),
-            "EPSG:42304");
+            Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()));
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1367,7 +1366,7 @@ public class WfsFilterDelegateTest {
   public void testGeoFilterNullMetacardType() {
     List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.BEYOND.getValue());
 
-    WfsFilterDelegate delegate = new WfsFilterDelegate(null, supportedGeo, SRS_NAME);
+    WfsFilterDelegate delegate = new WfsFilterDelegate(null, supportedGeo);
 
     delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
   }
@@ -1508,7 +1507,7 @@ public class WfsFilterDelegateTest {
   }
 
   private String getDWithinAsIntersectsXml() {
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns=\"http://www.opengis.net/ogc\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns3=\"http://www.w3.org/1999/xlink\"><Intersects><PropertyName>ground_geom</PropertyName><ns2:Polygon srsName=\"EPSG:4326\"><ns2:exterior><ns2:LinearRing><ns2:coordinates decimal=\".\" cs=\",\" ts=\" \">-10.0,31.79864073552333 -10.350897400284572,31.76408035813492 -10.688310010261736,31.66172736189105 -10.999271252553244,31.495515115037147 -11.271831061006903,31.271831061006903 -11.495515115037145,30.999271252553243 -11.66172736189105,30.688310010261738 -11.764080358134919,30.350897400284573 -11.798640735523328,30.0 -11.764080358134919,29.649102599715427 -11.66172736189105,29.311689989738262 -11.495515115037145,29.000728747446757 -11.271831061006905,28.728168938993097 -10.999271252553244,28.504484884962853 -10.688310010261736,28.33827263810895 -10.350897400284572,28.23591964186508 -9.999999999999998,28.20135926447667 -9.649102599715427,28.23591964186508 -9.311689989738262,28.338272638108954 -9.000728747446754,28.504484884962856 -8.728168938993093,28.728168938993097 -8.504484884962853,29.000728747446757 -8.33827263810895,29.311689989738266 -8.23591964186508,29.649102599715434 -8.201359264476672,30.000000000000004 -8.235919641865081,30.350897400284577 -8.338272638108954,30.68831001026174 -8.504484884962856,30.99927125255325 -8.7281689389931,31.271831061006907 -9.000728747446761,31.49551511503715 -9.31168998973827,31.661727361891053 -9.649102599715436,31.76408035813492 -10.0,31.79864073552333 </ns2:coordinates></ns2:LinearRing></ns2:exterior></ns2:Polygon></Intersects></Filter>";
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns=\"http://www.opengis.net/ogc\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns3=\"http://www.w3.org/1999/xlink\"><Intersects><PropertyName>ground_geom</PropertyName><ns2:Polygon><ns2:exterior><ns2:LinearRing><ns2:coordinates decimal=\".\" cs=\",\" ts=\" \">-10.0,31.79864073552333 -10.350897400284572,31.76408035813492 -10.688310010261736,31.66172736189105 -10.999271252553244,31.495515115037147 -11.271831061006903,31.271831061006903 -11.495515115037145,30.999271252553243 -11.66172736189105,30.688310010261738 -11.764080358134919,30.350897400284573 -11.798640735523328,30.0 -11.764080358134919,29.649102599715427 -11.66172736189105,29.311689989738262 -11.495515115037145,29.000728747446757 -11.271831061006905,28.728168938993097 -10.999271252553244,28.504484884962853 -10.688310010261736,28.33827263810895 -10.350897400284572,28.23591964186508 -9.999999999999998,28.20135926447667 -9.649102599715427,28.23591964186508 -9.311689989738262,28.338272638108954 -9.000728747446754,28.504484884962856 -8.728168938993093,28.728168938993097 -8.504484884962853,29.000728747446757 -8.33827263810895,29.311689989738266 -8.23591964186508,29.649102599715434 -8.201359264476672,30.000000000000004 -8.235919641865081,30.350897400284577 -8.338272638108954,30.68831001026174 -8.504484884962856,30.99927125255325 -8.7281689389931,31.271831061006907 -9.000728747446761,31.49551511503715 -9.31168998973827,31.661727361891053 -9.649102599715436,31.76408035813492 -10.0,31.79864073552333 </ns2:coordinates></ns2:LinearRing></ns2:exterior></ns2:Polygon></Intersects></Filter>";
   }
 
   private String marshal(FilterType filter) throws JAXBException {
@@ -1535,7 +1534,7 @@ public class WfsFilterDelegateTest {
   }
 
   private WfsFilterDelegate createDelegate() {
-    return new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+    return new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO);
   }
 
   private WfsFilterDelegate createIntegerDelegate() {
@@ -1580,7 +1579,7 @@ public class WfsFilterDelegateTest {
                 MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
 
     List<String> supportedGeo = Collections.singletonList(spatialOpType);
-    return new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    return new WfsFilterDelegate(featureMetacardType, supportedGeo);
   }
 
   private void whenTextualStringType() {

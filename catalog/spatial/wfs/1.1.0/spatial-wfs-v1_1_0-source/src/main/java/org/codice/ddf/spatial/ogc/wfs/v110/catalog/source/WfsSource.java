@@ -570,7 +570,7 @@ public class WfsSource extends AbstractWfsSource {
 
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
-              new WfsFilterDelegate(featureMetacardType, supportedGeo, registration.getSrs()));
+              new WfsFilterDelegate(featureMetacardType, supportedGeo));
         }
       } catch (WfsException | IllegalArgumentException wfse) {
         LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
