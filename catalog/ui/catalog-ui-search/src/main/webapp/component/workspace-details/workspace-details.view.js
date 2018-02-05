@@ -47,7 +47,7 @@ define([
         },
         serializeData: function() {
             var workspacesJSON = this.model.toJSON();
-            workspacesJSON.niceDate = moment(workspacesJSON.modified).fromNow();
+            workspacesJSON.niceDate = moment(workspacesJSON['metacard.modified']).fromNow();
             workspacesJSON.owner = workspacesJSON['metacard.owner'] || 'Guest';
             return workspacesJSON;
         },
