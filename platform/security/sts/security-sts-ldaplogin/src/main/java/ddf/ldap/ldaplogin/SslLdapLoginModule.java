@@ -179,7 +179,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     try {
       connection = ldapConnectionPool.borrowObject();
     } catch (Exception e) {
-      LOGGER.error("Unable to obtain ldap connection from pool", e);
+      LOGGER.info("Unable to obtain ldap connection from pool", e);
       return false;
     }
     try {
