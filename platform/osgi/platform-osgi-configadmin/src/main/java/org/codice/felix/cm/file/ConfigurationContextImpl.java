@@ -15,6 +15,7 @@ package org.codice.felix.cm.file;
 
 import static java.lang.String.format;
 import static org.osgi.framework.Constants.SERVICE_PID;
+import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_BUNDLELOCATION;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import java.io.File;
@@ -68,6 +69,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
           Arrays.asList(
               SERVICE_PID,
               SERVICE_FACTORYPID,
+              SERVICE_BUNDLELOCATION,
               FELIX_FILENAME,
               FELIX_NEW_CONFIG,
               SERVICE_FACTORY_PIDLIST));
