@@ -734,13 +734,14 @@ public class IdpEndpoint implements Idp, SessionHandler {
             .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie, template);
       } else {
         LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
-        Document doc = DOMUtils.createDocument();
-        doc.appendChild(doc.createElement("root"));
-        String authn = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(authnRequest, doc, false));
-        String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
         responseMap.put(PKI, hasCerts);
         responseMap.put(GUEST, guestAccess);
-        responseMap.put(SAML_REQ, encodedAuthn);
+        // Using the ORIGINAL request
+        // SAML Spec: "The relying party MUST therefore perform the verification step using the
+        // original URL-encoded values it received on the query string. It is not sufficient to
+        // re-encode the parameters after they have been processed by software because the resulting
+        // encoding may not match the signer's encoding".
+        responseMap.put(SAML_REQ, samlRequest);
         responseMap.put(RELAY_STATE, relayState);
         String assertionConsumerServiceURL =
             binding.creator().getAssertionConsumerServiceURL(authnRequest);
@@ -839,19 +840,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       if (!request.isSecure()) {
         throw new IllegalArgumentException(AUTHN_REQUEST_MUST_USE_TLS);
       }
-      // the authn request is always encoded as if it came in via redirect when coming from the web
-      // app
-      Binding redirectBinding =
-          new RedirectBinding(
-              systemCrypto,
-              getServiceProvidersMap(),
-              getPresignPlugins(),
-              spMetadata,
-              SUPPORTED_BINDINGS);
-      AuthnRequest authnRequest = redirectBinding.decoder().decodeRequest(samlRequest);
-      String assertionConsumerServiceBinding =
-          ResponseCreator.getAssertionConsumerServiceBinding(
-              authnRequest, getServiceProvidersMap());
       if (HTTP_POST_BINDING.equals(originalBinding)) {
         binding =
             new PostBinding(
@@ -862,12 +850,20 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 SUPPORTED_BINDINGS);
         template = submitForm;
       } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
-        binding = redirectBinding;
+        binding =
+            new RedirectBinding(
+                systemCrypto,
+                getServiceProvidersMap(),
+                getPresignPlugins(),
+                spMetadata,
+                SUPPORTED_BINDINGS);
         template = redirectPage;
       } else {
         throw new IdpException(
             new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
       }
+
+      AuthnRequest authnRequest = binding.decoder().decodeRequest(samlRequest);
       binding
           .validator()
           .validateAuthnRequest(
@@ -878,6 +874,9 @@ public class IdpEndpoint implements Idp, SessionHandler {
               signature,
               strictSignature);
 
+      String assertionConsumerServiceBinding =
+          ResponseCreator.getAssertionConsumerServiceBinding(
+              authnRequest, getServiceProvidersMap());
       if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)
           && !(binding instanceof PostBinding)) {
         binding =

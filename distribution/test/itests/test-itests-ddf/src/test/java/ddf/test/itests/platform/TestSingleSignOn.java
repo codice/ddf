@@ -44,6 +44,8 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -310,9 +312,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // @formatter:on
   }
 
-  private ResponseHelper performHttpRequestUsingBinding(Binding binding, String relayState)
-      throws Exception {
-
+  private String setupHttpRequestUsingBinding(Binding binding) throws Exception {
     // Signing is tested in the unit tests, so we don't require signing here to make things simpler
     setConfig("org.codice.ddf.security.idp.server.IdpEndpoint", "strictSignature", false);
 
@@ -335,8 +335,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             binding.toString(),
             AUTHENTICATION_REQUEST_ISSUER);
     validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);
+    return mockAuthnRequest;
+  }
 
-    String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
+  private ResponseHelper performHttpRequestUsingBinding(
+      Binding binding, String relayState, String encodedRequest) throws Exception {
     // @formatter:off
     Response idpResponse =
         given()
@@ -362,7 +365,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   @Test
   public void testRedirectBinding() throws Exception {
     String relayState = "test";
-    ResponseHelper helper = performHttpRequestUsingBinding(Binding.REDIRECT, relayState);
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT);
+    String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
+    ResponseHelper helper =
+        performHttpRequestUsingBinding(Binding.REDIRECT, relayState, encodedRequest);
 
     assertThat(helper.parseBody(), is(Binding.REDIRECT));
     assertThat(helper.get("RelayState"), is(relayState));
@@ -376,7 +382,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // We should get back a POST form that has everything we put in, thus the only thing
     // of interest to really check is that we do get back a post form
-    ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test");
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.POST);
+    String encodedRequest =
+        Base64.getEncoder()
+            .encodeToString(mockAuthnRequest.getBytes(StandardCharsets.UTF_8.name()));
+    ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test", encodedRequest);
     assertThat(helper.parseBody(), is(Binding.POST));
   }
 
