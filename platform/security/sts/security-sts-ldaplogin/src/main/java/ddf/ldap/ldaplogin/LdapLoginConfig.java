@@ -44,7 +44,6 @@ import org.apache.karaf.jaas.config.impl.Module;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LDAPUrl;
-import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.util.Options;
 import org.forgerock.util.time.Duration;
 import org.osgi.framework.BundleContext;
@@ -121,21 +120,17 @@ public class LdapLoginConfig {
       if (ldapConnectionPool != null) {
         ldapConnectionPool.close();
       }
-      try {
-        LDAPConnectionFactory ldapConnectionFactory =
-            createLdapConnectionFactory(
-                (String) ldapProperties.get(LDAP_URL),
-                Boolean.parseBoolean((String) ldapProperties.get(START_TLS)));
 
-        ldapConnectionPool =
-            new GenericObjectPool<>(
-                new LdapConnectionPooledObjectFactory(ldapConnectionFactory),
-                createGenericPoolConfig(id),
-                createGenericPoolAbandonConfig());
+      LDAPConnectionFactory ldapConnectionFactory =
+          createLdapConnectionFactory(
+              (String) ldapProperties.get(LDAP_URL),
+              Boolean.parseBoolean((String) ldapProperties.get(START_TLS)));
 
-      } catch (LdapException e) {
-        LOGGER.error("Error creating ldap connection factory", e);
-      }
+      ldapConnectionPool =
+          new GenericObjectPool<>(
+              new LdapConnectionPooledObjectFactory(ldapConnectionFactory),
+              createGenericPoolConfig(id),
+              createGenericPoolAbandonConfig());
 
       // TODO Switch to DictionaryMap.java
       Dictionary<String, String> serviceProps = new Hashtable<>();
@@ -145,6 +140,7 @@ public class LdapLoginConfig {
       connectionPoolServiceRegistration =
           context.registerService(
               GenericObjectPool.class.getName(), ldapConnectionPool, serviceProps);
+
       // create modules from the newly updated config
       Module ldapModule = createLdapModule(props);
       ldapService.update(ldapModule);
@@ -168,8 +164,7 @@ public class LdapLoginConfig {
     return config;
   }
 
-  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
-      throws LdapException {
+  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls) {
     boolean useSsl = url.startsWith("ldaps");
     boolean useTls = !url.startsWith("ldaps") && startTls;
 
@@ -359,6 +354,7 @@ public class LdapLoginConfig {
     return sslContext;
   }
 
+  @SuppressWarnings("squid:S1172")
   public void destroy(int arg) {
     LOGGER.trace("configure called - calling delete");
     ldapService.delete(id);

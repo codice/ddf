@@ -64,6 +64,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   public static final String CONNECTION_USERNAME = "connection.username";
 
+  @SuppressWarnings("squid:S2068")
   public static final String CONNECTION_PASSWORD = "connection.password";
 
   public static final String USER_BASE_DN = "user.base.dn";
