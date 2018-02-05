@@ -31,17 +31,15 @@ import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.util.function.ThrowingRunnable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProfileMigrationReport implements MigrationReport {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProfileMigrationReport.class);
+
   private static final String ATTEMPTS_SUFFIX = " attempt)";
 
   private final MigrationReport report;
-
-  /**
-   * Keeps track of the number of times a particular operation was attempted on a particular app.
-   */
-  private final Map<Operation, Map<String, AtomicInteger>> appsAttempts =
-      new EnumMap<>(Operation.class);
 
   /**
    * Keeps track of the number of times a particular operation was attempted on a particular
@@ -148,34 +146,15 @@ public class ProfileMigrationReport implements MigrationReport {
       return record(e);
     } // else - suppressed it
     this.suppressedErrors = true;
+    LOGGER.debug("Suppressed error: ", e);
     return this;
   }
 
   /**
-   * Gets a trace string representing the number of attempts for the given application and
-   * operation.
+   * Gets a trace string representing the number of attempts for a given feature operation.
    *
    * @param op the operation for which to get an attempt trace string
-   * @param name the name of the application for which to get an attempt trace string
-   * @return the corresponding attempt trace string
-   */
-  public String getApplicationAttemptString(Operation op, String name) {
-    final int attempt =
-        appsAttempts
-            .computeIfAbsent(op, o -> new HashMap<>())
-            .computeIfAbsent(name, n -> new AtomicInteger(0))
-            .incrementAndGet();
-
-    return (attempt > 1)
-        ? " (" + ProfileMigrationReport.ordinal(attempt) + ProfileMigrationReport.ATTEMPTS_SUFFIX
-        : "";
-  }
-
-  /**
-   * Gets a trace string representing the number of attempts for the given feature and operation.
-   *
-   * @param op the operation for which to get an attempt trace string
-   * @param id the id of the feature for which to get an attempt trace string
+   * @param id the attempt id for which to get an attempt trace string
    * @return the corresponding attempt trace string
    */
   public String getFeatureAttemptString(Operation op, String id) {
@@ -191,17 +170,17 @@ public class ProfileMigrationReport implements MigrationReport {
   }
 
   /**
-   * Gets a trace string representing the number of attempts for the given bundle and operation.
+   * Gets a trace string representing the number of attempts for a given bundle operation.
    *
    * @param op the operation for which to get an attempt trace string
-   * @param name the name & version of the bundle for which to get an attempt trace string
+   * @param id the attempt id for which to get an attempt trace string
    * @return the corresponding attempt trace string
    */
-  public String getBundleAttemptString(Operation op, String name) {
+  public String getBundleAttemptString(Operation op, String id) {
     final int attempt =
         bundlesAttempts
             .computeIfAbsent(op, o -> new HashMap<>())
-            .computeIfAbsent(name, n -> new AtomicInteger(0))
+            .computeIfAbsent(id, n -> new AtomicInteger(0))
             .incrementAndGet();
 
     return (attempt > 1)

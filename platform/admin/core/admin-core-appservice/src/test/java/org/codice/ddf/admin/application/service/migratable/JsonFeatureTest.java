@@ -36,6 +36,8 @@ public class JsonFeatureTest {
 
   private static final FeatureState STATE = FeatureState.Installed;
 
+  private static final boolean REQUIRED = true;
+
   private static final String REGION = "test.region";
 
   private static final String REPOSITORY = "test.repo";
@@ -43,9 +45,21 @@ public class JsonFeatureTest {
   private static final int START = 55;
 
   private final JsonFeature jfeature =
-      new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+      new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
   @Rule public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void testToRequirementWithFeature() throws Exception {
+    final Feature feature = Mockito.mock(Feature.class);
+
+    Mockito.doReturn(NAME).when(feature).getName();
+    Mockito.doReturn(VERSION).when(feature).getVersion();
+
+    Assert.assertThat(
+        JsonFeature.toRequirement(feature),
+        Matchers.equalTo("feature:" + NAME + "/[" + VERSION + "," + VERSION + "]"));
+  }
 
   @Test
   public void testConstructor() throws Exception {
@@ -54,6 +68,7 @@ public class JsonFeatureTest {
     Assert.assertThat(jfeature.getVersion(), Matchers.equalTo(VERSION));
     Assert.assertThat(jfeature.getDescription(), Matchers.equalTo(DESCRIPTION));
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.equalTo(REPOSITORY));
     Assert.assertThat(jfeature.getStartLevel(), Matchers.equalTo(START));
@@ -62,13 +77,14 @@ public class JsonFeatureTest {
   @Test
   public void testConstructorWithOptionalVersion() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, null, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, null, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.getName(), Matchers.equalTo(NAME));
     Assert.assertThat(jfeature.getId(), Matchers.equalTo(ID));
     Assert.assertThat(jfeature.getVersion(), Matchers.nullValue());
     Assert.assertThat(jfeature.getDescription(), Matchers.equalTo(DESCRIPTION));
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.equalTo(REPOSITORY));
     Assert.assertThat(jfeature.getStartLevel(), Matchers.equalTo(START));
@@ -77,13 +93,14 @@ public class JsonFeatureTest {
   @Test
   public void testConstructorWithOptionalDescription() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, null, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, null, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.getName(), Matchers.equalTo(NAME));
     Assert.assertThat(jfeature.getId(), Matchers.equalTo(ID));
     Assert.assertThat(jfeature.getVersion(), Matchers.equalTo(VERSION));
     Assert.assertThat(jfeature.getDescription(), Matchers.nullValue());
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.equalTo(REPOSITORY));
     Assert.assertThat(jfeature.getStartLevel(), Matchers.equalTo(START));
@@ -92,12 +109,13 @@ public class JsonFeatureTest {
   @Test
   public void testConstructorWithOptionalRegion() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, null, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, null, REPOSITORY, START);
 
     Assert.assertThat(jfeature.getName(), Matchers.equalTo(NAME));
     Assert.assertThat(jfeature.getId(), Matchers.equalTo(ID));
     Assert.assertThat(jfeature.getVersion(), Matchers.equalTo(VERSION));
     Assert.assertThat(jfeature.getDescription(), Matchers.equalTo(DESCRIPTION));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(FeaturesService.ROOT_REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.equalTo(REPOSITORY));
@@ -107,13 +125,14 @@ public class JsonFeatureTest {
   @Test
   public void testConstructorWithOptionalRepository() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, null, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, null, START);
 
     Assert.assertThat(jfeature.getName(), Matchers.equalTo(NAME));
     Assert.assertThat(jfeature.getId(), Matchers.equalTo(ID));
     Assert.assertThat(jfeature.getVersion(), Matchers.equalTo(VERSION));
     Assert.assertThat(jfeature.getDescription(), Matchers.equalTo(DESCRIPTION));
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.nullValue());
     Assert.assertThat(jfeature.getStartLevel(), Matchers.equalTo(START));
@@ -124,7 +143,7 @@ public class JsonFeatureTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null name"));
 
-    new JsonFeature(null, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+    new JsonFeature(null, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
   }
 
   @Test
@@ -132,7 +151,7 @@ public class JsonFeatureTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null id"));
 
-    new JsonFeature(NAME, null, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+    new JsonFeature(NAME, null, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
   }
 
   @Test
@@ -140,7 +159,7 @@ public class JsonFeatureTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null state"));
 
-    new JsonFeature(NAME, ID, VERSION, DESCRIPTION, null, REGION, REPOSITORY, START);
+    new JsonFeature(NAME, ID, VERSION, DESCRIPTION, null, REQUIRED, REGION, REPOSITORY, START);
   }
 
   @Test
@@ -154,6 +173,7 @@ public class JsonFeatureTest {
     Mockito.when(feature.getDescription()).thenReturn(DESCRIPTION);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY);
     Mockito.when(featuresService.getState(ID)).thenReturn(STATE);
+    Mockito.when(featuresService.isRequired(feature)).thenReturn(REQUIRED);
     Mockito.when(feature.getStartLevel()).thenReturn(START);
 
     final JsonFeature jfeature = new JsonFeature(feature, featuresService);
@@ -163,6 +183,7 @@ public class JsonFeatureTest {
     Assert.assertThat(jfeature.getVersion(), Matchers.equalTo(VERSION));
     Assert.assertThat(jfeature.getDescription(), Matchers.equalTo(DESCRIPTION));
     Assert.assertThat(jfeature.getState(), Matchers.equalTo(STATE));
+    Assert.assertThat(jfeature.isRequired(), Matchers.equalTo(REQUIRED));
     Assert.assertThat(jfeature.getRegion(), Matchers.equalTo(FeaturesService.ROOT_REGION));
     Assert.assertThat(jfeature.getRepository(), Matchers.equalTo(REPOSITORY));
     Assert.assertThat(jfeature.getStartLevel(), Matchers.equalTo(START));
@@ -183,9 +204,16 @@ public class JsonFeatureTest {
   }
 
   @Test
+  public void testToRequirement() throws Exception {
+    Assert.assertThat(
+        jfeature.toRequirement(),
+        Matchers.equalTo("feature:" + NAME + "/[" + VERSION + "," + VERSION + "]"));
+  }
+
+  @Test
   public void testHashCodeWhenEquals() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.hashCode(), Matchers.equalTo(jfeature2.hashCode()));
   }
@@ -193,7 +221,8 @@ public class JsonFeatureTest {
   @Test
   public void testHashCodeWhenDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID + "2", VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID + "2", VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.hashCode(), Matchers.not(Matchers.equalTo(jfeature2.hashCode())));
   }
@@ -201,13 +230,13 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenEquals() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.equalTo(true));
   }
 
   @Test
-  public void testEqualsWhenidentical() throws Exception {
+  public void testEqualsWhenIdentical() throws Exception {
     Assert.assertThat(jfeature.equals(jfeature), Matchers.equalTo(true));
   }
 
@@ -227,7 +256,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenNamesAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME + "2", ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME + "2", ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -235,7 +265,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenIdsAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID + "2", VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID + "2", VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -243,7 +274,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenVersionsAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION + "2", DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION + "2", DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -251,7 +283,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenDescriptionsAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION + "2", STATE, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, DESCRIPTION + "2", STATE, REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -260,7 +293,24 @@ public class JsonFeatureTest {
   public void testEqualsWhenStatesAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
         new JsonFeature(
-            NAME, ID, VERSION, DESCRIPTION, FeatureState.Uninstalled, REGION, REPOSITORY, START);
+            NAME,
+            ID,
+            VERSION,
+            DESCRIPTION,
+            FeatureState.Uninstalled,
+            REQUIRED,
+            REGION,
+            REPOSITORY,
+            START);
+
+    Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
+  }
+
+  @Test
+  public void testEqualsWhenRequiredAreDifferent() throws Exception {
+    final JsonFeature jfeature2 =
+        new JsonFeature(
+            NAME, ID, VERSION, DESCRIPTION, STATE, !REQUIRED, REGION, REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -268,7 +318,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenRegionsAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION + "2", REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION + "2", REPOSITORY, START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -276,7 +327,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenRepositoriesAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY + "2", START);
+        new JsonFeature(
+            NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY + "2", START);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -284,7 +336,8 @@ public class JsonFeatureTest {
   @Test
   public void testEqualsWhenStartLevelsAreDifferent() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, REPOSITORY, START + 2);
+        new JsonFeature(
+            NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START + 2);
 
     Assert.assertThat(jfeature.equals(jfeature2), Matchers.not(Matchers.equalTo(true)));
   }
@@ -308,6 +361,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",
@@ -333,6 +388,8 @@ public class JsonFeatureTest {
                 DESCRIPTION,
                 "state",
                 STATE,
+                "required",
+                REQUIRED,
                 "region",
                 REGION,
                 "repository",
@@ -358,6 +415,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",
@@ -382,6 +441,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",
@@ -394,7 +455,7 @@ public class JsonFeatureTest {
   @Test
   public void testJsonDeserializationWhenVersionIsMissing() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, null, DESCRIPTION, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, null, DESCRIPTION, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -406,6 +467,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",
@@ -419,7 +482,7 @@ public class JsonFeatureTest {
   @Test
   public void testJsonDeserializationWhenDescriptionIsMissing() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, null, STATE, REGION, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, null, STATE, REQUIRED, REGION, REPOSITORY, START);
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -431,6 +494,8 @@ public class JsonFeatureTest {
             VERSION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",
@@ -456,6 +521,33 @@ public class JsonFeatureTest {
             VERSION,
             "description",
             DESCRIPTION,
+            "required",
+            REQUIRED,
+            "region",
+            REGION,
+            "repository",
+            REPOSITORY,
+            "startLevel",
+            START),
+        JsonFeature.class);
+  }
+
+  public void testJsonDeserializationWhenRequiredIsMissing() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("missing feature required flag"));
+
+    JsonUtils.fromJson(
+        JsonSupport.toJsonString(
+            "name",
+            NAME,
+            "id",
+            ID,
+            "version",
+            VERSION,
+            "description",
+            DESCRIPTION,
+            "state",
+            STATE,
             "region",
             REGION,
             "repository",
@@ -468,7 +560,7 @@ public class JsonFeatureTest {
   @Test
   public void testJsonDeserializationWhenRegionIsMissing() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, null, REPOSITORY, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, null, REPOSITORY, START);
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -482,6 +574,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "repository",
             REPOSITORY,
             "startLevel",
@@ -493,7 +587,7 @@ public class JsonFeatureTest {
   @Test
   public void testJsonDeserializationWhenRepositoryIsMissing() throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, null, START);
+        new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, REGION, null, START);
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -507,6 +601,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "startLevel",
@@ -532,6 +628,8 @@ public class JsonFeatureTest {
             DESCRIPTION,
             "state",
             STATE,
+            "required",
+            REQUIRED,
             "region",
             REGION,
             "repository",

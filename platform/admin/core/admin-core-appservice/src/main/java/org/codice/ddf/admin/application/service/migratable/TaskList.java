@@ -14,14 +14,19 @@
 package org.codice.ddf.admin.application.service.migratable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
@@ -32,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * installing, uninstalling, starting, or stopping an application, a feature, or a bundle for
  * example.
  *
- * <p><i>Note:</i> Order of execution for recorded tasks will always be in the order: installing,
- * starting, stopping, and uninstalling. If tasks are recorded in one of the group then the other
+ * <p><i>Note:</i> Order of execution for recorded tasks will always be in the order determined by
+ * the {@link Operation} enumeration. If tasks are recorded in one of the group then the other
  * groups will be skipped and the client will be notified that the tasks should be recomputed. The
  * only way a group can be executed is if the previous group in the order is empty to start with.
  * This approach is adopted to verify that the execution of tasks in one group doesn't affect the
@@ -46,19 +51,22 @@ public class TaskList {
   private static final Logger LOGGER = LoggerFactory.getLogger(TaskList.class);
 
   /**
-   * Holds all group of tasks grouped per operation. The key in the group of tasks will be some
+   * Holds all groups of tasks grouped per operation. The key in the group of tasks will be some
    * unique identifier for each task to prevent duplication.
    */
   private final Map<Operation, Map<String, Predicate<ProfileMigrationReport>>> groups =
       new EnumMap<>(Operation.class);
+
+  /** Holds all groups of compound info grouped per operation. */
+  private final Map<Operation, CompoundTask<?>> compoundGroups = new EnumMap<>(Operation.class);
 
   /**
    * Holds attempts counters for each operations.
    *
    * <p>The counters stored here will start at the defined retry counter and once they reached 0,
    * the maximum attempts on the corresponding operation will have been reached and we shall stop
-   * executing a particular group/operation of tasks for a given type of entities (i.e. apps,
-   * features, or bundles).
+   * executing a particular group/operation of tasks for a given type of entities (i.e. features or
+   * bundles).
    */
   private final Map<Operation, AtomicInteger> attemptsLeft = new EnumMap<>(Operation.class);
 
@@ -80,7 +88,7 @@ public class TaskList {
     this.type = type;
     this.report = report;
     for (final Operation op : Operation.values()) {
-      attemptsLeft.put(op, new AtomicInteger(ProfileMigratable.RETRY_COUNT));
+      attemptsLeft.put(op, new AtomicInteger(ProfileMigratable.ATTEMPT_COUNT));
     }
   }
 
@@ -88,6 +96,10 @@ public class TaskList {
    * Adds a task to be executed for a specific operation. The task will be provided with a profile
    * migration report where to record messages. It should return <code>true</code> if the task was
    * successful or <code>false</code> if not.
+   *
+   * <p><i>Note:</i> Compound tasks can still be added while executing normal tasks. However, only
+   * compound tasks registered for the same operation will actually get executed after all normal
+   * tasks for that operation are completed successfully.
    *
    * @param op the operation for which to record the task
    * @param id a unique identifier for the task (e.g. feature name)
@@ -107,16 +119,46 @@ public class TaskList {
   }
 
   /**
-   * Increases the number of attempts left for the specified operation
+   * Adds a new or retrieves an already registered compound task to be executed for a specific
+   * operation. This method expects to be called consistently for each subtasks of a given operation
+   * as the container and the compound task will only be created and registered the first time this
+   * method is called. The returned {@link CompoundTask} object provides a way for the client to add
+   * subtask information to the container that will later be provided to the registered compound
+   * task when it is executed.
    *
-   * @param op the operation to increase the number of attempts for
-   * @throws IllegalArgumentException if <code>op</code> is <code>null</code>
+   * <p><i>Note:</i> It is recommended to call this method for a given operation in one single place
+   * in your code to ensure consistency of the container type and the compound task for each
+   * subtasks being added.
+   *
+   * <p>
+   *
+   * <pre><code>
+   *   private final TaskList tasks = new TaskList();
+   *   ...
+   *   tasks.addIfAbsent(
+   *     Operation.INSTALL,
+   *     HashSet<MyObjectClass>::new,
+   *     (objects, r) -> [do something with the accumulated objects]
+   *   ).add(name, objects -> objects.add(obj));
+   * </code></pre>
+   *
+   * @param <T> the type of the container used to accumulate recorded subtasks
+   * @param op the operation for which to record the subtask
+   * @param containerFactory a supplier which returns a new, empty container object (only called the
+   *     first time this method is called)
+   * @param task the compound task to add for later execution (the task will only be registered the
+   *     first time this method is called for a given operation)
+   * @throws IllegalArgumentException if <code>op</code>, <code>containerFactory</code>, or <code>
+   *     task</code>, is <code>null</code>
    */
-  public void increaseAttemptsFor(Operation op) {
+  public <T> CompoundTask<T> addIfAbsent(
+      Operation op, Supplier<T> containerFactory, BiPredicate<T, ProfileMigrationReport> task) {
     Validate.notNull(op, "invalid null operation");
-    final int n = attemptsLeft.get(op).updateAndGet(a -> (a <= 0) ? 1 : ++a);
-
-    LOGGER.debug("increasing {} task attempts left for {}s to: {}", op, type, n);
+    Validate.notNull(containerFactory, "invalid null container factory");
+    Validate.notNull(task, "invalid null task");
+    return (CompoundTask<T>)
+        compoundGroups.computeIfAbsent(
+            op, o -> new CompoundTask<>(op, task, containerFactory.get()));
   }
 
   /**
@@ -126,7 +168,7 @@ public class TaskList {
    *     least one was registered
    */
   public boolean isEmpty() {
-    return groups.isEmpty();
+    return groups.isEmpty() && compoundGroups.values().stream().allMatch(CompoundTask::isEmpty);
   }
 
   /**
@@ -137,7 +179,7 @@ public class TaskList {
    */
   public Optional<Operation> getOperation() {
     return Stream.of(Operation.values()) // search based on defined operation order
-        .filter(groups::containsKey)
+        .filter(this::isNotEmpty)
         .findFirst();
   }
 
@@ -150,10 +192,8 @@ public class TaskList {
    * @return <code>true</code> if all tasks in the first available operation group were successful;
    *     <code>false</code> otherwise or if we have exceeded the maximum number of attempts for the
    *     first available operation
-   * @throws IllegalArgumentException if <code>report</code> is <code>null</code>
    */
   public boolean execute() {
-    Validate.notNull(report, "invalid null report");
     LOGGER.debug("Executing {}s import", type);
     final Operation op = getOperation().orElse(null);
 
@@ -168,32 +208,53 @@ public class TaskList {
               e ->
                   LOGGER.debug(
                       "{} tasks recorded for {}s: {}", e.getKey(), type, e.getValue().keySet()));
+      compoundGroups
+          .entrySet()
+          .forEach(
+              e ->
+                  LOGGER.debug(
+                      "{} compound tasks recorded for {}s: {}", e.getKey(), type, e.getValue()));
     }
+    final String opName = op.name().toLowerCase(Locale.getDefault());
     final int n = attemptsLeft.get(op).getAndDecrement();
 
     if (n <= 0) { // too many attempts for this operation already, fail!
-      LOGGER.debug("No more {} tasks attempts left for {}s", op, type);
+      LOGGER.debug("No more {} tasks attempts left for {}s", opName, type);
       report.recordOnFinalAttempt(
-          new MigrationException(
-              "Import error: too many %ss %s attempts",
-              type, op.name().toLowerCase(Locale.getDefault())));
+          new MigrationException("Import error: too many %ss %s attempts", type, opName));
       return false;
     }
-    LOGGER.debug("{} tasks attempts left for {}s: {}", op, type, n);
+    LOGGER.debug("{} tasks attempts left for {}s: {}", opName, type, n);
     final Map<String, Predicate<ProfileMigrationReport>> tasks = groups.get(op);
 
-    // clear all other tasks since we only want to execute the first group each time we fill the
-    // list to ensure we re-compute based on whatever would have changed as a result of executing
-    // the tasks for a group
-    groups.clear();
-    // tasks map cannot be null by design since we do not store null in groups
-    return tasks
-        .entrySet()
-        .stream()
-        .peek(e -> LOGGER.debug("Executing {} task for {} '{}'", op, type, e.getKey()))
-        .map(Map.Entry::getValue)
-        .map(t -> t.test(report)) // execute each tasks in the first group found
-        .reduce(true, (a, b) -> a && b); // 'and' all tasks' results
+    try {
+      boolean result = true; // until proven otherwise
+
+      if (tasks != null) {
+        Stream<Map.Entry<String, Predicate<ProfileMigrationReport>>> s = tasks.entrySet().stream();
+
+        if (LOGGER.isDebugEnabled()) {
+          s = s.peek(e -> LOGGER.debug("Executing {} task for {} '{}'", opName, type, e.getKey()));
+        }
+        result &=
+            s.map(Map.Entry::getValue)
+                .map(t -> t.test(report)) // execute each tasks in the first group found
+                .reduce(true, (a, b) -> a && b); // 'and' all tasks' results
+      }
+      final CompoundTask<?> compoundTask = compoundGroups.get(op);
+
+      if (compoundTask != null) {
+        LOGGER.debug("Executing {} compound task for {}s", opName, type);
+        result &= compoundTask.test(report);
+      }
+      return result;
+    } finally {
+      // clear all other tasks since we only want to execute the first group each time we fill the
+      // list to ensure we re-compute based on whatever would have changed as a result of executing
+      // the tasks for a group
+      groups.clear();
+      compoundGroups.clear();
+    }
   }
 
   @VisibleForTesting
@@ -209,5 +270,107 @@ public class TaskList {
   @VisibleForTesting
   Map<Operation, Map<String, Predicate<ProfileMigrationReport>>> getTasks() {
     return groups;
+  }
+
+  @SuppressWarnings("squid:S1452" /* Using wildcards to simplify testing */)
+  @VisibleForTesting
+  @Nullable
+  Map<Operation, CompoundTask<?>> getCompoundTasks() {
+    return compoundGroups;
+  }
+
+  private boolean isNotEmpty(Operation op) {
+    if (groups.containsKey(op)) {
+      return true;
+    }
+    final CompoundTask<?> compoundTask = compoundGroups.get(op);
+
+    return (compoundTask != null) && !compoundTask.isEmpty();
+  }
+
+  /**
+   * This class represents a given compound task where subtasks can be registered for later
+   * execution.
+   *
+   * @param <T> the type of container used to collect subtasks data.
+   */
+  public class CompoundTask<T> {
+    private final Operation operation;
+    private final BiPredicate<T, ProfileMigrationReport> task;
+    private final T container;
+    private volatile int size;
+
+    private CompoundTask(Operation op, BiPredicate<T, ProfileMigrationReport> task, T container) {
+      this(op, task, container, 0);
+    }
+
+    @VisibleForTesting
+    CompoundTask(Operation op, BiPredicate<T, ProfileMigrationReport> task, T container, int size) {
+      this.operation = op;
+      this.task = task;
+      this.container = container;
+      this.size = size;
+    }
+
+    /**
+     * Adds a subtask to be executed by the corresponding compound task.
+     *
+     * <p><i>Note:</i> The provided accumulator is called back with the registered container so data
+     * specific to the subtask can be added.
+     *
+     * @param id a unique identifier for the subtask (e.g. feature name)
+     * @param accumulator a consumer capable of accumulating data related to this particular subtask
+     *     in the provided container for later execution by the compound task; it will receive the
+     *     container
+     * @return this for chaining
+     * @throws IllegalArgumentException if <code>id</code> or <code>accumulator</code> is <code>null
+     *     </code>
+     */
+    public CompoundTask<T> add(String id, Consumer<T> accumulator) {
+      Validate.notNull(id, "invalid null subtask id");
+      Validate.notNull(accumulator, "invalid null accumulator");
+      LOGGER.debug("Recording {} subtask for {} '{}'", operation, type, id);
+      report.recordTask();
+      accumulator.accept(container);
+      size++;
+      return this;
+    }
+
+    public boolean isEmpty() {
+      return size == 0;
+    }
+
+    public int size() {
+      return size;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(size, operation, task, container);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      } else if (obj instanceof CompoundTask) {
+        final CompoundTask<T> ctask = (CompoundTask<T>) obj;
+
+        return ((size == ctask.size)
+            && operation.equals(ctask.operation)
+            && task.equals(ctask.task)
+            && container.equals(ctask.container));
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return container.toString();
+    }
+
+    private boolean test(ProfileMigrationReport report) {
+      return task.test(container, report);
+    }
   }
 }

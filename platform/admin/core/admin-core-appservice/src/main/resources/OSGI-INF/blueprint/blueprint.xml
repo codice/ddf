@@ -66,17 +66,6 @@
                     interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
                     availability="optional"/>
 
-    <bean id="appProcessor"
-          class="org.codice.ddf.admin.application.service.migratable.ApplicationProcessor">
-        <argument ref="appService"/>
-    </bean>
-
-    <bean id="appMigrator"
-          class="org.codice.ddf.admin.application.service.migratable.ApplicationMigrator">
-        <argument ref="appService"/>
-        <argument ref="appProcessor"/>
-    </bean>
-
     <bean id="featureProcessor"
           class="org.codice.ddf.admin.application.service.migratable.FeatureProcessor">
         <argument ref="featuresService"/>
@@ -98,7 +87,6 @@
 
     <bean id="profileMigratable"
           class="org.codice.ddf.admin.application.service.migratable.ProfileMigratable">
-        <argument ref="appMigrator"/>
         <argument ref="featureMigrator"/>
         <argument ref="bundleMigrator"/>
     </bean>

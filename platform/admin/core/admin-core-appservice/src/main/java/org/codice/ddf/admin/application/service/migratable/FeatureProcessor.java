@@ -15,8 +15,12 @@ package org.codice.ddf.admin.application.service.migratable;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
@@ -26,6 +30,7 @@ import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.util.function.ThrowingConsumer;
+import org.codice.ddf.util.function.ThrowingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +101,13 @@ public class FeatureProcessor {
         LOGGER.debug(
             "Memory features: {}",
             Stream.of(features)
-                .map(f -> f.toString() + " [" + f.getStartLevel() + "]")
+                .map(
+                    f ->
+                        String.format(
+                            "%s (%s/%s)",
+                            f,
+                            service.getState(f.getId()),
+                            (service.isRequired(f) ? "required" : "not required")))
                 .collect(java.util.stream.Collectors.joining(", ")));
       }
       return features;
@@ -106,35 +117,145 @@ public class FeatureProcessor {
   }
 
   /**
-   * Installs the specified feature.
+   * Installs the specified set of features.
    *
-   * @param report the report where to record errors if unable to install the feature
-   * @param feature the feature to install
-   * @return <code>true</code> if the feature was installed successfully; <code>false</code>
+   * @param report the report where to record errors if unable to install the features
+   * @param jfeatures the features to install keyed by the region they should be installed in
+   * @return <code>true</code> if the features were installed successfully; <code>false</code>
    *     otherwise
    */
-  public boolean installFeature(ProfileMigrationReport report, Feature feature) {
-    return run(
-        report,
-        feature,
-        Operation.INSTALL,
-        id -> service.installFeature(id, FeatureProcessor.NO_AUTO_REFRESH));
+  public boolean installFeatures(
+      ProfileMigrationReport report, Map<String, Set<JsonFeature>> jfeatures) {
+    return jfeatures
+        .entrySet()
+        .stream()
+        .allMatch(e -> installFeatures(report, e.getKey(), e.getValue()));
   }
 
   /**
-   * Uninstalls the specified feature.
+   * Installs the specified set of features in the specified region.
    *
-   * @param report the report where to record errors if unable to uninstall the feature
-   * @param feature the feature to uninstall
-   * @return <code>true</code> if the feature was uninstalled successfully; <code>false</code>
+   * @param report the report where to record errors if unable to install the features
+   * @param region the region where to install the features
+   * @param jfeatures the features to install
+   * @return <code>true</code> if the features were installed successfully; <code>false</code>
    *     otherwise
    */
-  public boolean uninstallFeature(ProfileMigrationReport report, Feature feature) {
+  public boolean installFeatures(
+      ProfileMigrationReport report, String region, Set<JsonFeature> jfeatures) {
+    final Set<String> ids = jfeatures.stream().map(JsonFeature::getId).collect(Collectors.toSet());
+
     return run(
         report,
-        feature,
+        region,
+        ids.stream(),
+        Operation.INSTALL,
+        () -> service.installFeatures(ids, region, FeatureProcessor.NO_AUTO_REFRESH));
+  }
+
+  /**
+   * Uninstalls the specified set of features.
+   *
+   * @param report the report where to record errors if unable to uninstall the features
+   * @param features the features to install keyed by the region they should be uninstalled in
+   * @return <code>true</code> if the features were uninstalled successfully; <code>false</code>
+   *     otherwise
+   */
+  public boolean uninstallFeatures(
+      ProfileMigrationReport report, Map<String, Set<Feature>> features) {
+    return features
+        .entrySet()
+        .stream()
+        .allMatch(e -> uninstallFeatures(report, e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Uninstalls the specified set of features in the specified region.
+   *
+   * @param report the report where to record errors if unable to uninstall the features
+   * @param region the region where to uninstall the features
+   * @param features the features to uninstall
+   * @return <code>true</code> if the features were uninstalled successfully; <code>false</code>
+   *     otherwise
+   */
+  public boolean uninstallFeatures(
+      ProfileMigrationReport report, String region, Set<Feature> features) {
+    // ----------------------------------------------------------------------------------------
+    // to work around a bug in Karaf where for whatever reasons, it checks if a feature is
+    // required to determine if it is installed and therefore can be uninstalled, we will first
+    // go through and mark them all required
+    //
+    // see Karaf class: org.apache.karaf.features.internal.service.FeaturesServiceImpl.java
+    // in the uninstallFeature() method where it checks the requirements table and if not found
+    // in there, it later reports it is not installed even though it is actually installed
+    //
+    // Update: turns out that what Karaf means by install is "require this feature" and by uninstall
+    // is "no longer require this feature". That being said, the uninstallFeature() does a bit more
+    // than simply marking the feature no longer required since it actually also removes all traces
+    // of the feature internally. So to properly remove a feature, it has to first be marked
+    // required. which can technically be done either by updating the requirements for the feature
+    // (as done below) or actually calling installFeature() again. We opted for the former since we
+    // already deal with updating requirements to match the 'required' state of the feature from
+    // the original system
+    // ----------------------------------------------------------------------------------------
+    final Set<String> ids = features.stream().map(Feature::getId).collect(Collectors.toSet());
+    final Set<String> requirements =
+        features.stream().map(JsonFeature::toRequirement).collect(Collectors.toSet());
+
+    return run(
+        report,
+        region,
+        ids.stream(),
         Operation.UNINSTALL,
-        id -> service.uninstallFeature(id, FeatureProcessor.NO_AUTO_REFRESH));
+        () -> // first make sure to mark all of them required as uninstallFeatures() only works on
+            // required features and goes beyond simply marking them not required
+            service.addRequirements(
+                ImmutableMap.of(region, requirements), FeatureProcessor.NO_AUTO_REFRESH),
+        () -> service.uninstallFeatures(ids, region, FeatureProcessor.NO_AUTO_REFRESH));
+  }
+
+  /**
+   * Updates the specified features requirements to mark them required or not.
+   *
+   * @param report the report where to record errors if unable to update the features
+   * @param jfeatures the features to update keyed by the region they should be updated in
+   * @return <code>true</code> if the features were updated successfully; <code>false</code>
+   *     otherwise
+   */
+  public boolean updateFeaturesRequirements(
+      ProfileMigrationReport report, Map<String, Set<JsonFeature>> jfeatures) {
+    return jfeatures
+        .entrySet()
+        .stream()
+        .allMatch(e -> updateFeaturesRequirements(report, e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Updates the specified features requirements to mark them required or not.
+   *
+   * @param report the report where to record errors if unable to update the features
+   * @param region the region where to update the features
+   * @param jfeatures the features to update
+   * @return <code>true</code> if the features were updated successfully; <code>false</code>
+   *     otherwise
+   */
+  public boolean updateFeaturesRequirements(
+      ProfileMigrationReport report, String region, Set<JsonFeature> jfeatures) {
+    return run(
+        report,
+        region,
+        jfeatures.stream().map(JsonFeature::getId),
+        Operation.UPDATE,
+        jfeatures
+            .stream()
+            .collect(
+                Collectors.groupingBy(
+                    JsonFeature::isRequired,
+                    Collectors.mapping(JsonFeature::toRequirement, Collectors.toSet())))
+            .entrySet()
+            .stream()
+            .map(requirementsToUpdate -> updateFeaturesRequirements(region, requirementsToUpdate))
+            .toArray(ThrowingRunnable[]::new));
   }
 
   /**
@@ -179,118 +300,101 @@ public class FeatureProcessor {
    * Processes features by recording tasks to start, stop, install, or uninstall features that were
    * originally in the corresponding state.
    *
-   * @param report the report where to record errors
    * @param jprofile the profile where to retrieve the set of features from the original system
    * @param tasks the task list where to record tasks to be executed
-   * @return <code>false</code> if we failed to retrieve from memory a left over feature; <code>
-   *     true</code> if everything was ok
    */
-  public boolean processFeatures(
-      ProfileMigrationReport report, JsonProfile jprofile, TaskList tasks) {
-    LOGGER.debug("Processing features import");
-    final Map<String, JsonFeature> jfeaturesMap =
-        jprofile
-            .features()
-            .collect( // linked map to preserve order
-                org.codice.ddf.admin.application.service.migratable.Collectors.toLinkedMap(
-                    JsonFeature::getId, Function.identity()));
+  public void processFeaturesAndPopulateTaskList(JsonProfile jprofile, TaskList tasks) {
+    LOGGER.debug("Processing features");
+    final Map<String, Feature> featuresMap =
+        Stream.of(listFeatures("Import"))
+            .collect(Collectors.toMap(Feature::getId, Function.identity()));
 
-    processMemoryFeatures(jfeaturesMap, tasks);
-    return processLeftoverExportedFeatures(report, jfeaturesMap, tasks);
+    processExportedFeaturesAndPopulateTaskList(jprofile, featuresMap, tasks);
+    processLeftoverFeaturesAndPopulateTaskList(featuresMap, tasks);
   }
 
   /**
-   * Processes features in memory by recording tasks to start, stop, install, or uninstall features
+   * Processes exported features by recording tasks to start, stop, install, or uninstall features
    * that were originally in the corresponding state.
    *
    * <p><i>Note:</i> Any features found in memory are removed from the provided map since they have
    * been processed.
    *
-   * @param jfeatures the set of features on the original system
+   * @param jprofile the profile where to retrieve the set of features from the original system
+   * @param features the set of features in memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processMemoryFeatures(Map<String, JsonFeature> jfeatures, TaskList tasks) {
-    LOGGER.debug("Processing features defined in memory");
-    final Feature[] features = listFeatures("Import");
-
-    for (final Feature feature : features) {
-      final JsonFeature jfeature =
-          jfeatures.remove(feature.getId()); // remove from jfeatures when we find it
-
-      processFeature(jfeature, feature, tasks);
-    }
+  public void processExportedFeaturesAndPopulateTaskList(
+      JsonProfile jprofile, Map<String, Feature> features, TaskList tasks) {
+    LOGGER.debug("Processing exported features");
+    jprofile
+        .features()
+        .forEach(
+            jfeature ->
+                processFeatureAndPopulateTaskList(
+                    jfeature,
+                    features.remove(jfeature.getId()), // remove from features when we find it
+                    tasks));
   }
 
   /**
-   * Processes features that were left over after having dealt with what is in memory. The
-   * implementation will try to find the missing features (although unlikely to be found). If found,
-   * they will be processed by recording tasks to start, stop, install, or uninstall them if they
-   * were originally in the corresponding state.
+   * Processes features that were left over from memory after having dealt with what was exported.
+   * The implementation will try to uninstall all of them.
    *
-   * @param report the report where to record errors
-   * @param jfeatures the set of features on the original system that were not yet processed from
-   *     memory
+   * @param features the set of features in memory that were not exported
    * @param tasks the task list where to record tasks to be executed
-   * @return <code>false</code> if we failed to retrieve from memory a left over feature; <code>
-   *     true</code> if everything was ok
    */
-  public boolean processLeftoverExportedFeatures(
-      ProfileMigrationReport report, Map<String, JsonFeature> jfeatures, TaskList tasks) {
-    LOGGER.debug("Processing leftover exported features");
-    boolean allProcessed = true; // until proven otherwise
-
-    // check if there are anything left from the exported info that should be installed, started,
-    // stopped or that is not installed
-    for (final JsonFeature jfeature : jfeatures.values()) {
-      final String id = jfeature.getId();
-
-      if (jfeature.getState() != FeatureState.Uninstalled) {
-        final Feature feature = getFeature(report, id);
-
-        if (feature == null) { // feature not available!!!
-          allProcessed = false;
-        } else {
-          processFeature(jfeature, feature, tasks);
-        }
-      } else {
-        LOGGER.debug("Skipping feature [{}]; already uninstalled", id);
+  public void processLeftoverFeaturesAndPopulateTaskList(
+      Map<String, Feature> features, TaskList tasks) {
+    LOGGER.debug("Processing leftover features");
+    for (final Feature feature : features.values()) {
+      if (!processUninstalledFeatureAndPopulateTaskList(feature, tasks)
+          && LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Skipping feature '{}'; already uninstalled", feature.getId());
       }
     }
-    return allProcessed;
   }
 
   /**
    * Processes the specified feature by comparing its state in memory to the one from the original
    * system and determining if it needs to be uninstalled, installed, started, or stopped.
    *
-   * @param jfeature the original feature information or <code>null</code> if it was not installed
-   * @param feature the current feature from memory
+   * @param jfeature the original feature information
+   * @param feature the current feature from memory or <code>null</code> if it is not installed
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processFeature(@Nullable JsonFeature jfeature, Feature feature, TaskList tasks) {
-    final String id = feature.getId();
-    final FeatureState state = service.getState(id);
-
-    if (jfeature != null) {
+  public void processFeatureAndPopulateTaskList(
+      JsonFeature jfeature, @Nullable Feature feature, TaskList tasks) {
+    if (feature == null) {
+      processMissingFeatureAndPopulateTaskList(jfeature, tasks);
+    } else {
       switch (jfeature.getState()) {
         case Uninstalled:
-          processUninstalledFeature(feature, id, state, tasks);
+          processUninstalledFeatureAndPopulateTaskList(feature, tasks);
           break;
         case Installed:
-          processInstalledFeature(feature, id, state, jfeature.getRegion(), tasks);
+          processInstalledFeatureAndPopulateTaskList(jfeature, feature, tasks);
           break;
         case Started:
-          processStartedFeature(feature, id, state, jfeature.getRegion(), tasks);
+          processStartedFeatureAndPopulateTaskList(jfeature, feature, tasks);
           break;
         case Resolved:
         default: // assume any other states we don't know about is treated as if we should stop
-          processResolvedFeature(feature, id, state, jfeature.getRegion(), tasks);
+          processResolvedFeatureAndPopulateTaskList(jfeature, feature, tasks);
           break;
       }
-    } else if (state != FeatureState.Uninstalled) {
-      tasks.add(Operation.UNINSTALL, id, r -> uninstallFeature(r, feature));
-    } else {
-      LOGGER.debug("Skipping feature '{}'; already {}", id, state);
+    }
+  }
+
+  /**
+   * Processes the specified feature for installation since it was missing from memory.
+   *
+   * @param jfeature the original feature information
+   * @param tasks the task list where to record tasks to be executed
+   */
+  public void processMissingFeatureAndPopulateTaskList(JsonFeature jfeature, TaskList tasks) {
+    if (jfeature.getState() != FeatureState.Uninstalled) {
+      addCompoundInstallTaskFor(jfeature, tasks);
     }
   }
 
@@ -298,16 +402,18 @@ public class FeatureProcessor {
    * Processes the specified feature for uninstallation if the feature in memory is not uninstalled.
    *
    * @param feature the current feature from memory
-   * @param id the feature id
-   * @param state the feature state in memory
    * @param tasks the task list where to record tasks to be executed
    * @return <code>true</code> if processed; <code>false</code> otherwise
    */
-  public void processUninstalledFeature(
-      Feature feature, String id, FeatureState state, TaskList tasks) {
+  public boolean processUninstalledFeatureAndPopulateTaskList(Feature feature, TaskList tasks) {
+    final String id = feature.getId();
+    final FeatureState state = service.getState(id);
+
     if (state != FeatureState.Uninstalled) {
-      tasks.add(Operation.UNINSTALL, id, r -> uninstallFeature(r, feature));
+      addCompoundUninstallTaskFor(feature, tasks);
+      return true;
     }
+    return false;
   }
 
   /**
@@ -316,71 +422,151 @@ public class FeatureProcessor {
    * <p><i>Note:</i> A feature that is started in memory will need to be stopped in order to be in
    * the same resolved state it was on the original system.
    *
+   * @param jfeature the original feature information
    * @param feature the current feature from memory
-   * @param id the feature id
-   * @param state the feature state in memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processInstalledFeature(
-      Feature feature, String id, FeatureState state, String region, TaskList tasks) {
+  public void processInstalledFeatureAndPopulateTaskList(
+      JsonFeature jfeature, Feature feature, TaskList tasks) {
+    final String id = feature.getId();
+    final FeatureState state = service.getState(id);
+
     if (state == FeatureState.Uninstalled) {
-      tasks.add(Operation.INSTALL, id, r -> installFeature(r, feature));
+      addCompoundInstallTaskFor(jfeature, tasks);
+      return;
     } else if (state == FeatureState.Started) {
-      tasks.add(Operation.STOP, id, r -> stopFeature(r, feature, region));
+      // should use feature's region but we cannot figure out how to get it
+      tasks.add(Operation.STOP, id, r -> stopFeature(r, feature, jfeature.getRegion()));
+    }
+    if (jfeature.isRequired() != service.isRequired(feature)) {
+      addCompoundUpdateTaskFor(jfeature, feature, tasks);
     }
   }
 
   /**
-   * Processes the specified feature for resolution. If the feature was uninstalled, it will be
-   * installed and then later stopped to get to the resolved state. Since we only want to deal with
-   * one state change at a time, we will purposely increase the number of attempts left for stopping
-   * such that another processing round can be done at which point the state of the feature in
-   * memory will be seen as installed instead of uninstalled like it is right now such that it can
-   * then be finally stopped to be moved into the resolved state as it was on the original system.
-   * Otherwise, if it is not in the resolved state, it will simply be stopped.
+   * Processes the specified feature for resolution.
    *
+   * <p><i>Note:</i> If the feature was uninstalled, it will be installed and then later stopped to
+   * get to the resolved state. The change from installed to stopped will require another process
+   * attempt as we only want to deal with one state change at a time. The next processing round will
+   * see the state of the feature in memory as installed instead of uninstalled like it is right now
+   * such that it can then be finally stopped to be moved into the resolved state as it was on the
+   * original system. Otherwise, if it is not in the resolved state, it will simply be stopped.
+   *
+   * @param jfeature the original feature information
    * @param feature the current feature from memory
-   * @param id the feature id
-   * @param state the feature state in memory
-   * @param region the region for the feature
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processResolvedFeature(
-      Feature feature, String id, FeatureState state, String region, TaskList tasks) {
+  public void processResolvedFeatureAndPopulateTaskList(
+      JsonFeature jfeature, Feature feature, TaskList tasks) {
+    final String id = feature.getId();
+    final FeatureState state = service.getState(id);
+
     if (state == FeatureState.Uninstalled) {
       // we need to first install it and on the next round, stop it
-      // as such, let's make sure to increase the number of attempts left for the stop operation
-      tasks.add(Operation.INSTALL, id, r -> installFeature(r, feature));
-      tasks.increaseAttemptsFor(Operation.STOP);
+      addCompoundInstallTaskFor(jfeature, tasks);
+      return;
     } else if (state != FeatureState.Resolved) {
-      tasks.add(Operation.STOP, id, r -> stopFeature(r, feature, region));
+      // should use feature's region but we cannot figure out how to get it
+      tasks.add(Operation.STOP, id, r -> stopFeature(r, feature, jfeature.getRegion()));
+    }
+    if (jfeature.isRequired() != service.isRequired(feature)) {
+      addCompoundUpdateTaskFor(jfeature, feature, tasks);
     }
   }
 
   /**
-   * Processes the specified feature for starting. If the feature was uninstalled, it will be
-   * installed and then later started to get to the started state. Since we only want to deal with
-   * one state change at a time, we will purposely increase the number of attempts left for starting
-   * such that another processing round can be done at which point the state of the feature in
-   * memory will be seen as installed instead of uninstalled like it is right now such that it can
-   * then be finally started as it was on the original system. Otherwise, if it is not in the
-   * started state, it will simply be started.
+   * Processes the specified feature for starting.
    *
+   * <p><i>Note:</i> If the feature was uninstalled, it will be installed and then later started to
+   * get to the started state. The change from installed to started will require another process
+   * attempt as we only want to deal with one state change at a time. The next processing round will
+   * see the state of the feature in memory as installed instead of uninstalled like it is right
+   * such that it can be finally started as it was on the original system. Otherwise, if it is not
+   * in the started state, it will simply be started.
+   *
+   * @param jfeature the original feature information
    * @param feature the current feature from memory
-   * @param id the feature id
-   * @param state the feature state in memory
-   * @param region the region for the feature
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processStartedFeature(
-      Feature feature, String id, FeatureState state, String region, TaskList tasks) {
+  public void processStartedFeatureAndPopulateTaskList(
+      JsonFeature jfeature, Feature feature, TaskList tasks) {
+    final String id = feature.getId();
+    final FeatureState state = service.getState(id);
+
     if (state == FeatureState.Uninstalled) {
       // we need to first install it and on the next round, start it
-      // as such, let's make sure to increase the number of attempts left for the start operation
-      tasks.add(Operation.INSTALL, id, r -> installFeature(r, feature));
-      tasks.increaseAttemptsFor(Operation.START);
+      addCompoundInstallTaskFor(jfeature, tasks);
+      return;
     } else if (state != FeatureState.Started) {
-      tasks.add(Operation.START, id, r -> startFeature(r, feature, region));
+      // should use feature's region but we cannot figure out how to get it
+      tasks.add(Operation.START, id, r -> startFeature(r, feature, jfeature.getRegion()));
+    }
+    if (jfeature.isRequired() != service.isRequired(feature)) {
+      addCompoundUpdateTaskFor(jfeature, feature, tasks);
+    }
+  }
+
+  private void addCompoundInstallTaskFor(JsonFeature jfeature, TaskList tasks) {
+    // we shall verify if the installed feature is in the proper required state on a subsequent pass
+    // and if not, update its requirements appropriately
+    tasks
+        .addIfAbsent(
+            Operation.INSTALL,
+            HashMap<String, Set<JsonFeature>>::new,
+            (jfeatures, r) -> installFeatures(r, jfeatures))
+        .add(
+            jfeature.getId(),
+            jfeatures ->
+                jfeatures
+                    .computeIfAbsent(jfeature.getRegion(), r -> new HashSet<>())
+                    .add(jfeature));
+  }
+
+  private void addCompoundUninstallTaskFor(Feature feature, TaskList tasks) {
+    // since we do not know how to get the region for a feature yet, use the default one: ROOT
+    tasks
+        .addIfAbsent(
+            Operation.UNINSTALL,
+            HashMap<String, Set<Feature>>::new,
+            (features, r) -> uninstallFeatures(r, features))
+        .add(
+            feature.getId(),
+            features ->
+                features
+                    .computeIfAbsent(FeaturesService.ROOT_REGION, r -> new HashSet<>())
+                    .add(feature));
+  }
+
+  @SuppressWarnings({
+    "squid:S1172", /* currently unused until we can figure out how to retrieve the region from a feature */
+    "PMD.UnusedFormalParameter" /* currently unused until we can figure out how to retrieve the region from a feature */
+  })
+  private void addCompoundUpdateTaskFor(JsonFeature jfeature, Feature feature, TaskList tasks) {
+    // should use feature's region but we cannot figure out how to get it
+    tasks
+        .addIfAbsent(
+            Operation.UPDATE,
+            HashMap<String, Set<JsonFeature>>::new,
+            (jfeatures, r) -> updateFeaturesRequirements(r, jfeatures))
+        .add(
+            jfeature.getId(),
+            jfeatures ->
+                jfeatures
+                    .computeIfAbsent(jfeature.getRegion(), r -> new HashSet<>())
+                    .add(jfeature));
+  }
+
+  private ThrowingRunnable<Exception> updateFeaturesRequirements(
+      String region, Map.Entry<Boolean, Set<String>> requirements) {
+    if (requirements.getKey()) {
+      return () ->
+          service.addRequirements(
+              ImmutableMap.of(region, requirements.getValue()), FeatureProcessor.NO_AUTO_REFRESH);
+    } else {
+      return () ->
+          service.removeRequirements(
+              ImmutableMap.of(region, requirements.getValue()), FeatureProcessor.NO_AUTO_REFRESH);
     }
   }
 
@@ -391,17 +577,47 @@ public class FeatureProcessor {
       ThrowingConsumer<String, Exception> task) {
     final String id = feature.getId();
     final String attempt = report.getFeatureAttemptString(operation, id);
-    final String operating = operation.operatingName();
+    final String operating = operation.getOperatingName();
 
     LOGGER.debug("{} feature '{}'{}", operating, id, attempt);
     report.record("%s feature [%s]%s.", operating, id, attempt);
     try {
       task.accept(id);
     } catch (Exception e) {
+      final String required = service.isRequired(feature) ? "required" : "not required";
+
       report.recordOnFinalAttempt(
           new MigrationException(
-              "Import error: failed to %s feature [%s]; %s.",
-              operation.name().toLowerCase(), id, e));
+              "Import error: failed to %s feature [%s] from state [%s/%s]; %s.",
+              operation.name().toLowerCase(), id, service.getState(id), required, e));
+      return false;
+    }
+    return true;
+  }
+
+  private boolean run(
+      ProfileMigrationReport report,
+      String region,
+      Stream<String> ids,
+      Operation operation,
+      ThrowingRunnable<Exception>... tasks) {
+    final String attempt = report.getFeatureAttemptString(operation, region);
+    final String operating = operation.getOperatingName();
+
+    ids.forEach(
+        id -> {
+          LOGGER.debug("{} feature '{}'{}", operating, id, attempt);
+          report.record("%s feature [%s]%s.", operating, id, attempt);
+        });
+    try {
+      for (final ThrowingRunnable<Exception> task : tasks) {
+        task.run();
+      }
+    } catch (Exception e) {
+      report.recordOnFinalAttempt(
+          new MigrationException(
+              "Import error: failed to %s features for region [%s]; %s.",
+              operation.name().toLowerCase(), region, e));
       return false;
     }
     return true;

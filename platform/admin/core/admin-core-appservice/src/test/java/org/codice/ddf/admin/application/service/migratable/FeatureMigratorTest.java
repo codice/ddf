@@ -47,6 +47,10 @@ public class FeatureMigratorTest {
   private static final FeatureState STATE2 = FeatureState.Uninstalled;
   private static final FeatureState STATE3 = FeatureState.Installed;
   private static final FeatureState STATE4 = FeatureState.Started;
+  private static final boolean REQUIRED = true;
+  private static final boolean REQUIRED2 = false;
+  private static final boolean REQUIRED3 = false;
+  private static final boolean REQUIRED4 = true;
   private static final int START = 51;
   private static final int START2 = 52;
   private static final int START3 = 51;
@@ -68,13 +72,15 @@ public class FeatureMigratorTest {
   // use null for region since we currently do not extract that info from anywhere in JFeature ctor
 
   private final JsonFeature jfeature =
-      new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, null, REPOSITORY, START);
+      new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REQUIRED, null, REPOSITORY, START);
 
   private final JsonFeature jfeature2 =
-      new JsonFeature(NAME2, ID2, VERSION2, DESCRIPTION2, STATE2, null, REPOSITORY2, START2);
+      new JsonFeature(
+          NAME2, ID2, VERSION2, DESCRIPTION2, STATE2, REQUIRED2, null, REPOSITORY2, START2);
 
   private final JsonFeature jfeature3 =
-      new JsonFeature(NAME3, ID3, VERSION3, DESCRIPTION3, STATE3, null, REPOSITORY3, START3);
+      new JsonFeature(
+          NAME3, ID3, VERSION3, DESCRIPTION3, STATE3, REQUIRED3, null, REPOSITORY3, START3);
 
   private final TaskList tasks = Mockito.mock(TaskList.class);
 
@@ -103,6 +109,7 @@ public class FeatureMigratorTest {
     Mockito.when(feature.getDescription()).thenReturn(DESCRIPTION);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY);
     Mockito.when(featuresService.getState(ID)).thenReturn(STATE);
+    Mockito.when(featuresService.isRequired(feature)).thenReturn(REQUIRED);
     Mockito.when(feature.getStartLevel()).thenReturn(START);
 
     Mockito.when(feature2.getId()).thenReturn(ID2);
@@ -111,6 +118,7 @@ public class FeatureMigratorTest {
     Mockito.when(feature2.getDescription()).thenReturn(DESCRIPTION2);
     Mockito.when(feature2.getRepositoryUrl()).thenReturn(REPOSITORY2);
     Mockito.when(featuresService.getState(ID2)).thenReturn(STATE2);
+    Mockito.when(featuresService.isRequired(feature2)).thenReturn(REQUIRED2);
     Mockito.when(feature2.getStartLevel()).thenReturn(START2);
 
     Mockito.when(feature3.getId()).thenReturn(ID3);
@@ -119,6 +127,7 @@ public class FeatureMigratorTest {
     Mockito.when(feature3.getDescription()).thenReturn(DESCRIPTION3);
     Mockito.when(feature3.getRepositoryUrl()).thenReturn(REPOSITORY3);
     Mockito.when(featuresService.getState(ID3)).thenReturn(STATE3);
+    Mockito.when(featuresService.isRequired(feature3)).thenReturn(REQUIRED3);
     Mockito.when(feature3.getStartLevel()).thenReturn(START3);
 
     Mockito.when(feature4.getId()).thenReturn(ID4);
@@ -126,6 +135,7 @@ public class FeatureMigratorTest {
     Mockito.when(feature4.getVersion()).thenReturn(VERSION4);
     Mockito.when(feature4.getDescription()).thenReturn(DESCRIPTION4);
     Mockito.when(feature4.getRepositoryUrl()).thenReturn(REPOSITORY4);
+    Mockito.when(featuresService.isRequired(feature4)).thenReturn(REQUIRED4);
     Mockito.when(featuresService.getState(ID4)).thenReturn(STATE4);
     Mockito.when(feature4.getStartLevel()).thenReturn(START4);
 
@@ -159,49 +169,39 @@ public class FeatureMigratorTest {
 
   @Test
   public void testImportFeaturesWithTasksAndSucceeds() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).processFeatures(report, jprofile, tasks);
+    Mockito.doNothing().when(featureProcessor).processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.doReturn(false, true).when(tasks).isEmpty();
     Mockito.doReturn(true).when(tasks).execute();
 
     Assert.assertThat(featureMigrator.importFeatures(report, jprofile), Matchers.equalTo(true));
 
-    Mockito.verify(featureProcessor, Mockito.times(2)).processFeatures(report, jprofile, tasks);
+    Mockito.verify(featureProcessor, Mockito.times(2))
+        .processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.verify(tasks, Mockito.times(2)).isEmpty();
     Mockito.verify(tasks).execute();
   }
 
   @Test
-  public void testImportFeaturesWhenFailsToProcess() throws Exception {
-    Mockito.doReturn(false).when(featureProcessor).processFeatures(report, jprofile, tasks);
-
-    Assert.assertThat(featureMigrator.importFeatures(report, jprofile), Matchers.equalTo(false));
-
-    Mockito.verify(featureProcessor).processFeatures(report, jprofile, tasks);
-    Mockito.verify(tasks, Mockito.never()).isEmpty();
-    Mockito.verify(tasks, Mockito.never()).execute();
-  }
-
-  @Test
   public void testImportFeaturesWithNoTasks() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).processFeatures(report, jprofile, tasks);
+    Mockito.doNothing().when(featureProcessor).processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.doReturn(true).when(tasks).isEmpty();
 
     Assert.assertThat(featureMigrator.importFeatures(report, jprofile), Matchers.equalTo(true));
 
-    Mockito.verify(featureProcessor).processFeatures(report, jprofile, tasks);
+    Mockito.verify(featureProcessor).processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.verify(tasks).isEmpty();
     Mockito.verify(tasks, Mockito.never()).execute();
   }
 
   @Test
   public void testImportFeaturesWhenFailedToExecuteTasks() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).processFeatures(report, jprofile, tasks);
+    Mockito.doNothing().when(featureProcessor).processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.doReturn(false).when(tasks).isEmpty();
     Mockito.doReturn(false).when(tasks).execute();
 
     Assert.assertThat(featureMigrator.importFeatures(report, jprofile), Matchers.equalTo(false));
 
-    Mockito.verify(featureProcessor).processFeatures(report, jprofile, tasks);
+    Mockito.verify(featureProcessor).processFeaturesAndPopulateTaskList(jprofile, tasks);
     Mockito.verify(tasks).isEmpty();
     Mockito.verify(tasks).execute();
   }

@@ -55,16 +55,13 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class ProfileMigratableTest {
   private static final Path PROFILE_PATH = Paths.get("profile.json");
 
-  private static final String APP_NAME = "app.test.name";
-
-  private static final Boolean APP_STATE = true;
-
   private static final String FEATURE_NAME = "feature.test.name";
 
   private static final String FEATURE_ID = "feature.test.id";
 
   private static final FeatureState FEATURE_STATE = FeatureState.Installed;
 
+  private static final boolean FEATURE_REQUIRED = true;
   private static final int FEATURE_START = 57;
 
   private static final String FEATURE_REGION = "feature.test.region";
@@ -77,13 +74,14 @@ public class ProfileMigratableTest {
   private static final int BUNDLE_STATE = Bundle.STARTING;
   private static final String BUNDLE_LOCATION = "bundle.test.location";
 
-  private static final JsonApplication JAPP = new JsonApplication(APP_NAME, APP_STATE);
-
   private static final JsonFeature JFEATURE =
       new JsonFeature(
           FEATURE_NAME,
           FEATURE_ID,
+          null,
+          null,
           FEATURE_STATE,
+          FEATURE_REQUIRED,
           FEATURE_REGION,
           FEATURE_REPOSITORY,
           FEATURE_START);
@@ -92,22 +90,18 @@ public class ProfileMigratableTest {
       new JsonBundle(BUNDLE_NAME, BUNDLE_VERSION, BUNDLE_ID, BUNDLE_STATE, BUNDLE_LOCATION);
 
   private static final String JSON_PROFILE_STR =
-      JsonUtils.toJson(new JsonProfile(JAPP, JFEATURE, JBUNDLE));
+      JsonUtils.toJson(new JsonProfile(JFEATURE, JBUNDLE));
 
   private static final String JSON_PROFILE_FROM_MAP =
       JsonUtils.toJson(
           ImmutableMap.of(
-              "apps",
-                  ImmutableList.of(
-                      ImmutableMap.of(
-                          "name", APP_NAME,
-                          "started", APP_STATE)),
               "features",
                   ImmutableList.of(
                       ImmutableMap.builder()
                           .put("name", FEATURE_NAME)
                           .put("id", FEATURE_ID)
                           .put("state", FEATURE_STATE)
+                          .put("required", FEATURE_REQUIRED)
                           .put("region", FEATURE_REGION)
                           .put("repository", FEATURE_REPOSITORY)
                           .put("startLevel", FEATURE_START)
@@ -121,17 +115,15 @@ public class ProfileMigratableTest {
                           "state", BUNDLE_STATE,
                           "location", BUNDLE_LOCATION))));
 
-  private final ApplicationMigrator appMigrator = Mockito.mock(ApplicationMigrator.class);
   private final FeatureMigrator featureMigrator = Mockito.mock(FeatureMigrator.class);
   private final BundleMigrator bundleMigrator = Mockito.mock(BundleMigrator.class);
   private final MigrationReport report = Mockito.mock(MigrationReport.class);
 
   private final ProfileMigratable migratable =
-      new ProfileMigratable(appMigrator, featureMigrator, bundleMigrator);
+      new ProfileMigratable(featureMigrator, bundleMigrator);
   private final ImportMigrationContext context = Mockito.mock(ImportMigrationContext.class);
   private final ImportMigrationEntry entry = Mockito.mock(ImportMigrationEntry.class);
 
-  private final AtomicInteger importAppsAttempts = new AtomicInteger();
   private final AtomicInteger importFeaturesAttempts = new AtomicInteger();
   private final AtomicInteger importBundlesAttempts = new AtomicInteger();
 
@@ -149,19 +141,11 @@ public class ProfileMigratableTest {
   }
 
   @Test
-  public void testConstructorWithNullApplicationMigrator() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null application migrator"));
-
-    new ProfileMigratable(null, featureMigrator, bundleMigrator);
-  }
-
-  @Test
   public void testConstructorWithNullFeatureMigrator() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null feature migrator"));
 
-    new ProfileMigratable(appMigrator, null, bundleMigrator);
+    new ProfileMigratable(null, bundleMigrator);
   }
 
   @Test
@@ -169,7 +153,7 @@ public class ProfileMigratableTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null bundle migrator"));
 
-    new ProfileMigratable(appMigrator, featureMigrator, null);
+    new ProfileMigratable(featureMigrator, null);
   }
 
   @Test
@@ -204,7 +188,6 @@ public class ProfileMigratableTest {
     final StringWriter sw = new StringWriter();
 
     Mockito.doReturn(entry).when(context).getEntry(PROFILE_PATH);
-    Mockito.doReturn(Collections.singletonList(JAPP)).when(appMigrator).exportApplications();
     Mockito.doReturn(Collections.singletonList(JFEATURE)).when(featureMigrator).exportFeatures();
     Mockito.doReturn(Collections.singletonList(JBUNDLE)).when(bundleMigrator).exportBundles();
     Mockito.doAnswer(
@@ -225,75 +208,36 @@ public class ProfileMigratableTest {
     Mockito.verify(context).getEntry(PROFILE_PATH);
     Mockito.verify(entry)
         .store(Mockito.<BiThrowingConsumer<MigrationReport, OutputStream, IOException>>notNull());
-    Mockito.verify(appMigrator).exportApplications();
     Mockito.verify(featureMigrator).exportFeatures();
     Mockito.verify(bundleMigrator).exportBundles();
   }
 
   @Test
   public void testDoImportWhenAllSucceedsInOnePass() throws Exception {
-    initImportAttempts(
-        ProfileMigratable.RETRY_COUNT,
-        ProfileMigratable.RETRY_COUNT,
-        ProfileMigratable.RETRY_COUNT);
+    initImportAttempts(ProfileMigratable.ATTEMPT_COUNT, ProfileMigratable.ATTEMPT_COUNT);
 
     Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
     Mockito.doAnswer(
             succeedsImportAndStopRecordingTasksAtAttempt(
-                importAppsAttempts, ProfileMigratable.RETRY_COUNT - 1))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(
-            succeedsImportAndStopRecordingTasksAtAttempt(
-                importFeaturesAttempts, ProfileMigratable.RETRY_COUNT - 1))
+                importFeaturesAttempts, ProfileMigratable.ATTEMPT_COUNT - 1))
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
     Mockito.doAnswer(
             succeedsImportAndStopRecordingTasksAtAttempt(
-                importBundlesAttempts, ProfileMigratable.RETRY_COUNT - 1))
+                importBundlesAttempts, ProfileMigratable.ATTEMPT_COUNT - 1))
         .when(bundleMigrator)
         .importBundles(Mockito.notNull(), Mockito.notNull());
 
     migratable.doImport(context);
 
-    verifyMigratorsImport(2, 2, 2, true);
-  }
-
-  @Test
-  public void testDoImportWhenBundlesSucceedOnlyOnBeforeToFinalAttempt() throws Exception {
-    initImportAttempts(
-        ProfileMigratable.RETRY_COUNT - 1,
-        ProfileMigratable.RETRY_COUNT - 1,
-        ProfileMigratable.RETRY_COUNT - 1);
-
-    Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importAppsAttempts, 0))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importFeaturesAttempts, 0))
-        .when(featureMigrator)
-        .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(succeedsImportOnLastAttempt(importBundlesAttempts))
-        .when(bundleMigrator)
-        .importBundles(Mockito.notNull(), Mockito.notNull());
-
-    migratable.doImport(context);
-
-    verifyMigratorsImport(
-        ProfileMigratable.RETRY_COUNT,
-        ProfileMigratable.RETRY_COUNT,
-        ProfileMigratable.RETRY_COUNT,
-        false);
+    verifyMigratorsImport(2, 2, true);
   }
 
   @Test
   public void testDoImportWhenFeaturesSucceedOnlyOnBeforeToFinalAttempt() throws Exception {
-    initImportAttempts(ProfileMigratable.RETRY_COUNT - 1, ProfileMigratable.RETRY_COUNT - 1, 1);
+    initImportAttempts(ProfileMigratable.ATTEMPT_COUNT - 1, ProfileMigratable.ATTEMPT_COUNT - 1);
 
     Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importAppsAttempts, 0))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
     Mockito.doAnswer(succeedsImportOnLastAttempt(importFeaturesAttempts))
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
@@ -303,75 +247,44 @@ public class ProfileMigratableTest {
 
     migratable.doImport(context);
 
-    // importBundles() will be called on last attempt and verification attempt only
-    verifyMigratorsImport(ProfileMigratable.RETRY_COUNT, ProfileMigratable.RETRY_COUNT, 2, false);
+    verifyMigratorsImport(ProfileMigratable.ATTEMPT_COUNT, ProfileMigratable.ATTEMPT_COUNT, false);
   }
 
   @Test
-  public void testDoImportWhenApplicationsSucceedOnlyOnBeforeToFinalAttempt() throws Exception {
-    initImportAttempts(ProfileMigratable.RETRY_COUNT - 1, 1, 1);
+  public void testDoImportWhenBundlesSucceedOnlyOnBeforeToFinalAttempt() throws Exception {
+    initImportAttempts(1, ProfileMigratable.ATTEMPT_COUNT - 1);
 
     Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doAnswer(succeedsImportOnLastAttempt(importAppsAttempts))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
     Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importFeaturesAttempts, 0))
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importBundlesAttempts, 0))
+    Mockito.doAnswer(succeedsImportOnLastAttempt(importBundlesAttempts))
         .when(bundleMigrator)
         .importBundles(Mockito.notNull(), Mockito.notNull());
 
     migratable.doImport(context);
 
-    // importBundles() & importFeatures() will be called on last attempt and verification attempt
-    // only
-    verifyMigratorsImport(ProfileMigratable.RETRY_COUNT, 2, 2, false);
-  }
-
-  @Test
-  public void testDoImportWhenBundlesFailOnFirstPass() throws Exception {
-    Mockito.doAnswer(failsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doReturn(true)
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doReturn(true)
-        .when(featureMigrator)
-        .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doReturn(false)
-        .when(bundleMigrator)
-        .importBundles(Mockito.notNull(), Mockito.notNull());
-
-    migratable.doImport(context);
-
-    verifyMigratorsImport(1, 1, 1, true);
+    // importFeatures() will be called on last attempt and verification attempt only
+    verifyMigratorsImport(2, ProfileMigratable.ATTEMPT_COUNT, false);
   }
 
   @Test
   public void testDoImportWhenFeaturesFailOnFirstPass() throws Exception {
     Mockito.doAnswer(failsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doReturn(true)
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
     Mockito.doReturn(false)
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doReturn(false)
-        .when(bundleMigrator)
-        .importBundles(Mockito.notNull(), Mockito.notNull());
+    Mockito.doReturn(true).when(bundleMigrator).importBundles(Mockito.notNull(), Mockito.notNull());
 
     migratable.doImport(context);
 
-    verifyMigratorsImport(1, 1, 0, true);
+    verifyMigratorsImport(1, 1, true);
   }
 
   @Test
-  public void testDoImportWhenAppsFailOnFirstPass() throws Exception {
+  public void testDoImportWhenBundlesFailOnFirstPass() throws Exception {
     Mockito.doAnswer(failsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
     Mockito.doReturn(false)
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doReturn(false)
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
     Mockito.doReturn(false)
@@ -380,21 +293,18 @@ public class ProfileMigratableTest {
 
     migratable.doImport(context);
 
-    verifyMigratorsImport(1, 0, 0, true);
+    verifyMigratorsImport(0, 1, true);
   }
 
   @Test
-  public void testDoImportWhenBundlesNeverSucceed() throws Exception {
-    initImportAttempts(ProfileMigratable.RETRY_COUNT - 1, ProfileMigratable.RETRY_COUNT - 1, 0);
+  public void testDoImportWhenFeaturesNeverSucceed() throws Exception {
+    initImportAttempts(0, ProfileMigratable.ATTEMPT_COUNT - 1);
 
     Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importAppsAttempts, 0))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importFeaturesAttempts, 0))
+    Mockito.doAnswer(neverSucceedsImport())
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(neverSucceedsImport())
+    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importBundlesAttempts, 0))
         .when(bundleMigrator)
         .importBundles(Mockito.notNull(), Mockito.notNull());
 
@@ -405,17 +315,14 @@ public class ProfileMigratableTest {
   }
 
   @Test
-  public void testDoImportWhenFeaturesNeverSucceed() throws Exception {
-    initImportAttempts(ProfileMigratable.RETRY_COUNT - 1, 0, 1);
+  public void testDoImportWhenBundlesNeverSucceed() throws Exception {
+    initImportAttempts(1, 0);
 
     Mockito.doAnswer(succeedsWasSuccessful()).when(report).wasSuccessful(Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importAppsAttempts, 0))
-        .when(appMigrator)
-        .importApplications(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(neverSucceedsImport())
+    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importFeaturesAttempts, 0))
         .when(featureMigrator)
         .importFeatures(Mockito.notNull(), Mockito.notNull());
-    Mockito.doAnswer(succeedsImportAndStopRecordingTasksAtAttempt(importBundlesAttempts, 0))
+    Mockito.doAnswer(neverSucceedsImport())
         .when(bundleMigrator)
         .importBundles(Mockito.notNull(), Mockito.notNull());
 
@@ -449,38 +356,32 @@ public class ProfileMigratableTest {
             Matchers.containsString("missing exported profile information")));
   }
 
-  private void initImportAttempts(int apps, int features, int bundles) {
-    importAppsAttempts.set(apps);
+  private void initImportAttempts(int features, int bundles) {
     importFeaturesAttempts.set(features);
     importBundlesAttempts.set(bundles);
   }
 
-  private void verifyMigratorsImport(int apps, int features, int bundles, boolean nofinals) {
+  private void verifyMigratorsImport(int features, int bundles, boolean nofinals) {
     Mockito.verify(context).getEntry(PROFILE_PATH);
     Mockito.verify(entry)
         .restore(
             Mockito
                 .<BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>>
                     notNull());
-    Mockito.verify(report, Mockito.times(Math.max(Math.max(apps, features), bundles)))
+    Mockito.verify(report, Mockito.times(Math.max(features, bundles)))
         .wasSuccessful(Mockito.notNull());
 
     final ArgumentCaptor<JsonProfile> jprofiles = ArgumentCaptor.forClass(JsonProfile.class);
-    final ArgumentCaptor<ProfileMigrationReport> appReports =
-        ArgumentCaptor.forClass(ProfileMigrationReport.class);
     final ArgumentCaptor<ProfileMigrationReport> featureReports =
         ArgumentCaptor.forClass(ProfileMigrationReport.class);
     final ArgumentCaptor<ProfileMigrationReport> bundleReports =
         ArgumentCaptor.forClass(ProfileMigrationReport.class);
 
-    Mockito.verify(appMigrator, Mockito.times(apps))
-        .importApplications(appReports.capture(), jprofiles.capture());
     Mockito.verify(featureMigrator, Mockito.times(features))
         .importFeatures(featureReports.capture(), jprofiles.capture());
     Mockito.verify(bundleMigrator, Mockito.times(bundles))
         .importBundles(bundleReports.capture(), jprofiles.capture());
 
-    verifyReports(appReports, apps, nofinals);
     verifyReports(featureReports, features, nofinals);
     verifyReports(bundleReports, bundles, nofinals);
 
@@ -488,8 +389,6 @@ public class ProfileMigratableTest {
         .getAllValues()
         .forEach(
             p -> {
-              Assert.assertThat(
-                  p.applications().toArray(JsonApplication[]::new), Matchers.arrayContaining(JAPP));
               Assert.assertThat(
                   p.features().toArray(JsonFeature[]::new), Matchers.arrayContaining(JFEATURE));
               Assert.assertThat(

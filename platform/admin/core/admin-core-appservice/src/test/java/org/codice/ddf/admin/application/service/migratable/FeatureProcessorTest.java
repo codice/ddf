@@ -14,17 +14,23 @@
 package org.codice.ddf.admin.application.service.migratable;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
+import com.google.common.collect.ImmutableSet;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.admin.application.service.migratable.TaskList.CompoundTask;
 import org.codice.ddf.migration.MigrationException;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -38,6 +44,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class FeatureProcessorTest {
+
   private static final EnumSet NO_AUTO_REFRESH =
       EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles);
 
@@ -61,6 +68,10 @@ public class FeatureProcessorTest {
   private static final FeatureState STATE2 = FeatureState.Uninstalled;
   private static final FeatureState STATE3 = FeatureState.Installed;
   private static final FeatureState STATE4 = FeatureState.Started;
+  private static final boolean REQUIRED = true;
+  private static final boolean REQUIRED2 = true;
+  private static final boolean REQUIRED3 = false;
+  private static final boolean REQUIRED4 = true;
   private static final int START = 51;
   private static final int START2 = 52;
   private static final int START3 = 51;
@@ -68,25 +79,55 @@ public class FeatureProcessorTest {
   private static final String REGION = "REGION";
   private static final String REGION2 = "REGION2";
   private static final String REGION3 = "REGION3";
-  private static final String REGION4 = "REGION4";
   private static final String REPOSITORY = "test.repo";
   private static final String REPOSITORY2 = "teat.repo2";
   private static final String REPOSITORY3 = "test.repo3";
   private static final String REPOSITORY4 = null;
+  private static final String REQUIREMENT =
+      "feature:" + NAME + "/[" + VERSION + "," + VERSION + "]";
+  private static final String REQUIREMENT2 =
+      "feature:" + NAME2 + "/[" + VERSION2 + "," + VERSION2 + "]";
+  private static final String REQUIREMENT3 =
+      "feature:" + NAME3 + "/[" + VERSION3 + "," + VERSION3 + "]";
+  private static final String REQUIREMENT4 =
+      "feature:" + NAME4 + "/[" + VERSION4 + "," + VERSION4 + "]";
+
+  private static final Set<String> IDS14 = FeatureProcessorTest.toLinkedSet(ID, ID4);
+  private static final Set<String> IDS2 = FeatureProcessorTest.toLinkedSet(ID2);
+  private static final Set<String> IDS3 = FeatureProcessorTest.toLinkedSet(ID3);
+
+  private static final Map<String, Set<String>> REQUIREMENTS14 =
+      ImmutableMap.of(REGION, FeatureProcessorTest.toLinkedSet(REQUIREMENT, REQUIREMENT4));
+  private static final Map<String, Set<String>> REQUIREMENTS2 =
+      ImmutableMap.of(REGION2, FeatureProcessorTest.toLinkedSet(REQUIREMENT2));
+  private static final Map<String, Set<String>> REQUIREMENTS3 =
+      ImmutableMap.of(REGION3, FeatureProcessorTest.toLinkedSet(REQUIREMENT3));
 
   private final Feature feature = Mockito.mock(Feature.class);
-
   private final Feature feature2 = Mockito.mock(Feature.class);
-
   private final Feature feature3 = Mockito.mock(Feature.class);
-
   private final Feature feature4 = Mockito.mock(Feature.class);
 
-  private final JsonFeature jfeature = new JsonFeature(NAME, ID, STATE, REGION, REPOSITORY, START);
+  private final Map<String, Set<Feature>> featuresPerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<Feature>> featurePerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<Feature>> feature2PerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<Feature>> feature3PerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<Feature>> feature4PerRegion = new LinkedHashMap<>();
+
+  private final JsonFeature jfeature =
+      new JsonFeature(NAME, ID, VERSION, null, STATE, REQUIRED, REGION, REPOSITORY, START);
   private final JsonFeature jfeature2 =
-      new JsonFeature(NAME2, ID2, STATE2, REGION2, REPOSITORY2, START2);
+      new JsonFeature(NAME2, ID2, VERSION2, null, STATE2, REQUIRED2, REGION2, REPOSITORY2, START2);
+  private final JsonFeature jfeature3 =
+      new JsonFeature(NAME3, ID3, VERSION3, null, STATE3, REQUIRED3, REGION3, REPOSITORY3, START3);
   private final JsonFeature jfeature4 =
-      new JsonFeature(NAME4, ID4, STATE4, REGION4, REPOSITORY4, START4);
+      new JsonFeature(NAME4, ID4, VERSION4, null, STATE4, REQUIRED4, REGION, REPOSITORY4, START4);
+
+  private final Map<String, Set<JsonFeature>> jfeaturesPerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<JsonFeature>> jfeaturePerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<JsonFeature>> jfeature2PerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<JsonFeature>> jfeature3PerRegion = new LinkedHashMap<>();
+  private final Map<String, Set<JsonFeature>> jfeature4PerRegion = new LinkedHashMap<>();
 
   private final FeaturesService featuresService = Mockito.mock(FeaturesService.class);
 
@@ -105,7 +146,28 @@ public class FeatureProcessorTest {
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
+  public FeatureProcessorTest() {
+    featuresPerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(feature);
+    featuresPerRegion.computeIfAbsent(REGION2, r -> new LinkedHashSet<>()).add(feature2);
+    featuresPerRegion.computeIfAbsent(REGION3, r -> new LinkedHashSet<>()).add(feature3);
+    featuresPerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(feature4);
+    featurePerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(feature);
+    feature2PerRegion.computeIfAbsent(REGION2, r -> new LinkedHashSet<>()).add(feature2);
+    feature3PerRegion.computeIfAbsent(REGION3, r -> new LinkedHashSet<>()).add(feature3);
+    feature4PerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(feature4);
+    jfeaturesPerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(jfeature);
+    jfeaturesPerRegion.computeIfAbsent(REGION2, r -> new LinkedHashSet<>()).add(jfeature2);
+    jfeaturesPerRegion.computeIfAbsent(REGION3, r -> new LinkedHashSet<>()).add(jfeature3);
+    jfeaturesPerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(jfeature4);
+    jfeaturePerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(jfeature);
+    jfeature2PerRegion.computeIfAbsent(REGION2, r -> new LinkedHashSet<>()).add(jfeature2);
+    jfeature3PerRegion.computeIfAbsent(REGION3, r -> new LinkedHashSet<>()).add(jfeature3);
+    jfeature4PerRegion.computeIfAbsent(REGION, r -> new LinkedHashSet<>()).add(jfeature4);
+  }
+
   @Before
+  @SuppressWarnings(
+      "ReturnValueIgnored" /* only called for testing and we do not care about the result here */)
   public void setup() throws Exception {
     // execute the tasks added right away
     Mockito.doAnswer(
@@ -114,12 +176,40 @@ public class FeatureProcessorTest {
         .when(tasks)
         .add(Mockito.any(), Mockito.anyString(), Mockito.any());
 
+    // execute the compound task, the factory, and the accumulator added later right away
+    Mockito.doAnswer(
+            AdditionalAnswers
+                .<CompoundTask<Object>, Operation, Supplier<Object>,
+                    BiPredicate<Object, ProfileMigrationReport>>
+                    answer(
+                        (o, s, t) -> {
+                          final Object container = s.get();
+                          final CompoundTask<Object> compoundTask =
+                              Mockito.mock(CompoundTask.class);
+
+                          Mockito.doAnswer(
+                                  AdditionalAnswers
+                                      .<CompoundTask<Object>, String, Consumer<Object>>answer(
+                                          (id, a) -> {
+                                            a.accept(container);
+                                            return compoundTask;
+                                          }))
+                              .when(compoundTask)
+                              .add(Mockito.any(), Mockito.any());
+
+                          t.test(container, report);
+                          return compoundTask;
+                        }))
+        .when(tasks)
+        .addIfAbsent(Mockito.any(), Mockito.any(), Mockito.any());
+
     Mockito.when(feature.getId()).thenReturn(ID);
     Mockito.when(feature.getName()).thenReturn(NAME);
     Mockito.when(feature.getVersion()).thenReturn(VERSION);
     Mockito.when(feature.getDescription()).thenReturn(DESCRIPTION);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY);
     Mockito.when(featuresService.getState(ID)).thenReturn(STATE);
+    Mockito.when(featuresService.isRequired(feature)).thenReturn(REQUIRED);
     Mockito.when(feature.getStartLevel()).thenReturn(START);
 
     Mockito.when(feature2.getId()).thenReturn(ID2);
@@ -128,6 +218,7 @@ public class FeatureProcessorTest {
     Mockito.when(feature2.getDescription()).thenReturn(DESCRIPTION2);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY2);
     Mockito.when(featuresService.getState(ID2)).thenReturn(STATE2);
+    Mockito.when(featuresService.isRequired(feature2)).thenReturn(REQUIRED2);
     Mockito.when(feature.getStartLevel()).thenReturn(START2);
 
     Mockito.when(feature3.getId()).thenReturn(ID3);
@@ -136,6 +227,7 @@ public class FeatureProcessorTest {
     Mockito.when(feature3.getDescription()).thenReturn(DESCRIPTION3);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY3);
     Mockito.when(featuresService.getState(ID3)).thenReturn(STATE3);
+    Mockito.when(featuresService.isRequired(feature3)).thenReturn(REQUIRED3);
     Mockito.when(feature.getStartLevel()).thenReturn(START3);
 
     Mockito.when(feature4.getId()).thenReturn(ID4);
@@ -144,6 +236,7 @@ public class FeatureProcessorTest {
     Mockito.when(feature4.getDescription()).thenReturn(DESCRIPTION4);
     Mockito.when(feature.getRepositoryUrl()).thenReturn(REPOSITORY4);
     Mockito.when(featuresService.getState(ID4)).thenReturn(STATE4);
+    Mockito.when(featuresService.isRequired(feature4)).thenReturn(REQUIRED4);
     Mockito.when(feature.getStartLevel()).thenReturn(START4);
   }
 
@@ -214,47 +307,231 @@ public class FeatureProcessorTest {
   }
 
   @Test
-  public void testInstallFeature() throws Exception {
-    Mockito.doNothing().when(featuresService).installFeature(ID, NO_AUTO_REFRESH);
+  public void testInstallFeaturesForMultipleRegions() throws Exception {
+    Mockito.doNothing().when(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).installFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
 
-    Assert.assertThat(featureProcessor.installFeature(report, feature), Matchers.equalTo(true));
+    Assert.assertThat(
+        featureProcessor.installFeatures(report, jfeaturesPerRegion), Matchers.equalTo(true));
 
-    Mockito.verify(featuresService).installFeature(ID, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).installFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
     Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
   }
 
   @Test
-  public void testInstallFeatureWhenFailWithException() throws Exception {
+  public void testInstallFeaturesForMultipleRegionsWhenFailWithException() throws Exception {
     final Exception e = new Exception();
 
-    Mockito.doThrow(e).when(featuresService).installFeature(ID, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.doThrow(e).when(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).installFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
 
-    Assert.assertThat(featureProcessor.installFeature(report, feature), Matchers.equalTo(false));
+    Assert.assertThat(
+        featureProcessor.installFeatures(report, jfeaturesPerRegion), Matchers.equalTo(false));
 
-    Mockito.verify(featuresService).installFeature(ID, NO_AUTO_REFRESH);
-    verifyRecordOnFinalAttempt(ID, "install", e);
+    Mockito.verify(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService, Mockito.never())
+        .installFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "install", e);
   }
 
   @Test
-  public void testUninstallFeature() throws Exception {
-    Mockito.doNothing().when(featuresService).uninstallFeature(ID, NO_AUTO_REFRESH);
+  public void testInstallFeaturesForOneRegion() throws Exception {
+    Mockito.doNothing().when(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
 
-    Assert.assertThat(featureProcessor.uninstallFeature(report, feature), Matchers.equalTo(true));
+    Assert.assertThat(
+        featureProcessor.installFeatures(report, REGION, jfeaturesPerRegion.get(REGION)),
+        Matchers.equalTo(true));
 
-    Mockito.verify(featuresService).uninstallFeature(ID, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).installFeatures(IDS14, REGION, NO_AUTO_REFRESH);
     Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
   }
 
   @Test
-  public void testUninstallFeatureWhenFailWithException() throws Exception {
+  public void testInstallFeaturesForOneRegionWhenFailWithException() throws Exception {
     final Exception e = new Exception();
 
-    Mockito.doThrow(e).when(featuresService).uninstallFeature(ID, NO_AUTO_REFRESH);
+    Mockito.doThrow(e).when(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
 
-    Assert.assertThat(featureProcessor.uninstallFeature(report, feature), Matchers.equalTo(false));
+    Assert.assertThat(
+        featureProcessor.installFeatures(report, REGION2, jfeaturesPerRegion.get(REGION2)),
+        Matchers.equalTo(false));
 
-    Mockito.verify(featuresService).uninstallFeature(ID, NO_AUTO_REFRESH);
-    verifyRecordOnFinalAttempt(ID, "uninstall", e);
+    Mockito.verify(featuresService).installFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "install", e);
+  }
+
+  @Test
+  public void testUninstallFeaturesForMultipleRegions() throws Exception {
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.uninstallFeatures(report, featuresPerRegion), Matchers.equalTo(true));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
+    Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
+  }
+
+  @Test
+  public void testUninstallFeaturesForMultipleRegionsWhenFailWithException() throws Exception {
+    final Exception e = new Exception();
+
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.doThrow(e).when(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.uninstallFeatures(report, featuresPerRegion), Matchers.equalTo(false));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService, Mockito.never())
+        .addRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService, Mockito.never())
+        .uninstallFeatures(IDS3, REGION3, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "uninstall", e);
+  }
+
+  @Test
+  public void testUninstallFeaturesForOneRegion() throws Exception {
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.uninstallFeatures(report, REGION, featuresPerRegion.get(REGION)),
+        Matchers.equalTo(true));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS14, REGION, NO_AUTO_REFRESH);
+    Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
+  }
+
+  @Test
+  public void testUninstallFeaturesForOneRegionWhenFailWithException() throws Exception {
+    final Exception e = new Exception();
+
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.doThrow(e).when(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.uninstallFeatures(report, REGION2, featuresPerRegion.get(REGION2)),
+        Matchers.equalTo(false));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).uninstallFeatures(IDS2, REGION2, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "uninstall", e);
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForMultipleRegions() throws Exception {
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(report, jfeaturesPerRegion),
+        Matchers.equalTo(true));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForMultipleRegionsWhenFailWithException()
+      throws Exception {
+    final Exception e = new Exception();
+
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.doThrow(e).when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.doNothing().when(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(report, jfeaturesPerRegion),
+        Matchers.equalTo(false));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    Mockito.verify(featuresService, Mockito.never())
+        .removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "update", e);
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForOneRegionAndRequired() throws Exception {
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(report, REGION, jfeaturesPerRegion.get(REGION)),
+        Matchers.equalTo(true));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS14, NO_AUTO_REFRESH);
+    Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForOneRegionAndNotRequired() throws Exception {
+    Mockito.doNothing().when(featuresService).addRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(
+            report, REGION3, jfeaturesPerRegion.get(REGION3)),
+        Matchers.equalTo(true));
+
+    Mockito.verify(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    Mockito.verify(report, Mockito.never()).recordOnFinalAttempt(Mockito.any());
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForOneRegionAndRequiredWhenFailWithException()
+      throws Exception {
+    final Exception e = new Exception();
+
+    Mockito.doThrow(e).when(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(
+            report, REGION2, jfeaturesPerRegion.get(REGION2)),
+        Matchers.equalTo(false));
+
+    Mockito.verify(featuresService).addRequirements(REQUIREMENTS2, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS2, "update", e);
+  }
+
+  @Test
+  public void testUpdateFeaturesRequirementsForOneRegionAndNotRequiredWhenFailWithException()
+      throws Exception {
+    final Exception e = new Exception();
+
+    Mockito.doThrow(e).when(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+
+    Assert.assertThat(
+        featureProcessor.updateFeaturesRequirements(
+            report, REGION3, jfeaturesPerRegion.get(REGION3)),
+        Matchers.equalTo(false));
+
+    Mockito.verify(featuresService).removeRequirements(REQUIREMENTS3, NO_AUTO_REFRESH);
+    verifyRecordOnFinalAttempt(IDS3, "update", e);
   }
 
   @Test
@@ -316,616 +593,710 @@ public class FeatureProcessorTest {
   }
 
   @Test
-  public void testProcessInstalledFeatureWhenUninstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).installFeature(report, feature);
+  public void testProcessMissingFeatureAndPopulateTaskList() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeaturePerRegion);
 
-    featureProcessor.processInstalledFeature(feature, ID, FeatureState.Uninstalled, REGION, tasks);
+    featureProcessor.processMissingFeatureAndPopulateTaskList(jfeature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 1, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature, feature, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessInstalledFeatureWhenInstalled() throws Exception {
-    featureProcessor.processInstalledFeature(feature, ID, FeatureState.Installed, REGION, tasks);
+  public void testProcessMissingFeatureAndPopulateTaskListWhenItWasUninstalled() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeature2PerRegion);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 0);
+    featureProcessor.processMissingFeatureAndPopulateTaskList(jfeature2, tasks);
+
+    verifyTaskListAndExecution(jfeature2, feature2, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessInstalledFeatureWhenStarted() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature, REGION);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenUninstalled() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeature2PerRegion);
 
-    featureProcessor.processInstalledFeature(feature, ID, FeatureState.Started, REGION, tasks);
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessInstalledFeatureWhenResolved() throws Exception {
-    featureProcessor.processInstalledFeature(feature, ID, FeatureState.Resolved, REGION, tasks);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenInstalledWithSameRequirements()
+      throws Exception {
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessResolvedFeatureWhenUninstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).installFeature(report, feature);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenInstalledWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature3 =
+        new JsonFeature(
+            NAME3, ID3, VERSION3, null, STATE3, !REQUIRED3, REGION3, REPOSITORY3, START3);
 
-    featureProcessor.processResolvedFeature(feature, ID, FeatureState.Uninstalled, REGION, tasks);
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 1, 0, 0, 0);
-    Mockito.verify(tasks).increaseAttemptsFor(Operation.STOP);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 0, 1);
   }
 
   @Test
-  public void testProcessResolvedFeatureWhenInstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature, REGION);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenStartedWithSameRequirements()
+      throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
 
-    featureProcessor.processResolvedFeature(feature, ID, FeatureState.Installed, REGION, tasks);
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 0);
   }
 
   @Test
-  public void testProcessResolvedFeatureWhenResolved() throws Exception {
-    featureProcessor.processResolvedFeature(feature, ID, FeatureState.Resolved, REGION, tasks);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenStartedWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature4 =
+        new JsonFeature(
+            NAME4, ID4, VERSION4, null, STATE4, !REQUIRED4, REGION, REPOSITORY4, START4);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 0);
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
+
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
+
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 1);
   }
 
   @Test
-  public void testProcessResolvedFeatureWhenStarted() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature, REGION);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenResolvedWithSameRequirements()
+      throws Exception {
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    featureProcessor.processResolvedFeature(feature, ID, FeatureState.Started, REGION, tasks);
-
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessUninstalledFeatureWhenUninstalled() throws Exception {
-    featureProcessor.processUninstalledFeature(feature, ID, FeatureState.Uninstalled, tasks);
+  public void testProcessInstalledFeatureAndPopulateTaskListWhenResolvedWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature =
+        new JsonFeature(NAME, ID, VERSION, null, STATE, !REQUIRED, REGION, REPOSITORY, START);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 0, 0);
+    featureProcessor.processInstalledFeatureAndPopulateTaskList(jfeature, feature, tasks);
+
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 1);
   }
 
   @Test
-  public void testProcessUninstalledFeatureWhenInstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenUninstalled() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeature2PerRegion);
 
-    featureProcessor.processUninstalledFeature(feature, ID, FeatureState.Installed, tasks);
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 1, 0, 0);
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessUninstalledFeatureWhenResolved() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenInstalledWithSameRequirements()
+      throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature3, REGION);
 
-    featureProcessor.processUninstalledFeature(feature, ID, FeatureState.Resolved, tasks);
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 1, 0, 0);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 1, 0);
   }
 
   @Test
-  public void testProcessUninstalledFeatureWhenStarted() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenInstalledWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature3 =
+        new JsonFeature(
+            NAME3, ID3, VERSION3, null, STATE3, !REQUIRED3, REGION3, REPOSITORY3, START3);
 
-    featureProcessor.processUninstalledFeature(feature, ID, FeatureState.Started, tasks);
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature3, REGION);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 1, 0, 0);
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
+
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 1, 1);
   }
 
   @Test
-  public void testProcessStartedFeatureWhenUninstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).installFeature(report, feature);
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenResolvedWithSameRequirements()
+      throws Exception {
+    Mockito.doReturn(FeatureState.Resolved).when(featuresService).getState(ID);
 
-    featureProcessor.processStartedFeature(feature, ID, FeatureState.Uninstalled, REGION, tasks);
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 1, 0, 0, 0);
-    Mockito.verify(tasks).increaseAttemptsFor(Operation.START);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessStartedFeatureWhenInstalled() throws Exception {
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenResolvedWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature =
+        new JsonFeature(NAME, ID, VERSION, null, STATE, !REQUIRED, REGION, REPOSITORY, START);
+
+    Mockito.doReturn(FeatureState.Resolved).when(featuresService).getState(ID);
+
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature, feature, tasks);
+
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 1);
+  }
+
+  @Test
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenStartedWithSameRequirements()
+      throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
+
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
+
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 0);
+  }
+
+  @Test
+  public void testProcessResolvedFeatureAndPopulateTaskListWhenStartedWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature4 =
+        new JsonFeature(
+            NAME4, ID4, VERSION4, null, STATE4, !REQUIRED4, REGION, REPOSITORY4, START4);
+
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
+
+    featureProcessor.processResolvedFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
+
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 1);
+  }
+
+  @Test
+  public void testProcessUninstalledFeatureAndPopulateTaskListWhenUninstalled() throws Exception {
+    Mockito.doReturn(FeatureState.Uninstalled).when(featuresService).getState(ID2);
+
+    featureProcessor.processUninstalledFeatureAndPopulateTaskList(feature2, tasks);
+
+    verifyTaskListAndExecution(jfeature2, feature2, 0, 0, 0, 0, 0);
+  }
+
+  @Test
+  public void testProcessUninstalledFeatureAndPopulateTaskListWhenInstalled() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, feature3PerRegion);
+
+    featureProcessor.processUninstalledFeatureAndPopulateTaskList(feature3, tasks);
+
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 1, 0, 0, 0);
+  }
+
+  @Test
+  public void testProcessUninstalledFeatureAndPopulateTaskListWhenResolved() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, featurePerRegion);
+
+    featureProcessor.processUninstalledFeatureAndPopulateTaskList(feature, tasks);
+
+    verifyTaskListAndExecution(jfeature, feature, 0, 1, 0, 0, 0);
+  }
+
+  @Test
+  public void testProcessUninstalledFeatureAndPopulateTaskListWhenStarted() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, feature4PerRegion);
+
+    featureProcessor.processUninstalledFeatureAndPopulateTaskList(feature4, tasks);
+
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 1, 0, 0, 0);
+  }
+
+  @Test
+  public void testProcessStartedFeatureAndPopulateTaskListWhenUninstalled() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeature2PerRegion);
+
+    featureProcessor.processStartedFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
+
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
+  }
+
+  @Test
+  public void testProcessStartedFeatureAndPopulateTaskListWhenInstalledWithSameRequirements()
+      throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature3, REGION);
+
+    featureProcessor.processStartedFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
+
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 1, 0, 0);
+  }
+
+  @Test
+  public void testProcessStartedFeatureAndPopulateTaskListWhenInstalledWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature3 =
+        new JsonFeature(
+            NAME3, ID3, VERSION3, null, STATE3, !REQUIRED3, REGION3, REPOSITORY3, START3);
+
+    Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature3, REGION);
+
+    featureProcessor.processStartedFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
+
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 1, 0, 1);
+  }
+
+  @Test
+  public void testProcessStartedFeatureAndPopulateTaskListWhenResolvedWithSameRequirements()
+      throws Exception {
     Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature, REGION);
 
-    featureProcessor.processStartedFeature(feature, ID, FeatureState.Installed, REGION, tasks);
+    featureProcessor.processStartedFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 1, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 1, 0, 0);
   }
 
   @Test
-  public void testProcessStartedFeatureWhenResolved() throws Exception {
+  public void testProcessStartedFeatureAndPopulateTaskListWhenResolvedWithDifferentRequirements()
+      throws Exception {
+    final JsonFeature jfeature =
+        new JsonFeature(NAME, ID, VERSION, null, STATE, !REQUIRED, REGION, REPOSITORY, START);
+
     Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature, REGION);
 
-    featureProcessor.processStartedFeature(feature, ID, FeatureState.Resolved, REGION, tasks);
+    featureProcessor.processStartedFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 0, 1, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 1, 0, 1);
+  }
+
+  @Test
+  public void testProcessFeatureAndPopulateTaskListWhenItIsMissing() throws Exception {
+    Mockito.doReturn(true).when(featureProcessor).installFeatures(report, jfeaturePerRegion);
+
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature, null, tasks);
+
+    verifyTaskListAndExecution(jfeature, feature, 1, 0, 0, 0, 0);
   }
 
   @Test
   public void testProcessFeatureWhenItWasInstalledAndItIsUninstalled() throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME2, ID2, FeatureState.Installed, REGION2, REPOSITORY2, START2);
+        new JsonFeature(
+            NAME2,
+            ID2,
+            VERSION2,
+            null,
+            FeatureState.Installed,
+            REQUIRED2,
+            REGION2,
+            REPOSITORY2,
+            START2);
 
-    Mockito.doReturn(true).when(featureProcessor).installFeature(report, feature2);
+    Mockito.doReturn(true)
+        .when(featureProcessor)
+        .installFeatures(report, ImmutableMap.of(REGION2, ImmutableSet.of(jfeature2)));
 
-    featureProcessor.processFeature(jfeature2, feature2, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature2, ID2, jfeature2.getRegion(), 1, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasInstalledAndItIsInstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasInstalledAndItIsInstalled()
+      throws Exception {
     final JsonFeature jfeature3 =
-        new JsonFeature(NAME3, ID3, FeatureState.Installed, REGION3, REPOSITORY3, START3);
+        new JsonFeature(
+            NAME3,
+            ID3,
+            VERSION3,
+            null,
+            FeatureState.Installed,
+            REQUIRED3,
+            REGION3,
+            REPOSITORY3,
+            START3);
 
-    featureProcessor.processFeature(jfeature3, feature3, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature3, ID3, jfeature3.getRegion(), 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasInstalledAndItIsStarted() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasInstalledAndItIsStarted()
+      throws Exception {
     final JsonFeature jfeature4 =
-        new JsonFeature(NAME4, ID4, FeatureState.Installed, REGION4, REPOSITORY4, START4);
+        new JsonFeature(
+            NAME4,
+            ID4,
+            VERSION4,
+            null,
+            FeatureState.Installed,
+            REQUIRED4,
+            REGION,
+            REPOSITORY4,
+            START4);
 
     Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
 
-    featureProcessor.processFeature(jfeature4, feature4, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
 
-    verifyTaskListAndExecution(feature4, ID4, jfeature4.getRegion(), 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasInstalledAndItIsResolved() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasInstalledAndItIsResolved()
+      throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Installed, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, null, FeatureState.Installed, REQUIRED, REGION, REPOSITORY, START);
 
     Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature, REGION);
 
-    featureProcessor.processFeature(jfeature, feature, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, jfeature.getRegion(), 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasStartedAndItIsUninstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasStartedAndItIsUninstalled()
+      throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME2, ID2, FeatureState.Started, REGION2, REPOSITORY2, START2);
+        new JsonFeature(
+            NAME2,
+            ID2,
+            VERSION2,
+            null,
+            FeatureState.Started,
+            REQUIRED2,
+            REGION2,
+            REPOSITORY2,
+            START2);
 
-    Mockito.doReturn(true).when(featureProcessor).installFeature(report, feature2);
+    Mockito.doReturn(true)
+        .when(featureProcessor)
+        .installFeatures(report, ImmutableMap.of(REGION2, ImmutableSet.of(jfeature2)));
 
-    featureProcessor.processFeature(jfeature2, feature2, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature2, ID2, jfeature2.getRegion(), 1, 0, 0, 0);
-    Mockito.verify(tasks).increaseAttemptsFor(Operation.START);
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasStartedAndItIsInstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasStartedAndItIsInstalled()
+      throws Exception {
     final JsonFeature jfeature3 =
-        new JsonFeature(NAME3, ID3, FeatureState.Started, REGION3, REPOSITORY3, START3);
+        new JsonFeature(
+            NAME3,
+            ID3,
+            VERSION3,
+            null,
+            FeatureState.Started,
+            REQUIRED3,
+            REGION3,
+            REPOSITORY3,
+            START3);
 
     Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature3, REGION3);
 
-    featureProcessor.processFeature(jfeature3, feature3, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature3, ID3, jfeature3.getRegion(), 0, 0, 1, 0);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 1, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasStartedAndItIsStarted() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasStartedAndItIsStarted()
+      throws Exception {
     final JsonFeature jfeature4 =
-        new JsonFeature(NAME4, ID4, FeatureState.Started, REGION4, REPOSITORY4, START4);
+        new JsonFeature(
+            NAME4,
+            ID4,
+            VERSION4,
+            null,
+            FeatureState.Started,
+            REQUIRED4,
+            REGION,
+            REPOSITORY4,
+            START4);
 
-    featureProcessor.processFeature(jfeature4, feature4, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
 
-    verifyTaskListAndExecution(feature4, ID4, jfeature4.getRegion(), 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasStartedAndItIsResolved() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasStartedAndItIsResolved()
+      throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Started, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, null, FeatureState.Started, REQUIRED, REGION, REPOSITORY, START);
 
     Mockito.doReturn(true).when(featureProcessor).startFeature(report, feature, REGION);
 
-    featureProcessor.processFeature(jfeature, feature, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, jfeature.getRegion(), 0, 0, 1, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 1, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasUninstalledAndItIsUninstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasUninstalledAndItIsUninstalled()
+      throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME2, ID2, FeatureState.Uninstalled, REGION2, REPOSITORY2, START2);
+        new JsonFeature(
+            NAME2,
+            ID2,
+            VERSION2,
+            null,
+            FeatureState.Uninstalled,
+            REQUIRED2,
+            REGION2,
+            REPOSITORY2,
+            START2);
 
-    featureProcessor.processFeature(jfeature2, feature2, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature2, ID2, jfeature2.getRegion(), 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature2, feature2, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasUninstalledAndItIsInstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasUninstalledAndItIsInstalled()
+      throws Exception {
     final JsonFeature jfeature3 =
-        new JsonFeature(NAME3, ID3, FeatureState.Uninstalled, REGION3, REPOSITORY3, START3);
+        new JsonFeature(
+            NAME3,
+            ID3,
+            VERSION3,
+            null,
+            FeatureState.Uninstalled,
+            REQUIRED3,
+            REGION3,
+            REPOSITORY3,
+            START3);
 
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature3);
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, feature3PerRegion);
 
-    featureProcessor.processFeature(jfeature3, feature3, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature3, ID3, jfeature3.getRegion(), 0, 1, 0, 0);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 1, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureItWasUninstalledAndItIsStarted() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasUninstalledAndItIsStarted()
+      throws Exception {
     final JsonFeature jfeature4 =
-        new JsonFeature(NAME4, ID4, FeatureState.Uninstalled, REGION4, REPOSITORY4, START4);
+        new JsonFeature(
+            NAME4,
+            ID4,
+            VERSION4,
+            null,
+            FeatureState.Uninstalled,
+            REQUIRED4,
+            REGION,
+            REPOSITORY4,
+            START4);
 
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature4);
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, feature4PerRegion);
 
-    featureProcessor.processFeature(jfeature4, feature4, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
 
-    verifyTaskListAndExecution(feature4, ID4, jfeature4.getRegion(), 0, 1, 0, 0);
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 1, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureItWasUninstalledAndItIsResolved() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasUninstalledAndItIsResolved()
+      throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Uninstalled, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, null, FeatureState.Uninstalled, REQUIRED, REGION, REPOSITORY, START);
 
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, featurePerRegion);
 
-    featureProcessor.processFeature(jfeature, feature, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, jfeature.getRegion(), 0, 1, 0, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 1, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasResolvedAndItIsUninstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasResolvedAndItIsUninstalled()
+      throws Exception {
     final JsonFeature jfeature2 =
-        new JsonFeature(NAME2, ID2, FeatureState.Resolved, REGION2, REPOSITORY2, START2);
+        new JsonFeature(
+            NAME2,
+            ID2,
+            VERSION2,
+            null,
+            FeatureState.Resolved,
+            REQUIRED2,
+            REGION2,
+            REPOSITORY2,
+            START2);
 
-    featureProcessor.processFeature(jfeature2, feature2, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature2, feature2, tasks);
 
-    verifyTaskListAndExecution(feature2, ID2, jfeature2.getRegion(), 1, 0, 0, 0);
-    Mockito.verify(tasks).increaseAttemptsFor(Operation.STOP);
+    verifyTaskListAndExecution(jfeature2, feature2, 1, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasResolvedAndItIsInstalled() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasResolvedAndItIsInstalled()
+      throws Exception {
     final JsonFeature jfeature3 =
-        new JsonFeature(NAME3, ID3, FeatureState.Resolved, REGION3, REPOSITORY3, START3);
+        new JsonFeature(
+            NAME3,
+            ID3,
+            VERSION3,
+            null,
+            FeatureState.Resolved,
+            REQUIRED3,
+            REGION3,
+            REPOSITORY3,
+            START3);
 
     Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature3, REGION3);
 
-    featureProcessor.processFeature(jfeature3, feature3, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature3, feature3, tasks);
 
-    verifyTaskListAndExecution(feature3, ID3, jfeature3.getRegion(), 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature3, feature3, 0, 0, 0, 1, 0);
   }
 
   @Test
-  public void testProcessFeatureItWasResolvedAndItIsStarted() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasResolvedAndItIsStarted()
+      throws Exception {
     final JsonFeature jfeature4 =
-        new JsonFeature(NAME4, ID4, FeatureState.Resolved, REGION4, REPOSITORY4, START4);
+        new JsonFeature(
+            NAME4,
+            ID4,
+            VERSION4,
+            null,
+            FeatureState.Resolved,
+            REQUIRED4,
+            REGION,
+            REPOSITORY4,
+            START4);
 
-    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION4);
+    Mockito.doReturn(true).when(featureProcessor).stopFeature(report, feature4, REGION);
 
-    featureProcessor.processFeature(jfeature4, feature4, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature4, feature4, tasks);
 
-    verifyTaskListAndExecution(feature4, ID4, jfeature4.getRegion(), 0, 0, 0, 1);
+    verifyTaskListAndExecution(jfeature4, feature4, 0, 0, 0, 1, 0);
   }
 
   @Test
-  public void testProcessFeatureItWasResolvedAndItIsResolved() throws Exception {
+  public void testProcessFeatureAndPopulateTaskListWhenItWasResolvedAndItIsResolved()
+      throws Exception {
     final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Resolved, REGION, REPOSITORY, START);
+        new JsonFeature(
+            NAME, ID, VERSION, null, FeatureState.Resolved, REQUIRED, REGION, REPOSITORY, START);
 
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
+    Mockito.doReturn(true).when(featureProcessor).uninstallFeatures(report, featurePerRegion);
 
-    featureProcessor.processFeature(jfeature, feature, tasks);
+    featureProcessor.processFeatureAndPopulateTaskList(jfeature, feature, tasks);
 
-    verifyTaskListAndExecution(feature, ID, jfeature.getRegion(), 0, 0, 0, 0);
+    verifyTaskListAndExecution(jfeature, feature, 0, 0, 0, 0, 0);
   }
 
   @Test
-  public void testProcessFeatureWhenItWasNotInstalledAndItIsUninstalled() throws Exception {
-    featureProcessor.processFeature(null, feature2, tasks);
+  public void testProcessLeftoverFeaturesAndPopulateTaskList() throws Exception {
+    final Map<String, Feature> features =
+        ImmutableMap.of(ID, feature, ID2, feature2, ID3, feature3, ID4, feature4);
 
-    verifyTaskListAndExecution(feature2, ID2, REGION, 0, 0, 0, 0);
-  }
-
-  @Test
-  public void testProcessFeatureWhenItWasNotInstalledAndItIsInstalled() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature3);
-
-    featureProcessor.processFeature(null, feature3, tasks);
-
-    verifyTaskListAndExecution(feature3, ID3, REGION, 0, 1, 0, 0);
-  }
-
-  @Test
-  public void testProcessFeatureItWasNotInstalledAndItIsStarted() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature4);
-
-    featureProcessor.processFeature(null, feature4, tasks);
-
-    verifyTaskListAndExecution(feature4, ID4, REGION, 0, 1, 0, 0);
-  }
-
-  @Test
-  public void testProcessFeatureItWasNotInstalledAndItIsResolved() throws Exception {
-    Mockito.doReturn(true).when(featureProcessor).uninstallFeature(report, feature);
-
-    featureProcessor.processFeature(null, feature, tasks);
-
-    verifyTaskListAndExecution(feature, ID, REGION, 0, 1, 0, 0);
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenWasUninstalled() throws Exception {
-    final JsonFeature jfeature2 =
-        new JsonFeature(NAME2, ID2, FeatureState.Uninstalled, REGION2, REPOSITORY2, START2);
-    final Map<String, JsonFeature> jfeatures = ImmutableMap.of(NAME, jfeature2);
-
-    Mockito.doReturn(feature2).when(featuresService).getFeature(ID2);
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature2, feature2, tasks);
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(true));
-
-    Mockito.verify(featureProcessor, Mockito.never()).getFeature(report, ID2);
-    Mockito.verify(featureProcessor, Mockito.never()).processFeature(jfeature2, feature2, tasks);
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenWasInstalled() throws Exception {
-    final JsonFeature jfeature3 =
-        new JsonFeature(NAME3, ID3, FeatureState.Installed, REGION3, REPOSITORY3, START3);
-    final Map<String, JsonFeature> jfeatures = ImmutableMap.of(NAME, jfeature3);
-
-    Mockito.doReturn(feature3).when(featuresService).getFeature(ID3);
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature3, feature3, tasks);
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(true));
-
-    Mockito.verify(featuresService).getFeature(ID3);
-    Mockito.verify(featureProcessor).processFeature(jfeature3, feature3, tasks);
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenWasStarted() throws Exception {
-    final JsonFeature jfeature4 =
-        new JsonFeature(NAME4, ID4, FeatureState.Started, REGION4, REPOSITORY4, START4);
-    final Map<String, JsonFeature> jfeatures = ImmutableMap.of(NAME, jfeature4);
-
-    Mockito.doReturn(feature4).when(featuresService).getFeature(ID4);
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature4, feature4, tasks);
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(true));
-
-    Mockito.verify(featuresService).getFeature(ID4);
-    Mockito.verify(featureProcessor).processFeature(jfeature4, feature4, tasks);
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenWasResolved() throws Exception {
-    final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Resolved, REGION, REPOSITORY, START);
-    final Map<String, JsonFeature> jfeatures = ImmutableMap.of(NAME, jfeature);
-
-    Mockito.doReturn(feature).when(featuresService).getFeature(ID);
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature, feature, tasks);
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(true));
-
-    Mockito.verify(featuresService).getFeature(ID);
-    Mockito.verify(featureProcessor).processFeature(jfeature, feature, tasks);
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenNotFoundInMemory() throws Exception {
-    final JsonFeature jfeature =
-        new JsonFeature(NAME, ID, FeatureState.Resolved, REGION, REPOSITORY, START);
-    final Map<String, JsonFeature> jfeatures = ImmutableMap.of(NAME, jfeature);
-
-    Mockito.doReturn(null).when(featuresService).getFeature(ID);
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature, feature, tasks);
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(false));
-
-    Mockito.verify(featuresService).getFeature(ID);
-    Mockito.verify(featureProcessor, Mockito.never())
-        .processFeature(Mockito.same(jfeature), Mockito.any(), Mockito.same(tasks));
-  }
-
-  @Test
-  public void testProcessLeftOverExportedFeaturesWhenNothingLeft() throws Exception {
-    final Map<String, JsonFeature> jfeatures = Collections.emptyMap();
-
-    Assert.assertThat(
-        featureProcessor.processLeftoverExportedFeatures(report, jfeatures, tasks),
-        Matchers.equalTo(true));
-
-    Mockito.verify(featuresService, Mockito.never()).getFeature(Mockito.anyString());
-    Mockito.verify(featureProcessor, Mockito.never())
-        .processFeature(Mockito.any(), Mockito.any(), Mockito.same(tasks));
-  }
-
-  @Test
-  public void testProcessMemoryFeaturesWhenFoundInExport() throws Exception {
-    final JsonFeature jfeature = new JsonFeature(NAME, ID, STATE, REGION, REPOSITORY, START);
-    final Map<String, JsonFeature> jfeatures = new HashMap<>();
-
-    jfeatures.put(jfeature.getId(), jfeature);
-
-    Mockito.doReturn(new Feature[] {feature})
-        .when(featureProcessor)
-        .listFeatures(Mockito.anyString());
-    Mockito.doNothing().when(featureProcessor).processFeature(jfeature, feature, tasks);
-
-    featureProcessor.processMemoryFeatures(jfeatures, tasks);
-
-    Assert.assertThat(jfeatures.isEmpty(), Matchers.equalTo(true));
-
-    Mockito.verify(featureProcessor).listFeatures(Mockito.anyString());
-    Mockito.verify(featureProcessor).processFeature(jfeature, feature, tasks);
-  }
-
-  @Test
-  public void testProcessMemoryFeaturesWhenNotFoundInExport() throws Exception {
-    final JsonFeature jfeature = new JsonFeature(NAME, ID, STATE, REGION, REPOSITORY, START);
-    final Map<String, JsonFeature> jfeatures = new HashMap<>();
-
-    jfeatures.put(jfeature.getId(), jfeature);
-
-    Mockito.doReturn(new Feature[] {feature2})
-        .when(featureProcessor)
-        .listFeatures(Mockito.anyString());
-    Mockito.doNothing().when(featureProcessor).processFeature(null, feature2, tasks);
-
-    featureProcessor.processMemoryFeatures(jfeatures, tasks);
-
-    Assert.assertThat(
-        jfeatures,
-        Matchers.allOf(Matchers.aMapWithSize(1), Matchers.hasEntry(jfeature.getId(), jfeature)));
-
-    Mockito.verify(featureProcessor).listFeatures(Mockito.anyString());
-    Mockito.verify(featureProcessor).processFeature(null, feature2, tasks);
-  }
-
-  @Test
-  public void testProcessMemoryFeaturesWhenNothingsFoundInMemory() throws Exception {
-    final JsonFeature jfeature = new JsonFeature(NAME, ID, STATE, REGION, REPOSITORY, START);
-    final Map<String, JsonFeature> jfeatures = new HashMap<>();
-
-    jfeatures.put(jfeature.getId(), jfeature);
-
-    Mockito.doReturn(new Feature[] {}).when(featureProcessor).listFeatures(Mockito.anyString());
-    Mockito.doNothing()
-        .when(featureProcessor)
-        .processFeature(Mockito.any(), Mockito.any(), Mockito.same(tasks));
-
-    featureProcessor.processMemoryFeatures(jfeatures, tasks);
-
-    Assert.assertThat(
-        jfeatures,
-        Matchers.allOf(Matchers.aMapWithSize(1), Matchers.hasEntry(jfeature.getId(), jfeature)));
-
-    Mockito.verify(featureProcessor).listFeatures(Mockito.anyString());
-    Mockito.verify(featureProcessor, Mockito.never())
-        .processFeature(Mockito.any(), Mockito.any(), Mockito.same(tasks));
-  }
-
-  @Test
-  public void testProcessFeatures() throws Exception {
-    // because the processMemoryFeatures has a side effect of modifying the provided map and
-    // because Mockito ArgumentCapture only captures references to arguments and not a clone of
-    // them we are forced to clone the jfeatures received in the processMemoryFeatures() in the
-    // doAnswer() so we can verify that exact content at the end
-    final AtomicReference<Map<String, JsonFeature>> jfeaturesAtMemory = new AtomicReference<>();
-
-    Mockito.doReturn(Stream.of(jfeature, jfeature2, jfeature4)).when(jprofile).features();
-    Mockito.doAnswer(
-            AdditionalAnswers.<Map<String, JsonFeature>, TaskList>answerVoid(
-                (jfeaturesMap, tasks) -> {
-                  // capture a clone of the args for later verification
-                  jfeaturesAtMemory.set(new LinkedHashMap<>(jfeaturesMap));
-                  jfeaturesMap.remove(jfeature2.getId()); // simulate removing entries fromthe map
-                }))
-        .when(featureProcessor)
-        .processMemoryFeatures(Mockito.notNull(), Mockito.same(tasks));
     Mockito.doReturn(true)
         .when(featureProcessor)
-        .processLeftoverExportedFeatures(
-            Mockito.same(report), Mockito.notNull(), Mockito.same(tasks));
+        .processUninstalledFeatureAndPopulateTaskList(feature, tasks);
+    Mockito.doReturn(true)
+        .when(featureProcessor)
+        .processUninstalledFeatureAndPopulateTaskList(feature2, tasks);
+    Mockito.doReturn(false)
+        .when(featureProcessor)
+        .processUninstalledFeatureAndPopulateTaskList(feature3, tasks);
+    Mockito.doReturn(true)
+        .when(featureProcessor)
+        .processUninstalledFeatureAndPopulateTaskList(feature4, tasks);
 
-    Assert.assertThat(
-        featureProcessor.processFeatures(report, jprofile, tasks), Matchers.equalTo(true));
+    featureProcessor.processLeftoverFeaturesAndPopulateTaskList(features, tasks);
 
-    final ArgumentCaptor<Map<String, JsonFeature>> jfeaturesAtLeftover =
-        ArgumentCaptor.forClass(Map.class);
-
-    Mockito.verify(featureProcessor).processMemoryFeatures(Mockito.notNull(), Mockito.same(tasks));
-    Mockito.verify(featureProcessor)
-        .processLeftoverExportedFeatures(
-            Mockito.same(report), jfeaturesAtLeftover.capture(), Mockito.same(tasks));
-    Mockito.verify(jprofile).features();
-
-    Assert.assertThat(
-        jfeaturesAtMemory.get(),
-        Matchers.allOf(
-            Matchers.aMapWithSize(3),
-            Matchers.hasEntry(jfeature.getId(), jfeature),
-            Matchers.hasEntry(jfeature2.getId(), jfeature2),
-            Matchers.hasEntry(jfeature4.getId(), jfeature4)));
-    Assert.assertThat(
-        jfeaturesAtLeftover.getValue(),
-        Matchers.allOf(
-            Matchers.aMapWithSize(2),
-            Matchers.hasEntry(jfeature.getId(), jfeature),
-            Matchers.hasEntry(jfeature4.getId(), jfeature4)));
+    Mockito.verify(featureProcessor).processUninstalledFeatureAndPopulateTaskList(feature, tasks);
+    Mockito.verify(featureProcessor).processUninstalledFeatureAndPopulateTaskList(feature2, tasks);
+    Mockito.verify(featureProcessor).processUninstalledFeatureAndPopulateTaskList(feature3, tasks);
+    Mockito.verify(featureProcessor).processUninstalledFeatureAndPopulateTaskList(feature4, tasks);
   }
 
   @Test
-  public void testProcessFeaturesWhenUnableToFindInstalledFeatures() throws Exception {
-    // because the processMemoryFeatures has a side effect of modifying the provided map and
-    // because Mockito ArgumentCapture only captures references to arguments and not a clone of
-    // them we are forced to clone the jfeatures received in the processMemoryFeatures() in the
-    // doAnswer() so we can verify that exact content at the end
-    final AtomicReference<Map<String, JsonFeature>> jfeaturesAtMemory = new AtomicReference<>();
+  public void testProcessExportedFeaturesAndPopulateTaskListWhenFoundInMemory() throws Exception {
+    final JsonFeature jfeature =
+        new JsonFeature(NAME, ID, VERSION, null, STATE, REQUIRED, REGION, REPOSITORY, START);
+    final Map<String, Feature> features = new HashMap<>();
 
-    Mockito.doReturn(Stream.of(jfeature, jfeature2, jfeature4)).when(jprofile).features();
+    features.put(ID, feature);
+
+    Mockito.doReturn(Stream.of(jfeature)).when(jprofile).features();
+    Mockito.doNothing()
+        .when(featureProcessor)
+        .processFeatureAndPopulateTaskList(jfeature, feature, tasks);
+
+    featureProcessor.processExportedFeaturesAndPopulateTaskList(jprofile, features, tasks);
+
+    Assert.assertThat(features.isEmpty(), Matchers.equalTo(true));
+
+    Mockito.verify(featureProcessor).processFeatureAndPopulateTaskList(jfeature, feature, tasks);
+  }
+
+  @Test
+  public void testProcessExportedFeaturesAndPopulateTaskListWhenNotFoundInMemory()
+      throws Exception {
+    final JsonFeature jfeature =
+        new JsonFeature(NAME, ID, VERSION, null, STATE, REQUIRED, REGION, REPOSITORY, START);
+    final Map<String, Feature> features = new HashMap<>();
+
+    features.put(ID2, feature2);
+
+    Mockito.doReturn(Stream.of(jfeature)).when(jprofile).features();
+    Mockito.doNothing()
+        .when(featureProcessor)
+        .processFeatureAndPopulateTaskList(jfeature, null, tasks);
+
+    featureProcessor.processExportedFeaturesAndPopulateTaskList(jprofile, features, tasks);
+
+    Assert.assertThat(features.size(), Matchers.equalTo(1));
+
+    Mockito.verify(featureProcessor).processFeatureAndPopulateTaskList(jfeature, null, tasks);
+  }
+
+  @Test
+  public void testProcessFeaturesAndPopulateTaskList() throws Exception {
+    // because the processExportedFeaturesAndPopulateTaskList has a side effect of modifying the
+    // provided
+    // map and because Mockito ArgumentCapture only captures references to arguments and not a clone
+    // of them we are forced to clone the features received in the
+    // processExportedFeaturesAndPopulateTaskList() in the doAnswer() so we can verify that exact
+    // content
+    // at the end
+    final AtomicReference<Map<String, Feature>> featuresAtExported = new AtomicReference<>();
+
+    Mockito.doReturn(new Feature[] {feature4, feature, feature2})
+        .when(featureProcessor)
+        .listFeatures(Mockito.notNull());
     Mockito.doAnswer(
-            AdditionalAnswers.<Map<String, JsonFeature>, TaskList>answerVoid(
-                (jfeaturesMap, tasks) -> {
+            AdditionalAnswers.<JsonProfile, Map<String, Feature>, TaskList>answerVoid(
+                (jprofile, featuresMap, tasks) -> {
                   // capture a clone of the args for later verification
-                  jfeaturesAtMemory.set(new LinkedHashMap<>(jfeaturesMap));
-                  jfeaturesMap.remove(jfeature2.getId()); // simulate removing entries from the map
+                  featuresAtExported.set(new LinkedHashMap<>(featuresMap));
+                  // simulate removing entries from the map
+                  featuresMap.remove(ID);
+                  featuresMap.remove(ID2);
                 }))
         .when(featureProcessor)
-        .processMemoryFeatures(Mockito.notNull(), Mockito.same(tasks));
-    Mockito.doReturn(false)
+        .processExportedFeaturesAndPopulateTaskList(
+            Mockito.same(jprofile), Mockito.notNull(), Mockito.same(tasks));
+    Mockito.doNothing()
         .when(featureProcessor)
-        .processLeftoverExportedFeatures(
-            Mockito.same(report), Mockito.notNull(), Mockito.same(tasks));
+        .processLeftoverFeaturesAndPopulateTaskList(Mockito.notNull(), Mockito.same(tasks));
 
-    Assert.assertThat(
-        featureProcessor.processFeatures(report, jprofile, tasks), Matchers.equalTo(false));
+    featureProcessor.processFeaturesAndPopulateTaskList(jprofile, tasks);
 
-    final ArgumentCaptor<Map<String, JsonFeature>> jfeaturesAtLeftover =
+    final ArgumentCaptor<Map<String, Feature>> featuresAtLeftover =
         ArgumentCaptor.forClass(Map.class);
 
-    Mockito.verify(featureProcessor).processMemoryFeatures(Mockito.notNull(), Mockito.same(tasks));
     Mockito.verify(featureProcessor)
-        .processLeftoverExportedFeatures(
-            Mockito.same(report), jfeaturesAtLeftover.capture(), Mockito.same(tasks));
-    Mockito.verify(jprofile).features();
+        .processExportedFeaturesAndPopulateTaskList(
+            Mockito.same(jprofile), Mockito.notNull(), Mockito.same(tasks));
+    Mockito.verify(featureProcessor)
+        .processLeftoverFeaturesAndPopulateTaskList(
+            featuresAtLeftover.capture(), Mockito.same(tasks));
 
     Assert.assertThat(
-        jfeaturesAtMemory.get(),
+        featuresAtExported.get(),
         Matchers.allOf(
             Matchers.aMapWithSize(3),
-            Matchers.hasEntry(jfeature.getId(), jfeature),
-            Matchers.hasEntry(jfeature2.getId(), jfeature2),
-            Matchers.hasEntry(jfeature4.getId(), jfeature4)));
+            Matchers.hasEntry(ID, feature),
+            Matchers.hasEntry(ID2, feature2),
+            Matchers.hasEntry(ID4, feature4)));
     Assert.assertThat(
-        jfeaturesAtLeftover.getValue(),
-        Matchers.allOf(
-            Matchers.aMapWithSize(2),
-            Matchers.hasEntry(jfeature.getId(), jfeature),
-            Matchers.hasEntry(jfeature4.getId(), jfeature4)));
+        featuresAtLeftover.getValue(),
+        Matchers.allOf(Matchers.aMapWithSize(1), Matchers.hasEntry(ID4, feature4)));
   }
 
   private void verifyFeatureStateUpdated(String id, FeatureState state) throws Exception {
@@ -960,7 +1331,7 @@ public class FeatureProcessorTest {
     }
   }
 
-  private void verifyRecordOnFinalAttempt(String id, String operation, Exception e) {
+  private void verifyRecordOnFinalAttempt(Object ids, String operation, Exception e) {
     final ArgumentCaptor<MigrationException> captor =
         ArgumentCaptor.forClass(MigrationException.class);
 
@@ -968,33 +1339,68 @@ public class FeatureProcessorTest {
 
     final MigrationException me = captor.getValue();
 
-    Assert.assertThat(
-        me.getMessage(),
-        Matchers.containsString("failed to " + operation + " feature [" + id + "]"));
+    if (ids instanceof Set) {
+      Assert.assertThat(
+          me.getMessage(), Matchers.containsString("failed to " + operation + " features"));
+    } else {
+      Assert.assertThat(
+          me.getMessage(),
+          Matchers.containsString("failed to " + operation + " feature [" + ids + "]"));
+    }
     Assert.assertThat(me.getCause(), Matchers.sameInstance(e));
   }
 
   private void verifyTaskListAndExecution(
+      JsonFeature jfeature,
       Feature feature,
-      String id,
-      String region,
       int installCount,
       int uninstallCount,
       int startCount,
-      int stopCount) {
-    Mockito.verify(featureProcessor, Mockito.times(installCount)).installFeature(report, feature);
+      int stopCount,
+      int updateCount) {
+    Mockito.verify(featureProcessor, Mockito.times(installCount))
+        .installFeatures(report, ImmutableMap.of(jfeature.getRegion(), ImmutableSet.of(jfeature)));
     Mockito.verify(tasks, Mockito.times(installCount))
-        .add(Mockito.eq(Operation.INSTALL), Mockito.eq(id), Mockito.notNull());
+        .addIfAbsent(
+            Mockito.eq(Operation.INSTALL),
+            // Mockito.eq(jfeature.getId()),
+            Mockito.notNull(),
+            Mockito.notNull());
+    // should be using the region from feature but we don't know how to get it yet
     Mockito.verify(featureProcessor, Mockito.times(uninstallCount))
-        .uninstallFeature(report, feature);
+        .uninstallFeatures(
+            report, ImmutableMap.of(FeaturesService.ROOT_REGION, ImmutableSet.of(feature)));
     Mockito.verify(tasks, Mockito.times(uninstallCount))
-        .add(Mockito.eq(Operation.UNINSTALL), Mockito.eq(id), Mockito.notNull());
+        .addIfAbsent(
+            Mockito.eq(Operation.UNINSTALL),
+            // Mockito.eq(feature.getId()),
+            Mockito.notNull(),
+            Mockito.notNull());
     Mockito.verify(featureProcessor, Mockito.times(startCount))
-        .startFeature(report, feature, region);
+        .startFeature(report, feature, jfeature.getRegion());
     Mockito.verify(tasks, Mockito.times(startCount))
-        .add(Mockito.eq(Operation.START), Mockito.eq(id), Mockito.notNull());
-    Mockito.verify(featureProcessor, Mockito.times(stopCount)).stopFeature(report, feature, region);
+        .add(Mockito.eq(Operation.START), Mockito.eq(jfeature.getId()), Mockito.notNull());
+    Mockito.verify(featureProcessor, Mockito.times(stopCount))
+        .stopFeature(report, feature, jfeature.getRegion());
     Mockito.verify(tasks, Mockito.times(stopCount))
-        .add(Mockito.eq(Operation.STOP), Mockito.eq(id), Mockito.notNull());
+        .add(Mockito.eq(Operation.STOP), Mockito.eq(jfeature.getId()), Mockito.notNull());
+    Mockito.verify(featureProcessor, Mockito.times(updateCount))
+        .updateFeaturesRequirements(
+            report, ImmutableMap.of(jfeature.getRegion(), ImmutableSet.of(jfeature)));
+    Mockito.verify(tasks, Mockito.times(updateCount))
+        .addIfAbsent(
+            Mockito.eq(Operation.UPDATE),
+            // Mockito.eq(jfeature.getId()),
+            Mockito.notNull(),
+            Mockito.notNull());
+  }
+
+  public static <T> Set<T> toLinkedSet(T... values) {
+    final LinkedHashSet<T> set = new LinkedHashSet<>();
+
+    for (T t : values) {
+      set.add(t);
+    }
+    return set;
   }
 }

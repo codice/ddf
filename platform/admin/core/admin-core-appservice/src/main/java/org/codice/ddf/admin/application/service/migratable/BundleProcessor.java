@@ -13,9 +13,10 @@
  */
 package org.codice.ddf.admin.application.service.migratable;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.util.function.ThrowingRunnable;
@@ -43,7 +44,11 @@ public class BundleProcessor {
     final Bundle[] bundles = context.getBundles();
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Memory bundles: {}", Arrays.toString(bundles));
+      LOGGER.debug(
+          "Memory bundles: {}",
+          Stream.of(bundles)
+              .map(b -> String.format("%s (%s)", b, JsonBundle.getStateString(b)))
+              .collect(Collectors.joining(", ")));
     }
     return bundles;
   }
@@ -61,6 +66,26 @@ public class BundleProcessor {
       BundleContext context, ProfileMigrationReport report, Bundle bundle) {
     return run(
         report, bundle, Operation.INSTALL, () -> context.installBundle(bundle.getLocation()));
+  }
+
+  /**
+   * Installs the specified bundle.
+   *
+   * @param context the bundle context to use for installing bundles
+   * @param report the report where to record errors if unable to install the bundle
+   * @param name the name of the bundle to install
+   * @param location the location for the bundle to install
+   * @return <code>true</code> if the bundle was installed successfully; <code>false</code>
+   *     otherwise
+   */
+  public boolean installBundle(
+      BundleContext context, ProfileMigrationReport report, String name, String location) {
+    return run(
+        report,
+        name,
+        JsonBundle.UNINSTALLED_STATE_STRING,
+        Operation.INSTALL,
+        () -> context.installBundle(location));
   }
 
   /**
@@ -102,92 +127,64 @@ public class BundleProcessor {
    * originally in the corresponding state.
    *
    * @param context the bundle context to use for managing bundles
-   * @param report the report where to record errors
    * @param jprofile the profile where to retrieve the set of bundles from the original system
    * @param tasks the task list where to record tasks to be executed
-   * @return <code>false</code> if we failed to retrieve from memory a left over bundle; <code>
-   *     true</code> if everything was ok
    */
-  public boolean processBundles(
-      BundleContext context, ProfileMigrationReport report, JsonProfile jprofile, TaskList tasks) {
-    LOGGER.debug("Processing bundles import");
-    final Map<String, JsonBundle> jbundlesMap =
-        jprofile
-            .bundles()
-            .collect( // linked map to preserve order
-                org.codice.ddf.admin.application.service.migratable.Collectors.toLinkedMap(
-                    JsonBundle::getFullName, Function.identity()));
+  public void processBundlesAndPopulateTaskList(
+      BundleContext context, JsonProfile jprofile, TaskList tasks) {
+    LOGGER.debug("Processing bundles");
+    final Map<String, Bundle> bundlesMap =
+        Stream.of(listBundles(context))
+            .collect(Collectors.toMap(JsonBundle::getFullName, Function.identity()));
 
-    processMemoryBundles(context, jbundlesMap, tasks);
-    return processLeftoverExportedBundles(context, report, jbundlesMap, tasks);
+    processExportedBundlesAndPopulateTaskList(context, jprofile, bundlesMap, tasks);
+    processLeftoverBundlesAndPopulateTaskList(bundlesMap, tasks);
   }
 
   /**
-   * Processes bundles in memory by recording tasks to start, stop, install, or uninstall bundles
-   * that were originally in the corresponding state.
+   * Processes bundles that were exported by recording tasks to start, stop, install, or uninstall
+   * bundles that were originally in the corresponding state.
    *
    * <p><i>Note:</i> Any bundles found in memory are removed from the provided map since they have
    * been processed.
    *
    * @param context the bundle context to use for managing memory bundles
-   * @param jbundles the set of bundles on the original system
+   * @param jprofile the profile where to retrieve the set of bundles from the original system
+   * @param bundles the set of bundles in memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processMemoryBundles(
-      BundleContext context, Map<String, JsonBundle> jbundles, TaskList tasks) {
-    LOGGER.debug("Processing bundles defined in memory");
-    for (final Bundle bundle : listBundles(context)) {
-      final String name = JsonBundle.getFullName(bundle);
-      final JsonBundle jbundle = jbundles.remove(name); // remove from jbundles when we find it
-
-      processBundle(context, jbundle, bundle, tasks);
-    }
+  public void processExportedBundlesAndPopulateTaskList(
+      BundleContext context, JsonProfile jprofile, Map<String, Bundle> bundles, TaskList tasks) {
+    LOGGER.debug("Processing exported bundles");
+    jprofile
+        .bundles()
+        .forEach(
+            jbundle ->
+                processBundleAndPopulateTaskList(
+                    context,
+                    jbundle,
+                    bundles.remove(jbundle.getFullName()), // remove from bundles when we find it
+                    tasks));
   }
 
   /**
-   * Processes bundles that were left over after having dealt with what is in memory. The
-   * implementation will try to find the missing bundles (although unlikely to be found). If found,
-   * they will be processed by recording tasks to start, stop, install, or uninstall them if they
-   * were originally in the corresponding state.
+   * Processes bundles that were left over after having dealt with what was exported. The
+   * implementation will try to uninstall all of them.
    *
-   * @param context the bundle context to use for managing memory bundles
-   * @param report the report where to record errors
-   * @param jbundles the set of bundles on the original system that were not yet processed from
-   *     memory
+   * @param bundles the set of bundles in memory that were not exported
    * @param tasks the task list where to record tasks to be executed
-   * @return <code>false</code> if we failed to retrieve from memory a left over bundle; <code>
-   *     true</code> if everything was ok
    */
-  public boolean processLeftoverExportedBundles(
-      BundleContext context,
-      ProfileMigrationReport report,
-      Map<String, JsonBundle> jbundles,
-      TaskList tasks) {
-    LOGGER.debug("Processing leftover exported bundles");
-    boolean allProcessed = true; // until proven otherwise
-
-    // check if there are anything left from the exported info that should be installed, started,
-    // stopped, or that is not installed
-    for (final JsonBundle jbundle : jbundles.values()) {
-      final String name = jbundle.getFullName();
-
-      if (jbundle.getSimpleState() != JsonBundle.SimpleState.UNINSTALLED) {
-        final Bundle bundle = context.getBundle(jbundle.getLocation());
-
-        if (bundle == null) {
-          LOGGER.debug("Installing bundle '{}'; bundle not available", name);
-          report.record(
-              new MigrationException(
-                  "Import error: failed to retrieve bundle [%s]; bundle not found.", name));
-          allProcessed = false;
-        } else {
-          processBundle(context, jbundle, bundle, tasks);
-        }
-      } else {
-        LOGGER.debug("Skipping bundle '{}'; already uninstalled", name);
+  public void processLeftoverBundlesAndPopulateTaskList(
+      Map<String, Bundle> bundles, TaskList tasks) {
+    LOGGER.debug("Processing leftover bundles");
+    for (final Bundle bundle : bundles.values()) {
+      if (!processUninstalledBundleAndPopulateTaskList(bundle, tasks) && LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Skipping bundle '{}'; already {}",
+            JsonBundle.getFullName(bundle),
+            JsonBundle.getSimpleState(bundle));
       }
     }
-    return allProcessed;
   }
 
   /**
@@ -198,45 +195,66 @@ public class BundleProcessor {
    * bundle active.
    *
    * @param context the bundle context to use for installing bundles
-   * @param jbundle the original bundle information or <code>null</code> if it was not installed
-   * @param bundle the current bundle from memory
+   * @param jbundle the original bundle information
+   * @param bundle the current bundle from memory or <code>null</code> if it is not installed
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processBundle(
-      BundleContext context, @Nullable JsonBundle jbundle, Bundle bundle, TaskList tasks) {
-    final String name = JsonBundle.getFullName(bundle);
-    final JsonBundle.SimpleState state = JsonBundle.getSimpleState(bundle);
-
-    if (jbundle != null) {
+  public void processBundleAndPopulateTaskList(
+      BundleContext context, JsonBundle jbundle, @Nullable Bundle bundle, TaskList tasks) {
+    if (bundle == null) {
+      processMissingBundleAndPopulateTaskList(context, jbundle, tasks);
+    } else {
       switch (jbundle.getSimpleState()) {
         case UNINSTALLED:
-          processUninstalledBundle(bundle, name, state, tasks);
+          processUninstalledBundleAndPopulateTaskList(bundle, tasks);
           break;
         case ACTIVE:
-          processActiveBundle(context, bundle, name, state, tasks);
+          processActiveBundleAndPopulateTaskList(context, bundle, tasks);
           break;
         case INSTALLED:
         default: // assume any other states we don't know about is treated as if we should stop
-          processInstalledBundle(context, bundle, name, state, tasks);
+          processInstalledBundleAndPopulateTaskList(context, bundle, tasks);
           break;
       }
-    } else if (!processUninstalledBundle(bundle, name, state, tasks)) {
-      LOGGER.debug("Skipping bundle '{}'; already {}", name, state);
     }
+  }
+
+  /**
+   * Processes the specified bundle for installation since it was missing from memory.
+   *
+   * <p><i>Note:</i> A missing bundle will only be installed in this attempt which will not be
+   * setting it to the state it was (unless it was uninstalled). The change from installed to
+   * uninstalled or active will require another process attempt as we only want to deal with one
+   * state change at a time. The next processing round will see the state of the bundle in memory as
+   * installed instead of missing like it is right now such that it can then be finally uninstalled
+   * or started as it was on the original system.
+   *
+   * @param context the bundle context to use for installing bundles
+   * @param jbundle the original bundle information
+   * @param tasks the task list where to record tasks to be executed
+   */
+  public void processMissingBundleAndPopulateTaskList(
+      BundleContext context, JsonBundle jbundle, TaskList tasks) {
+    // we need to force an install and on the next round, whatever it used to be.
+    // Even if it was uninstall because we need to reserve its spot in the bundle order
+    final String name = jbundle.getFullName();
+
+    tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, name, jbundle.getLocation()));
   }
 
   /**
    * Processes the specified bundle for uninstallation if the bundle in memory is not uninstalled.
    *
    * @param bundle the current bundle from memory
-   * @param name the bundle name
-   * @param state the bundle state in memory
    * @param tasks the task list where to record tasks to be executed
    * @return <code>true</code> if processed; <code>false</code> otherwise
    */
-  public boolean processUninstalledBundle(
-      Bundle bundle, String name, JsonBundle.SimpleState state, TaskList tasks) {
+  public boolean processUninstalledBundleAndPopulateTaskList(Bundle bundle, TaskList tasks) {
+    final JsonBundle.SimpleState state = JsonBundle.getSimpleState(bundle);
+
     if (state != JsonBundle.SimpleState.UNINSTALLED) {
+      final String name = JsonBundle.getFullName(bundle);
+
       tasks.add(Operation.UNINSTALL, name, r -> uninstallBundle(r, bundle));
       return true;
     }
@@ -249,29 +267,22 @@ public class BundleProcessor {
    *
    * <p><i>Note:</i> An uninstalled bundle will only be installed in this attempt which will not be
    * setting it to the active state. The change from installed to active will require another
-   * process attempt. Since we only want to deal with one state change at a time, we will purposely
-   * increase the number of attempts left for starting such that another processing round can be
-   * done at which point the state of the bundle in memory will be seen as installed instead of
-   * uninstalled like it is right now such that it can then be finally started as it was on the
-   * original system.
+   * process attempt as we only want to deal with one state change at a time. The next processing
+   * round will see the state of the bundle in memory as installed instead of uninstalled like it is
+   * right now such that it can then be finally started as it was on the original system.
    *
    * @param context the bundle context to use for installing bundles
    * @param bundle the current bundle from memory
-   * @param name the bundle name
-   * @param state the bundle state in memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processActiveBundle(
-      BundleContext context,
-      Bundle bundle,
-      String name,
-      JsonBundle.SimpleState state,
-      TaskList tasks) {
-    if (state == JsonBundle.SimpleState.UNINSTALLED) { // install it first
+  public void processActiveBundleAndPopulateTaskList(
+      BundleContext context, Bundle bundle, TaskList tasks) {
+    final JsonBundle.SimpleState state = JsonBundle.getSimpleState(bundle);
+    final String name = JsonBundle.getFullName(bundle);
+
+    if (state == JsonBundle.SimpleState.UNINSTALLED) {
       // we need to first install it and on the next round, start it
-      // as such, let's make sure to increase the number of attempts left for the start operation
       tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, bundle));
-      tasks.increaseAttemptsFor(Operation.START);
     } else if (state != JsonBundle.SimpleState.ACTIVE) {
       tasks.add(Operation.START, name, r -> startBundle(r, bundle));
     }
@@ -285,16 +296,13 @@ public class BundleProcessor {
    *
    * @param context the bundle context to use for installing bundles
    * @param bundle the current bundle from memory
-   * @param name the bundle name
-   * @param state the bundle state in memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processInstalledBundle(
-      BundleContext context,
-      Bundle bundle,
-      String name,
-      JsonBundle.SimpleState state,
-      TaskList tasks) {
+  public void processInstalledBundleAndPopulateTaskList(
+      BundleContext context, Bundle bundle, TaskList tasks) {
+    final JsonBundle.SimpleState state = JsonBundle.getSimpleState(bundle);
+    final String name = JsonBundle.getFullName(bundle);
+
     if (state == JsonBundle.SimpleState.UNINSTALLED) {
       tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, bundle));
     } else if (state == JsonBundle.SimpleState.ACTIVE) {
@@ -307,9 +315,18 @@ public class BundleProcessor {
       Bundle bundle,
       Operation operation,
       ThrowingRunnable<BundleException> task) {
-    final String name = JsonBundle.getFullName(bundle);
+    return run(
+        report, JsonBundle.getFullName(bundle), JsonBundle.getStateString(bundle), operation, task);
+  }
+
+  private boolean run(
+      ProfileMigrationReport report,
+      String name,
+      String state,
+      Operation operation,
+      ThrowingRunnable<BundleException> task) {
     final String attempt = report.getBundleAttemptString(operation, name);
-    final String operating = operation.operatingName();
+    final String operating = operation.getOperatingName();
 
     LOGGER.debug("{} bundle '{}'{}", operating, name, attempt);
     report.record("%s bundle [%s]%s.", operating, name, attempt);
@@ -318,8 +335,8 @@ public class BundleProcessor {
     } catch (IllegalStateException | BundleException | SecurityException e) {
       report.recordOnFinalAttempt(
           new MigrationException(
-              "Import error: failed to %s bundle [%s]; %s.",
-              operation.name().toLowerCase(), name, e));
+              "Import error: failed to %s bundle [%s] from state [%s]; %s.",
+              operation.name().toLowerCase(), name, state, e));
       return false;
     }
     return true;

@@ -30,8 +30,10 @@ import org.codice.ddf.migration.OptionalMigratable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Class used to migrate the state of applications, features, and bundles. */
+/** Class used to migrate the state of features and bundles. */
 public class ProfileMigratable implements Migratable, OptionalMigratable {
+  public static final String PROFILE_REQUIRED = "required";
+
   /**
    * Holds a retry count.
    *
@@ -43,10 +45,10 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
    * install a feature for which the dependencies have not yet been installed. We are therefore
    * forced to attempt multiple times hoping that dependencies are properly being handled by the
    * previous pass. Failures will be reported only on the last attempt. Retries will automatically
-   * stop when all apps, features, and apps are determined to be as they were at export time.
+   * stop when all features and bundles are determined to be as they were at export time.
    */
   @SuppressWarnings("PMD.DefaultPackage" /* designed to be used by TaskList within this package */)
-  static final int RETRY_COUNT = 5;
+  static final int ATTEMPT_COUNT = 5;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileMigratable.class);
 
@@ -59,29 +61,21 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
 
   private static final Path PROFILE_PATH = Paths.get("profile.json");
 
-  private final ApplicationMigrator appMigrator;
-
   private final FeatureMigrator featureMigrator;
 
   private final BundleMigrator bundleMigrator;
 
   /**
-   * Instantiates a profile migratable with the specified application and features services.
+   * Instantiates a profile migratable with the specified migrators.
    *
-   * @param appMigrator the application migrator to use
-   * @param featureMigrator the features migrator to use
+   * @param featureMigrator the feature migrator to use
    * @param bundleMigrator the bundle migrator to use
-   * @throws IllegalArgumentException if <code>appMigrator</code>, <code>featureMigrator</code>,
-   *     <code>bundleMigrator</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>featureMigrator</code> or <code>bundleMigrator</code>
+   *     is <code>null</code>
    */
-  public ProfileMigratable(
-      ApplicationMigrator appMigrator,
-      FeatureMigrator featureMigrator,
-      BundleMigrator bundleMigrator) {
-    Validate.notNull(appMigrator, "invalid null application migrator");
+  public ProfileMigratable(FeatureMigrator featureMigrator, BundleMigrator bundleMigrator) {
     Validate.notNull(featureMigrator, "invalid null feature migrator");
     Validate.notNull(bundleMigrator, "invalid null bundle migrator");
-    this.appMigrator = appMigrator;
     this.featureMigrator = featureMigrator;
     this.bundleMigrator = bundleMigrator;
   }
@@ -103,7 +97,7 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
 
   @Override
   public String getDescription() {
-    return "Exports the state of applications, features, and bundles";
+    return "Exports the state of features and bundles";
   }
 
   @Override
@@ -120,9 +114,7 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
                 JsonUtils.writeValue(
                     os,
                     new JsonProfile(
-                        appMigrator.exportApplications(),
-                        featureMigrator.exportFeatures(),
-                        bundleMigrator.exportBundles())));
+                        featureMigrator.exportFeatures(), bundleMigrator.exportBundles())));
   }
 
   @Override
@@ -143,8 +135,9 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
     final JsonProfile jprofile =
         JsonUtils.fromJson(IOUtils.toString(is, StandardCharsets.UTF_8), JsonProfile.class);
 
-    for (int i = 1; i < ProfileMigratable.RETRY_COUNT; i++) {
-      LOGGER.debug("importing system profile ({} out of {})", i, ProfileMigratable.RETRY_COUNT);
+    for (int i = 1; i < ProfileMigratable.ATTEMPT_COUNT; i++) {
+      LOGGER.debug(
+          "importing system profile (attempt {} out of {})", i, ProfileMigratable.ATTEMPT_COUNT);
       final Boolean result = restore(report, jprofile, false);
 
       if (result != null) {
@@ -152,7 +145,9 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
       }
     }
     LOGGER.debug(
-        "verifying system profile", ProfileMigratable.RETRY_COUNT, ProfileMigratable.RETRY_COUNT);
+        "verifying system profile",
+        ProfileMigratable.ATTEMPT_COUNT,
+        ProfileMigratable.ATTEMPT_COUNT);
     final Boolean result = restore(report, jprofile, true);
 
     if (result != null) {
@@ -180,9 +175,8 @@ public class ProfileMigratable implements Migratable, OptionalMigratable {
 
     if (profileReport.wasSuccessful(
         () -> {
-          if (appMigrator.importApplications(profileReport, jprofile)
-              && featureMigrator.importFeatures(profileReport, jprofile)) {
-            bundleMigrator.importBundles(profileReport, jprofile);
+          if (bundleMigrator.importBundles(profileReport, jprofile)) {
+            featureMigrator.importFeatures(profileReport, jprofile);
           }
         })) {
 
