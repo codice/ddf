@@ -183,6 +183,7 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}solr.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}artemis.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}security.log", "read,write";
+    permission java.io.FilePermission "pax-logging.properties", "read";
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
