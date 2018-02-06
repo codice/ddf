@@ -18,11 +18,15 @@ import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -362,96 +366,86 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   /** {@inheritDoc}. */
-  @SuppressWarnings("unchecked")
   @Override
   public List<Map<String, Object>> getServices(String applicationID) {
-
-    List<Map<String, Object>> returnValues = new ArrayList<>();
-
     List<Service> services =
         configAdmin.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+
     if (services.isEmpty()) {
-      return returnValues;
+      return Collections.emptyList();
     }
 
     Set<BundleInfo> bundleInfos = getBundleInfosForApplication(applicationID);
     if (bundleInfos == null) {
-      return returnValues;
+      return Collections.emptyList();
     }
 
-    Set<String> bundleLocations = new HashSet<>();
-    for (BundleInfo each : bundleInfos) {
-      bundleLocations.add(each.getLocation());
-    }
+    Set<String> bundleLocations =
+        bundleInfos.stream().map(BundleInfo::getLocation).collect(Collectors.toSet());
 
     MetaTypeService metatypeService = getMetaTypeService();
-    Set<MetaTypeInformation> metatypeInformation = new HashSet<>();
-    if (metatypeService != null) {
-      for (Bundle each : getContext().getBundles()) {
-        for (BundleInfo bundleInfo : bundleInfos) {
-          if (bundleInfo.getLocation().equals(each.getLocation())) {
-            metatypeInformation.add(metatypeService.getMetaTypeInformation(each));
-          }
-        }
-      }
-    }
+    Set<MetaTypeInformation> metatypeInformation =
+        (metatypeService == null)
+            ? Collections.emptySet()
+            : Arrays.stream(getContext().getBundles())
+                .filter(b -> bundleLocations.contains(b.getLocation()))
+                .map(metatypeService::getMetaTypeInformation)
+                .collect(Collectors.toSet());
 
-    for (Map<String, Object> each : services) {
-      if (each.containsKey("configurations")) {
-        List<Map<String, Object>> configurations =
-            (List<Map<String, Object>>) each.get("configurations");
-        for (Map<String, Object> item : configurations) {
-          if (item.containsKey("bundle_location")) {
-            String bundleLocation = (String) item.get("bundle_location");
-            if (bundleLocations.contains(bundleLocation)) {
-              returnValues.add(each);
-              break;
-            }
-          }
-        }
-      } else {
-        if (checkForMetaTypesForService(metatypeInformation, each)) {
-          returnValues.add(each);
-        }
-      }
-    }
+    return services
+        .stream()
+        .filter(
+            service ->
+                hasBundleLocation(service, bundleLocations)
+                    || hasMetatypesForService(service, metatypeInformation))
+        .collect(Collectors.toList());
+  }
 
-    return returnValues;
+  /**
+   * Checks to see if a given service configuration has a bundle location in the set provided.
+   *
+   * @param service the service with a location to check.
+   * @param bundleLocations a set of bundle locations to check.
+   * @return true if the service's location is in bundleLocations, false otherwise.
+   */
+  private boolean hasBundleLocation(Map<String, Object> service, Set<String> bundleLocations) {
+    return Stream.of(service)
+        .map(m -> m.get("configurations"))
+        .filter(Objects::nonNull)
+        .map(List.class::cast)
+        .flatMap(List::stream)
+        .map(Map.class::cast)
+        .map(m -> m.get("bundle_location"))
+        .filter(Objects::nonNull)
+        .map(String.class::cast)
+        .anyMatch(bundleLocations::contains);
   }
 
   /**
    * Checks to see if there are any metatypes out there for a particular service.
    *
-   * @param metatypeInformations - Where we'll look for metatypes that match our service from.
    * @param service - our service we want metatypes for.
+   * @param metatypeInformations - Where we'll look for metatypes that match our service from.
    * @return true if there is, and the service should be added, or false if it shouldn't be.
    */
-  private boolean checkForMetaTypesForService(
-      Set<MetaTypeInformation> metatypeInformations, Map<String, Object> service) {
+  private boolean hasMetatypesForService(
+      Map<String, Object> service, Set<MetaTypeInformation> metatypeInformations) {
     String id = (String) service.get("id");
-    boolean ifFactory = (Boolean) service.get("factory");
-    if (ifFactory) {
-      for (MetaTypeInformation information : metatypeInformations) {
-        if (information != null) {
-          for (String pid : information.getFactoryPids()) {
-            if (pid.equals(id)) {
-              return true;
-            }
-          }
-        }
-      }
-    } else {
-      for (MetaTypeInformation information : metatypeInformations) {
-        if (information != null) {
-          for (String pid : information.getPids()) {
-            if (pid.equals(id)) {
-              return true;
-            }
-          }
-        }
-      }
+    if (id == null) {
+      return false;
     }
-    return false;
+    Boolean isFactory = (Boolean) service.get("factory");
+    if (isFactory == null) {
+      return false;
+    }
+
+    Stream<MetaTypeInformation> infoStream = metatypeInformations.stream().filter(Objects::nonNull);
+    return (isFactory
+            ? infoStream.map(MetaTypeInformation::getFactoryPids)
+            : infoStream.map(MetaTypeInformation::getPids))
+        .filter(Objects::nonNull)
+        .flatMap(Arrays::stream)
+        .anyMatch(id::equals);
   }
 
   private String getDefaultFactoryLdapFilter() {
