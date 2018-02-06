@@ -696,43 +696,23 @@ public class CswEndpoint implements Csw {
   }
 
   private InsertAction transformInsertAction(InsertAction insertAction, String typeName) {
-    return cswActionTransformerProvider
-        .getTransformer(typeName)
-        .map(it -> it.transform(insertAction))
-        .orElse(insertAction);
-  }
-
-  private InsertAction transformInsertAction(InsertAction insertAction, List<QName> typeNames) {
-    InsertAction newInsertAction = insertAction;
-    for (QName typeName : typeNames) {
-      final InsertAction temp = newInsertAction;
-      newInsertAction =
-          cswActionTransformerProvider
-              .getTransformer(typeName)
-              .map(it -> it.transform(temp))
-              .orElse(temp);
+    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
+    if (op.isPresent()) {
+      CswActionTransformer tr = op.get();
+      return tr.transform(insertAction);
+    } else {
+      return insertAction;
     }
-    return newInsertAction;
   }
 
   private DeleteAction transformDeleteAction(DeleteAction deleteAction, String typeName) {
-    return cswActionTransformerProvider
-        .getTransformer(typeName)
-        .map(it -> it.transform(deleteAction))
-        .orElse(deleteAction);
-  }
-
-  private DeleteAction transformDeleteAction(DeleteAction deleteAction, List<QName> typeNames) {
-    DeleteAction newDeleteAction = deleteAction;
-    for (QName typeName : typeNames) {
-      final DeleteAction temp = newDeleteAction;
-      newDeleteAction =
-          cswActionTransformerProvider
-              .getTransformer(typeName)
-              .map(it -> it.transform(temp))
-              .orElse(temp);
+    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
+    if (op.isPresent()) {
+      CswActionTransformer tr = op.get();
+      return tr.transform(deleteAction);
+    } else {
+      return deleteAction;
     }
-    return newDeleteAction;
   }
 
   private UpdateAction transformUpdateAction(UpdateAction updateAction, String typeName) {
@@ -743,19 +723,6 @@ public class CswEndpoint implements Csw {
     } else {
       return updateAction;
     }
-  }
-
-  private UpdateAction transformUpdateAction(UpdateAction updateAction, List<QName> typeNames) {
-    UpdateAction newUpdateAction = updateAction;
-    for (QName typeName : typeNames) {
-      final UpdateAction temp = newUpdateAction;
-      newUpdateAction =
-          cswActionTransformerProvider
-              .getTransformer(typeName)
-              .map(it -> it.transform(temp))
-              .orElse(temp);
-    }
-    return newUpdateAction;
   }
 
   private int updateRecords(UpdateAction updateAction)
