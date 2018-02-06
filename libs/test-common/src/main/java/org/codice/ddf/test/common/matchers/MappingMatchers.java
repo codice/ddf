@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.matchers;
+package org.codice.ddf.test.common.matchers;
 
 import java.util.function.Function;
 import org.hamcrest.Description;
@@ -20,6 +20,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help mapping objects to values before matching the value. */
 public class MappingMatchers {
+  private MappingMatchers() {}
+
   public static <T, V> Matcher<T> map(Function<T, V> mapper, Matcher<? extends V> matcher) {
     return new TypeSafeMatcher<T>() {
       @Override

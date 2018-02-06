@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.matchers;
+package org.codice.ddf.test.common.matchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -19,6 +19,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help validating exception causes. */
 public class ThrowableMatchers {
+  private ThrowableMatchers() {}
+
   public static Matcher hasSuppressedMatching(Matcher<? extends Throwable[]> matcher) {
     return new TypeSafeMatcher<Throwable>() {
       @Override
