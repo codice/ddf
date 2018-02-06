@@ -91,13 +91,17 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
             RestSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))),
             "UTF-8");
-    String requestToSign =
-        String.format("SAMLResponse=%s&RelayState=%s", encodedResponse, relayState);
+    StringBuilder requestToSign = new StringBuilder("SAMLResponse=").append(encodedResponse);
+    if (relayState != null) {
+      requestToSign.append("&RelayState=").append(relayState);
+    }
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
     UriBuilder uriBuilder = UriBuilder.fromUri(assertionConsumerServiceURL);
     uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
-    uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
-    getSimpleSign().signUriString(requestToSign, uriBuilder);
+    if (relayState != null) {
+      uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
+    }
+    getSimpleSign().signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
     return uriBuilder.build();
   }

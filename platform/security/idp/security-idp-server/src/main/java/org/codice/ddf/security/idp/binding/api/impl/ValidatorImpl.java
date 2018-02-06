@@ -98,10 +98,8 @@ public abstract class ValidatorImpl implements Validator {
   @Override
   public void validateRelayState(String relayState) {
     LOGGER.debug("Validating RelayState");
-    if (relayState == null || relayState.length() < 0 || relayState.length() > 80) {
-      LOGGER.info(
-          "RelayState has invalid size: {}",
-          (relayState == null) ? "no RelayState" : relayState.length());
+    if (relayState != null && relayState.length() > 80) {
+      LOGGER.warn("RelayState has invalid size: {}", relayState.length());
     }
   }
 

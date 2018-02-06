@@ -40,6 +40,7 @@ import org.w3c.dom.Document;
 public class PostResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
+  private static final String SURROUND_WITH_TWO_PARENTHESES = "{{%s}}";
 
   public PostResponseCreator(
       SystemCrypto systemCrypto,
@@ -75,11 +76,18 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
     String submitFormUpdated =
-        responseTemplate.replace("{{" + Idp.ACS_URL + "}}", assertionConsumerServiceURL);
-    submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_TYPE + "}}", "SAMLResponse");
+        responseTemplate.replace(
+            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.ACS_URL), assertionConsumerServiceURL);
     submitFormUpdated =
-        submitFormUpdated.replace("{{" + Idp.SAML_RESPONSE + "}}", encodedSamlResponse);
-    submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
+        submitFormUpdated.replace(
+            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_TYPE), "SAMLResponse");
+    submitFormUpdated =
+        submitFormUpdated.replace(
+            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_RESPONSE), encodedSamlResponse);
+    submitFormUpdated =
+        submitFormUpdated.replace(
+            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.RELAY_STATE),
+            relayState != null ? relayState : "");
     Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
     if (cookie != null) {
       ok = ok.cookie(cookie);
