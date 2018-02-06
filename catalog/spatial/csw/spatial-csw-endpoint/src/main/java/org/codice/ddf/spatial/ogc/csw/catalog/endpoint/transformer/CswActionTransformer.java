@@ -19,15 +19,51 @@ import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>A CswActionTransformer is used to modify CSW transactions before they are run. Specifically,
+ * it modifies {@link UpdateAction}, {@link DeleteAction}, and {@link InsertAction} objects before
+ * they are processed by the framework.
+ */
 public interface CswActionTransformer {
 
+  /**
+   * Transforms an {@link UpdateAction}.
+   *
+   * @param updateAction the UpdateAction to transform.
+   * @return the transformed UpdateAction.
+   */
   UpdateAction transform(UpdateAction updateAction);
 
+  /**
+   * Transforms a {@link DeleteAction}.
+   *
+   * @param deleteAction the DeleteAction to transform.
+   * @return the transformed DeleteAction.
+   */
   DeleteAction transform(DeleteAction deleteAction);
 
+  /**
+   * Transforms an {@link InsertAction}.
+   *
+   * @param insertAction the InsertAction to transform.
+   * @return the transformed InsertAction.
+   */
   InsertAction transform(InsertAction insertAction);
 
+  /**
+   * Returns the list of typenames this transformer can be applied to.
+   *
+   * @return the list of typenames this transformer can be applied to.
+   */
   List<String> getTypeNames();
 
+  /**
+   * Returns the list of {@link QName} this transformer can be applied to.
+   *
+   * @return the list of QNames this transformer can be applied to.
+   */
   List<QName> getQNames();
 }

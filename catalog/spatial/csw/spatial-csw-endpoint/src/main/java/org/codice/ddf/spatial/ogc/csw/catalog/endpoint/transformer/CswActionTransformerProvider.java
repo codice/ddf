@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages a reference list of {@link CswActionTransformer}'s by mapping them to the QName's they
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>Manages a reference list of {@link CswActionTransformer}'s by mapping them to the QName's they
  * apply to.
  */
 public class CswActionTransformerProvider {

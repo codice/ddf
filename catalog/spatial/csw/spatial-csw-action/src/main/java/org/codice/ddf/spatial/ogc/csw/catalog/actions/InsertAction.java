@@ -16,7 +16,12 @@ package org.codice.ddf.spatial.ogc.csw.catalog.actions;
 import ddf.catalog.data.Metacard;
 import java.util.List;
 
-/** An InsertAction represents a single insert action within a CSW transaction. */
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>An InsertAction represents a single insert action within a CSW transaction.
+ */
 public interface InsertAction {
 
   /**

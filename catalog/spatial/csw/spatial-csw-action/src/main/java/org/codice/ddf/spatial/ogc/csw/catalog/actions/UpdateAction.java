@@ -18,7 +18,12 @@ import java.io.Serializable;
 import java.util.Map;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
-/** An UpdateAction represents a single update action within a CSW transaction. */
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>An UpdateAction represents a single update action within a CSW transaction.
+ */
 public interface UpdateAction {
 
   /**

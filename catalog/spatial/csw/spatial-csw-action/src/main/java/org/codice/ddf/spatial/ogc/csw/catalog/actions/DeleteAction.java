@@ -15,7 +15,12 @@ package org.codice.ddf.spatial.ogc.csw.catalog.actions;
 
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
-/** A DeleteAction represents a single delete action within a CSW transaction. */
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>A DeleteAction represents a single delete action within a CSW transaction.
+ */
 public interface DeleteAction {
 
   /**
