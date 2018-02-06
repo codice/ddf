@@ -80,7 +80,7 @@ import org.osgi.framework.InvalidSyntaxException;
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  */
-public class TestOpenSearchSource {
+public class OpenSearchSourceTest {
 
   private static final String RESOURCE_TAG = "Resource";
 

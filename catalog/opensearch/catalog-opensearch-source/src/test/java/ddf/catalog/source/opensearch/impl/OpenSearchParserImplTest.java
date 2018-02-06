@@ -54,9 +54,9 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestOpenSearchParserImpl {
+public class OpenSearchParserImplTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestOpenSearchParserImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImplTest.class);
 
   private static final StringBuilder URL =
       new StringBuilder("http://localhost:8080/services/catalog/query");
