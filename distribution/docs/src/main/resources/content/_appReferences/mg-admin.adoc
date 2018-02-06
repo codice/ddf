@@ -4,6 +4,8 @@
 :summary: Contains components that are integral for the installation and configuration of ${branding} applications.
 :order: 01
 
+== {title} Application Reference
+
 The ${ddf-admin} Application contains components that are integral for the installation and configuration of ${branding} applications.
 
 It contains various services and interfaces that allow administrators more control over their systems and enhances administrative capabilities when installing and managing ${branding}.
@@ -11,11 +13,11 @@ It contains various services and interfaces that allow administrators more contr
 The ${ddf-admin} application contains an application service that handles all operations that are performed on applications.
 This includes adding, removing, starting, stopping, and showing status.
 
-==== ${ddf-admin} Application Prerequisites
+=== ${ddf-admin} Application Prerequisites
 
 None.
 
-==== Installing the ${ddf-admin} Application
+=== Installing the ${ddf-admin} Application
 
 The ${ddf-admin} application is installed by default with a standard installation.
 

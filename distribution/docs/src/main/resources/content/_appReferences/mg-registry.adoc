@@ -4,9 +4,11 @@
 :summary: Contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
 :order: 07
 
+== {title} Application Reference
+
 ${ddf-registry} contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
 
-====  ${ddf-registry} Prerequisites
+===  ${ddf-registry} Prerequisites
 
 To use the ${ddf-registry}, the following apps/features must be installed:
 
@@ -16,7 +18,7 @@ To use the ${ddf-registry}, the following apps/features must be installed:
 * ${ddf-platform}
 * ${ddf-security}
 
-====  Installing ${ddf-registry}
+===  Installing ${ddf-registry}
 
 ${ddf-registry} is not installed by default with a standard installation.
 
@@ -27,7 +29,7 @@ To install:
 . Click the *Install* icon.
 . ${ddf-registry} will move to *Active Applications* upon startup.
 
-====  Customizing ${ddf-registry} Fields
+===  Customizing ${ddf-registry} Fields
 
 All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at ``${home_directory}/etc/registry/registry-custom-slots.json`` that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
 These objects are
