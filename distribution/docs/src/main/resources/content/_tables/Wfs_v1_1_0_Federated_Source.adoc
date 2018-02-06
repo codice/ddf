@@ -100,5 +100,12 @@
 |60000
 |true
 
+|SRS Name
+|srsName
+|String
+|SRS Name to use in outbound GetFeature requests. The SRS Name parameter is used to assert the specific CRS transformation to be applied to the geometries of the features returned in a response document.
+|EPSG:4326
+|false
+
 |===
 

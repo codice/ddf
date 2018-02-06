@@ -59,6 +59,7 @@
             <argument ref="encryptionService"/>
             <property name="coordinateOrder" value="LAT_LON"/>
             <property name="metacardTypeEnhancers" ref="metacardTypeEnhancerList"/>
+            <property name="srsName" value=""/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
