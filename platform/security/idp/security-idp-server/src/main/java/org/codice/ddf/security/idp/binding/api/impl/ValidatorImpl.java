@@ -101,6 +101,10 @@ public abstract class ValidatorImpl implements Validator {
     if (relayState != null && relayState.length() > 80) {
       LOGGER.warn("RelayState has invalid size: {}", relayState.length());
     }
+
+    if (relayState != null && (relayState.contains("<") || relayState.contains(">"))) {
+      throw new IllegalArgumentException("RelayState cannot contain '<' or '>'");
+    }
   }
 
   protected void checkDestination(AuthnRequest authnRequest) throws ValidationException {
