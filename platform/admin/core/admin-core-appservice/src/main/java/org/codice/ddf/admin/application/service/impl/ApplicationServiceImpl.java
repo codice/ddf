@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -23,6 +25,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -30,10 +33,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
@@ -138,12 +144,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       LOGGER.warn("Unable to get list of Repositories.", e);
     }
 
-    Set<Application> applications = new HashSet<Application>(repos.length);
+    Set<Application> applications = new HashSet<>(repos.length);
     for (int i = 0; i < repos.length; i++) {
       Application newApp = new ApplicationImpl(repos[i]);
       try {
         if (!ignoredApplicationNames.contains(newApp.getName())
-            && newApp.getFeatures().size() > 0
+            && !newApp.getFeatures().isEmpty()
             && isPermittedToViewFeature(newApp.getName())) {
           applications.add(newApp);
         }
@@ -159,7 +165,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   }
 
   private Set<String> getApplicationNames() {
-    return getApplications().stream().map(a -> a.getName()).collect(Collectors.toSet());
+    return getApplications().stream().map(Application::getName).collect(Collectors.toSet());
   }
 
   @Override
@@ -177,10 +183,25 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     return application.getAutoInstallFeatures().stream().allMatch(featuresService::isInstalled);
   }
 
+  private Set<Feature> requiredFeaturesNoMainFeature(Application application)
+      throws ApplicationServiceException {
+    Set<Feature> features = application.getFeatures();
+    Predicate<? super Feature> filter =
+        f -> equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE, f.getInstall());
+    if (features.size() == 1) {
+      filter = f -> true;
+    }
+    return features
+        .stream()
+        .filter(filter)
+        .map(this::getAllDependencyFeatures)
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet());
+  }
+
   @Override
   public ApplicationStatus getApplicationStatus(Application application) {
     Set<Feature> uninstalledFeatures = new HashSet<>();
-    Set<Feature> requiredFeatures = new HashSet<>();
     Set<Bundle> errorBundles = new HashSet<>();
     ApplicationState installState = null;
 
@@ -188,24 +209,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     try {
       // Check Main Feature
       Feature mainFeature = application.getMainFeature();
-      boolean isMainFeatureUninstalled = true;
-      if (mainFeature != null) {
-        isMainFeatureUninstalled = !featuresService.isInstalled(mainFeature);
-        requiredFeatures.add(mainFeature);
-      } else {
-
-        Set<Feature> features = application.getFeatures();
-        if (features.size() == 1) {
-          requiredFeatures.addAll(getAllDependencyFeatures(features.iterator().next()));
-        } else {
-          for (Feature curFeature : features) {
-            if (StringUtils.equalsIgnoreCase(
-                Feature.DEFAULT_INSTALL_MODE, curFeature.getInstall())) {
-              requiredFeatures.addAll(getAllDependencyFeatures(curFeature));
-            }
-          }
-        }
-      }
+      boolean isMainFeatureUninstalled =
+          (mainFeature == null) || !featuresService.isInstalled(mainFeature);
+      Set<Feature> requiredFeatures =
+          (mainFeature == null)
+              ? requiredFeaturesNoMainFeature(application)
+              : Collections.singleton(mainFeature);
 
       LOGGER.debug(
           "{} has {} required features that must be started.",
@@ -246,9 +255,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    * @param applicationNames List of application names, these names must exactly match the name of
    *     the application to ignore.
    */
-  public void setIgnoredApplications(List<String> applicationNames) {
+  public void setIgnoredApplications(@Nullable List<String> applicationNames) {
     if (applicationNames != null) {
-      ignoredApplicationNames = new HashSet<String>(applicationNames);
+      ignoredApplicationNames = new HashSet<>(applicationNames);
       LOGGER.debug("Ignoring applications with the following names: {}", ignoredApplicationNames);
     }
   }
@@ -272,9 +281,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
   @Override
   public Set<ApplicationNode> getApplicationTree() {
-    Set<ApplicationNode> applicationTree = new TreeSet<ApplicationNode>();
+    Set<ApplicationNode> applicationTree = new TreeSet<>();
     Set<Application> unfilteredApplications = getApplications();
-    Set<Application> filteredApplications = new HashSet<Application>();
+    Set<Application> filteredApplications = new HashSet<>();
 
     for (Application application : unfilteredApplications) {
       if (!ignoredApplicationNames.contains(application.getName())) {
@@ -282,8 +291,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       }
     }
 
-    Map<Application, ApplicationNodeImpl> appMap =
-        new HashMap<Application, ApplicationNodeImpl>(filteredApplications.size());
+    Map<Application, ApplicationNodeImpl> appMap = new HashMap<>(filteredApplications.size());
     // add all values into a map
     for (Application curApp : filteredApplications) {
       appMap.put(curApp, new ApplicationNodeImpl(curApp, getApplicationStatus(curApp)));
@@ -316,6 +324,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    *     this exists is because this function will be called twice and only the second set of
    *     statements will be relevant
    */
+  @SuppressWarnings({"squid:S3776", "squid:S135"} /* Should be addressed as part of DDF-3076 */)
   private void traverseDependencies(
       Map<Application, ApplicationNodeImpl> appMap,
       Set<Application> filteredApplications,
@@ -416,10 +425,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       Set<Application> applicationSet, Map<Application, ApplicationNodeImpl> appMap) {
 
     // build dependency trees for each application in the set
-    Map<Application, Set<Application>> applicationTreeSet =
-        new HashMap<Application, Set<Application>>(applicationSet.size());
+    Map<Application, Set<Application>> applicationTreeSet = new HashMap<>(applicationSet.size());
     for (Application curDependency : applicationSet) {
-      Set<Application> curDepSet = new HashSet<Application>();
+      Set<Application> curDepSet = new HashSet<>();
       curDepSet.add(curDependency);
       for (ApplicationNode curParent = appMap.get(curDependency).getParent();
           curParent != null;
@@ -455,16 +463,14 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     List<Feature> profiles = new ArrayList<>();
     try {
       profiles =
-          Arrays.asList(featuresService.listFeatures())
-              .stream()
+          Arrays.stream(featuresService.listFeatures())
               .filter(f -> f.getName().contains(INSTALLATION_PROFILE_PREFIX))
-              .sorted((f1, f2) -> Integer.compare(f1.getStartLevel(), f2.getStartLevel()))
+              .sorted(Comparator.comparingInt(Feature::getStartLevel))
               .collect(Collectors.toList());
     } catch (Exception e) {
       LOGGER.warn(
           "Encountered an error while trying to obtain the installation profile features.", e);
     }
-
     return profiles;
   }
 
@@ -503,27 +509,32 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    * @param feature Feature to look for dependencies on.
    * @return A set of all features that are dependencies
    */
-  private Set<Feature> getAllDependencyFeatures(Feature feature) throws Exception {
-    Set<Feature> tmpList = new HashSet<>();
-    // get accurate feature reference from service - workaround for
-    // KARAF-2896 'RepositoryImpl load method incorrectly populates
-    // "features" list'
-    Feature curFeature = featuresService.getFeature(feature.getName(), feature.getVersion());
+  private Set<Feature> getAllDependencyFeatures(Feature feature) {
+    try {
+      Set<Feature> tmpList = new HashSet<>();
+      // get accurate feature reference from service - workaround for
+      // KARAF-2896 'RepositoryImpl load method incorrectly populates
+      // "features" list'
+      Feature curFeature = featuresService.getFeature(feature.getName(), feature.getVersion());
 
-    if (curFeature != null) {
-      for (Dependency dependencyFeature : curFeature.getDependencies()) {
-        Feature feat =
-            featuresService.getFeature(dependencyFeature.getName(), dependencyFeature.getVersion());
-        if (StringUtils.equals(curFeature.getRepositoryUrl(), feat.getRepositoryUrl())) {
-          tmpList.addAll(getAllDependencyFeatures(feat));
+      if (curFeature != null) {
+        for (Dependency dependencyFeature : curFeature.getDependencies()) {
+          Feature feat =
+              featuresService.getFeature(
+                  dependencyFeature.getName(), dependencyFeature.getVersion());
+          if (StringUtils.equals(curFeature.getRepositoryUrl(), feat.getRepositoryUrl())) {
+            tmpList.addAll(getAllDependencyFeatures(feat));
+          }
         }
+        tmpList.add(curFeature);
+      } else {
+        // feature may not be installed
+        tmpList.add(feature);
       }
-      tmpList.add(curFeature);
-    } else {
-      // feature may not be installed
-      tmpList.add(feature);
+      return tmpList;
+    } catch (Exception e) {
+      throw new FeatureServiceException("The Karaf Feature Service threw an exception", e);
     }
-    return tmpList;
   }
 
   /**
@@ -533,97 +544,94 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    * @param features
    * @return {@link BundleStateSet} containing information on the state of each bundle
    */
-  private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
+  private BundleStateSet getCurrentBundleStates(Set<Feature> features) {
     BundleStateSet bundleStateSet = new BundleStateSet();
     BundleContext context = getContext();
-
     for (Feature curFeature : features) {
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
+
         Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
+        if (curBundle == null || isFragment(curBundle)) {
+          continue;
+        }
 
-        if (curBundle != null
-            && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
-
-          // check if bundle is inactive
-          int bundleState = curBundle.getState();
-          switch (bundleState) {
-            case Bundle.RESOLVED:
-            case Bundle.STARTING:
-            case Bundle.STOPPING:
-              bundleStateSet.addInactiveBundle(curBundle);
-              break;
-            case Bundle.INSTALLED:
-            case Bundle.UNINSTALLED:
-              bundleStateSet.addFailedBundle(curBundle);
-              break;
-            case Bundle.ACTIVE:
-              // check if any service frameworks (e.g. Blueprint
-              // and SpringDM) failed on start
-              for (BundleStateService curStateService : bundleStateServices) {
-                LOGGER.trace(
-                    "Checking {} for bundle state of {}.",
-                    curStateService.getName(),
-                    curBundle.getSymbolicName());
-                BundleState curState = curStateService.getState(curBundle);
-
-                switch (curState) {
-                  case Resolved:
-
-                  case Stopping:
-                    LOGGER.trace(
-                        "{} is in an inactive state. Current State: {}",
-                        curBundle.getSymbolicName(),
-                        curState);
-
-                    bundleStateSet.addInactiveBundle(curBundle);
-                    break;
-
-                  case Installed:
-                  case Failure:
-                    LOGGER.trace(
-                        "{} is in a failed state. Current State: {}",
-                        curBundle.getSymbolicName(),
-                        curState);
-
-                    bundleStateSet.addFailedBundle(curBundle);
-                    break;
-
-                  case Waiting:
-                  case Starting:
-                  case GracePeriod:
-                    LOGGER.trace(
-                        "{} is in a transitional state. Current State: {}",
-                        curBundle.getSymbolicName(),
-                        curState);
-
-                    bundleStateSet.addTransitionalBundle(curBundle);
-                    break;
-
-                  case Active:
-                    LOGGER.trace(
-                        "{} is in an active state. Current State: {}",
-                        curBundle.getSymbolicName(),
-                        curState);
-
-                    bundleStateSet.addActiveBundle(curBundle);
-                    break;
-
-                  case Unknown:
-                  default:
-                    // Ignore - BundleStateService unaware of this bundle.
-                    break;
-                }
-              }
-              break; // end case Bundle.Active
-            default:
-              bundleStateSet.addActiveBundle(curBundle);
-              break;
-          }
+        // check if bundle is inactive
+        int bundleState = curBundle.getState();
+        switch (bundleState) {
+          case Bundle.RESOLVED:
+          case Bundle.STARTING:
+          case Bundle.STOPPING:
+            bundleStateSet.addInactiveBundle(curBundle);
+            break;
+          case Bundle.INSTALLED:
+          case Bundle.UNINSTALLED:
+            bundleStateSet.addFailedBundle(curBundle);
+            break;
+          case Bundle.ACTIVE:
+            // check if any service frameworks (e.g. Blueprint
+            // and SpringDM) failed on start
+            for (BundleStateService curStateService : bundleStateServices) {
+              LOGGER.trace(
+                  "Checking {} for bundle state of {}.",
+                  curStateService.getName(),
+                  curBundle.getSymbolicName());
+              mapBundleState(curBundle, curStateService.getState(curBundle), bundleStateSet);
+            }
+            break;
+          default:
+            bundleStateSet.addActiveBundle(curBundle);
+            break;
         }
       }
     }
 
     return bundleStateSet;
+  }
+
+  // getTypes() returns an int of flags
+  private boolean isFragment(Bundle bundle) {
+    return (bundle.adapt(BundleRevision.class).getTypes() & BundleRevision.TYPE_FRAGMENT)
+        == BundleRevision.TYPE_FRAGMENT;
+  }
+
+  private void mapBundleState(
+      Bundle curBundle, BundleState curState, BundleStateSet bundleStateSet) {
+    switch (curState) {
+      case Resolved:
+      case Stopping:
+        LOGGER.trace(
+            "{} is in an inactive state. Current State: {}", curBundle.getSymbolicName(), curState);
+        bundleStateSet.addInactiveBundle(curBundle);
+        break;
+
+      case Installed:
+      case Failure:
+        LOGGER.trace(
+            "{} is in a failed state. Current State: {}", curBundle.getSymbolicName(), curState);
+        bundleStateSet.addFailedBundle(curBundle);
+        break;
+
+      case Waiting:
+      case Starting:
+      case GracePeriod:
+        LOGGER.trace(
+            "{} is in a transitional state. Current State: {}",
+            curBundle.getSymbolicName(),
+            curState);
+        bundleStateSet.addTransitionalBundle(curBundle);
+        break;
+
+      case Active:
+        LOGGER.trace(
+            "{} is in an active state. Current State: {}", curBundle.getSymbolicName(), curState);
+        bundleStateSet.addActiveBundle(curBundle);
+        break;
+
+      case Unknown:
+      default:
+        // Ignore - BundleStateService unaware of this bundle.
+        break;
+    }
   }
 
   @Override
@@ -834,11 +842,10 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       // Loop through all the applications for a match
       for (Application application : applications) {
         URI applicationURI = application.getURI();
-        if (applicationURI != null) {
-          if (StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
-            uninstallAllFeatures(application);
-            break;
-          }
+        if (applicationURI != null
+            && StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
+          uninstallAllFeatures(application);
+          break;
         }
       }
     }
@@ -847,31 +854,36 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   /** @param application - application to have all its features uninstalled */
   private void uninstallAllFeatures(Application application) {
     try {
-      Set<Feature> features = application.getFeatures();
-      for (Feature feature : features) {
-        if (featuresService.isInstalled(feature) && isPermittedToViewFeature(feature.getName())) {
-          try {
-            featuresService.uninstallFeature(
-                feature.getName(), feature.getVersion(), EnumSet.of(Option.NoAutoRefreshBundles));
-          } catch (Exception e) {
-            // if there is an issue uninstalling a feature try to keep uninstalling the other
-            // features
-            LOGGER.warn(
-                "Could not uninstall feature: {} version: {}",
-                feature.getName(),
-                feature.getVersion(),
-                e);
-          }
-        }
-      }
+      application
+          .getFeatures()
+          .stream()
+          .filter(Objects::nonNull)
+          .filter(featuresService::isInstalled)
+          .filter(f -> isPermittedToViewFeature(f.getName()))
+          .forEach(this::tryUninstallFeature);
     } catch (ApplicationServiceException ase) {
       LOGGER.warn("Error obtaining feature list from application", ase);
     }
   }
 
+  private void tryUninstallFeature(Feature feature) {
+    try {
+      featuresService.uninstallFeature(
+          feature.getName(), feature.getVersion(), EnumSet.of(Option.NoAutoRefreshBundles));
+    } catch (Exception e) {
+      // if there is an issue uninstalling a feature try to keep uninstalling the other
+      // features
+      LOGGER.warn(
+          "Could not uninstall feature: {} version: {}",
+          feature.getName(),
+          feature.getVersion(),
+          e);
+    }
+  }
+
   @Override
   public List<FeatureDetails> getAllFeatures() {
-    List<FeatureDetails> features = new ArrayList<FeatureDetails>();
+    List<FeatureDetails> features = new ArrayList<>();
     try {
       for (Feature feature : featuresService.listFeatures()) {
         if (isPermittedToViewFeature(feature.getName())) {
@@ -885,7 +897,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   }
 
   private Map<String, String> getFeatureToRepository() {
-    Map<String, String> feature2repo = new HashMap<String, String>();
+    Map<String, String> feature2repo = new HashMap<>();
     try {
       for (Repository repository : featuresService.listRepositories()) {
         for (Feature feature : repository.getFeatures()) {
@@ -906,14 +918,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
   @Override
   public List<FeatureDetails> findApplicationFeatures(String applicationName) {
-    List<FeatureDetails> features =
-        getRepositoryFeatures(applicationName)
-            .stream()
-            .filter(feature -> !isAppInFeatureList(feature, applicationName))
-            .filter(feature -> isPermittedToViewFeature(feature.getName()))
-            .map(this::getFeatureView)
-            .collect(Collectors.toList());
-    return features;
+    return getRepositoryFeatures(applicationName)
+        .stream()
+        .filter(feature -> !isAppInFeatureList(feature, applicationName))
+        .filter(feature -> isPermittedToViewFeature(feature.getName()))
+        .map(this::getFeatureView)
+        .collect(Collectors.toList());
   }
 
   private boolean isAppInFeatureList(Feature feature, String applicationName) {
@@ -975,6 +985,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     } catch (SecurityServiceException | InvocationTargetException e) {
       LOGGER.warn("Failed to elevate subject", e);
       return false;
+    }
+  }
+
+  private static class FeatureServiceException extends RuntimeException {
+    FeatureServiceException(String message, Throwable cause) {
+      super(message, cause);
     }
   }
 
