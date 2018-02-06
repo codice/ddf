@@ -20,11 +20,12 @@ define([
         'js/Common',
         'js/ColorGenerator',
         'js/QueryPolling',
+        'js/cql',
         'component/singletons/user-instance',
         'moment',
         'backboneassociations'
     ],
-    function ($, _, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
+    function ($, _, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, cql, user, moment) {
 
         var Workspace = {};
 
@@ -208,17 +209,17 @@ define([
                 }).get('queries').first().startSearch();
             },
             createAdhocWorkspace: function(text){
-                var cql;
+                var cqlQuery;
                 var title = text;
                 if (text.length === 0) {
-                    cql = "anyText ILIKE '*'";
+                    cqlQery = "anyText ILIKE '%'";
                     title = '*';
                 } else {
-                    cql = "anyText ILIKE '" + text + "'";
+                    cqlQuery = "anyText ILIKE '" + cql.translateUserqlToCql(text) + "'";
                 }
                 var queryForWorkspace = new Query.Model({
                     title: title,
-                    cql: cql
+                    cql: cqlQuery
                 });
                 this.create({
                     title: title,
@@ -232,7 +233,7 @@ define([
                     title: 'Example Local',
                     federation: 'local',
                     excludeUnnecessaryAttributes: false,
-                    cql: "anyText ILIKE '*'"
+                    cql: "anyText ILIKE '%'"
                 });
                 this.create({
                     title: 'Template Local',
@@ -246,7 +247,7 @@ define([
                     title: 'Example Federated',
                     federation: 'enterprise',
                     excludeUnnecessaryAttributes: false,
-                    cql: "anyText ILIKE '*'"
+                    cql: "anyText ILIKE '%'"
                 });
                 this.create({
                     title: 'Template Federated',
@@ -259,7 +260,7 @@ define([
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Location',
                     excludeUnnecessaryAttributes: false,
-                    cql: "anyText ILIKE '*' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))"
+                    cql: "anyText ILIKE '%' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))"
                 });
                 this.create({
                     title: 'Template Location',
@@ -272,7 +273,7 @@ define([
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Temporal',
                     excludeUnnecessaryAttributes: false,
-                    cql: 'anyText ILIKE \'*\' AND ("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
+                    cql: 'anyText ILIKE \'%\' AND ("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
                 });
                 this.create({
                     title: 'Template Temporal',

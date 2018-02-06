@@ -187,6 +187,28 @@ define([
         return results;
     }
 
+    // Mapping of Intrigue's query language syntax to CQL syntax
+    const userqlToCql = {
+        '*': '%',
+        '?': '_',
+        '%': '\\%',
+        '_': '\\_'
+    };
+
+    const translateUserqlToCql =
+        (str) => str.replace( /([^*?%_])?([*?%_])/g,
+            (_, a = '', b) => a + (a === '\\' ? b : userqlToCql[b]));
+
+    //Mapping of CQL syntax to Intrigue's query language syntax
+    const cqlToUserql = {
+        '%': '*',
+        '_': '?'
+    };
+
+    const translateCqlToUserql =
+        (str) => str.replace(/([^%_])?([%_])/g,
+            (_, a = '', b) => a === '\\' ? b : a + cqlToUserql[b]);
+
     function buildAst(tokens) {
         var operatorStack = [],
             postfix = [];
@@ -323,7 +345,7 @@ define([
                 case "VALUE":
                     var match = tok.text.match(/^'(.*)'$/);
                     if (match) {
-                        return match[1].replace(/''/g, "'");
+                        return translateCqlToUserql(match[1].replace(/''/g, "'"));
                     } else {
                         return Number(tok.text);
                     }
@@ -510,7 +532,7 @@ define([
                     }).join(",") + ")";
                 }
                 else if (typeof filter === "string") {
-                    return "'" + filter.replace(/'/g, "''") + "'";
+                    return translateUserqlToCql("'" + filter.replace(/'/g, "''") + "'");
                 } else if (typeof filter === "number") {
                     return String(filter);
                 } else if (typeof filter === "boolean") {
@@ -606,6 +628,8 @@ define([
             collapseNOTs(cqlAst);
             iterativelySimplify(cqlAst);
             return cqlAst;
-        }
+        },
+        translateCqlToUserql,
+        translateUserqlToCql
     };
 });
