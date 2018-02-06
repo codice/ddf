@@ -149,7 +149,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
 import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
@@ -696,33 +695,24 @@ public class CswEndpoint implements Csw {
   }
 
   private InsertAction transformInsertAction(InsertAction insertAction, String typeName) {
-    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
-    if (op.isPresent()) {
-      CswActionTransformer tr = op.get();
-      return tr.transform(insertAction);
-    } else {
-      return insertAction;
-    }
+    return cswActionTransformerProvider
+        .getTransformer(typeName)
+        .map(tr -> tr.transform(insertAction))
+        .orElse(insertAction);
   }
 
   private DeleteAction transformDeleteAction(DeleteAction deleteAction, String typeName) {
-    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
-    if (op.isPresent()) {
-      CswActionTransformer tr = op.get();
-      return tr.transform(deleteAction);
-    } else {
-      return deleteAction;
-    }
+    return cswActionTransformerProvider
+        .getTransformer(typeName)
+        .map(tr -> tr.transform(deleteAction))
+        .orElse(deleteAction);
   }
 
   private UpdateAction transformUpdateAction(UpdateAction updateAction, String typeName) {
-    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
-    if (op.isPresent()) {
-      CswActionTransformer tr = op.get();
-      return tr.transform(updateAction);
-    } else {
-      return updateAction;
-    }
+    return cswActionTransformerProvider
+        .getTransformer(typeName)
+        .map(tr -> tr.transform(updateAction))
+        .orElse(updateAction);
   }
 
   private int updateRecords(UpdateAction updateAction)

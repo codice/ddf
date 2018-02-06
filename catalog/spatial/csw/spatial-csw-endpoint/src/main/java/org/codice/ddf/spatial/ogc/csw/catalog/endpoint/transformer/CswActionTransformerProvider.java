@@ -20,13 +20,19 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages a reference list of {@link CswActionTransformer}'s by mapping them to the QName's they
  * apply to.
  */
 public class CswActionTransformerProvider {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CswActionTransformerProvider.class);
+
   private Map<QName, CswActionTransformer> transformerMap = new ConcurrentHashMap<>();
 
   private final Map<String, QName> typeNameQNameMap = new HashMap<>();
@@ -37,10 +43,19 @@ public class CswActionTransformerProvider {
     }
 
     List<QName> namespaces = cswActionTransformer.getQNames();
+    if (CollectionUtils.isEmpty(namespaces)) {
+      LOGGER.warn(
+          "Unable to bind a CswActionTransformer because it does not have one or more Qnames");
+      return;
+    }
     for (QName namespace : namespaces) {
       transformerMap.put(namespace, cswActionTransformer);
       List<String> typeNames = cswActionTransformer.getTypeNames();
-
+      if (CollectionUtils.isEmpty(typeNames)) {
+        LOGGER.warn(
+            "Unable to bind a CswActionTransformer because it does not have one or more typenames");
+        return;
+      }
       for (String typeName : typeNames) {
         typeNameQNameMap.put(typeName, namespace);
       }

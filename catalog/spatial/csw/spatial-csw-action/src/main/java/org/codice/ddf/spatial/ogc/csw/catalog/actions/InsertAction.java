@@ -16,11 +16,31 @@ package org.codice.ddf.spatial.ogc.csw.catalog.actions;
 import ddf.catalog.data.Metacard;
 import java.util.List;
 
+/** An InsertAction represents a single insert action within a CSW transaction. */
 public interface InsertAction {
 
+  /**
+   * Returns the list of records to insert.
+   *
+   * @return the list of records to insert.
+   */
   List<Metacard> getRecords();
 
+  /**
+   * Returns the type of record being inserted, such as csw:Record.
+   *
+   * @return the type of record being inserted, such as csw:Record.
+   */
   String getTypeName();
 
+  /**
+   * Returns a unique String used to identify this InsertAction within a transaction.
+   *
+   * <p>If an error occurs while processing this insert action, this String will be included in the
+   * exception report response so the specific action within the transaction that caused the error
+   * can be identified.
+   *
+   * @return unique String used to identify this InsertAction within a transaction.
+   */
   String getHandle();
 }

@@ -18,15 +18,47 @@ import java.io.Serializable;
 import java.util.Map;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
+/** An UpdateAction represents a single update action within a CSW transaction. */
 public interface UpdateAction {
 
+  /**
+   * Returns the metacard that will replace the existing metacard.
+   *
+   * @return the metacard that will replace the existing metacard.
+   */
   Metacard getMetacard();
 
+  /**
+   * Returns the {@link QueryConstraintType} that specifies which metacards this update will be
+   * applied to.
+   *
+   * @return the {@link QueryConstraintType} that specifies which metacards this update will be
+   *     applied to.
+   */
   QueryConstraintType getConstraint();
 
+  /**
+   * Returns the specified map of attributes to new values to update in the metacard.
+   *
+   * @return a map of attributes to new values to update in the metacard.
+   */
   Map<String, Serializable> getRecordProperties();
 
+  /**
+   * Returns the type of record being updated, such as csw:Record.
+   *
+   * @return the type of record being updated, such as csw:Record.
+   */
   String getTypeName();
 
+  /**
+   * Returns a unique String used to identify this UpdateAction within a transaction.
+   *
+   * <p>If an error occurs while processing this update action, this String will be included in the
+   * exception report response so the specific action within the transaction that caused the error
+   * can be identified.
+   *
+   * @return unique String used to identify this UpdateAction within a transaction.
+   */
   String getHandle();
 }
