@@ -19,6 +19,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help validating exception causes. */
 public class ThrowableMatchers {
+  private ThrowableMatchers() {}
+
   public static Matcher hasSuppressedMatching(Matcher<? extends Throwable[]> matcher) {
     return new TypeSafeMatcher<Throwable>() {
       @Override

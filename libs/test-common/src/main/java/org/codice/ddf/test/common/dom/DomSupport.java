@@ -19,6 +19,8 @@ import org.w3c.dom.NodeList;
 
 /** This class provides support for handling DOM trees while testing. */
 public class DomSupport {
+  private DomSupport() {}
+
   /**
    * Returns a new predicate that will report <code>true</code> if any of the nodes in the hierarchy
    * of the tested node yields <code>true</code> when tested with the provided predicate.

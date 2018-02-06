@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 /** This class provides utilities for working with predicates. */
 public class PredicateUtils {
+  private PredicateUtils() {}
+
   /**
    * Returns a new predicate that will report <code>true</code> if all provided predicates report
    * <code>true</code> for the tested argument.

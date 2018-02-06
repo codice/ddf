@@ -15,6 +15,8 @@ package org.codice.ddf.test.common.xmlunit;
 
 /** This class provides additional support when testing along with XMLUnit 2.0 matchers. */
 public class XMLUnitSupport {
+  private XMLUnitSupport() {}
+
   /**
    * Adapts a Java 8 predicate to an XMLUnit predicate one.
    *
@@ -23,6 +25,6 @@ public class XMLUnitSupport {
    * @return a corresponding XMLUnit predicate
    */
   public static <T> org.xmlunit.util.Predicate<T> adapt(java.util.function.Predicate<T> predicate) {
-    return t -> predicate.test(t);
+    return predicate::test;
   }
 }

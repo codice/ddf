@@ -20,6 +20,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help cast objects before matching them. */
 public class CastingMatchers {
+  private CastingMatchers() {}
+
   public static <T, S extends T> Matcher<T> cast(Class<S> clazz, Matcher<? extends S> matcher) {
     return new TypeSafeMatcher<T>() {
       private final Class<?> matchableClass = ClassUtils.primitiveToWrapper(clazz);

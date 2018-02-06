@@ -20,6 +20,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help mapping objects to values before matching the value. */
 public class MappingMatchers {
+  private MappingMatchers() {}
+
   public static <T, V> Matcher<T> map(Function<T, V> mapper, Matcher<? extends V> matcher) {
     return new TypeSafeMatcher<T>() {
       @Override
