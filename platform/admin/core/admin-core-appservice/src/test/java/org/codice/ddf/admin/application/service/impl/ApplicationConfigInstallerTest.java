@@ -22,7 +22,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import ddf.security.Subject;
@@ -210,27 +209,14 @@ public class ApplicationConfigInstallerTest {
   // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
   @Test
   public void testRunConfigFileNotExist() throws Exception {
-    ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    final Appender mockAppender = mock(Appender.class);
-    when(mockAppender.getName()).thenReturn("MOCK");
-    root.addAppender(mockAppender);
-    root.setLevel(Level.ALL);
+    ApplicationService applicationServiceMock = mock(ApplicationService.class);
 
     ApplicationConfigInstaller configInstaller =
         getApplicationConfigInstaller(BAD_FILE, null, null, START_FEATURE, STOP_FEATURE);
 
     configInstaller.run();
 
-    verify(mockAppender)
-        .doAppend(
-            argThat(
-                new ArgumentMatcher() {
-                  @Override
-                  public boolean matches(final Object argument) {
-                    return ((LoggingEvent) argument).getFormattedMessage().contains(RUN_NO_CONFIG);
-                  }
-                }));
+    verify(applicationServiceMock, never()).addApplication(any(URI.class));
   }
 
   /**
