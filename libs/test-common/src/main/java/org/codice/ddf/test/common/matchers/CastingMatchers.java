@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.matchers;
+package org.codice.ddf.test.common.matchers;
 
 import org.apache.commons.lang.ClassUtils;
 import org.hamcrest.Description;
@@ -20,6 +20,8 @@ import org.hamcrest.TypeSafeMatcher;
 
 /** This class provides matchers to help cast objects before matching them. */
 public class CastingMatchers {
+  private CastingMatchers() {}
+
   public static <T, S extends T> Matcher<T> cast(Class<S> clazz, Matcher<? extends S> matcher) {
     return new TypeSafeMatcher<T>() {
       private final Class<?> matchableClass = ClassUtils.primitiveToWrapper(clazz);

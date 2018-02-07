@@ -37,7 +37,7 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.test.matchers.ThrowableMatchers;
+import org.codice.ddf.test.common.matchers.ThrowableMatchers;
 import org.codice.ddf.util.function.BiThrowingConsumer;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
