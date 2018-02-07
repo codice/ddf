@@ -490,7 +490,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getPresignPlugins(),
             spMetadata,
             SUPPORTED_BINDINGS),
-        submitForm,
         SamlProtocol.POST_BINDING);
   }
 
@@ -516,7 +515,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getPresignPlugins(),
             spMetadata,
             SUPPORTED_BINDINGS),
-        redirectPage,
         SamlProtocol.REDIRECT_BINDING);
   }
 
@@ -532,10 +530,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
       String signature,
       HttpServletRequest request,
       Binding binding,
-      String template,
       String originalBinding)
       throws WSSecurityException {
     String responseStr;
+    String template;
     AuthnRequest authnRequest = null;
     try {
       Map<String, Object> responseMap = new HashMap<>();
@@ -561,6 +559,35 @@ public class IdpEndpoint implements Idp, SessionHandler {
         LOGGER.debug("Received Passive & PKI AuthnRequest.");
         org.opensaml.saml.saml2.core.Response samlpResponse;
         try {
+
+          // Find binding supported by SP and change template
+          String assertionConsumerServiceBinding =
+              ResponseCreator.getAssertionConsumerServiceBinding(
+                  authnRequest, getServiceProvidersMap());
+
+          if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+            binding =
+                new PostBinding(
+                    systemCrypto,
+                    getServiceProvidersMap(),
+                    getPresignPlugins(),
+                    spMetadata,
+                    SUPPORTED_BINDINGS);
+            template = submitForm;
+          } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            binding =
+                new RedirectBinding(
+                    systemCrypto,
+                    getServiceProvidersMap(),
+                    getPresignPlugins(),
+                    spMetadata,
+                    SUPPORTED_BINDINGS);
+            template = redirectPage;
+          } else {
+            throw new IdpException(
+                new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
+          }
+
           samlpResponse =
               handleLogin(
                   authnRequest,
@@ -582,6 +609,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
           LOGGER.debug(e.getMessage(), e);
           return getErrorResponse(
               relayState, authnRequest, StatusCode.REQUEST_UNSUPPORTED, binding);
+        } catch (IdpException e) {
+          LOGGER.debug(e.getMessage(), e);
+          return getErrorResponse(
+              relayState, authnRequest, StatusCode.UNSUPPORTED_BINDING, binding);
         }
         LOGGER.debug("Returning Passive & PKI SAML Response.");
         NewCookie cookie = null;
