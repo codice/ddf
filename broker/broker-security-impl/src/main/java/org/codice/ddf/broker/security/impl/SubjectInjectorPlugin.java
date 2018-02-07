@@ -70,7 +70,8 @@ public class SubjectInjectorPlugin implements BrokerMessageInterceptor {
     }
   }
 
-  public static void setConfiguredAddresses(Set<String> addresses) {
+  @SuppressWarnings("squid:s2696)")
+  public void setConfiguredAddresses(Set<String> addresses) {
     configuredAddresses = new HashSet<>(addresses);
   }
 
@@ -93,7 +94,8 @@ public class SubjectInjectorPlugin implements BrokerMessageInterceptor {
     return SAMLUtils.getInstance().getSubjectAsStringNoSignature(getSubjectAsElement(session));
   }
 
-  public static void setSecurityManager(SecurityManager securityManager) {
+  @SuppressWarnings("squid:s2696)")
+  public void setSecurityManager(SecurityManager securityManager) {
     SubjectInjectorPlugin.securityManager = securityManager;
   }
 

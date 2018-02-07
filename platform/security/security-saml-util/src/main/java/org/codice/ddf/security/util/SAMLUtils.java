@@ -92,7 +92,6 @@ public class SAMLUtils {
 
       String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
       try (InputStream is = new ByteArrayInputStream(evidence.getBytes(StandardCharsets.UTF_8))) {
-
         DocumentBuilderFactory dbf = XML_UTILS.getSecureDocumentBuilderFactory();
         dbf.setNamespaceAware(true);
 
