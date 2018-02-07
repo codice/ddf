@@ -125,6 +125,9 @@ public class IdpEndpointTest {
   String authNRequestPassivePkiGet =
       "jZJRT8IwFIX/ytL3sa0DhIYtQYhxCZoJ6IMvpnQXaNK1s7dD/fduAw2+IK/t6XdOz70T5KWiFZvWbq+X8F4DOi/DnCPKAyTE2RqIN0UE66TRM6OxLsGuwB6kgOflIiF75ypkQaCM4Gpv0LHReBwHeJRg0DoEiIZ48wYuNW9B/z+TRdXc7aQmXjZPyBsfDIabWGz9zRCE3w9j6m8GUd8HGG1HhaAFjeJGilhDptFx7RJCw2jgR6FPx+vohtGY0VEvDMNX4uXWOCOMupW6kHqXkNpqZjhKZJqXgMwJtpo+LBjthWxzFCG7X69zfwmFtCAc8V7AYveXRkS8z1JpZMc+L/OqkzlJJ52cdantOeEygP/Mg6TXtD8Jzm1OphV7bLjZPDdKii9vqpT5mFng7nfqd8aW3F1O0p7Iwt92Ula1haAD3ZSzylv+U82V3Eqw1+0JCdJT2L8rmX4D";
 
+  String authNRequestPassivePkiGetUnsupportedBinding =
+      "jZJdT8IwFIb/Cun92NYxhIaRIMRkCRoE9cIbU7ozaNK1s6dD/ffuAyLcIOeyPe/znq8J8kLRks0qt9dr+KwAXS/FFUeUB0iIsxWQXhMzRLBOGj03GqsC7AbsQQp4XS8TsneuROb7ygiu9gYdG43HkY9dCvqNi49oOtSiNpGaN7D/pTIr67+d1J02XSTkg8fxcBuJ3NsOQXiDIKLeNg4HHsAoH2WCZjSMSN0GVpBqdFy7hNAgjL0w8Oj4JbxjNGJ01A+C4L3DrqxxRhh1L3Um9S4hldXMcJTINC8AmRNsM3tcMtoP2LZLQpZqYawF4Y4y0nsDi21bdV5H/i6URtaN+Tq2PNZApq1w0mpY24U9x1yn8NOejpgmbllP5+mfm57XUbKn2ipdrIyS4qc3U8p8zS1wd3EkTTwYW3B3vcjmRWZe3qayshkaOtDuj7JZNX7PFVcyl2BvOzHiT08tXJ709Bc=";
+
   String authNRequestPassivePkiPost =
       "PHNhbWwycDpBdXRoblJlcXVlc3QgSXNQYXNzaXZlPSJ0cnVlIiBBc3NlcnRpb25Db25zdW1lclNlcnZpY2VVUkw9Imh0dHBzOi8vbG9jYWxob3N0Ojg5OTMvc2VydmljZXMvc2FtbC9zc28iIERlc3RpbmF0aW9uPSJodHRwczovL2xvY2FsaG9zdDo4OTkzL3NlcnZpY2VzL2lkcC9sb2dpbiIgSUQ9Il9hNTU2YjNjZi1iNmVjLTQwMzItYjUxNC1lZThmOGRjMmQyMTMiIElzc3VlSW5zdGFudD0iMjAxNS0xMC0yOVQxNzoyMzoyOC4wMDBaIiBQcm90b2NvbEJpbmRpbmc9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpiaW5kaW5nczpIVFRQLVBPU1QiIFZlcnNpb249IjIuMCIgeG1sbnM6c2FtbDJwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiPjxzYW1sMjpJc3N1ZXIgeG1sbnM6c2FtbDI9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iPmh0dHBzOi8vbG9jYWxob3N0Ojg5OTMvc2VydmljZXMvc2FtbDwvc2FtbDI6SXNzdWVyPjxzYW1sMnA6TmFtZUlEUG9saWN5IEFsbG93Q3JlYXRlPSJ0cnVlIiBGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnBlcnNpc3RlbnQiIFNQTmFtZVF1YWxpZmllcj0iaHR0cHM6Ly9sb2NhbGhvc3Q6ODk5My9zZXJ2aWNlcy9zYW1sIi8+PC9zYW1sMnA6QXV0aG5SZXF1ZXN0Pg==";
 
@@ -847,6 +850,48 @@ public class IdpEndpointTest {
 
     // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:RequestUnsupported"));
+  }
+
+  @Test
+  public void testPassiveLoginPkiUnsupportedBinding()
+      throws SecurityServiceException, WSSecurityException, CertificateEncodingException,
+          IOException {
+    String samlRequest = authNRequestPassivePkiGetUnsupportedBinding;
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    X509Certificate x509Certificate = mock(X509Certificate.class);
+
+    Subject subject = mock(Subject.class);
+    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
+    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
+    SecurityToken securityToken = mock(SecurityToken.class);
+    SecurityManager securityManager = mock(SecurityManager.class);
+    when(subject.getPrincipals()).thenReturn(principalCollection);
+    when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
+    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    // this mock element is what will cause the signature error
+    when(securityToken.getToken()).thenReturn(mock(Element.class));
+    when(securityManager.getSubject(anyObject())).thenReturn(subject);
+    idpEndpoint.setSecurityManager(securityManager);
+    idpEndpoint.setStrictSignature(false);
+
+    when(request.isSecure()).thenReturn(true);
+    when(request.getRequestURL()).thenReturn(requestURL);
+    when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
+    // dummy cert
+    when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
+        .thenReturn(new X509Certificate[] {x509Certificate});
+    when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
+
+    Response response =
+        idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
+    String responseStr =
+        StringUtils.substringBetween(
+            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
+    responseStr = URLDecoder.decode(responseStr, "UTF-8");
+    responseStr = RestSecurity.inflateBase64(responseStr);
+
+    // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+    assertThat(responseStr, containsString("status:UnsupportedBinding"));
   }
 
   @Test
