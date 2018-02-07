@@ -31,11 +31,10 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  */
 public class PrincipalCondition implements Condition {
 
-  private Bundle bundle;
   private String[] args;
 
+  @SuppressWarnings("squid:S1172")
   public PrincipalCondition(Bundle bundle, ConditionInfo conditionInfo) {
-    this.bundle = bundle;
     args = conditionInfo.getArgs();
   }
 
