@@ -16,10 +16,11 @@ package org.codice.ddf.broker.route.manager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.camel.CamelContext;
+import org.apache.camel.RuntimeCamelException;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.slf4j.Logger;
@@ -32,15 +33,23 @@ import org.slf4j.LoggerFactory;
 public class DynamicRouteDeployer implements ArtifactInstaller {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicRouteDeployer.class);
 
-  private final CamelContext camelContext;
+  /**
+   * This map should be static in order to maintain a reference to the existing map after a bundle
+   * restart. This is because init() is called and not install() to process the RouteDefinitions, so
+   * we need to make the map static so that it survives the instance being destroyed and recreated
+   * during a restart.
+   */
+  private static Map<File, List<RouteDefinition>> processedFiles = new ConcurrentHashMap<>();
 
-  private Map<File, List<RouteDefinition>> processedFiles = new HashMap<>();
+  private final CamelContext camelContext;
 
   public DynamicRouteDeployer(CamelContext camelContext) {
     this.camelContext = camelContext;
   }
 
-  public void init() {}
+  public void init() {
+    processedFiles.values().forEach(this::addRouteDefinitions);
+  }
 
   public void destroy() throws Exception {
     camelContext.stop();
@@ -50,15 +59,13 @@ public class DynamicRouteDeployer implements ArtifactInstaller {
   public void install(File file) throws Exception {
     try (InputStream is = new FileInputStream(file)) {
       List<RouteDefinition> routeDefinitions;
-
       LOGGER.info("Loading route path: {}", file.getName());
 
       routeDefinitions = camelContext.loadRoutesDefinition(is).getRoutes();
-
       camelContext.addRouteDefinitions(routeDefinitions);
+
       processedFiles.put(file, routeDefinitions);
       camelContext.startAllRoutes();
-
     } catch (Exception e) {
       LOGGER.warn("Failed to read route definition. See debug log for stack trace.");
       LOGGER.debug(e.getMessage(), e);
@@ -86,5 +93,13 @@ public class DynamicRouteDeployer implements ArtifactInstaller {
   @Override
   public boolean canHandle(File file) {
     return file.getName().endsWith(".xml");
+  }
+
+  private void addRouteDefinitions(List<RouteDefinition> routeDefinitions) {
+    try {
+      camelContext.addRouteDefinitions(routeDefinitions);
+    } catch (Exception e) {
+      throw new RuntimeCamelException(e);
+    }
   }
 }
