@@ -35,6 +35,7 @@ import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
 import org.osgi.service.permissionadmin.PermissionInfo;
 import org.osgi.util.tracker.ServiceTracker;
 
+/** Initializes the CondPermAdmin permission table from all policy files in ddf_home/security */
 public class PermissionActivator implements BundleActivator {
 
   private static final String BUNDLE_NAME_CONDITION =

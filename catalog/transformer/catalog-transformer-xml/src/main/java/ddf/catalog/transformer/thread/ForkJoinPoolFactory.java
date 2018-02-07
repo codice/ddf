@@ -16,9 +16,22 @@ package ddf.catalog.transformer.thread;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 
+/**
+ * The standard ForkJoinPoolFactory is incompatible with the OSGi security manager. This one uses
+ * one to create standard worker threads to avoid the issue.
+ */
 public class ForkJoinPoolFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
   public final ForkJoinWorkerThread newThread(ForkJoinPool pool) {
     return new StandardForkJoinWorkerThread(pool);
+  }
+
+  public static ForkJoinPool getNewForkJoinPool(
+      Thread.UncaughtExceptionHandler handler, boolean asyncMode) {
+    return new ForkJoinPool(
+        Math.min(0x7fff, Runtime.getRuntime().availableProcessors()),
+        new ForkJoinPoolFactory(),
+        handler,
+        asyncMode);
   }
 
   static class StandardForkJoinWorkerThread extends ForkJoinWorkerThread {

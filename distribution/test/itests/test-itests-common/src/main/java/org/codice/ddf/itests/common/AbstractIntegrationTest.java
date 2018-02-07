@@ -835,7 +835,7 @@ public abstract class AbstractIntegrationTest {
   public void clearCatalogAndWait() {
     clearCatalog();
     clearCache();
-    with().pollInterval(1, SECONDS).await().atMost(30, SECONDS).until(this::isCatalogEmpty);
+    with().pollInterval(1, SECONDS).await().atMost(60, SECONDS).until(this::isCatalogEmpty);
   }
 
   public void clearCatalog() {

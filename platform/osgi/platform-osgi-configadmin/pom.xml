@@ -62,11 +62,6 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-            <version>3.11.3</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -122,7 +117,6 @@
                                     <excludes>
                                         <exclude>org/apache/felix/cm/impl/ConfigurationManager*
                                         </exclude>
-                                        <exclude>org/apache/felix/cm/impl/helper/BaseTracker*</exclude>
                                         <exclude>*.SF</exclude>
                                         <exclude>*.RSA</exclude>
                                     </excludes>

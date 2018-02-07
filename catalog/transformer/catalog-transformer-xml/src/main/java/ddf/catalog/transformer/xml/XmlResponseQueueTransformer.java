@@ -72,20 +72,11 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
 
     MetacardForkTask(
         ImmutableList<Result> resultList,
+        ForkJoinPool fjp,
         GeometryTransformer geometryTransformer,
         int threshold,
         MetacardMarshaller mcm) {
-      this(
-          resultList,
-          new ForkJoinPool(
-              Math.min(0x7fff, Runtime.getRuntime().availableProcessors()),
-              new ForkJoinPoolFactory(),
-              null,
-              false),
-          geometryTransformer,
-          threshold,
-          new AtomicBoolean(false),
-          mcm);
+      this(resultList, fjp, geometryTransformer, threshold, new AtomicBoolean(false), mcm);
     }
 
     private MetacardForkTask(
@@ -207,12 +198,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
   public XmlResponseQueueTransformer(
       Parser parser, PrintWriterProvider pwp, MetacardMarshaller mcm, MimeType mimeType) {
     super(parser);
-    this.fjp =
-        new ForkJoinPool(
-            Math.min(0x7fff, Runtime.getRuntime().availableProcessors()),
-            new ForkJoinPoolFactory(),
-            null,
-            false);
+    this.fjp = ForkJoinPoolFactory.getNewForkJoinPool(null, false);
     geometryTransformer = new GeometryTransformer(parser);
     this.printWriterProvider = pwp;
     this.metacardMarshaller = mcm;
@@ -251,6 +237,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             fjp.invoke(
                 new MetacardForkTask(
                     ImmutableList.copyOf(response.getResults()),
+                    fjp,
                     geometryTransformer,
                     threshold,
                     metacardMarshaller));

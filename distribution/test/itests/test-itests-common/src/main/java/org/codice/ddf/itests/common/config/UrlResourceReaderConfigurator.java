@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -35,6 +36,7 @@ public class UrlResourceReaderConfigurator {
     this.configAdmin = configAdmin;
   }
 
+  @SuppressWarnings("squid:S2142")
   public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
     Configuration configuration = configAdmin.getConfiguration(PID, null);
     Dictionary<String, Object> properties = new DictionaryMap<>();
@@ -42,6 +44,21 @@ public class UrlResourceReaderConfigurator {
         ImmutableSet.<String>builder().add(rootResourceDirs).build();
     properties.put("rootResourceDirectories", rootResourceDirectories);
     configuration.update(properties);
+    for (int i = 0; i < 5; i++) {
+      Configuration updatedConfig = configAdmin.getConfiguration(PID, null);
+      if (updatedConfig
+          .getProperties()
+          .get("rootResourceDirectories")
+          .equals(rootResourceDirectories)) {
+        break;
+      } else {
+        try {
+          TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+          // ignore
+        }
+      }
+    }
     LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties());
   }
 }

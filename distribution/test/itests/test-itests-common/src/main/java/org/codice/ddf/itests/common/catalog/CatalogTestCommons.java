@@ -33,6 +33,7 @@ import com.jayway.restassured.response.ValidatableResponse;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.IOUtils;
@@ -65,9 +66,9 @@ public class CatalogTestCommons {
 
     return given()
         .body(data)
-        .header("Content-Type", mimeType)
+        .header(HttpHeaders.CONTENT_TYPE, mimeType)
         .expect()
-        .statusCode(201)
+        .statusCode(HttpStatus.SC_CREATED)
         .when()
         .post(REST_PATH.getUrl())
         .getHeader("id");
@@ -87,7 +88,7 @@ public class CatalogTestCommons {
     } else {
       return given()
           .body(data)
-          .header("Content-Type", mimeType)
+          .header(HttpHeaders.CONTENT_TYPE, mimeType)
           .when()
           .post(REST_PATH.getUrl())
           .getHeader("id");
@@ -103,7 +104,7 @@ public class CatalogTestCommons {
   public static String ingest(String data, String mimeType, int expectedStatusCode) {
     return given()
         .body(data)
-        .header("Content-Type", mimeType)
+        .header(HttpHeaders.CONTENT_TYPE, mimeType)
         .expect()
         .statusCode(expectedStatusCode)
         .log()
@@ -160,7 +161,7 @@ public class CatalogTestCommons {
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
       ValidatableResponse response =
           given()
-              .header("Content-Type", "application/xml")
+              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
@@ -207,12 +208,12 @@ public class CatalogTestCommons {
     ValidatableResponse response =
         given()
             .body(transactionRequest)
-            .header("Content-Type", "application/xml")
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
             .when()
             .post(CSW_PATH.getUrl())
             .then()
             .assertThat()
-            .statusCode(equalTo(200));
+            .statusCode(equalTo(HttpStatus.SC_OK));
 
     return response
         .extract()
@@ -229,10 +230,10 @@ public class CatalogTestCommons {
    */
   public static void update(String id, String data, String mimeType) {
     given()
-        .header("Content-Type", mimeType)
+        .header(HttpHeaders.CONTENT_TYPE, mimeType)
         .body(data)
         .expect()
-        .statusCode(200)
+        .statusCode(HttpStatus.SC_OK)
         .when()
         .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
   }
@@ -245,7 +246,7 @@ public class CatalogTestCommons {
    */
   public static void update(String id, String data, String mimeType, int expectedStatusCode) {
     given()
-        .header("Content-Type", mimeType)
+        .header(HttpHeaders.CONTENT_TYPE, mimeType)
         .body(data)
         .expect()
         .log()
