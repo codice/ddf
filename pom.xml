@@ -166,6 +166,7 @@
         <javax-mail.version>1.5.5</javax-mail.version>
         <jackson2-version>2.9.4</jackson2-version>
         <common-compress.version>1.14</common-compress.version>
+        <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
         <woodstox.core.version>4.4.1</woodstox.core.version>
         <woodstox.stax2-api.version>3.1.4</woodstox.stax2-api.version>

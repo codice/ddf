@@ -109,6 +109,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
@@ -124,6 +125,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,7 +281,7 @@ public class RESTEndpoint implements RESTService {
 
         Collection<String> sources = null;
         if (sourceid != null) {
-          sources = new ArrayList<String>();
+          sources = new ArrayList<>();
           sources.add(sourceid);
         }
 
@@ -499,7 +501,7 @@ public class RESTEndpoint implements RESTService {
         Collection<String> sources = null;
         if (encodedSourceId != null) {
           String sourceid = URLDecoder.decode(encodedSourceId, CharEncoding.UTF_8);
-          sources = new ArrayList<String>();
+          sources = new ArrayList<>();
           sources.add(sourceid);
         }
 
@@ -729,7 +731,7 @@ public class RESTEndpoint implements RESTService {
         CreateInfo createInfo = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
-          if (contentParts != null && contentParts.size() > 0) {
+          if (CollectionUtils.isNotEmpty(contentParts)) {
             createInfo = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
@@ -814,7 +816,7 @@ public class RESTEndpoint implements RESTService {
         CreateInfo createInfo = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
-          if (contentParts != null && contentParts.size() > 0) {
+          if (CollectionUtils.isNotEmpty(contentParts)) {
             createInfo = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
@@ -936,7 +938,7 @@ public class RESTEndpoint implements RESTService {
         .map(AttributeDescriptor::getType)
         .map(AttributeType::getAttributeFormat)
         .ifPresent(
-            (attributeFormat) ->
+            attributeFormat ->
                 parseAttribute(attributes, parsedName, inputStream, attributeFormat));
   }
 
@@ -1113,7 +1115,8 @@ public class RESTEndpoint implements RESTService {
     Response response;
     try {
       if (id != null) {
-        DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
+        DeleteRequestImpl deleteReq =
+            new DeleteRequestImpl(new HtmlPolicyBuilder().toFactory().sanitize(id));
 
         catalogFramework.delete(deleteReq);
         response = Response.ok(id).build();
@@ -1148,7 +1151,7 @@ public class RESTEndpoint implements RESTService {
   }
 
   private Map<String, Serializable> convert(MultivaluedMap<String, String> map) {
-    Map<String, Serializable> convertedMap = new HashMap<String, Serializable>();
+    Map<String, Serializable> convertedMap = new HashMap<>();
 
     for (Map.Entry<String, List<String>> entry : map.entrySet()) {
       String key = entry.getKey();
@@ -1272,10 +1275,8 @@ public class RESTEndpoint implements RESTService {
   private boolean rangeHeaderExists(HttpServletRequest httpRequest) {
     boolean response = false;
 
-    if (null != httpRequest) {
-      if (null != httpRequest.getHeader(HEADER_RANGE)) {
-        response = true;
-      }
+    if (httpRequest != null && httpRequest.getHeader(HEADER_RANGE) != null) {
+      response = true;
     }
 
     return response;
@@ -1285,14 +1286,12 @@ public class RESTEndpoint implements RESTService {
   private long getRangeStart(HttpServletRequest httpRequest) throws UnsupportedQueryException {
     long response = 0;
 
-    if (httpRequest != null) {
-      if (rangeHeaderExists(httpRequest)) {
-        String rangeHeader = httpRequest.getHeader(HEADER_RANGE);
-        String range = getRange(rangeHeader);
+    if (httpRequest != null && rangeHeaderExists(httpRequest)) {
+      String rangeHeader = httpRequest.getHeader(HEADER_RANGE);
+      String range = getRange(rangeHeader);
 
-        if (range != null) {
-          response = Long.parseLong(range);
-        }
+      if (range != null) {
+        response = Long.parseLong(range);
       }
     }
 

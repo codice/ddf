@@ -127,6 +127,11 @@
             <artifactId>util-uuidgenerator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>${owasp-html-sanitizer.version}</version>
+        </dependency>
 
         <!-- Unit Tests -->
         <dependency>
@@ -246,7 +251,8 @@
                             catalog-core-api-impl,
                             commons-lang3,
                             json-smart,
-                            platform-util
+                            platform-util,
+                            owasp-java-html-sanitizer
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,
