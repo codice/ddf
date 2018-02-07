@@ -103,11 +103,11 @@ Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
 To install manually, the KAR file can be placed in the `${home_directory}/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `${home_directory}/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
 To install via the ${admin-console}:
-. Navigate to ${secure_url}/admin
-. Click the *Manage* button in the upper right
-. Click the *Add an Application* tile
-. Upload the KAR file via the popup window
-. Click *Save Changes* to activate
+. Navigate to the *${admin-console}*.
+. Select *Manage* button.
+. Select *Add an Application*,
+. Upload the KAR file via the popup window.
+. Select *Save Changes* to activate,
 The new application can be viewed via the ${admin-console}'s Active Applications list.
 
 ===== Developing Application Configuration Modules

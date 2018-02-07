@@ -27,7 +27,7 @@ See the log for details about failures.
 
 Configure the Command Scheduler to execute a command at specific intervals.
 
-. Navigate to the *${admin-console}* (${secure_url}/admin).
+. Navigate to the *${admin-console}* (\${secure_url}/admin).
 . Select the *${ddf-platform}* application.
 . Click on the *Configuration* tab.
 . Select *Platform Command Scheduler*.

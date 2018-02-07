@@ -13,7 +13,7 @@ The Application Upload Endpoint is installed by default with a standard installa
 
 ===== Application Upload Endpoint
 
-The Application endpoint is available at <${secure_url}/services/application.
+The Application endpoint is available at \${secure_url}/services/application.
 
 ===== Configuring Application Upload Endpoint
 
