@@ -27,7 +27,7 @@
 |bodyTemplate
 |String
 |Set the body template.
-|The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results ${secure_url}/search/catalog/#workspaces/% [attribute=id].
+|The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results \${secure_url}/search/catalog/#workspaces/% [attribute=id].
 |true
 
 |Mail Server

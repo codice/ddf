@@ -20,7 +20,7 @@ The `GuestInterceptor` is installed by default with ${ddf-security} Application.
 
 Configure the Guest Interceptor from the ${admin-console}:
 
-. Navigate to the *${admin-console}* at ${secure_url}/admin
+. Navigate to the *${admin-console}* at \${secure_url}/admin
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select the *Security STS Guest Claims Handler* configuration.

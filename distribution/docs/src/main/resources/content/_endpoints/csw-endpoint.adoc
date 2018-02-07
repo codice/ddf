@@ -18,7 +18,7 @@ It can only be installed or uninstalled.
 
 ===== CSW Endpoint URL
 
-The CSW endpoint is accessible from ${secure_url}/services/csw.
+The CSW endpoint is accessible from \${secure_url}/services/csw.
 
 ====== CSW Endpoint Operations
 
@@ -33,7 +33,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
 ----
 
 .`GetCapabilities` HTTP POST
-The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
+The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
 
 .`GetCapabilities` XML Request
 [source,xml,linenums]
