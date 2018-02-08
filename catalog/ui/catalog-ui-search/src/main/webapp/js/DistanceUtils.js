@@ -23,6 +23,7 @@ define([
     var METERS_FEET = 0.3048;
     var METERS_YARDS = 0.9144;
     var METERS_MILES = 1609.344;
+    var METERS_NAUTICAL_MILES = 1852;
 
     return {
         distToDegrees: function(distanceInMeters){
@@ -45,6 +46,8 @@ define([
                     return distance * METERS_YARDS;
                 case 'miles':
                     return distance * METERS_MILES;
+                case 'nautical miles':
+                    return distance * METERS_NAUTICAL_MILES;
                 case 'meters':
                 default:
                     return distance;
@@ -61,6 +64,8 @@ define([
                     return distance / METERS_YARDS;
                 case 'miles':
                     return distance / METERS_MILES;
+                case 'nautical miles':
+                    return distance / METERS_NAUTICAL_MILES;
                 case 'meters':
                 default:
                     return distance;
