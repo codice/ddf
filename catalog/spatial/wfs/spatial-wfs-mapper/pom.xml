@@ -35,6 +35,35 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fastjson</groupId>
+            <artifactId>boon</artifactId>
+            <version>${boon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.abego.treelayout</groupId>
+                    <artifactId>org.abego.treelayout.core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.abego.treelayout</groupId>
+            <artifactId>org.abego.treelayout.core</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -52,7 +81,16 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>commons-collections4</Embed-Dependency>
+                        <Embed-Dependency>commons-collections4,
+                            handlebars,
+                            antlr4-runtime,
+                            boon,
+                            org.abego.treelayout.core
+                        </Embed-Dependency>
+                        <Import-Package>
+                            !com.sun.management,
+                            *
+                        </Import-Package>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
