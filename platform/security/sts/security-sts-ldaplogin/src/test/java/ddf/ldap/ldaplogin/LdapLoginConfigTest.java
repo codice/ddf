@@ -112,7 +112,7 @@ public class LdapLoginConfigTest {
   }
 
   private LdapLoginConfig createLdapConfig(LdapService ldapService) {
-    LdapLoginConfig ldapConfig = new LdapLoginConfig();
+    LdapLoginConfig ldapConfig = new LdapLoginConfig(context);
     ldapConfig.setLdapService(ldapService);
     ldapConfig.setLdapBindUserDn("cn=admin");
     ldapConfig.setLdapBindUserPass("password");
