@@ -17,9 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
-import javax.xml.namespace.QName;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,32 +34,27 @@ public class CswActionTransformerProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswActionTransformerProvider.class);
 
-  private Map<QName, CswActionTransformer> transformerMap = new ConcurrentHashMap<>();
-
-  private final Map<String, QName> typeNameQNameMap = new HashMap<>();
+  private final Map<String, CswActionTransformer> transformerMap = new HashMap<>();
 
   public synchronized void bind(CswActionTransformer cswActionTransformer) {
     if (cswActionTransformer == null) {
       return;
     }
 
-    List<QName> namespaces = cswActionTransformer.getQNames();
-    if (CollectionUtils.isEmpty(namespaces)) {
-      LOGGER.warn(
-          "Unable to bind a CswActionTransformer because it does not have one or more Qnames");
+    List<String> typeNames = cswActionTransformer.getTypeNames();
+    if (CollectionUtils.isEmpty(typeNames)) {
+      LOGGER.warn("Unable to bind a CswActionTransformer with no typenames");
       return;
     }
-    for (QName namespace : namespaces) {
-      transformerMap.put(namespace, cswActionTransformer);
-      List<String> typeNames = cswActionTransformer.getTypeNames();
-      if (CollectionUtils.isEmpty(typeNames)) {
+
+    for (String typeName : typeNames) {
+      if (transformerMap.containsKey(typeName)) {
         LOGGER.warn(
-            "Unable to bind a CswActionTransformer because it does not have one or more typenames");
-        return;
+            "Unable to bind a CswActionTransformer: a transformer with typename [{}] has already been added",
+            typeName);
+        continue;
       }
-      for (String typeName : typeNames) {
-        typeNameQNameMap.put(typeName, namespace);
-      }
+      transformerMap.put(typeName, cswActionTransformer);
     }
   }
 
@@ -70,13 +63,13 @@ public class CswActionTransformerProvider {
       return;
     }
 
-    List<QName> namespaces = cswActionTransformer.getQNames();
-    for (QName namespace : namespaces) {
-      transformerMap.remove(namespace);
-      List<String> typeNames = cswActionTransformer.getTypeNames();
-      for (String typeName : typeNames) {
-        typeNameQNameMap.remove(typeName, namespace);
-      }
+    List<String> typeNames = cswActionTransformer.getTypeNames();
+    if (CollectionUtils.isEmpty(typeNames)) {
+      return;
+    }
+
+    for (String typeName : typeNames) {
+      transformerMap.remove(typeName);
     }
   }
 
@@ -85,18 +78,6 @@ public class CswActionTransformerProvider {
       return Optional.empty();
     }
 
-    QName qName = typeNameQNameMap.get(typeName);
-    if (qName == null) {
-      return Optional.empty();
-    }
-
-    return Optional.ofNullable(transformerMap.get(qName));
-  }
-
-  public synchronized Optional<CswActionTransformer> getTransformer(QName qName) {
-    if (qName == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(transformerMap.get(qName));
+    return Optional.ofNullable(transformerMap.get(typeName));
   }
 }

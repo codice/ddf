@@ -543,7 +543,7 @@ public class CswEndpoint implements Csw {
 
     int numInserted = 0;
     for (InsertAction insertAction : request.getInsertActions()) {
-      insertAction = transformInsertAction(insertAction, insertAction.getTypeName());
+      insertAction = transformInsertAction(insertAction);
       CreateRequest createRequest = new CreateRequestImpl(insertAction.getRecords());
       try {
         CreateResponse createResponse = framework.create(createRequest);
@@ -655,7 +655,7 @@ public class CswEndpoint implements Csw {
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException, InterruptedException, ParseException, CQLException {
 
-    deleteAction = transformDeleteAction(deleteAction, deleteAction.getTypeName());
+    deleteAction = transformDeleteAction(deleteAction);
 
     QueryRequest queryRequest =
         queryFactory.getQuery(deleteAction.getConstraint(), deleteAction.getTypeName());
@@ -694,23 +694,23 @@ public class CswEndpoint implements Csw {
         .toArray(String[]::new);
   }
 
-  private InsertAction transformInsertAction(InsertAction insertAction, String typeName) {
+  private InsertAction transformInsertAction(InsertAction insertAction) {
     return cswActionTransformerProvider
-        .getTransformer(typeName)
+        .getTransformer(insertAction.getTypeName())
         .map(tr -> tr.transform(insertAction))
         .orElse(insertAction);
   }
 
-  private DeleteAction transformDeleteAction(DeleteAction deleteAction, String typeName) {
+  private DeleteAction transformDeleteAction(DeleteAction deleteAction) {
     return cswActionTransformerProvider
-        .getTransformer(typeName)
+        .getTransformer(deleteAction.getTypeName())
         .map(tr -> tr.transform(deleteAction))
         .orElse(deleteAction);
   }
 
-  private UpdateAction transformUpdateAction(UpdateAction updateAction, String typeName) {
+  private UpdateAction transformUpdateAction(UpdateAction updateAction) {
     return cswActionTransformerProvider
-        .getTransformer(typeName)
+        .getTransformer(updateAction.getTypeName())
         .map(tr -> tr.transform(updateAction))
         .orElse(updateAction);
   }
@@ -719,7 +719,7 @@ public class CswEndpoint implements Csw {
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException {
 
-    updateAction = transformUpdateAction(updateAction, updateAction.getTypeName());
+    updateAction = transformUpdateAction(updateAction);
 
     if (updateAction.getMetacard() != null) {
       Metacard newRecord = updateAction.getMetacard();

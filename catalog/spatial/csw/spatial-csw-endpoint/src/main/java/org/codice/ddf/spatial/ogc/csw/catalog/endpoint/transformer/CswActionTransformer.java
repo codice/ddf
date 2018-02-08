@@ -14,7 +14,6 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import java.util.List;
-import javax.xml.namespace.QName;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
@@ -59,11 +58,4 @@ public interface CswActionTransformer {
    * @return the list of typenames this transformer can be applied to.
    */
   List<String> getTypeNames();
-
-  /**
-   * Returns the list of {@link QName} this transformer can be applied to.
-   *
-   * @return the list of QNames this transformer can be applied to.
-   */
-  List<QName> getQNames();
 }
