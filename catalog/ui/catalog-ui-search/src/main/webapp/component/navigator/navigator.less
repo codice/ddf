@@ -62,6 +62,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+    button.navigation-choice.choice-upload {
+        display: none;
+    }
 }
 
 @{customElementNamespace}navigator.is-saved {
@@ -82,4 +86,12 @@
         transform: scale(1);
     }
 
+}
+
+html.is-upload-enabled {
+    @{customElementNamespace}navigator {
+        button.navigation-choice.choice-upload {
+            display: block;
+        }
+    }
 }
