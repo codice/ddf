@@ -180,5 +180,10 @@
             <artifactId>admin-configuration-configupdater</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-configuration-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -31,6 +31,7 @@
         <module>modules</module>
         <module>admin-app</module>
         <module>admin-configuration-configupdater</module>
+        <module>admin-configuration-zookeeper</module>
     </modules>
     <build>
         <plugins>

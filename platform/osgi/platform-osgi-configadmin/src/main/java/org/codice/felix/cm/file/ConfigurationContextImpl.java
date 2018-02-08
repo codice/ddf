@@ -78,7 +78,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final File configFile;
 
-  private final Dictionary<String, Object> originalProperties;
+  private final Dictionary<String, Object> rawProperties;
 
   private final Dictionary<String, Object> sanitizedProperties;
 
@@ -93,7 +93,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   }
 
   ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
-    this.originalProperties = props;
+    this.rawProperties = props;
 
     Dictionary<String, Object> propsCopy = copyDictionary(props);
 
@@ -128,6 +128,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   }
 
   @Override
+  public Dictionary<String, Object> getRawProperties() {
+    return copyDictionary(rawProperties);
+  }
+
+  @Override
   public Dictionary<String, Object> getSanitizedProperties() {
     return copyDictionary(sanitizedProperties);
   }
@@ -138,7 +143,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
       throw new IllegalArgumentException(
           format("Property parameters were not valid, key = [%s] and value = [%s]", key, value));
     }
-    originalProperties.put(key, value);
+    rawProperties.put(key, value);
     if (!SPECIAL_PROPERTIES.contains(key)) {
       sanitizedProperties.put(key, value);
     }
