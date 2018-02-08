@@ -73,7 +73,7 @@ public class SubjectInjectorPlugin implements BrokerMessageInterceptor {
   /* Suppressed because Sonarqube thinks this should be a static method, but blueprint
    * does not work with static methods
    */
-  @SuppressWarnings("squid:s2696")
+  @SuppressWarnings("squid:S2696")
   public void setConfiguredAddresses(Set<String> addresses) {
     configuredAddresses = new HashSet<>(addresses);
   }
@@ -100,7 +100,7 @@ public class SubjectInjectorPlugin implements BrokerMessageInterceptor {
   /* Suppressed because Sonarqube thinks this should be a static method, but blueprint
    * does not work with static methods
    */
-  @SuppressWarnings("squid:s2696")
+  @SuppressWarnings("squid:S2696")
   public void setSecurityManager(SecurityManager securityManager) {
     SubjectInjectorPlugin.securityManager = securityManager;
   }
