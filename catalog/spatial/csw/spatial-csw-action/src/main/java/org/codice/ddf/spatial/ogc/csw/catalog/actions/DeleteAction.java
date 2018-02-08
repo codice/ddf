@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.actions;
 
+import java.util.Map;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 
 /**
@@ -31,6 +32,15 @@ public interface DeleteAction {
    *     applied to.
    */
   QueryConstraintType getConstraint();
+
+  /**
+   * Returns a map that contains the XML namespace prefix to URI mappings declared in the
+   * transaction request XML
+   *
+   * @return a map that contains the XML namespace prefix to URI mappings declared in the
+   *     transaction request XML
+   */
+  Map<String, String> getPrefixToUriMappings();
 
   /**
    * Returns the type of record being deleted, such as csw:Record.

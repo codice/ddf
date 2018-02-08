@@ -57,6 +57,11 @@ public class DeleteActionImpl implements DeleteAction {
   }
 
   @Override
+  public Map<String, String> getPrefixToUriMappings() {
+    return this.prefixToUriMappings;
+  }
+
+  @Override
   public String getTypeName() {
     return typeName;
   }

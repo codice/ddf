@@ -50,6 +50,15 @@ public interface UpdateAction {
   Map<String, Serializable> getRecordProperties();
 
   /**
+   * Returns a map that contains the XML namespace prefix to URI mappings declared in the
+   * transaction request XML
+   *
+   * @return a map that contains the XML namespace prefix to URI mappings declared in the
+   *     transaction request XML
+   */
+  Map<String, String> getPrefixToUriMappings();
+
+  /**
    * Returns the type of record being updated, such as csw:Record.
    *
    * @return the type of record being updated, such as csw:Record.

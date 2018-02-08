@@ -104,6 +104,11 @@ public class UpdateActionImpl implements UpdateAction {
   }
 
   @Override
+  public Map<String, String> getPrefixToUriMappings() {
+    return prefixToUriMappings;
+  }
+
+  @Override
   public String getTypeName() {
     return typeName;
   }
