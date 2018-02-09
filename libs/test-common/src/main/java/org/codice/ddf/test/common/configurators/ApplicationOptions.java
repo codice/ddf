@@ -19,7 +19,7 @@ import org.ops4j.pax.exam.Option;
 /**
  * Interface implemented by Pax Exam test classes to provide application specific {@link Option}s.
  *
- * @see org.codice.ddf.test.common.AbstractComponentTest#getApplicationOptions()
+ * @see org.codice.ddf.test.common.AbstractComponentTest#getApplicationOptions(PortFinder)
  */
 public interface ApplicationOptions extends Supplier<Option> {
 
