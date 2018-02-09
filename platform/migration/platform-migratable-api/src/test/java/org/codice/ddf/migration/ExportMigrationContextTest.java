@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.migration;
 
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -99,5 +102,30 @@ public class ExportMigrationContextTest {
 
     Mockito.verify(context)
         .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
+  }
+
+  @Test
+  public void testEntries() throws Exception {
+    final Path p = Mockito.mock(Path.class);
+    final Stream s = Mockito.mock(Stream.class);
+
+    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean())).thenReturn(s);
+
+    Assert.assertThat(context.entries(p), Matchers.sameInstance(s));
+
+    Mockito.verify(context).entries(p, true);
+  }
+
+  @Test
+  public void testEntriesWithFilter() throws Exception {
+    final PathMatcher m = Mockito.mock(PathMatcher.class);
+    final Path p = Mockito.mock(Path.class);
+    final Stream s = Mockito.mock(Stream.class);
+
+    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean(), Mockito.any())).thenReturn(s);
+
+    Assert.assertThat(context.entries(p, m), Matchers.sameInstance(s));
+
+    Mockito.verify(context).entries(p, true, m);
   }
 }

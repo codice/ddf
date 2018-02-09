@@ -165,7 +165,9 @@ public interface ExportMigrationContext extends MigrationContext {
    * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
    *     doesn't allow read access to the specified path
    */
-  public Stream<ExportMigrationEntry> entries(Path path);
+  public default Stream<ExportMigrationEntry> entries(Path path) {
+    return entries(path, true);
+  }
 
   /**
    * Recursively walks the provided path's tree to create or retrieve (if already created) entries
@@ -184,5 +186,46 @@ public interface ExportMigrationContext extends MigrationContext {
    * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
    *     doesn't allow read access to the specified path
    */
-  public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter);
+  public default Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
+    return entries(path, true, filter);
+  }
+
+  /**
+   * Recursively walks (or not) the provided path's tree to create or retrieve (if already created)
+   * entries for all files found and returns existing or new migration entries for each one of them.
+   *
+   * <p><i>Note:</i> Files referenced are assumed to be relative to ${ddf.home} if not defined as
+   * absolute. All paths will automatically be relativized from ${ddf.home} if located underneath.
+   *
+   * @param path the path to the directory to recursively walk
+   * @param recurse <code>true</code> to recurse the specified path's tree; <code>false</code> to
+   *     only list the files located in the specified path
+   * @return a stream of all created or retrieved entries corresponding to all files recursively
+   *     found under <code>path</code>
+   * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     doesn't allow read access to the specified path
+   */
+  public Stream<ExportMigrationEntry> entries(Path path, boolean recurse);
+
+  /**
+   * Recursively walks (or not) the provided path's tree to create or retrieve (if already created)
+   * entries for all files found that match the provided path filter and returns existing or new
+   * migration entries for each one of them.
+   *
+   * <p><i>Note:</i> Files referenced are assumed to be relative to ${ddf.home} if not defined as
+   * absolute. All paths will automatically be relativized from ${ddf.home} if located underneath.
+   *
+   * @param path the path to the directory to recursively walk
+   * @param recurse <code>true</code> to recurse the specified path's tree; <code>false</code> to
+   *     only list the files located in the specified path
+   * @param filter the path filter to use
+   * @return a stream of all created or retrieved entries corresponding to all files recursively
+   *     found under <code>path</code> which matches the given filter
+   * @throws IllegalArgumentException if <code>path</code> or <code>filter</code> is <code>null
+   * </code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     doesn't allow read access to the specified path
+   */
+  public Stream<ExportMigrationEntry> entries(Path path, boolean recurse, PathMatcher filter);
 }
