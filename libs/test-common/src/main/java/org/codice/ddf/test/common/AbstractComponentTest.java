@@ -30,13 +30,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class for component tests. Extend to provide and implementation for the {@link
- * #getApplicationOptions()} methods and the test methods.
+ * #getApplicationOptions(PortFinder)} methods and the test methods.
  *
  * <p>It is important to remember that the {@link #config()} method and all the methods it calls,
- * i.e., {@link #getContainerOptions()} and {@link #getApplicationOptions()}, are called inside the
- * test runner process and are only used to configure the test container. All the other methods in
- * this class and its sub-classes will be run inside the test container, which is a separate
- * process.
+ * i.e., {@link #getContainerOptions()} and {@link #getApplicationOptions(PortFinder)}, are called
+ * inside the test runner process and are only used to configure the test container. All the other
+ * methods in this class and its sub-classes will be run inside the test container, which is a
+ * separate process.
  *
  * @see ApplicationOptions
  * @see ContainerOptions
@@ -45,6 +45,9 @@ public abstract class AbstractComponentTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractComponentTest.class);
 
+  // This port finder will only be available during Pax Exam's configuration phase, not inside the
+  // test container and during the tests. If ports need to be assigned during testing, a separate
+  // instance should be used.
   private static PortFinder portFinder;
 
   @Rule public TestFailureLogger testFailureLogger = new TestFailureLogger();
@@ -68,11 +71,9 @@ public abstract class AbstractComponentTest {
     portFinder = new PortFinder();
 
     return options(
-        getContainerOptions().get(), getApplicationOptions().get(), getTestBundleOptions().build());
-  }
-
-  public static PortFinder getPortFinder() {
-    return portFinder;
+        getContainerOptions().get(),
+        getApplicationOptions(portFinder).get(),
+        getTestBundleOptions().build());
   }
 
   /**
@@ -89,13 +90,16 @@ public abstract class AbstractComponentTest {
    * Gets the object to use to configure the component or application inside the container.
    *
    * @return object that returns the application's configuration {@link Option}s
+   * @param portFinder reference to the {@link PortFinder} to use during the test container
+   *     configuration
    */
-  protected abstract ApplicationOptions getApplicationOptions();
+  protected abstract ApplicationOptions getApplicationOptions(PortFinder portFinder);
 
   private BundleOption getTestBundleOptions() {
     return BundleOptionBuilder.add("org.mockito", "mockito-core")
         .add("org.objenesis", "objenesis")
         .add("org.awaitility", "awaitility")
+        .add("org.apache.commons", "commons-collections4")
         .add("org.apache.commons", "commons-lang3")
         .add("ddf.lib", "test-common")
         .add("ddf.lib", "common-system");

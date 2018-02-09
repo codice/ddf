@@ -21,7 +21,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Class used to find and reserve a range of ports and assign ports within that range. */
+/**
+ * Class used to find and reserve a range of ports, and assign ports within that range by name. For
+ * instance, creating a new instance of {@link PortFinder} will reserve a block of ports, calling
+ * {@link #getPort(String)} or {@link #getPortAsString(String)} the first time will assign a
+ * specific port in that range with the name provided, and calling one of those two methods with
+ * that name will return the same port number afterwards.
+ */
 public class PortFinder implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(PortFinder.class);
 
@@ -49,7 +55,7 @@ public class PortFinder implements Closeable {
    * @return port number associated with the key provided
    */
   public int getPort(String portKey) {
-    registeredPorts.putIfAbsent(portKey, nextPort++);
+    registeredPorts.computeIfAbsent(portKey, k -> nextPort++);
     return registeredPorts.get(portKey);
   }
 
