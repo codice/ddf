@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
@@ -75,10 +76,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * /private/var/folders/2j/q2gjqn4s2mv53c2q53_m9d_w0000gn/T/junit4916060293677644046, one would see
  * a similar directory structure to the following:
  *
- * <p>// This is the system exported from: ./ddf ./ddf/etc/DDF_Custom_Mime_Type_Resolver-csw.config
- * ./ddf/Version.txt
+ * <p>// This is the system exported from: ./ddf
+ * ./ddf/admin/DDF_Custom_Mime_Type_Resolver-csw.config ./ddf/Version.txt
  *
- * <p>// This is the system imported into: ./ddf ./ddf/etc ./ddf/Version.txt
+ * <p>// This is the system imported into: ./ddf ./ddf/admin ./ddf/Version.txt
  *
  * <p>// The backup from the imported system will look similar to this:
  * ./exported-1.0-20170816T142400.dar
@@ -294,6 +295,7 @@ public class ConfigurationAdminMigratableTest {
   private void setupConfigAdminForExportSystem() throws Exception {
     Configuration[] configurations = getConfigurationsForExportSystem();
     when(configurationAdminForExport.listConfigurations(isNull())).thenReturn(configurations);
+    when(exportMigrationContext.entries(any(), eq(false), any())).thenReturn(Stream.empty());
   }
 
   private void setupConfigAdminForImportSystem() throws Exception {

@@ -14,9 +14,13 @@
 package org.codice.ddf.configuration.admin;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
@@ -91,7 +95,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   @Override
   public String getDescription() {
-    return "Exports Configuration Admin";
+    return "Exports Configuration objects and files";
   }
 
   @Override
@@ -104,7 +108,8 @@ public class ConfigurationAdminMigratable implements Migratable {
     final ExportMigrationConfigurationAdminContext adminContext =
         new ExportMigrationConfigurationAdminContext(context, this, getConfigurations(context));
 
-    adminContext.entries().forEach(ExportMigrationConfigurationAdminEntry::store);
+    adminContext.fileEntries().forEach(ExportMigrationEntry::store);
+    adminContext.memoryEntries().forEach(ExportMigrationConfigurationAdminEntry::store);
   }
 
   @Override
@@ -113,7 +118,7 @@ public class ConfigurationAdminMigratable implements Migratable {
         new ImportMigrationConfigurationAdminContext(
             context, this, configurationAdmin, getConfigurations(context));
 
-    adminContext.entries().forEach(ImportMigrationConfigurationAdminEntry::restore);
+    adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
   }
 
   @SuppressWarnings(
@@ -124,6 +129,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
+  @Nullable
   PersistenceStrategy getPersister(String extension) {
     // we do not anticipate many persistence strategies (< 5 and 2 at the moment) so a simple linear
     // search should suffice
@@ -134,6 +140,12 @@ public class ConfigurationAdminMigratable implements Migratable {
         .orElse(null);
   }
 
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
+  boolean isConfigFile(Path path) {
+    return getPersister(FilenameUtils.getExtension(path.toString())) != null;
+  }
+
   private Configuration[] getConfigurations(MigrationContext context) {
     try {
       final Configuration[] configurations = configurationAdmin.listConfigurations(null);
@@ -141,9 +153,8 @@ public class ConfigurationAdminMigratable implements Migratable {
       if (configurations != null) {
         return configurations;
       }
-    } catch (IOException
-        | InvalidSyntaxException
-            e) { // InvalidSyntaxException should never happen since the filter is null
+    } catch (IOException | InvalidSyntaxException e) {
+      // InvalidSyntaxException should never happen since the filter is null
       String message =
           String.format(
               "There was an issue retrieving configurations from ConfigurationAdmin: %s",
