@@ -16,7 +16,6 @@ package org.codice.ddf.admin.zookeeper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
 import org.apache.felix.utils.properties.ConfigurationHandler;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -67,7 +66,7 @@ public class ConfigAdminWatcher implements Watcher {
     Event.KeeperState state = watchedEvent.getState();
     String stateName = state.name();
 
-    LOGGER.warn("Watched Event: {}, Type: {}, State: {}", path, type, stateName);
+    LOGGER.info("Watched Event: {}, Type: {}, State: {}", path, type, stateName);
 
     try {
       switch (type) {
@@ -93,8 +92,7 @@ public class ConfigAdminWatcher implements Watcher {
         case NodeChildrenChanged:
           LOGGER.info(
               "Configuration collection [{}] changed in size, attempting to reset watch.", path);
-          List<String> children = keeper.getChildren(ZPath.parse(watchedEvent.getPath()), true);
-          LOGGER.info("Resetting watch on namespace znode, with children {}", children);
+          keeper.getChildren(ZPath.parse(watchedEvent.getPath()), true);
           break;
 
         default:
@@ -107,14 +105,26 @@ public class ConfigAdminWatcher implements Watcher {
 
   private void processCreateOrUpdate(ZPath path) throws IOException {
     String pid = path.getPid();
+    if (pid == null
+        || pid.equals("org_apache_felix_cm_impl_DynamicBindings")
+        || pid.endsWith(".factory")) {
+      LOGGER.warn("Refusing to respond to create or update due to invalid pid: {}", pid);
+      return;
+    }
     Configuration config = configurationAdmin.getConfiguration(pid);
     try (ByteArrayInputStream stream = new ByteArrayInputStream(keeper.getData(path, true))) {
+      // Attempt to bind visibility to this bundle by setting a wildcard location
+      config.setBundleLocation("?");
       config.update(ConfigurationHandler.read(stream));
     }
   }
 
   private void processDelete(ZPath path) throws IOException {
     String pid = path.getPid();
+    if (pid == null) {
+      LOGGER.warn("Refusing to respond to delete due to invalid pid: {}", pid);
+      return;
+    }
     Configuration config = configurationAdmin.getConfiguration(pid);
     config.delete();
   }

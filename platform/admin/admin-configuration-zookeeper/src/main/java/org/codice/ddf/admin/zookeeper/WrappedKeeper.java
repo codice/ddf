@@ -91,16 +91,24 @@ public class WrappedKeeper {
             zooKeeper.create(p.toString(), d, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT));
   }
 
+  // Revisit the case where the version needs to be re-computed as part of the function or else
+  // subsequent retries are meaningless
   public void setData(ZPath path, byte[] data, int version) {
-    processReturn(path, data, version, (p, d, v) -> zooKeeper.setData(p.toString(), d, v));
+    processReturn(
+        path,
+        data,
+        version,
+        (p, d, v) -> zooKeeper.setData(p.toString(), d, exists(p, true).getVersion()));
   }
 
+  // Revisit the case where the version needs to be re-computed as part of the function or else
+  // subsequent retries are meaningless
   public void delete(ZPath path, int version) {
     processVoid(
         path,
         version,
         (p, v) -> {
-          zooKeeper.delete(p.toString(), v);
+          zooKeeper.delete(p.toString(), exists(p, true).getVersion());
           return null;
         });
   }

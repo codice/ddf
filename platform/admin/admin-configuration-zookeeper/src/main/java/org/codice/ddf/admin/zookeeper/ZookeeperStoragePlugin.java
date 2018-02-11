@@ -208,19 +208,20 @@ public class ZookeeperStoragePlugin implements ConfigurationStoragePlugin {
    */
   @Override
   public void store(String pid, Dictionary properties) throws IOException {
-    LOGGER.info("Zookeeper::store[{}]", pid);
     ZPath nodePath = pathForAnyConfig(pid);
     try {
       Stat stat = keeper.exists(nodePath, true);
       if (stat == null) {
+        LOGGER.info("Creating znode for pid {}", pid);
         createNewNode(pid, parseFactoryPid(pid), properties);
         return;
       }
       byte[] encodedProperties = encodeData(properties);
       if (Arrays.equals(encodedProperties, keeper.getData(nodePath, true))) {
-        LOGGER.debug("Redundant call to store for pid {}", pid);
+        LOGGER.info("Redundant call to store for pid {}", pid);
         return;
       }
+      LOGGER.info("Updating znode for pid {}", pid);
       keeper.setData(nodePath, encodedProperties, stat.getVersion());
     } catch (UncheckedIOException e) {
       throw e.getCause();
@@ -230,14 +231,14 @@ public class ZookeeperStoragePlugin implements ConfigurationStoragePlugin {
   /** Deletes the appropriate znode, or does nothing if the znode doesn't exist. */
   @Override
   public void delete(String pid) throws IOException {
-    LOGGER.info("Zookeeper::delete[{}]", pid);
     ZPath nodePath = pathForAnyConfig(pid);
     try {
       Stat stat = keeper.exists(nodePath, false);
       if (stat == null) {
-        LOGGER.debug("Configuration node {} already deleted", nodePath);
+        LOGGER.info("Configuration node {} already deleted", nodePath);
         return;
       }
+      LOGGER.info("Deleting znode for pid {}", pid);
       keeper.delete(nodePath, stat.getVersion());
     } catch (UncheckedIOException e) {
       throw e.getCause();

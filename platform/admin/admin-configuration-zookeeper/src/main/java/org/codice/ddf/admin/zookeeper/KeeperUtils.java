@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.felix.utils.properties.ConfigurationHandler;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.common.PathUtils;
 
 public final class KeeperUtils {
   private static final String PROP_HOSTNAME = "org.codice.ddf.system.hostname";
@@ -116,10 +117,10 @@ public final class KeeperUtils {
     @Nullable
     public String getPid() {
       if (isManagedService()) {
-        return components.get(3);
+        return components.get(2);
       }
       if (isFactoryInstance()) {
-        return format("%s.%s", components.get(3), components.get(4));
+        return format("%s.%s", components.get(2), components.get(3));
       }
       return null;
     }
@@ -144,10 +145,11 @@ public final class KeeperUtils {
      * @return a {@link ZPath} that points to the znode.
      */
     public static ZPath parse(String path) {
-      if (!path.startsWith(FWRD_SLASH)) {
-        throw new IllegalArgumentException("Invalid ZPath: " + path);
-      }
-      return new ZPath(Arrays.asList(path.split(FWRD_SLASH)));
+      PathUtils.validatePath(path);
+      return new ZPath(
+          Arrays.stream(path.split(FWRD_SLASH))
+              .filter(str -> !str.isEmpty())
+              .collect(Collectors.toList()));
     }
 
     /**
