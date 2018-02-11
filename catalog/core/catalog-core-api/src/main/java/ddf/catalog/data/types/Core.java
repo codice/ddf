@@ -96,7 +96,8 @@ public interface Core {
 
   /**
    * {@link ddf.catalog.data.Attribute} name for accessing the resource download URL for the product
-   * this {@link ddf.catalog.data.Metacard} represents. <br>
+   * this {@link ddf.catalog.data.Metacard} represents. Typically, the framework will write this
+   * attribute based on the {@link Core#RESOURCE_URI}, and it should not be set directly. <br>
    */
   String RESOURCE_DOWNLOAD_URL = "resource-download-url";
 

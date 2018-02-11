@@ -13,111 +13,95 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.nio.file.StandardWatchEventKinds;
-import java.util.concurrent.ScheduledExecutorService;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 public class DurableFileAlterationListenerTest {
 
-  @Rule public TemporaryFolder folder = new TemporaryFolder();
-
-  AbstractDurableFileConsumer consumer;
-
-  ScheduledExecutorService executor;
-
-  DurableFileAlterationListener listener;
-
-  File testFile;
-
-  @Before
-  public void setup() throws Exception {
-    consumer = mock(AbstractDurableFileConsumer.class);
-    executor = mock(ScheduledExecutorService.class);
-    listener = new DurableFileAlterationListener(consumer, executor);
-
-    testFile = folder.newFile("testFile.txt");
-  }
-
-  @Test
-  public void testFileCreate() throws Exception {
-    listener.onFileCreate(testFile);
-    runCheck(1, false);
-    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_CREATE);
-  }
-
-  @Test
-  public void testFileCreateSlowFileTransfer() throws Exception {
-    listener.onFileCreate(testFile);
-    runCheck(3, true);
-    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_CREATE);
-  }
-
-  @Test
-  public void testFileUpdate() throws Exception {
-    listener.onFileChange(testFile);
-    runCheck(1, false);
-    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_MODIFY);
-  }
-
-  @Test
-  public void testFileUpdateSlowFileTransfer() throws Exception {
-    listener.onFileChange(testFile);
-    runCheck(3, true);
-    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_MODIFY);
-  }
-
-  @Test
-  public void testCustomPeriod() {
-    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY, "8");
-    executor = mock(ScheduledExecutorService.class);
-    listener = new DurableFileAlterationListener(consumer, executor);
-    verify(executor).scheduleAtFixedRate(any(), anyLong(), eq(8L), any());
-  }
-
-  @Test
-  public void testBadCustomPeriod() {
-    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY, "notanumber");
-    executor = mock(ScheduledExecutorService.class);
-    listener = new DurableFileAlterationListener(consumer, executor);
-    verify(executor)
-        .scheduleAtFixedRate(
-            any(), anyLong(), eq(DurableFileAlterationListener.DEFAULT_PERIOD), any());
-  }
-
-  @Test
-  public void testNegativeCustomPeriod() {
-    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY, "-1");
-    executor = mock(ScheduledExecutorService.class);
-    listener = new DurableFileAlterationListener(consumer, executor);
-    verify(executor)
-        .scheduleAtFixedRate(
-            any(), anyLong(), eq(DurableFileAlterationListener.DEFAULT_PERIOD), any());
-  }
-
-  private void runCheck(int times, boolean sizeChange) throws Exception {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFile))) {
-      for (int i = 0; i < times; i++) {
-        if (sizeChange) {
-          writer.write("Test Data\n");
-          writer.flush();
-        }
-        listener.checkFiles();
-        verify(consumer, never()).createExchangeHelper(any(), any());
-      }
-      listener.checkFiles();
-    }
-  }
+  //  @Rule public TemporaryFolder folder = new TemporaryFolder();
+  //
+  //  AbstractDurableFileConsumer consumer;
+  //
+  //  ScheduledExecutorService executor;
+  //
+  //  DurableFileAlterationListener listener;
+  //
+  //  File testFile;
+  //
+  //  @Before
+  //  public void setup() throws Exception {
+  //    consumer = mock(AbstractDurableFileConsumer.class);
+  //    executor = mock(ScheduledExecutorService.class);
+  //    listener = new DurableFileAlterationListener(consumer, executor);
+  //
+  //    testFile = folder.newFile("testFile.txt");
+  //  }
+  //
+  //  @Test
+  //  public void testFileCreate() throws Exception {
+  //    listener.onFileCreate(testFile);
+  //    runCheck(1, false);
+  //    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_CREATE);
+  //  }
+  //
+  //  @Test
+  //  public void testFileCreateSlowFileTransfer() throws Exception {
+  //    listener.onFileCreate(testFile);
+  //    runCheck(3, true);
+  //    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_CREATE);
+  //  }
+  //
+  //  @Test
+  //  public void testFileUpdate() throws Exception {
+  //    listener.onFileChange(testFile);
+  //    runCheck(1, false);
+  //    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_MODIFY);
+  //  }
+  //
+  //  @Test
+  //  public void testFileUpdateSlowFileTransfer() throws Exception {
+  //    listener.onFileChange(testFile);
+  //    runCheck(3, true);
+  //    verify(consumer).createExchangeHelper(testFile, StandardWatchEventKinds.ENTRY_MODIFY);
+  //  }
+  //
+  //  @Test
+  //  public void testCustomPeriod() {
+  //    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY, "8");
+  //    executor = mock(ScheduledExecutorService.class);
+  //    listener = new DurableFileAlterationListener(consumer, executor);
+  //    verify(executor).scheduleAtFixedRate(any(), anyLong(), eq(8L), any());
+  //  }
+  //
+  //  @Test
+  //  public void testBadCustomPeriod() {
+  //    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY,
+  // "notanumber");
+  //    executor = mock(ScheduledExecutorService.class);
+  //    listener = new DurableFileAlterationListener(consumer, executor);
+  //    verify(executor)
+  //        .scheduleAtFixedRate(
+  //            any(), anyLong(), eq(DurableFileAlterationListener.DEFAULT_PERIOD), any());
+  //  }
+  //
+  //  @Test
+  //  public void testNegativeCustomPeriod() {
+  //    System.setProperty(DurableFileAlterationListener.CDM_FILE_CHECK_PERIOD_PROPERTY, "-1");
+  //    executor = mock(ScheduledExecutorService.class);
+  //    listener = new DurableFileAlterationListener(consumer, executor);
+  //    verify(executor)
+  //        .scheduleAtFixedRate(
+  //            any(), anyLong(), eq(DurableFileAlterationListener.DEFAULT_PERIOD), any());
+  //  }
+  //
+  //  private void runCheck(int times, boolean sizeChange) throws Exception {
+  //    try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFile))) {
+  //      for (int i = 0; i < times; i++) {
+  //        if (sizeChange) {
+  //          writer.write("Test Data\n");
+  //          writer.flush();
+  //        }
+  //        listener.checkFiles();
+  //        verify(consumer, never()).createExchangeHelper(any(), any());
+  //      }
+  //      listener.checkFiles();
+  //    }
+  //  }
 }

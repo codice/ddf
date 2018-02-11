@@ -34,11 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<EventfulFileWrapper> {
+
   private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
 
   FileSystemPersistenceProvider fileSystemPersistenceProvider;
 
-  String remaining;
+  private String remaining;
 
   AbstractDurableFileConsumer(
       GenericFileEndpoint<EventfulFileWrapper> endpoint,
@@ -62,7 +65,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
   @Override
   protected boolean pollDirectory(String fileName, List list, int depth) {
     if (remaining != null) {
-      String sha1 = DigestUtils.sha1Hex(remaining);
+      String sha1 = getShaFor(remaining);
       initialize(remaining, sha1);
       return doPoll(sha1);
     }
@@ -81,7 +84,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-    processExchange(exchange);
+    submitExchange(exchange);
   }
 
   Exchange getExchange(File file, WatchEvent.Kind<Path> fileEvent, String reference) {
@@ -103,9 +106,13 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
     return exchange;
   }
 
-  private static class ErrorLoggingSynchronization implements Synchronization {
-    private final String file;
+  void submitExchange(Exchange exchange) {
+    processExchange(exchange);
+  }
 
+  protected static class ErrorLoggingSynchronization implements Synchronization {
+
+    private final String file;
     private final WatchEvent.Kind<Path> fileEvent;
 
     ErrorLoggingSynchronization(String file, WatchEvent.Kind<Path> fileEvent) {
@@ -125,5 +132,80 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
             "Delivery failed for {} event on  {}", file, fileEvent.name(), exchange.getException());
       }
     }
+  }
+
+  /** Utility class for building GenericFile exchanges from files. */
+  public static class ExchangeHelper {
+
+    private Exchange exchange;
+
+    /**
+     * If {@code file} is null, creates a null file exchange, otherwise the exchange's GenericFile
+     * is populated with the file.
+     *
+     * @param file the file to populate the {@link GenericFile}
+     * @param endpoint the consumer's endpoint
+     */
+    public ExchangeHelper(File file, GenericFileEndpoint endpoint) {
+      GenericFile genericFile = new GenericFile<>();
+      genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
+
+      if (file == null) {
+        genericFile.setFile(null);
+        exchange = endpoint.createExchange(genericFile);
+      } else {
+        try {
+          genericFile.setFile(file);
+          genericFile.setAbsoluteFilePath(file.getCanonicalPath());
+          exchange = endpoint.createExchange(genericFile);
+          setBody(genericFile);
+          addHeader(Exchange.FILE_NAME, file.getName());
+          addHeader(Exchange.FILE_LENGTH, Long.toString(file.length()));
+        } catch (IOException e) {
+          LOGGER.debug(
+              "Error setting GenericFile's absolute path for resource [{}].", file.getName(), e);
+          throw new UncheckedIOException(e);
+        }
+      }
+    }
+
+    ExchangeHelper addHeader(String key, Object value) {
+      exchange.getIn().setHeader(key, value);
+      return this;
+    }
+
+    ExchangeHelper addSynchronization(Synchronization synchronization) {
+      exchange.addOnCompletion(synchronization);
+      return this;
+    }
+
+    ExchangeHelper setBody(Object object) {
+      exchange.getIn().setBody(object);
+      return this;
+    }
+
+    Exchange getExchange() {
+      return exchange;
+    }
+  }
+
+  String getMetacardIdFromReference(
+      String referenceKey,
+      String catalogOperation,
+      FileSystemPersistenceProvider productToMetacardIdMap) {
+    String ref = getShaFor(referenceKey);
+    if (!productToMetacardIdMap.loadAllKeys().contains(ref)) {
+      LOGGER.debug(
+          "Received a [{}] operation, but no mapped metacardIds were available for product [{}].",
+          catalogOperation,
+          referenceKey);
+      return null;
+    }
+
+    return (String) productToMetacardIdMap.loadFromPersistence(ref);
+  }
+
+  private String getShaFor(String value) {
+    return DigestUtils.sha1Hex(value);
   }
 }

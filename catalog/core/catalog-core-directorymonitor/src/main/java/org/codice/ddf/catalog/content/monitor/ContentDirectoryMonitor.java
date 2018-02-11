@@ -34,6 +34,7 @@ import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
@@ -294,7 +295,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     if (CollectionUtils.isNotEmpty(badFiles)) {
-      patterns.addAll(badFiles.stream().collect(Collectors.toList()));
+      patterns.addAll(new ArrayList<>(badFiles));
     }
 
     if (CollectionUtils.isEmpty(patterns)) {
@@ -377,20 +378,27 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (monitoredDirectory.startsWith("http")) {
           isDav = true;
         } else {
-          stringBuilder.append("file:" + monitoredDirectory);
+          stringBuilder.append("file:");
+          stringBuilder.append(monitoredDirectory);
+
           stringBuilder.append("?recursive=true");
           stringBuilder.append("&moveFailed=.errors");
 
           /* ReadLock Configuration */
           stringBuilder.append("&readLockMinLength=1");
           stringBuilder.append("&readLock=changed");
-          stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
-          stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
+
+          stringBuilder.append("&readLockTimeout=");
+          stringBuilder.append(2 * readLockIntervalMilliseconds);
+
+          stringBuilder.append("&readLockCheckInterval=");
+          stringBuilder.append(readLockIntervalMilliseconds);
 
           /* File Exclusions */
           String exclusions = getBlackListAsRegex();
           if (StringUtils.isNotBlank(exclusions)) {
-            stringBuilder.append("&exclude=" + exclusions);
+            stringBuilder.append("&exclude=");
+            stringBuilder.append(exclusions);
           }
         }
 
@@ -408,7 +416,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             }
             break;
         }
-        LOGGER.trace("inbox = {}", stringBuilder.toString());
+
+        LOGGER.debug("ContentDirectoryMonitor inbox = {}", stringBuilder.toString());
 
         RouteDefinition routeDefinition = from(stringBuilder.toString());
 
@@ -416,8 +425,19 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
-        LOGGER.trace("About to process scheme content:framework");
-        routeDefinition.threads(numThreads).process(systemSubjectBinder).to("content:framework");
+        ThreadsDefinition td = routeDefinition.threads(numThreads).process(systemSubjectBinder);
+        if (processingMechanism.equals(IN_PLACE)) {
+          td.choice()
+              .when(
+                  simple(
+                      "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
+              .to("catalog:inputtransformer")
+              .process(new InPlaceMetacardProcessor())
+              .end()
+              .to("catalog:framework");
+        } else {
+          td.to("content:framework");
+        }
       }
     };
   }

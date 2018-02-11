@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FrameworkProducer extends DefaultProducer {
 
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(FrameworkProducer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FrameworkProducer.class);
 
   private static final String CREATE_OPERATION = "CREATE";
 
@@ -98,6 +98,8 @@ public class FrameworkProducer extends DefaultProducer {
   private static final String DELETE_OPERATION = "DELETE";
 
   private static final String OPERATION_HEADER_KEY = "operation";
+
+  private static final String OBJECT_IS_NULL_MSG = "Catalog response object is null";
 
   private CatalogFramework catalogFramework;
 
@@ -118,12 +120,12 @@ public class FrameworkProducer extends DefaultProducer {
       LOGGER.debug("Entering process method");
 
       final Object operationValueObj = exchange.getIn().getHeader(OPERATION_HEADER_KEY);
-      String operation = null;
+      String operation;
 
       if (operationValueObj == null) {
         exchange.getIn().setBody(new ArrayList<Metacard>());
-
-        throw new FrameworkProducerException("Missing expected header!");
+        throw new FrameworkProducerException(
+            String.format("Missing expected [%s] header!", OPERATION_HEADER_KEY));
       }
 
       operation = operationValueObj.toString();
@@ -145,12 +147,9 @@ public class FrameworkProducer extends DefaultProducer {
     } catch (ClassCastException cce) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
       LOGGER.debug("Received a non-String as the operation type");
-    } catch (SourceUnavailableException sue) {
+    } catch (SourceUnavailableException | IngestException e) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
-      LOGGER.debug("Exception cataloging metacards", sue);
-    } catch (IngestException ie) {
-      exchange.getIn().setBody(new ArrayList<Metacard>());
-      LOGGER.debug("Exception cataloging metacards", ie);
+      LOGGER.debug("Exception cataloging metacards", e);
     }
   }
 
@@ -365,14 +364,12 @@ public class FrameworkProducer extends DefaultProducer {
    * @return true if the list is not empty and has valid types inside, else false.
    */
   private boolean validateList(List<?> list, Class<?> cls) {
-    if (list.size() == 0) {
+    if (list.isEmpty()) {
       LOGGER.debug("No Metacard or Metacard IDs to process");
       return false;
     }
 
-    for (int i = 0; i < list.size(); i++) {
-      final Object o = list.get(i);
-
+    for (final Object o : list) {
       if (!cls.isInstance(o)) {
         LOGGER.debug("Received a list of non-{} objects", cls.getName());
         return false;
@@ -390,14 +387,14 @@ public class FrameworkProducer extends DefaultProducer {
    */
   private void processCatalogResponse(final CreateResponse response, final Exchange exchange) {
     if (response == null) {
-      LOGGER.debug("Catalog response object is null");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      LOGGER.debug(OBJECT_IS_NULL_MSG);
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
     if (response.getCreatedMetacards() == null) {
       LOGGER.debug("No Metacards created by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
@@ -412,14 +409,14 @@ public class FrameworkProducer extends DefaultProducer {
    */
   private void processCatalogResponse(final UpdateResponse response, final Exchange exchange) {
     if (response == null) {
-      LOGGER.debug("Catalog response object is null");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      LOGGER.debug(OBJECT_IS_NULL_MSG);
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
     if (response.getUpdatedMetacards() == null) {
       LOGGER.debug("No Metacards updated by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
@@ -434,14 +431,14 @@ public class FrameworkProducer extends DefaultProducer {
    */
   private void processCatalogResponse(final DeleteResponse response, final Exchange exchange) {
     if (response == null) {
-      LOGGER.debug("Catalog response object is null");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      LOGGER.debug(OBJECT_IS_NULL_MSG);
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
     if (response.getDeletedMetacards() == null) {
       LOGGER.debug("No Metacards deleted by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
@@ -455,7 +452,7 @@ public class FrameworkProducer extends DefaultProducer {
    * @return {@link java.util.List} of {@link String} representing Metacard IDs
    */
   private List<String> readBodyDataAsMetacardIds(final Exchange exchange) {
-    List<String> metacardIdsToBeProcessed = new ArrayList<String>();
+    List<String> metacardIdsToBeProcessed = new ArrayList<>();
 
     try {
       if (exchange.getIn().getBody() == null) {
@@ -478,7 +475,7 @@ public class FrameworkProducer extends DefaultProducer {
       final String metacardIdToBeProcessed = exchange.getIn().getBody(String.class);
 
       if (metacardIdToBeProcessed != null) {
-        metacardIdsToBeProcessed = new ArrayList<String>();
+        metacardIdsToBeProcessed = new ArrayList<>();
         metacardIdsToBeProcessed.add(metacardIdToBeProcessed);
         LOGGER.debug("Successfully read in body data as String");
         return metacardIdsToBeProcessed;
@@ -486,7 +483,7 @@ public class FrameworkProducer extends DefaultProducer {
 
       // if we get here, we neither had String or List<?>, so set a
       // default list
-      metacardIdsToBeProcessed = new ArrayList<String>();
+      metacardIdsToBeProcessed = new ArrayList<>();
     } catch (TypeConversionException tce1) {
       LOGGER.debug("Invalid message body. Expected either String or List<String>", tce1);
     }
@@ -501,7 +498,7 @@ public class FrameworkProducer extends DefaultProducer {
    * @return {@link java.util.List} of Metacard objects
    */
   private List<Metacard> readBodyDataAsMetacards(final Exchange exchange) {
-    List<Metacard> metacardsToProcess = new ArrayList<Metacard>();
+    List<Metacard> metacardsToProcess = new ArrayList<>();
 
     try {
       if (exchange.getIn().getBody() == null) {
@@ -526,7 +523,7 @@ public class FrameworkProducer extends DefaultProducer {
       metacardsToProcess = exchange.getIn().getBody(List.class);
       if (metacardsToProcess == null) {
         LOGGER.debug("Problem reading in body data as List<?>");
-        metacardsToProcess = new ArrayList<Metacard>();
+        metacardsToProcess = new ArrayList<>();
         return metacardsToProcess;
       }
       LOGGER.debug("Successfully read in body data as List<?>");

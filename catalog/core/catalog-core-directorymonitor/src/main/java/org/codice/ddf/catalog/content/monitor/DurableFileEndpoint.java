@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.content.monitor;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -113,7 +114,9 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
     try {
       getConfiguration().setDirectory(file.getCanonicalPath());
     } catch (IOException e) {
-      LOGGER.warn("Unable to canonicalize {}. Verify location is accessible.", file.toString());
+      LOGGER.warn(
+          "Unable to canonicalize processingMechanism{}. Verify location is accessible.",
+          file.toString());
     }
   }
 
@@ -194,13 +197,13 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
 
     @Override
     public List<EventfulFileWrapper> listFiles() throws GenericFileOperationFailedException {
-      return null;
+      return Collections.emptyList();
     }
 
     @Override
     public List<EventfulFileWrapper> listFiles(String path)
         throws GenericFileOperationFailedException {
-      return null;
+      return Collections.emptyList();
     }
   }
 }

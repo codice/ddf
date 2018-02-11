@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author ddf.isgs@lmco.com
  */
 public class QueryResponseTransformerProducer extends TransformerProducer {
-  private static final transient Logger LOGGER =
+  private static final Logger LOGGER =
       LoggerFactory.getLogger(QueryResponseTransformerProducer.class);
 
   /**
@@ -52,11 +52,7 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
   }
 
   protected Object transform(
-      Message in,
-      Object obj,
-      String mimeType,
-      String transformerId,
-      MimeTypeToTransformerMapper mapper)
+      Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, CatalogTransformerException {
     // Look up the QueryResponseTransformer for the request's mime type.
     // If a transformer is found, then transform the request's payload into a BinaryContent
@@ -73,7 +69,7 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
     Object binaryContent = null;
 
     if (matches != null && matches.size() == 1) {
-      Map<String, Serializable> arguments = new HashMap<String, Serializable>();
+      Map<String, Serializable> arguments = new HashMap<>();
       for (Entry<String, Object> entry : in.getHeaders().entrySet()) {
         if (entry.getValue() instanceof Serializable) {
           arguments.put(entry.getKey(), (Serializable) entry.getValue());
