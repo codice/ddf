@@ -26,7 +26,7 @@ import javax.servlet.http.HttpSession
 
 import static org.mockito.Mockito.mock
 
-class WhoAmIServletSpec extends SubjectSpecification {
+class WhoAmIServletSpec extends SubjectSpec {
 
     WhoAmIServlet whoAmIServlet
 
