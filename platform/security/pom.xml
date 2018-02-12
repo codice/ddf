@@ -217,6 +217,7 @@
     </dependencyManagement>
     <modules>
         <module>platform-security-core-api</module>
+        <module>security-saml-util</module>
         <module>encryption</module>
         <module>expansion</module>
         <module>common</module>

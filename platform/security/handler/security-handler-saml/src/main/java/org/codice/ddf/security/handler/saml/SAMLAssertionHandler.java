@@ -17,12 +17,9 @@ import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,8 +29,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -44,10 +39,10 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.util.SAMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Checks for a SAML assertion that has been returned to us in the ddf security cookie. If it
@@ -97,20 +92,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         try {
           String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
           LOGGER.trace("Header value: {}", tokenString);
-          securityToken = new SecurityToken();
-
-          Element thisToken = null;
-
-          try {
-            thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
-          } catch (XMLStreamException e) {
-            LOGGER.info(
-                "Unexpected error converting XML string to element - proceeding without SAML token.",
-                e);
-            thisToken = parseAssertionWithoutNamespace(tokenString);
-          }
-
-          securityToken.setToken(thisToken);
+          securityToken = SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString);
           SAMLAuthenticationToken samlToken =
               new SAMLAuthenticationToken(null, securityToken, realm);
           handlerResult.setToken(samlToken);
@@ -181,38 +163,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     }
 
     return handlerResult;
-  }
-
-  private Element parseAssertionWithoutNamespace(String assertion) {
-    Element result = null;
-
-    Matcher prefix = SAML_PREFIX.matcher(assertion);
-    if (prefix.find()) {
-
-      Thread thread = Thread.currentThread();
-      ClassLoader loader = thread.getContextClassLoader();
-      thread.setContextClassLoader(SAMLAssertionHandler.class.getClassLoader());
-
-      try {
-        DocumentBuilderFactory dbf = XML_UTILS.getSecureDocumentBuilderFactory();
-        dbf.setNamespaceAware(true);
-
-        String evidence = String.format(EVIDENCE, prefix.group("prefix"), assertion);
-
-        Element root =
-            dbf.newDocumentBuilder()
-                .parse(new ByteArrayInputStream(evidence.getBytes(StandardCharsets.UTF_8)))
-                .getDocumentElement();
-
-        result = ((Element) root.getChildNodes().item(0));
-      } catch (ParserConfigurationException | SAXException | IOException ex) {
-        LOGGER.info("Unable to parse SAML assertion", ex);
-      } finally {
-        thread.setContextClassLoader(loader);
-      }
-    }
-
-    return result;
   }
 
   public void setSessionFactory(SessionFactory sessionFactory) {

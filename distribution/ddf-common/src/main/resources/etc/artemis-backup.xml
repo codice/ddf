@@ -27,6 +27,9 @@
                 </anycast>
             </address>
         </addresses>
+        <broker-plugins>
+            <broker-plugin class-name="org.codice.ddf.broker.security.BrokerAuthenticationPlugin" />
+        </broker-plugins>
 
         <persistence-enabled>true</persistence-enabled>
 
@@ -54,6 +57,7 @@
         <network-check-URL-list>http://www.apache.org</network-check-URL-list> -->
 
         <network-check-period>10000</network-check-period>
+        <!-- This value should not be changed from 255 -->
         <network-check-timeout>255</network-check-timeout>
 
         <!-- this is a comma separated list, no spaces, just DNS or IPs

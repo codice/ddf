@@ -115,6 +115,8 @@
         </plugins>
     </build>
     <modules>
+        <module>broker-security-api</module>
+        <module>broker-security-impl</module>
         <module>broker-adapter</module>
         <module>broker-topic-logger</module>
         <module>broker-connection-factory</module>

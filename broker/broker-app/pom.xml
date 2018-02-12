@@ -34,6 +34,16 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.broker</groupId>
+            <artifactId>broker-security-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.broker</groupId>
+            <artifactId>broker-security-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.broker</groupId>
             <artifactId>broker-adapter</artifactId>
             <version>${project.version}</version>
         </dependency>

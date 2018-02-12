@@ -22,16 +22,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>broker-adapter</artifactId>
-    <name>DDF :: Broker :: Adapter</name>
+    <artifactId>broker-security-impl</artifactId>
+    <name>DDF :: Broker :: Security :: Impl</name>
     <packaging>bundle</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-server</artifactId>
@@ -43,9 +38,25 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-amqp-protocol</artifactId>
+            <version>${artemis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-saml-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -58,9 +69,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>org.apache.activemq.artemis-server-osgi</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <!-- Don't Export Anything -->
+                        <Conditional-Package>org.codice.ddf.security.util,org.codice.ddf.platform.util</Conditional-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>
@@ -83,17 +93,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.00</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.00</minimum>
+                                            <minimum>1.00</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>.00</minimum>
+                                            <minimum>.66</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
