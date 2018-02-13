@@ -352,7 +352,6 @@ org.codice.ddf.itests.common.matchers
 org.codice.ddf.itests.common.opensearch
 org.codice.ddf.itests.common.restito
 org.codice.ddf.itests.common.security
-org.codice.ddf.itests.common.utils
 org.codice.ddf.landing
 org.codice.ddf.libs.geo
 org.codice.ddf.libs.geo.util
@@ -438,6 +437,7 @@ org.codice.ddf.sdk.cometd
 org.codice.ddf.sdk.rest
 org.codice.ddf.sdk.soap
 org.codice.ddf.sdk.validation.metacard
+org.codice.ddf.security
 org.codice.ddf.security.admin.module
 org.codice.ddf.security.certificate.admin.module
 org.codice.ddf.security.certificate.generator
@@ -447,6 +447,7 @@ org.codice.ddf.security.claims.certificate
 org.codice.ddf.security.claims.guest
 org.codice.ddf.security.command
 org.codice.ddf.security.command.listener
+org.codice.ddf.security.command.sessionmanager
 org.codice.ddf.security.common
 org.codice.ddf.security.common.jaxrs
 org.codice.ddf.security.delegation
@@ -544,6 +545,14 @@ org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl
 org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source
 org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader
 org.codice.ddf.system.alerts
+org.codice.ddf.test.common
+org.codice.ddf.test.common.annotations
+org.codice.ddf.test.common.configurators
+org.codice.ddf.test.common.dom
+org.codice.ddf.test.common.function
+org.codice.ddf.test.common.matchers
+org.codice.ddf.test.common.rules
+org.codice.ddf.test.common.xmlunit
 org.codice.ddf.transformer.preview
 org.codice.ddf.transformer.preview.actions
 org.codice.ddf.transformer.xml.streaming
@@ -564,7 +573,10 @@ org.codice.ddf.ui.searchui.simple.properties
 org.codice.ddf.ui.searchui.standard.properties
 org.codice.ddf.util.function
 org.codice.ddf.validator.metacard.duplication
+org.codice.ddf.validator.metacard.framecenter
 org.codice.ddf.validator.metacard.location
+org.codice.ddf.validator.metacard.wkt
+org.codice.ddf.validator.wkt
 org.codice.felix.cm.file
 org.codice.felix.cm.internal
 org.codice.proxy.http
