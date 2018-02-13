@@ -164,6 +164,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String ALLOW_REDIRECTS_KEY = "allowRedirects";
 
+  private static final String SRS_NAME_KEY = "srsName";
+
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   private static final String SOURCE_MSG = " Source '";
@@ -223,6 +225,8 @@ public class WfsSource extends AbstractWfsSource {
   private FeatureCollectionMessageBodyReaderWfs11 featureCollectionReader;
 
   private List<MetacardTypeEnhancer> metacardTypeEnhancers;
+
+  private String srsName;
 
   private boolean allowRedirects;
 
@@ -307,6 +311,7 @@ public class WfsSource extends AbstractWfsSource {
 
     setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_KEY));
     setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_KEY));
+    setSrsName((String) configuration.get(SRS_NAME_KEY));
 
     this.nonQueryableProperties = (String[]) configuration.get(NON_QUERYABLE_PROPS_KEY);
 
@@ -570,7 +575,7 @@ public class WfsSource extends AbstractWfsSource {
 
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
-              new WfsFilterDelegate(featureMetacardType, supportedGeo, registration.getSrs()));
+              new WfsFilterDelegate(featureMetacardType, supportedGeo));
         }
       } catch (WfsException | IllegalArgumentException wfse) {
         LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
@@ -825,7 +830,9 @@ public class WfsSource extends AbstractWfsSource {
           || isFeatureTypeInQuery(contentTypes, filterDelegateEntry.getKey().getLocalPart())) {
         QueryType wfsQuery = new QueryType();
         wfsQuery.setTypeName(Collections.singletonList(filterDelegateEntry.getKey()));
-        wfsQuery.setSrsName(GeospatialUtil.EPSG_X_4326_URN);
+        if (StringUtils.isNotBlank(srsName)) {
+          wfsQuery.setSrsName(srsName);
+        }
         FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue());
         if (filter != null) {
           if (areAnyFiltersSet(filter)) {
@@ -1035,6 +1042,14 @@ public class WfsSource extends AbstractWfsSource {
 
   public Integer getReceiveTimeout() {
     return this.receiveTimeout;
+  }
+
+  public void setSrsName(String srsName) {
+    this.srsName = srsName;
+  }
+
+  public String getSrsName() {
+    return this.srsName;
   }
 
   public void setFilterAdapter(FilterAdapter filterAdapter) {

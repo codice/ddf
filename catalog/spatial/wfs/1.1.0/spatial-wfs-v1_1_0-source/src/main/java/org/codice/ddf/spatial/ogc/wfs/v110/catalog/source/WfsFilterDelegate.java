@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,7 +64,6 @@ import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
@@ -107,28 +105,13 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private List<QName> geometryOperands;
 
-  private String srsName;
-
-  private boolean isEpsg4326 = false;
-
-  public WfsFilterDelegate(
-      FeatureMetacardType featureMetacardType, List<String> supportedGeo, String srsName) {
+  public WfsFilterDelegate(FeatureMetacardType featureMetacardType, List<String> supportedGeo) {
 
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
     this.featureMetacardType = featureMetacardType;
     this.supportedGeo = supportedGeo;
-    this.srsName = srsName;
-    if (GeospatialUtil.EPSG_4326.equalsIgnoreCase(srsName)
-        || GeospatialUtil.EPSG_4326_URN.equalsIgnoreCase(srsName)
-        || GeospatialUtil.EPSG_X_4326_URN.equalsIgnoreCase(srsName)) {
-      isEpsg4326 = true;
-    } else {
-      LOGGER.debug(
-          "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
-          srsName);
-    }
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
   }
 
@@ -559,22 +542,18 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     featureMetacardType
         .getTextualProperties()
         .forEach(
-            new Consumer<String>() {
-              @Override
-              public void accept(String property) {
-                // only build filters for queryable properties
-                FeatureAttributeDescriptor attrDesc =
-                    (FeatureAttributeDescriptor)
-                        featureMetacardType.getAttributeDescriptor(property);
-                if (attrDesc.isIndexed()) {
-                  FilterType filter = new FilterType();
-                  filter.setComparisonOps(
-                      createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
-                  binaryCompOpsToBeOred.add(filter);
-                } else {
-                  if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
-                  }
+            property -> {
+              // only build filters for queryable properties
+              FeatureAttributeDescriptor attrDesc =
+                  (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(property);
+              if (attrDesc.isIndexed()) {
+                FilterType filter = new FilterType();
+                filter.setComparisonOps(
+                    createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
+                binaryCompOpsToBeOred.add(filter);
+              } else {
+                if (LOGGER.isDebugEnabled()) {
+                  LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
                 }
               }
             });
@@ -719,9 +698,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   // spatial operators
   @Override
   public FilterType beyond(String propertyName, String wkt, double distance) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt, distance)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -740,9 +716,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType contains(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -761,9 +734,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType crosses(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -780,9 +750,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType disjoint(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -803,9 +770,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType dwithin(String propertyName, String wkt, double distance) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt, distance)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -828,9 +792,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType intersects(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -851,9 +812,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType overlaps(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -870,9 +828,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType touches(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -889,9 +844,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType within(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -909,9 +861,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType bbox(String propertyName, String wkt) {
-    if (!isEpsg4326) {
-      return null;
-    }
 
     if (!isValidInputParameters(propertyName, wkt)) {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
@@ -965,7 +914,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildMultiGeospatialFilter(String spatialOpType, String wkt, Double distance) {
-    FilterType returnFilter;
     List<FilterType> filtersToBeOred = new ArrayList<>();
 
     featureMetacardType
@@ -1102,7 +1050,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     bboxType.setPropertyName(createPropertyNameType(propertyName).getValue());
 
     EnvelopeType envelopeType = gmlObjectFactory.createEnvelopeType();
-    envelopeType.setSrsName(srsName);
     envelopeType.setCoordinates(createCoordinatesTypeFromWkt(wkt).getValue());
     bboxType.setEnvelope(gmlObjectFactory.createEnvelope(envelopeType));
 
@@ -1134,7 +1081,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       abstractRingPropertyType.setRing(gmlObjectFactory.createLinearRing(linearRing));
 
       polygon.setExterior(gmlObjectFactory.createExterior(abstractRingPropertyType));
-      polygon.setSrsName(srsName);
 
       return gmlObjectFactory.createPolygon(polygon);
     } else {
@@ -1151,7 +1097,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       coordinatesType.setValue(coordinates[0].y + "," + coordinates[0].x);
 
       PointType point = new PointType();
-      point.setSrsName(srsName);
       point.setCoordinates(coordinatesType);
 
       return gmlObjectFactory.createGeometry(point);
@@ -1283,12 +1228,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     coordinatesType.setTs(" ");
 
     lineStringType.setCoordinates(coordinatesType);
-    lineStringType.setSrsName(srsName);
     return gmlObjectFactory.createLineString(lineStringType);
   }
 
   private JAXBElement<? extends AbstractGeometryType> createGeometryOperand(String wkt) {
-    Geometry wktGeometry = null;
+    Geometry wktGeometry;
     try {
       wktGeometry = getGeometryFromWkt(wkt);
     } catch (ParseException e) {
