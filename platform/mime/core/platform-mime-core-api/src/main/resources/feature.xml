@@ -16,7 +16,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="mime-core-api" version="${project.version}"
+    <feature name="mime-core-api-only" version="${project.version}"
              description="Core MIME API interfaces">
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>

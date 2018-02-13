@@ -16,7 +16,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="catalog-core-api" install="manual" version="${project.version}"
+    <feature name="catalog-core-api-only" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
