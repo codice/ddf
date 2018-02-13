@@ -59,36 +59,16 @@ define([
 
     var Router = Marionette.AppRouter.extend({
         controller: {
-            openWorkspace: function(){
-                //console.log('route to specific workspace:'+workspaceId);
-            },
-            home: function(){
-                //console.log('route to workspaces home');
-            },
-            workspaces: function(){
-                //console.log('route to workspaces home');
-            },
-            openMetacard: function(){
-                //console.log('route to specific metacard:'+metacardId);
-            },
-            openAlert: function(){
-                //console.log('route to specific alert:'+alertId);
-            },
-            openIngest: function(){
-                //console.log('route to ingest');
-            },
-            openUpload: function(){
-                //console.log('route to upload');
-            },
-            openSources: function(){
-                //console.log('route to sources');
-            },
-            openAbout() {
-                //console.log('route to about');
-            },
-            notFound() {
-                //console.log('route to notfound');
-            }
+                openWorkspace() {},
+                home() {},
+                workspaces() {},
+                openMetacard() {},
+                openAlert() {},
+                openIngest() {},
+                openUpload() {},
+                openSources() {},
+                openAbout() {},
+                notFound() {}
         },
         appRoutes: {
             'workspaces/:id': 'openWorkspace',
