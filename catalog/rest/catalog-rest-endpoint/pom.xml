@@ -209,6 +209,14 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-services-app</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Pax-Exam -->
         <dependency>
@@ -222,6 +230,12 @@
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-transform-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

@@ -38,11 +38,18 @@
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
     </feature>
 
-    <feature name="catalog-core" version="${project.version}"
+    <feature name="catalog-core-transform-api" install="manual" version="${project.version}"
+             description="Catalog Core Transform API">
+        <bundle>mvn:ddf.catalog.core/catalog-core-transform-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-core" install="manual" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
+        <feature>catalog-core-transform-api</feature>
 
+        <bundle>mvn:ddf.catalog.core/catalog-core-transform-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>

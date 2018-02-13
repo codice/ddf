@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.codice.ddf.catalog.transform.Transform;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -100,6 +101,8 @@ public class FrameworkProperties {
   private FilterBuilder filterBuilder;
 
   private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+
+  private Transform transform;
 
   private MimeTypeMapper mimeTypeMapper;
 
@@ -377,5 +380,13 @@ public class FrameworkProperties {
 
   public List<AttributeInjector> getAttributeInjectors() {
     return attributeInjectors;
+  }
+
+  public Transform getTransform() {
+    return transform;
+  }
+
+  public void setTransform(Transform transform) {
+    this.transform = transform;
   }
 }

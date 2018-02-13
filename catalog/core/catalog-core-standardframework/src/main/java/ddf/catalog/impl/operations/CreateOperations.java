@@ -125,6 +125,14 @@ public class CreateOperations {
   public CreateResponse create(
       CreateStorageRequest streamCreateRequest, List<String> fanoutTagBlacklist)
       throws IngestException, SourceUnavailableException {
+    return create(streamCreateRequest, fanoutTagBlacklist, Collections.emptyMap());
+  }
+
+  public CreateResponse create(
+      CreateStorageRequest streamCreateRequest,
+      List<String> fanoutTagBlacklist,
+      Map<String, ? extends Serializable> arguments)
+      throws IngestException, SourceUnavailableException {
     Map<String, Metacard> metacardMap = new HashMap<>();
     List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems().size());
     HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
@@ -139,7 +147,11 @@ public class CreateOperations {
 
     // Operation populates the metacardMap, contentItems, and tmpContentPaths
     opsMetacardSupport.generateMetacardAndContentItems(
-        streamCreateRequest.getContentItems(), metacardMap, contentItems, tmpContentPaths);
+        streamCreateRequest.getContentItems(),
+        metacardMap,
+        contentItems,
+        tmpContentPaths,
+        arguments);
 
     if (blockCreateMetacards(metacardMap.values(), fanoutTagBlacklist)) {
       String message =

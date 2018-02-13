@@ -33,6 +33,7 @@ import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -58,7 +59,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
-import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -67,14 +67,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.activation.MimeType;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -91,16 +91,17 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.tika.io.IOUtils;
+import org.codice.ddf.catalog.transform.Transform;
+import org.codice.ddf.catalog.transform.TransformResponse;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Tests methods of the {@link RESTEndpoint} */
+@SuppressWarnings({"JavaDoc", "unchecked"})
 public class RestEndpointTest {
   private static final int OK = 200;
 
@@ -187,14 +188,16 @@ public class RestEndpointTest {
 
   @Test
   public void testAddDocumentFrameworkIngestException()
-      throws IngestException, SourceUnavailableException, URISyntaxException {
+      throws IngestException, SourceUnavailableException, URISyntaxException,
+          MetacardCreationException {
 
     assertExceptionThrown(IngestException.class);
   }
 
   @Test
   public void testAddDocumentFrameworkSourceUnavailableException()
-      throws IngestException, SourceUnavailableException, URISyntaxException {
+      throws IngestException, SourceUnavailableException, URISyntaxException,
+          MetacardCreationException {
 
     assertExceptionThrown(SourceUnavailableException.class);
   }
@@ -202,15 +205,15 @@ public class RestEndpointTest {
   @Test
   public void testAddDocumentPositiveCase()
       throws IOException, CatalogTransformerException, IngestException, SourceUnavailableException,
-          URISyntaxException {
+          URISyntaxException, MetacardCreationException {
 
     CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
 
-    HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
     RESTEndpoint rest = new RESTEndpoint(framework);
 
-    addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(rest, getSimpleMetacard());
 
     UriInfo info = givenUriInfo(SAMPLE_ID);
 
@@ -235,26 +238,25 @@ public class RestEndpointTest {
   @Test
   public void testAddDocumentWithMetadataPositiveCase()
       throws IOException, CatalogTransformerException, IngestException, SourceUnavailableException,
-          URISyntaxException, InvalidSyntaxException, MimeTypeResolutionException {
+          URISyntaxException, InvalidSyntaxException, MimeTypeResolutionException,
+          MetacardCreationException {
 
     CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
 
-    HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
-    BundleContext bundleContext = mock(BundleContext.class);
-    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    ServiceReference serviceReference = mock(ServiceReference.class);
-    InputTransformer inputTransformer = mock(InputTransformer.class);
-    when(inputTransformer.transform(any())).thenReturn(new MetacardImpl());
-    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
-    serviceReferences.add(serviceReference);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
-        .thenReturn(serviceReferences);
+    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(new MetacardImpl()));
+
+    Transform transform = mock(Transform.class);
+    when(transform.transform(any(MimeType.class), any(), any(), any(), any(), any()))
+        .thenReturn(transformResponse);
 
     RESTEndpoint rest =
         new RESTEndpoint(framework) {
           @Override
-          BundleContext getBundleContext() {
-            return bundleContext;
+          public Transform getTransform() {
+            return transform;
           }
         };
 
@@ -267,7 +269,7 @@ public class RestEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
     rest.setMimeTypeMapper(mimeTypeMapper);
 
-    addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(rest, getSimpleMetacard());
 
     UriInfo info = givenUriInfo(SAMPLE_ID);
 
@@ -317,25 +319,32 @@ public class RestEndpointTest {
   @Test
   public void testParseAttachments()
       throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
-          InvalidSyntaxException, MimeTypeResolutionException, URISyntaxException {
+          InvalidSyntaxException, MimeTypeResolutionException, URISyntaxException,
+          MetacardCreationException {
     CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-    BundleContext bundleContext = mock(BundleContext.class);
-    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    ServiceReference serviceReference = mock(ServiceReference.class);
     InputTransformer inputTransformer = mock(InputTransformer.class);
     MetacardImpl metacard = new MetacardImpl();
     metacard.setMetadata("Some Text Again");
     when(inputTransformer.transform(any())).thenReturn(metacard);
-    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
-    serviceReferences.add(serviceReference);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
-        .thenReturn(serviceReferences);
+
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(metacard));
+
+    Transform transform = mock(Transform.class);
+    when(transform.transform(
+            any(MimeType.class),
+            any(String.class),
+            any(Supplier.class),
+            any(InputStream.class),
+            eq("xml"),
+            any(Map.class)))
+        .thenReturn(transformResponse);
 
     RESTEndpoint rest =
         new RESTEndpoint(framework) {
           @Override
-          BundleContext getBundleContext() {
-            return bundleContext;
+          public Transform getTransform() {
+            return transform;
           }
         };
     rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
@@ -344,7 +353,7 @@ public class RestEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
     rest.setMimeTypeMapper(mimeTypeMapper);
 
-    addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(rest, getSimpleMetacard());
 
     List<Attachment> attachments = new ArrayList<>();
     ContentDisposition contentDisposition =
@@ -389,25 +398,32 @@ public class RestEndpointTest {
   @Test
   public void testParseAttachmentsTooLarge()
       throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
-          InvalidSyntaxException, MimeTypeResolutionException, URISyntaxException {
+          InvalidSyntaxException, MimeTypeResolutionException, URISyntaxException,
+          MetacardCreationException {
     CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-    BundleContext bundleContext = mock(BundleContext.class);
-    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
-    ServiceReference serviceReference = mock(ServiceReference.class);
     InputTransformer inputTransformer = mock(InputTransformer.class);
     MetacardImpl metacard = new MetacardImpl();
     metacard.setMetadata("Some Text Again");
     when(inputTransformer.transform(any())).thenReturn(metacard);
-    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
-    serviceReferences.add(serviceReference);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
-        .thenReturn(serviceReferences);
+
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(metacard));
+
+    Transform transform = mock(Transform.class);
+    when(transform.transform(
+            any(MimeType.class),
+            any(String.class),
+            any(Supplier.class),
+            any(InputStream.class),
+            eq("xml"),
+            any(Map.class)))
+        .thenReturn(transformResponse);
 
     RESTEndpoint rest =
         new RESTEndpoint(framework) {
           @Override
-          BundleContext getBundleContext() {
-            return bundleContext;
+          public Transform getTransform() {
+            return transform;
           }
         };
     rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
@@ -416,7 +432,7 @@ public class RestEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
     rest.setMimeTypeMapper(mimeTypeMapper);
 
-    addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(rest, getSimpleMetacard());
 
     List<Attachment> attachments = new ArrayList<>();
     ContentDisposition contentDisposition =
@@ -581,7 +597,7 @@ public class RestEndpointTest {
     final String version = "4.0";
     final String jsonMimeTypeString = "application/json";
 
-    Set<ContentType> contentTypes = new HashSet<ContentType>();
+    Set<ContentType> contentTypes = new HashSet<>();
     contentTypes.add(new ContentTypeImpl("ct1", "v1"));
     contentTypes.add(new ContentTypeImpl("ct2", "v2"));
     contentTypes.add(new ContentTypeImpl("ct3", null));
@@ -593,7 +609,7 @@ public class RestEndpointTest {
       contentTypesInJSON.add(ob);
     }
 
-    Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
+    Set<SourceDescriptor> sourceDescriptors = new HashSet<>();
     SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(localSourceId, contentTypes);
     localDescriptor.setVersion(version);
     localDescriptor.setAvailable(true);
@@ -715,8 +731,7 @@ public class RestEndpointTest {
 
     RESTEndpoint restEndpoint = new RESTEndpoint(framework);
 
-    // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
-    addMatchingService(restEndpoint, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(restEndpoint, getSimpleMetacard());
     restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     restEndpoint.setFilterBuilder(filterBuilder);
@@ -806,10 +821,10 @@ public class RestEndpointTest {
           UnsupportedQueryException, SourceUnavailableException, FederationException,
           IngestException {
 
-    MetacardImpl metacard = null;
-    List<Result> list = new ArrayList<Result>();
+    MetacardImpl metacard;
+    List<Result> list = new ArrayList<>();
     Result result = mock(Result.class);
-    InputStream inputStream = null;
+    InputStream inputStream;
     UriInfo uriInfo;
     Response response;
 
@@ -889,7 +904,7 @@ public class RestEndpointTest {
     List<Result> list = null;
     MetacardImpl metacard = null;
     Result result = mock(Result.class);
-    InputStream inputStream = null;
+    InputStream inputStream;
 
     switch (testType) {
       case QUERY_RESPONSE_TEST:
@@ -897,7 +912,7 @@ public class RestEndpointTest {
         break;
 
       case METACARD_TEST:
-        list = new ArrayList<Result>();
+        list = new ArrayList<>();
         list.add(result);
         when(queryResponse.getResults()).thenReturn(list);
 
@@ -909,7 +924,7 @@ public class RestEndpointTest {
         /* FALLTHRU */
         // fall through
       case SUCCESS_TEST:
-        list = new ArrayList<Result>();
+        list = new ArrayList<>();
         list.add(result);
         when(queryResponse.getResults()).thenReturn(list);
 
@@ -928,7 +943,7 @@ public class RestEndpointTest {
 
       case KML_TEST:
         transformer = "kml";
-        list = new ArrayList<Result>();
+        list = new ArrayList<>();
         list.add(result);
         when(queryResponse.getResults()).thenReturn(list);
 
@@ -971,7 +986,8 @@ public class RestEndpointTest {
   }
 
   protected void assertExceptionThrown(Class<? extends Throwable> klass)
-      throws IngestException, SourceUnavailableException, URISyntaxException {
+      throws IngestException, SourceUnavailableException, URISyntaxException,
+          MetacardCreationException {
 
     CatalogFramework framework = mock(CatalogFramework.class);
 
@@ -979,11 +995,11 @@ public class RestEndpointTest {
 
     when(framework.create(isA(CreateStorageRequest.class))).thenThrow(klass);
 
-    HttpHeaders headers = createHeaders(Arrays.asList(MediaType.APPLICATION_JSON));
+    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
     RESTEndpoint rest = new RESTEndpoint(framework);
 
-    addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+    addMatchingService(rest, getSimpleMetacard());
 
     UriInfo info = givenUriInfo(SAMPLE_ID);
 
@@ -1017,10 +1033,10 @@ public class RestEndpointTest {
     when(returnMetacard.getId()).thenReturn(returnId);
 
     when(framework.create(isA(CreateRequest.class)))
-        .thenReturn(new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
+        .thenReturn(new CreateResponseImpl(null, null, Collections.singletonList(returnMetacard)));
 
     when(framework.create(isA(CreateStorageRequest.class)))
-        .thenReturn(new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
+        .thenReturn(new CreateResponseImpl(null, null, Collections.singletonList(returnMetacard)));
 
     return framework;
   }
@@ -1063,33 +1079,20 @@ public class RestEndpointTest {
     return generatedMetacard;
   }
 
-  private InputTransformer getSimpleTransformer() {
-    return new InputTransformer() {
+  private Transform addMatchingService(RESTEndpoint rest, Metacard metacard)
+      throws MetacardCreationException {
 
-      @Override
-      public Metacard transform(InputStream input, String id)
-          throws IOException, CatalogTransformerException {
-        return getSimpleMetacard();
-      }
+    Transform transform = mock(Transform.class);
 
-      @Override
-      public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
-        return getSimpleMetacard();
-      }
-    };
-  }
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(metacard));
 
-  private MimeTypeToTransformerMapper addMatchingService(
-      RESTEndpoint rest, List<InputTransformer> sortedListOfTransformers) {
+    when(transform.transform(any(MimeType.class), any(), any(), any(), any(), any()))
+        .thenReturn(transformResponse);
 
-    MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
+    rest.setTransform(transform);
 
-    when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
-        .thenReturn((List) sortedListOfTransformers);
-
-    rest.setMimeTypeToTransformerMapper(matchingService);
-
-    return matchingService;
+    return transform;
   }
 
   private HttpHeaders createHeaders(List<String> mimeTypeList) {

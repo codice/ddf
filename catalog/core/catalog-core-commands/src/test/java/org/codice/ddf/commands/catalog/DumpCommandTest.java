@@ -15,20 +15,25 @@ package org.codice.ddf.commands.catalog;
 
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.transform.MetacardTransformer;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
+import org.codice.ddf.catalog.transform.Transform;
 import org.fusesource.jansi.Ansi;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +45,8 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
   static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
   static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(ERROR_COLOR).toString();
+
+  private static final String TEST_FOLDER = "somedirectory";
 
   @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -103,7 +110,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     DumpCommand dumpCommand = new DumpCommand();
     dumpCommand.catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
-    File outputDirectory = testFolder.newFolder("somedirectory");
+    File outputDirectory = testFolder.newFolder(TEST_FOLDER);
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
@@ -126,7 +133,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     DumpCommand dumpCommand = new DumpCommand();
     dumpCommand.catalogFramework = givenCatalogFramework(getEmptyResultList());
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
-    File outputDirectory = testFolder.newFolder("somedirectory");
+    File outputDirectory = testFolder.newFolder(TEST_FOLDER);
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
@@ -156,7 +163,7 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     DumpCommand dumpCommand = new DumpCommand();
     dumpCommand.catalogFramework = givenCatalogFramework(resultList);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
-    File outputDirectory = testFolder.newFolder("somedirectory");
+    File outputDirectory = testFolder.newFolder(TEST_FOLDER);
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = CatalogCommands.SERIALIZED_OBJECT_ID;
@@ -175,11 +182,10 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
    */
   @Test
   public void testNoFileDumpedWhenTransformFails() throws Exception {
-    // mock transformer to throw exception
-    MetacardTransformer transformer = mock(MetacardTransformer.class);
-    when(transformer.transform(any(), any())).thenThrow(Exception.class);
-    List<MetacardTransformer> transformers = new ArrayList<>();
-    transformers.add(transformer);
+
+    Transform transform = mock(Transform.class);
+    when(transform.isMetacardTransformerIdValid(any())).thenReturn(true);
+    when(transform.transform(any(List.class), any(), any())).thenThrow(Exception.class);
 
     // given
     List<Result> resultList = getResultList("id1", "id2");
@@ -188,10 +194,10 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     metacard1.setResourceURI(new URI("content:" + metacard1.getId()));
     metacard2.setResourceURI(new URI("content:" + metacard2.getId() + "#preview"));
 
-    TestDumpCommand dumpCommand = new TestDumpCommand(transformers);
+    TestDumpCommand dumpCommand = new TestDumpCommand(transform);
     dumpCommand.catalogFramework = givenCatalogFramework(resultList);
     dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
-    File outputDirectory = testFolder.newFolder("somedirectory");
+    File outputDirectory = testFolder.newFolder(TEST_FOLDER);
     String outputDirectoryPath = outputDirectory.getAbsolutePath();
     dumpCommand.dirPath = outputDirectoryPath;
     dumpCommand.transformerId = "someOtherTransformer";
@@ -203,16 +209,70 @@ public class DumpCommandTest extends CommandCatalogFrameworkCommon {
     assertThat(consoleOutput.getOutput(), containsString(" 0 file(s) dumped in "));
   }
 
-  private class TestDumpCommand extends DumpCommand {
-    private List<MetacardTransformer> list;
+  @Test
+  public void testMultipleBinaryContents() throws Exception {
 
-    TestDumpCommand(List<MetacardTransformer> list) {
-      this.list = list;
+    String id = "e30e340fb8dd64bb7f32cda3c3625968";
+
+    BinaryContent binaryContent1 = mock(BinaryContent.class);
+    BinaryContent binaryContent2 = mock(BinaryContent.class);
+    when(binaryContent1.getInputStream())
+        .thenReturn(new ByteArrayInputStream("<xml>1</xml>".getBytes()));
+    when(binaryContent2.getInputStream())
+        .thenReturn(new ByteArrayInputStream("<xml>2</xml>".getBytes()));
+    List<Result> resultList = getResultList(id);
+
+    Transform transform = mock(Transform.class);
+    when(transform.isMetacardTransformerIdValid(any())).thenReturn(true);
+    when(transform.transform(any(List.class), any(), any()))
+        .thenReturn(Arrays.asList(binaryContent1, binaryContent2));
+
+    TestDumpCommand dumpCommand = new TestDumpCommand(transform);
+    dumpCommand.catalogFramework = givenCatalogFramework(resultList);
+    dumpCommand.filterBuilder = new GeotoolsFilterBuilder();
+    File outputDirectory = testFolder.newFolder(TEST_FOLDER);
+    dumpCommand.dirPath = outputDirectory.getAbsolutePath();
+    dumpCommand.transformerId = "someOtherTransformer";
+    dumpCommand.dirLevel = 3;
+
+    dumpCommand.executeWithSubject();
+
+    File targetZipFile =
+        new File(
+            testFolder.getRoot().getAbsolutePath()
+                + File.separator
+                + TEST_FOLDER
+                + File.separator
+                + "e3"
+                + File.separator
+                + "0e"
+                + File.separator
+                + "34"
+                + File.separator
+                + id
+                + ".zip");
+
+    assertThat(targetZipFile.exists(), is(true));
+
+    ZipFile zipFile = new ZipFile(targetZipFile);
+
+    List fileHeaders = zipFile.getFileHeaders();
+
+    assertThat(fileHeaders.size(), is(2));
+    assertThat(((FileHeader) fileHeaders.get(0)).getFileName(), is("1"));
+    assertThat(((FileHeader) fileHeaders.get(1)).getFileName(), is("2"));
+  }
+
+  private class TestDumpCommand extends DumpCommand {
+    private Transform transform;
+
+    TestDumpCommand(Transform transform) {
+      this.transform = transform;
     }
 
     @Override
-    protected List<MetacardTransformer> getTransformers() {
-      return list;
+    protected Transform getTransform() {
+      return transform;
     }
   }
 }

@@ -17,16 +17,15 @@ import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.camel.component.catalog.transformer.TransformerProducer;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Message;
+import org.codice.ddf.catalog.transform.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,22 +40,20 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
   private static final transient Logger LOGGER =
       LoggerFactory.getLogger(QueryResponseTransformerProducer.class);
 
+  private Transform transform;
+
   /**
    * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would map
    * to a Camel <to> route node with a URI like <code>catalog:queryresponsetransformer</code>
    *
    * @param endpoint the Camel endpoint that created this consumer
    */
-  public QueryResponseTransformerProducer(CatalogEndpoint endpoint) {
+  public QueryResponseTransformerProducer(CatalogEndpoint endpoint, Transform transform) {
     super(endpoint);
+    this.transform = transform;
   }
 
-  protected Object transform(
-      Message in,
-      Object obj,
-      String mimeType,
-      String transformerId,
-      MimeTypeToTransformerMapper mapper)
+  protected Object transform(Message in, Object obj, String mimeType, String transformerId)
       throws MimeTypeParseException, CatalogTransformerException {
     // Look up the QueryResponseTransformer for the request's mime type.
     // If a transformer is found, then transform the request's payload into a BinaryContent
@@ -68,29 +65,24 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
           new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
     }
 
-    List<QueryResponseTransformer> matches =
-        mapper.findMatches(QueryResponseTransformer.class, derivedMimeType);
-    Object binaryContent = null;
+    SourceResponse srcResp = in.getBody(SourceResponse.class);
 
-    if (matches != null && matches.size() == 1) {
-      Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-      for (Entry<String, Object> entry : in.getHeaders().entrySet()) {
-        if (entry.getValue() instanceof Serializable) {
-          arguments.put(entry.getKey(), (Serializable) entry.getValue());
+    try {
+      if (srcResp != null) {
+        Map<String, Serializable> arguments = new HashMap<>();
+        for (Entry<String, Object> entry : in.getHeaders().entrySet()) {
+          if (entry.getValue() instanceof Serializable) {
+            arguments.put(entry.getKey(), (Serializable) entry.getValue());
+          }
         }
+        return transform.transform(srcResp, derivedMimeType, arguments);
       }
-
-      LOGGER.debug("Found a matching QueryResponseTransformer for [{}]", transformerId);
-      QueryResponseTransformer transformer = matches.get(0);
-      SourceResponse srcResp = in.getBody(SourceResponse.class);
-      if (null != srcResp) {
-        binaryContent = transformer.transform(srcResp, arguments);
-      }
-    } else {
+    } catch (IllegalArgumentException e) {
       LOGGER.debug("Did not find an QueryResponseTransformer for [{}]", transformerId);
       throw new CatalogTransformerException(
           "Did not find an QueryResponseTransformer for [" + transformerId + "]");
     }
-    return binaryContent;
+
+    return null;
   }
 }

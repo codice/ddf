@@ -17,24 +17,20 @@ import ddf.catalog.content.data.ContentItem
 import ddf.catalog.data.*
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.source.IngestException
-import ddf.catalog.transform.InputTransformer
 import ddf.mime.MimeTypeMapper
-import ddf.mime.MimeTypeToTransformerMapper
+import org.codice.ddf.catalog.transform.Transform
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import spock.lang.Specification
-
-import java.nio.file.Files
 import java.nio.file.Path
 
 class OperationsMetacardSupportSpec extends Specification {
     private OperationsMetacardSupport opsMetacard
     private FrameworkProperties frameworkProperties
     private MimeTypeMapper mimeTypeMapper
-    private MimeTypeToTransformerMapper mimeTransMapper
     private DefaultAttributeValueRegistry defaultAttributeValueRegistry
     private Metacard generatedMetacard
     private UuidGenerator uuidGenerator
-    private InputTransformer transformer
+    private Transform transform
 
     def setup() {
         System.setProperty("bad.files", "")
@@ -43,25 +39,23 @@ class OperationsMetacardSupportSpec extends Specification {
         System.setProperty("ignore.files", "")
 
         mimeTypeMapper = Mock(MimeTypeMapper)
-        mimeTransMapper = Mock(MimeTypeToTransformerMapper)
+
         uuidGenerator = Mock(UuidGenerator)
         defaultAttributeValueRegistry = Mock(DefaultAttributeValueRegistry)
 
-        transformer = Mock(InputTransformer)
         generatedMetacard = Mock(Metacard)
         generatedMetacard.getId() >> { 'genmeta_id' }
 
-        transformer.transform(_) >> { generatedMetacard }
-        mimeTransMapper.findMatches(_, _) >> { [transformer] }
+        transform.transform(_, _, _, _, _) >> { [generatedMetacard] }
+
         frameworkProperties = new FrameworkProperties()
         frameworkProperties.with {
             mimeTypeMapper = this.mimeTypeMapper
-            mimeTypeToTransformerMapper = mimeTransMapper
             defaultAttributeValueRegistry = this.defaultAttributeValueRegistry
+            transform = this.transfor
         }
 
-        def metacardFactory = new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator)
-        opsMetacard = new OperationsMetacardSupport(frameworkProperties, metacardFactory)
+        opsMetacard = new OperationsMetacardSupport(frameworkProperties)
     }
 
     def 'test apply injectors to metacard'() {
@@ -87,7 +81,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def contentPaths = [:]
 
         when:
-        opsMetacard.generateMetacardAndContentItems([], metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems([], metacardMap, contentItems, contentPaths, [:])
 
         then:
         metacardMap.isEmpty()
@@ -105,7 +99,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths, [:])
 
         then:
         thrown(IngestException)
@@ -121,7 +115,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths, [:])
 
         then:
         thrown(IngestException)
@@ -140,7 +134,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths, [:])
 
         then:
         thrown(IngestException)
@@ -160,7 +154,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths, [:])
 
         then:
         metacardMap.size() == 1
@@ -187,7 +181,7 @@ class OperationsMetacardSupportSpec extends Specification {
         def inputs = [item]
 
         when:
-        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths)
+        opsMetacard.generateMetacardAndContentItems(inputs, metacardMap, contentItems, contentPaths, [:])
 
         then:
         1 * transformer.transform(_) >> { throw new IOException() }

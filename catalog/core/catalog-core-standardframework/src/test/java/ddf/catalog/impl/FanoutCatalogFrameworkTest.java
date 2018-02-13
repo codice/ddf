@@ -45,7 +45,6 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -74,20 +73,22 @@ import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
 import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeToTransformerMapper;
-import java.io.InputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import javax.activation.MimeType;
+import org.codice.ddf.catalog.transform.Transform;
+import org.codice.ddf.catalog.transform.TransformResponse;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,10 +128,7 @@ public class FanoutCatalogFrameworkTest {
 
   private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
-    OperationsMetacardSupport opsMetacard =
-        new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
     SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     QueryOperations queryOperations =
@@ -427,10 +425,7 @@ public class FanoutCatalogFrameworkTest {
     frameworkProperties.setQueryResponsePostProcessor(queryResponsePostProcessor);
 
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
-    OperationsMetacardSupport opsMetacard =
-        new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
     SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
@@ -476,25 +471,28 @@ public class FanoutCatalogFrameworkTest {
     StorageProvider storageProvider = new MockMemoryStorageProvider();
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
     doReturn("extension").when(mimeTypeMapper).getFileExtensionForMimeType(anyString());
-    InputTransformer transformer = mock(InputTransformer.class);
-    doReturn(metacard).when(transformer).transform(any(InputStream.class));
 
-    MimeTypeToTransformerMapper mimeTypeToTransformerMapper =
-        mock(MimeTypeToTransformerMapper.class);
-    doReturn(Collections.singletonList(transformer))
-        .when(mimeTypeToTransformerMapper)
-        .findMatches(any(Class.class), any(MimeType.class));
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(metacard));
+
+    Transform transform = mock(Transform.class);
+    when(transform.transform(
+            any(MimeType.class),
+            any(String.class),
+            any(Supplier.class),
+            any(String.class),
+            any(File.class),
+            any(String.class),
+            any(Map.class)))
+        .thenReturn(transformResponse);
 
     frameworkProperties.setCatalogProviders(Collections.singletonList(catalogProvider));
     frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
     frameworkProperties.setMimeTypeMapper(mimeTypeMapper);
-    frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
+    frameworkProperties.setTransform(transform);
 
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
-    OperationsMetacardSupport opsMetacard =
-        new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
     SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
@@ -511,7 +509,7 @@ public class FanoutCatalogFrameworkTest {
         new ResourceOperations(frameworkProperties, queryOperations, opsSecurity);
 
     OperationsMetacardSupport opsMetacardSupport =
-        new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+        new OperationsMetacardSupport(frameworkProperties);
     // Need to set these for InputValidation to work
     System.setProperty("bad.files", "none");
     System.setProperty("bad.file.extensions", "none");

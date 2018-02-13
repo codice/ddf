@@ -57,11 +57,9 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeResolver;
-import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +77,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -114,17 +112,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.catalog.transform.Transform;
+import org.codice.ddf.catalog.transform.TransformResponse;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +191,7 @@ public class RESTEndpoint implements RESTService {
 
   private CatalogFramework catalogFramework;
 
-  private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+  private Transform transform;
 
   private MimeTypeResolver tikaMimeTypeResolver;
 
@@ -661,7 +657,21 @@ public class RESTEndpoint implements RESTService {
     }
 
     try {
-      Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream, null);
+      TransformResponse transformResponse =
+          getTransform()
+              .transform(
+                  mimeType,
+                  "assigned-when-ingested",
+                  () -> "assigned-when-ingested",
+                  stream,
+                  null,
+                  Collections.emptyMap());
+
+      if (!transformResponse.getParentMetacard().isPresent()) {
+        return createBadRequestResponse("Unable to create metacard");
+      }
+
+      Metacard metacard = transformResponse.getParentMetacard().get();
       String metacardId = metacard.getId();
       LOGGER.debug("Metacard {} created", metacardId);
       LOGGER.debug(
@@ -739,8 +749,14 @@ public class RESTEndpoint implements RESTService {
         }
 
         if (createInfo == null) {
+          TransformResponse transformResponse =
+              getTransform()
+                  .transform(mimeType, id, null, message, transformerParam, Collections.emptyMap());
+          if (!transformResponse.getParentMetacard().isPresent()) {
+            throw new MetacardCreationException("Unable to transform message into a metacard.");
+          }
           UpdateRequest updateRequest =
-              new UpdateRequestImpl(id, generateMetacard(mimeType, id, message, transformerParam));
+              new UpdateRequestImpl(id, transformResponse.getParentMetacard().get());
           catalogFramework.update(updateRequest);
         } else {
           UpdateStorageRequest streamUpdateRequest =
@@ -823,11 +839,39 @@ public class RESTEndpoint implements RESTService {
           }
         }
 
+        String id = null;
+
         CreateResponse createResponse;
         if (createInfo == null) {
-          CreateRequest createRequest =
-              new CreateRequestImpl(generateMetacard(mimeType, null, message, transformerParam));
-          createResponse = catalogFramework.create(createRequest);
+
+          TransformResponse transformResponse =
+              getTransform()
+                  .transform(
+                      mimeType, null, null, message, transformerParam, Collections.emptyMap());
+
+          List<Metacard> metacardsToCreate =
+              new LinkedList<>(transformResponse.getDerivedMetacards());
+          transformResponse.getParentMetacard().ifPresent(metacardsToCreate::add);
+
+          if (transformResponse.getParentMetacard().isPresent()) {
+            CreateRequest createRequest =
+                new CreateRequestImpl(transformResponse.getParentMetacard().get());
+            createResponse = catalogFramework.create(createRequest);
+            id = createResponse.getCreatedMetacards().get(0).getId();
+          }
+
+          if (CollectionUtils.isNotEmpty(transformResponse.getDerivedMetacards())) {
+            CreateRequest createRequest =
+                new CreateRequestImpl(transformResponse.getDerivedMetacards());
+            catalogFramework.create(createRequest);
+          }
+
+          if (CollectionUtils.isNotEmpty(transformResponse.getDerivedContentItems())) {
+            CreateStorageRequest streamCreateRequest =
+                new CreateStorageRequestImpl(transformResponse.getDerivedContentItems(), null);
+            catalogFramework.create(streamCreateRequest);
+          }
+
         } else {
           CreateStorageRequest streamCreateRequest =
               new CreateStorageRequestImpl(
@@ -840,9 +884,11 @@ public class RESTEndpoint implements RESTService {
                           createInfo.getMetacard())),
                   null);
           createResponse = catalogFramework.create(streamCreateRequest);
+          // TODO phil: the convention I've been following is that the response header contains the
+          // ID of the parent metacard, but at this point, I don't know which metacard is the
+          // parent.
+          id = createResponse.getCreatedMetacards().get(0).getId();
         }
-
-        String id = createResponse.getCreatedMetacards().get(0).getId();
 
         LOGGER.debug("Create Response id [{}]", id);
 
@@ -1016,7 +1062,21 @@ public class RESTEndpoint implements RESTService {
     }
     try {
       MimeType mimeType = new MimeType(attachment.getContentType().toString());
-      metacard = generateMetacard(mimeType, "assigned-when-ingested", inputStream, transformer);
+      TransformResponse transformResponse =
+          getTransform()
+              .transform(
+                  mimeType,
+                  "assigned-when-ingested",
+                  () -> "assigned-when-ingested",
+                  inputStream,
+                  transformer,
+                  Collections.emptyMap());
+
+      if (transformResponse.getParentMetacard().isPresent()) {
+        return transformResponse.getParentMetacard().get();
+      }
+
+      return null;
     } catch (MimeTypeParseException | MetacardCreationException e) {
       LOGGER.debug("Unable to parse metadata {}", attachment.getContentType().toString());
     } finally {
@@ -1168,80 +1228,6 @@ public class RESTEndpoint implements RESTService {
     return convertedMap;
   }
 
-  private Metacard generateMetacard(
-      MimeType mimeType, String id, InputStream message, String transformerId)
-      throws MetacardCreationException {
-
-    Metacard generatedMetacard = null;
-
-    List<InputTransformer> listOfCandidates =
-        mimeTypeToTransformerMapper.findMatches(InputTransformer.class, mimeType);
-    List<String> stackTraceList = new ArrayList<>();
-
-    LOGGER.trace("Entering generateMetacard.");
-
-    LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
-
-    try (TemporaryFileBackedOutputStream fileBackedOutputStream =
-        new TemporaryFileBackedOutputStream()) {
-
-      try {
-        if (null != message) {
-          IOUtils.copy(message, fileBackedOutputStream);
-        } else {
-          throw new MetacardCreationException(
-              "Could not copy bytes of content message.  Message was NULL.");
-        }
-      } catch (IOException e) {
-        throw new MetacardCreationException("Could not copy bytes of content message.", e);
-      }
-
-      Iterator<InputTransformer> it = listOfCandidates.iterator();
-      if (StringUtils.isNotEmpty(transformerId)) {
-        BundleContext bundleContext = getBundleContext();
-        Collection<ServiceReference<InputTransformer>> serviceReferences =
-            bundleContext.getServiceReferences(
-                InputTransformer.class, "(id=" + transformerId + ")");
-        it = serviceReferences.stream().map(bundleContext::getService).iterator();
-      }
-
-      while (it.hasNext()) {
-        InputTransformer transformer = it.next();
-        try (InputStream inputStreamMessageCopy =
-            fileBackedOutputStream.asByteSource().openStream()) {
-          generatedMetacard = transformer.transform(inputStreamMessageCopy);
-        } catch (CatalogTransformerException | IOException e) {
-          List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
-          stackTraceList.add(
-              String.format("Transformer [%s] could not create metacard.", transformer));
-          stackTraceList.addAll(stackTraces);
-          LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
-        }
-        if (generatedMetacard != null) {
-          break;
-        }
-      }
-
-      if (generatedMetacard == null) {
-        throw new MetacardCreationException(
-            String.format(
-                "Could not create metacard with mimeType %s : %s",
-                mimeType, StringUtils.join(stackTraceList, "\n")));
-      }
-
-      if (id != null) {
-        generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-      } else {
-        LOGGER.debug("Metacard had a null id");
-      }
-    } catch (IOException e) {
-      throw new MetacardCreationException("Could not create metacard.", e);
-    } catch (InvalidSyntaxException e) {
-      throw new MetacardCreationException("Could not determine transformer", e);
-    }
-    return generatedMetacard;
-  }
-
   private MimeType getMimeType(HttpHeaders headers) {
     List<String> contentTypeList = headers.getRequestHeader(HttpHeaders.CONTENT_TYPE);
 
@@ -1317,15 +1303,6 @@ public class RESTEndpoint implements RESTService {
     return response;
   }
 
-  public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
-    return mimeTypeToTransformerMapper;
-  }
-
-  public void setMimeTypeToTransformerMapper(
-      MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
-    this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
-  }
-
   public FilterBuilder getFilterBuilder() {
     return filterBuilder;
   }
@@ -1348,6 +1325,14 @@ public class RESTEndpoint implements RESTService {
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
+  }
+
+  public void setTransform(Transform transform) {
+    this.transform = transform;
+  }
+
+  public Transform getTransform() {
+    return transform;
   }
 
   protected static class CreateInfo {

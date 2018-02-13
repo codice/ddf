@@ -238,6 +238,19 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   }
 
   @Override
+  public CreateResponse create(
+      CreateStorageRequest createRequest, Map<String, ? extends Serializable> arguments)
+      throws IngestException, SourceUnavailableException {
+    List<String> blacklist = Collections.emptyList();
+
+    if (fanoutEnabled) {
+      blacklist = new ArrayList<>(fanoutTagBlacklist);
+    }
+
+    return createOperations.create(createRequest, blacklist, arguments);
+  }
+
+  @Override
   public CreateResponse create(CreateRequest createRequest)
       throws IngestException, SourceUnavailableException {
     if (fanoutEnabled && blockFanoutCreate(createRequest)) {
@@ -248,13 +261,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   }
 
   @Override
-  public UpdateResponse update(UpdateStorageRequest updateRequest)
+  public UpdateResponse update(
+      UpdateStorageRequest updateRequest, Map<String, ? extends Serializable> arguments)
       throws IngestException, SourceUnavailableException {
     if (fanoutEnabled && blockFanoutStorageRequest(updateRequest)) {
       throw new IngestException(FANOUT_MESSAGE);
     }
 
-    return updateOperations.update(updateRequest);
+    return updateOperations.update(updateRequest, arguments);
+  }
+
+  @Override
+  public UpdateResponse update(UpdateStorageRequest updateRequest)
+      throws IngestException, SourceUnavailableException {
+    return update(updateRequest, Collections.emptyMap());
   }
 
   @Override
@@ -295,7 +315,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   public BinaryContent transform(
       Metacard metacard, String transformerShortname, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
-    return transformOperations.transform(metacard, transformerShortname, arguments);
+    List<BinaryContent> binaryContents =
+        transformOperations.transform(metacard, transformerShortname, arguments);
+    if (CollectionUtils.isNotEmpty(binaryContents)) {
+      return binaryContents.get(0);
+    }
+    throw new CatalogTransformerException("Unable to transform metacard.");
   }
 
   @Override

@@ -152,7 +152,8 @@ public class UpdateOperations {
             .orElseGet(HashMap::new);
   }
 
-  public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
+  public UpdateResponse update(
+      UpdateStorageRequest streamUpdateRequest, Map<String, ? extends Serializable> arguments)
       throws IngestException, SourceUnavailableException {
     Map<String, Metacard> metacardMap = new HashMap<>();
     List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems().size());
@@ -168,7 +169,11 @@ public class UpdateOperations {
 
     // Operation populates the metacardMap, contentItems, and tmpContentPaths
     opsMetacardSupport.generateMetacardAndContentItems(
-        streamUpdateRequest.getContentItems(), metacardMap, contentItems, tmpContentPaths);
+        streamUpdateRequest.getContentItems(),
+        metacardMap,
+        contentItems,
+        tmpContentPaths,
+        arguments);
 
     streamUpdateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
 

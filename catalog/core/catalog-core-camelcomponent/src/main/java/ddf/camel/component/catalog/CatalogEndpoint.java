@@ -27,6 +27,7 @@ import org.apache.camel.MultipleConsumersSupport;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.codice.ddf.catalog.transform.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,8 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
 
   private String mimeType;
 
+  private Transform transform;
+
   private CatalogFramework catalogFramework;
 
   /**
@@ -76,14 +79,16 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
       String transformerId,
       String mimeType,
       String contextPath,
-      CatalogFramework catalogFramework) {
+      CatalogFramework catalogFramework,
+      Transform transform) {
     super(uri, component);
-    LOGGER.debug(
-        "INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework) constructor");
+    LOGGER.trace(
+        "INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework, transform) constructor");
     this.transformerId = transformerId;
     this.mimeType = mimeType;
     this.contextPath = contextPath;
     this.catalogFramework = catalogFramework;
+    this.transform = transform;
     setSynchronous(true);
   }
 
@@ -124,13 +129,13 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
     // "catalog" scheme,
     // e.g., <from uri="catalog:inputtransformer?mimeType=text/xml&amp;=id=xml" />
     if (contextPath.equals(INPUT_TRANSFORMER)) {
-      producer = new InputTransformerProducer(this);
+      producer = new InputTransformerProducer(this, transform);
     } else if (contextPath.equals(QUERYRESPONSE_TRANSFORMER)) {
-      producer = new QueryResponseTransformerProducer(this);
+      producer = new QueryResponseTransformerProducer(this, transform);
     } else if (contextPath.equals(FRAMEWORK)) {
       producer = new FrameworkProducer(this, catalogFramework);
     } else if (contextPath.equals(METACARD_TRANSFORMER)) {
-      producer = new MetacardTransformerProducer(this);
+      producer = new MetacardTransformerProducer(this, transform);
     } else {
       LOGGER.debug("Unable to create producer for context path [{}]", contextPath);
       throw new IllegalArgumentException(

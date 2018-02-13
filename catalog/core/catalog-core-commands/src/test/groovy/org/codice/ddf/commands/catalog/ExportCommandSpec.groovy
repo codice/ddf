@@ -28,10 +28,9 @@ import ddf.catalog.operation.impl.ResourceResponseImpl
 import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.impl.ResourceImpl
 import ddf.catalog.source.CatalogProvider
-import ddf.catalog.transform.MetacardTransformer
 import org.apache.karaf.shell.api.console.Session
 import org.osgi.framework.BundleContext
-import org.osgi.framework.ServiceReference
+import org.codice.ddf.catalog.transform.Transform;
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -39,6 +38,7 @@ import spock.lang.Unroll
 import javax.activation.MimeType
 import java.nio.file.Paths
 import java.util.zip.ZipFile
+import java.util.List
 
 class ExportCommandSpec extends Specification {
 
@@ -48,31 +48,24 @@ class ExportCommandSpec extends Specification {
 
     CatalogFramework catalogFramework
 
-    MetacardTransformer xmlTransformer
-
     ExportCommand exportCommand
+
+    Transform transform
 
     void setup() {
         tmpHomeDir = File.createTempDir()
         System.setProperty("ddf.home", tmpHomeDir.canonicalPath)
 
-        ServiceReference xmlTransformerReference = Mock(ServiceReference)
-
-        xmlTransformer = Mock(MetacardTransformer)
-
-        xmlTransformer.transform(_ as Metacard, _ as Map) >> { metacard, map ->
-            return getMockContent()
-        }
-
-        bundleContext = Mock(BundleContext) {
-            getServiceReferences(MetacardTransformer, '(id=xml)') >> [xmlTransformerReference]
-            getService(xmlTransformerReference) >> xmlTransformer
-        }
-
         catalogFramework = Mock(CatalogFramework)
 
+        transform = Mock(Transform) {
+            transform(_ as List, _ as String, _ as Map) >> [getMockContent()]
+            isMetacardTransformerIdValid(_ as String) >> true
+        }
+
         exportCommand = new ExportCommand(filterBuilder: new GeotoolsFilterBuilder(),
-                bundleContext: bundleContext, catalogFramework: catalogFramework)
+                bundleContext: bundleContext, catalogFramework: catalogFramework,
+                transform: transform)
     }
 
     void cleanup() {
@@ -102,11 +95,12 @@ class ExportCommandSpec extends Specification {
 
     def "Test export no transformer"() {
         setup:
-        def bundleContext = Mock(BundleContext) {
-            getServiceReferences(_, _) >> []
+        def transform = Mock(Transform) {
+          isMetacardTransformerIdValid(_) >> false
         }
         def exportCommand = new ExportCommand(filterBuilder: new GeotoolsFilterBuilder(),
-                bundleContext: bundleContext, catalogFramework: catalogFramework)
+                bundleContext: bundleContext, catalogFramework: catalogFramework,
+                transform: transform)
 
         when:
         exportCommand.executeWithSubject()

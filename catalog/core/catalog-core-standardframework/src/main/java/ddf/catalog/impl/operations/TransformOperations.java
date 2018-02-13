@@ -13,18 +13,15 @@
  */
 package ddf.catalog.impl.operations;
 
-import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Support class for transformation delegate operations for the {@code CatalogFrameworkImpl}.
@@ -43,81 +40,17 @@ public class TransformOperations {
   //
   // Delegate methods
   //
-  public BinaryContent transform(
+  public List<BinaryContent> transform(
       Metacard metacard, String transformerId, Map<String, Serializable> requestProperties)
       throws CatalogTransformerException {
-    if (metacard == null) {
-      throw new IllegalArgumentException("Metacard is null.");
-    }
-
-    ServiceReference[] refs;
-    try {
-      // TODO replace shortname with id
-      refs =
-          frameworkProperties
-              .getBundleContext()
-              .getServiceReferences(
-                  MetacardTransformer.class.getName(),
-                  "(|"
-                      + "("
-                      + Constants.SERVICE_SHORTNAME
-                      + "="
-                      + transformerId
-                      + ")"
-                      + "("
-                      + Constants.SERVICE_ID
-                      + "="
-                      + transformerId
-                      + ")"
-                      + ")");
-    } catch (InvalidSyntaxException e) {
-      throw new IllegalArgumentException("Invalid transformer shortName: " + transformerId, e);
-    }
-    if (refs == null || refs.length == 0) {
-      throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-    }
-
-    MetacardTransformer transformer =
-        (MetacardTransformer) frameworkProperties.getBundleContext().getService(refs[0]);
-    return transformer.transform(metacard, requestProperties);
+    return frameworkProperties
+        .getTransform()
+        .transform(Collections.singletonList(metacard), transformerId, requestProperties);
   }
 
   public BinaryContent transform(
       SourceResponse response, String transformerId, Map<String, Serializable> requestProperties)
       throws CatalogTransformerException {
-    if (response == null) {
-      throw new IllegalArgumentException("QueryResponse is null.");
-    }
-
-    ServiceReference[] refs;
-    try {
-      refs =
-          frameworkProperties
-              .getBundleContext()
-              .getServiceReferences(
-                  QueryResponseTransformer.class.getName(),
-                  "(|"
-                      + "("
-                      + Constants.SERVICE_SHORTNAME
-                      + "="
-                      + transformerId
-                      + ")"
-                      + "("
-                      + Constants.SERVICE_ID
-                      + "="
-                      + transformerId
-                      + ")"
-                      + ")");
-    } catch (InvalidSyntaxException e) {
-      throw new IllegalArgumentException("Invalid transformer id: " + transformerId, e);
-    }
-
-    if (refs == null || refs.length == 0) {
-      throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-    } else {
-      QueryResponseTransformer transformer =
-          (QueryResponseTransformer) frameworkProperties.getBundleContext().getService(refs[0]);
-      return transformer.transform(response, requestProperties);
-    }
+    return frameworkProperties.getTransform().transform(response, transformerId, requestProperties);
   }
 }
