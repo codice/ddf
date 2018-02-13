@@ -55,7 +55,8 @@ module.exports = Marionette.LayoutView.extend({
   showListEditor: function() {
     this.listEditor.show(
       new ListEditorView({
-        model: new List()
+        model: new List(),
+        showListTemplates: true
       })
     );
   },
