@@ -101,6 +101,15 @@ public class SecureCxfClientFactory<T> {
 
   private static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
+  private static final String AUTO_REDIRECT_ALLOW_REL_URI = "http.redirect.relative.uri";
+
+  private static final String AUTO_REDIRECT_MAX_SAME_URI_COUNT = "http.redirect.max.same.uri.count";
+
+  // a seemingly magic number.  Needs at least 2 so that it can come back with authentication
+  // cookies.  Set one higher for safety.  The trade-off is failing to catch a loop vs cutting
+  // off a server before it is fully authenticated.  Any small number seems to be a safe option
+  private static final int SAME_URI_REDIRECT_MAX = 3;
+
   private boolean basicAuth = false;
 
   private Integer connectionTimeout;
@@ -423,7 +432,8 @@ public class SecureCxfClientFactory<T> {
         clientPolicy.setAutoRedirect(true);
         Bus bus = clientConfig.getBus();
         if (bus != null) {
-          bus.getProperties().put("http.redirect.relative.uri", true);
+          bus.getProperties().put(AUTO_REDIRECT_ALLOW_REL_URI, true);
+          bus.getProperties().put(AUTO_REDIRECT_MAX_SAME_URI_COUNT, SAME_URI_REDIRECT_MAX);
         }
       }
     }
