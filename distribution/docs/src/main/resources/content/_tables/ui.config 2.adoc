@@ -1,8 +1,8 @@
 :title: ${catalog-ui} Search
-:id: ${catalog-ui}_Search
+:id: org.codice.ddf.catalog.ui.config
 :type: table
 :status: published
-:application: ${catalog-ui}
+:application: ${ddf-ui}
 :summary: ${catalog-ui} Search.
 
 .[[org.codice.ddf.catalog.ui.config]]${catalog-ui} Search

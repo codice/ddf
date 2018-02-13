@@ -3,15 +3,25 @@
 :subtype: input
 :status: published
 :link: _tika_input_transformer
-:summary: Translates Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog Metacards.
+:summary: Translates Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog records.
 
-The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog Metacards.
+The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into Catalog records.
 This input transformer utilizes https://tika.apache.org[Apache Tika] to provide basic support for these mime types.
-As such, the metadata extracted from these types of documents is the metadata that is common across all of these document types, e.g., creation date, author, last modified date, etc.
+The metadata common to all of these document types, e.g., creation date, author, last modified date, etc., is extracted and used to create the catalog record.
 The Tika Input Transformer's main purpose is to ingest these types of content into the Metadata Catalog.
 
-The Tika input transformer is given a service ranking (priority) of -1 so that it is guaranteed to be the last input transformer that is invoked.
-This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary input transformer.
+The Tika input transformer is most basic input transformer and the last to be invoked.
+This allows any registered input transformers that are more specific to a document type to be invoked instead of this rudimentary input transformer.
+
+.{title} Usage
+[cols="1,2" options="header"]
+|===
+|Schema
+|Mime-types
+
+|N/A
+|This basic transformer can ingest many file types. See <<_all_formats_supported,All Formats Supported>>.
+|===
 
 ===== Installing the Tika Input Transformer
 
