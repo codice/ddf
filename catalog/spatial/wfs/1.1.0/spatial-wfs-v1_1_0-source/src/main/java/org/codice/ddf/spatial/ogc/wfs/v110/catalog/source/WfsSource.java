@@ -378,7 +378,7 @@ public class WfsSource extends AbstractWfsSource {
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              false,
+              this.allowRedirects,
               null,
               null,
               new ClientKeyInfo(getCertAlias(), getKeystorePath()),
