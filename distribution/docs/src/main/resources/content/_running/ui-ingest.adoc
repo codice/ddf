@@ -1,0 +1,13 @@
+:title: User Interface Ingest
+:type: dataManagement
+:status: published
+:summary: Ingesting from the ${catalog-ui}.
+:parent: Ingesting Data
+:order: 01
+
+== {title}
+
+Files can also be ingested directly from ${catalog-ui}.
+
+See <<Ingesting from ${catalog-ui}>> for details.
+

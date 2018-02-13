@@ -2,7 +2,7 @@
 :id: org.codice.ddf.catalog.ui.security
 :type: table
 :status: published
-:application: ${catalog-ui}
+:application: ${ddf-ui}
 :summary: Workspace Security.
 
 .[[org.codice.ddf.catalog.ui.security]]Workspace Security

@@ -147,8 +147,8 @@ public class IngestCommand extends CatalogCommands {
   @Argument(
     name = "File path or Directory path",
     description =
-        "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
-            + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.",
+        "Path to a file or a directory of files to be ingested. Paths can be absolute or relative to installation directory."
+            + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
     index = 0,
     multiValued = false,
     required = true

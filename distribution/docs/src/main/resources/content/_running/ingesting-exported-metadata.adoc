@@ -2,17 +2,20 @@
 :type: dataManagement
 :status: published
 :summary: Ingesting exported metadata into a Catalog Provider.
-:order: 04
+:parent: Data Migration
+:order: 01
 
-===== Ingesting Exported Metadata into a Catalog Provider
+== {title}
 
 . Configure a different catalog provider.
+. From the command line of ${branding} console, use the *ingest* command to import exported metacards from serialized data files into catalog provider.
 
-. From the command line of ${branding} console, use the *ingest* command to import exported metadata from serialized data files into catalog provider. The following example shows a command for running on Linux and a command for running on Windows.
-
-.${branding-lowercase}${at-symbol}local
+.*Nix
 ----
-ingest -p "/myDirectory/exportFolder"
-or
-ingest -p "C:/myDirectory/exportFolder"
+ingest /myDirectory/exportFolder
+----
+
+.Windows
+----
+ingest "C:\myDirectory\exportFolder"
 ----
