@@ -104,7 +104,7 @@ public class CswActionTransformerProviderTest {
   }
 
   @Test
-  public void testUnindTransformerWithMultipleTypeNames() {
+  public void testUnbindTransformerWithMultipleTypeNames() {
     CswActionTransformer mockTransformer = getMockCswActionTransformer();
     when(mockTransformer.getTypeNames()).thenReturn(Arrays.asList(TEST_TYPENAME, TEST_TYPENAME_2));
     cswActionTransformerProvider.bind(mockTransformer);
