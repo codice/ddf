@@ -986,7 +986,7 @@
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/banana/conf/schema.xml">
+        <configfile finalname="${ddf.data}/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
         <configfile finalname="/examples/banana/DefaultDashboard.json">

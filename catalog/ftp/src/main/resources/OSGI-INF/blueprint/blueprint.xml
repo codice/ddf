@@ -45,7 +45,7 @@
         <argument ref="uuidGenerator"/>
     </bean>
     <bean id="userManager" class="ddf.catalog.ftp.UserManagerImpl">
-        <property name="uploadDirectory" value="${ddf.home}/data/products"/>
+        <property name="uploadDirectory" value="${ddf.data}/products"/>
         <property name="karafLocalRoles" value="${karaf.local.roles}"/>
         <argument ref="securityManager"/>
     </bean>
