@@ -1,0 +1,30 @@
+:title: Configuring Map Layers for ${ddf-ui}
+:type: subConfiguration
+:status: published
+:parent: Configuring ${ddf-ui}
+:order: 00
+:summary: Configuring map layers for ${ddf-ui}.
+
+== {title}
+
+Customize the look of the map displayed to users in ${ddf-ui} by adding or removing map layers through the Map Layers UI.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-ui}* application.
+. Select the *Configuration* tab.
+. Select the *Standard Search UI* configuration.
+
+.Adding a Map Layer
+. Select the *add* button to add a new layer.
+. Enter the properties of the map layer into the *Imagery Provider* in the proper syntax.
+.. Example Imagery Provider Syntax: `{"type": "OSM", "url" "http://a.tile.openstreetmaps.org" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`.
+... "type": format of imagery provider.
+... "url": location of server hosting the imagery provider.
+... "layers": names of individual layers. (enclose list in square brackets`[ ]`).
+... "parameters": (enclose in braces `{}`):
+.... "FORMAT": image type used by imagery provider.
+.... "VERSION": version of imagery provider to use.
+.... "alpha": opacity of imagery provider layer.
+
+.Deleting a Map Layer
+. Delete an unneeded map layer with the *Delete* icon associated with that layer.

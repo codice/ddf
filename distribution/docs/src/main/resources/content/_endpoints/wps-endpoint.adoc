@@ -305,7 +305,7 @@ The response can be in several formats depending on the request:
 ${secure_url}/services/wps?service=WPS&version=2.0.0&request=GetResult&jobId=FB6DD4B0-A2BB-11E3-A5E2-0800200C9A66
 ----
 
-[[_result]]
+[[_result_wps]]
 .Result
 [source,xml]
 ----
