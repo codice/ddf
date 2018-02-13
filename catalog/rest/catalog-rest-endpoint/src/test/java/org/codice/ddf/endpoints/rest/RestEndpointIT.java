@@ -44,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
+import org.codice.ddf.catalog.transform.Transform;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.test.common.AbstractComponentTest;
@@ -88,6 +89,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   @Inject ConfigurationAdmin configAdmin;
 
   @Inject private BundleContext bundleContext;
+
+  @MockOsgiService private Transform transform;
 
   @MockOsgiService private CatalogFramework catalogFramework;
 
@@ -211,7 +214,12 @@ public class RestEndpointIT extends AbstractComponentTest {
                 "ddf.platform.util", "util-uuidgenerator-api", "feature", "uuidgenerator-api")
             .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api-only")
             .addFeatureFrom(
-                "ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api-only");
+                "ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api-only")
+            .addFeatureFrom(
+                "ddf.catalog.core",
+                "catalog-core-transform-api",
+                "feature",
+                "catalog-core-transform-api-only");
       }
     };
   }
@@ -227,6 +235,7 @@ public class RestEndpointIT extends AbstractComponentTest {
               try {
                 when().head(restEndpointUrlBuilder.build()).then().assertThat().statusCode(200);
               } catch (Throwable e) {
+                LOGGER.info("endpoint not up", e);
                 return false;
               }
 

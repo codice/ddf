@@ -644,5 +644,15 @@
             <artifactId>catalog-transformer-preview</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-transform-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-transform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

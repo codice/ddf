@@ -49,6 +49,7 @@
         <property name="validationQueryFactory" ref="validationQueryFactory"/>
         <property name="defaultAttributeValueRegistry" ref="defaultAttributeValueRegistry"/>
         <property name="attributeInjectors" ref="attributeInjectors"/>
+        <property name="transform" ref="transform"/>
     </bean>
 
 </blueprint>

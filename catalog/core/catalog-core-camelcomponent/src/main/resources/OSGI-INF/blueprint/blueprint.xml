@@ -17,21 +17,21 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
         >
 
-    <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
-
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
 
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
 
+    <reference id="transform" interface="org.codice.ddf.catalog.transform.Transform"/>
+
     <!--
     Instantiate our custom Camel CatalogComponent and inject this bundle context into it.  
     -->
     <bean id="catalogComponent" class="ddf.camel.component.catalog.CatalogComponent">
 		<property name="bundleContext" ref="blueprintBundleContext"/>
-		<property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="catalogFramework" ref="framework"/>
+        <property name="transform" ref="transform"/>
 	</bean>
 
     <!--

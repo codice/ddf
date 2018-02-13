@@ -34,6 +34,8 @@
 
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
 
+    <reference id="transform" interface="org.codice.ddf.catalog.transform.Transform"/>
+
     <reference id="defaultAttributeValueRegistry"
                interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
 

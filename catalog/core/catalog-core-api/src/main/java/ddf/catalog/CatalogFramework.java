@@ -115,6 +115,48 @@ public interface CatalogFramework extends Describable {
       throws IngestException, SourceUnavailableException;
 
   /**
+   * <b> This code is experimental. While this interface is functional and tested, it may change or
+   * be removed in a future version of the library. </b> Creates {@link Metacard}s in the {@link
+   * ddf.catalog.source.CatalogProvider}.
+   *
+   * <p><b>Implementations of this method must:</b>
+   *
+   * <ol>
+   *   <li/>Before evaluation, call {@link
+   *       ddf.catalog.plugin.PreIngestPlugin#process(CreateRequest)} for each registered {@link
+   *       ddf.catalog.plugin.PreIngestPlugin} in order determined by the OSGi SERVICE_RANKING
+   *       (Descending, highest first), "daisy chaining" their responses to each other.
+   *   <li/>Call {@link ddf.catalog.source.CatalogProvider#create(CreateRequest)} on the registered
+   *       {@link ddf.catalog.source.CatalogProvider}
+   *   <li/>Call {@link ddf.catalog.plugin.PostIngestPlugin#process(CreateResponse)} for each
+   *       registered {@link ddf.catalog.plugin.PostIngestPlugin} in order determined by the OSGi
+   *       SERVICE_RANKING (Descending, highest first), "daisy chaining" their responses to each
+   *       other.
+   *   <li/>Call {@link
+   *       ddf.catalog.content.plugin.PreCreateStoragePlugin#process(CreateStorageRequest)} for each
+   *       registered {@link ddf.catalog.content.plugin.PreCreateStoragePlugin} in order determined
+   *       by the OSGi SERVICE_RANKING (Descending, highest first), "daisy chaining" their responses
+   *       to each other.
+   *   <li/>Call {@link ddf.catalog.content.StorageProvider#create(CreateStorageRequest)} on the
+   *       registered {@link ddf.catalog.source.CatalogProvider}
+   *   <li/>Call {@link
+   *       ddf.catalog.content.plugin.PostCreateStoragePlugin#process(ddf.catalog.content.operation.CreateStorageResponse)}
+   *       for each registered {@link ddf.catalog.content.plugin.PostCreateStoragePlugin} in order
+   *       determined by the OSGi SERVICE_RANKING (Descending, highest first), "daisy chaining"
+   *       their responses to each other.
+   * </ol>
+   *
+   * @param createRequest the {@link CreateStorageRequest}
+   * @param arguments this map gets passed to the underlying transformers
+   * @return {@link CreateResponse}
+   * @throws IngestException if an issue occurs during the update
+   * @throws SourceUnavailableException if the source being updated is unavailable
+   */
+  CreateResponse create(
+      CreateStorageRequest createRequest, Map<String, ? extends Serializable> arguments)
+      throws IngestException, SourceUnavailableException;
+
+  /**
    * Creates {@link Metacard}s in the {@link ddf.catalog.source.CatalogProvider}.
    *
    * <p><b>Implementations of this method must:</b>
@@ -487,10 +529,15 @@ public interface CatalogFramework extends Describable {
    * </ol>
    *
    * @param updateRequest the {@link UpdateStorageRequest}
+   * @param arguments this map gets passed to the underlying transformers
    * @return {@link UpdateResponse}
    * @throws IngestException if an issue occurs during the update
    * @throws SourceUnavailableException if the source being updated is unavailable
    */
+  UpdateResponse update(
+      UpdateStorageRequest updateRequest, Map<String, ? extends Serializable> arguments)
+      throws IngestException, SourceUnavailableException;
+
   UpdateResponse update(UpdateStorageRequest updateRequest)
       throws IngestException, SourceUnavailableException;
 

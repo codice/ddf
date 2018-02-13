@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -44,21 +45,22 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeResolver;
-import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
-import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.codice.ddf.catalog.transform.Transform;
+import org.codice.ddf.catalog.transform.TransformResponse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -93,15 +95,11 @@ public class RemoteDeleteOperationsTest {
 
   MimeTypeResolver mimeTypeResolver;
 
-  MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
-
-  InputTransformer inputTransformer;
+  Transform transform;
 
   PostResourcePlugin mockPostResourcePlugin;
 
   List<PostResourcePlugin> mockPostResourcePlugins;
-
-  UuidGenerator uuidGenerator;
 
   @Before
   public void setUp() throws Exception {
@@ -280,12 +278,13 @@ public class RemoteDeleteOperationsTest {
     frameworkProperties.setStorageProviders(Collections.singletonList(storageProvider));
     frameworkProperties.setMimeTypeMapper(
         new MimeTypeMapperImpl(Collections.singletonList(mimeTypeResolver)));
-    frameworkProperties.setMimeTypeToTransformerMapper(mimeTypeToTransformerMapper);
+    frameworkProperties.setTransform(transform);
     frameworkProperties.setValidationQueryFactory(
         new ValidationQueryFactory(new GeotoolsFilterAdapterImpl(), new GeotoolsFilterBuilder()));
   }
 
-  private void setUpMocks() throws IOException, CatalogTransformerException {
+  private void setUpMocks()
+      throws IOException, CatalogTransformerException, MetacardCreationException {
     String localProviderName = "ddf";
 
     mockPoller = mock(SourcePoller.class);
@@ -307,15 +306,20 @@ public class RemoteDeleteOperationsTest {
     storageProvider = new MockMemoryStorageProvider();
     mimeTypeResolver = mock(MimeTypeResolver.class);
 
-    mimeTypeToTransformerMapper = mock(MimeTypeToTransformerMapper.class);
+    transform = mock(Transform.class);
 
-    uuidGenerator = mock(UuidGenerator.class);
-    when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(new MetacardImpl()));
 
-    inputTransformer = mock(InputTransformer.class);
-    when(inputTransformer.transform(any(InputStream.class))).thenReturn(new MetacardImpl());
-    when(mimeTypeToTransformerMapper.findMatches(any(Class.class), any(MimeType.class)))
-        .thenReturn(Collections.singletonList(inputTransformer));
+    when(transform.transform(
+            any(MimeType.class),
+            any(String.class),
+            any(Supplier.class),
+            any(String.class),
+            any(File.class),
+            any(String.class),
+            any(Map.class)))
+        .thenReturn(transformResponse);
   }
 
   private void setUpDeleteRequest() {
@@ -351,10 +355,7 @@ public class RemoteDeleteOperationsTest {
   private void setUpDeleteOperations() {
     SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);
-    OperationsMetacardSupport opsMetacard =
-        new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(frameworkProperties);
 
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);

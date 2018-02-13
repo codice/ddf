@@ -344,6 +344,11 @@
             <artifactId>awaitility</artifactId>
             <version>3.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-transform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -434,6 +439,7 @@
                             ddf.catalog;version="2.0",
                             ddf.security.common.audit;version="2.0",
                             ddf.measure;version="2.0",
+                            ddf.catalog.service;version="2.0",
                             ddf.mime,
                             ddf.security,
                             ddf.security.assertion,
@@ -497,6 +503,7 @@
                             org.apache.xml.resolver.helpers,
                             org.codice.ddf.security.handler.api,
                             org.codice.ddf.platform.util.uuidgenerator,
+                            org.codice.ddf.catalog.transform,
                             org.geotools.filter.visitor,
                             org.geotools.geometry.jts.spatialschema,
                             org.geotools.geometry.jts.spatialschema.geometry.aggregate,

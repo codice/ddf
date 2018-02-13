@@ -16,12 +16,12 @@ package ddf.camel.component.catalog.transformer;
 import ddf.camel.component.catalog.CatalogComponent;
 import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.IOException;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
+import org.codice.ddf.catalog.transform.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,15 +93,14 @@ public abstract class TransformerProducer extends DefaultProducer {
 
     LOGGER.debug("MIME Type = {}", mimeType);
 
-    MimeTypeToTransformerMapper mapper = endpoint.getComponent().getMimeTypeToTransformerMapper();
+    Transform transform = endpoint.getComponent().getTransform();
 
-    if (mapper != null) {
-      LOGGER.debug("Got a MimeTypeToTransformerMapper service");
+    if (transform != null) {
+      LOGGER.trace("Got a Transform service");
 
-      metacard = transform(in, metacard, mimeType, transformerId, mapper);
+      metacard = transform(in, metacard, mimeType, transformerId);
     } else {
-      LOGGER.debug("Did not find a MimeTypeToTransformerMapper service");
-      throw new CatalogTransformerException("Did not find a MimeTypeToTransformerMapper service");
+      throw new CatalogTransformerException("Did not find a Transform service");
     }
 
     // Set the response output to the Metacard from the transformation
@@ -111,10 +110,6 @@ public abstract class TransformerProducer extends DefaultProducer {
   }
 
   protected abstract Object transform(
-      Message in,
-      Object metacard,
-      String mimeType,
-      String transformerId,
-      MimeTypeToTransformerMapper mapper)
+      Message in, Object metacard, String mimeType, String transformerId)
       throws MimeTypeParseException, IOException, CatalogTransformerException;
 }

@@ -36,16 +36,18 @@
         </reference-listener>
     </reference-list>
 
+    <reference id="transform" interface="org.codice.ddf.catalog.transform.Transform"/>
+
     <bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
         <argument ref="catalog"/>
         <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
         </property>
         <property name="uuidGenerator" ref="uuidGenerator" />
+        <property name="transform" ref="transform"/>
     </bean>
 
     <jaxrs:server id="restService" address="/catalog">
