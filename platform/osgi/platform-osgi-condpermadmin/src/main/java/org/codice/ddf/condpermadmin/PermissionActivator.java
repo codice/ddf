@@ -71,6 +71,8 @@ public class PermissionActivator implements BundleActivator {
     ConditionalPermissionUpdate conditionalPermissionUpdate =
         conditionalPermissionAdmin.newConditionalPermissionUpdate();
     Priority priorityResult = null;
+    List<ConditionalPermissionInfo> allGrantInfos = new ArrayList<>();
+    List<ConditionalPermissionInfo> allDenyInfos = new ArrayList<>();
     for (ParsedPolicy parsedPolicy : parsedPolicies) {
       List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
       List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
@@ -83,13 +85,8 @@ public class PermissionActivator implements BundleActivator {
           conditionalPermissionAdmin, denyEntries, denyInfos, ConditionalPermissionInfo.DENY);
 
       Priority priority = parsedPolicy.getPriority();
-      if (priority == Priority.GRANT) {
-        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
-      } else if (priority == Priority.DENY) {
-        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
-        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-      }
+      allGrantInfos.addAll(grantInfos);
+      allDenyInfos.addAll(denyInfos);
       if (priorityResult == null) {
         priorityResult = priority;
       } else if (priority != priorityResult) {
@@ -100,10 +97,14 @@ public class PermissionActivator implements BundleActivator {
     }
 
     if (priorityResult == Priority.GRANT) {
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allGrantInfos);
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allDenyInfos);
       conditionalPermissionUpdate
           .getConditionalPermissionInfos()
           .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
     } else if (priorityResult == Priority.DENY) {
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allDenyInfos);
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allGrantInfos);
       conditionalPermissionUpdate
           .getConditionalPermissionInfos()
           .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));

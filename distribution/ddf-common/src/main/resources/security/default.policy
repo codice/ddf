@@ -134,7 +134,7 @@ grant codeBase "file:/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/or
 grant codeBase "file:/persistence-core-impl/persistence-core-listeners/org.apache.aries.blueprint.core/org.apache.aries.blueprint.cm/org.ops4j.pax.web.pax-web-spi/catalog-ui-search/standard/catalog-solr-provider/catalog-solr-solrclient" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
 grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
@@ -341,6 +341,32 @@ grant codeBase "file:/security-certificate-generator" {
 
 grant codeBase "file:/platform-parser-xml" {
     permission java.lang.RuntimePermission "setContextClassLoader";
+}
+
+grant codeBase "file:/identity-updater/imaging-transformer-chipping/imaging-transformer-nitf/catalog-nsili-source/sample-nsili-client/org.springframework.osgi.core" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/org.ops4j.pax.swissbox.core" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
+grant codeBase "file:/platform-country-converter-local" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
+}
+
+grant codeBase "file:/catalog-nsili-endpoint/catalog-nsili-source/secure-endpoint-dibquery20/secure-endpoint-dib13-ingest/secure-endpoint-dibquery13/dna-endpoint-secure/secure-endpoint-dib30-sites/secure-endpoint-dibevents-20-soap/secure-endpoint-dibeventconsumer-20-soap/secure-endpoint-dibeventconsumer-30-soap/secure-endpoint-dibevents-30-soap" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer{/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/catalog-soap-commons/interoperability-security-wspolicy" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
+}
+
+grant codeBase "file:/dna-endpoint-public/catalog-public-soap-endpoints" {
+    permission java.io.FilePermission "bundleresource:${/}-", "read";
 }
 
 //
