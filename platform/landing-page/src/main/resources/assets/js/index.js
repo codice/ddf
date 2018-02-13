@@ -71,7 +71,7 @@
         $.ajax({
             url: "/services/platform/config/ui",
             getBanner: function (data, text) {
-                return "<div style='color: " + data.color + "; background-color:" + data.background + "'>" + text + "</div>";
+                return "<div style='color: " + data.color + "; background-color:" + data.background + "'>" + $('<div/>').text(text).html() + "</div>";
             }, success: function (data) {
                 var headerText = data.header;
                 if (headerText) {
