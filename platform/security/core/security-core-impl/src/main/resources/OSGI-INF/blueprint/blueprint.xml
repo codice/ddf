@@ -43,8 +43,8 @@
     <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
 
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
-        <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
-        <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
+        <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
 

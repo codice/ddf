@@ -24,7 +24,7 @@
     <bean id="pdpAuthzRealm" class="ddf.security.pdp.realm.AuthzRealm">
         <cm:managed-properties persistent-id="ddf.security.pdp.realm.AuthzRealm"
                                update-strategy="container-managed"/>
-        <argument value="${ddf.home}/etc/pdp/policies"/>
+        <argument value="${ddf.etc}/pdp/policies"/>
         <argument ref="xmlParser"/>
     </bean>
 

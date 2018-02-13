@@ -21,7 +21,7 @@
         <cm:managed-properties persistent-id="ddf.security.metacard.attribute.mapping"
                                update-strategy="component-managed" update-method="update"/>
         <property name="attributeSeparator" value=" "/>
-        <property name="expansionFileName" value="${ddf.home}/etc/pdp/ddf-metacard-attribute-ruleset.cfg"/>
+        <property name="expansionFileName" value="${ddf.etc}/pdp/ddf-metacard-attribute-ruleset.cfg"/>
     </bean>
 
     <service ref="metacardAttributeExpansion" interface="ddf.security.expansion.Expansion"
