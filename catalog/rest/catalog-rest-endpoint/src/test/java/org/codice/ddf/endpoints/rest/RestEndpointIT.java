@@ -56,6 +56,7 @@ import org.codice.ddf.test.common.configurators.ApplicationOptions;
 import org.codice.ddf.test.common.configurators.BundleOptionBuilder.BundleOption;
 import org.codice.ddf.test.common.configurators.DdfComponentOptions;
 import org.codice.ddf.test.common.configurators.FeatureOptionBuilder.FeatureOption;
+import org.codice.ddf.test.common.configurators.PortFinder;
 import org.codice.ddf.test.common.rules.ServiceRegistrationRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -182,8 +183,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   }
 
   @Override
-  protected ApplicationOptions getApplicationOptions() {
-    return new DdfComponentOptions(getPortFinder()) {
+  protected ApplicationOptions getApplicationOptions(PortFinder portFinder) {
+    return new DdfComponentOptions(portFinder) {
 
       @Override
       protected BundleOption getBundleOptions() {
@@ -208,8 +209,9 @@ public class RestEndpointIT extends AbstractComponentTest {
             .addFeatureFrom("ddf.thirdparty", "rest-assured", "feature", "rest-assured")
             .addFeatureFrom(
                 "ddf.platform.util", "util-uuidgenerator-api", "feature", "uuidgenerator-api")
-            .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api")
-            .addFeatureFrom("ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api");
+            .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api-only")
+            .addFeatureFrom(
+                "ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api-only");
       }
     };
   }
