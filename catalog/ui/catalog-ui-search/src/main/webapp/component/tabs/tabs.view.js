@@ -38,7 +38,7 @@ define([
         },
         events: {
             'click > .tabs-list .tabs-tab': 'changeTab',
-            'click > .tabs-list .tabs-collapsed div': 'changeTab'
+            'click > .tabs-list .tabs-collapsed button': 'changeTab'
         },
         regions: {
             'tabsContent': '.tabs-content'

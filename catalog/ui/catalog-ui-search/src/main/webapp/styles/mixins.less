@@ -4,34 +4,6 @@
   display: block;
 }
 
-.inlineBlockDisplay(@thingToInline; @fontSize: @minimumFontSize) {
-
-  > @{thingToInline} {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  .inlineFix(@fontSize);
-}
-
-.inlineFix(@fontSize: @minimumFontSize) {
-  font-size: 0px;
-  > * > * {
-    font-size: @fontSize;
-  }
-}
-
-.whitespaceNowrap {
-  .whiteSpaceFix;
-}
-
-.whiteSpaceFix {
-  white-space: nowrap;
-  > * {
-    white-space: normal;
-  }
-}
-
 .resetIconLineHeight {
   .fa {
     line-height: inherit;
@@ -73,11 +45,11 @@
   cursor: pointer;
   opacity: @minimumOpacity;
 
-  &:hover {
+  &:hover:not(.is-disabled) {
     opacity: 1;
   }
 
-  &.is-active {
+  &.is-active:not(.is-disabled) {
     opacity: 1;
   }
 }

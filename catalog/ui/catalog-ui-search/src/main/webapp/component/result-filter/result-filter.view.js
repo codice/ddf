@@ -42,13 +42,16 @@ define([
         },
         initialize: function(){
         },
+        getResultFilter: function() {
+            return user.get('user').get('preferences').get('resultFilter');
+        },
         onRender: function(){
             this.editorProperties.show(new FilterBuilderView({
                 model: new FilterBuilderModel({ isResultFilter: true })
             }));
             this.editorProperties.currentView.turnOnEditing();
             this.editorProperties.currentView.turnOffNesting();
-            var resultFilter = user.get('user').get('preferences').get('resultFilter');
+            var resultFilter = this.getResultFilter();
             if (resultFilter){
                 this.editorProperties.currentView.deserialize(cql.simplify(cql.read(resultFilter)));
             } else {
@@ -60,18 +63,21 @@ define([
             }
             this.handleFilter();
         },
+        getFilter: function() {
+            return this.editorProperties.currentView.transformToCql();
+        },
         removeFilter: function(){
             user.get('user').get('preferences').set('resultFilter', undefined);
             user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         saveFilter: function(){
-            user.get('user').get('preferences').set('resultFilter', this.editorProperties.currentView.transformToCql());
+            user.get('user').get('preferences').set('resultFilter', this.getFilter());
             user.get('user').get('preferences').savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         handleFilter: function(){
-            var resultFilter = user.get('user').get('preferences').get('resultFilter');
+            var resultFilter = this.getResultFilter();
             this.$el.toggleClass('has-filter', Boolean(resultFilter));
         }
     });

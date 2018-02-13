@@ -69,6 +69,10 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
+    </service>
+
     <bean id="workspacePreIngestPlugin"
           class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin">
         <argument ref="subjectIdentity"/>

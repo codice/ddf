@@ -13,6 +13,7 @@ var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var Query = require('js/model/Query');
+var List = require('js/model/List');
 var Common = require('js/Common');
 var ColorGenerator = require('js/ColorGenerator');
 var QueryPolling = require('js/QueryPolling');
@@ -37,17 +38,31 @@ const WorkspaceQueryCollection = Backbone.Collection.extend({
     }
 });
 
+const WorkspaceListCollection = Backbone.Collection.extend({
+    model: List,
+    comparator: (list) => {
+        return list.get('title').toLowerCase();
+    }
+});
+
 module.exports = Backbone.AssociatedModel.extend({
     useAjaxSync: true,
-    defaults: {
-        queries: [],
-        metacards: [],
-        saved: true
+    defaults: function () {
+        return {
+            queries: [],
+            metacards: [],
+            lists: [],
+            saved: true
+        };
     },
     relations: [{
         type: Backbone.Many,
         key: 'queries',
         collectionType: WorkspaceQueryCollection
+    }, {
+        type: Backbone.Many,
+        key: 'lists',
+        collectionType: WorkspaceListCollection
     }],
     canAddQuery: function () {
         return this.get('queries').length < 10;
@@ -70,9 +85,13 @@ module.exports = Backbone.AssociatedModel.extend({
             collection.trigger('change');
         });
         this.listenTo(this.get('queries'), 'update add remove', this.handleQueryChange);
+        this.listenTo(this.get('lists'), 'change update add remove', this.handleListChange);
         this.listenTo(this.get('queries'), 'change', this.handleChange);
         this.listenTo(this, 'change', this.handleChange);
         this.listenTo(this, 'error', this.handleError);
+    },
+    handleListChange: function() {
+        this.set('saved', false);
     },
     handleQueryChange: function () {
         this.set('saved', false);

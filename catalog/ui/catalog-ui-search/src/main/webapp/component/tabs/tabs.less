@@ -4,7 +4,6 @@
   background: inherit;
   .tabs-list {
     background: inherit;
-    .inlineFix;
 
     z-index: @zIndexContent;
     height: @minimumButtonSize;
@@ -32,12 +31,11 @@
         text-align: center;
         border: 1px solid;
 
-        > div.is-merged {
+        > button.is-merged {
           display: block;
           width: 100%;
-          padding: @minimumSpacing;
         }
-        > div.is-merged.is-active {
+        > button.is-merged.is-active {
           display: none;
         }
       }
@@ -51,7 +49,7 @@
       display: none;
       background: @backgroundDropdown;
       color: contrast(@backgroundDropdown);
-      > div {
+      > button {
         display: none;
       }
     }

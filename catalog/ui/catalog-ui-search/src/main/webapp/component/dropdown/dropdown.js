@@ -24,6 +24,9 @@ define([
             value: undefined,
             isEditing: true
         },
+        getValue: function() {
+            return this.get('value');
+        },
         toggleOpen: function(){
             this.set('isOpen', !this.get('isOpen'));
         },

@@ -81,6 +81,17 @@ public class WorkspaceTransformer {
                   .collect(Collectors.toList());
             }));
     metacardToJsonEntryMapper.put(
+        WorkspaceAttributes.WORKSPACE_LISTS,
+        remapValue(
+            value -> {
+              List<Map<String, Object>> content = (List) value;
+              return content
+                  .stream()
+                  .map(transformIntoMetacard(new ListMetacardImpl()))
+                  .map(this::toMetacardXml)
+                  .collect(Collectors.toList());
+            }));
+    metacardToJsonEntryMapper.put(
         Security.ACCESS_INDIVIDUALS,
         remapValue(
             value -> {
@@ -110,6 +121,18 @@ public class WorkspaceTransformer {
               List<String> queries = (List) value;
 
               return queries
+                  .stream()
+                  .map(this::toMetacardFromXml)
+                  .map(this::transform)
+                  .collect(Collectors.toList());
+            }));
+    jsonToMetacardEntryMapper.put(
+        WorkspaceAttributes.WORKSPACE_LISTS,
+        remapValue(
+            value -> {
+              List<String> lists = (List) value;
+
+              return lists
                   .stream()
                   .map(this::toMetacardFromXml)
                   .map(this::transform)

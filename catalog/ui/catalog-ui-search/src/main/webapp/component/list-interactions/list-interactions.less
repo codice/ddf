@@ -1,0 +1,34 @@
+@{customElementNamespace}list-interactions {
+
+    .interaction,
+    .interaction-icon,
+    .interaction-text {
+      line-height: @minimumButtonSize;
+      height: @minimumButtonSize;
+    }
+  
+    .interaction {
+      white-space: nowrap;
+      padding: 0px 10px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+  
+    .interaction-icon {
+      text-align: center;
+      width: @minimumButtonSize;
+    }
+  
+    .interaction-icon,
+    .interaction-text {
+      display: inline-block;
+      vertical-align: top;
+    }
+  
+    .interaction-text {
+      width: ~'calc(100% - @{minimumButtonSize})';
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+}

@@ -57,15 +57,8 @@
     padding: 0px @minimumSpacing;
   }
 
-  .result-unsave,
-  .result-save {
+  .result-add {
     display: none;
-  }
-
-  .result-container > .result-unsave:before,
-  .result-container > .result-save:before {
-    position: relative;
-    top: ~'calc(50% - 0.47rem)';
   }
 
   .details-property {
@@ -109,20 +102,9 @@
 }
 
 @{customElementNamespace}result-item.in-workspace {
-  .result-save {
+  .result-add {
     display: inline-block;
   }
-}
-
-@{customElementNamespace}result-item.is-saved {
-  .result-unsave {
-    display: inline-block;
-  }
-
-  .result-save {
-    display: none;
-  }
-
 }
 
 @{customElementNamespace}result-item.is-blacklisted {

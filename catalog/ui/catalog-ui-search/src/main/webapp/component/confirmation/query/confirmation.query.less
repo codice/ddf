@@ -3,12 +3,17 @@
         padding: @largeSpacing;
     }
 
-    .confirmation-choices button {
-        width: 50%;
-    }
-
     .confirmation-replace {
         display: none;
+    }
+
+    .confirmation-choices {
+        button {
+            width: 50%;
+        }
+        button:first-of-type {
+            display: inline-block;
+        }
     }
 }
 

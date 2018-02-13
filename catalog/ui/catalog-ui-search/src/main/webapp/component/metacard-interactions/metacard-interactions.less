@@ -24,8 +24,7 @@
     display: inline-block;
   }
 
-  .interaction-save,
-  .interaction-unsave,
+  .interaction-add,
   .interaction-show,
   .interaction-share,
   .interaction-create-search,
@@ -41,20 +40,22 @@
     margin-left: 15px;
   }
 
+  .interaction-add {
+    padding: 0px 0px;
+    > @{customElementNamespace}dropdown {
+      padding: 0px 10px;
+      text-align: left;
+      span:first-of-type {
+        text-align: center;
+        width: @minimumButtonSize;
+      }
+    }
+  }
 }
 
 @{customElementNamespace}metacard-interactions.in-workspace {
-  .interaction-save {
+  .interaction-add {
     display: block;
-  }
-}
-
-@{customElementNamespace}metacard-interactions.is-saved {
-  .interaction-unsave {
-    display: block;
-  }
-  .interaction-save {
-    display: none;
   }
 }
 

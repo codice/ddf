@@ -58,11 +58,11 @@ define([
             this.edit();
         },
         focus: function(){
-            var tabable =  _.filter(this.$el.find('[tabindex], input, button'), function(element){
+            var tabbable =  _.filter(this.$el.find('[tabindex], input, button'), function(element){
                 return element.offsetParent !== null;
             });
-            if (tabable.length > 0){
-                $(tabable[0]).focus();
+            if (tabbable.length > 0){
+                $(tabbable[0]).focus();
             }
         },
         edit: function(){

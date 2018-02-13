@@ -56,7 +56,7 @@ define([
         dropdownCompanion: undefined,
         initializeComponentModel: function(){
             //override if you need more functionality
-            this.modelForComponent = this.model;
+            this.modelForComponent = this.options.modelForComponent || this.model;
         },
         getTargetElement: function(){
             //override with where you want the dropdown to center
@@ -136,15 +136,20 @@ define([
         createSimpleDropdown: function(options){
             return new this({
                 model: options.model || new DropdownModel({
-                    value: options.defaultSelection
+                    value: options.defaultSelection,
+                    leftIcon: options.leftIcon,
+                    rightIcon: options.rightIcon,
+                    label: options.label
                 }),
                 list: options.list,
                 hasFiltering: options.hasFiltering,
-                componentToShow: SelectView,
+                componentToShow: options.componentToShow || SelectView,
                 isMultiSelect: options.isMultiSelect,
                 defaultSelection: options.defaultSelection,
                 customChildView: options.customChildView,
-                matchcase: options.matchcase
+                matchcase: options.matchcase,
+                modelForComponent: options.modelForComponent,
+                options: options.options
             });
         }
     });
