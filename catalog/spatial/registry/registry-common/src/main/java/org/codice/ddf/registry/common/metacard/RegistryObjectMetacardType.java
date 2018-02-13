@@ -18,6 +18,7 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import java.util.Collections;
 import java.util.HashSet;
@@ -81,7 +82,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
   }
 
   private void addRegistryAttributes() {
-    descriptors.add(BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
+    descriptors.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.POINT_OF_CONTACT));
     addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
     addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
     addQueryableDate(LAST_PUBLISHED);

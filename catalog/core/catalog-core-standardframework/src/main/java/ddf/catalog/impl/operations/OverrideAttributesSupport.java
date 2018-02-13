@@ -18,7 +18,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -56,7 +55,7 @@ public class OverrideAttributesSupport {
       boolean ignoreType,
       boolean onlyFillNull) {
     MetacardType updatedMetacardType = currentMetacard.getMetacardType();
-    if (!ignoreType && !BasicTypes.BASIC_METACARD.equals(overrideMetacard.getMetacardType())) {
+    if (!ignoreType && !MetacardImpl.BASIC_METACARD.equals(overrideMetacard.getMetacardType())) {
       updatedMetacardType = overrideMetacard.getMetacardType();
     }
 

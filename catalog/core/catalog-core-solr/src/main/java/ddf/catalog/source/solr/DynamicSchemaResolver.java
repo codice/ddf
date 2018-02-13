@@ -30,6 +30,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Validation;
 import java.io.ByteArrayInputStream;
@@ -165,7 +166,7 @@ public class DynamicSchemaResolver {
 
     anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
     Set<String> basicTextAttributes =
-        BasicTypes.BASIC_METACARD
+        MetacardImpl.BASIC_METACARD
             .getAttributeDescriptors()
             .stream()
             .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))

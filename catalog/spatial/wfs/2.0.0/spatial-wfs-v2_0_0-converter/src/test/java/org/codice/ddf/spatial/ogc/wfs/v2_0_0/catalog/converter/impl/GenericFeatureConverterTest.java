@@ -24,7 +24,6 @@ import com.thoughtworks.xstream.io.xml.WstxDriver;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -313,12 +312,12 @@ public class GenericFeatureConverterTest {
 
           @Override
           public Set<AttributeDescriptor> getAttributeDescriptors() {
-            return BasicTypes.BASIC_METACARD.getAttributeDescriptors();
+            return MetacardImpl.BASIC_METACARD.getAttributeDescriptors();
           }
 
           @Override
           public AttributeDescriptor getAttributeDescriptor(String arg0) {
-            return BasicTypes.BASIC_METACARD.getAttributeDescriptor(arg0);
+            return MetacardImpl.BASIC_METACARD.getAttributeDescriptor(arg0);
           }
         });
     wfc.getMembers().add(mc2);

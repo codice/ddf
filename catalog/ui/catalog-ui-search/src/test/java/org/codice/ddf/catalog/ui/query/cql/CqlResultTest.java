@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.action.ActionRegistry;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
@@ -55,7 +54,7 @@ public class CqlResultTest {
   }
 
   private void distanceCheck(Double input, Double output) {
-    MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
     ResultImpl result = new ResultImpl(metacard);
     result.setDistanceInMeters(input);
     ActionRegistry actionRegistry = mock(ActionRegistry.class);

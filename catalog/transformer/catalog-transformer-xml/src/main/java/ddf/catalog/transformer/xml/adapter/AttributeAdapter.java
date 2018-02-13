@@ -18,7 +18,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.AbstractAttributeType;
 import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
@@ -43,7 +43,7 @@ public class AttributeAdapter extends XmlAdapter<AbstractAttributeType, Attribut
   private MetacardType metacardType = null;
 
   public AttributeAdapter() {
-    this(BasicTypes.BASIC_METACARD);
+    this(MetacardImpl.BASIC_METACARD);
   }
 
   public AttributeAdapter(MetacardType metacardType) {

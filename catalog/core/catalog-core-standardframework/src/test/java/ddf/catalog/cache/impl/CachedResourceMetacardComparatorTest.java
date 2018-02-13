@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.EmptyMetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -248,7 +247,7 @@ public class CachedResourceMetacardComparatorTest {
     securityMap.put("key1", ImmutableList.of("value1"));
     securityMap.put("key2", ImmutableList.of("value1", "value2"));
 
-    MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
 
     metacard.setContentTypeName("testContentType");
     metacard.setContentTypeVersion("testContentTypeVersion");

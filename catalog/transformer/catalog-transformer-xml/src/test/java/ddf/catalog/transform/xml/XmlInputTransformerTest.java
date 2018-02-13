@@ -23,7 +23,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.XmlInputTransformer;
@@ -72,7 +72,7 @@ public class XmlInputTransformerTest {
           "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
 
-    assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacard.getMetacardType().getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
@@ -81,7 +81,7 @@ public class XmlInputTransformerTest {
     List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
     MetacardType extensibleType =
         new MetacardTypeImpl(
-            "extensible.metacard", BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+            "extensible.metacard", MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
     metacardTypes.add(extensibleType);
     xit.setMetacardTypes(metacardTypes);
     Metacard metacard =
@@ -146,7 +146,7 @@ public class XmlInputTransformerTest {
   public void testFallbackToBasicMetacardForUnknowMetacardType()
       throws FileNotFoundException, IOException, CatalogTransformerException, ParseException {
     List<MetacardType> metacardTypes = new ArrayList<MetacardType>(1);
-    metacardTypes.add(BasicTypes.BASIC_METACARD);
+    metacardTypes.add(MetacardImpl.BASIC_METACARD);
     xit.setMetacardTypes(metacardTypes);
 
     Metacard metacard =
@@ -162,7 +162,7 @@ public class XmlInputTransformerTest {
           "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
 
-    assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacard.getMetacardType().getName(), is(MetacardImpl.BASIC_METACARD.getName()));
 
     assertThat("1234567890987654321", is(metacard.getId()));
     assertThat("foobar", is(metacard.getSourceId()));

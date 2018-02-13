@@ -34,7 +34,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
@@ -841,7 +840,7 @@ public class MetacardGroomerPluginTest {
    * @return hybrid metacard type
    */
   private MetacardType getHybridMetacardType() {
-    List<MetacardType> list = Arrays.asList(new CoreAttributes(), BasicTypes.BASIC_METACARD);
+    List<MetacardType> list = Arrays.asList(new CoreAttributes(), MetacardImpl.BASIC_METACARD);
     return new MetacardTypeImpl("HybridAttributes", list);
   }
 }

@@ -34,7 +34,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
@@ -262,7 +261,7 @@ public class RestEndpointTest {
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
     rest.setUuidGenerator(uuidGenerator);
-    rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
@@ -339,7 +338,7 @@ public class RestEndpointTest {
             return bundleContext;
           }
         };
-    rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
@@ -411,7 +410,7 @@ public class RestEndpointTest {
             return bundleContext;
           }
         };
-    rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
     when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");

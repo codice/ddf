@@ -392,8 +392,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
   private Set<String> getBasicAttributeNames() {
     Set<String> attrNames =
-        new HashSet<String>(BasicTypes.BASIC_METACARD.getAttributeDescriptors().size());
-    for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
+        new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors().size());
+    for (AttributeDescriptor ad : MetacardImpl.BASIC_METACARD.getAttributeDescriptors()) {
       attrNames.add(ad.getName());
     }
     return attrNames;

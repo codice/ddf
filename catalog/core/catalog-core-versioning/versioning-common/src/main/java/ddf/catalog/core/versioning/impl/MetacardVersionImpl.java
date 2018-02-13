@@ -65,7 +65,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
   private static final MetacardType METACARD_VERSION;
 
   private static final Set<AttributeDescriptor> VERSION_DESCRIPTORS =
-      new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+      new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
   private static final Cache<Integer, byte[]> METACARD_TYPE_CACHE =
       CacheBuilder.newBuilder().maximumSize(256).build();
@@ -104,7 +104,12 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
    * @throws IllegalArgumentException
    */
   public MetacardVersionImpl(String id, Metacard sourceMetacard, Action action, Subject subject) {
-    this(id, sourceMetacard, action, subject, Collections.singletonList(BasicTypes.BASIC_METACARD));
+    this(
+        id,
+        sourceMetacard,
+        action,
+        subject,
+        Collections.singletonList(MetacardImpl.BASIC_METACARD));
   }
 
   /**
@@ -235,7 +240,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
   private static void sanitizeVersionAttributes(/*Mutable*/ Metacard source) {
     Consumer<String> nullifySourceAttribute =
         (s) -> source.setAttribute(new AttributeImpl(s, (Serializable) null));
-    Sets.difference(VERSION_DESCRIPTORS, BasicTypes.BASIC_METACARD.getAttributeDescriptors())
+    Sets.difference(VERSION_DESCRIPTORS, MetacardImpl.BASIC_METACARD.getAttributeDescriptors())
         .stream()
         .map(AttributeDescriptor::getName)
         .forEach(nullifySourceAttribute);

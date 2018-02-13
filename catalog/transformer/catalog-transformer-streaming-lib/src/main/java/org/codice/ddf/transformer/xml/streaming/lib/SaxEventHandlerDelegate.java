@@ -18,7 +18,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -120,7 +119,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     MetacardType metacardType = getMetacardType(id);
 
     if (metacardType == null) {
-      metacardType = BasicTypes.BASIC_METACARD;
+      metacardType = MetacardImpl.BASIC_METACARD;
       LOGGER.debug("No metacard type found. Defaulting to Basic Metacard.");
     }
     /*
@@ -291,7 +290,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
    */
   public MetacardType getMetacardType(String id) {
     Set<AttributeDescriptor> attributeDescriptors =
-        new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+        new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
     attributeDescriptors.addAll(
         eventHandlers

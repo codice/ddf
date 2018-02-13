@@ -413,6 +413,7 @@
                             ddf.catalog.content;version="2.0",
                             ddf.catalog.core.versioning;version="2.0",
                             ddf.catalog.data;version="2.0",
+                            ddf.catalog.data.types;version="2.0",
                             ddf.catalog.event;version="2.0",
                             ddf.catalog.federation;version="2.0",
                             ddf.catalog.filter.delegate;version=${project.version},

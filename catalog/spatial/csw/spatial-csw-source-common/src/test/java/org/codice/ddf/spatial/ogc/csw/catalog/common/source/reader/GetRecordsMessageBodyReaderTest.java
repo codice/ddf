@@ -30,7 +30,6 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.resource.Resource;
@@ -115,7 +114,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testFullThread() throws Exception {
     List<Metacard> inputMetacards = new ArrayList<>();
-    MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
     metacard.setId("metacard1");
     metacard.setTitle("title1");
     inputMetacards.add(metacard);
@@ -152,7 +151,7 @@ public class GetRecordsMessageBodyReaderTest {
   @Test
   public void testGetMultipleMetacardsWithForeignText() throws Exception {
     List<Metacard> inputMetacards = new ArrayList<>();
-    MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
     inputMetacards.add(metacard);
     CswRecordCollection collection = new CswRecordCollection();
     collection.setCswRecords(inputMetacards);

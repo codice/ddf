@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.adapter.MetacardTypeAdapter;
@@ -32,7 +32,7 @@ public class MetacardTypeAdapterTest {
 
   private static final String EMPTY_TYPE_NAME = "";
 
-  private static final String DDF_METACARD_TYPE_NAME = BasicTypes.BASIC_METACARD.getName();
+  private static final String DDF_METACARD_TYPE_NAME = MetacardImpl.BASIC_METACARD.getName();
 
   private static final String UNKNOWN_TYPE_NAME = "unknownTypeName.metacard";
 
@@ -47,14 +47,14 @@ public class MetacardTypeAdapterTest {
   public void testUnmarshalWithNullTypeName() throws CatalogTransformerException {
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter();
     MetacardType metacardType = metacardTypeAdpater.unmarshal(NULL_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
   public void testUnmarshalWithEmptyTypeName() throws CatalogTransformerException {
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter();
     MetacardType metacardType = metacardTypeAdpater.unmarshal(EMPTY_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
@@ -65,7 +65,7 @@ public class MetacardTypeAdapterTest {
     metacardTypes.add(unknownMetacardType);
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(metacardTypes);
     MetacardType metacardType = metacardTypeAdpater.unmarshal(DDF_METACARD_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
@@ -76,21 +76,21 @@ public class MetacardTypeAdapterTest {
     metacardTypes.add(unknownMetacardType);
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(metacardTypes);
     MetacardType metacardType = metacardTypeAdpater.unmarshal(UNKNOWN_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
   public void testUnmarshalWithNullRegisteredMetacardTypes() throws CatalogTransformerException {
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(NULL_METACARD_TYPES_LIST);
     MetacardType metacardType = metacardTypeAdpater.unmarshal(UNKNOWN_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test
   public void testUnmarshalWithEmptyRegisteredMetacardTypes() throws CatalogTransformerException {
     MetacardTypeAdapter metacardTypeAdpater = new MetacardTypeAdapter(EMPTY_METACARD_TYPES_LIST);
     MetacardType metacardType = metacardTypeAdpater.unmarshal(UNKNOWN_TYPE_NAME);
-    assertThat(metacardType.getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacardType.getName(), is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   @Test

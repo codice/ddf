@@ -26,7 +26,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -89,7 +89,7 @@ public class WorkspaceServiceImplTest {
     QueryResponse queryResponse = mock(QueryResponse.class);
     Result result = mock(Result.class);
     Metacard metacard = mock(Metacard.class);
-    when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
+    when(metacard.getMetacardType()).thenReturn(MetacardImpl.BASIC_METACARD);
     Attribute attribute = mock(Attribute.class);
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
@@ -231,7 +231,7 @@ public class WorkspaceServiceImplTest {
   public void testGetQueryMetacards() {
 
     Metacard metacard = mock(Metacard.class);
-    when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
+    when(metacard.getMetacardType()).thenReturn(MetacardImpl.BASIC_METACARD);
 
     String xml = "<xml/>";
 

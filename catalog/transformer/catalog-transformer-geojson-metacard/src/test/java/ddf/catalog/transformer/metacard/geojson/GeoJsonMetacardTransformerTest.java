@@ -491,7 +491,7 @@ public class GeoJsonMetacardTransformerTest {
   @Test
   public void testWithMultiValueAttributes() throws Exception {
     Set<AttributeDescriptor> descriptors =
-        new HashSet(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+        new HashSet(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
     descriptors.add(
         new AttributeDescriptorImpl(
             "multi-string", true, true, false, true, /* multivalued */ BasicTypes.STRING_TYPE));
@@ -593,7 +593,7 @@ public class GeoJsonMetacardTransformerTest {
     assertThat(toString(properties.get(SOURCE_ID_PROPERTY)), is(DEFAULT_SOURCE_ID));
     assertThat(
         toString(properties.get(GeoJsonMetacardTransformer.METACARD_TYPE_PROPERTY_KEY)),
-        is(BasicTypes.BASIC_METACARD.getName()));
+        is(MetacardImpl.BASIC_METACARD.getName()));
   }
 
   private String toString(Object object) {

@@ -22,7 +22,6 @@ import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
@@ -138,7 +137,7 @@ public class GmdConverterTest {
   }
 
   private MetacardImpl getSparseMetacard() {
-    MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
     metacard.setAttribute(Core.ID, "ID");
     metacard.setAttribute(Core.CREATED, createdDate.getTime());
     metacard.setAttribute(Core.MODIFIED, modifiedDate.getTime());

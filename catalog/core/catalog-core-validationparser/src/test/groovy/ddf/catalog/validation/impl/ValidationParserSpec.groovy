@@ -8,6 +8,7 @@ import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.AttributeRegistryImpl
 import ddf.catalog.data.impl.BasicTypes
+import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
@@ -382,10 +383,10 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         mockStatic(FrameworkUtil.class)
-        def Bundle mockBundle = Mock(Bundle)
+        Bundle mockBundle = Mock(Bundle)
         when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
 
-        def BundleContext mockBundleContext = Mock(BundleContext)
+        BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
 
         def attribute1Name = "attribute1";
@@ -403,11 +404,11 @@ class ValidationParserSpec extends Specification {
 
         then:
         1 * mockBundleContext.registerService(MetacardType.class, {
-            it == new MetacardTypeImpl(type1Name, BasicTypes.BASIC_METACARD,
+            it == new MetacardTypeImpl(type1Name, MetacardImpl.BASIC_METACARD,
                     [expectedAttribute1, expectedAttribute2] as Set)
         }, { it.get("name") == type1Name })
         1 * mockBundleContext.registerService(MetacardType.class, {
-            it == new MetacardTypeImpl(type2Name, BasicTypes.BASIC_METACARD,
+            it == new MetacardTypeImpl(type2Name, MetacardImpl.BASIC_METACARD,
                     [expectedAttribute1] as Set)
         }, { it.get("name") == type2Name })
     }

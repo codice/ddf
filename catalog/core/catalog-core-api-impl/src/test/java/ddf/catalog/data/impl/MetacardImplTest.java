@@ -74,7 +74,7 @@ public class MetacardImplTest {
     locWkt = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
     nsUri = new URI("http://" + MetacardImplTest.class.getName());
     resourceUri = new URI(nsUri.toString() + "/resource.html");
-    mc = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    mc = new MetacardImpl();
     mc.setContentTypeName("testContentType");
     mc.setContentTypeVersion("testContentTypeVersion");
     mc.setAttribute("testAtt", "testAttValue");
@@ -147,7 +147,7 @@ public class MetacardImplTest {
     assertEquals(null, mi.getExpirationDate());
     assertEquals(null, mi.getId());
     assertEquals(null, mi.getLocation());
-    assertEquals(BasicTypes.BASIC_METACARD, mi.getMetacardType());
+    assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(null, mi.getMetadata());
     assertEquals(null, mi.getModifiedDate());
     assertEquals(null, mi.getResourceSize());
@@ -158,7 +158,7 @@ public class MetacardImplTest {
     assertEquals(null, mi.getDescription());
     assertEquals(null, mi.getPointOfContact());
 
-    mi = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    mi = new MetacardImpl();
     assertEquals(null, mi.getContentTypeName());
     assertEquals(null, mi.getContentTypeNamespace());
     assertEquals(null, mi.getContentTypeVersion());
@@ -167,7 +167,7 @@ public class MetacardImplTest {
     assertEquals(null, mi.getExpirationDate());
     assertEquals(null, mi.getId());
     assertEquals(null, mi.getLocation());
-    assertEquals(BasicTypes.BASIC_METACARD, mi.getMetacardType());
+    assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(null, mi.getMetadata());
     assertEquals(null, mi.getModifiedDate());
     assertEquals(null, mi.getResourceSize());
@@ -187,7 +187,7 @@ public class MetacardImplTest {
     assertEquals(mc.getExpirationDate(), mi.getExpirationDate());
     assertEquals(mc.getId(), mi.getId());
     assertEquals(mc.getLocation(), mi.getLocation());
-    assertEquals(BasicTypes.BASIC_METACARD, mi.getMetacardType());
+    assertEquals(MetacardImpl.BASIC_METACARD, mi.getMetacardType());
     assertEquals(mc.getMetacardType(), mi.getMetacardType());
     assertEquals(mc.getMetadata(), mi.getMetadata());
     assertEquals(mc.getModifiedDate(), mi.getModifiedDate());
@@ -355,7 +355,7 @@ public class MetacardImplTest {
 
     Metacard metacard = new MetacardImpl(innerMetacard);
 
-    Serializer<Metacard> serializer = new Serializer<Metacard>();
+    Serializer<Metacard> serializer = new Serializer<>();
 
     serializer.serialize(metacard, DEFAULT_SERIALIZATION_FILE_LOCATION);
 

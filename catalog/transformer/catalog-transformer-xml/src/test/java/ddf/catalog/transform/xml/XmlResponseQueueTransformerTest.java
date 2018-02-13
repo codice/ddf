@@ -31,7 +31,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.SourceResponse;
@@ -82,7 +81,7 @@ public class XmlResponseQueueTransformerTest {
 
   private boolean verboseDebug = false;
 
-  private static final String DEFAULT_TYPE_NAME = BasicTypes.BASIC_METACARD.getName();
+  private static final String DEFAULT_TYPE_NAME = MetacardImpl.BASIC_METACARD.getName();
 
   private static final Date DEFAULT_EXPIRATION_DATE = new DateTime(123456789).toDate();
 

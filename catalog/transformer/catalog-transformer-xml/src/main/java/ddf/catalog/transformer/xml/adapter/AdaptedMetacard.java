@@ -18,7 +18,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
 import ddf.catalog.transformer.xml.binding.BooleanElement;
@@ -77,13 +76,13 @@ public class AdaptedMetacard implements Metacard {
 
   public AdaptedMetacard(Metacard metacard) {
     if (metacard == null) {
-      this.metacardType = BasicTypes.BASIC_METACARD;
+      this.metacardType = MetacardImpl.BASIC_METACARD;
     } else {
       this.sourceId = metacard.getSourceId();
       this.metacardType =
           metacard.getMetacardType() != null
               ? metacard.getMetacardType()
-              : BasicTypes.BASIC_METACARD;
+              : MetacardImpl.BASIC_METACARD;
       for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
         if (descriptor != null) {
           this.setAttribute(metacard.getAttribute(descriptor.getName()));

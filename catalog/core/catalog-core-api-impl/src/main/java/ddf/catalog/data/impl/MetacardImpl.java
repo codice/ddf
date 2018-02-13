@@ -18,6 +18,9 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
@@ -27,8 +30,10 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,9 +71,65 @@ import org.slf4j.LoggerFactory;
  */
 public class MetacardImpl implements Metacard {
 
+  /** A Constant for a {@link MetacardType} with the required {@link AttributeType}s. */
+  public static final MetacardType BASIC_METACARD;
+
   private static final long serialVersionUID = 1L;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardImpl.class);
+
+  static {
+    Set<AttributeDescriptor> descriptors = new HashSet<>();
+    descriptors.addAll(new CoreAttributes().getAttributeDescriptors());
+    descriptors.addAll(new ValidationAttributes().getAttributeDescriptors());
+    descriptors.addAll(new AssociationsAttributes().getAttributeDescriptors());
+
+    /** Add deprecated descriptors that are not found anywhere else * */
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Metacard.EFFECTIVE,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.DATE_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Metacard.POINT_OF_CONTACT,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Metacard.CONTENT_TYPE,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Metacard.CONTENT_TYPE_VERSION,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Metacard.TARGET_NAMESPACE,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.STRING_TYPE));
+
+    BASIC_METACARD =
+        new MetacardTypeImpl(
+            MetacardType.DEFAULT_METACARD_TYPE_NAME, Collections.unmodifiableSet(descriptors));
+  }
 
   /** key/value map of {@link Attribute}s. */
   private transient Map<String, Attribute> map = null;
@@ -79,10 +140,7 @@ public class MetacardImpl implements Metacard {
 
   private String sourceId;
 
-  /**
-   * Creates a {@link Metacard} with a type of {@link BasicTypes#BASIC_METACARD} and empty {@link
-   * Attribute}s.
-   */
+  /** Creates a {@link Metacard} with a type of BASIC_METACARD and empty {@link Attribute}s. */
   public MetacardImpl() {
     /*
      * If any defensive logic is added to this constructor, then that logic should be reflected
@@ -90,7 +148,7 @@ public class MetacardImpl implements Metacard {
      * serialized object is maintained. For instance, if a null check is added in the
      * constructor, the same check should be added in the readObject() method.
      */
-    this(BasicTypes.BASIC_METACARD);
+    this(BASIC_METACARD);
   }
 
   /**
@@ -106,7 +164,7 @@ public class MetacardImpl implements Metacard {
      * serialized object is maintained. For instance, if a null check is added in the
      * constructor, the same check should be added in the readObject() method.
      */
-    map = new HashMap<String, Attribute>();
+    map = new HashMap<>();
     if (type != null) {
       this.type = type;
     } else {
@@ -127,13 +185,9 @@ public class MetacardImpl implements Metacard {
      * serialized object is maintained. For instance, if a null check is added in the
      * constructor, the same check should be added in the readObject() method.
      */
+    this(metacard.getMetacardType());
     this.wrappedMetacard = metacard;
-    if (metacard.getMetacardType() != null) {
-      this.type = metacard.getMetacardType();
-    } else {
-      throw new IllegalArgumentException(
-          MetacardType.class.getName() + " instance should not be null.");
-    }
+    this.map = null;
   }
 
   /**
@@ -146,12 +200,7 @@ public class MetacardImpl implements Metacard {
    * @param type the {@link MetacardType} of metacard to create
    */
   public MetacardImpl(Metacard metacard, MetacardType type) {
-    if (type != null) {
-      this.type = type;
-    } else {
-      throw new IllegalArgumentException(
-          MetacardType.class.getName() + " instance should not be null.");
-    }
+    this(type);
     if (metacard.getSourceId() != null) {
       this.setSourceId(metacard.getSourceId());
     }
@@ -573,8 +622,7 @@ public class MetacardImpl implements Metacard {
       return returnType.cast(data);
     } else {
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            data.getClass().toString() + " can not be assigned to " + returnType.toString());
+        LOGGER.debug("{} can not be assigned to {}", data.getClass(), returnType);
       }
     }
 
@@ -763,37 +811,39 @@ public class MetacardImpl implements Metacard {
       for (Attribute attribute : this.map.values()) {
         stream.writeObject(attribute);
       }
+    } else if (wrappedMetacard != null && wrappedMetacard.getMetacardType() != null) {
+      writeWrappedMetacard(wrappedMetacard, stream);
+    }
+  }
+
+  private void writeWrappedMetacard(Metacard wrappedMetacard, ObjectOutputStream stream)
+      throws IOException {
+    MetacardType metacardType = wrappedMetacard.getMetacardType();
+
+    List<Attribute> attributes = new ArrayList<>();
+
+    if (metacardType.getAttributeDescriptors() == null) {
+      // no descriptors, means no attributes can be defined.
+      // no attributes defined, means no attributes written to
+      // disk
+      stream.writeInt(0);
     } else {
-      if (wrappedMetacard != null && wrappedMetacard.getMetacardType() != null) {
 
-        MetacardType metacardType = wrappedMetacard.getMetacardType();
+      for (AttributeDescriptor ad : metacardType.getAttributeDescriptors()) {
 
-        List<Attribute> attributes = new ArrayList<Attribute>();
+        Attribute attribute = wrappedMetacard.getAttribute(ad.getName());
 
-        if (metacardType.getAttributeDescriptors() == null) {
-          // no descriptors, means no attributes can be defined.
-          // no attributes defined, means no attributes written to
-          // disk
-          stream.writeInt(0);
-        } else {
-
-          for (AttributeDescriptor ad : metacardType.getAttributeDescriptors()) {
-
-            Attribute attribute = wrappedMetacard.getAttribute(ad.getName());
-
-            if (attribute != null) {
-              attributes.add(attribute);
-            }
-          }
-
-          // Must loop again because the size of the attributes list
-          // is not known until list has been fully populated.
-          stream.writeInt(attributes.size());
-
-          for (Attribute attribute : attributes) {
-            stream.writeObject(attribute);
-          }
+        if (attribute != null) {
+          attributes.add(attribute);
         }
+      }
+
+      // Must loop again because the size of the attributes list
+      // is not known until list has been fully populated.
+      stream.writeInt(attributes.size());
+
+      for (Attribute attribute : attributes) {
+        stream.writeObject(attribute);
       }
     }
   }
@@ -813,7 +863,7 @@ public class MetacardImpl implements Metacard {
      */
     stream.defaultReadObject();
 
-    map = new HashMap<String, Attribute>();
+    map = new HashMap<>();
 
     wrappedMetacard = null;
 

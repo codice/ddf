@@ -13,7 +13,7 @@
  */
 package ddf.catalog.data.inject;
 
-import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;

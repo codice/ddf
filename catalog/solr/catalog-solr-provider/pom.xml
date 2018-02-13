@@ -99,6 +99,7 @@
                             com.vividsolutions.jts.simplify,
                             com.vividsolutions.jts.util,
                             ddf.catalog.data;version="[2.0,3)",
+                            ddf.catalog.data.types;version="[2.0,3)",
                             ddf.catalog.filter;version="[2.0,3)",
                             ddf.catalog.operation;version="[2.0,3)",
                             ddf.catalog.source;version="[2.0,3)",
