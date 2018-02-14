@@ -34,18 +34,16 @@ define([
     'component/upload/upload',
     'component/upload/upload.view',
     'component/navigator/navigator.view',
-    'component/singletons/slideout.left.view-instance.js',
     'component/sources/sources.view',
-    'component/about/about.view'
+    'component/about/about.view',
+    'component/notfound/notfound.view',
+    'properties',
+    'component/announcement'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
             IngestView, router, user, uploadInstance, UploadView,
-            NavigatorView, SlideoutLeftViewInstance, SourcesView, AboutView) {
-
-    function toggleNavigator() {
-        SlideoutLeftViewInstance.updateContent(new NavigatorView());
-        SlideoutLeftViewInstance.open();
-    }
+            NavigatorView, SourcesView, AboutView, 
+            NotFoundView, properties, announcement) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -56,37 +54,21 @@ define([
         Application.App.uploadRegion.$el.addClass('is-hidden');
         Application.App.sourcesRegion.$el.addClass('is-hidden');
         Application.App.aboutRegion.$el.addClass('is-hidden');
+        Application.App.notFoundRegion.$el.addClass('is-hidden');
     }
 
     var Router = Marionette.AppRouter.extend({
         controller: {
-            openWorkspace: function(){
-                //console.log('route to specific workspace:'+workspaceId);
-            },
-            home: function(){
-                //console.log('route to workspaces home');
-            },
-            workspaces: function(){
-                //console.log('route to workspaces home');
-            },
-            openMetacard: function(){
-                //console.log('route to specific metacard:'+metacardId);
-            },
-            openAlert: function(){
-                //console.log('route to specific alert:'+alertId);
-            },
-            openIngest: function(){
-                //console.log('route to ingest');
-            },
-            openUpload: function(){
-                //console.log('route to upload');
-            },
-            openSources: function(){
-                //console.log('route to sources');
-            },
-            openAbout() {
-                //console.log('route to about');
-            }
+                openWorkspace() {},
+                home() {},
+                workspaces() {},
+                openMetacard() {},
+                openAlert() {},
+                openIngest() {},
+                openUpload() {},
+                openSources() {},
+                openAbout() {},
+                notFound() {}
         },
         appRoutes: {
             'workspaces/:id': 'openWorkspace',
@@ -97,7 +79,8 @@ define([
             'ingest(/)': 'openIngest',
             'uploads/:id': 'openUpload',
             'sources(/)': 'openSources',
-            'about(/)': 'openAbout'
+            'about(/)': 'openAbout',
+            '*path': 'notFound'
         },
         initialize: function(){
             if (window.location.search.indexOf('lowBandwidth') !== -1) {
@@ -135,15 +118,7 @@ define([
                         Application.App.workspaceRegion.$el.removeClass('is-hidden');
                         this.updateRoute(name, path, args);
                     } else {
-                        toggleNavigator();
-                        this.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Either the workspace has been deleted or you no longer have permission to access it.  ' +
-                                'Please use the left navigation to go somewhere else.',
-                                yes: 'Okay'
-                            }),
-                            'change:choice',
-                            function(){
-                            });
+                        this.onRoute('notFound');
                     }
                     break;
                 case 'openMetacard':
@@ -181,14 +156,7 @@ define([
                     var alertId = args[0];
                     var alert = user.get('user').get('preferences').get('alerts').get(alertId);
                     if (!alert) {
-                        toggleNavigator();
-                        self.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Alert unable to be found.  Please use the left navigation to go somewhere else.',
-                                yes: 'Okay'
-                            }),
-                            'change:choice',
-                            function () {
-                            });
+                        this.onRoute('notFound');
                     } else {
                         queryForMetacards = new Query.Model({
                             cql: cql.write({
@@ -228,14 +196,7 @@ define([
                     var uploadId = args[0];
                     var upload = user.get('user').get('preferences').get('uploads').get(uploadId);
                     if (!upload) {
-                        toggleNavigator();
-                        self.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Upload unable to be found.  Please use the left navigation to go somewhere else.',
-                                yes: 'Okay'
-                            }),
-                            'change:choice',
-                            function () {
-                            });
+                        this.onRoute('notFound');
                     } else {
                         queryForMetacards = new Query.Model({
                             cql: cql.write({
@@ -273,6 +234,10 @@ define([
                     }
                     break;
                 case 'openIngest':
+                    if (!properties.isUploadEnabled()) {
+                        this.onRoute('notFound');
+                        return;
+                    }
                     if (Application.App.ingestRegion.currentView === undefined){
                         Application.App.ingestRegion.show(new IngestView());
                     }
@@ -305,6 +270,13 @@ define([
                         Application.App.aboutRegion.show(new AboutView());
                     }
                     Application.App.aboutRegion.$el.removeClass('is-hidden');
+                    this.updateRoute(name, path, args);
+                    break;
+                case 'notFound':
+                    if (Application.App.notFoundRegion.currentview === undefined) {
+                        Application.App.notFoundRegion.show(new NotFoundView());
+                    } 
+                    Application.App.notFoundRegion.$el.removeClass('is-hidden');
                     this.updateRoute(name, path, args);
                     break;
             }

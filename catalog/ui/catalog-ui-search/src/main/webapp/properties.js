@@ -89,7 +89,7 @@ define(function (require) {
             this.handleEditing();
             this.handleFeedback();
             this.handleExperimental();
-
+            this.handleUpload();
             return props;
         },
         handleEditing: function(){
@@ -101,6 +101,9 @@ define(function (require) {
         handleExperimental: function() {
             $('html').toggleClass('is-experimental', this.hasExperimentalEnabled());
         },  
+        handleUpload: function() {
+            $('html').toggleClass('is-upload-enabled', this.isUploadEnabled());
+        },
         isHidden: function(attribute){
           return match(this.hiddenAttributes, attribute);
         },
@@ -130,6 +133,9 @@ define(function (require) {
         },
         isArchiveSearchEnabled: function(){
             return !this.isArchiveSearchDisabled;
+        },
+        isUploadEnabled: function() {
+            return this.showIngest;
         }
     };
 

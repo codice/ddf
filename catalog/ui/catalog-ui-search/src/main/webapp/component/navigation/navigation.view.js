@@ -43,6 +43,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     showNavigationMiddle: function(){
         //override in extensions
+        if (this.options.navigationMiddleComponent) {
+            this.navigationMiddle.show(new this.options.navigationMiddleComponent());
+        }
     },
     onBeforeShow: function(){
         this.navigationLeft.show(new NavigationLeftView());
@@ -68,5 +71,11 @@ module.exports = Marionette.LayoutView.extend({
     handleLogo: function() {
         var hasLogo = properties.showLogo && properties.ui.vendorImage !== "";
         this.$el.toggleClass('has-logo', hasLogo);
+    },
+    serializeData: function() {
+        return {
+            middleClasses: this.options.navigationMiddleClasses,
+            middleText: this.options.navigationMiddleText
+        };
     }
 });
