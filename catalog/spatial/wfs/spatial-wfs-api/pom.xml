@@ -47,6 +47,12 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            org.codice.ddf.spatial.ogc.wfs.catalog.converter;version="${project.version}",
+                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper;version="${project.version}",
+                            org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter;version="${project.version}",
+                            org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter;version="${project.version}"
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
