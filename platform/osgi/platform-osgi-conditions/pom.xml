@@ -24,6 +24,7 @@
     <packaging>bundle</packaging>
     <groupId>ddf.platform.osgi</groupId>
     <artifactId>platform-osgi-conditions</artifactId>
+    <name>DDF :: Platform :: OSGi :: Conditions</name>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

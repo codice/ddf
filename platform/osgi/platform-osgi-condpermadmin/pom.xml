@@ -24,6 +24,7 @@
     <packaging>bundle</packaging>
     <artifactId>platform-osgi-condpermadmin</artifactId>
     <groupId>ddf.platform.osgi</groupId>
+    <name>DDF :: Platform :: OSGi :: CondPermAdmin</name>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
