@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * <p>Manages a reference list of {@link CswActionTransformer}'s by mapping them to the typenames
  * they apply to.
  */
-public class CswActionTransformerProviderImpl {
+public class CswActionTransformerProviderImpl implements CswActionTransformerProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswActionTransformerProvider.class);
 
@@ -70,6 +70,7 @@ public class CswActionTransformerProviderImpl {
     }
   }
 
+  @Override
   public Optional<CswActionTransformer> getTransformer(@Nullable String typeName) {
     if (StringUtils.isEmpty(typeName)) {
       return Optional.empty();
