@@ -10,7 +10,7 @@
             var param = paramString.split('=');
 
             if (param[0] === "msg") {
-                $('#extramessage').html(decodeURIComponent(param[1].split('+').join(' ')));
+				$('#extramessage').text(decodeURIComponent(param[1].split('+').join(' '))).html();
             }
             //add additional params here if needed
         });
