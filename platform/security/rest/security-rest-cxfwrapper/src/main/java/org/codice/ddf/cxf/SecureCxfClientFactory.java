@@ -435,7 +435,7 @@ public class SecureCxfClientFactory<T> {
 
     tlsParams.setDisableCNCheck(disableCnCheck);
 
-    tlsParams.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
+    tlsParams.setUseHttpsURLConnectionDefaultHostnameVerifier(!disableCnCheck);
     String cipherSuites = System.getProperty("https.cipherSuites");
     if (cipherSuites != null) {
       tlsParams.setCipherSuites(Arrays.asList(cipherSuites.split(",")));
