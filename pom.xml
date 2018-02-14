@@ -66,7 +66,7 @@
         <commons-collections4.version>4.1</commons-collections4.version>
         <commons-io.version>2.6</commons-io.version>
         <json-smart.version>2.2.1</json-smart.version>
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpclient.version>4.5.4</httpclient.version>
         <httpcore.version>4.4.6</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <cxf.version>3.1.11</cxf.version>
