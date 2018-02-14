@@ -34,11 +34,14 @@ module.exports = merge.smart(dev, {
         historyApiFallback: true,
         inline: true,
         hot: true,
-        contentBase: [resolve('./node_modules/cesium/Build/'), resolve('/src/main/webapp/')],
+        contentBase: [
+            resolve('/src/main/webapp/')
+        ],
         proxy: {
             '/search/catalog/**': proxyConfig('https://localhost:8993'),
             '/services/**': proxyConfig('https://localhost:8993'),
-            '/styles/**': proxyConfig('https://localhost:8993/search/catalog')
+            '/styles/**': proxyConfig('https://localhost:8993/search/catalog'),
+            '/cesium/**': proxyConfig('https://localhost:8993/search/catalog')
         }
     },
     module: {
