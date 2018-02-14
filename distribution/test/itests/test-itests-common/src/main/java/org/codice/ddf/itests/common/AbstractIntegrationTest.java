@@ -125,6 +125,8 @@ public abstract class AbstractIntegrationTest {
 
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
 
+  protected static final long REMOVE_ALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
+
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
@@ -807,7 +809,8 @@ public abstract class AbstractIntegrationTest {
   }
 
   public void clearCatalog() {
-    console.runCommand(REMOVE_ALL);
+    String output = console.runCommand(REMOVE_ALL, REMOVE_ALL_TIMEOUT);
+    LOGGER.debug("{} output: {}", REMOVE_ALL, output);
   }
 
   public void clearCache() {

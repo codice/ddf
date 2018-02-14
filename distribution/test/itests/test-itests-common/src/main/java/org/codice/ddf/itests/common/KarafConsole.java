@@ -86,4 +86,8 @@ public class KarafConsole extends KarafTestSupport {
   public String runCommand(String command) {
     return executeCommand(command, DEFAULT_ROLES);
   }
+
+  public String runCommand(String command, long timeout) {
+    return executeCommand(command, timeout, false, DEFAULT_ROLES);
+  }
 }

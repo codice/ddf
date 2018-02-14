@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.itests.common;
 
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.REMOVE_ALL;
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.REMOVE_ALL_TIMEOUT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -170,7 +173,8 @@ public class SystemStateManager {
       serviceManager.waitForAllBundles();
 
       // reset the catalog
-      console.runCommand("catalog:removeall -f -p");
+      String output = console.runCommand(REMOVE_ALL, REMOVE_ALL_TIMEOUT);
+      LOGGER.debug("{} output: {}", REMOVE_ALL, output);
       console.runCommand("catalog:removeall -f -p --cache");
 
       console.runCommand(
