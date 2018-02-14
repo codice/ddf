@@ -120,7 +120,7 @@
     </reference-list>
 
     <bean id="cswActionTransformerProvider"
-      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider"/>
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
 
     <bean id="cswExceptionMapperProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>

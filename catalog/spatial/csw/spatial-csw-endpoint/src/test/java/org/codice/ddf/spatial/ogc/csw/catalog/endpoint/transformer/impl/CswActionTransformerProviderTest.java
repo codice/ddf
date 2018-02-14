@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -19,9 +19,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Optional;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,11 +32,11 @@ public class CswActionTransformerProviderTest {
 
   private static final String TEST_TYPENAME_2 = "another:typename";
 
-  private CswActionTransformerProvider cswActionTransformerProvider;
+  private CswActionTransformerProviderImpl cswActionTransformerProvider;
 
   @Before
   public void setup() {
-    cswActionTransformerProvider = new CswActionTransformerProvider();
+    cswActionTransformerProvider = new CswActionTransformerProviderImpl();
   }
 
   @Test
@@ -80,7 +81,7 @@ public class CswActionTransformerProviderTest {
   @Test
   public void testBindTransformerWithEmptyTypeNames() {
     CswActionTransformer mockTransformer = getMockCswActionTransformer();
-    when(mockTransformer.getTypeNames()).thenReturn(Collections.emptyList());
+    when(mockTransformer.getTypeNames()).thenReturn(Collections.emptySet());
     cswActionTransformerProvider.bind(mockTransformer);
 
     Optional<CswActionTransformer> optional =
@@ -91,7 +92,8 @@ public class CswActionTransformerProviderTest {
   @Test
   public void testBindTransformerWithMultipleTypeNames() {
     CswActionTransformer mockTransformer = getMockCswActionTransformer();
-    when(mockTransformer.getTypeNames()).thenReturn(Arrays.asList(TEST_TYPENAME, TEST_TYPENAME_2));
+    when(mockTransformer.getTypeNames())
+        .thenReturn(Sets.newHashSet(TEST_TYPENAME, TEST_TYPENAME_2));
     cswActionTransformerProvider.bind(mockTransformer);
 
     Optional<CswActionTransformer> optional1 =
@@ -106,7 +108,8 @@ public class CswActionTransformerProviderTest {
   @Test
   public void testUnbindTransformerWithMultipleTypeNames() {
     CswActionTransformer mockTransformer = getMockCswActionTransformer();
-    when(mockTransformer.getTypeNames()).thenReturn(Arrays.asList(TEST_TYPENAME, TEST_TYPENAME_2));
+    when(mockTransformer.getTypeNames())
+        .thenReturn(Sets.newHashSet(TEST_TYPENAME, TEST_TYPENAME_2));
     cswActionTransformerProvider.bind(mockTransformer);
 
     Optional<CswActionTransformer> optional1 =
@@ -157,7 +160,7 @@ public class CswActionTransformerProviderTest {
 
   private CswActionTransformer getMockCswActionTransformer() {
     CswActionTransformer mockTransformer = mock(CswActionTransformer.class);
-    when(mockTransformer.getTypeNames()).thenReturn(Arrays.asList(TEST_TYPENAME));
+    when(mockTransformer.getTypeNames()).thenReturn(Sets.newHashSet(TEST_TYPENAME));
     return mockTransformer;
   }
 

@@ -54,11 +54,17 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codice.ddf.spatial</groupId>-->
+            <!--<artifactId>spatial-csw-action</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-action</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-common</artifactId>

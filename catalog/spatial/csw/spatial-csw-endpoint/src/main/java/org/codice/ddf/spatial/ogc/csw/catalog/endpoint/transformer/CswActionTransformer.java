@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-import java.util.List;
+import java.util.Set;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
@@ -53,9 +53,9 @@ public interface CswActionTransformer {
   InsertAction transform(InsertAction insertAction);
 
   /**
-   * Returns the list of typenames this transformer can be applied to.
+   * Returns a set of typenames this transformer can be applied to.
    *
-   * @return the list of typenames this transformer can be applied to.
+   * @return a set of typenames this transformer can be applied to.
    */
-  List<String> getTypeNames();
+  Set<String> getTypeNames();
 }
