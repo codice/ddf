@@ -26,17 +26,40 @@ require([
 
     var workspaces = store.get('workspaces');
 
+    function getWorkspacesOwnedByUser() {
+        return workspaces.filter(workspace => user.isGuest() ?
+            workspace.get('localStorage') === true :
+            workspace.get('metacard.owner') === user.get('user').get('email'));
+    }
+
+    function hasEmptyHashAndNoWorkspaces() {
+        return getWorkspacesOwnedByUser().length === 0 && location.hash === "";
+    }
+
+    function checkForEmptyHashAndOneWorkspace() {
+        if (location.hash === "" && workspaces.fetched && getWorkspacesOwnedByUser().length === 1) {
+            location.hash = '#workspaces/'+getWorkspacesOwnedByUser()[0].id;
+        }
+    }
+
     function attemptToStart() {
-        if (workspaces.fetched && user.fetched){
+        checkForEmptyHashAndOneWorkspace();
+        if (workspaces.fetched && user.fetched && !(hasEmptyHashAndNoWorkspaces())){
             app.App.start({});
         } else if (!user.fetched){
             user.once('sync', function() {
                 attemptToStart();
             });
-        } else {
+        } else if (!workspaces.fetched) {
             workspaces.once('sync', function() {
                 attemptToStart();
             });
+        } else if (hasEmptyHashAndNoWorkspaces()) {
+            workspaces.once('sync', function(workspace, resp, options){
+                location.hash = '#workspaces/'+workspace.id;
+                attemptToStart();
+            });
+            workspaces.createWorkspace();
         }
     }
 
