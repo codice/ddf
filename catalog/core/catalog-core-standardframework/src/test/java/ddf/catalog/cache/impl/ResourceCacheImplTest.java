@@ -14,15 +14,10 @@
 package ddf.catalog.cache.impl;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -32,10 +27,9 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Optional;
@@ -43,17 +37,11 @@ import javax.activation.MimeType;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.TemporaryFolder;
 
 public class ResourceCacheImplTest {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheImplTest.class);
-
-  private static final String TEST_PATH = "/src/main/resources/";
 
   private static final String SOURCE_ID = "ddf-1";
 
@@ -63,92 +51,39 @@ public class ResourceCacheImplTest {
 
   private static final String CACHED_RESOURCE_KEY = String.format("%s-%s", SOURCE_ID, METACARD_ID);
 
-  private String workingDir;
-
   private ResourceCacheImpl resourceCache;
 
   // Currently testing the new ResourceCacheImpl using this test class. This will be moved out
   // when the code gets moved form the old to the new ResourceCacheImpl.
   private org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl newResourceCache;
 
-  private String defaultProductCacheDirectory;
+  private Path defaultProductCacheDirectory;
 
   private Metacard cachedMetacard;
 
   private Metacard notCachedMetacard;
 
+  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
+
   @Before
-  public void setUp() throws MalformedURLException, URISyntaxException {
+  public void setUp() throws IOException, URISyntaxException {
     cachedMetacard = createMetacard(SOURCE_ID, METACARD_ID);
     notCachedMetacard = createMetacard(SOURCE_ID, NOT_CACHED_METACARD_ID);
 
-    // Set system property that Hazelcast uses for its XML Config file
-    String xmlConfigFilename = "reliableResource-hazelcast.xml";
-    String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + xmlConfigFilename;
+    Path ddfData = testFolder.newFolder("data").toPath();
 
-    // Simulates how DDF script starts up setting KARAF_HOME
-    workingDir = System.getProperty("user.dir");
-    System.setProperty("karaf.home", workingDir);
+    defaultProductCacheDirectory = Paths.get(ddfData.toString(), "Product_Cache");
+    defaultProductCacheDirectory.toFile().mkdirs();
 
-    defaultProductCacheDirectory =
-        workingDir + File.separator + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
-    File defaultProductCacheDirectoryAsFile = new File(defaultProductCacheDirectory);
-    if (!defaultProductCacheDirectoryAsFile.exists()) {
-      if (!defaultProductCacheDirectoryAsFile.mkdirs()) {
-        fail("Could not create directories for the test product cache. ");
-      }
-    }
-
-    // Simulates how blueprint creates the ResourceCacheImpl instance
-    Bundle bundle = mock(Bundle.class);
-    URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
-    when(bundle.getResource(anyString())).thenReturn(url);
-    BundleContext context = mock(BundleContext.class);
-    when(context.getBundle()).thenReturn(bundle);
-
-    resourceCache = new ResourceCacheImpl();
-    resourceCache.setContext(context);
-    resourceCache.setXmlConfigFilename(xmlConfigFilename);
-    resourceCache.setProductCacheDirectory("");
-    resourceCache.setCache(null);
+    resourceCache = new ResourceCacheImpl(defaultProductCacheDirectory.toString());
 
     newResourceCache =
         new org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl(resourceCache);
   }
 
   @After
-  public void teardownTest() {
-    try {
-      FileUtils.cleanDirectory(new File(defaultProductCacheDirectory));
-      File windowsTempFileNeedsCleaning =
-          new File(workingDir + File.separator + "dataProduct_Cache");
-      if (windowsTempFileNeedsCleaning.exists()) {
-        FileUtils.cleanDirectory(windowsTempFileNeedsCleaning);
-      }
-    } catch (IOException e) {
-      LOGGER.warn("unable to clean directory");
-    }
-  }
-
-  @Test
-  public void testBadKarafHomeValue() {
-    System.setProperty("karaf.home", "invalid-cache");
-    resourceCache.setProductCacheDirectory("");
-
-    assertEquals("", resourceCache.getProductCacheDirectory());
-  }
-
-  @Test
-  public void testDefaultProductCacheDirectory() {
-    assertEquals(defaultProductCacheDirectory, resourceCache.getProductCacheDirectory());
-  }
-
-  @Test
-  public void testUserDefinedProductCacheDirectory() {
-    String expectedDir = workingDir + File.separator + "custom-product-cache";
-    resourceCache.setProductCacheDirectory(expectedDir);
-
-    assertEquals(expectedDir, resourceCache.getProductCacheDirectory());
+  public void teardownTest() throws IOException {
+    resourceCache.teardownCache();
   }
 
   @Test
@@ -245,13 +180,13 @@ public class ResourceCacheImplTest {
     String fileName = "10bytes.txt";
     simulateAddFileToCacheDir(fileName);
     String cachedResourceMetacardKey = "keyA1";
-    String cachedResourceFilePath = defaultProductCacheDirectory + File.separator + fileName;
-    File cachedResourceFile = new File(cachedResourceFilePath);
+    Path cachedResourceFilePath = Paths.get(defaultProductCacheDirectory.toString(), fileName);
+    File cachedResourceFile = cachedResourceFilePath.toFile();
     assertTrue(cachedResourceFile.exists());
 
     ReliableResource cachedResource =
         new ReliableResource(
-            cachedResourceMetacardKey, cachedResourceFilePath, null, null, metacard);
+            cachedResourceMetacardKey, cachedResourceFilePath.toString(), null, null, metacard);
     resourceCache.validateCacheEntry(cachedResource, metacard1);
     assertFalse(cachedResourceFile.exists());
   }
@@ -292,13 +227,17 @@ public class ResourceCacheImplTest {
     String fileName = "10bytes.txt";
     simulateAddFileToCacheDir(fileName);
     String cachedResourceMetacardKey = "keyA1";
-    String cachedResourceFilePath = defaultProductCacheDirectory + File.separator + fileName;
-    File cachedResourceFile = new File(cachedResourceFilePath);
+    Path cachedResourceFilePath = Paths.get(defaultProductCacheDirectory.toString(), fileName);
+    File cachedResourceFile = cachedResourceFilePath.toFile();
     assertTrue(cachedResourceFile.exists());
 
     resourceCache.put(
         new ReliableResource(
-            cachedResourceMetacardKey, cachedResourceFilePath, null, "name", cachedMetacard));
+            cachedResourceMetacardKey,
+            cachedResourceFilePath.toString(),
+            null,
+            "name",
+            cachedMetacard));
     assertFalse(resourceCache.containsValid(cachedResourceMetacardKey, latestMetacard));
     assertFalse(cachedResourceFile.exists());
   }
@@ -421,16 +360,16 @@ public class ResourceCacheImplTest {
 
   private ReliableResource createCachedResource(Metacard metacard) {
     String fileName = "15bytes.txt";
-    String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
+    String productLocation = this.getClass().getResource("/" + fileName).getFile();
     File rrCachedFile = new File(productLocation);
     return new ReliableResource(
         CACHED_RESOURCE_KEY, rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
   }
 
   private void simulateAddFileToCacheDir(String fileName) throws IOException {
-    String originalFilePath =
-        Paths.get(System.getProperty("user.dir"), "src", "test", "resources", fileName).toString();
-    String destinationFilePath = Paths.get(defaultProductCacheDirectory, fileName).toString();
+    String originalFilePath = this.getClass().getResource("/" + fileName).getFile();
+    String destinationFilePath =
+        Paths.get(defaultProductCacheDirectory.toString(), fileName).toString();
     FileUtils.copyFile(new File(originalFilePath), new File(destinationFilePath));
   }
 

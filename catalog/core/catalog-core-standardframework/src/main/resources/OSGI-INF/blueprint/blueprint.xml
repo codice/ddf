@@ -22,7 +22,7 @@
         <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+    <ext:property-placeholder />
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -45,11 +45,8 @@
     </reference-list>
 
     <bean id="deprecatedProductCache" class="ddf.catalog.cache.impl.ResourceCacheImpl"
-          init-method="setupCache"
           destroy-method="teardownCache">
-        <property name="productCacheDirectory" value=""/>
-        <property name="context" ref="blueprintBundleContext"/>
-        <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
+        <argument value="${ddf.home}/data/Product_Cache"/>
     </bean>
 
     <bean id="productCache" class="org.codice.ddf.catalog.resource.cache.impl.ResourceCacheImpl">
