@@ -1456,7 +1456,7 @@ public class CswEndpoint implements Csw {
     CswRecordCollection cswRecordCollection = new CswRecordCollection();
     cswRecordCollection.setResource(resource);
     cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
-    LOGGER.debug("{} successfully retrieved product for ID: {}", id);
+    LOGGER.debug("Successfully retrieved product for ID: {}", id);
     return cswRecordCollection;
   }
 
