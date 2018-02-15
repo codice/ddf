@@ -78,7 +78,8 @@ module.exports = Backbone.AssociatedModel.extend({
     }],
     initialize: function() {
         this.set('query', new Query.Model({
-            cql: generateCql(this.get('list.bookmarks'))
+            cql: generateCql(this.get('list.bookmarks')),
+            federation: 'enterprise'
         }));
         this.listenTo(this, 'update:list.bookmarks change:list.bookmarks', this.updateQuery);
     },
