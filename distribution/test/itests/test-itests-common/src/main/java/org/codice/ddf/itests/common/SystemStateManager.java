@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -81,7 +82,7 @@ public class SystemStateManager {
     return instance;
   }
 
-  public void setSystemBaseState(Runnable runnable, boolean overwrite) throws Exception {
+  public void setSystemBaseState(Runnable runnable, boolean overwrite) {
     if (overwrite || !stateInitiallized) {
       runnable.run();
       captureSystemState();
@@ -89,7 +90,7 @@ public class SystemStateManager {
     }
   }
 
-  public void waitForSystemBaseState() throws Exception {
+  public void waitForSystemBaseState() {
     if (stateInitiallized) {
       resetSystem();
     } else {
@@ -104,7 +105,7 @@ public class SystemStateManager {
       // reset the features
       List<String> currentFeatures =
           Arrays.stream(features.listInstalledFeatures())
-              .map(e -> e.getName())
+              .map(Feature::getName)
               .collect(Collectors.toList());
       List<String> featuresToStart =
           baseFeatures
@@ -121,22 +122,7 @@ public class SystemStateManager {
         serviceManager.startFeature(false, feature);
       }
       serviceManager.waitForAllBundles();
-      // we try a couple of times here because some features might not stop the first time
-      // due to dependencies
-      List<String> stoppedFeatures = new ArrayList<>();
-      for (int i = 0; i < FEATURE_STOP_RETRY_COUNT; i++) {
-        stoppedFeatures.clear();
-        for (String feature : featuresToStop) {
-          LOGGER.debug("Stopping feature {}", feature);
-          try {
-            serviceManager.stopFeature(false, feature);
-            stoppedFeatures.add(feature);
-          } catch (Exception e) {
-            LOGGER.debug("Failed to stop feature {}", feature);
-          }
-        }
-        featuresToStop.removeAll(stoppedFeatures);
-      }
+      stopFeatures(featuresToStop);
       serviceManager.waitForAllBundles();
 
       // reset the configurations
@@ -186,6 +172,25 @@ public class SystemStateManager {
     }
   }
 
+  private void stopFeatures(List<String> featuresToStop) {
+    // we try a couple of times here because some features might not stop the first time
+    // due to dependencies
+    List<String> stoppedFeatures = new ArrayList<>();
+    for (int i = 0; i < FEATURE_STOP_RETRY_COUNT; i++) {
+      stoppedFeatures.clear();
+      for (String feature : featuresToStop) {
+        LOGGER.debug("Stopping feature {}", feature);
+        try {
+          serviceManager.stopFeature(false, feature);
+          stoppedFeatures.add(feature);
+        } catch (Exception e) {
+          LOGGER.debug("Failed to stop feature {}", feature);
+        }
+      }
+      featuresToStop.removeAll(stoppedFeatures);
+    }
+  }
+
   private boolean propertiesMatch(
       Dictionary<String, Object> dictionary1, Dictionary<String, Object> dictionary2) {
     if (dictionary1.size() != dictionary2.size()) {
@@ -212,7 +217,7 @@ public class SystemStateManager {
     try {
       baseFeatures =
           Arrays.stream(features.listInstalledFeatures())
-              .map(e -> e.getName())
+              .map(Feature::getName)
               .collect(Collectors.toList());
       Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
       for (Configuration config : configs) {
