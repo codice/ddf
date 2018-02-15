@@ -135,7 +135,8 @@ define([
                               value: '*',
                               property: '"metacard-tags"'
                           }]
-                        })
+                        }),
+                        federation: 'enterprise'
                     });
                     if (metacardInstance.get('currentQuery')){
                         metacardInstance.get('currentQuery').cancelCurrentSearches();
@@ -168,7 +169,8 @@ define([
                                         property: '"id"'
                                     };
                                 })
-                            })
+                            }),
+                            federation: 'enterprise'
                         });
                         if (alertInstance.get('currentQuery')){
                             alertInstance.get('currentQuery').cancelCurrentSearches();
@@ -214,7 +216,8 @@ define([
                                     value: '-1',
                                     property: '"id"'
                                 })
-                            })
+                            }),
+                            federation: 'enterprise'
                         });
                         if (uploadInstance.get('currentQuery')){
                             uploadInstance.get('currentQuery').cancelCurrentSearches();
