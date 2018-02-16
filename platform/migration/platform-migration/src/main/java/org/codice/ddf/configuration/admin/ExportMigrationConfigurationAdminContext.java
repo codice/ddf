@@ -47,6 +47,8 @@ public class ExportMigrationConfigurationAdminContext {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ExportMigrationConfigurationAdminContext.class);
 
+  private static final Path ADMIN_PATH = Paths.get("admin");
+
   private final ExportMigrationContext context;
 
   private final ConfigurationAdminMigratable admin;
@@ -170,8 +172,8 @@ public class ExportMigrationConfigurationAdminContext {
       path = constructPathForBasename(configuration);
     }
     // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under
-    // etc
-    return Paths.get("etc").resolve(path.getFileName());
+    // admin in the exported file
+    return ExportMigrationConfigurationAdminContext.ADMIN_PATH.resolve(path.getFileName());
   }
 
   private Path constructPathForBasename(Configuration configuration) {
