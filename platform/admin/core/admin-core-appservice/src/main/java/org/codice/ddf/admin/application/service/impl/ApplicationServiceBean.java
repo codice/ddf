@@ -373,6 +373,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                     returnValues.add(service);
                     break;
                   }
+                } else if (checkForMetaTypesForService(metatypeInformation, service)) {
+                  returnValues.add(service);
+                  break;
                 }
               }
             } else {
