@@ -95,7 +95,7 @@ If LDAP has been configured then the admin user and password for the above comma
 Note the `"value":true` field: if it is false, then the replication is still in progress or the logs should be consulted to see if there was an issue establishing a connection between the live and backup servers.
 ====
 
-Additionally, for more details about the health of the cluster, the following command can be run using curl or a ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22,component=cluster-connections,name=%22my-cluster%22/Topology[browser].
+Additionally, for more details about the health of the cluster, the following command can be run using curl or a \${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22,component=cluster-connections,name=%22my-cluster%22/Topology[browser].
 
 .Server Health Status Command
 [source]

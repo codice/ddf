@@ -11,7 +11,7 @@ The Catalog REST Endpoint allows clients to perform CRUD operations on the Cata
 
 The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
 
-The URL exposing the REST functionality is located at ${secure_url}/services/catalog.
+The URL exposing the REST functionality is located at \${secure_url}/services/catalog.
 
 ===== Installing the Catalog REST Endpoint
 
@@ -164,7 +164,7 @@ ${public_url}/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
 [TIP]
 ====
 Transforms also work on read operations for metacards in federated sources.
-${secure_url}/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
+\${secure_url}/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
 ====
 
 See <<_metacard_transformers,Metacard Transformers>> for details on metacard transformers.

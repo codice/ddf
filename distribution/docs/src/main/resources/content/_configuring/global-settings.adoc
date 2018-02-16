@@ -435,7 +435,7 @@ Thumbs.db
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
-For example, the url for the local csw service (${secure_url}/services/csw) could be defined as:
+For example, the url for the local csw service (\${secure_url}/services/csw) could be defined as:
 
 [source]
 ----

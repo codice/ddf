@@ -295,8 +295,8 @@ Behind the scenes, the ${branding} Search UI invokes the REST endpoint to retrie
 
 In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.
 This allows the CometD server to know which subscriber is interested in the notification.
-For example, `${secure_url}/services/catalog/sources/${branding-lowercase}.distribution/2f5db9e5131444279a1293c541c106cd?
-  transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55` notifications contain the following information:
+For example, \${secure_url}/services/catalog/sources/${branding-lowercase}.distribution/2f5db9e5131444279a1293c541c106cd?
+  transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
 
 .[[_notification_contents]]Notification Contents
 [cols="1m,3,1" options="header"]

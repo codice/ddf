@@ -16,7 +16,7 @@ The ${ddf-geowebcache} application is currently in an EXPERIMENTAL status and sh
 ${ddf-geowebcache} enables a server providing a tile cache and tile service aggregation.
 See (http://geowebcache.org[GeoWebCache]) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
-GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at ${secure_url}/geowebcache/.
+GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at \${secure_url}/geowebcache/.
 
 ===  ${ddf-geowebcache} Application Prerequisites
 
@@ -104,7 +104,7 @@ Add layers to the local cache:
 
 Storage usage for a GeoWebCache server is managed by a `diskquota.xml` file with configuration details to prevent image-intensive data from filling the available storage.
 
-To view the disk quota XML representative: ${secure_url}/geowebcache/rest/diskquota.xml
+To view the disk quota XML representative: \${secure_url}/geowebcache/rest/diskquota.xml
 
 To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d ${at-symbol}diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
 
