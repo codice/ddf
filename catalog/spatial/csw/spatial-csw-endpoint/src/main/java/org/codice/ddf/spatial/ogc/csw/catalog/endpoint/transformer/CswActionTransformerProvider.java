@@ -11,26 +11,19 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.common.transaction;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-/** Contains attributes shared by the concrete CSW transaction action classes. */
-public abstract class CswAction {
+import java.util.Optional;
+import javax.annotation.Nullable;
 
-  protected String typeName;
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>Manages a reference list of {@link CswActionTransformer}'s by mapping them to the typenames
+ * they apply to.
+ */
+public interface CswActionTransformerProvider {
 
-  // This gets used in case of exception
-  protected String handle;
-
-  public CswAction(String typeName, String handle) {
-    this.typeName = typeName;
-    this.handle = handle;
-  }
-
-  public String getTypeName() {
-    return typeName;
-  }
-
-  public String getHandle() {
-    return handle;
-  }
+  Optional<CswActionTransformer> getTransformer(@Nullable String typeName);
 }

@@ -111,6 +111,17 @@
                             ref="inputTransformers"/>
     </reference-list>
 
+    <reference-list id="cswActionTransformers"
+      interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer"
+      availability="optional">
+        <reference-listener bind-method="bind"
+          unbind-method="unbind"
+          ref="cswActionTransformerProvider"/>
+    </reference-list>
+
+    <bean id="cswActionTransformerProvider"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
+
     <bean id="cswExceptionMapperProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
     <bean id="cswRecordCollectionWriter"
@@ -140,6 +151,7 @@
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
         <argument ref="inputTransformerManager"/>
+        <argument ref="cswActionTransformerProvider"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
     </bean>

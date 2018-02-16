@@ -44,13 +44,16 @@ import javax.xml.stream.XMLStreamReader;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 
 public class TransactionRequestConverter implements Converter {
@@ -160,7 +163,9 @@ public class TransactionRequestConverter implements Converter {
           // move back up to the <SearchResults> parent of the <csw:Record> tags
           reader.moveUp();
         }
-        cswTransactionRequest.getInsertActions().add(new InsertAction(typeName, handle, metacards));
+        cswTransactionRequest
+            .getInsertActions()
+            .add(new InsertActionImpl(typeName, handle, metacards));
       } else if (reader.getNodeName().contains("Delete")) {
         XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);
 
@@ -176,7 +181,7 @@ public class TransactionRequestConverter implements Converter {
 
         cswTransactionRequest
             .getDeleteActions()
-            .add(new DeleteAction(deleteType, prefixToUriMappings));
+            .add(new DeleteActionImpl(deleteType, prefixToUriMappings));
       } else if (reader.getNodeName().contains("Update")) {
         XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);
         UpdateAction updateAction = parseUpdateAction(reader, context);
@@ -304,7 +309,7 @@ public class TransactionRequestConverter implements Converter {
         }
 
         updateAction =
-            new UpdateAction(
+            new UpdateActionImpl(
                 cswRecordPropertiesWithMetacardAttributes,
                 typeName,
                 handle,
@@ -319,7 +324,7 @@ public class TransactionRequestConverter implements Converter {
       Metacard metacard =
           (Metacard) context.convertAnother(null, MetacardImpl.class, delegatingTransformer);
 
-      updateAction = new UpdateAction(metacard, typeName, handle);
+      updateAction = new UpdateActionImpl(metacard, typeName, handle);
       // Move back to the <Update>.
       reader.moveUp();
     }
