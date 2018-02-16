@@ -57,4 +57,12 @@ public class DynamicRouteDeployerTest {
     verify(dynamicRouteDeployer, times(1)).install(testFile);
     verify(dynamicRouteDeployer, times(1)).uninstall(testFile);
   }
+
+  @Test
+  public void testCanHandle() throws Exception {
+    DynamicRouteDeployer dynamicRouteDeployer = mock(DynamicRouteDeployer.class);
+    doCallRealMethod().when(dynamicRouteDeployer).canHandle(any(File.class));
+    File testRoute = new File(this.getClass().getResource("/test-route.xml").toURI());
+    assertThat(dynamicRouteDeployer.canHandle(testRoute), is(Boolean.TRUE));
+  }
 }
