@@ -57,6 +57,8 @@ public class ImportMigrationConfigurationAdminContext {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationConfigurationAdminContext.class);
 
+  private static final Path ETC_PATH = Paths.get("etc");
+
   private final ImportMigrationContext context;
 
   private final ConfigurationAdminMigratable admin;
@@ -226,7 +228,7 @@ public class ImportMigrationConfigurationAdminContext {
     }
     // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under
     // etc
-    return Paths.get("etc").resolve(path.getFileName());
+    return ImportMigrationConfigurationAdminContext.ETC_PATH.resolve(path.getFileName());
   }
 
   private Dictionary<String, Object> readProperties(
