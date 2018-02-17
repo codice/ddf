@@ -86,4 +86,17 @@ public class KarafConsole extends KarafTestSupport {
   public String runCommand(String command) {
     return executeCommand(command, DEFAULT_ROLES);
   }
+
+  /**
+   * Runs a shell command and returns output as a String. The command will timeout after the
+   * supplied timeout (in milliseconds). Uses the DEFAULT_ROLES to execute the command as an
+   * administrator.
+   *
+   * @param command command to execute. Cannot be {@code null}.
+   * @param timeout command timeout in milliseconds.
+   * @return command output. Can be empty but not {@code null}.
+   */
+  public String runCommand(String command, long timeout) {
+    return executeCommand(command, timeout, false, DEFAULT_ROLES);
+  }
 }
