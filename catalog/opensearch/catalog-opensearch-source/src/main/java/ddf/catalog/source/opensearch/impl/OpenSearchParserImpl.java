@@ -26,8 +26,11 @@ import ddf.security.assertion.SecurityAssertion;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.format.DateTimeFormatter;
@@ -44,8 +47,19 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final String START_INDEX = "start";
 
-  // geospatial constants
-  private static final double RADIUS_OF_THE_EARTH_IN_METERS = 6371000;
+  // constants for Vincenty's formula
+  // length of semi-major axis of the Earth (radius at equator) = 6378137.0 metres in WGS-84
+  private static final double LENGTH_OF_SEMI_MAJOR_AXIS_IN_METERS = 6378137.0;
+
+  // flattening of the Earth = 1/298.257223563 in WGS-84
+  private static final double FLATTENING = 1 / 298.257223563;
+
+  // length of semi-minor axis of the Earth (radius at the poles) = 6356752.314245 meters in WGS-84
+  private static final double LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS =
+      (1 - FLATTENING) * LENGTH_OF_SEMI_MAJOR_AXIS_IN_METERS;
+
+  private static final int MAXIMUM_VINCENTYS_FORMULA_ITERATIONS = 100;
+  // end constants for Vincenty's formula
 
   private static final double MAX_LAT = 90;
 
@@ -55,9 +69,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final double MIN_LON = -180;
 
-  private static final double MAX_ROTATION = MAX_LON - MIN_LON;
-
-  private static final Integer MAX_BBOX_POINTS = 4;
+  private static final double FULL_LON_ROTATION = MAX_LON - MIN_LON;
 
   private static final String ORDER_ASCENDING = "asc";
 
@@ -222,14 +234,20 @@ public class OpenSearchParserImpl implements OpenSearchParser {
         lat = latLon[1];
         radiusStr = Double.toString(radius);
         if (shouldConvertToBBox) {
-          double[] bboxCoords =
+          final Optional<double[]> bboxCoords =
               createBBoxFromPointRadius(Double.parseDouble(lon), Double.parseDouble(lat), radius);
-          for (int i = 0; i < MAX_BBOX_POINTS; i++) {
-            if (i > 0) {
-              bbox.append(",");
-            }
-            bbox.append(bboxCoords[i]);
+
+          if (bboxCoords.isPresent()) {
+            bbox.append(createBboxParamString(bboxCoords.get()));
+          } else {
+            LOGGER.debug(
+                "Unable to calculate a bounding box for lon={} degrees, lat={} degrees, search radius={} meters. Not including {} parameter in search.",
+                lon,
+                lat,
+                radius,
+                GEO_BBOX);
           }
+
           lon = "";
           lat = "";
           radiusStr = "";
@@ -261,13 +279,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       if (wktStr.contains("POLYGON")) {
         String[] polyAry = createPolyAryFromWKT(wktStr);
         if (shouldConvertToBBox) {
-          double[] bboxCoords = createBBoxFromPolygon(polyAry);
-          for (int i = 0; i < MAX_BBOX_POINTS; i++) {
-            if (i > 0) {
-              bbox.append(",");
-            }
-            bbox.append(bboxCoords[i]);
-          }
+          bbox.append(createBboxParamString(createBBoxFromPolygon(polyAry)));
         } else {
           for (int i = 0; i < polyAry.length - 1; i += 2) {
             if (i != 0) {
@@ -338,50 +350,114 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   /**
    * Takes in a point radius search and converts it to a (rough approximation) bounding box using
-   * the haversine formula and a spherical approximation of the Earth.
+   * Vincenty's formula (direct) and the WGS-84 approximation of the Earth.
    *
-   * @param lon latitude in decimal degrees (WGS-84)
-   * @param lat longitude in decimal degrees (WGS-84)
-   * @param radius search radius, in meters
-   * @return Array of bounding box coordinates in the following order: West South East North. Also
-   *     described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is the
-   *     Y-axis).
+   * @param lonInDegrees longitude in decimal degrees (WGS-84)
+   * @param latInDegrees longitude in decimal degrees (WGS-84)
+   * @param searchRadiusInMeters search radius in meters
+   * @return optional array of bounding box coordinates in the following order: West South East
+   *     North. Also described as minX, minY, maxX, maxY (where longitude is the X-axis, and
+   *     latitude is the Y-axis). Returns {@link Optional#empty()} if unable to calculate a bounding
+   *     box.
    */
-  private static double[] createBBoxFromPointRadius(
-      final double lon, final double lat, final double radius) {
-    double minX;
-    double minY;
-    double maxX;
-    double maxY;
+  private static Optional<double[]> createBBoxFromPointRadius(
+      final double lonInDegrees, final double latInDegrees, final double searchRadiusInMeters) {
+    final double latDifferenceInDegrees =
+        Math.toDegrees(searchRadiusInMeters / LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS);
 
-    final double latDifference = Math.toDegrees(radius / RADIUS_OF_THE_EARTH_IN_METERS);
-    final double lonDifference =
-        Math.toDegrees(
-            Math.asin(
-                Math.sin(radius / RADIUS_OF_THE_EARTH_IN_METERS) / Math.cos(Math.toRadians(lat))));
+    double minLat = latInDegrees - latDifferenceInDegrees; // south
+    double maxLat = latInDegrees + latDifferenceInDegrees; // north
 
-    minY = lat - latDifference;
-    maxY = lat + latDifference;
+    double minLon; // west
+    double maxLon; // east
 
-    if (minY > MIN_LAT && maxY < MAX_LAT) {
-      minX = lon - lonDifference;
-      if (minX < MIN_LON) {
-        minX += MAX_ROTATION;
+    if (minLat > MIN_LAT && maxLat < MAX_LAT) {
+      final double latInRadians = Math.toRadians(latInDegrees);
+
+      final double tanU1 = (1 - FLATTENING) * Math.tan(latInRadians);
+      final double cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1));
+      final double sigma1 = Math.atan2(tanU1, 0);
+      final double cosSquaredAlpha = 1 - cosU1 * cosU1;
+      final double uSq =
+          cosSquaredAlpha
+              * (LENGTH_OF_SEMI_MAJOR_AXIS_IN_METERS * LENGTH_OF_SEMI_MAJOR_AXIS_IN_METERS
+                  - LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS * LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS)
+              / (LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS * LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS);
+      final double A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+      final double B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+
+      double cos2sigmaM;
+      double sinSigma;
+      double cosSigma;
+      double deltaSigma;
+
+      double sigma = searchRadiusInMeters / (LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS * A);
+      double oldSigma;
+
+      int iterationCount = 0;
+      do {
+        if (iterationCount > MAXIMUM_VINCENTYS_FORMULA_ITERATIONS) {
+          LOGGER.debug(
+              "Vincenty's formula failed to converge after {} iterations.",
+              MAXIMUM_VINCENTYS_FORMULA_ITERATIONS);
+          return Optional.empty();
+        }
+
+        cos2sigmaM = Math.cos(2 * sigma1 + sigma);
+        sinSigma = Math.sin(sigma);
+        cosSigma = Math.cos(sigma);
+        deltaSigma =
+            B
+                * sinSigma
+                * (cos2sigmaM
+                    + B
+                        / 4
+                        * (cosSigma * (-1 + 2 * cos2sigmaM * cos2sigmaM)
+                            - B
+                                / 6
+                                * cos2sigmaM
+                                * (-3 + 4 * sinSigma * sinSigma)
+                                * (-3 + 4 * cos2sigmaM * cos2sigmaM)));
+        oldSigma = sigma;
+        sigma = searchRadiusInMeters / (LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS * A) + deltaSigma;
+
+        iterationCount++;
+      } while (Math.abs(sigma - oldSigma) > 1e-12);
+
+      final double lambda = Math.atan2(sinSigma, cosU1 * cosSigma);
+      final double C =
+          FLATTENING / 16 * cosSquaredAlpha * (4 + FLATTENING * (4 - 3 * cosSquaredAlpha));
+      final double L =
+          lambda
+              - (1 - C)
+                  * FLATTENING
+                  * cosU1
+                  * (sigma
+                      + C
+                          * sinSigma
+                          * (cos2sigmaM + C * cosSigma * (-1 + 2 * cos2sigmaM * cos2sigmaM)));
+
+      final double xDifferenceInDegrees = Math.toDegrees(L);
+
+      minLon = lonInDegrees - xDifferenceInDegrees;
+      if (minLon < MIN_LON) {
+        minLon += FULL_LON_ROTATION;
       }
 
-      maxX = lon + lonDifference;
-      if (maxX > MAX_LON) {
-        maxX -= MAX_ROTATION;
+      maxLon = lonInDegrees + xDifferenceInDegrees;
+      if (maxLon > MAX_LON) {
+        maxLon -= FULL_LON_ROTATION;
       }
     } else {
       // The search area overlaps one of the poles.
-      minY = Math.max(minY, MIN_LAT);
-      maxY = Math.min(maxY, MAX_LAT);
-      minX = MIN_LON;
-      maxX = MAX_LON;
+      minLat = Math.max(minLat, MIN_LAT);
+      maxLat = Math.min(maxLat, MAX_LAT);
+      minLon = MIN_LON;
+      maxLon = MAX_LON;
     }
 
-    return new double[] {minX, minY, maxX, maxY};
+    // west, south, east, north
+    return Optional.of(new double[] {minLon, minLat, maxLon, maxLat});
   }
 
   /**
@@ -401,11 +477,14 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     double maxX = Double.NEGATIVE_INFINITY;
     double maxY = Double.NEGATIVE_INFINITY;
 
-    double curX, curY;
+    double curX;
+    double curY;
     for (int i = 0; i < polyAry.length - 1; i += 2) {
-      LOGGER.debug("polyToBBox: lon - {} lat - {}", polyAry[i], polyAry[i + 1]);
-      curX = Double.parseDouble(polyAry[i]);
-      curY = Double.parseDouble(polyAry[i + 1]);
+      final String lon = polyAry[i];
+      final String lat = polyAry[i + 1];
+      LOGGER.debug("polyToBBox: lon - {} lat - {}", lon, lat);
+      curX = Double.parseDouble(lon);
+      curY = Double.parseDouble(lat);
       if (curX < minX) {
         minX = curX;
       }
@@ -420,6 +499,10 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       }
     }
     return new double[] {minX, minY, maxX, maxY};
+  }
+
+  private static String createBboxParamString(double[] bboxCoords) {
+    return Arrays.stream(bboxCoords).mapToObj(Double::toString).collect(Collectors.joining(","));
   }
 
   private String translateToOpenSearchSort(SortBy ddfSort) {

@@ -18,6 +18,7 @@ import ddf.catalog.impl.filter.SpatialFilter
 import org.apache.cxf.jaxrs.client.WebClient
 import spock.lang.Specification
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresentAndIs
 import static org.hamcrest.Matchers.containsString
 import static org.hamcrest.Matchers.not
 
@@ -27,28 +28,31 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
         given:
         final double searchRadiusInMeters = 804672 // 500 miles
 
-        expect:
-        OpenSearchParserImpl.createBBoxFromPointRadius(lon, lat, searchRadiusInMeters) == [expectedWest, expectedSouth, expectedEast, expectedNorth]
+        when:
+        final bboxCoords = OpenSearchParserImpl.createBBoxFromPointRadius(lon, lat, searchRadiusInMeters)
+
+        then:
+        bboxCoords isPresentAndIs([expectedWest, expectedSouth, expectedEast, expectedNorth] as double[])
 
         where:
-        lon  | lat || expectedWest        | expectedSouth       | expectedEast        | expectedNorth
-        -180 | -90 || -180.0              | -90.0               | 180.0               | -82.76341084722164
-        -180 | 0   || 172.76341084722162  | -7.236589152778366  | -172.76341084722162 | 7.236589152778366
-        -180 | 90  || -180.0              | 82.76341084722164   | 180.0               | 90.0
-        -179 | -89 || -180.0              | -90.0               | 180.0               | -81.76341084722164
-        -179 | 89  || -180.0              | 81.76341084722164   | 180.0               | 90.0
-        -122 | -33 || -130.63841021419668 | -40.236589152778365 | -113.36158978580332 | -25.763410847221635
-        -122 | 33  || -130.63841021419668 | 25.763410847221635  | -113.36158978580332 | 40.236589152778365
-        0    | -90 || -180.0              | -90.0               | 180.0               | -82.76341084722164
-        0    | 0   || -7.236589152778366  | -7.236589152778366  | 7.236589152778366   | 7.236589152778366
-        0    | 90  || -180.0              | 82.76341084722164   | 180.0               | 90.0
-        122  | -33 || 113.36158978580332  | -40.236589152778365 | 130.63841021419668  | -25.763410847221635
-        122  | 33  || 113.36158978580332  | 25.763410847221635  | 130.63841021419668  | 40.236589152778365
-        179  | -89 || -180.0              | -90.0               | 180.0               | -81.76341084722164
-        179  | 89  || -180.0              | 81.76341084722164   | 180.0               | 90.0
-        180  | -90 || -180.0              | -90.0               | 180.0               | -82.76341084722164
-        180  | 0   || 172.76341084722162  | -7.236589152778366  | -172.76341084722162 | 7.236589152778366
-        180  | 90  || -180.0              | 82.76341084722164   | 180.0               | 90.0
+        lon  | lat || expectedWest        | expectedSouth      | expectedEast        | expectedNorth
+        -180 | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
+        -180 | 0   || 172.77150843696975  | -7.25280885791844  | -172.77150843696975 | 7.25280885791844
+        -180 | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
+        -179 | -89 || -180.0              | -90.0              | 180.0               | -81.74719114208156
+        -179 | 89  || -180.0              | 81.74719114208156  | 180.0               | 90.0
+        -122 | -33 || -130.59133613271274 | -40.25280885791844 | -113.40866386728726 | -25.74719114208156
+        -122 | 33  || -130.59133613271274 | 25.74719114208156  | -113.40866386728726 | 40.25280885791844
+        0    | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
+        0    | 0   || -7.228491563030235  | -7.25280885791844  | 7.228491563030235   | 7.25280885791844
+        0    | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
+        122  | -33 || 113.40866386728726  | -40.25280885791844 | 130.59133613271274  | -25.74719114208156
+        122  | 33  || 113.40866386728726  | 25.74719114208156  | 130.59133613271274  | 40.25280885791844
+        179  | -89 || -180.0              | -90.0              | 180.0               | -81.74719114208156
+        179  | 89  || -180.0              | 81.74719114208156  | 180.0               | 90.0
+        180  | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
+        180  | 0   || 172.77150843696975  | -7.25280885791844  | -172.77150843696975 | 7.25280885791844
+        180  | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
     }
 
     def 'create BBox from polygon'() {
@@ -70,15 +74,16 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
                         "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                                 .split(",")))
 
-        then:
+        then: 'URL should contain bbox parameter with the expected west,south,east,north value'
         final String urlStr = webClient.getCurrentURI().toString()
         urlStr containsString(OpenSearchParserImpl.GEO_BBOX)
+        urlStr containsString(expectedBboxParameterString)
 
         where:
-        spatialFilter << [
-                new SpatialDistanceFilter("POINT (1 1)", 1.0),
-                new SpatialDistanceFilter("POINT (122 33)", 1.0),
-                new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))")]
+        spatialFilter                                            || expectedBboxParameterString
+        new SpatialDistanceFilter("POINT (1 1)", 1.0)            || "0.9999910154833372,0.9999909866270258,1.0000089845166629,1.0000090133729742"
+        new SpatialDistanceFilter("POINT (122 33)", 804672)      || "113.40866386728726,25.74719114208156,130.59133613271274,40.25280885791844"
+        new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))") || "1.0,1.0,4.0,4.0"
     }
 
     def 'populate spatial distance filter box invalid SpatialFilter'() {
