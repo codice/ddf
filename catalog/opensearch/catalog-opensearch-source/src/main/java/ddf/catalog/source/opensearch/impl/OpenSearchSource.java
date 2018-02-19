@@ -719,7 +719,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       Collection<ServiceReference<InputTransformer>> transformerReference =
           bundleContext.getServiceReferences(
               InputTransformer.class, "(schema=" + namespaceUri + ")");
-      return bundleContext.getService(transformerReference.iterator().next());
+      if (transformerReference.isEmpty()) {
+        LOGGER.trace("Failed to find Input Transformer by schema : {}", namespaceUri);
+      } else {
+        LOGGER.trace(
+            "Found Input Transformer {} by schema {}",
+            transformerReference.iterator().next().getBundle().getSymbolicName(),
+            namespaceUri);
+        return bundleContext.getService(transformerReference.iterator().next());
+      }
     }
     return null;
   }
