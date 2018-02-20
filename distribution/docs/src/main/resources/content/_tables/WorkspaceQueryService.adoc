@@ -2,7 +2,7 @@
 :id: org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService
 :type: table
 :status: published
-:application: ${catalog-ui}
+:application: ${ddf-ui}
 :summary: Workspace Query Monitor.
 
 .[[org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService]]Workspace Query Monitor

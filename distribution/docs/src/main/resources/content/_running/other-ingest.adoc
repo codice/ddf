@@ -1,0 +1,10 @@
+:title: Other Methods of Ingesting Data
+:type: dataManagement
+:status: published
+:summary: Other methods of ingesting data.
+:parent: Ingesting Data
+:order: 04
+
+== {title}
+
+The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. See <<_available_endpoints, Available Endpoints>> for more information.

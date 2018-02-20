@@ -120,10 +120,15 @@ include::${troubleshooting.file}[]
 
 == Data Management
 
-<#list dataManagements?sort_by("order") as dataManagement>
-<#if (dataManagement.status == "published")>
-include::${dataManagement.file}[]
+<#list dataManagementIntros?sort_by("order") as dataManagementIntro>
+<#if (dataManagementIntro.status == "published")>
+include::${dataManagementIntro.file}[leveloffset=+1]
 
+<#list dataManagements?sort_by("order") as dataManagement>
+<#if (dataManagement.status == "published" && dataManagement.parent == dataManagementIntro.title)>
+include::${dataManagement.file}[leveloffset=+2]
+</#if>
+</#list>
 </#if>
 </#list>
 

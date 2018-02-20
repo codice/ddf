@@ -1,0 +1,19 @@
+:title: Automated Removal of Expired Records
+:type: dataManagement
+:status: published
+:summary: Automated removal of expired records.
+:parent: Removing expired records from the Catalog
+:order: 01
+
+== {title}
+
+By default, the ${branding} runs a scheduled command every 24 hours to remove expired records.
+The command is executed and scheduled by the <<Command Scheduler>>.
+To change the configuration, follow the <<Updating a Scheduled Command>> instructions.
+If an administrator wants to create additional scheduled tasks to remove records from the local Catalog, the administrator can follow the steps provided in the Scheduling a Command section.
+In the Command text field, type the following:
+
+`catalog:removeall --force --expired`
+
+If it is intended to have this run daily, type 86400 for the number of seconds.
+(60 seconds/min x 60 minutes/hr x 24 hours/day = 86400 seconds for one day)
