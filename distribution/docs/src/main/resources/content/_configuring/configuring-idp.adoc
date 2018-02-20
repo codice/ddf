@@ -19,17 +19,22 @@ Install the included IdP implementation.
 
 . Run the command `features:install security-idp` from the ${command-console}.
 
-.Configuring the IdP Server
+.[[_configuring_the_idp_server]]Configuring the IdP Server
 
 . Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *IdP Server*.
-. Click the `+` next to SP Metadata to add a new entry.
-. Populate the new entry:
-.. with an HTTPS URL (https://),
-.. file URL (file:), or
-.. XML block to refer to desired metadata, e.g. (https://localhost:8993/services/saml/sso/metadata)
+. Configure Authentication Request requirements
+.. Disable the *Require Signed AuthnRequests* option to allow processing of authentication requests without signatures.
+. Configure Guest Access:
+.. Disable the *Allow Guest Access* option to disallow a user to authenticate against the IdP with a guest account.
+. Configure SP Metadata:
+.. Select the `+` next to SP Metadata to add a new entry.
+.. Populate the new entry with:
+... an HTTPS URL (https://),
+... a file URL (file:), or
+... an XML block to refer to desired metadata, e.g. (https://localhost:8993/services/saml/sso/metadata)
 
 .IdP Server example.xml
 [source,xml,linenums]
