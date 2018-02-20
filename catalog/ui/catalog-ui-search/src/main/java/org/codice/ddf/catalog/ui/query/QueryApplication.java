@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -57,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
-public class QueryApplication implements SparkApplication {
+public class QueryApplication implements SparkApplication, Function {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
@@ -153,6 +154,33 @@ public class QueryApplication implements SparkApplication {
               mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
           LOGGER.error("Query endpoint failed", e);
         });
+  }
+
+  @Override
+  public Object apply(Object req) {
+    if (!(req instanceof List)) {
+      throw new IllegalArgumentException("params not list");
+    }
+
+    List params = (List) req;
+
+    if (params.size() != 1) {
+      throw new IllegalArgumentException("must pass exactly 1 param");
+    }
+
+    Object param = params.get(0);
+
+    if (!(param instanceof String)) {
+      throw new IllegalArgumentException("param not string");
+    }
+
+    try {
+      CqlRequest cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+      return executeCqlQuery(cqlRequest);
+    } catch (Exception e) {
+      LOGGER.error("Query endpoint failed", e);
+    }
+    return null;
   }
 
   private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)

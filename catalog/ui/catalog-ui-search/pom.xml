@@ -350,7 +350,6 @@
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
                             !sun.reflect,
                             !com.sun.management,
-                            !org.eclipse.jetty.websocket.*,
                             !org.noggit,
                             !commonj.work.*,
                             !oracle.sql.*,

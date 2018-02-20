@@ -247,6 +247,27 @@
         <property name="endpointUtil" ref="endpointUtil" />
     </bean>
 
+    <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
+        <argument>
+            <map>
+                <entry key="query" value-ref="queryApplication" />
+            </map>
+        </argument>
+    </bean>
+
+    <reference id="manager" interface="ddf.security.service.SecurityManager" />
+
+    <bean id="socketServlet" class="org.codice.ddf.catalog.ui.ws.SocketServlet">
+        <argument ref="jsonRpc" />
+        <argument ref="manager" />
+    </bean>
+
+    <service ref="socketServlet" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="urlPatterns" value="/search/catalog/ws" />
+        </service-properties>
+    </service>
+
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.config"
