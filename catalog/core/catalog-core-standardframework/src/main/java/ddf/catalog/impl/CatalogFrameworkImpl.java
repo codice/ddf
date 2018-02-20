@@ -20,7 +20,7 @@ import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.impl.operations.CreateOperations;
@@ -142,10 +142,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     Bundle bundle = FrameworkUtil.getBundle(CatalogFrameworkImpl.class);
     if (bundle != null && bundle.getBundleContext() != null) {
       Dictionary<String, Object> properties = new DictionaryMap<>();
-      properties.put("name", BasicTypes.BASIC_METACARD.getName());
+      properties.put("name", MetacardImpl.BASIC_METACARD.getName());
       bundle
           .getBundleContext()
-          .registerService(MetacardType.class, BasicTypes.BASIC_METACARD, properties);
+          .registerService(MetacardType.class, MetacardImpl.BASIC_METACARD, properties);
     }
   }
 

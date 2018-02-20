@@ -18,7 +18,6 @@ import static org.mockito.Mockito.mock;
 
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.resource.ResourceReader;
@@ -91,7 +90,6 @@ public class DownloadsStatusEventListenerTest {
     testMetacard.setId("easyas123");
     testMetacard.setResourceURI(downloadFile.toURI());
     testMetacard.setResourceSize("125");
-    testMetacard.setType(BasicTypes.BASIC_METACARD);
     URLResourceReader testURLResourceReader = new URLResourceReader();
     testURLResourceReader.setRootResourceDirectories(
         new HashSet<String>(Arrays.asList(new String[] {System.getProperty("user.dir")})));

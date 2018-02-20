@@ -13,7 +13,6 @@
  */
 package ddf.catalog.impl;
 
-import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
@@ -528,7 +527,7 @@ public class CatalogFrameworkImplTest {
     final String title = "Create";
     final String injectAttributeName = "new attribute";
     final double injectAttributeValue = 2;
-    final MetacardImpl originalMetacard = new MetacardImpl(BASIC_METACARD);
+    final MetacardImpl originalMetacard = new MetacardImpl();
     originalMetacard.setTitle(title);
     originalMetacard.setAttribute(injectAttributeName, injectAttributeValue);
     final List<Metacard> metacards = Collections.singletonList(originalMetacard);
@@ -568,29 +567,29 @@ public class CatalogFrameworkImplTest {
   private List<Metacard> getMetacards(String title, Date expiration) {
     List<Metacard> metacards = new ArrayList<>();
 
-    MetacardImpl basicMetacardHasBoth = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl basicMetacardHasBoth = new MetacardImpl();
     basicMetacardHasBoth.setId("1");
     basicMetacardHasBoth.setTitle(title);
     basicMetacardHasBoth.setExpirationDate(expiration);
     metacards.add(basicMetacardHasBoth);
 
-    MetacardImpl basicMetacardHasTitle = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl basicMetacardHasTitle = new MetacardImpl();
     basicMetacardHasTitle.setId("2");
     basicMetacardHasTitle.setTitle(title);
     metacards.add(basicMetacardHasTitle);
 
-    MetacardImpl basicMetacardHasExpiration = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl basicMetacardHasExpiration = new MetacardImpl();
     basicMetacardHasExpiration.setId("3");
     basicMetacardHasExpiration.setExpirationDate(expiration);
     metacards.add(basicMetacardHasExpiration);
 
-    MetacardImpl basicMetacardHasNeither = new MetacardImpl(BasicTypes.BASIC_METACARD);
+    MetacardImpl basicMetacardHasNeither = new MetacardImpl();
     basicMetacardHasNeither.setId("4");
     metacards.add(basicMetacardHasNeither);
 
     MetacardType customMetacardType =
         new MetacardTypeImpl(
-            CUSTOM_METACARD_TYPE_NAME, BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+            CUSTOM_METACARD_TYPE_NAME, MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
     MetacardImpl customMetacardHasNeither = new MetacardImpl(customMetacardType);
     customMetacardHasNeither.setId("5");
     metacards.add(customMetacardHasNeither);
@@ -2360,7 +2359,7 @@ public class CatalogFrameworkImplTest {
     SourcePoller mockPoller = mock(SourcePoller.class);
     when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
-    MetacardImpl metacard = new MetacardImpl(BASIC_METACARD);
+    MetacardImpl metacard = new MetacardImpl();
     metacard.setId(metacardId);
     metacard.setResourceURI(metacardUri);
     Result result = new ResultImpl(metacard);

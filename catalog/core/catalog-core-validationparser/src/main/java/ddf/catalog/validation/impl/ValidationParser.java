@@ -25,6 +25,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
@@ -320,7 +321,7 @@ public class ValidationParser implements ArtifactInstaller {
     BundleContext context = getBundleContext();
     for (Outer.MetacardType metacardType : metacardTypes) {
       Set<AttributeDescriptor> attributeDescriptors =
-          new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+          new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
       Set<String> requiredAttributes = new HashSet<>();
 
       metacardType.attributes.forEach(

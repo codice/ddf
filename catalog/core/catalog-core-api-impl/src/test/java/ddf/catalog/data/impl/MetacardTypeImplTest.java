@@ -13,7 +13,7 @@
  */
 package ddf.catalog.data.impl;
 
-import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;

@@ -51,7 +51,7 @@ For example, an image may have different attributes than a PDF document, so each
 ===== Default Metacard Type and Attributes
 
 Most metacards within the system are created using the default metacard type or a metacard type based on the default type.
-The default metacard type of the system can be programmatically retrieved by calling `ddf.catalog.data.BasicTypes.BASIC_METACARD`.
+The default metacard type of the system can be programmatically retrieved by calling `ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD`.
 The name of the default `MetacardType` can be retrieved from `ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME`.
 
 The default metacard type has the following required attributes.

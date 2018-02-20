@@ -14,7 +14,7 @@
 package ddf.catalog.transformer.xml.adapter;
 
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -54,8 +54,8 @@ public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
 
     if (StringUtils.isEmpty(typeName)
         || CollectionUtils.isEmpty(types)
-        || typeName.equals(BasicTypes.BASIC_METACARD.getName())) {
-      return BasicTypes.BASIC_METACARD;
+        || typeName.equals(MetacardImpl.BASIC_METACARD.getName())) {
+      return MetacardImpl.BASIC_METACARD;
     }
 
     LOGGER.debug("Searching through registerd metacard types {} for '{}'.", types, typeName);
@@ -68,8 +68,8 @@ public class MetacardTypeAdapter extends XmlAdapter<String, MetacardType> {
     LOGGER.debug(
         "Metacard type '{}' is not registered.  Using metacard type of '{}'.",
         typeName,
-        BasicTypes.BASIC_METACARD.getName());
+        MetacardImpl.BASIC_METACARD.getName());
 
-    return BasicTypes.BASIC_METACARD;
+    return MetacardImpl.BASIC_METACARD;
   }
 }

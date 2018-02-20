@@ -45,7 +45,6 @@ import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -118,7 +117,7 @@ public class HistorianTest {
 
     historian.setFilterBuilder(new GeotoolsFilterBuilder());
 
-    historian.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+    historian.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
 
     Security security = mock(Security.class);
     Subject subject = mock(MockSubject.class);

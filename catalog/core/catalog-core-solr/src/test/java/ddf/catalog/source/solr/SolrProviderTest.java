@@ -4918,7 +4918,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
               Library.getFlagstaffRecord(),
               new MetacardTypeImpl(
                   "distanceTest",
-                  BasicTypes.BASIC_METACARD,
+                  MetacardImpl.BASIC_METACARD,
                   Sets.newSet(
                       new AttributeDescriptorImpl(
                           attribute, true, true, true, true, BasicTypes.GEO_TYPE))));

@@ -13,7 +13,6 @@
  */
 package ddf.catalog.transformer.input.geojson;
 
-import static ddf.catalog.data.impl.BasicTypes.BASIC_METACARD;
 import static ddf.catalog.data.impl.BasicTypes.DOUBLE_TYPE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
@@ -33,6 +32,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeRegistryImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
@@ -439,12 +439,12 @@ public class GeoJsonExtensibleTest {
     Metacard metacard = transformer.transform(geoJsonInput);
 
     // since no metacard type was specified only the Basic Metacard Type attributes should be
-    // available. These are defined in BasicTypes.BASIC_METACARD
+    // available. These are defined in MetacardImpl.BASIC_METACARD
     // none of the custom attributes defined in SampleMetacardTypeA will be added to the
     // metacard.
     assertEquals(DEFAULT_TITLE, metacard.getTitle());
     assertEquals(DEFAULT_ID, metacard.getId());
-    assertEquals(BASIC_METACARD.getName(), metacard.getMetacardType().getName());
+    assertEquals(MetacardImpl.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
 
     assertEquals(DEFAULT_TEMPERATURE, metacard.getAttribute(TEMPERATURE_KEY).getValue());
 
@@ -482,7 +482,7 @@ public class GeoJsonExtensibleTest {
   }
 
   private List<MetacardType> prepareMetacardTypes() {
-    return Arrays.asList(sampleMetacardTypeA(), sampleMetacardTypeB(), BASIC_METACARD);
+    return Arrays.asList(sampleMetacardTypeA(), sampleMetacardTypeB(), MetacardImpl.BASIC_METACARD);
   }
 
   private void verifyBasics(Metacard metacard) throws ParseException {
@@ -500,7 +500,7 @@ public class GeoJsonExtensibleTest {
     assertEquals(DEFAULT_EFFECTIVE_DATE, dateFormat.format(metacard.getEffectiveDate()));
     assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
     assertEquals(DEFAULT_TEMPERATURE, metacard.getAttribute(TEMPERATURE_KEY).getValue());
-    assertEquals(BASIC_METACARD.getName(), metacard.getMetacardType().getName());
+    assertEquals(MetacardImpl.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
 
     WKTReader reader = new WKTReader();
 

@@ -28,6 +28,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.FileInputStream;
@@ -120,7 +121,7 @@ public class GenericXmlLibTest {
     MetacardType metacardType = delegate.getMetacardType(xmlInputTransformer.getId());
     assertThat(
         metacardType.getAttributeDescriptors(),
-        is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
+        is(MetacardImpl.BASIC_METACARD.getAttributeDescriptors()));
   }
 
   @Test
@@ -133,7 +134,7 @@ public class GenericXmlLibTest {
     MetacardType metacardType = delegate.getMetacardType(xmlInputTransformer.getId());
     assertThat(
         metacardType.getAttributeDescriptors(),
-        is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
+        is(MetacardImpl.BASIC_METACARD.getAttributeDescriptors()));
   }
 
   @Test

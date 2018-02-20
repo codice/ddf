@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
- * must conform to the {@link ddf.catalog.data.impl.BasicTypes#BASIC_METACARD} {@link MetacardType}.
+ * must conform to the {@link ddf.catalog.data.impl.MetacardImpl#BASIC_METACARD} {@link
+ * MetacardType}.
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
