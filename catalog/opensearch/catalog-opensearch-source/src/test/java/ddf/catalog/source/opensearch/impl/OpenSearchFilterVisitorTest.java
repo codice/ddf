@@ -43,7 +43,7 @@ import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TOverlaps;
 
-public class TestOpenSearchFilterVisitor {
+public class OpenSearchFilterVisitorTest {
 
   private static final String WKT_POINT = "POINT(1.0 2.0)";
 
