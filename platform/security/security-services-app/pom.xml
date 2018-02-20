@@ -397,5 +397,10 @@
             <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.idp</groupId>
+            <artifactId>security-idp-plugin-audiencerestriction</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
