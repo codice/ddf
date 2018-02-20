@@ -462,7 +462,7 @@
     <feature name="cxf-http-async" version="${cxf.version}" install="manual">
         <feature version="[3,4)">cxf-http</feature>
         <bundle start-level="40">mvn:org.apache.httpcomponents/httpcore-osgi/${cxf.httpcomponents.core.version}</bundle>
-        <bundle start-level="40">mvn:org.apache.httpcomponents/httpclient-osgi/${cxf.httpcomponents.client.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
         <bundle start-level="40">mvn:org.apache.httpcomponents/httpasyncclient-osgi/${cxf.httpcomponents.asyncclient.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-http-hc/${cxf.version}</bundle>
     </feature>
