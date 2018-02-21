@@ -21,6 +21,15 @@ require('backboneassociations');
 var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus');
 var QueryResultCollection = require('js/model/QueryResult.collection');
 
+let rpc = null
+
+if (window.WebSocket) {
+  const Client = require('rpc-websockets').Client
+  const protocol = { 'http:': 'ws:', 'https:': 'wss:' }
+  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}/search/catalog/ws`
+  rpc = new Client(url)
+}
+
 function generateThumbnailUrl(url) {
     var newUrl = url;
     if (url.indexOf("?") >= 0) {
@@ -75,6 +84,27 @@ module.exports = Backbone.AssociatedModel.extend({
         this.listenTo(this, 'error', this.handleError);
         this.listenTo(this, 'sync', this.handleSync);
         this.resultCountsBySource = {};
+    },
+    sync: function (method, model, options) {
+        let aborted = false;
+        if (rpc !== null) {
+            rpc.call('query', [options.data])
+                .then((...args) => {
+                    if (!aborted) {
+                        options.success(...args);
+                    }
+                })
+                .catch(() => {
+                    if (!aborted) {
+                        Backbone.AssociatedModel.prototype.sync.apply(this, arguments);
+                    }
+                });
+            return {
+              abort: () => { aborted = true; }
+            };
+        } else {
+            return Backbone.AssociatedModel.prototype.sync.apply(this, arguments);
+        }
     },
     handleError: function (resultModel, response, sent) {
         var dataJSON = JSON.parse(sent.data);
