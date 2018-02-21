@@ -131,6 +131,9 @@ define([
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
+            getHitCount: function () {
+                this.startSearch({hitCountOnly: true})
+            },
             startSearch: function (options) {
                 this.set('isOutdated', false);
                 if (this.get('cql') === '') {
@@ -143,6 +146,9 @@ define([
                 this.cancelCurrentSearches();
 
                 var data = Common.duplicate(this.buildSearchData());
+                if (options.hitCountOnly) {
+                    data.count = 0;
+                }
                 var sources = data.src;
                 var initialStatus = sources.map(function (src) {
                     return {
@@ -200,6 +206,7 @@ define([
                 }
 
                 result.set('initiated', Date.now());
+                result.set('hitCountOnly', options.hitCountOnly)
                 result.get('results').fullCollection.sort();
 
                 if (sources.length === 0) {
