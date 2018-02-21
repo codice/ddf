@@ -58,9 +58,6 @@ public class OpenSearchParserImplTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImplTest.class);
 
-  private static final StringBuilder URL =
-      new StringBuilder("http://localhost:8080/services/catalog/query");
-
   private static final String MAX_RESULTS = "2000";
 
   private static final String TIMEOUT = "30000";
@@ -69,141 +66,16 @@ public class OpenSearchParserImplTest {
 
   private OpenSearchParserImpl openSearchParserImpl;
 
+  private WebClient webClient;
+
   @Before
   public void setUp() {
     openSearchParserImpl = new OpenSearchParserImpl();
-  }
-
-  @Test
-  public void populateSpatialDistanceFilterBbox() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialDistanceFilter spatialFilter = new SpatialDistanceFilter("POINT (1 1)", 1.0);
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
-  }
-
-  @Test
-  public void populateSpatialDistanceFilterBboxMin() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialDistanceFilter spatialFilter = new SpatialDistanceFilter("POINT (-211 -211)", 1.0);
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
-  }
-
-  @Test
-  public void populateSpatialDistanceFilterBboxMax() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialDistanceFilter spatialFilter = new SpatialDistanceFilter("POINT (211 211)", 1.0);
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
-  }
-
-  @Test
-  public void populateSpatialDistanceFilterInvalidWktBbox() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialDistanceFilter spatialFilter = new SpatialDistanceFilter("POLYGON (1 1)", 1.0);
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
-  }
-
-  @Test
-  public void populateSpatialFilterInvalidWktBbox() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialFilter spatialFilter = new SpatialFilter("POINT (1 1)");
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
-  }
-
-  @Test
-  public void populateSpatialFilterBbox() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        spatialFilter,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
-  }
-
-  @Test
-  public void populateNullSpatialFilter() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
-    openSearchParserImpl.populateGeospatial(
-        webClient,
-        (SpatialFilter) null,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
+    webClient = WebClient.create("http://www.example.com");
   }
 
   @Test
   public void populateSpatialFilterCaseInsensitiveParameters() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
     openSearchParserImpl.populateGeospatial(
         webClient,
@@ -213,19 +85,14 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,BBOX,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
     assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
   }
 
   @Test
   public void populateSpatialFilterEmptyParameters() throws Exception {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
     openSearchParserImpl.populateGeospatial(webClient, spatialFilter, true, new ArrayList<>());
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
     assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
   }
 
@@ -234,9 +101,6 @@ public class OpenSearchParserImplTest {
     Map<String, String> searchPhraseMap = new HashMap<>();
     searchPhraseMap.put("q", "TestQuery123");
 
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateContextual(
         webClient,
         searchPhraseMap,
@@ -259,9 +123,6 @@ public class OpenSearchParserImplTest {
     Map<String, String> searchPhraseMap = new HashMap<>();
     searchPhraseMap.put("z", "TestQuery123");
 
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateContextual(
         webClient,
         searchPhraseMap,
@@ -270,7 +131,6 @@ public class OpenSearchParserImplTest {
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, not(containsString(searchPhraseMap.get("z"))));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
     try {
       new URL(urlStr);
     } catch (MalformedURLException mue) {
@@ -283,9 +143,6 @@ public class OpenSearchParserImplTest {
   public void populateContextualEmptyMap() {
     Map<String, String> searchPhraseMap = new HashMap<>();
 
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateContextual(
         webClient,
         searchPhraseMap,
@@ -294,7 +151,6 @@ public class OpenSearchParserImplTest {
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, not(containsString("q=")));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
     try {
       new URL(urlStr);
     } catch (MalformedURLException mue) {
@@ -305,9 +161,6 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populateContextualNullMap() {
-    String urlString = URL.toString();
-    assertThat(urlString, containsString(OpenSearchParserImpl.SEARCH_TERMS));
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateContextual(
         webClient,
         null,
@@ -316,7 +169,6 @@ public class OpenSearchParserImplTest {
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, not(containsString("q=")));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
     try {
       new URL(urlStr);
     } catch (MalformedURLException mue) {
@@ -328,7 +180,6 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullContextual() {
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateContextual(
         webClient,
         null,
@@ -344,10 +195,8 @@ public class OpenSearchParserImplTest {
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
     Date start = new Date(System.currentTimeMillis() - 10000000);
     Date end = new Date(System.currentTimeMillis());
-    StringBuilder resultStr = new StringBuilder(URL);
     TemporalFilter temporal = new TemporalFilter(start, end);
 
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateTemporal(
         webClient,
         temporal,
@@ -371,11 +220,11 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(OpenSearchParserImpl.TIME_END));
     assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_NAME)));
     try {
-      new URL(resultStr.toString());
+      new URL(urlStr);
     } catch (MalformedURLException mue) {
       fail("URL is not valid: " + mue.getMessage());
     }
-    LOGGER.info("URL after temporal population: {}", resultStr.toString());
+    LOGGER.info("URL after temporal population: {}", urlStr);
   }
 
   @Test
@@ -384,7 +233,6 @@ public class OpenSearchParserImplTest {
     temporalFilter.setEndDate(null);
     temporalFilter.setStartDate(null);
 
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateTemporal(
         webClient,
         temporalFilter,
@@ -401,7 +249,6 @@ public class OpenSearchParserImplTest {
   @Test
   public void populateNullTemporal() {
 
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateTemporal(
         webClient,
         null,
@@ -420,8 +267,6 @@ public class OpenSearchParserImplTest {
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    WebClient webClient = WebClient.create(URL.toString());
 
     openSearchParserImpl.populateSearchOptions(
         webClient,
@@ -448,8 +293,6 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    WebClient webClient = WebClient.create(URL.toString());
-
     openSearchParserImpl.populateSearchOptions(
         webClient,
         queryRequest,
@@ -474,8 +317,6 @@ public class OpenSearchParserImplTest {
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    WebClient webClient = WebClient.create(URL.toString());
 
     openSearchParserImpl.populateSearchOptions(
         webClient,
@@ -502,8 +343,6 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    WebClient webClient = WebClient.create(URL.toString());
-
     openSearchParserImpl.populateSearchOptions(
         webClient,
         queryRequest,
@@ -526,8 +365,6 @@ public class OpenSearchParserImplTest {
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, null, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    WebClient webClient = WebClient.create(URL.toString());
 
     openSearchParserImpl.populateSearchOptions(
         webClient,
@@ -553,8 +390,6 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, -1000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    WebClient webClient = WebClient.create(URL.toString());
-
     openSearchParserImpl.populateSearchOptions(
         webClient,
         queryRequest,
@@ -578,8 +413,6 @@ public class OpenSearchParserImplTest {
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
-
-    WebClient webClient = WebClient.create(URL.toString());
 
     String principalName = "principalName";
     Subject subject = getMockSubject(principalName);
@@ -610,8 +443,6 @@ public class OpenSearchParserImplTest {
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    WebClient webClient = WebClient.create(URL.toString());
-
     String principalName = "principalName";
     Subject subject = getMockSubject(principalName);
     when(subject.getPrincipals()).thenReturn(null);
@@ -637,7 +468,6 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullSearchOptions() {
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateSearchOptions(
         webClient,
         null,
@@ -661,7 +491,6 @@ public class OpenSearchParserImplTest {
     String expectedStr = "1,1,1,5,5,5,5,1,1,1";
 
     SpatialFilter spatial = new SpatialFilter(wktPolygon);
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateGeospatial(
         webClient,
         spatial,
@@ -679,10 +508,9 @@ public class OpenSearchParserImplTest {
     String lat = "43.25";
     String lon = "-123.45";
     String radius = "10000";
-    String wktPoint = "POINT(" + lon + " " + lat + ")";
+    String wktPoint = "POINT (" + lon + " " + lat + ")";
 
     SpatialDistanceFilter spatial = new SpatialDistanceFilter(wktPoint, radius);
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateGeospatial(
         webClient,
         spatial,
@@ -709,7 +537,6 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullGeospatial() throws Exception {
-    WebClient webClient = WebClient.create(URL.toString());
     openSearchParserImpl.populateGeospatial(
         webClient,
         null,

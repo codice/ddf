@@ -35,7 +35,7 @@
 		
 		key = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'fragment'], // keys available to query
 		
-		aliases = { 'anchor' : 'fragment' }, // aliases for backwards compatability
+		aliases = { 'anchor' : 'fragment' }, // aliases for backwards compatibility
 		
 		parser = {
 			strict : /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,  //less intuitive, more accurate to the specs
