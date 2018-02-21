@@ -19,27 +19,21 @@ Even if a user claim is more restrictive, the guest claim will grant access, so 
 
 === Denying Guest User Access
 
-By default, the Search UI allows guest access as part of the karaf security realm.
 To disable guest access for a context, use the <<_configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to remove *Guest*.
 from the *Authentication Type* for that context.
 Only authorized users are then allowed to continue to the Search UI page.
 
-==== Configuring SOAP Guest Interceptor if Prohibiting Guest Users
-
-* *{hardening-step}*
-
-Uninstall the <<_guest_interceptor,Guest Interceptor>>.
-
-==== Configuring Guest Validator if Prohibiting Guest Users
-
-Uninstall the <<_guest_validator,Guest Validator>>.
+[NOTE]
+====
+If using the included IdP for authentication, disable the `Allow Guest Access` option by <<_configuring_the_idp_server, Configuring the IdP Server>>.
+====
 
 === Allowing Guest User Access
 
 Guest authentication must be enabled and configured to allow guest users.
 Once the guest user is configured, redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
 
-To enable guest authentication for a context, use the <<_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
+To enable guest authentication for a context, use the <<_configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
