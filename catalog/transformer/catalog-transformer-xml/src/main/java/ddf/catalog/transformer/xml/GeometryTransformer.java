@@ -20,7 +20,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.adapter.GeometryAdapter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
@@ -35,7 +34,7 @@ class GeometryTransformer extends AbstractXmlTransformer {
 
   public BinaryContent transform(Attribute attribute) throws CatalogTransformerException {
     ParserConfigurator parserConfigurator =
-        getParserConfigurator().setHandler(new DefaultValidationEventHandler());
+        getParserConfigurator().setHandler(new XmlValidationEventHandler());
 
     try {
       ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
