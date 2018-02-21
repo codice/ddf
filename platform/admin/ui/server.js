@@ -23,6 +23,8 @@ app.use(require('connect-livereload')());
 app.use('/css', express.static(__dirname + '/target/webapp/css'));
 app.use('/', express.static(__dirname + '/target/META-INF/resources/webjars'));
 app.use(express.static(__dirname + '/src/main/webapp'));
+app.use(express.static(__dirname + '/src/main/resources'));
+
 
 //if we're mocking, it is being run by grunt
 console.log('setting up proxy only');

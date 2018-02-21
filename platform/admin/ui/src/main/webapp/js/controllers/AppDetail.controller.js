@@ -38,16 +38,6 @@ define([
                 //load the static ones
                 var staticApplicationPlugins = [
                     new Backbone.Model({
-                        'id': 'detailsApplicationTabID',
-                        'displayName': 'Details',
-                        'javascriptLocation': 'js/views/application/plugins/details/Plugin.view.js'
-                    }),
-                    new Backbone.Model({
-                        'id': 'featuresApplicationTabID',
-                        'displayName': 'Features',
-                        'javascriptLocation': 'js/views/application/plugins/features/Plugin.view.js'
-                    }),
-                    new Backbone.Model({
                         'id': 'configurationApplicationTabID',
                         'displayName': 'Configuration',
                         'javascriptLocation': 'js/views/application/plugins/config/Plugin.view.js'

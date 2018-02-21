@@ -34,7 +34,6 @@ define([
         },
         events: {
             'click .nav-to-applications': 'navToApplications',
-            'click #featureTab': 'getFeatures'
         },
         navToApplications: function(e){
             e.preventDefault();

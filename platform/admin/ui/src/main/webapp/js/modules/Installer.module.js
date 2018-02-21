@@ -58,13 +58,8 @@ define([
 
             // We determine how many steps we need based on if there are any profiles in the stystem.
             AppModule.installerMainController.fetchInstallProfiles().then(function(profiles){
-                if(profiles.isEmpty()){
-                    installerModel.set('showInstallProfileStep', false);
-                    installerModel.setTotalSteps(4);
-                } else {
-                    installerModel.set('showInstallProfileStep', true);
-                    installerModel.setTotalSteps(5);
-                }
+                installerModel.set('showInstallProfileStep', true);
+                installerModel.setTotalSteps(4);
             }).fail(function(error){
                 // fallback: just don't show the install profile steps.
                 installerModel.set('showInstallProfileStep', false);

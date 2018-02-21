@@ -22,9 +22,8 @@ define([
     Application.App.module('Configurations', function(ServiceModule, App) {
 
         require([
-            'js/controllers/App.controller',
             'js/controllers/ModuleDetail.controller'
-        ], function(AppController, ModuleDetailController) {
+        ], function(ModuleDetailController) {
 
             ServiceModule.addInitializer(function(){
 

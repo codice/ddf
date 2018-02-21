@@ -20,14 +20,12 @@ define([
     './Navigation.view.js',
     './Configuration.view.js',
     './GuestClaims.view.js',
-    './Application.view.js',
     './Finish.view.js',
     './Profile.view.js',
     'icanhaz',
     'text!templates/installer/main.handlebars',
-    'js/models/Applications.js',
     'js/application'
-    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, GuestClaimsView, ApplicationView, FinishView,ProfileView, ich, mainTemplate, AppModel, Application) {
+    ], function (Marionette, WelcomeView, NavigationView, ConfigurationView, GuestClaimsView, FinishView,ProfileView, ich, mainTemplate, Application) {
 
     ich.addTemplate('mainTemplate', mainTemplate);
 
@@ -39,7 +37,6 @@ define([
             welcome: '#welcome',
             configuration: '#configuration',
             guestClaims: '#guestClaims',
-            applications: '#applications',
             finish: '#finish',
             profiles: '#profiles',
             navigation: '#navigation'
@@ -51,19 +48,8 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            var welcomeStep = 0, guestClaimsStep = 1, configStep = null, profileStep = null, applicationStep = null, finishStep = null;
-            if(this.model.get('showInstallProfileStep')){
-                // factor in profile step
-                profileStep = guestClaimsStep +1;
-                applicationStep = profileStep +1;
-                configStep = applicationStep +1;
-                finishStep = configStep +1;
-            } else {
-                // no profile step.
-                profileStep = null;
-                applicationStep = guestClaimsStep +1;
-                finishStep = applicationStep +1;
-            }
+            var welcomeStep = 0, guestClaimsStep = 1, profileStep = 2, configStep = 3,  finishStep = 4;
+
             if(this.welcome.currentView && this.model.get('stepNumber') !== welcomeStep) {
                 this.hideWelcome();
             }
@@ -76,9 +62,7 @@ define([
             if(this.profiles.currentView && this.model.get('stepNumber') !== profileStep) {
                 this.hideProfiles();
             }
-            if(this.applications.currentView && this.model.get('stepNumber') !== applicationStep) {
-                this.hideApplications();
-            }
+
             if(this.finish.currentView && this.model.get('stepNumber') !== finishStep) {
                 this.hideFinish();
             }
@@ -91,8 +75,6 @@ define([
                 this.showGuestClaims();
             } else  if(!this.profiles.currentView && this.model.get('stepNumber') === profileStep) {
                 this.showProfiles();
-            } else if(!this.applications.currentView && this.model.get('stepNumber') === applicationStep) {
-                this.showApplications();
             } else if(!this.finish.currentView && this.model.get('stepNumber') >= finishStep) {
                 this.showFinish();
             }
@@ -120,14 +102,6 @@ define([
                 this.guestClaims.show(new GuestClaimsView({navigationModel: this.model}));
             }
             this.$(this.guestClaims.el).show();
-        },
-        showApplications: function() {
-            if(this.applications.currentView) {
-                this.applications.show();
-            } else {
-                this.applications.show(new ApplicationView({navigationModel: this.model, modelClass: AppModel}));
-            }
-            this.$(this.applications.el).show();
         },
         showFinish: function() {
             if(this.finish.currentView) {
@@ -173,10 +147,6 @@ define([
         hideGuestClaims: function() {
             this.guestClaims.close();
             this.$(this.guestClaims.el).hide();
-        },
-        hideApplications: function() {
-            this.applications.close();
-            this.$(this.applications.el).hide();
         },
         hideFinish: function() {
             this.finish.close();
