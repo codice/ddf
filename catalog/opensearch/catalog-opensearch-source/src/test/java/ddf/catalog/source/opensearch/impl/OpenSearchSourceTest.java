@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -103,6 +104,7 @@ public class OpenSearchSourceTest {
   private static final String SAMPLE_ID = "abcdef12345678900987654321fedcba";
 
   private static final String SAMPLE_SEARCH_PHRASE = "foobar";
+
   private static final List<String> DEFAULT_PARAMETERS =
       Arrays.asList(
           "q",
@@ -123,6 +125,11 @@ public class OpenSearchSourceTest {
           "filter",
           "sort");
   private static final FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+
+  private static final String ID_ATTRIBUTE_NAME = Core.ID;
+
+  private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
+
   private final EncryptionService encryptionService = mock(EncryptionService.class);
   private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
@@ -406,7 +413,7 @@ public class OpenSearchSourceTest {
   /** Tests the proper query is sent to the remote source for query by id. */
   @Test
   public void testQueryById() throws UnsupportedQueryException {
-    Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+    Filter filter = filterBuilder.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
 
     // when
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -419,7 +426,8 @@ public class OpenSearchSourceTest {
   public void testQueryBySearchPhrase() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
 
-    Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // when
     QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
@@ -441,7 +449,8 @@ public class OpenSearchSourceTest {
   public void testQueryBySearchPhraseRss() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleRssStream());
 
-    Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // when
     QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
@@ -477,7 +486,8 @@ public class OpenSearchSourceTest {
 
     source.setBundle(getMockBundleContext(inputTransformer));
 
-    Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertThat(response.getHits(), is(1L));
@@ -508,7 +518,8 @@ public class OpenSearchSourceTest {
 
     source.setBundle(getMockBundleContext(inputTransformer));
 
-    Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertThat(response.getHits(), is(1L));
@@ -524,7 +535,8 @@ public class OpenSearchSourceTest {
   public void testQueryAnyText() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // when
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -537,7 +549,8 @@ public class OpenSearchSourceTest {
     source.setBundle(getMockBundleContext(null));
     when(response.getEntity()).thenReturn(getSampleAtomStream());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
     // TODO: Is this actually the desired functionality? The existing source doesn't actually look
@@ -550,7 +563,8 @@ public class OpenSearchSourceTest {
   public void testQueryBadResponse() throws UnsupportedQueryException {
     doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response).getStatus();
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     source.query(new QueryRequestImpl(new QueryImpl(filter)));
   }
@@ -560,7 +574,8 @@ public class OpenSearchSourceTest {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
     when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertThat(response.getHits(), is(1L));
@@ -588,7 +603,7 @@ public class OpenSearchSourceTest {
     source.setResourceReader(mockReader);
 
     Map<String, Serializable> requestProperties = new HashMap<>();
-    requestProperties.put(Metacard.ID, SAMPLE_ID);
+    requestProperties.put(ID_ATTRIBUTE_NAME, SAMPLE_ID);
 
     // when
     ResourceResponse response = source.retrieveResource(null, requestProperties);
@@ -622,7 +637,7 @@ public class OpenSearchSourceTest {
     source.setPassword("secret");
 
     Map<String, Serializable> requestProperties = new HashMap<>();
-    requestProperties.put(Metacard.ID, SAMPLE_ID);
+    requestProperties.put(ID_ATTRIBUTE_NAME, SAMPLE_ID);
 
     ResourceResponse response = source.retrieveResource(null, requestProperties);
     assertThat(response.getResource().getByteArray().length, is(3));
@@ -640,11 +655,11 @@ public class OpenSearchSourceTest {
     when(response.getEntity()).thenReturn(getSampleXmlStream()).thenReturn(getSampleAtomStream());
 
     // Metacard ID filter
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+    Filter idFilter = filterBuilder.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
 
     // Any text filter
     Filter anyTextFilter =
-        filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // Perform Test (Query by ID followed by Any Text Query)
     SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
@@ -664,11 +679,11 @@ public class OpenSearchSourceTest {
     when(response.getEntity()).thenReturn(getSampleXmlStream()).thenReturn(getSampleRssStream());
 
     // Metacard ID filter
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+    Filter idFilter = filterBuilder.attribute(ID_ATTRIBUTE_NAME).equalTo().text(SAMPLE_ID);
 
     // Any text filter
     Filter anyTextFilter =
-        filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     // Perform Test (Query by ID followed by Any Text Query)
     SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
@@ -747,7 +762,8 @@ public class OpenSearchSourceTest {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
     when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -765,7 +781,8 @@ public class OpenSearchSourceTest {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
     when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -796,7 +813,8 @@ public class OpenSearchSourceTest {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
     when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
-    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+    Filter filter =
+        filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertSourceId(response);

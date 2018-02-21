@@ -26,12 +26,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
+import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.opengis.filter.And;
 import org.opengis.filter.Not;
@@ -45,11 +47,12 @@ import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Contains;
 import org.opengis.filter.spatial.DWithin;
 import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.temporal.After;
+import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
 import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TOverlaps;
 import org.opengis.temporal.Period;
-import org.opengis.temporal.PeriodDuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,18 +228,26 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   @Override
   public Object visit(TOverlaps filter, Object data) {
     LOGGER.trace("ENTERING: TOverlaps filter");
-    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-        getOpenSearchFilterVisitorObjectFromData(data);
-    if (openSearchFilterVisitorObject == null) {
-      return data;
-    }
 
-    if (openSearchFilterVisitorObject.getCurrentNest() == null
-        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      handleTemporal(filter, openSearchFilterVisitorObject);
-    } else {
-      LOGGER.debug(ONLY_AND_MSG);
-    }
+    buildTemporalSearch(
+        filter,
+        data,
+        literal -> {
+          final Date date = extractDate(literal);
+          if (date != null) {
+            return new DateRange(date, date);
+          } else {
+            final DateRange dateRange = extractDateRange(literal);
+            if (dateRange != null) {
+              return dateRange;
+            } else {
+              LOGGER.debug(
+                  "Unable to extract date(s) from TOverlaps filter {}. Ignoring filter.", literal);
+              return null;
+            }
+          }
+        });
+
     LOGGER.trace("EXITING: TOverlaps filter");
 
     return super.visit(filter, data);
@@ -245,50 +256,25 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   /** During filter maps to a Temporal (Absolute and Offset) search criteria. */
   @Override
   public Object visit(During filter, Object data) {
-    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-        getOpenSearchFilterVisitorObjectFromData(data);
-    if (openSearchFilterVisitorObject == null) {
-      return data;
-    }
+    LOGGER.trace("ENTERING: During filter");
 
-    LOGGER.trace("ENTERING: TOverlaps filter");
-    if (openSearchFilterVisitorObject.getCurrentNest() == null
-        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      handleTemporal(filter, openSearchFilterVisitorObject);
-    } else {
-      LOGGER.debug(ONLY_AND_MSG);
-    }
-    LOGGER.trace("EXITING: TOverlaps filter");
+    buildTemporalSearch(
+        filter,
+        data,
+        literal -> {
+          final DateRange dateRange = extractDateRange(literal);
+          if (dateRange != null) {
+            return dateRange;
+          } else {
+            LOGGER.debug(
+                "Unable to extract date range from During filter {}. Ignoring filter.", literal);
+            return null;
+          }
+        });
+
+    LOGGER.trace("EXITING: During filter");
 
     return super.visit(filter, data);
-  }
-
-  private void handleTemporal(
-      BinaryTemporalOperator filter, OpenSearchFilterVisitorObject openSearchFilterVisitorObject) {
-
-    Literal literalWrapper = (Literal) filter.getExpression2();
-    LOGGER.trace("literalWrapper.getValue() = {}", literalWrapper.getValue());
-
-    Object literal = literalWrapper.evaluate(null);
-    if (literal instanceof Period) {
-      Period period = (Period) literal;
-
-      // Extract the start and end dates from the filter
-      Date start = period.getBeginning().getPosition().getDate();
-      Date end = period.getEnding().getPosition().getDate();
-
-      openSearchFilterVisitorObject.setTemporalSearch(new TemporalFilter(start, end));
-
-    } else if (literal instanceof PeriodDuration) {
-
-      DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
-
-      // Extract the start and end dates from the filter
-      Date end = Calendar.getInstance().getTime();
-      Date start = new Date(end.getTime() - duration.getTimeInMillis());
-
-      openSearchFilterVisitorObject.setTemporalSearch(new TemporalFilter(start, end));
-    }
   }
 
   /** PropertyIsLike filter maps to a Contextual search criteria. */
@@ -316,9 +302,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
               filter.getSingleChar(),
               filter.getEscape());
       LOGGER.debug("searchPhrase = [{}]", searchPhrase);
-      if (openSearchFilterVisitorObject.getContextualSearch() != null) {
-        Map<String, String> searchPhraseMap =
-            openSearchFilterVisitorObject.getContextualSearch().getSearchPhraseMap();
+
+      final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
+      if (contextualSearch != null) {
+        Map<String, String> searchPhraseMap = contextualSearch.getSearchPhraseMap();
         if (searchPhraseMap.containsKey(OpenSearchParserImpl.SEARCH_TERMS)) {
           searchPhraseMap.put(
               OpenSearchParserImpl.SEARCH_TERMS,
@@ -379,6 +366,54 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return data;
   }
 
+  /** {@link After} maps to a Temporal (Absolute and Offset) search criteria. */
+  @Override
+  public Object visit(After filter, Object data) {
+    LOGGER.trace("ENTERING: After filter");
+
+    buildTemporalSearch(
+        filter,
+        data,
+        literal -> {
+          final Date date = extractDate(literal);
+          if (date != null) {
+            Date end = new Date(Long.MAX_VALUE); // maximum date
+            return new DateRange(date, end);
+          } else {
+            LOGGER.debug("Unable to extract date from After filter {}. Ignoring filter.", literal);
+            return null;
+          }
+        });
+
+    LOGGER.trace("EXITING: After filter");
+
+    return super.visit(filter, data);
+  }
+
+  /** {@link Before} maps to a Temporal (Absolute and Offset) search criteria. */
+  @Override
+  public Object visit(Before filter, Object data) {
+    LOGGER.trace("ENTERING: Before filter");
+
+    buildTemporalSearch(
+        filter,
+        data,
+        literal -> {
+          final Date date = extractDate(literal);
+          if (date != null) {
+            Date start = new Date(0L); // minimum date
+            return new DateRange(start, date);
+          } else {
+            LOGGER.debug("Unable to extract date from Before filter {}. Ignoring filter.", literal);
+            return null;
+          }
+        });
+
+    LOGGER.trace("EXITING: Before filter");
+
+    return super.visit(filter, data);
+  }
+
   @Override
   public Object visit(Literal expression, Object data) {
     LOGGER.trace("Visiting Literal expression");
@@ -421,5 +456,84 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return (OpenSearchFilterVisitorObject) data;
     }
     return null;
+  }
+
+  private static void buildTemporalSearch(
+      final BinaryTemporalOperator filter,
+      final Object data,
+      final Function<Object, DateRange> literalToDatesFunction) {
+    final OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        getOpenSearchFilterVisitorObjectFromData(data);
+    if (openSearchFilterVisitorObject == null) {
+      return;
+    }
+
+    if (openSearchFilterVisitorObject.getCurrentNest() == null
+        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
+      final Literal literalWrapper = (Literal) filter.getExpression2();
+      LOGGER.trace("literalWrapper.getValue() = {}", literalWrapper.getValue());
+      final Object literal = literalWrapper.evaluate(null);
+
+      final DateRange dateRange = literalToDatesFunction.apply(literal);
+      if (dateRange != null) {
+        openSearchFilterVisitorObject.setTemporalSearch(
+            new TemporalFilter(dateRange.getStart(), dateRange.getEnd()));
+      }
+    } else {
+      LOGGER.debug(ONLY_AND_MSG);
+    }
+  }
+
+  private static Date extractDate(Object literal) {
+    if (literal instanceof DefaultInstant) {
+      final DefaultInstant defaultInstant = (DefaultInstant) literal;
+
+      // Extract date from the filter
+      return defaultInstant.getPosition().getDate();
+    } else if (literal instanceof Date) {
+      return (Date) literal;
+    } else {
+      return null;
+    }
+  }
+
+  private static DateRange extractDateRange(Object literal) {
+    if (literal instanceof Period) {
+      final Period period = (Period) literal;
+
+      // Extract the start and end dates from the filter
+      return new DateRange(
+          period.getBeginning().getPosition().getDate(),
+          period.getEnding().getPosition().getDate());
+    } else if (literal instanceof DefaultPeriodDuration) {
+      final DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
+
+      // Extract the end date from the filter
+      final Date end = Calendar.getInstance().getTime(); // current date
+      final Date start = new Date(end.getTime() - duration.getTimeInMillis());
+      return new DateRange(start, end);
+    } else {
+      return null;
+    }
+  }
+
+  private static class DateRange {
+
+    private final Date start;
+
+    private final Date end;
+
+    public DateRange(Date start, Date end) {
+      this.start = start;
+      this.end = end;
+    }
+
+    public Date getStart() {
+      return start;
+    }
+
+    public Date getEnd() {
+      return end;
+    }
   }
 }
