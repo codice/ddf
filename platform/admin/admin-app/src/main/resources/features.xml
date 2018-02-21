@@ -18,16 +18,14 @@
 
     <feature name="admin-core" install="manual" version="${project.version}"
              description="Administration Tools">
-        <feature prerequisite="true">security-services-app</feature>
-        <bundle dependency="true">
-            mvn:commons-collections/commons-collections/${commons-collections.version}
-        </bundle>
+        <feature>security-services-app</feature>
+        <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-jolokia/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configplugin/${project.version}</bundle>
         <!-- App Service -->
-        <bundle dependency="true">mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-util-property/1.4.0</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
@@ -35,37 +33,37 @@
 
     <feature name="admin-ui" install="manual" version="${project.version}"
              description="Administration UI">
-        <feature prerequisite="true">admin-core</feature>
+        <feature>admin-core</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-configuration" install="manual" version="${project.version}"
              description="Configuration Module">
-        <feature prerequisite="true">admin-ui</feature>
+        <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-docs" install="manual" version="${project.version}"
              description="Documentation Module">
-        <feature prerequisite="true">admin-ui</feature>
+        <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-installer" install="manual" version="${project.version}"
              description="Installer Module">
-        <feature prerequisite="true">admin-ui</feature>
+        <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>
 
     <feature name="admin-modules-application" install="manual" version="${project.version}"
              description="Application Module">
-        <feature prerequisite="true">admin-ui</feature>
+        <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
     </feature>
 
     <feature name="admin-security-ui" install="manual" version="${project.version}">
         <details>Placeholder for Security Admin UI</details>
-        <feature prerequisite="true">admin-ui</feature>
+        <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-security-ui/${project.version}</bundle>
     </feature>
 
@@ -80,14 +78,14 @@
 
     <feature name="admin-core-migration-commands" install="manual" version="${project.version}"
              description="Migration commands module">
-        <feature prerequisite="true">security-expansion</feature>
-        <feature prerequisite="true">platform-migratable-api</feature>
+        <feature>security-expansion</feature>
+        <feature>platform-migratable-api</feature>
         <bundle>mvn:ddf.admin.core/admin-core-migration-commands/${project.version}</bundle>
     </feature>
 
     <feature name="admin-core-logviewer" install="auto" version="${project.version}"
              description="Admin UI's logviewer page to display karaf logs">
-        <feature prerequisite="true">admin-core</feature>
+        <feature>admin-core</feature>
         <bundle>mvn:ddf.admin.core/admin-core-logviewer/${project.version}</bundle>
     </feature>
 
@@ -111,5 +109,6 @@
         <feature>admin-core-migration-commands</feature>
         <feature>admin-configurator</feature>
         <feature>admin-config-updater</feature>
+        <feature>admin-core-logviewer</feature>
     </feature>
 </features>

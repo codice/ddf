@@ -1077,13 +1077,6 @@
         <feature>war</feature>
     </feature>
 
-    <feature name="platform-app" install="auto" version="${project.version}"
-             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
-        <feature prerequisite="true">web-container</feature>
-        <feature prerequisite="true">platform-dependencies</feature>
-        <feature>platform-all</feature>
-    </feature>
-
     <feature name="platform-dependencies" version="${project.version}" install="manual" hidden="true">
         <feature prerequisite="true">branding-api</feature>
         <feature prerequisite="true">wrap</feature>
@@ -1219,4 +1212,18 @@
         <bundle>mvn:ddf.platform.solr/solr-appender/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-app" install="auto" version="${project.version}"
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
+        <feature prerequisite="true">web-container</feature>
+        <feature prerequisite="true">platform-dependencies</feature>
+        <feature>platform-all</feature>
+        <feature>banana</feature>
+        <feature>clientinfo-filter</feature>
+        <feature>camel-aws</feature>
+        <feature>transaction-api</feature>
+        <feature>transaction-manager-geronimo</feature>
+        <feature>transaction</feature>
+        <feature>branding-api</feature>
+        <feature>platform-migrate-all</feature>
+    </feature>
 </features>

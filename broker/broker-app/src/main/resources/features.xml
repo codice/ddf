@@ -38,7 +38,6 @@
         </bundle>
     </feature>
 
-
     <feature name="netty-core" version="${netty.version}" description="Netty libraries">
      <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
         <bundle>mvn:io.netty/netty-resolver/${netty.version}</bundle>
@@ -161,6 +160,10 @@
              description="The Broker Application provides broker services for reliable message delivery.::Broker">
         <feature>artemis</feature>
         <feature>broker-connection-factory</feature>
+        <feature>broker-undelivered-messages-ui</feature>
+        <feature>broker-route-manager</feature>
+        <feature>netty-core</feature>
+        <feature>broker-topic-logger</feature>
     </feature>
 
 </features>

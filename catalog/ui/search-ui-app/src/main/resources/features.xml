@@ -20,7 +20,6 @@
     <feature name="catalog-ui" install="auto" version="${project.version}" description="Catalog UI">
         <feature prerequisite="true">spatial-app</feature>
         <feature prerequisite="true">camel-http</feature>
-        <feature prerequisite="true">search-ui-app</feature>
         <configfile finalname="/etc/org.codice.ddf.catalog.ui.config.config" override="false">
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>
@@ -32,7 +31,6 @@
 
     <feature name="search-ui" install="auto" version="${project.version}" description="Search UI">
         <feature prerequisite="true">camel-http</feature>
-        <feature prerequisite="true">search-ui-app</feature>
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
@@ -40,7 +38,6 @@
     </feature>
 
     <feature name="simple-search-ui" install="auto" version="${project.version}">
-        <feature prerequisite="true">search-ui-app</feature>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
     </feature>
 
@@ -50,6 +47,9 @@
         <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-versioning-plugin</feature>
         <feature prerequisite="true">catalog-core-validator</feature>
+        <feature>catalog-ui</feature>
+        <feature>search-ui</feature>
+        <feature>simple-search-ui</feature>
     </feature>
 
 </features>
