@@ -15,26 +15,19 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +41,6 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
@@ -98,14 +90,10 @@ public class ApplicationServiceBeanTest {
 
   private static final String TEST_REPO_NAME = "TestRepo";
 
-  private static final String ADD_APP_ASE = "Could not add application";
-
   private static final String REMOVE_APP_ASE = "Could not remove application";
 
   private static final String GET_SERV_ASE =
       "There was an error while trying to access the application";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
 
   private ApplicationService testAppService;
 
@@ -140,9 +128,6 @@ public class ApplicationServiceBeanTest {
     when(testApp.getName()).thenReturn(TEST_APP_NAME);
     when(testApp.getVersion()).thenReturn(TEST_VERSION);
     when(testApp.getDescription()).thenReturn(TEST_APP_DESCRIP);
-    when(testApp.getURI())
-        .thenReturn(
-            getClass().getClassLoader().getResource("test-features-with-main-feature.xml").toURI());
     bundleContext = mock(BundleContext.class);
     mBeanServer = mock(MBeanServer.class);
     objectName =
@@ -329,54 +314,6 @@ public class ApplicationServiceBeanTest {
   }
 
   /**
-   * Tests the {@link ApplicationServiceBean#getApplicationTree()} method
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetApplicationTree() throws Exception {
-    setUpTree();
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    serviceBean.init();
-    List<Map<String, Object>> result = serviceBean.getApplicationTree();
-
-    assertThat(
-        "Should return the application nodes set up previously.",
-        (String) result.get(0).get("name"),
-        is(TEST_APP_NAME));
-    assertThat("Size of root should be one.", result.size(), is(1));
-
-    verify(testApp, atLeastOnce()).getName();
-    verify(testNode1).getChildren();
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#getApplications()} method
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetApplications() throws Exception {
-    setUpTree();
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    serviceBean.init();
-
-    List<Map<String, Object>> result = serviceBean.getApplications();
-
-    assertThat(
-        "Should return the application nodes set up previously.",
-        (String) result.get(0).get("name"),
-        is(TEST_APP_NAME));
-    assertThat("Size of root should be two.", result.size(), is(2));
-
-    verify(testApp, atLeastOnce()).getName();
-    verify(testNode1).getChildren();
-    verify(testNode1, atLeastOnce()).getApplication();
-  }
-
-  /**
    * Tests the {@link ApplicationServiceBean#getApplications()} method for the case where the
    * applications have no children
    *
@@ -400,262 +337,6 @@ public class ApplicationServiceBeanTest {
         (String) result.get(0).get("name"),
         is(TEST_APP_NAME));
     assertThat("Size of root should be one.", result.size(), is(1));
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#getApplications()} method for the case where a child
-   * node has dependencies
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetApplicationsChildDependencies() throws Exception {
-    setUpTree();
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    serviceBean.init();
-
-    ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
-    when(testNode4.getApplication()).thenReturn(testApp);
-    when(testNode4.getStatus()).thenReturn(testStatus);
-    Set<ApplicationNode> testNode3ChildrenSet = new TreeSet<>();
-    testNode3ChildrenSet.add(testNode4);
-    when(testNode3.getChildren()).thenReturn(testNode3ChildrenSet);
-
-    List<Map<String, Object>> result = serviceBean.getApplications();
-
-    assertThat(
-        "Should return the applications set up previously.",
-        (String) result.get(0).get("name"),
-        is(TEST_APP_NAME));
-    assertThat("Size of root should be three.", result.size(), is(3));
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#getApplications()} method for the case where more than
-   * one child node has dependencies
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetApplicationsMultiChildDependencies() throws Exception {
-    setUpTree();
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    serviceBean.init();
-
-    ApplicationNode testNode4 = mock(ApplicationNodeImpl.class);
-    when(testNode4.getApplication()).thenReturn(testApp);
-    when(testNode4.getStatus()).thenReturn(testStatus);
-
-    Set<ApplicationNode> testNode1ChildrenSet = new TreeSet<>();
-    testNode1ChildrenSet.add(testNode2);
-    testNode1ChildrenSet.add(testNode4);
-
-    when(testNode1.getChildren()).thenReturn(testNode1ChildrenSet);
-
-    List<Map<String, Object>> result = serviceBean.getApplications();
-
-    assertThat(
-        "Should return the applications set up previously.",
-        (String) result.get(0).get("name"),
-        is(TEST_APP_NAME));
-    assertThat("Size of root should be three.", result.size(), is(3));
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#startApplication(String)} method
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testStartApplication() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    assertTrue(serviceBean.startApplication(TEST_APP_NAME));
-
-    verify(testAppService).startApplication(TEST_APP_NAME);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#startApplication(String)} method for the case where an
-   * exception is thrown
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testStartApplicationException() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    doThrow(new ApplicationServiceException()).when(testAppService).startApplication(TEST_APP_NAME);
-
-    assertFalse(serviceBean.startApplication(TEST_APP_NAME));
-
-    verify(testAppService).startApplication(TEST_APP_NAME);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#stopApplication(String)}
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testStopApplication() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    assertTrue(serviceBean.stopApplication(TEST_APP_NAME));
-
-    verify(testAppService).stopApplication(TEST_APP_NAME);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#stopApplication(String)} method for the case where an
-   * exception is thrown
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testStopApplicationException() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    doThrow(new ApplicationServiceException()).when(testAppService).stopApplication(TEST_APP_NAME);
-
-    assertFalse(serviceBean.stopApplication(TEST_APP_NAME));
-    verify(testAppService).stopApplication(TEST_APP_NAME);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#addApplications(List)} method
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testAddApplications() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    List<Map<String, Object>> testURLList = new ArrayList<>();
-    Map<String, Object> testURLMap1 = mock(HashMap.class);
-    when(testURLMap1.get("value")).thenReturn(TEST_URL);
-    Map<String, Object> testURLMap2 = mock(HashMap.class);
-    when(testURLMap2.get("value")).thenReturn(TEST_URL);
-    testURLList.add(testURLMap1);
-    testURLList.add(testURLMap2);
-
-    serviceBean.addApplications(testURLList);
-
-    verify(testURLMap1).get("value");
-    verify(testURLMap2).get("value");
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#addApplications(List)} method for the case where a
-   * URISyntaxException is caught
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testAddApplicationsUSE() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    List<Map<String, Object>> testURLList = new ArrayList<>();
-    Map<String, Object> testURLMap1 = mock(HashMap.class);
-    when(testURLMap1.get("value")).thenReturn(BAD_URL);
-    testURLList.add(testURLMap1);
-
-    serviceBean.addApplications(testURLList);
-    verify(testURLMap1, atLeastOnce()).get("value");
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#addApplications(List)} method for the case where an
-   * ApplicationServiceException is thrown
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testAddApplicationsASE() throws Exception {
-
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    List<Map<String, Object>> applicationURLList = new ArrayList<>();
-    Map<String, Object> map = mock(HashMap.class);
-    when(map.get("value")).thenReturn(TEST_URL);
-    applicationURLList.add(map);
-    ApplicationServiceException mockAseException = mock(ApplicationServiceException.class);
-    doReturn("ASE").when(mockAseException).getMessage();
-    doThrow(mockAseException).when(testAppService).addApplication(any(URI.class));
-    serviceBean.addApplications(applicationURLList);
-    verify(testAppService).addApplication(eq(new URI(TEST_URL)));
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#removeApplication(String)} method for the case where
-   * the string parameter is valid
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testRemoveApplication() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    serviceBean.removeApplication(TEST_APP_NAME);
-
-    verify(testAppService).removeApplication(TEST_APP_NAME);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#removeApplication(String)} method for the case where
-   * the string parameter is invalid
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testRemoveApplicationInvalidParam() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    serviceBean.removeApplication(StringUtils.EMPTY);
-
-    verifyNoMoreInteractions(testAppService);
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#removeApplication(String)} method for the case where an
-   * ApplicationServiceException is thrown by the AppService
-   *
-   * @throws Exception
-   */
-  // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
-  @Test
-  public void testRemoveApplicationASE() throws Exception {
-    ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    final Appender mockAppender = mock(Appender.class);
-    when(mockAppender.getName()).thenReturn("MOCK");
-    root.addAppender(mockAppender);
-    root.setLevel(Level.ALL);
-
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    doThrow(new ApplicationServiceException())
-        .when(testAppService)
-        .removeApplication(any(String.class));
-
-    serviceBean.removeApplication(TEST_APP_NAME);
-
-    verify(mockAppender)
-        .doAppend(
-            argThat(
-                new ArgumentMatcher() {
-                  @Override
-                  public boolean matches(final Object argument) {
-                    return ((LoggingEvent) argument).getFormattedMessage().contains(REMOVE_APP_ASE);
-                  }
-                }));
   }
 
   /**

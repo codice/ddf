@@ -13,22 +13,21 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,93 +39,34 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 
-  private Set<Feature> features = new HashSet<>();
-
-  private Set<Feature> autoInstallFeatures = new HashSet<>();
-
-  private Feature mainFeature;
-
   private String name;
-
-  private String version;
 
   private String description;
 
-  private URI location;
+  private List<String> bundleLocations;
 
-  /**
-   * Creates a new instance of application.
-   *
-   * @param repo Creates the application from a Karaf Feature Repository object.
-   */
-  public ApplicationImpl(Repository repo) {
-    String repoName = null;
-    try {
-      repoName = repo.getName();
-      features.addAll(Arrays.asList(repo.getFeatures()));
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    setRepoNameAndVersion(repoName);
-    location = repo.getURI();
-    if (features.size() == 1) {
-      autoInstallFeatures.add(features.iterator().next());
-    } else {
-      autoInstallFeatures.addAll(
-          features
-              .stream()
-              .filter(
-                  curFeature ->
-                      StringUtils.equalsIgnoreCase(
-                          Feature.DEFAULT_INSTALL_MODE, curFeature.getInstall()))
-              .collect(Collectors.toList()));
-    }
-    // Determine mainFeature
-    if (autoInstallFeatures.size() == 1) {
-      mainFeature = autoInstallFeatures.iterator().next();
-      name = mainFeature.getName();
-      version = mainFeature.getVersion();
-      description = mainFeature.getDescription();
-    } else {
-      Optional<Feature> first = features.stream().filter(f -> name.equals(f.getName())).findFirst();
-      if (first.isPresent()) {
-        mainFeature = first.get();
-        name = mainFeature.getName();
-        version = mainFeature.getVersion();
-        description = mainFeature.getDescription();
+  public BundleInfo bundleToBundleInfo(Bundle bundle) {
+    return new BundleInfo() {
+      @Override
+      public String getLocation() {
+        return bundle.getLocation();
       }
-    }
 
-    if (mainFeature == null) {
-      LOGGER.debug(
-          "Could not determine main feature in {}, using defaults. Each application "
-              + "should have 1 feature with the same name as the repository or 1 auto"
-              + " install feature. This Application will take no action when started"
-              + " or stopped.",
-          name);
-    }
-  }
+      @Override
+      public int getStartLevel() {
+        return -1;
+      }
 
-  private void setRepoNameAndVersion(String repoName) {
+      @Override
+      public boolean isStart() {
+        return false;
+      }
 
-    String[] repoNameParts;
-    int numberOfParts;
-
-    // DDF-2596
-    repoNameParts = repoName.split("-(?=[0-9])", 2);
-    numberOfParts = repoNameParts.length;
-    switch (numberOfParts) {
-      case 1:
-        name = repoName;
-        version = "0.0.0";
-        break;
-      case 2:
-        name = repoNameParts[0];
-        version = repoNameParts[1];
-        break;
-      default:
-        LOGGER.error("Could not tokenize repository name of '%s'", repoName);
-    }
+      @Override
+      public boolean isDependency() {
+        return false;
+      }
+    };
   }
 
   @Override
@@ -136,7 +76,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
   @Override
   public String getVersion() {
-    return version;
+    return null;
   }
 
   @Override
@@ -146,43 +86,50 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
   @Override
   public Set<Feature> getFeatures() throws ApplicationServiceException {
-    if (features != null) {
-      return Collections.unmodifiableSet(features);
-    } else {
-      throw new ApplicationServiceException(
-          "No features found in application "
-              + name
-              + " check the feature definition and log for errors.");
-    }
+    return Collections.emptySet();
   }
 
   public Set<Feature> getAutoInstallFeatures() {
-    return autoInstallFeatures;
+    return Collections.emptySet();
   }
 
   @Override
   public Feature getMainFeature() {
-    return mainFeature;
+    return null;
   }
 
   @Override
   public Set<BundleInfo> getBundles() throws ApplicationServiceException {
-    Set<BundleInfo> bundles = new TreeSet<>(new BundleInfoComparator());
-    for (Feature curFeature : getFeatures()) {
-      bundles.addAll(curFeature.getBundles());
+    Set<BundleInfo> bundles = new HashSet<>();
+    Map<String, Bundle> bundleMap = bundlesByLocation();
+
+    for (String loc : bundleLocations) {
+      if (bundleMap.containsKey(loc)) {
+        if (bundleMap.get(loc).getState() == Bundle.ACTIVE) {
+          bundles.add(bundleToBundleInfo(bundleMap.get(loc)));
+        } else {
+          LOGGER.debug("Unable to find bundle {} of app {} in system.", loc, name);
+        }
+      }
     }
 
     return bundles;
   }
 
+  private Map<String, Bundle> bundlesByLocation() {
+    return Arrays.stream(
+            FrameworkUtil.getBundle(ApplicationImpl.class).getBundleContext().getBundles())
+        .collect(Collectors.toMap(Bundle::getLocation, Function.identity()));
+  }
+
   @Override
   public String toString() {
-    return name + " - " + version;
+    return name;
   }
 
   @Override
   public int hashCode() {
-    return name.concat(version).hashCode();
+    return name.hashCode();
   }
 
   @Override
@@ -196,31 +143,16 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     }
 
     Application otherApp = (Application) obj;
-    return name.equals(otherApp.getName()) && version.equals(otherApp.getVersion());
+    return name.equals(otherApp.getName());
   }
 
   @Override
   public int compareTo(Application otherApp) {
-    int nameCompare = name.compareTo(otherApp.getName());
-    if (nameCompare == 0) {
-      return version.compareTo(otherApp.getVersion());
-    } else {
-      return nameCompare;
-    }
+    return name.compareTo(otherApp.getName());
   }
 
   @Override
   public URI getURI() {
-    return location;
-  }
-
-  private static class BundleInfoComparator implements Comparator<BundleInfo>, Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public int compare(BundleInfo bundle1, BundleInfo bundle2) {
-      return bundle1.getLocation().compareTo(bundle2.getLocation());
-    }
+    return null;
   }
 }

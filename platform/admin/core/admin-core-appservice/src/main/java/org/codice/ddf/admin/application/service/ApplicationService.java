@@ -20,6 +20,7 @@ import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 
 /** Service that keeps track and obtains status for applications running in the system. */
+@Deprecated
 public interface ApplicationService {
 
   /**
@@ -27,6 +28,7 @@ public interface ApplicationService {
    *
    * @return Set of applications.
    */
+  @Deprecated
   Set<Application> getApplications();
 
   /**
@@ -35,7 +37,24 @@ public interface ApplicationService {
    * @param applicationName Name of the application to retrieve. Is case-insensitive.
    * @return The application that matches the name or null if no application matched.
    */
+  @Deprecated
   Application getApplication(String applicationName);
+
+  /**
+   * Gets the application Profile features on the system.
+   *
+   * @return the inatllation profiles.
+   */
+  @Deprecated
+  List<Feature> getInstallationProfiles();
+
+  /**
+   * Returns List of FeatureDtos with repository and status information
+   *
+   * @return
+   */
+  @Deprecated
+  List<FeatureDetails> getAllFeatures();
 
   /**
    * Determine if an application is currently started.
@@ -45,6 +64,7 @@ public interface ApplicationService {
    *     <b>UNKNOWN</b>.
    * @see org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState
    */
+  @Deprecated
   boolean isApplicationStarted(Application application);
 
   /**
@@ -57,6 +77,7 @@ public interface ApplicationService {
    * @throws ApplicationServiceException If the application cannot start due to an error, the
    *     exception will be thrown with the error message.
    */
+  @Deprecated
   void startApplication(Application application) throws ApplicationServiceException;
 
   /**
@@ -69,6 +90,7 @@ public interface ApplicationService {
    * @throws ApplicationServiceException If the application cannot start due to an error, the
    *     exception will be thrown with the error message.
    */
+  @Deprecated
   void startApplication(String application) throws ApplicationServiceException;
 
   /**
@@ -79,6 +101,7 @@ public interface ApplicationService {
    * @throws ApplicationServiceException If the application cannot stop due to an error (or it is
    *     not started), the exception will be thrown with the error message.
    */
+  @Deprecated
   void stopApplication(Application application) throws ApplicationServiceException;
 
   /**
@@ -89,6 +112,7 @@ public interface ApplicationService {
    * @throws ApplicationServiceException If the application cannot stop due to an error (or it is
    *     not started), the exception will be thrown with the error message.
    */
+  @Deprecated
   void stopApplication(String application) throws ApplicationServiceException;
 
   /**
@@ -99,6 +123,7 @@ public interface ApplicationService {
    * @param applicationURL URL location of the application. Currently must be a features repository.
    * @throws ApplicationServiceException If there is an error trying to add the application.
    */
+  @Deprecated
   void addApplication(URI applicationURL) throws ApplicationServiceException;
 
   /**
@@ -107,6 +132,7 @@ public interface ApplicationService {
    * @param applicationURL URL location of the application. Currently must be a features repository.
    * @throws ApplicationServiceException If there is an error trying to remove the application.
    */
+  @Deprecated
   void removeApplication(URI applicationURL) throws ApplicationServiceException;
 
   /**
@@ -115,6 +141,7 @@ public interface ApplicationService {
    * @param application Application instance to remove.
    * @throws ApplicationServiceException If there is an error trying to remove the application.
    */
+  @Deprecated
   void removeApplication(Application application) throws ApplicationServiceException;
 
   /**
@@ -123,6 +150,7 @@ public interface ApplicationService {
    * @param applicationName Name of the application to remove.
    * @throws ApplicationServiceException If there is an error trying to remove the application.
    */
+  @Deprecated
   void removeApplication(String applicationName) throws ApplicationServiceException;
 
   /**
@@ -131,6 +159,7 @@ public interface ApplicationService {
    * @param application Application to obtain status for.
    * @return Status for the application.
    */
+  @Deprecated
   ApplicationStatus getApplicationStatus(Application application);
 
   /**
@@ -139,6 +168,7 @@ public interface ApplicationService {
    * @return set of the root application nodes that will contain all other applications as their
    *     children.
    */
+  @Deprecated
   Set<ApplicationNode> getApplicationTree();
 
   /**
@@ -147,26 +177,14 @@ public interface ApplicationService {
    * @param feature The feature to search for.
    * @return The application which contains that feature.
    */
+  @Deprecated
   Application findFeature(Feature feature);
-
-  /**
-   * Gets the application Profile features on the system.
-   *
-   * @return the inatllation profiles.
-   */
-  List<Feature> getInstallationProfiles();
-
-  /**
-   * Returns List of FeatureDtos with repository and status information
-   *
-   * @return
-   */
-  List<FeatureDetails> getAllFeatures();
 
   /**
    * Returns List of FeatureDtos with repository and status information by Application
    *
    * @return
    */
+  @Deprecated
   List<FeatureDetails> findApplicationFeatures(String applicationName);
 }

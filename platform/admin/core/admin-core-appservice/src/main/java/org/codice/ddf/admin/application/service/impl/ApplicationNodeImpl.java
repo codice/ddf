@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.codice.ddf.admin.application.service.Application;
@@ -40,25 +41,16 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
    */
   public ApplicationNodeImpl(Application application) {
     if (application == null) {
-      throw new IllegalArgumentException("Input application cannot be null.");
-    }
-    this.application = application;
-    this.children = new TreeSet<ApplicationNode>();
-  }
-
-  /**
-   * Creates a new instance of an ApplicationNode.
-   *
-   * @param application The application that this node corresponds to.
-   * @param status Current status for the application
-   */
-  public ApplicationNodeImpl(Application application, ApplicationStatus status) {
-    if (application == null || status == null) {
       throw new IllegalArgumentException("Input application and status cannot be null.");
     }
     this.application = application;
-    this.children = new TreeSet<ApplicationNode>();
-    this.status = status;
+    this.children = new TreeSet<>();
+    this.status =
+        new ApplicationStatusImpl(
+            application,
+            ApplicationStatus.ApplicationState.ACTIVE,
+            Collections.emptySet(),
+            Collections.emptySet());
   }
 
   @Override
@@ -121,11 +113,6 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
     if (otherApp == null) {
       throw new IllegalArgumentException("ApplicationNode parameter cannot be null.");
     }
-    int nameCompare = application.getName().compareTo(otherApp.getApplication().getName());
-    if (nameCompare == 0) {
-      return application.getVersion().compareTo(otherApp.getApplication().getVersion());
-    } else {
-      return nameCompare;
-    }
+    return application.getName().compareTo(otherApp.getApplication().getName());
   }
 }

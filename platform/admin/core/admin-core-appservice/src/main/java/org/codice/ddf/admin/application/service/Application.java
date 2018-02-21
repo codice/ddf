@@ -18,10 +18,8 @@ import java.util.Set;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 
-/**
- * This class defines an application within DDF. An application is a component that can contain
- * multiple features. Inside each one of those features can be one or more bundles.
- */
+/** This class defines an application within DDF. An application is a collection of bundles. */
+@Deprecated
 public interface Application {
 
   /**
@@ -29,21 +27,33 @@ public interface Application {
    *
    * @return name
    */
+  @Deprecated
   String getName();
-
-  /**
-   * Version of the application
-   *
-   * @return version
-   */
-  String getVersion();
 
   /**
    * Short description of the application.
    *
    * @return description
    */
+  @Deprecated
   String getDescription();
+
+  /**
+   * Gets all of the bundles that this application contains.
+   *
+   * @return Set of the bundles located within the application.
+   * @throws ApplicationServiceException
+   */
+  @Deprecated
+  Set<BundleInfo> getBundles() throws ApplicationServiceException;
+
+  /**
+   * Version of the application
+   *
+   * @return version
+   */
+  @Deprecated
+  String getVersion();
 
   /**
    * Retrieves the URI for the underlying application. This is the location of the application's
@@ -51,6 +61,7 @@ public interface Application {
    *
    * @return URI of the location
    */
+  @Deprecated
   URI getURI();
 
   /**
@@ -60,6 +71,7 @@ public interface Application {
    * @return Set of the features located within the application
    * @throws ApplicationServiceException
    */
+  @Deprecated
   Set<Feature> getFeatures() throws ApplicationServiceException;
 
   /**
@@ -69,16 +81,9 @@ public interface Application {
    *
    * @return Main feature that is auto-started, null if no such feature exists.
    */
+  @Deprecated
   Feature getMainFeature();
 
-  /**
-   * Gets all of the bundles that this application contains. These bundles are defined inside of the
-   * features.
-   *
-   * @return Set of the bundles located within the application.
-   * @throws ApplicationServiceException
-   */
-  Set<BundleInfo> getBundles() throws ApplicationServiceException;
-
+  @Deprecated
   Set<Feature> getAutoInstallFeatures();
 }

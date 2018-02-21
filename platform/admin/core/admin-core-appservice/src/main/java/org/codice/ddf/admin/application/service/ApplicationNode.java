@@ -19,6 +19,7 @@ import java.util.Set;
  * Node for applications that is used to create a hierarchy tree that shows application
  * dependencies.
  */
+@Deprecated
 public interface ApplicationNode {
 
   /**
@@ -26,6 +27,7 @@ public interface ApplicationNode {
    *
    * @return application for this node
    */
+  @Deprecated
   Application getApplication();
 
   /**
@@ -33,6 +35,7 @@ public interface ApplicationNode {
    *
    * @return status for the application as of this call.
    */
+  @Deprecated
   ApplicationStatus getStatus();
 
   /**
@@ -40,6 +43,7 @@ public interface ApplicationNode {
    *
    * @return Parent node of this application or null if application has no parent.
    */
+  @Deprecated
   ApplicationNode getParent();
 
   /**
@@ -48,5 +52,6 @@ public interface ApplicationNode {
    *
    * @return A set of children of this application.
    */
+  @Deprecated
   Set<ApplicationNode> getChildren();
 }

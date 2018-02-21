@@ -21,6 +21,7 @@ import org.osgi.framework.Bundle;
  * Class that describes the status of an application. If application has errored out, it shows which
  * components of the application did not start correctly.
  */
+@Deprecated
 public interface ApplicationStatus {
 
   /**
@@ -28,6 +29,7 @@ public interface ApplicationStatus {
    *
    * @return The application associated to this status.
    */
+  @Deprecated
   Application getApplication();
 
   /**
@@ -35,6 +37,7 @@ public interface ApplicationStatus {
    *
    * @return {@link ApplicationState} for the current application
    */
+  @Deprecated
   ApplicationState getState();
 
   /**
@@ -42,6 +45,7 @@ public interface ApplicationStatus {
    *
    * @return Set of features that did not install.
    */
+  @Deprecated
   Set<Feature> getErrorFeatures();
 
   /**
@@ -49,6 +53,7 @@ public interface ApplicationStatus {
    *
    * @return Set of bundles that did not install.
    */
+  @Deprecated
   Set<Bundle> getErrorBundles();
 
   /**
@@ -61,6 +66,7 @@ public interface ApplicationStatus {
    * <b>INACTIVE</b>: nothing from the app is installed <br>
    * <b>UNKNOWN</b>: could not determine status <br>
    */
+  @Deprecated
   enum ApplicationState {
     ACTIVE,
     FAILED,

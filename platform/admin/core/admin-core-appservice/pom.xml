@@ -140,20 +140,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-services-maven-plugin</artifactId>
-                <version>${karaf.version}</version>
-                <executions>
-                    <execution>
-                        <id>service-metadata-generate</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>service-metadata-generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
@@ -172,8 +158,6 @@
                         <Export-Package>
                             org.codice.ddf.admin.application.service;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version},
-                            org.codice.ddf.admin.application.service.command;version=${admin.core.appservice.api.version},
-                            org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.migratable;version=${admin.core.appservice.api.version},
                             org.apache.felix.utils.properties
                         </Export-Package>
@@ -203,17 +187,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.76</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.79</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

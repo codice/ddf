@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /** Defines an application configuration plugin. */
+@Deprecated
 public interface ApplicationPlugin {
   /** key to mark that a plugin should be used for ALL applications. */
   public static final String ALL_ASSOCATION_KEY = "ALL";
@@ -35,6 +36,7 @@ public interface ApplicationPlugin {
    *
    * @return a list of applications that this plugin should be associated with.
    */
+  @Deprecated
   public List<String> getAssocations();
 
   /**
@@ -42,6 +44,7 @@ public interface ApplicationPlugin {
    *
    * @return the display name.
    */
+  @Deprecated
   public String getDisplayName();
 
   /**
@@ -49,6 +52,7 @@ public interface ApplicationPlugin {
    *
    * @return a unique identifier for this plugin as a uuid.
    */
+  @Deprecated
   public UUID getID();
 
   /**
@@ -56,6 +60,7 @@ public interface ApplicationPlugin {
    *
    * @return the iframe location.
    */
+  @Deprecated
   public String getIframeLocation();
 
   /**
@@ -64,6 +69,7 @@ public interface ApplicationPlugin {
    *
    * @return a constructed map that jolokia can convert to json.
    */
+  @Deprecated
   public Map<String, Object> toJSON();
 
   /**
@@ -74,6 +80,7 @@ public interface ApplicationPlugin {
    * @return yes if the application matches, or should be applied to all applications, false if it
    *     doesn't.
    */
+  @Deprecated
   public boolean matchesAssocationName(String assocationName);
 
   /**
@@ -82,6 +89,7 @@ public interface ApplicationPlugin {
    *
    * @param appName - the string name of an application.
    */
+  @Deprecated
   public void setAssociations(List<String> assocations);
 
   /**
@@ -90,6 +98,7 @@ public interface ApplicationPlugin {
    *
    * @param applicationAssociations
    */
+  @Deprecated
   public void addAssocations(List<String> assocations);
 
   /**
@@ -98,5 +107,6 @@ public interface ApplicationPlugin {
    *
    * @param applicationAssocation - the string name of the application.
    */
+  @Deprecated
   public void addAssociations(String assocations);
 }

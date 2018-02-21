@@ -23,7 +23,6 @@ import ddf.test.itests.catalog.TestMessageBroker;
 import ddf.test.itests.catalog.TestRegistry;
 import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
-import ddf.test.itests.platform.TestApplicationService;
 import ddf.test.itests.platform.TestPlatform;
 import ddf.test.itests.platform.TestSecurity;
 import ddf.test.itests.platform.TestSingleSignOn;
@@ -47,7 +46,6 @@ import org.junit.runners.Suite;
   TestSingleSignOn.class,
   TestSolrCommands.class,
   TestSecurity.class,
-  TestApplicationService.class,
   TestPlatform.class,
   TestFanout.class,
   TestMessageBroker.class,

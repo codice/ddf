@@ -1,0 +1,24 @@
+{
+  "name": "security-services-app",
+  "description": "The Security Application provides Authentication, Authorization, and Auditing services.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security",
+  "bundleLocations": [
+    "mvn:ddf.platform.security/security-rest-authentication/${project.version}",
+    "mvn:ddf.security.core/security-core-impl/${project.version}",
+    "mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}",
+    "mvn:ddf.security.expansion/security-expansion-userattr-map/${project.version}",
+    "mvn:ddf.security.filter/security-filter-login/${project.version}",
+    "mvn:ddf.security.idp/security-idp-client/${project.version}",
+    "mvn:ddf.security.idp/security-idp-server/${project.version}",
+    "mvn:ddf.security.handler/security-handler-guest/${project.version}",
+    "mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}",
+    "mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}",
+    "mvn:ddf.security.policy/security-policy-context/${project.version}",
+    "mvn:ddf.security.sts/security-sts-certificateclaimshandler/${project.version}",
+    "mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}",
+    "mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}",
+    "mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}",
+    "mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}",
+    "mvn:ddf.security.sts/security-sts-realm/${project.version}",
+    "mvn:ddf.security.sts/security-sts-server/${project.version}"
+  ]
+}
