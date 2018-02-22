@@ -298,26 +298,77 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     String methodName = "query";
     LOGGER.trace(methodName);
 
-    Serializable metacardId = queryRequest.getPropertyValue(Metacard.ID);
     SourceResponseImpl response = null;
 
     Subject subject = null;
-    WebClient restWebClient;
     if (queryRequest.hasProperties()) {
       Object subjectObj = queryRequest.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
       subject = (Subject) subjectObj;
     }
-    restWebClient = factory.getWebClientForSubject(subject);
 
     Query query = queryRequest.getQuery();
-
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Received query: {}", query);
+
+      FilterTransformer transform = new FilterTransformer();
+      transform.setIndentation(2);
+      try {
+        LOGGER.debug(transform.transform(query));
+      } catch (TransformerException e) {
+        LOGGER.debug("Error transforming query to XML", e);
+      }
     }
 
-    boolean canDoOpenSearch = setOpenSearchParameters(queryRequest, subject, restWebClient);
+    final OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        (OpenSearchFilterVisitorObject)
+            query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
 
-    if (canDoOpenSearch) {
+    final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
+    final SpatialFilter spatialSearch = openSearchFilterVisitorObject.getSpatialSearch();
+    final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
+
+    final Map<String, String> searchPhraseMap;
+    if (contextualSearch != null) {
+      searchPhraseMap = contextualSearch.getSearchPhraseMap();
+    } else {
+      searchPhraseMap = new HashMap<>();
+    }
+
+    if (MapUtils.isNotEmpty(searchPhraseMap) || spatialSearch != null || temporalSearch != null) {
+      final WebClient restWebClient = factory.getWebClientForSubject(subject);
+      if (restWebClient == null) {
+        throw new UnsupportedQueryException("Unable to create restWebClient");
+      }
+
+      // All queries must have at least a search phrase to be valid
+      searchPhraseMap.putIfAbsent(OpenSearchParserImpl.SEARCH_TERMS, "*");
+
+      openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
+
+      openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
+
+      if (temporalSearch != null) {
+        openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
+      }
+
+      if (spatialSearch != null) {
+        if (spatialSearch instanceof SpatialDistanceFilter) {
+          openSearchParser.populateGeospatial(
+              restWebClient,
+              (SpatialDistanceFilter) spatialSearch,
+              shouldConvertToBBox,
+              parameters);
+        } else {
+          openSearchParser.populateGeospatial(
+              restWebClient, spatialSearch, shouldConvertToBBox, parameters);
+        }
+      }
+
+      if (localQueryOnly) {
+        restWebClient.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
+      } else {
+        restWebClient.replaceQueryParam(URL_SRC_PARAMETER, "");
+      }
 
       InputStream responseStream = performRequest(restWebClient);
 
@@ -327,48 +378,50 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         response = processResponse(responseStream, queryRequest);
       }
     } else {
-      if (StringUtils.isEmpty((String) metacardId)) {
-        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-            (OpenSearchFilterVisitorObject)
-                query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
-        metacardId = openSearchFilterVisitorObject.getId();
+      String metacardId = (String) queryRequest.getPropertyValue(Metacard.ID);
+      if (StringUtils.isEmpty(metacardId)) {
+        final String idSearch = openSearchFilterVisitorObject.getId();
+        if (idSearch != null) {
+          metacardId = idSearch;
+        }
       }
-      restWebClient = newRestClient(query, (String) metacardId, false, subject);
 
-      if (restWebClient != null) {
+      final WebClient restWebClient = newRestClient(query, metacardId, false, subject);
+      if (restWebClient == null) {
+        throw new UnsupportedQueryException("Unable to create restWebClient");
+      }
 
-        InputStream responseStream = performRequest(restWebClient);
+      InputStream responseStream = performRequest(restWebClient);
 
-        Metacard metacard = null;
-        List<Result> resultQueue = new ArrayList<>();
-        try (TemporaryFileBackedOutputStream fileBackedOutputStream =
-            new TemporaryFileBackedOutputStream()) {
-          if (responseStream != null) {
-            IOUtils.copyLarge(responseStream, fileBackedOutputStream);
-            InputTransformer inputTransformer = null;
+      Metacard metacard = null;
+      List<Result> resultQueue = new ArrayList<>();
+      try (TemporaryFileBackedOutputStream fileBackedOutputStream =
+          new TemporaryFileBackedOutputStream()) {
+        if (responseStream != null) {
+          IOUtils.copyLarge(responseStream, fileBackedOutputStream);
+          InputTransformer inputTransformer = null;
+          try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
+            inputTransformer = getInputTransformer(inputStream);
+          } catch (IOException e) {
+            LOGGER.debug("Problem with transformation.", e);
+          }
+          if (inputTransformer != null) {
             try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-              inputTransformer = getInputTransformer(inputStream);
+              metacard = inputTransformer.transform(inputStream);
             } catch (IOException e) {
               LOGGER.debug("Problem with transformation.", e);
             }
-            if (inputTransformer != null) {
-              try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-                metacard = inputTransformer.transform(inputStream);
-              } catch (IOException e) {
-                LOGGER.debug("Problem with transformation.", e);
-              }
-            }
           }
-        } catch (IOException | CatalogTransformerException e) {
-          LOGGER.debug("Problem with transformation.", e);
         }
-        if (metacard != null) {
-          metacard.setSourceId(getId());
-          ResultImpl result = new ResultImpl(metacard);
-          resultQueue.add(result);
-          response = new SourceResponseImpl(queryRequest, resultQueue);
-          response.setHits(resultQueue.size());
-        }
+      } catch (IOException | CatalogTransformerException e) {
+        LOGGER.debug("Problem with transformation.", e);
+      }
+      if (metacard != null) {
+        metacard.setSourceId(getId());
+        ResultImpl result = new ResultImpl(metacard);
+        resultQueue.add(result);
+        response = new SourceResponseImpl(queryRequest, resultQueue);
+        response.setHits(resultQueue.size());
       }
     }
 
@@ -432,49 +485,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   void setForeignMarkupBiConsumer(
       BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
-  }
-
-  private boolean setOpenSearchParameters(
-      QueryRequest queryRequest, Subject subject, WebClient client) {
-    Query query = queryRequest.getQuery();
-    if (LOGGER.isDebugEnabled()) {
-      FilterTransformer transform = new FilterTransformer();
-      transform.setIndentation(2);
-      try {
-        LOGGER.debug(transform.transform(query));
-      } catch (TransformerException e) {
-        LOGGER.debug("Error transforming query to XML", e);
-      }
-    }
-
-    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-        (OpenSearchFilterVisitorObject)
-            query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
-
-    final ContextualSearch contextualFilter = openSearchFilterVisitorObject.getContextualSearch();
-    final SpatialFilter spatialFilter = openSearchFilterVisitorObject.getSpatialSearch();
-    final TemporalFilter temporalFilter = openSearchFilterVisitorObject.getTemporalSearch();
-
-    Map<String, String> searchPhraseMap = new HashMap<>();
-    if (contextualFilter != null) {
-      searchPhraseMap = contextualFilter.getSearchPhraseMap();
-    }
-
-    if (MapUtils.isNotEmpty(searchPhraseMap) || spatialFilter != null || temporalFilter != null) {
-      // All queries must have at least a search phrase to be valid
-      if (searchPhraseMap == null) {
-        searchPhraseMap = new HashMap<>();
-      }
-      searchPhraseMap.putIfAbsent(OpenSearchParserImpl.SEARCH_TERMS, "*");
-
-      openSearchParser.populateSearchOptions(client, queryRequest, subject, parameters);
-      openSearchParser.populateContextual(client, searchPhraseMap, parameters);
-      applyFilters(openSearchFilterVisitorObject, client);
-
-      return true;
-    } else {
-      return false;
-    }
   }
 
   private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) {
@@ -935,33 +945,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   private WebClient newOpenSearchClient(String url, Subject subj) {
     SecureCxfClientFactory<OpenSearch> clientFactory = createClientFactory(url, username, password);
     return clientFactory.getWebClientForSubject(subj);
-  }
-
-  private void applyFilters(OpenSearchFilterVisitorObject visitor, WebClient client) {
-
-    TemporalFilter temporalFilter = visitor.getTemporalSearch();
-    if (temporalFilter != null) {
-      LOGGER.debug("startDate = {}", temporalFilter.getStartDate());
-      LOGGER.debug("endDate = {}", temporalFilter.getEndDate());
-
-      openSearchParser.populateTemporal(client, temporalFilter, parameters);
-    }
-
-    SpatialFilter spatialFilter = visitor.getSpatialSearch();
-    if (spatialFilter != null) {
-      if (spatialFilter instanceof SpatialDistanceFilter) {
-        openSearchParser.populateGeospatial(
-            client, (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox, parameters);
-      } else {
-        openSearchParser.populateGeospatial(client, spatialFilter, shouldConvertToBBox, parameters);
-      }
-    }
-
-    if (localQueryOnly) {
-      client.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
-    } else {
-      client.replaceQueryParam(URL_SRC_PARAMETER, "");
-    }
   }
 
   private List<Metacard> processAdditionalForeignMarkups(Element element, String id) {
