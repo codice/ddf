@@ -358,10 +358,6 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
-  public void waitForRequiredApps(String... appNames) throws InterruptedException {
-  }
-
-  @Override
   public void waitForAllBundles() throws InterruptedException {
     waitForRequiredBundles("");
   }

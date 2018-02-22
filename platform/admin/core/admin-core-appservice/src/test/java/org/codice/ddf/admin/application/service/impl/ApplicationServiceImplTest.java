@@ -14,6 +14,8 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +38,7 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.service.RepositoryImpl;
+import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,16 +116,6 @@ public class ApplicationServiceImplTest {
     bundleStateServices.add(mockBundleStateService);
   }
 
-  /**
-   * Tests that the {@link ApplicationServiceImpl#getApplications()} method returns the correct
-   * number of applications.
-   */
-  @Test
-  public void testGetApplications() throws Exception {
-
-    // TODO: tbatie - 2/15/18 - Rewrite
-  }
-
   /** Tests install profile and make sure they load correctly. */
   @Test
   public void testInstallProfileFeatures() throws Exception {
@@ -134,7 +127,7 @@ public class ApplicationServiceImplTest {
     FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
     when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-    ApplicationService appService = createPermittedApplicationServiceImpl();
+    ApplicationService appService = createPermittedApplicationServiceImpl(featuresService);
 
     List<Feature> profiles = appService.getInstallationProfiles();
 
@@ -159,6 +152,66 @@ public class ApplicationServiceImplTest {
     assertTrue(featureNames.contains(TEST_MAIN_FEATURES_2_MAIN_FEATURE_NAME));
   }
 
+  /** Tests the {@link ApplicationServiceImpl#getAllFeatures()} method */
+  @Test
+  public void testGetAllFeatures() throws Exception {
+    Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo, noMainFeatureRepo1));
+    FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+    when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+    ApplicationService appService = createPermittedApplicationServiceImpl(featuresService);
+
+    List<FeatureDetails> result = appService.getAllFeatures();
+
+    assertThat(
+        "Returned features should match features in mainFeatureRepo.",
+        result.get(0).getName(),
+        is(mainFeatureRepo.getFeatures()[0].getName()));
+    assertThat(
+        "Returned features should match features in mainFeatureRepo.",
+        result.get(0).getId(),
+        is(mainFeatureRepo.getFeatures()[0].getId()));
+    assertThat("Should return seven features.", result.size(), is(4));
+  }
+
+  /**
+   * Tests the {@link ApplicationServiceImpl#getAllFeatures()} method for the case where an
+   * exception is thrown in getFeatureToRepository(..)
+   */
+  @Test
+  public void testGetAllFeaturesFTRException() throws Exception {
+    Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo, noMainFeatureRepo1));
+    FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+    when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+    ApplicationService appService = createPermittedApplicationServiceImpl(featuresService);
+
+    doThrow(new NullPointerException()).when(featuresService).listRepositories();
+
+    List<FeatureDetails> details = appService.getAllFeatures();
+    assertThat("List of feature details should have 7 entries", details, hasSize(4));
+    details.forEach(
+        d ->
+            assertThat(
+                d.getName() + " should not have a mapped repository",
+                d.getRepository(),
+                is(nullValue())));
+  }
+
+  /**
+   * Tests the {@link ApplicationServiceImpl#getAllFeatures()} method for the case where an
+   * exception is thrown by the featuresService
+   */
+  @Test
+  public void testGetAllFeaturesException() throws Exception {
+    Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo, noMainFeatureRepo1));
+    FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+    when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+    ApplicationService appService = createPermittedApplicationServiceImpl(featuresService);
+
+    doThrow(new NullPointerException()).when(featuresService).listFeatures();
+
+    assertThat("No features should have been found", appService.getAllFeatures(), is(empty()));
+  }
+
   /**
    * Tests the {@link ApplicationServiceImpl#getInstallationProfiles()} method for the case where
    * featuresService.listFeatures() throws an exception
@@ -169,7 +222,7 @@ public class ApplicationServiceImplTest {
     FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
     when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
     ApplicationService appService =
-        new ApplicationServiceImpl() {
+        new ApplicationServiceImpl(featuresService) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -314,8 +367,9 @@ public class ApplicationServiceImplTest {
     return featuresService;
   }
 
-  private ApplicationServiceImpl createPermittedApplicationServiceImpl() {
-    return new ApplicationServiceImpl() {
+  private ApplicationServiceImpl createPermittedApplicationServiceImpl(
+      FeaturesService featuresService) {
+    return new ApplicationServiceImpl(featuresService) {
       @Override
       protected BundleContext getContext() {
         return bundleContext;

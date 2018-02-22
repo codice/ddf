@@ -1,9 +1,4 @@
 {
-  "start-apps": [
-    "app1",
-    "app1",
-    "app2"
-  ],
   "install-features": [
     "feature1",
     "feature1",

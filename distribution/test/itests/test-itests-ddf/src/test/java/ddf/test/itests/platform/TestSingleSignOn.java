@@ -93,7 +93,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private static final DynamicUrl IDP_URL = new DynamicUrl(SERVICE_ROOT, "/idp/login");
 
-  private static final DynamicUrl WHO_AM_I_URL = new DynamicUrl(SERVICE_ROOT, "/whoami");
+  private static final DynamicUrl WHO_AM_I_URL =
+      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/whoami");
 
   private static final DynamicUrl AUTHENTICATION_REQUEST_ISSUER =
       new DynamicUrl(SERVICE_ROOT, "/saml/sso");
@@ -302,13 +303,16 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private String getUserName() {
     // @formatter:off
-    return get(WHO_AM_I_URL.getUrl()).body().asString();
+    Response response = get(WHO_AM_I_URL.getUrl()).then().extract().response();
+    return response.jsonPath().get("karaf.name");
     // @formatter:on
   }
 
   private String getUserName(Map<String, String> cookies) {
     // @formatter:off
-    return given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).body().asString();
+    Response response =
+        given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).then().extract().response();
+    return response.jsonPath().get("idp.name");
     // @formatter:on
   }
 

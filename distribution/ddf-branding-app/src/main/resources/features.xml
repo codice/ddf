@@ -17,7 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="ddf-branding" version="${project.version}" description="DDF Branding"
-             install="auto">
+            >
         <feature prerequisite="true">web-container</feature>
         <feature prerequisite="true">branding-api</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>

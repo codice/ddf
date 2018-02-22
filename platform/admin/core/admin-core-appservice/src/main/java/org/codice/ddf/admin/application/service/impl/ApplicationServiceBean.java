@@ -39,7 +39,6 @@ import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
@@ -65,8 +64,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   private static final String MAP_VERSION = "version";
 
   private static final String MAP_DESCRIPTION = "description";
-
-  private static final String MAP_URI = "uri";
 
   private static final String INSTALL_PROFILE_DEFAULT_APPLICATIONS = "defaultApplications";
 
@@ -191,77 +188,26 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   @Override
-  public List<Map<String, Object>> getApplicationTree() {
-    Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<>();
-    for (ApplicationNode curRoot : rootApplications) {
-      applications.add(convertApplicationNode(curRoot));
-    }
-    LOGGER.debug("Returning {} root applications.", applications.size());
-    return applications;
-  }
-
-  private Map<String, Object> convertApplicationNode(ApplicationNode application) {
-    LOGGER.debug("Converting {} to a map", application.getApplication().getName());
-    Map<String, Object> appMap = new HashMap<>();
-    Application internalApplication = application.getApplication();
-    appMap.put(MAP_NAME, internalApplication.getName());
-    appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
-    return appMap;
-  }
-
-  @Override
   public List<Map<String, Object>> getApplications() {
-    Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<>();
-    List<Map<String, Object>> applicationsArray = new ArrayList<>();
-    for (ApplicationNode curRoot : rootApplications) {
-      applications.add(convertApplicationEntries(curRoot, applicationsArray));
-    }
-    LOGGER.debug("Returning {} root applications.", applications.size());
-    return applicationsArray;
+    return appService
+        .getApplications()
+        .stream()
+        .map(this::convertApplicationEntries)
+        .collect(Collectors.toList());
   }
 
-  private Map<String, Object> convertApplicationEntries(
-      ApplicationNode application, List<Map<String, Object>> applicationsArray) {
-    LOGGER.debug("Converting {} to a map", application.getApplication().getName());
+  private Map<String, Object> convertApplicationEntries(Application application) {
+    LOGGER.debug("Converting {} to a map", application.getName());
     Map<String, Object> appMap = new HashMap<>();
-    Application internalApplication = application.getApplication();
-    appMap.put(MAP_NAME, internalApplication.getName());
-    appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
-    applicationsArray.add(appMap);
+    appMap.put(MAP_NAME, application.getName());
+    appMap.put(MAP_DESCRIPTION, application.getDescription());
     return appMap;
   }
-
-  @Override
-  public synchronized boolean startApplication(String appName) {
-    return false;
-  }
-
-  @Override
-  public synchronized boolean stopApplication(String appName) {
-    return false;
-  }
-
-  @Override
-  public void addApplications(List<Map<String, Object>> applicationURLList) {}
-
-  @Override
-  public void removeApplication(String appName) {}
 
   @Nullable
   Set<BundleInfo> getBundleInfosForApplication(String applicationID) {
-    Set<BundleInfo> bundleInfos = null;
-    try {
-      Application app = appService.getApplication(applicationID);
-      if (app == null) {
-        return null;
-      }
-      bundleInfos = app.getBundles();
-    } catch (ApplicationServiceException e) {
-      LOGGER.warn("There was an error while trying to access the application", e);
-    }
-    return bundleInfos;
+    Application app = appService.getApplication(applicationID);
+    return app == null ? null : app.getBundles();
   }
 
   /** {@inheritDoc}. */
@@ -413,11 +359,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getAllFeatures() {
     return getFeatureMap(appService.getAllFeatures());
-  }
-
-  @Override
-  public List<Map<String, Object>> findApplicationFeatures(String applicationName) {
-    return getFeatureMap(appService.findApplicationFeatures(applicationName));
   }
 
   private List<Map<String, Object>> getFeatureMap(List<FeatureDetails> featureViews) {

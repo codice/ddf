@@ -16,7 +16,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="admin-core" install="manual" version="${project.version}"
+    <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
         <feature>security-services-app</feature>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
@@ -31,43 +31,43 @@
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-ui" install="manual" version="${project.version}"
+    <feature name="admin-ui" version="${project.version}"
              description="Administration UI">
         <feature>admin-core</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-modules-configuration" install="manual" version="${project.version}"
+    <feature name="admin-modules-configuration" version="${project.version}"
              description="Configuration Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-configuration/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-modules-docs" install="manual" version="${project.version}"
+    <feature name="admin-modules-docs" version="${project.version}"
              description="Documentation Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-modules-installer" install="manual" version="${project.version}"
+    <feature name="admin-modules-installer" version="${project.version}"
              description="Installer Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-modules-application" install="manual" version="${project.version}"
+    <feature name="admin-modules-application" version="${project.version}"
              description="Application Module">
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-security-ui" install="manual" version="${project.version}">
+    <feature name="admin-security-ui" version="${project.version}">
         <details>Placeholder for Security Admin UI</details>
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-security-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-post-install-modules" install="manual" version="${project.version}"
+    <feature name="admin-post-install-modules" version="${project.version}"
              description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
@@ -76,33 +76,33 @@
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-core-migration-commands" install="manual" version="${project.version}"
+    <feature name="admin-core-migration-commands" version="${project.version}"
              description="Migration commands module">
         <feature>security-expansion</feature>
         <feature>platform-migratable-api</feature>
         <bundle>mvn:ddf.admin.core/admin-core-migration-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-core-logviewer" install="auto" version="${project.version}"
+    <feature name="admin-core-logviewer" version="${project.version}"
              description="Admin UI's logviewer page to display karaf logs">
         <feature>admin-core</feature>
         <bundle>mvn:ddf.admin.core/admin-core-logviewer/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-configurator" install="manual" version="${project.version}"
+    <feature name="admin-configurator" version="${project.version}"
              description="High-level configurator service for orchestrated configurations.">
         <bundle>mvn:ddf.admin/admin-configurator-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin/admin-configurator-actions-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin/admin-configurator-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-config-updater" install="manual" version="${project.version}"
+    <feature name="admin-config-updater" version="${project.version}"
              description="Synchronizes config admin with the etc directory">
         <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-app" install="auto" version="${project.version}"
-             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::Admin">
+    <feature name="admin-app" version="${project.version}"
+             description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
         <feature prerequisite="true">security-services-app</feature>
         <feature>admin-core</feature>
         <feature>admin-ui</feature>

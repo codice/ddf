@@ -96,9 +96,6 @@ public interface ServiceManager {
 
   void startBundle(String bundleSymbolicName) throws BundleException;
 
-  @Deprecated
-  void waitForRequiredApps(String... appNames) throws InterruptedException;
-
   void waitForAllBundles() throws InterruptedException;
 
   void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException;

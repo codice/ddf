@@ -20,6 +20,7 @@
         <cm:managed-properties
             persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
             update-strategy="container-managed"/>
+        <argument ref="featuresService"/>
     </bean>
 
     <service ref="appService"

@@ -16,7 +16,6 @@ package org.codice.ddf.admin.application.service.impl;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.doThrow;
@@ -26,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -47,16 +44,13 @@ import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -82,36 +76,15 @@ public class ApplicationServiceBeanTest {
 
   private static final String TEST_FEATURE_NAME = "TestFeature";
 
-  private static final String TEST_URL = "TestMockURL";
-
-  private static final String BAD_URL = ">BadURL<";
-
   private static final String TEST_LOCATION = "TestLocation";
 
   private static final String TEST_REPO_NAME = "TestRepo";
-
-  private static final String REMOVE_APP_ASE = "Could not remove application";
-
-  private static final String GET_SERV_ASE =
-      "There was an error while trying to access the application";
 
   private ApplicationService testAppService;
 
   private ConfigurationAdmin testConfigAdminExt;
 
-  private ApplicationNode testNode1;
-
-  private ApplicationNode testNode2;
-
-  private ApplicationNode testNode3;
-
   private Application testApp;
-
-  private ApplicationStatus testStatus;
-
-  private Set<ApplicationNode> nodeSet;
-
-  private Set<ApplicationNode> childrenSet;
 
   private BundleContext bundleContext;
 
@@ -126,47 +99,11 @@ public class ApplicationServiceBeanTest {
     testApp = mock(ApplicationImpl.class);
 
     when(testApp.getName()).thenReturn(TEST_APP_NAME);
-    when(testApp.getVersion()).thenReturn(TEST_VERSION);
     when(testApp.getDescription()).thenReturn(TEST_APP_DESCRIP);
     bundleContext = mock(BundleContext.class);
     mBeanServer = mock(MBeanServer.class);
     objectName =
         new ObjectName(ApplicationService.class.getName() + ":service=application-service");
-  }
-
-  /**
-   * Sets up an application tree for use in testing
-   *
-   * @throws Exception
-   */
-  public void setUpTree() throws Exception {
-    testNode1 = mock(ApplicationNodeImpl.class);
-    testNode2 = mock(ApplicationNodeImpl.class);
-    testNode3 = mock(ApplicationNodeImpl.class);
-
-    testStatus = mock(ApplicationStatus.class);
-
-    when(testNode1.getApplication()).thenReturn(testApp);
-    when(testNode2.getApplication()).thenReturn(testApp);
-    when(testNode3.getApplication()).thenReturn(testApp);
-
-    when(testNode1.getStatus()).thenReturn(testStatus);
-    when(testNode2.getStatus()).thenReturn(testStatus);
-    when(testNode3.getStatus()).thenReturn(testStatus);
-
-    nodeSet = new TreeSet<>();
-    nodeSet.add(testNode1);
-    nodeSet.add(testNode2);
-    childrenSet = new TreeSet<>();
-    childrenSet.add(testNode3);
-
-    when(testAppService.getApplicationTree()).thenReturn(nodeSet);
-
-    when(testStatus.getState()).thenReturn(ApplicationStatus.ApplicationState.ACTIVE);
-
-    when(testNode1.getChildren()).thenReturn(childrenSet);
-    when(testNode2.getChildren()).thenReturn(childrenSet);
-    when(testNode3.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
   }
 
   /**
@@ -311,32 +248,6 @@ public class ApplicationServiceBeanTest {
         (String) result.get(0).get("name"),
         is(TEST_FEATURE_NAME));
     assertThat("Should have two entries.", result.size(), is(2));
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#getApplications()} method for the case where the
-   * applications have no children
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testGetApplicationsNoChildren() throws Exception {
-    setUpTree();
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    serviceBean.init();
-
-    when(testNode1.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
-    when(testNode2.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
-    when(testNode3.getChildren()).thenReturn((new TreeSet<ApplicationNode>()));
-
-    List<Map<String, Object>> result = serviceBean.getApplications();
-
-    assertThat(
-        "Should return the application nodes set up previously.",
-        (String) result.get(0).get("name"),
-        is(TEST_APP_NAME));
-    assertThat("Size of root should be one.", result.size(), is(1));
   }
 
   /**
@@ -528,22 +439,11 @@ public class ApplicationServiceBeanTest {
     Service testService1 = new ServiceImpl();
     services.add(testService1);
 
-    doThrow(new ApplicationServiceException()).when(testApp).getBundles();
     when(testAppService.getApplication(TEST_APP_NAME)).thenReturn(testApp);
     when(testConfigAdminExt.listServices(Mockito.any(String.class), Mockito.any(String.class)))
         .thenReturn(services);
 
     serviceBean.getServices(TEST_APP_NAME);
-
-    verify(mockAppender)
-        .doAppend(
-            argThat(
-                new ArgumentMatcher() {
-                  @Override
-                  public boolean matches(final Object argument) {
-                    return ((LoggingEvent) argument).getFormattedMessage().contains(GET_SERV_ASE);
-                  }
-                }));
   }
 
   /**
@@ -591,33 +491,6 @@ public class ApplicationServiceBeanTest {
         (String) serviceBean.getAllFeatures().get(0).get("name"),
         is(testFeatureDetailsList.get(0).getName()));
     verify(testAppService).getAllFeatures();
-  }
-
-  /**
-   * Tests the {@link ApplicationServiceBean#findApplicationFeatures(String)} method
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testFindApplicationFeatures() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-
-    List<FeatureDetails> testFeatureDetailsList = new ArrayList<>();
-    FeatureDetails testFeatureDetails1 = mock(FeatureDetails.class);
-    testFeatureDetailsList.add(testFeatureDetails1);
-    when(testFeatureDetails1.getName()).thenReturn(TEST_FEATURE_DETAILS);
-    when(testFeatureDetails1.getVersion()).thenReturn(TEST_VERSION);
-    when(testFeatureDetails1.getStatus()).thenReturn(TEST_FEATURE_STATUS);
-    when(testFeatureDetails1.getRepository()).thenReturn(TEST_REPO_NAME);
-
-    when(testAppService.findApplicationFeatures(TEST_APP_NAME)).thenReturn(testFeatureDetailsList);
-
-    assertThat(
-        "Features returned should match testFeatureDetailsList features",
-        (String) serviceBean.findApplicationFeatures(TEST_APP_NAME).get(0).get("name"),
-        is(testFeatureDetailsList.get(0).getName()));
-    verify(testAppService).findApplicationFeatures(TEST_APP_NAME);
   }
 
   /**

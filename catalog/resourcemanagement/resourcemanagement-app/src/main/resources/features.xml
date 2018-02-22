@@ -28,7 +28,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="resourcemanagement-usage-plugin" install="manual" version="${project.version}"
+    <feature name="resourcemanagement-usage-plugin" version="${project.version}"
              description="Resource Plugin tracking data usage ">
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-usage-plugin/${project.version}</bundle>
     </feature>
@@ -37,7 +37,7 @@
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-usage-ui/${project.version}</bundle>
     </feature>
 
-    <feature name="resourcemanagement-querymonitor-plugin" install="manual" version="${project.version}"
+    <feature name="resourcemanagement-querymonitor-plugin" version="${project.version}"
              description="Resource Plugin tracking data usage ">
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-plugin/${project.version}</bundle>
     </feature>
@@ -51,8 +51,8 @@
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="resourcemanagement-app" install="auto" version="${project.version}"
-             description="The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.::Resource Management">
+    <feature name="resourcemanagement-app" version="${project.version}"
+             description="The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.">
         <feature prerequisite="true">catalog-app</feature>
         <feature>resourcemanagement-usage-ui</feature>
         <feature>resourcemanagement-usage-plugin</feature>

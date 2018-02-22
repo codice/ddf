@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Interface for the Application Service MBean. Allows exposing the application service out via a
- * JMX MBean interface.
+ * @deprecated going away in a future release. Interface for the Application Service MBean. Allows
+ *     exposing the application service out via a JMX MBean interface.
  */
 @Deprecated
 public interface ApplicationServiceBeanMBean {
@@ -65,50 +65,4 @@ public interface ApplicationServiceBeanMBean {
    */
   @Deprecated
   List<Map<String, Object>> getPluginsForApplication(String appName);
-
-  /**
-   * Creates an application hierarchy tree that shows relationships between applications.
-   *
-   * @return A list of the root applications expressed as maps.
-   */
-  @Deprecated
-  List<Map<String, Object>> getApplicationTree();
-
-  /**
-   * Starts an application with the given name.
-   *
-   * @param appName Name of the application to start.
-   * @return true if the application was successfully started, false if not.
-   */
-  @Deprecated
-  boolean startApplication(String appName);
-
-  /**
-   * Stops an application with the given name.
-   *
-   * @param appName Name of the application to stop.
-   * @return true if the application was successfully stopped, false if not.
-   */
-  @Deprecated
-  boolean stopApplication(String appName);
-
-  /**
-   * Adds a list of applications that are specified by their URL.
-   *
-   * @param applicationURLList
-   */
-  @Deprecated
-  void addApplications(List<Map<String, Object>> applicationURLList);
-
-  /** Removes an application that is specified by its URL. */
-  @Deprecated
-  void removeApplication(String applicationURL);
-
-  /**
-   * Returns all Features in DDF by Application
-   *
-   * @return
-   */
-  @Deprecated
-  List<Map<String, Object>> findApplicationFeatures(String applicationName);
 }

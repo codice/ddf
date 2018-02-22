@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Defines an application configuration plugin. */
+/** @deprecated going away in a future release. Defines an application configuration plugin. */
 @Deprecated
 public interface ApplicationPlugin {
   /** key to mark that a plugin should be used for ALL applications. */

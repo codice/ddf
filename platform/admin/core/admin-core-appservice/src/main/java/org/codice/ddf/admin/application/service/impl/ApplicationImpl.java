@@ -13,9 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -35,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of the application interface. This class exposes a karaf-based repository
  * (identified inside of a feature) as a DDF application.
  */
-public class ApplicationImpl implements Application, Comparable<Application> {
+public class ApplicationImpl implements Application {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
 
@@ -44,6 +41,10 @@ public class ApplicationImpl implements Application, Comparable<Application> {
   private String description;
 
   private List<String> bundleLocations;
+
+  public ApplicationImpl() {
+    bundleLocations = new ArrayList<>();
+  }
 
   public BundleInfo bundleToBundleInfo(Bundle bundle) {
     return new BundleInfo() {
@@ -69,37 +70,16 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     };
   }
 
-  @Override
   public String getName() {
     return name;
   }
 
-  @Override
-  public String getVersion() {
-    return null;
-  }
-
-  @Override
   public String getDescription() {
     return description;
   }
 
   @Override
-  public Set<Feature> getFeatures() throws ApplicationServiceException {
-    return Collections.emptySet();
-  }
-
-  public Set<Feature> getAutoInstallFeatures() {
-    return Collections.emptySet();
-  }
-
-  @Override
-  public Feature getMainFeature() {
-    return null;
-  }
-
-  @Override
-  public Set<BundleInfo> getBundles() throws ApplicationServiceException {
+  public Set<BundleInfo> getBundles() {
     Set<BundleInfo> bundles = new HashSet<>();
     Map<String, Bundle> bundleMap = bundlesByLocation();
 
@@ -120,39 +100,5 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     return Arrays.stream(
             FrameworkUtil.getBundle(ApplicationImpl.class).getBundleContext().getBundles())
         .collect(Collectors.toMap(Bundle::getLocation, Function.identity()));
-  }
-
-  @Override
-  public String toString() {
-    return name;
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    } else if (obj == this) {
-      return true;
-    } else if (!(obj instanceof Application)) {
-      return false;
-    }
-
-    Application otherApp = (Application) obj;
-    return name.equals(otherApp.getName());
-  }
-
-  @Override
-  public int compareTo(Application otherApp) {
-    return name.compareTo(otherApp.getName());
-  }
-
-  @Override
-  public URI getURI() {
-    return null;
   }
 }

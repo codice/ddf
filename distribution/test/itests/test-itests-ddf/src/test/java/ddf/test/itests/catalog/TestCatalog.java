@@ -2286,7 +2286,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   private void persistToWorkspace(int size) throws Exception {
-    getServiceManager().startFeature(true,"search-ui-app");
+    getServiceManager().startFeature(true, "search-ui-app");
     // Generate very large data block
     Map<String, String> map = Maps.newHashMap();
     for (int i = 0; i < size; i++) {

@@ -108,16 +108,17 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testFeatureStartAndStop() throws Exception {
+  public void testBundleStartAndStop() throws Exception {
     String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
     File securityLog = new File(logFilePath);
-    getServiceManager().stopFeature(true, "catalog-plugin-security-audit");
+
+    getServiceManager().stopBundle("catalog-plugin-security-audit");
     WaitCondition.expect("Securitylog has log message: " + stoppedMessage)
         .within(2, TimeUnit.MINUTES)
         .checkEvery(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(stoppedMessage));
 
-    getServiceManager().startFeature(true, "catalog-plugin-security-audit");
+    getServiceManager().startBundle("catalog-plugin-security-audit");
     WaitCondition.expect("Securitylog has log message: " + startedMessage)
         .within(2, TimeUnit.MINUTES)
         .checkEvery(2, TimeUnit.SECONDS)

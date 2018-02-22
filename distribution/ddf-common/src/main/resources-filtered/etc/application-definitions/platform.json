@@ -10,6 +10,7 @@
     "mvn:ddf.platform/platform-filter-response/${project.version}",
     "mvn:ddf.platform/platform-logging/${project.version}",
     "mvn:ddf.admin.modules/admin-metrics-ui/${project.version}",
-    "mvn:ddf.platform/platform-scheduler/${project.version}"
+    "mvn:ddf.platform/platform-scheduler/${project.version}",
+    "mvn:ddf.metrics.reporting/metrics-reporting/${project.version}"
   ]
 }
