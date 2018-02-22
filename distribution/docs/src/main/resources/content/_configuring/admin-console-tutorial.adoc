@@ -9,7 +9,7 @@
 
 The ${admin-console} is the centralized location for administering the system.
 The ${admin-console} allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
-The default address for the ${admin-console} is ${secure_url}/admin.
+The default address for the ${admin-console} is \${secure_url}/admin.
 
 .Managing Applications from ${admin-console}
 The *Manage* button enables activation/deactivation and adding/removing applications.

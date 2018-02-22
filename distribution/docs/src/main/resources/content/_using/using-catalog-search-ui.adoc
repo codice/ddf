@@ -16,7 +16,7 @@ To exit this mode, click the `?` again or press `escape`.
 
 === Accessing ${catalog-ui}
 
-The default URL for ${catalog-ui} is ${secure_url}/search/catalog
+The default URL for ${catalog-ui} is \${secure_url}/search/catalog
 
 .Catalog UI Guest Users
 [NOTE]

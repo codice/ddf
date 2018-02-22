@@ -201,9 +201,9 @@
         <ddf-branding>DDF</ddf-branding>
         <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
         <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
-        <!--default url substitutions-->
-        <public_url>\http://{FQDN}:{PORT}</public_url>
-        <secure_url>\https://{FQDN}:{PORT}</secure_url>
+        <!--default url substitutions: preface with a \ to disable automatic hyperlinking-->
+        <public_url>http://{FQDN}:{PORT}</public_url>
+        <secure_url>https://{FQDN}:{PORT}</secure_url>
         <home_directory>&lt;DDF_HOME&gt;</home_directory>
         <!--Needed for documentation formatting
             '@' is an escape character for maven filtering. Use this property if '@'

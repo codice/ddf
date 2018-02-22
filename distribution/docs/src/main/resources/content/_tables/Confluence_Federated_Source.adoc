@@ -25,7 +25,7 @@
 |Confluence Rest URL
 |endpointUrl
 |String
-|The Confluence Rest API endpoint URL. Example: ${secure_url}/rest/api/content
+|The Confluence Rest API endpoint URL. Example: \${secure_url}/rest/api/content
 |
 |Yes
 

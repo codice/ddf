@@ -36,7 +36,7 @@ Also note that if ${branding} is uninstalled/re-installed, all existing metrics
 ====
 
 Hyperlinks are provided for each metric and each format in which data can be displayed.
-For example, the PNG hyperlink for 15m for the Catalog Queries metric maps to ${secure_url}/services/internal/metrics/catalogQueries.png?dateOffset=900, where the `dateOffset=900` indicates the previous 900 seconds (15 minutes) to be graphed.
+For example, the PNG hyperlink for 15m for the Catalog Queries metric maps to \${secure_url}/services/internal/metrics/catalogQueries.png?dateOffset=900, where the `dateOffset=900` indicates the previous 900 seconds (15 minutes) to be graphed.
 
 Note that the date format will vary according to the regional/locale settings for the server.
 
@@ -89,7 +89,7 @@ ${secure_url}/services/internal/metrics/report.<format>?startDate=<start_date_va
 where `<format>` is either `xls` or `ppt` and the `<start_date_value>` and `<end_date_value>` specify the custom time range for the report.
 
 These example reports represent custom aggregate reports.
-NOTE: all example URLs begin with "${secure_url}", which is omitted in the table for brevity.
+NOTE: all example URLs begin with \${secure_url}, which is omitted in the table for brevity.
 
 .Example Aggregate Reports
 [cols="2" options="header"]

@@ -6,7 +6,7 @@
 :order: 00
 
 The ${branding} Landing Page is the starting point for using ${branding}.
-It is accessible at ${secure_url}.
+It is accessible at \${secure_url}.
 
 === Search ${branding} Button
 

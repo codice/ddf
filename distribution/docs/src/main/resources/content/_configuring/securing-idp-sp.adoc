@@ -31,7 +31,7 @@ The IdP client that interacts with the specified Identity Provider.
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
-... (e.g., ${secure_url}/services/idp/login/metadata)
+... (e.g., \${secure_url}/services/idp/login/metadata)
 
 .IdP Client (SP) example.xml
 [source,xml,linenums]
