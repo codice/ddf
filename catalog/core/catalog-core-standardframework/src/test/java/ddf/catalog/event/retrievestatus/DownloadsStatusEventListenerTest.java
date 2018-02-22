@@ -29,8 +29,12 @@ import ddf.catalog.resource.download.ReliableResourceDownloaderConfig;
 import ddf.catalog.resource.impl.URLResourceReader;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,42 +43,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.TemporaryFolder;
 
 public class DownloadsStatusEventListenerTest {
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(DownloadsStatusEventListenerTest.class);
+  private ReliableResourceDownloadManager testDownloadManager;
 
-  private static ReliableResourceDownloadManager testDownloadManager;
+  private Path localResourcePath;
 
-  private static TestHazelcastInstanceFactory hcInstanceFactory;
+  private DownloadStatusInfoImpl testDownloadStatusInfo;
 
-  private static String productCacheDir;
+  @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
-  private static DownloadsStatusEventListener testEventListener;
-
-  private static DownloadStatusInfoImpl testDownloadStatusInfo;
-
-  @BeforeClass
-  public static void setUp() {
-
+  @Before
+  public void setUp() throws IOException {
+    testFolder.create();
+    String productCacheDir = testFolder.newFolder("cache").toString();
+    localResourcePath = testFolder.newFolder("resources").toPath();
     ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
     testDownloadStatusInfo = new DownloadStatusInfoImpl();
-    hcInstanceFactory = new TestHazelcastInstanceFactory(10);
-    ResourceCacheImpl testResourceCache = new ResourceCacheImpl();
+    TestHazelcastInstanceFactory hcInstanceFactory = new TestHazelcastInstanceFactory(10);
+    ResourceCacheImpl testResourceCache = new ResourceCacheImpl(productCacheDir);
     testResourceCache.setCache(hcInstanceFactory.newHazelcastInstance());
-    productCacheDir =
-        System.getProperty("user.dir")
-            + "/target"
-            + File.separator
-            + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
-    testResourceCache.setProductCacheDirectory(productCacheDir);
     DownloadsStatusEventPublisher testEventPublisher = mock(DownloadsStatusEventPublisher.class);
-    testEventListener = new DownloadsStatusEventListener();
+    DownloadsStatusEventListener testEventListener = new DownloadsStatusEventListener();
     downloaderConfig.setResourceCache(testResourceCache);
     downloaderConfig.setEventPublisher(testEventPublisher);
     downloaderConfig.setEventListener(testEventListener);
@@ -88,9 +83,9 @@ public class DownloadsStatusEventListenerTest {
 
   @Test
   public void testGetDownloadStatus()
-      throws URISyntaxException, DownloadException, InterruptedException {
-    File downloadFile =
-        new File(System.getProperty("user.dir") + "/src/test/resources/125bytes.txt");
+      throws URISyntaxException, DownloadException, InterruptedException, IOException {
+    File downloadSrcFile = new File(this.getClass().getResource("/125bytes.txt").toURI());
+    File downloadFile = prepareDownloadFile(downloadSrcFile);
     MetacardImpl testMetacard = new MetacardImpl();
     testMetacard.setId("easyas123");
     testMetacard.setResourceURI(downloadFile.toURI());
@@ -98,7 +93,7 @@ public class DownloadsStatusEventListenerTest {
     testMetacard.setType(BasicTypes.BASIC_METACARD);
     URLResourceReader testURLResourceReader = new URLResourceReader();
     testURLResourceReader.setRootResourceDirectories(
-        new HashSet<String>(Arrays.asList(new String[] {System.getProperty("user.dir")})));
+        new HashSet<String>(Arrays.asList(localResourcePath.toString())));
     List<ResourceReader> testResourceReaderList =
         Collections.singletonList((ResourceReader) testURLResourceReader);
     Map<String, Serializable> tmpMap = Collections.emptyMap();
@@ -118,21 +113,22 @@ public class DownloadsStatusEventListenerTest {
   private void testGetDownloadStatusHelper(
       Map<String, Integer> idToBytes, String status, String fileName) {
     List<String> allDownloads = testDownloadStatusInfo.getAllDownloads();
-    LOGGER.debug(allDownloads.toString());
     for (String item : allDownloads) {
       Map<String, String> downloadInfo = testDownloadStatusInfo.getDownloadStatus(item);
-      for (Map.Entry<String, String> downloadItem : downloadInfo.entrySet()) {
-        LOGGER.debug(downloadItem.getKey() + ": " + downloadItem.getValue());
-      }
       if (idToBytes.get(item) == null) {
         idToBytes.put(item, 0);
       }
-      LOGGER.debug(downloadInfo.get("bytesDownloaded"));
       assertTrue(idToBytes.get(item) <= Integer.parseInt(downloadInfo.get("bytesDownloaded")));
       System.out.println(downloadInfo.get("status"));
       assertTrue(status.equals(downloadInfo.get("status")));
       assertTrue(fileName.equals(downloadInfo.get("fileName")));
       idToBytes.put(item, Integer.parseInt(downloadInfo.get("bytesDownloaded")));
     }
+  }
+
+  private File prepareDownloadFile(File sourceFile) throws IOException {
+    Path downloadFilePath = Paths.get(localResourcePath.toString(), sourceFile.getName());
+    Files.copy(sourceFile.toPath(), downloadFilePath);
+    return downloadFilePath.toFile();
   }
 }

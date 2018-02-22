@@ -29,7 +29,7 @@
 
     <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
         <argument ref="federationStrategyThreadFactory"/>
     </bean>
 
