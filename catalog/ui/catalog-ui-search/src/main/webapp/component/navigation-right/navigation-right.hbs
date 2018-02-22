@@ -11,23 +11,23 @@
  *
  **/
  --}}
+
 <button class="navigation-item item-help is-button" title="Shows helpful hints in the current context.">
     <span class="fa fa-question"></span>
 </button>
 <button class="navigation-item item-settings is-button" title="Shows settings for the application.">
     <span class="fa fa-cog"></span>
 </button>
-<button class="navigation-item item-alerts is-button" title="Shows notifications.">
+<button class="navigation-item item-alerts is-button" style="margin-right: 15px;" title="Shows notifications.">
     <span class="fa fa-bell"></span>
     <span class="alerts-badge fa fa-exclamation"></span>
 </button>
+
 <button class="navigation-item item-user is-button">
     <div class="user-unique" title="Logged in as {{user.username}}">
-        <span class="">{{user.username}}</span>
-        <span class="fa fa-user"></span>
+      <span class="unique-user-style">{{user.username}}</span>
     </div>
-    <div class="user-guest" title="Logged in as guest."> 
-        <span class="">Guest</span>
-        <span class="fa fa-user-secret"></span>
+    <div class="user-guest" title="Logged in as guest.">
+        <span class="guest-login-btn">Sign In</span>
     </div>
 </button>
