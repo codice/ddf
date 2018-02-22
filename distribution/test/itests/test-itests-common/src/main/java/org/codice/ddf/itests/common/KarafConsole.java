@@ -85,7 +85,9 @@ public class KarafConsole extends KarafTestSupport {
    */
   @SuppressWarnings("squid:S00112") /* test code, don't care if we throw runtime exception */
   public String runCommand(String command) {
-    String response = executeCommand(command, 120000L, false, DEFAULT_ROLES);
+    String response =
+        executeCommand(
+            command, AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS, false, DEFAULT_ROLES);
     if (response.contains("SHELL COMMAND TIMED OUT:")) {
       throw new RuntimeException("Shell command timed out: " + command);
     }

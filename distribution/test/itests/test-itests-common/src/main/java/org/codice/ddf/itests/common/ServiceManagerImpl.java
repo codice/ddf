@@ -78,11 +78,14 @@ public class ServiceManagerImpl implements ServiceManager {
           .put(Bundle.ACTIVE, "ACTIVE")
           .build();
 
-  public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long MANAGED_SERVICE_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long FEATURES_AND_BUNDLES_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long HTTP_ENDPOINT_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
 
@@ -518,7 +521,8 @@ public class ServiceManagerImpl implements ServiceManager {
     String path = restPath + "sources";
     LOGGER.info("Waiting for sources at {}", path);
 
-    long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+    long timeoutLimit =
+        System.currentTimeMillis() + AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
     boolean available = false;
 
     while (!available) {
@@ -686,7 +690,7 @@ public class ServiceManagerImpl implements ServiceManager {
   @Override
   public <S> S getService(ServiceReference<S> serviceReference) {
     WaitCondition.expect("Service to be available: " + serviceReference)
-        .within(2, TimeUnit.MINUTES)
+        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .until(() -> getBundleContext().getService(serviceReference), notNullValue());
     return getBundleContext().getService(serviceReference);
   }

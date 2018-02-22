@@ -134,6 +134,11 @@ public abstract class AbstractIntegrationTest {
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
+
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(10);
+
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(10);
+
   protected static ServerSocket placeHolderSocket;
 
   protected static Integer basePort;
@@ -464,7 +469,7 @@ public abstract class AbstractIntegrationTest {
         logLevel(LogLevelOption.LogLevel.WARN),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
-        systemTimeout(TimeUnit.MINUTES.toMillis(10)),
+        systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),
         when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
         cleanCaches(true));
   }
@@ -835,7 +840,11 @@ public abstract class AbstractIntegrationTest {
   public void clearCatalogAndWait() {
     clearCatalog();
     clearCache();
-    with().pollInterval(1, SECONDS).await().atMost(60, SECONDS).until(this::isCatalogEmpty);
+    with()
+        .pollInterval(1, SECONDS)
+        .await()
+        .atMost(GENERIC_TIMEOUT_SECONDS, SECONDS)
+        .until(this::isCatalogEmpty);
   }
 
   public void clearCatalog() {

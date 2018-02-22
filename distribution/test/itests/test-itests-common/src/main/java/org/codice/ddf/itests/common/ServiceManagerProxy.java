@@ -39,7 +39,7 @@ public class ServiceManagerProxy implements InvocationHandler {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .until(() -> serviceManager.getServiceReference(SecurityManager.class) != null);
     Subject subject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
     return subject.execute(() -> method.invoke(serviceManager, args));

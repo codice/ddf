@@ -130,7 +130,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(60, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(
             () -> {
@@ -140,7 +140,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(20, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(() -> doesMetacardExist(id[0]));
     return id[0];
@@ -266,7 +266,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(60, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(() -> !doesMetacardExist(id));
   }

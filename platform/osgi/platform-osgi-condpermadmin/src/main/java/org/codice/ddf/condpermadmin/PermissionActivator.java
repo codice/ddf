@@ -14,7 +14,6 @@
 package org.codice.ddf.condpermadmin;
 
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
