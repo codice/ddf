@@ -115,7 +115,7 @@ grant codeBase "file:/registry-federation-admin-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}registry${/}-", "read";
 }
 
-grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-api-impl" {
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-api-impl/org.apache.camel.camel-blueprint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -126,7 +126,7 @@ grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j" {
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/org.apache.cxf.cxf-rt-frontend-jaxrs/org.apache.cxf.cxf-rt-ws-security/org.apache.cxf.cxf-rt-wsdl/org.apache.cxf.cxf-rt-frontend-jaxws" {
+grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-corba/org.apache.cxf.cxf-rt-transports-jms/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/org.apache.cxf.cxf-rt-frontend-jaxrs/org.apache.cxf.cxf-rt-ws-security/org.apache.cxf.cxf-rt-wsdl/org.apache.cxf.cxf-rt-frontend-jaxws" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "read,execute";
 }
@@ -430,8 +430,7 @@ grant {
     permission java.lang.RuntimePermission "modifyThread";
     permission java.lang.RuntimePermission "accessClassInPackage.*";
     permission java.lang.RuntimePermission "getClassLoader";
-    permission org.osgi.framework.AdaptPermission "*", "adapt";
-    permission org.osgi.framework.AdminPermission "*", "class, metadata, execute, resolve, resource, context, weave, lifecycle";
+    permission org.osgi.framework.AdminPermission "*", "adapt, class, metadata, execute, resolve, resource, context, weave, lifecycle";
     permission javax.security.auth.AuthPermission "getSubject";
     permission org.osgi.framework.PackagePermission "*", "*";
     permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";

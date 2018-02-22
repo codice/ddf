@@ -75,6 +75,7 @@ rem As a work around, we will have the ddf_on_error.bat script use the karaf.pid
 rem and it will default to being invoked via the 'script'
 rem The space would be important at the end of the DDF_ON_ERROR value to separate the last argument from
 rem the %p used by the JVM to represent the pid of the JVM
+rem make sure there is a space after the ^
 rem set DDF_ON_ERROR=bin\ddf_on_error.bat script^
 set DDF_ON_ERROR=bin\ddf_on_error.bat
 

@@ -36,7 +36,6 @@ public class UrlResourceReaderConfigurator {
     this.configAdmin = configAdmin;
   }
 
-  @SuppressWarnings("squid:S2142")
   public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
     Configuration configuration = configAdmin.getConfiguration(PID, null);
     Dictionary<String, Object> properties = new DictionaryMap<>();
@@ -51,11 +50,15 @@ public class UrlResourceReaderConfigurator {
           .get("rootResourceDirectories")
           .equals(rootResourceDirectories)) {
         break;
-      } else {
-        try {
-          TimeUnit.SECONDS.sleep(5);
-        } catch (InterruptedException e) {
-          // ignore
+      }
+      boolean interrupted = false;
+      try {
+        TimeUnit.SECONDS.sleep(5);
+      } catch (InterruptedException e) {
+        interrupted = true;
+      } finally {
+        if (interrupted) {
+          Thread.currentThread().interrupt();
         }
       }
     }

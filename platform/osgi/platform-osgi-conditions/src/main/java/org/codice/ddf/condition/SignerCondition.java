@@ -172,10 +172,11 @@ public class SignerCondition implements Condition {
       Integer type = (Integer) item.get(0);
       if (type == 0 || type == 2) {
         try {
-          if (item.toArray()[1] instanceof byte[]) {
-            identities.add(getIdentifyFromBytes((byte[]) item.toArray()[1]));
-          } else if (item.toArray()[1] instanceof String) {
-            identities.add((String) item.toArray()[1]);
+          Object[] objects = item.toArray();
+          if (objects[1] instanceof byte[]) {
+            identities.add(getIdentifyFromBytes((byte[]) objects[1]));
+          } else if (objects[1] instanceof String) {
+            identities.add((String) objects[1]);
           }
         } catch (Exception e) {
           return;

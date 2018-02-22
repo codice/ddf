@@ -36,10 +36,12 @@ public class BundleNameCondition implements Condition {
 
   private Bundle bundle;
   private String[] args;
+  private String[] bundles;
 
   public BundleNameCondition(Bundle bundle, ConditionInfo conditionInfo) {
     this.bundle = bundle;
     args = conditionInfo.getArgs();
+    bundles = REGEX.split(args[0]);
   }
 
   /**
@@ -79,7 +81,6 @@ public class BundleNameCondition implements Condition {
     if (storedResult != null) {
       return storedResult;
     }
-    String[] bundles = REGEX.split(args[0]);
     for (String bundleStr : bundles) {
       if (bundleName.contains(bundleStr)) {
         DECISION_MAP.put(key, true);

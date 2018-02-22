@@ -66,7 +66,7 @@ public class PermissionActivator implements BundleActivator {
     File policyDirFile = new File(policyDir);
     List<ParsedPolicy> parsedPolicies = new ArrayList<>();
     for (File file : Objects.requireNonNull(policyDirFile.listFiles())) {
-      parsedPolicies.add(new Parser(false).parse(new FileReader(new File(file.getAbsolutePath()))));
+      parsedPolicies.add(new Parser(false).parse(file));
     }
     ConditionalPermissionUpdate conditionalPermissionUpdate =
         conditionalPermissionAdmin.newConditionalPermissionUpdate();
@@ -76,17 +76,13 @@ public class PermissionActivator implements BundleActivator {
     for (ParsedPolicy parsedPolicy : parsedPolicies) {
       List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
       List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
-      List<ConditionalPermissionInfo> grantInfos = new ArrayList<>();
-      List<ConditionalPermissionInfo> denyInfos = new ArrayList<>();
 
       buildConditionalPermissionInfo(
-          conditionalPermissionAdmin, grantEntries, grantInfos, ConditionalPermissionInfo.ALLOW);
+          conditionalPermissionAdmin, grantEntries, allGrantInfos, ConditionalPermissionInfo.ALLOW);
       buildConditionalPermissionInfo(
-          conditionalPermissionAdmin, denyEntries, denyInfos, ConditionalPermissionInfo.DENY);
+          conditionalPermissionAdmin, denyEntries, allDenyInfos, ConditionalPermissionInfo.DENY);
 
       Priority priority = parsedPolicy.getPriority();
-      allGrantInfos.addAll(grantInfos);
-      allDenyInfos.addAll(denyInfos);
       if (priorityResult == null) {
         priorityResult = priority;
       } else if (priority != priorityResult) {
@@ -145,7 +141,9 @@ public class PermissionActivator implements BundleActivator {
       infos.add(
           conditionalPermissionAdmin.newConditionalPermissionInfo(
               null,
-              (conditionInfos.isEmpty()) ? null : conditionInfos.toArray(new ConditionInfo[0]),
+              (conditionInfos.isEmpty())
+                  ? null
+                  : conditionInfos.toArray(new ConditionInfo[conditionInfos.size()]),
               permissionInfos,
               type));
     }
@@ -165,7 +163,9 @@ public class PermissionActivator implements BundleActivator {
     }
 
     if (!principals.isEmpty()) {
-      conditionInfos.add(new ConditionInfo(PRINCIPAL_CONDITION, principals.toArray(new String[0])));
+      conditionInfos.add(
+          new ConditionInfo(
+              PRINCIPAL_CONDITION, principals.toArray(new String[principals.size()])));
     }
   }
 

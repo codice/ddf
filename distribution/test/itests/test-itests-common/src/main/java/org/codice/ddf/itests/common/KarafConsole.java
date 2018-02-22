@@ -83,7 +83,7 @@ public class KarafConsole extends KarafTestSupport {
    * @param command command to execute. Cannot be {@code null}.
    * @return command output. Can be empty but not {@code null}.
    */
-  @SuppressWarnings("squid:S00112")
+  @SuppressWarnings("squid:S00112") /* test code, don't care if we throw runtime exception */
   public String runCommand(String command) {
     String response = executeCommand(command, 120000L, false, DEFAULT_ROLES);
     if (response.contains("SHELL COMMAND TIMED OUT:")) {

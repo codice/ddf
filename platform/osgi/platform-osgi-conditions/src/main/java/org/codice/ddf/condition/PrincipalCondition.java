@@ -15,9 +15,11 @@ package org.codice.ddf.condition;
 
 import java.security.AccessController;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Set;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.Condition;
 import org.osgi.service.condpermadmin.ConditionInfo;
@@ -32,10 +34,12 @@ import org.osgi.service.condpermadmin.ConditionInfo;
 public class PrincipalCondition implements Condition {
 
   private String[] args;
+  private List<String> argsAsList;
 
-  @SuppressWarnings("squid:S1172")
+  @SuppressWarnings("squid:S1172") /* required for reflection to work */
   public PrincipalCondition(Bundle bundle, ConditionInfo conditionInfo) {
     args = conditionInfo.getArgs();
+    argsAsList = Arrays.asList(args);
   }
 
   /**
@@ -68,12 +72,12 @@ public class PrincipalCondition implements Condition {
   public boolean isSatisfied() {
     javax.security.auth.Subject subject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
-    return subject
-        .getPrincipals()
-        .stream()
-        .map(Principal::getName)
-        .collect(Collectors.toList())
-        .containsAll(Arrays.asList(args));
+    Set<Principal> principals = subject.getPrincipals();
+    List<String> principalNameList = new ArrayList<>();
+    for (Principal principal : principals) {
+      principalNameList.add(principal.getName());
+    }
+    return principalNameList.containsAll(argsAsList);
   }
 
   /**
