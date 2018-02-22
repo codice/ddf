@@ -665,8 +665,12 @@ public class ServiceManagerImpl implements ServiceManager {
 
     for (Bundle bundle : getBundleContext().getBundles()) {
       if (bundle.getState() != Bundle.ACTIVE) {
-        StringBuilder headerString = new StringBuilder("[ ");
         Dictionary<String, String> headers = bundle.getHeaders();
+        if (headers.get("Fragment-Host") != null) {
+          continue;
+        }
+
+        StringBuilder headerString = new StringBuilder("[ ");
         Enumeration<String> keys = headers.keys();
 
         while (keys.hasMoreElements()) {
