@@ -11,28 +11,26 @@
 
 == {title}
 
-The CSW Federation Profile Source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+The CSW Federation Profile Source is ${branding}'s full fidelity CSW Federation Profile which supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
 
-Use the CSW source if querying a CSW version 2.0.2 compliant service.
+Use this when federating to a ${ddf-branding}-based system.
 
 .Installing the CSW Federation Profile Source
-The CSW Federation Profile Source is installed by default with a standard installation in the ${ddf-spatial} application.
-
 Configure the CSW Federation Profile Source through the ${admin-console}:
 
-* Navigate to the *${admin-console}*.
-* Select the *${ddf-catalog}* application.
-* Add a New source.
-* Name the New source.
-* Select *CSW Specification Profile Federated Source* from *Binding Configurations*.
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Add a New source.
+. Name the New source.
+. Select *CSW Specification Profile Federated Source* from *Source Type*.
 
 .Configuring the CSW Federation Profile Source
 Configure an Existing CSW Federated Source through the ${admin-console}:
 
-* Navigate to the *${admin-console}*.
-* Select the *${ddf-catalog}* application.
-* Select the *Sources* tab.
-* Select the name of the source to edit.
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Sources* tab.
+. Select the name of the source to edit.
 
 See <<Csw_Federation_Profile_Source,CSW Federation Profile Source configurations>> for all possible configurations.
 

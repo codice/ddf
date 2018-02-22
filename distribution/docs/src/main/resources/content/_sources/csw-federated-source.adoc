@@ -1,4 +1,4 @@
-:title: CSW Federated Source
+:title: CSW Specification Profile Federated Source
 :type: source
 :status: published
 :link: _csw_federated_source
@@ -11,32 +11,28 @@
 
 == {title}
 
-The CSW Federated Source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+The CSW Specification Profile Federated Source should be used when federating to an _external_ (non-${ddf-branding}-based) CSW (version 2.0.2) compliant service.
 
-Use the CSW source if querying a CSW version 2.0.2 compliant service.
+.Installing the CSW Specification Profile Federated Source
+Add a New CSW Specification Profile Federated Source through the ${admin-console}:
 
-.Installing the CSW Federated Source
-The CSW Federated Source is installed by default with a standard installation in the ${ddf-spatial} application.
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Sources* tab.
+. Add a New source.
+. Name the New source.
+. Select *CSW Specification Profile Federated Source* from *Source Type*.
 
-Add a New CSW Federated Source through the ${admin-console}:
+.Configuring the CSW Specification Profile Federated Source
+Configure an Existing CSW Specification Profile Federated Source through the ${admin-console}:
 
-* Navigate to the *${admin-console}*.
-* Select the *${ddf-catalog}* application.
-* Select the *Sources* tab.
-* Add a New source.
-* Name the New source.
-* Select *CSW Federation Profile Source* from *Binding Configurations*.
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Sources* tab.
+. Select the name of the source to edit.
 
-.Configuring the CSW Federated Source
-Configure an Existing CSW Federated Source through the ${admin-console}:
+See <<Csw_Federated_Source,CSW Specification Profile Federated Source configurations>> for all possible configurations.
 
-* Navigate to the *${admin-console}*.
-* Select the *${ddf-catalog}* application.
-* Select the *Sources* tab.
-* Select the name of the source to edit.
-
-See <<Csw_Federated_Source,CSW Federated Source configurations>> for all possible configurations.
-
-.Usage Limitations of the CSW Federated Source
-* The CSW Federated Source does not support text path searches.
+.Usage Limitations of the CSW Specification Profile Federated Source
+* The CSW Specification Profile Federated Source does not support text path searches.
 * Nearest neighbor spatial searches are not supported.
