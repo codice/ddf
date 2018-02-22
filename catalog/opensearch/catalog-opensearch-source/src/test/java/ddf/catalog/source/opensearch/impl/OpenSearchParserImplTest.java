@@ -20,10 +20,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -60,6 +61,8 @@ public class OpenSearchParserImplTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImplTest.class);
 
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
   private static final String MAX_RESULTS = "2000";
 
   private static final String TIMEOUT = "30000";
@@ -78,23 +81,46 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populateSpatialFilterCaseInsensitiveParameters() {
-    SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
-    openSearchParser.populateGeospatial(
+    final Polygon polygon =
+        GEOMETRY_FACTORY.createPolygon(
+            GEOMETRY_FACTORY.createLinearRing(
+                new Coordinate[] {
+                  new Coordinate(1, 1),
+                  new Coordinate(2, 2),
+                  new Coordinate(3, 3),
+                  new Coordinate(4, 4),
+                  new Coordinate(1, 1)
+                }),
+            null);
+    openSearchParser.populatePolygonParameter(
         webClient,
-        spatialFilter,
+        polygon,
         true,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,BBOX,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
+
+    final String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, containsString(OpenSearchConstants.BBOX));
+    assertThat(urlStr, containsString("1.0,1.0,4.0,4.0"));
   }
 
   @Test
   public void populateSpatialFilterEmptyParameters() {
-    SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
-    openSearchParser.populateGeospatial(webClient, spatialFilter, true, new ArrayList<>());
-    String urlStr = webClient.getCurrentURI().toString();
+    final Polygon polygon =
+        GEOMETRY_FACTORY.createPolygon(
+            GEOMETRY_FACTORY.createLinearRing(
+                new Coordinate[] {
+                  new Coordinate(1, 1),
+                  new Coordinate(2, 2),
+                  new Coordinate(3, 3),
+                  new Coordinate(4, 4),
+                  new Coordinate(1, 1)
+                }),
+            null);
+    openSearchParser.populatePolygonParameter(webClient, polygon, true, new ArrayList<>());
+
+    final String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, not(containsString(OpenSearchConstants.BBOX)));
   }
 
@@ -485,31 +511,38 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populatePolyGeospatial() {
-    String wktPolygon = "POLYGON((1 1,5 1,5 5,1 5,1 1))";
-    String expectedStr = "1,1,1,5,5,5,5,1,1,1";
+    final Polygon polygon =
+        GEOMETRY_FACTORY.createPolygon(
+            GEOMETRY_FACTORY.createLinearRing(
+                new Coordinate[] {
+                  new Coordinate(1, 1),
+                  new Coordinate(5, 1),
+                  new Coordinate(5, 5),
+                  new Coordinate(1, 5),
+                  new Coordinate(1, 1)
+                }),
+            null);
 
-    SpatialFilter spatial = new SpatialFilter(wktPolygon);
-    openSearchParser.populateGeospatial(
+    openSearchParser.populatePolygonParameter(
         webClient,
-        spatial,
+        polygon,
         false,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(expectedStr));
+    assertThat(urlStr, containsString("1.0,1.0,1.0,5.0,5.0,5.0,5.0,1.0,1.0,1.0"));
     assertThat(urlStr, containsString(OpenSearchConstants.POLYGON));
   }
 
   @Test
   public void populateLatLonRadGeospatial() {
-    String lat = "43.25";
-    String lon = "-123.45";
-    String radius = "10000";
-    String wktPoint = "POINT (" + lon + " " + lat + ")";
+    double lat = 43.25;
+    double lon = -123.45;
+    double radius = 10000;
 
-    SpatialDistanceFilter spatial = new SpatialDistanceFilter(wktPoint, radius);
-    openSearchParser.populateGeospatial(
+    PointRadiusSearch spatial = new PointRadiusSearch(lon, lat, radius);
+    openSearchParser.populatePointRadiusParameters(
         webClient,
         spatial,
         false,
@@ -517,9 +550,9 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(lat));
-    assertThat(urlStr, containsString(lon));
-    assertThat(urlStr, containsString(radius));
+    assertThat(urlStr, containsString(String.valueOf(lat)));
+    assertThat(urlStr, containsString(String.valueOf(lon)));
+    assertThat(urlStr, containsString(String.valueOf(radius)));
     assertThat(urlStr, containsString(OpenSearchConstants.LAT));
     assertThat(urlStr, containsString(OpenSearchConstants.LON));
     assertThat(urlStr, containsString(OpenSearchConstants.RADIUS));
@@ -534,8 +567,8 @@ public class OpenSearchParserImplTest {
 
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
-  public void populateNullGeospatial() {
-    openSearchParser.populateGeospatial(
+  public void populateNullPointRadius() {
+    openSearchParser.populatePointRadiusParameters(
         webClient,
         null,
         true,
@@ -546,6 +579,24 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, not(containsString(OpenSearchConstants.LAT)));
     assertThat(urlStr, not(containsString(OpenSearchConstants.LON)));
     assertThat(urlStr, not(containsString(OpenSearchConstants.RADIUS)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.POLYGON)));
+  }
+
+  /** Verify that passing in null will still remove the parameters from the URL. */
+  @Test
+  public void populateNullPolygon() {
+    openSearchParser.populatePolygonParameter(
+        webClient,
+        null,
+        true,
+        Arrays.asList(
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                .split(",")));
+    String urlStr = webClient.getCurrentURI().toString();
+    assertThat(urlStr, not(containsString(OpenSearchConstants.LAT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.LON)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.RADIUS)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.POLYGON)));
   }
 
   private Subject getMockSubject(String principalName) {

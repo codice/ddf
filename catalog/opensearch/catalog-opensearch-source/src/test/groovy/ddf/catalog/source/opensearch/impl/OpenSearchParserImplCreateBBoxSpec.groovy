@@ -13,103 +13,55 @@
  */
 package ddf.catalog.source.opensearch.impl
 
-import ddf.catalog.impl.filter.SpatialDistanceFilter
-import ddf.catalog.impl.filter.SpatialFilter
 import ddf.catalog.source.opensearch.OpenSearchParser
+import ddf.catalog.source.opensearch.OpenSearchParser.PointRadiusSearch
 import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.opensearch.OpenSearchConstants
 import spock.lang.Specification
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresentAndIs
 import static org.hamcrest.Matchers.containsString
-import static org.hamcrest.Matchers.not
 
 class OpenSearchParserImplCreateBBoxSpec extends Specification {
 
     def 'create BBox from point radius'() {
         given:
-        final double searchRadiusInMeters = 804672 // 500 miles
-
-        when:
-        final bboxCoords = OpenSearchParserImpl.createBBoxFromPointRadius(lon, lat, searchRadiusInMeters)
-
-        then:
-        bboxCoords isPresentAndIs([expectedWest, expectedSouth, expectedEast, expectedNorth] as double[])
-
-        where:
-        lon  | lat || expectedWest        | expectedSouth      | expectedEast        | expectedNorth
-        -180 | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
-        -180 | 0   || 172.77150843696975  | -7.25280885791844  | -172.77150843696975 | 7.25280885791844
-        -180 | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
-        -179 | -89 || -180.0              | -90.0              | 180.0               | -81.74719114208156
-        -179 | 89  || -180.0              | 81.74719114208156  | 180.0               | 90.0
-        -122 | -33 || -130.59133613271274 | -40.25280885791844 | -113.40866386728726 | -25.74719114208156
-        -122 | 33  || -130.59133613271274 | 25.74719114208156  | -113.40866386728726 | 40.25280885791844
-        0    | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
-        0    | 0   || -7.228491563030235  | -7.25280885791844  | 7.228491563030235   | 7.25280885791844
-        0    | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
-        122  | -33 || 113.40866386728726  | -40.25280885791844 | 130.59133613271274  | -25.74719114208156
-        122  | 33  || 113.40866386728726  | 25.74719114208156  | 130.59133613271274  | 40.25280885791844
-        179  | -89 || -180.0              | -90.0              | 180.0               | -81.74719114208156
-        179  | 89  || -180.0              | 81.74719114208156  | 180.0               | 90.0
-        180  | -90 || -180.0              | -90.0              | 180.0               | -82.74719114208156
-        180  | 0   || 172.77150843696975  | -7.25280885791844  | -172.77150843696975 | 7.25280885791844
-        180  | 90  || -180.0              | 82.74719114208156  | 180.0               | 90.0
-    }
-
-    def 'create BBox from polygon'() {
-        expect:
-        OpenSearchParserImpl.createBBoxFromPolygon(["1", "1", "2", "2", "3", "3", "4", "4", "1", "1"] as String[]) == [1, 1, 4, 4]
-    }
-
-    def 'populate spatial distance filter box'() {
-        given:
         final OpenSearchParser openSearchParser = new OpenSearchParserImpl()
         final WebClient webClient = WebClient.create("http://www.example.com")
+        final double searchRadiusInMeters = 804672 // 500 miles
+        final PointRadiusSearch pointRadiusSearch = new PointRadiusSearch(lon, lat, searchRadiusInMeters)
 
         when:
-        openSearchParser.populateGeospatial(
+        openSearchParser.populatePointRadiusParameters(
                 webClient,
-                spatialFilter,
+                pointRadiusSearch,
                 true,
                 Arrays.asList(
                         "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                                 .split(",")))
 
-        then: 'URL should contain bbox parameter with the expected west,south,east,north value'
+        then: 'the web client URI should contain bbox parameter with the expected west,south,east,north value'
         final String urlStr = webClient.getCurrentURI().toString()
         urlStr containsString(OpenSearchConstants.BBOX)
         urlStr containsString(expectedBboxParameterString)
 
         where:
-        spatialFilter                                            || expectedBboxParameterString
-        new SpatialDistanceFilter("POINT (1 1)", 1.0)            || "0.9999910154833372,0.9999909866270258,1.0000089845166629,1.0000090133729742"
-        new SpatialDistanceFilter("POINT (122 33)", 804672)      || "113.40866386728726,25.74719114208156,130.59133613271274,40.25280885791844"
-        new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))") || "1.0,1.0,4.0,4.0"
-    }
-
-    def 'populate spatial distance filter box invalid SpatialFilter'() {
-        given:
-        final OpenSearchParser openSearchParser = new OpenSearchParserImpl()
-        final WebClient webClient = WebClient.create("http://www.example.com")
-
-        when:
-        openSearchParser.populateGeospatial(
-                webClient,
-                spatialFilter,
-                true,
-                Arrays.asList(
-                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                                .split(",")))
-
-        then:
-        final String urlStr = webClient.getCurrentURI().toString()
-        urlStr not(containsString(OpenSearchConstants.BBOX))
-
-        where:
-        spatialFilter << [
-                new SpatialDistanceFilter("POLYGON (1 1)", 1.0),
-                new SpatialFilter("POINT (1 1)"),
-                null]
+        lon  | lat || expectedBboxParameterString
+        -180 | -90 || "-180.0,-90.0,180.0,-82.74719114208156"
+        -180 | 0   || "172.77150843696975,-7.25280885791844,-172.77150843696975,7.25280885791844"
+        -180 | 90  || "-180.0,82.74719114208156,180.0,90.0"
+        -179 | -89 || "-180.0,-90.0,180.0,-81.74719114208156"
+        -179 | 89  || "-180.0,81.74719114208156,180.0,90.0"
+        -122 | -33 || "-130.59133613271274,-40.25280885791844,-113.40866386728726,-25.74719114208156"
+        -122 | 33  || "-130.59133613271274,25.74719114208156,-113.40866386728726,40.25280885791844"
+        0    | -90 || "-180.0,-90.0,180.0,-82.74719114208156"
+        0    | 0   || "-7.228491563030235,-7.25280885791844,7.228491563030235,7.25280885791844"
+        0    | 90  || "-180.0,82.74719114208156,180.0,90.0"
+        122  | -33 || "113.40866386728726,-40.25280885791844,130.59133613271274,-25.74719114208156"
+        122  | 33  || "113.40866386728726,25.74719114208156,130.59133613271274,40.25280885791844"
+        179  | -89 || "-180.0,-90.0,180.0,-81.74719114208156"
+        179  | 89  || "-180.0,81.74719114208156,180.0,90.0"
+        180  | -90 || "-180.0,-90.0,180.0,-82.74719114208156"
+        180  | 0   || "172.77150843696975,-7.25280885791844,-172.77150843696975,7.25280885791844"
+        180  | 90  || "-180.0,82.74719114208156,180.0,90.0"
     }
 }

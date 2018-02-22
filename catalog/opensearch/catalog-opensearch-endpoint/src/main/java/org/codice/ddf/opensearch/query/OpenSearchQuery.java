@@ -298,7 +298,7 @@ public class OpenSearchQuery implements Query {
     addSpatialFilter(polygonFilter);
   }
 
-  public void addSpatialDistanceFilter(String lon, String lat, String radius) {
+  public void addPointRadiusSpatialFilter(String lon, String lat, String radius) {
     SpatialDistanceFilter distanceFilter = new SpatialDistanceFilter(lon, lat, radius);
 
     Geometry geometry = distanceFilter.getGeometry();

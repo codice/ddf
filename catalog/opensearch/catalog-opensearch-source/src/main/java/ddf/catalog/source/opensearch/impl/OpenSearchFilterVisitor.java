@@ -16,12 +16,10 @@ package ddf.catalog.source.opensearch.impl;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.source.opensearch.PointRadiusSearch;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -124,44 +122,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   @Override
   public Object visit(DWithin filter, Object data) {
     LOGGER.trace("ENTERING: DWithin filter");
-    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-        getOpenSearchFilterVisitorObjectFromData(data);
-    if (openSearchFilterVisitorObject == null) {
-      return data;
-    }
 
-    if (openSearchFilterVisitorObject.getCurrentNest() == null
-        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      // The geometric point is wrapped in a <Literal> element, so have to
-      // get geometry expression as literal and then evaluate it to get
-      // the geometry.
-      // Example:
-      // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
-      Literal literalWrapper = (Literal) filter.getExpression2();
-      Object geometryExpression = literalWrapper.getValue();
-
-      double distance = filter.getDistance();
-
-      if (geometryExpression instanceof PointImpl) {
-        PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-        double[] coords = point.getCentroid().getCoordinate();
-        LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-        LOGGER.trace("radius = {}", distance);
-        openSearchFilterVisitorObject.setSpatialSearch(
-            new SpatialDistanceFilter(coords[0], coords[1], distance));
-      } else if (geometryExpression instanceof Point) {
-        Point point = (Point) literalWrapper.evaluate(null);
-        Coordinate coords = point.getCoordinate();
-        LOGGER.trace("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
-        LOGGER.trace("radius = {}", distance);
-        openSearchFilterVisitorObject.setSpatialSearch(
-            new SpatialDistanceFilter(coords.x, coords.y, distance));
-      } else {
-        LOGGER.debug("Only POINT geometry WKT for DWithin filter is supported");
-      }
-    } else {
-      LOGGER.debug(ONLY_AND_MSG);
-    }
+    buildPointRadiusSearch(filter, data);
 
     LOGGER.trace("EXITING: DWithin filter");
 
@@ -173,7 +135,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Contains filter, Object data) {
     LOGGER.trace("ENTERING: Contains filter");
 
-    buildSpatialSearch(filter, data);
+    buildPolygonSearch(filter, data);
 
     LOGGER.trace("EXITING: Contains filter");
 
@@ -185,44 +147,11 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Intersects filter, Object data) {
     LOGGER.trace("ENTERING: Intersects filter");
 
-    buildSpatialSearch(filter, data);
+    buildPolygonSearch(filter, data);
 
     LOGGER.trace("EXITING: Intersects filter");
 
     return super.visit(filter, data);
-  }
-
-  private static void buildSpatialSearch(BinarySpatialOperator filter, Object data) {
-    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-        getOpenSearchFilterVisitorObjectFromData(data);
-    if (openSearchFilterVisitorObject == null) {
-      return;
-    }
-
-    if (openSearchFilterVisitorObject.getCurrentNest() == null
-        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      // The geometric point is wrapped in a <Literal> element, so have to
-      // get geometry expression as literal and then evaluate it to get
-      // the geometry.
-      // Example:
-      // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl@64a7c45e</ogc:Literal>
-      Literal literalWrapper = (Literal) filter.getExpression2();
-      Object geometryExpression = literalWrapper.getValue();
-      WKTWriter wktWriter = new WKTWriter();
-
-      if (geometryExpression instanceof SurfaceImpl) {
-        SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
-        Polygon polygon = (Polygon) surface.getJTSGeometry();
-        openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
-      } else if (geometryExpression instanceof Polygon) {
-        Polygon polygon = (Polygon) literalWrapper.evaluate(null);
-        openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
-      } else {
-        LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
-      }
-    } else {
-      LOGGER.debug(ONLY_AND_MSG);
-    }
   }
 
   /** TOverlaps filter maps to a Temporal (Absolute and Offset) search criteria. */
@@ -459,6 +388,79 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return null;
   }
 
+  private static void buildPointRadiusSearch(DWithin filter, Object data) {
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        getOpenSearchFilterVisitorObjectFromData(data);
+    if (openSearchFilterVisitorObject == null) {
+      return;
+    }
+
+    if (openSearchFilterVisitorObject.getCurrentNest() != null
+        && !NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
+      LOGGER.debug(ONLY_AND_MSG);
+      return;
+    }
+
+    // The geometry is wrapped in a <Literal> element, so have to get the geometry expression as a
+    // literal and then evaluate it to get the geometry.
+    // Example:
+    // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
+    Literal literalWrapper = (Literal) filter.getExpression2();
+    Object geometryExpression = literalWrapper.getValue();
+
+    double distance = filter.getDistance();
+
+    if (geometryExpression instanceof PointImpl) {
+      PointImpl point = (PointImpl) literalWrapper.evaluate(null);
+      double[] coords = point.getCentroid().getCoordinate();
+      LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
+      LOGGER.trace("radius = {}", distance);
+      openSearchFilterVisitorObject.setPointRadiusSearch(
+          new PointRadiusSearch(coords[0], coords[1], distance));
+    } else if (geometryExpression instanceof Point) {
+      Point point = (Point) literalWrapper.evaluate(null);
+      Coordinate coords = point.getCoordinate();
+      LOGGER.trace("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
+      LOGGER.trace("radius = {}", distance);
+      openSearchFilterVisitorObject.setPointRadiusSearch(
+          new PointRadiusSearch(coords.x, coords.y, distance));
+    } else {
+      LOGGER.debug("Only POINT geometry WKT for DWithin filter is supported");
+    }
+  }
+
+  private static void buildPolygonSearch(BinarySpatialOperator filter, Object data) {
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        getOpenSearchFilterVisitorObjectFromData(data);
+    if (openSearchFilterVisitorObject == null) {
+      return;
+    }
+
+    if (openSearchFilterVisitorObject.getCurrentNest() != null
+        && !NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
+      LOGGER.debug(ONLY_AND_MSG);
+      return;
+    }
+
+    // The geometry is wrapped in a <Literal> element, so have to get the geometry expression as a
+    // literal and then evaluate it to get the geometry.
+    // Example:
+    // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
+    Literal literalWrapper = (Literal) filter.getExpression2();
+    Object geometryExpression = literalWrapper.getValue();
+
+    if (geometryExpression instanceof SurfaceImpl) {
+      SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
+      Polygon polygon = (Polygon) surface.getJTSGeometry();
+      openSearchFilterVisitorObject.setPolygonSearch(polygon);
+    } else if (geometryExpression instanceof Polygon) {
+      Polygon polygon = (Polygon) literalWrapper.evaluate(null);
+      openSearchFilterVisitorObject.setPolygonSearch(polygon);
+    } else {
+      LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
+    }
+  }
+
   private static void buildTemporalSearch(
       final BinaryTemporalOperator filter,
       final Object data,
@@ -469,19 +471,24 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return;
     }
 
-    if (openSearchFilterVisitorObject.getCurrentNest() == null
-        || NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      final Literal literalWrapper = (Literal) filter.getExpression2();
-      LOGGER.trace("literalWrapper.getValue() = {}", literalWrapper.getValue());
-      final Object literal = literalWrapper.evaluate(null);
-
-      final DateRange dateRange = literalToDatesFunction.apply(literal);
-      if (dateRange != null) {
-        openSearchFilterVisitorObject.setTemporalSearch(
-            new TemporalFilter(dateRange.getStart(), dateRange.getEnd()));
-      }
-    } else {
+    if (openSearchFilterVisitorObject.getCurrentNest() != null
+        && !NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
       LOGGER.debug(ONLY_AND_MSG);
+      return;
+    }
+
+    // The geometry is wrapped in a <Literal> element, so have to get the geometry expression as a
+    // literal and then evaluate it to get the geometry.
+    // Example:
+    // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
+    final Literal literalWrapper = (Literal) filter.getExpression2();
+    LOGGER.trace("literalWrapper.getValue() = {}", literalWrapper.getValue());
+    final Object literal = literalWrapper.evaluate(null);
+
+    final DateRange dateRange = literalToDatesFunction.apply(literal);
+    if (dateRange != null) {
+      openSearchFilterVisitorObject.setTemporalSearch(
+          new TemporalFilter(dateRange.getStart(), dateRange.getEnd()));
     }
   }
 

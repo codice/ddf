@@ -270,10 +270,10 @@ public class OpenSearchEndpoint implements OpenSearch {
     } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
       if (StringUtils.isBlank(radius)) {
         LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
-        query.addSpatialDistanceFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);
+        query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);
       } else {
         LOGGER.debug("Using radius: {}", radius);
-        query.addSpatialDistanceFilter(lon.trim(), lat.trim(), radius.trim());
+        query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), radius.trim());
       }
     }
   }

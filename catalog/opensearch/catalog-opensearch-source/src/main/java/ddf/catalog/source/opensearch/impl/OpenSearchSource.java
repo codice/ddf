@@ -20,6 +20,7 @@ import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
+import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -27,8 +28,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -43,6 +42,7 @@ import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.opensearch.OpenSearchParser;
+import ddf.catalog.source.opensearch.PointRadiusSearch;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
@@ -321,7 +321,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
 
     final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
-    final SpatialFilter spatialSearch = openSearchFilterVisitorObject.getSpatialSearch();
+    final PointRadiusSearch pointRadiusSearch =
+        openSearchFilterVisitorObject.getPointRadiusSearch();
+    final Polygon polygonSearch = openSearchFilterVisitorObject.getPolygonSearch();
     final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
 
     final Map<String, String> searchPhraseMap;
@@ -331,7 +333,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       searchPhraseMap = new HashMap<>();
     }
 
-    if (MapUtils.isNotEmpty(searchPhraseMap) || spatialSearch != null || temporalSearch != null) {
+    if (MapUtils.isNotEmpty(searchPhraseMap)
+        || pointRadiusSearch != null
+        || polygonSearch != null
+        || temporalSearch != null) {
       final WebClient restWebClient = factory.getWebClientForSubject(subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
@@ -348,17 +353,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
       }
 
-      if (spatialSearch != null) {
-        if (spatialSearch instanceof SpatialDistanceFilter) {
-          openSearchParser.populateGeospatial(
-              restWebClient,
-              (SpatialDistanceFilter) spatialSearch,
-              shouldConvertToBBox,
-              parameters);
-        } else {
-          openSearchParser.populateGeospatial(
-              restWebClient, spatialSearch, shouldConvertToBBox, parameters);
-        }
+      if (pointRadiusSearch != null) {
+        openSearchParser.populatePointRadiusParameters(
+            restWebClient, pointRadiusSearch, shouldConvertToBBox, parameters);
+      }
+
+      if (polygonSearch != null) {
+        openSearchParser.populatePolygonParameter(
+            restWebClient, polygonSearch, shouldConvertToBBox, parameters);
       }
 
       if (localQueryOnly) {

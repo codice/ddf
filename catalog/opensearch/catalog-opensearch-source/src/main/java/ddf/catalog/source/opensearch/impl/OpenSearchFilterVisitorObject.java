@@ -13,8 +13,9 @@
  */
 package ddf.catalog.source.opensearch.impl;
 
-import ddf.catalog.impl.filter.SpatialFilter;
+import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.source.opensearch.PointRadiusSearch;
 
 public class OpenSearchFilterVisitorObject {
 
@@ -22,11 +23,53 @@ public class OpenSearchFilterVisitorObject {
 
   private TemporalFilter temporalSearch;
 
-  private SpatialFilter spatialSearch;
+  private PointRadiusSearch pointRadiusSearch;
+
+  private Polygon polygonSearch;
 
   private String id;
 
-  private NestedTypes currentNest = null;
+  private NestedTypes currentNest;
+
+  public ContextualSearch getContextualSearch() {
+    return contextualSearch;
+  }
+
+  public void setContextualSearch(ContextualSearch contextualSearch) {
+    this.contextualSearch = contextualSearch;
+  }
+
+  public TemporalFilter getTemporalSearch() {
+    return temporalSearch;
+  }
+
+  public void setTemporalSearch(TemporalFilter temporalSearch) {
+    this.temporalSearch = temporalSearch;
+  }
+
+  public PointRadiusSearch getPointRadiusSearch() {
+    return pointRadiusSearch;
+  }
+
+  public void setPointRadiusSearch(PointRadiusSearch pointRadiusSearch) {
+    this.pointRadiusSearch = pointRadiusSearch;
+  }
+
+  public Polygon getPolygonSearch() {
+    return polygonSearch;
+  }
+
+  public void setPolygonSearch(Polygon polygonSearch) {
+    this.polygonSearch = polygonSearch;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String idSearch) {
+    this.id = idSearch;
+  }
 
   public NestedTypes getCurrentNest() {
     return currentNest;
@@ -34,37 +77,5 @@ public class OpenSearchFilterVisitorObject {
 
   public void setCurrentNest(NestedTypes currentNest) {
     this.currentNest = currentNest;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public void setContextualSearch(ContextualSearch contextualSearch) {
-    this.contextualSearch = contextualSearch;
-  }
-
-  public void setSpatialSearch(SpatialFilter spatialSearch) {
-    this.spatialSearch = spatialSearch;
-  }
-
-  public ContextualSearch getContextualSearch() {
-    return contextualSearch;
-  }
-
-  public TemporalFilter getTemporalSearch() {
-    return temporalSearch;
-  }
-
-  public SpatialFilter getSpatialSearch() {
-    return spatialSearch;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setTemporalSearch(TemporalFilter temporalSearch) {
-    this.temporalSearch = temporalSearch;
   }
 }

@@ -14,13 +14,14 @@
 package ddf.catalog.source.opensearch.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Result;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.opensearch.OpenSearchParser;
+import ddf.catalog.source.opensearch.PointRadiusSearch;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import java.io.UnsupportedEncodingException;
@@ -29,8 +30,8 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.opensearch.OpenSearchConstants;
@@ -167,116 +168,53 @@ public class OpenSearchParserImpl implements OpenSearchParser {
   }
 
   @Override
-  public void populateGeospatial(
+  public void populatePointRadiusParameters(
       WebClient client,
-      SpatialDistanceFilter spatial,
+      PointRadiusSearch pointRadiusSearch,
       boolean shouldConvertToBBox,
       List<String> parameters) {
-    String lat = "";
-    String lon = "";
-    String radiusStr = "";
-    StringBuilder bbox = new StringBuilder();
-
-    if (spatial != null) {
-      String wktStr = spatial.getGeometryWkt();
-      double radius = spatial.getDistanceInMeters();
-
-      if (wktStr.contains("POINT")) {
-        String[] latLon = createLatLonAryFromWKT(wktStr);
-        lon = latLon[0];
-        lat = latLon[1];
-        radiusStr = Double.toString(radius);
-        if (shouldConvertToBBox) {
-          final Optional<double[]> bboxCoords =
-              createBBoxFromPointRadius(Double.parseDouble(lon), Double.parseDouble(lat), radius);
-
-          if (bboxCoords.isPresent()) {
-            bbox.append(createBboxParamString(bboxCoords.get()));
-          } else {
-            LOGGER.debug(
-                "Unable to calculate a bounding box for lon={} degrees, lat={} degrees, search radius={} meters. Not including {} parameter in search.",
-                lon,
-                lat,
-                radius,
-                OpenSearchConstants.BBOX);
-          }
-
-          lon = "";
-          lat = "";
-          radiusStr = "";
-        }
-      } else {
-        LOGGER.debug("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
-      }
+    if (pointRadiusSearch == null) {
+      return;
     }
 
-    checkAndReplace(client, lat, OpenSearchConstants.LAT, parameters);
-    checkAndReplace(client, lon, OpenSearchConstants.LON, parameters);
-    checkAndReplace(client, radiusStr, OpenSearchConstants.RADIUS, parameters);
-    checkAndReplace(client, "", OpenSearchConstants.POLYGON, parameters);
-    checkAndReplace(client, bbox.toString(), OpenSearchConstants.BBOX, parameters);
+    // point-radius search
+    final double longitude = pointRadiusSearch.getLon();
+    final double latitude = pointRadiusSearch.getLat();
+    final double radius = pointRadiusSearch.getRadius();
+
+    if (shouldConvertToBBox) {
+      checkAndReplace(
+          client,
+          createBBoxStringFromPointRadius(longitude, latitude, radius),
+          OpenSearchConstants.BBOX,
+          parameters);
+    } else {
+      checkAndReplace(client, String.valueOf(latitude), OpenSearchConstants.LAT, parameters);
+      checkAndReplace(client, String.valueOf(longitude), OpenSearchConstants.LON, parameters);
+      checkAndReplace(client, String.valueOf(radius), OpenSearchConstants.RADIUS, parameters);
+    }
   }
 
   @Override
-  public void populateGeospatial(
-      WebClient client,
-      SpatialFilter spatial,
-      boolean shouldConvertToBBox,
-      List<String> parameters) {
-    String lat = "";
-    String lon = "";
-    String radiusStr = "";
-    StringBuilder bbox = new StringBuilder();
-    StringBuilder poly = new StringBuilder();
-
-    if (spatial != null) {
-      String wktStr = spatial.getGeometryWkt();
-      if (wktStr.contains("POLYGON")) {
-        String[] polyAry = createPolyAryFromWKT(wktStr);
-        if (shouldConvertToBBox) {
-          bbox.append(createBboxParamString(createBBoxFromPolygon(polyAry)));
-        } else {
-          for (int i = 0; i < polyAry.length - 1; i += 2) {
-            if (i != 0) {
-              poly.append(",");
-            }
-            poly.append(polyAry[i + 1]);
-            poly.append(",");
-            poly.append(polyAry[i]);
-          }
-        }
-      } else {
-        LOGGER.debug("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
-      }
+  public void populatePolygonParameter(
+      WebClient client, Polygon polygon, boolean shouldConvertToBBox, List<String> parameters) {
+    if (polygon == null) {
+      return;
     }
 
-    checkAndReplace(client, lat, OpenSearchConstants.LAT, parameters);
-    checkAndReplace(client, lon, OpenSearchConstants.LON, parameters);
-    checkAndReplace(client, radiusStr, OpenSearchConstants.RADIUS, parameters);
-    checkAndReplace(client, poly.toString(), OpenSearchConstants.POLYGON, parameters);
-    checkAndReplace(client, bbox.toString(), OpenSearchConstants.BBOX, parameters);
-  }
-
-  /**
-   * Parses a WKT polygon string and returns a string array containing the lon and lat.
-   *
-   * @param wkt WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
-   * @return Lon on even # and Lat on odd #
-   */
-  private static String[] createPolyAryFromWKT(String wkt) {
-    String lonLat = wkt.substring(wkt.indexOf("((") + 2, wkt.indexOf("))"));
-    return lonLat.split(" |,\\p{Space}?");
-  }
-
-  /**
-   * Parses a WKT Point string and returns a string array containing the lon and lat.
-   *
-   * @param wkt WKT String in the form of POINT( Lon Lat)
-   * @return Lon at position 0, Lat at position 1
-   */
-  private static String[] createLatLonAryFromWKT(String wkt) {
-    String lonLat = wkt.substring(wkt.indexOf('(') + 1, wkt.indexOf(')'));
-    return lonLat.split(" ");
+    if (shouldConvertToBBox) {
+      checkAndReplace(
+          client, createBBoxStringFromPolygon(polygon), OpenSearchConstants.BBOX, parameters);
+    } else {
+      checkAndReplace(
+          client,
+          Arrays.stream(polygon.getCoordinates())
+              .flatMap(coordinate -> Stream.of(coordinate.y, coordinate.x))
+              .map(String::valueOf)
+              .collect(Collectors.joining(OpenSearchConstants.POLYGON_LON_LAT_DELIMITER)),
+          OpenSearchConstants.POLYGON,
+          parameters);
+    }
   }
 
   /**
@@ -309,24 +247,21 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    *
    * @param lonInDegrees longitude in decimal degrees (WGS-84)
    * @param latInDegrees longitude in decimal degrees (WGS-84)
-   * @param searchRadiusInMeters search radius in meters
-   * @return optional array of bounding box coordinates in the following order: West South East
-   *     North. Also described as minX, minY, maxX, maxY (where longitude is the X-axis, and
-   *     latitude is the Y-axis). Returns {@link Optional#empty()} if unable to calculate a bounding
-   *     box.
+   * @param searchRadiusInMeters
+   * @return {@link String} of the bounding box coordinates in the format "west,south,east,north".
+   *     Returns an empty {@link String} if unable to calculate a bounding box.
    */
-  private static Optional<double[]> createBBoxFromPointRadius(
+  private static String createBBoxStringFromPointRadius(
       final double lonInDegrees, final double latInDegrees, final double searchRadiusInMeters) {
     final double latDifferenceInDegrees =
         Math.toDegrees(searchRadiusInMeters / LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS);
 
-    double minLat = latInDegrees - latDifferenceInDegrees; // south
-    double maxLat = latInDegrees + latDifferenceInDegrees; // north
+    double west;
+    double south = latInDegrees - latDifferenceInDegrees;
+    double east;
+    double north = latInDegrees + latDifferenceInDegrees;
 
-    double minLon; // west
-    double maxLon; // east
-
-    if (minLat > MIN_LAT && maxLat < MAX_LAT) {
+    if (south > MIN_LAT && north < MAX_LAT) {
       final double latInRadians = Math.toRadians(latInDegrees);
 
       final double tanU1 = (1 - FLATTENING) * Math.tan(latInRadians);
@@ -353,9 +288,12 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       do {
         if (iterationCount > MAXIMUM_VINCENTYS_FORMULA_ITERATIONS) {
           LOGGER.debug(
-              "Vincenty's formula failed to converge after {} iterations.",
-              MAXIMUM_VINCENTYS_FORMULA_ITERATIONS);
-          return Optional.empty();
+              "Vincenty's formula failed to converge after {} iterations. Unable to calculate a bounding box for lon={} degrees, lat={} degrees, search radius={} meters.",
+              MAXIMUM_VINCENTYS_FORMULA_ITERATIONS,
+              lonInDegrees,
+              latInDegrees,
+              searchRadiusInMeters);
+          return null;
         }
 
         cos2sigmaM = Math.cos(2 * sigma1 + sigma);
@@ -394,71 +332,65 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
       final double xDifferenceInDegrees = Math.toDegrees(L);
 
-      minLon = lonInDegrees - xDifferenceInDegrees;
-      if (minLon < MIN_LON) {
-        minLon += FULL_LON_ROTATION;
+      west = lonInDegrees - xDifferenceInDegrees;
+      if (west < MIN_LON) {
+        west += FULL_LON_ROTATION;
       }
 
-      maxLon = lonInDegrees + xDifferenceInDegrees;
-      if (maxLon > MAX_LON) {
-        maxLon -= FULL_LON_ROTATION;
+      east = lonInDegrees + xDifferenceInDegrees;
+      if (east > MAX_LON) {
+        east -= FULL_LON_ROTATION;
       }
     } else {
       // The search area overlaps one of the poles.
-      minLat = Math.max(minLat, MIN_LAT);
-      maxLat = Math.min(maxLat, MAX_LAT);
-      minLon = MIN_LON;
-      maxLon = MAX_LON;
+      west = MIN_LON;
+      south = Math.max(south, MIN_LAT);
+      east = MAX_LON;
+      north = Math.min(north, MAX_LAT);
     }
 
-    // west, south, east, north
-    return Optional.of(new double[] {minLon, minLat, maxLon, maxLat});
+    return createBboxString(west, south, east, north);
   }
 
   /**
-   * Takes in an array of coordinates and converts it to a (rough approximation) bounding box.
+   * Takes in a {@link Polygon} and converts it to a (rough approximation) bounding box.
    *
    * <p>Note: Searches being performed where the polygon goes through the international date line
    * may return a bad bounding box.
    *
-   * @param polyAry array of coordinates (lon,lat,lon,lat,lon,lat..etc)
-   * @return Array of bounding box coordinates in the following order: West South East North. Also
-   *     described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is the
-   *     Y-axis).
+   * @param polygon A polygon search area
+   * @return {@link String} of the bounding box coordinates in the format "west,south,east,north".
    */
-  private static double[] createBBoxFromPolygon(final String[] polyAry) {
-    double minX = Double.POSITIVE_INFINITY;
-    double minY = Double.POSITIVE_INFINITY;
-    double maxX = Double.NEGATIVE_INFINITY;
-    double maxY = Double.NEGATIVE_INFINITY;
+  private static String createBBoxStringFromPolygon(final Polygon polygon) {
+    double west = Double.POSITIVE_INFINITY;
+    double south = Double.POSITIVE_INFINITY;
+    double east = Double.NEGATIVE_INFINITY;
+    double north = Double.NEGATIVE_INFINITY;
 
-    double curX;
-    double curY;
-    for (int i = 0; i < polyAry.length - 1; i += 2) {
-      final String lon = polyAry[i];
-      final String lat = polyAry[i + 1];
-      LOGGER.debug("polyToBBox: lon - {} lat - {}", lon, lat);
-      curX = Double.parseDouble(lon);
-      curY = Double.parseDouble(lat);
-      if (curX < minX) {
-        minX = curX;
+    for (Coordinate coordinate : polygon.getCoordinates()) {
+      final double lon = coordinate.x;
+      final double lat = coordinate.y;
+
+      if (lon < west) {
+        west = lon;
       }
-      if (curX > maxX) {
-        maxX = curX;
+      if (lon > east) {
+        east = lon;
       }
-      if (curY < minY) {
-        minY = curY;
+      if (lat < south) {
+        south = lat;
       }
-      if (curY > maxY) {
-        maxY = curY;
+      if (lat > north) {
+        north = lat;
       }
     }
-    return new double[] {minX, minY, maxX, maxY};
+
+    return createBboxString(west, south, east, north);
   }
 
-  private static String createBboxParamString(double[] bboxCoords) {
-    return Arrays.stream(bboxCoords)
-        .mapToObj(Double::toString)
+  private static String createBboxString(double west, double south, double east, double north) {
+    return Stream.of(west, south, east, north)
+        .map(String::valueOf)
         .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER));
   }
 

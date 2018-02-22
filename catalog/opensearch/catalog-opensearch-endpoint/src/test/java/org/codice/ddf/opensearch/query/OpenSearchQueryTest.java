@@ -586,7 +586,7 @@ public class OpenSearchQueryTest {
     String radius = "5000";
 
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
-    query.addSpatialDistanceFilter(lon, lat, radius);
+    query.addPointRadiusSpatialFilter(lon, lat, radius);
     Filter filter = query.getFilter();
 
     // String filterXml = getFilterAsXml( filter );
@@ -949,7 +949,7 @@ public class OpenSearchQueryTest {
     String lon = "10";
     String lat = "20";
     String radius = "5000";
-    query.addSpatialDistanceFilter(lon, lat, radius);
+    query.addPointRadiusSpatialFilter(lon, lat, radius);
 
     // Filter filter = query.getFilter();
 
