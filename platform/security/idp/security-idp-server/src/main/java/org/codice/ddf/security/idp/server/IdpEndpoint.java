@@ -82,7 +82,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -630,7 +629,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   @Path("/login")
   public Response showGetLogin(
       @QueryParam(SAML_REQ) String samlRequest,
-      @Encoded @QueryParam(RELAY_STATE) String relayState,
+      @QueryParam(RELAY_STATE) String relayState,
       @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
       @QueryParam(SSOConstants.SIGNATURE) String signature,
       @Context HttpServletRequest request)
