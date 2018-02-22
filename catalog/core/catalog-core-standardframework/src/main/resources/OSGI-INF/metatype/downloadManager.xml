@@ -19,7 +19,7 @@
          name="Resource Download Settings"
          id="ddf.catalog.resource.download.ReliableResourceDownloadManager">
         <AD name="Product Cache Directory" id="productCacheDirectory" required="false"
-            type="String" default=""
+            type="String" default="${ddf.home}/data/Product_Cache"
             description="Directory where retrieved products will be cached for faster, future retrieval.
              If a directory path is specified with directories that do not exist,
              Product Download feature will attempt to create those directories.

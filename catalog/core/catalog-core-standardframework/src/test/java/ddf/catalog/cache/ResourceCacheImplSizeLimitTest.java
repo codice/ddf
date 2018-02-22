@@ -20,12 +20,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryEventType;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
 import ddf.catalog.cache.impl.ProductCacheDirListener;
-import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.data.ReliableResource;
 import java.io.File;
@@ -34,9 +32,10 @@ import java.util.Collection;
 import javax.activation.MimeType;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,25 +46,20 @@ public class ResourceCacheImplSizeLimitTest {
   private static final transient Logger LOGGER =
       LoggerFactory.getLogger(ResourceCacheImplSizeLimitTest.class);
 
-  private static TestHazelcastInstanceFactory hcInstanceFactory;
+  private TestHazelcastInstanceFactory hcInstanceFactory;
 
-  private static String productCacheDir;
+  private String productCacheDir;
 
-  private static ProductCacheDirListener<Object, Object> listener;
+  private ProductCacheDirListener<Object, Object> listener;
 
-  @BeforeClass
-  public static void oneTimeSetup() {
-    String workingDir = System.getProperty("user.dir") + File.separator + "target";
-    System.setProperty("karaf.home", workingDir);
-    productCacheDir =
-        workingDir + File.separator + ResourceCacheImpl.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Before
+  public void setup() throws IOException {
+    temporaryFolder.create();
+    productCacheDir = temporaryFolder.newFolder("cache").toString();
     hcInstanceFactory = new TestHazelcastInstanceFactory(10);
     listener = new ProductCacheDirListener<Object, Object>(15);
-  }
-
-  @AfterClass
-  public static void oneTimeTeardown() {
-    LOGGER.debug("instances still remaining{}", Hazelcast.getAllHazelcastInstances().size());
   }
 
   @After

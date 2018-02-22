@@ -16,42 +16,39 @@ package ddf.catalog.cache.impl;
 import static ddf.catalog.cache.impl.CachedResourceMetacardComparator.isSame;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.config.SSLConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.merge.PassThroughMergePolicy;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ResourceCacheImpl implements ResourceCacheInterface {
 
-  private static final String KARAF_HOME = "karaf.home";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCacheImpl.class);
 
   private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
-  /** Default location for product-cache directory, <INSTALL_DIR>/data/product-cache */
-  public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY =
-      "data" + File.separator + PRODUCT_CACHE_NAME;
+  private static final String HAZELCAST_STORAGE_PROPERTY = "storage";
+
+  private static final int HAZELCAST_PORT = 5701;
+
+  private static final boolean HAZELCAST_PORT_AUTO_INCREMENT = true;
 
   private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
 
@@ -69,16 +66,17 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
   private ProductCacheDirListener<Object, Object> cacheListener =
       new ProductCacheDirListener<>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
-  private BundleContext context;
-
-  private String xmlConfigFilename;
+  public ResourceCacheImpl(String productCacheDirectory) {
+    this.productCacheDirectory = productCacheDirectory;
+    initCache();
+  }
 
   /** Called after all parameters are set */
   public void setCache(HazelcastInstance instance) {
     LOGGER.trace("ENTERING: setCache()");
     this.instance = instance;
     if (this.instance == null) {
-      Config cfg = getHazelcastConfig(context, xmlConfigFilename);
+      Config cfg = initHazelcastConfig(productCacheDirectory);
       cfg.setClassLoader(getClass().getClassLoader());
       this.instance = Hazelcast.newHazelcastInstance(cfg);
     }
@@ -88,61 +86,12 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     cache.addEntryListener(cacheListener, true);
   }
 
-  public void setupCache() {
+  public void initCache() {
+    // if a hazelcast instance is already running, shut it down first
+    if (instance != null) {
+      teardownCache();
+    }
     setCache(null);
-  }
-
-  private Config getHazelcastConfig(BundleContext context, String xmlConfigFilename) {
-    Config cfg = null;
-    Bundle bundle = context.getBundle();
-
-    URL xmlConfigFileUrl = null;
-    if (StringUtils.isNotBlank(xmlConfigFilename)) {
-      xmlConfigFileUrl = bundle.getResource(xmlConfigFilename);
-    }
-
-    XmlConfigBuilder xmlConfigBuilder = null;
-
-    if (xmlConfigFileUrl != null) {
-      try {
-        xmlConfigBuilder = new XmlConfigBuilder(xmlConfigFileUrl.openStream());
-        cfg = xmlConfigBuilder.build();
-        LOGGER.debug(
-            "Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
-      } catch (FileNotFoundException e) {
-        LOGGER.info(
-            "FileNotFoundException trying to build hazelcast config from XML file "
-                + xmlConfigFilename,
-            e);
-        cfg = null;
-      } catch (IOException e) {
-        LOGGER.info(
-            "IOException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
-        cfg = null;
-      }
-    }
-
-    if (cfg == null) {
-      LOGGER.info("Falling back to using generic Config for hazelcast");
-      cfg = new Config();
-    } else if (LOGGER.isDebugEnabled()) {
-      MapConfig mapConfig = cfg.getMapConfig("Product_Cache");
-      if (mapConfig == null) {
-        LOGGER.debug("mapConfig is NULL for persistentNotifications - try persistent*");
-        mapConfig = cfg.getMapConfig("persistent*");
-        if (mapConfig == null) {
-          LOGGER.debug("mapConfig is NULL for persistent*");
-        }
-      } else {
-        MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-        if (null != mapStoreConfig) {
-          LOGGER.debug(
-              "mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
-        }
-      }
-    }
-
-    return cfg;
   }
 
   public void teardownCache() {
@@ -163,73 +112,9 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     return productCacheDirectory;
   }
 
-  public void setProductCacheDirectory(final String productCacheDirectory) {
-    String newProductCacheDirectoryDir = "";
-
-    if (!StringUtils.isEmpty(productCacheDirectory)) {
-      String path = FilenameUtils.normalize(productCacheDirectory);
-      File directory = new File(path);
-
-      // Create the directory if it doesn't exist
-      if ((!directory.exists() && directory.mkdirs())
-          || (directory.isDirectory() && directory.canRead() && directory.canWrite())) {
-        LOGGER.debug("Setting product cache directory to: {}", path);
-        newProductCacheDirectoryDir = path;
-      }
-    }
-
-    // if productCacheDirectory is invalid or productCacheDirectory is
-    // an empty string, default to the DEFAULT_PRODUCT_CACHE_DIRECTORY in <karaf.home>
-    if (newProductCacheDirectoryDir.isEmpty()) {
-      try {
-        final File karafHomeDir = new File(System.getProperty(KARAF_HOME));
-
-        if (karafHomeDir.isDirectory()) {
-          final File fspDir =
-              new File(karafHomeDir + File.separator + DEFAULT_PRODUCT_CACHE_DIRECTORY);
-
-          // if directory does not exist, try to create it
-          if (fspDir.isDirectory() || fspDir.mkdirs()) {
-            LOGGER.debug("Setting product cache directory to: {}", fspDir.getAbsolutePath());
-            newProductCacheDirectoryDir = fspDir.getAbsolutePath();
-          } else {
-            LOGGER.warn(
-                "Unable to create directory: {}. Please check for proper permissions to create this folder. Instead using default folder.",
-                fspDir.getAbsolutePath());
-          }
-        } else {
-          LOGGER.warn(
-              "Karaf home folder defined by system property {} is not a directory.  Using default folder.",
-              KARAF_HOME);
-        }
-      } catch (NullPointerException npe) {
-        LOGGER.warn(
-            "Unable to create FileSystemProvider folder - {} system property not defined. Using default folder.",
-            KARAF_HOME);
-      }
-    }
-
-    this.productCacheDirectory = newProductCacheDirectoryDir;
-
-    LOGGER.debug("Set product cache directory to: {}", this.productCacheDirectory);
-  }
-
-  public BundleContext getContext() {
-    return context;
-  }
-
-  public void setContext(BundleContext context) {
-    LOGGER.debug("Setting context");
-    this.context = context;
-  }
-
-  public String getXmlConfigFilename() {
-    return xmlConfigFilename;
-  }
-
-  public void setXmlConfigFilename(String xmlConfigFilename) {
-    LOGGER.debug("Setting xmlConfigFilename to: {}", xmlConfigFilename);
-    this.xmlConfigFilename = xmlConfigFilename;
+  public void setProductCacheDirectory(String productCacheDirectory) {
+    this.productCacheDirectory = new PropertyResolver(productCacheDirectory).getResolvedString();
+    initCache();
   }
 
   /**
@@ -378,5 +263,41 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     cache.remove(cachedResource.getKey());
     LOGGER.trace("EXITING: validateCacheEntry");
     return false;
+  }
+
+  private Config initHazelcastConfig(String productCacheDirectory) {
+    Config cfg = new Config();
+
+    JoinConfig joinConfig = cfg.getNetworkConfig().getJoin();
+    joinConfig.getMulticastConfig().setEnabled(false);
+
+    MapConfig defaultMapConfig = cfg.getMapConfig("default");
+    defaultMapConfig.setBackupCount(2);
+    defaultMapConfig.setEvictionPolicy(MapConfig.EvictionPolicy.LRU);
+    defaultMapConfig.setMergePolicy(PassThroughMergePolicy.class.getCanonicalName());
+
+    MapConfig productCacheMapConfig = cfg.getMapConfig(PRODUCT_CACHE_NAME);
+    productCacheMapConfig.setBackupCount(0);
+
+    MapStoreConfig productCacheMapStoreConfig = new MapStoreConfig();
+
+    productCacheMapStoreConfig.setEnabled(true);
+    productCacheMapStoreConfig.setFactoryClassName(
+        FileSystemMapStoreFactory.class.getCanonicalName());
+    productCacheMapStoreConfig.setWriteDelaySeconds(0);
+    productCacheMapStoreConfig.setProperty(HAZELCAST_STORAGE_PROPERTY, productCacheDirectory);
+
+    productCacheMapConfig.setMapStoreConfig(productCacheMapStoreConfig);
+
+    cfg.getNetworkConfig()
+        .setPort(HAZELCAST_PORT)
+        .setPortAutoIncrement(HAZELCAST_PORT_AUTO_INCREMENT)
+        .setOutboundPorts(Arrays.asList(0))
+        .setJoin(joinConfig)
+        .setSSLConfig(new SSLConfig());
+    cfg.addMapConfig(defaultMapConfig);
+    cfg.addMapConfig(productCacheMapConfig);
+
+    return cfg;
   }
 }

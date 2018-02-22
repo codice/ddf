@@ -28,9 +28,16 @@ public class FileSystemMapStoreFactory implements MapStoreFactory<String, Object
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemMapStoreFactory.class);
 
+  private static final String PERSISTENCE_PATH_KEY = "storage";
+
   @Override
   public MapLoader<String, Object> newMapStore(String mapName, Properties properties) {
-    LOGGER.trace("INSIDE: newMapStore()");
-    return new FileSystemPersistenceProvider(mapName);
+    String persistencePath = properties.getProperty(PERSISTENCE_PATH_KEY);
+    LOGGER.trace(
+        "INSIDE: newMapStore(). Creating new {} for map {} stored in {}",
+        FileSystemPersistenceProvider.class.getName(),
+        mapName,
+        persistencePath);
+    return new FileSystemPersistenceProvider(mapName, persistencePath);
   }
 }
