@@ -828,7 +828,7 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>1.4.5</version>
+                        <version>3.1.1</version>
                         <dependencies>
                             <dependency>
                                 <groupId>ddf.support</groupId>
@@ -838,7 +838,7 @@
                         </dependencies>
                         <configuration>
                             <failBuildOnCVSS>7</failBuildOnCVSS>
-                            <format>ALL</format>
+                            <format>HTML</format>
                             <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
                             <skipTestScope>true</skipTestScope>
                         </configuration>
@@ -853,28 +853,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>1.2.9</version>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                    <report>aggregate</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
-                    </plugin>
-                </plugins>
-            </reporting>
         </profile>
         <profile>
             <id>javadoc</id>
