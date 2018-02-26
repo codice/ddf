@@ -14,6 +14,7 @@
 -->
 
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
@@ -257,7 +258,22 @@
 
     <reference id="manager" interface="ddf.security.service.SecurityManager" />
 
-    <bean id="socketServlet" class="org.codice.ddf.catalog.ui.ws.SocketServlet">
+    <bean id="socketThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="socketThreadFactory"/>
+    </bean>
+
+    <ext:property-placeholder/>
+
+    <bean id="socketThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="socketThreadFactory"/>
+    </bean>
+
+    <bean id="socketServlet" destroy-method="destroy" class="org.codice.ddf.catalog.ui.ws.SocketServlet">
+        <argument ref="socketThreadPool" />
         <argument ref="jsonRpc" />
         <argument ref="manager" />
     </bean>

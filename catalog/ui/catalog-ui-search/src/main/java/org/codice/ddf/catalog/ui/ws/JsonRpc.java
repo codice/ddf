@@ -173,6 +173,6 @@ public class JsonRpc implements Socket {
 
   @Override
   public void onMessage(Session session, String message) throws IOException {
-    session.getRemote().sendString(mapper.toJson(handleMessage(message)));
+    session.getRemote().sendStringByFuture(mapper.toJson(handleMessage(message)));
   }
 }

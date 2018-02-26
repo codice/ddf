@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.ws;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -30,27 +31,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SocketServlet extends WebSocketServlet {
+
   private static final String TOKEN_KEY = "ddf.security.token";
   private static final Logger LOGGER = LoggerFactory.getLogger(SocketServlet.class);
+  private final ExecutorService executor;
   private final Socket socket;
-  private final SecurityManager handler;
+  private final SecurityManager manager;
 
-  public SocketServlet(Socket socket, SecurityManager handler) {
+  public SocketServlet(ExecutorService executor, Socket socket, SecurityManager manager) {
+    this.executor = executor;
     this.socket = socket;
-    this.handler = handler;
+    this.manager = manager;
+  }
+
+  public void destroy() {
+    executor.shutdown();
   }
 
   @Override
   public void configure(WebSocketServletFactory factory) {
-    factory.setCreator((req, resp) -> new SocketWrapper(socket, handler));
+    factory.setCreator((req, resp) -> new SocketWrapper(executor, socket, manager));
   }
 
   @WebSocket
   public static class SocketWrapper {
+
+    private final ExecutorService executor;
     private final Socket socket;
     private final SecurityManager manager;
 
-    SocketWrapper(Socket socket, SecurityManager manager) {
+    SocketWrapper(ExecutorService executor, Socket socket, SecurityManager manager) {
+      this.executor = executor;
       this.socket = socket;
       this.manager = manager;
     }
@@ -62,11 +73,14 @@ public class SocketServlet extends WebSocketServlet {
                   .getHttpServletRequest()
                   .getAttribute(TOKEN_KEY);
 
-      try {
-        manager.getSubject(result.getToken()).execute(runnable::run);
-      } catch (SecurityServiceException e) {
-        LOGGER.error("Failed to get subject.", e);
-      }
+      executor.submit(
+          () -> {
+            try {
+              manager.getSubject(result.getToken()).execute(runnable::run);
+            } catch (SecurityServiceException e) {
+              LOGGER.error("Failed to get subject.", e);
+            }
+          });
     }
 
     @OnWebSocketConnect
