@@ -4,6 +4,8 @@
 :summary: Provides the fundamental building blocks that the distribution needs to run.
 :order: 06
 
+== {title} Application Reference
+
 The ${ddf-platform} application is considered to be a core application of the distribution.
 The Platform application provides the fundamental building blocks that the distribution needs to run.
 These building blocks include subsets of:
@@ -14,10 +16,10 @@ These building blocks include subsets of:
 
 A <<_command_scheduler,Command Scheduler>> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.
 
-====  ${ddf-platform} Application Prerequisites
+===  ${ddf-platform} Application Prerequisites
 
 None.
 
-====  Installing ${ddf-platform}
+===  Installing ${ddf-platform}
 
 The ${ddf-platform} application is installed by default with a standard installation.

@@ -4,16 +4,18 @@
 :summary: Provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 :order: 11
 
+== {title} Application Reference
+
 The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
-==== Offline Gazetteer Service
+=== Offline Gazetteer Service
 
 In the ${ddf-spatial} Application, the `offline-gazetteer` is installed by default.
 This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
 
 By default a small set of GeoNames data is included with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with `geonames` and `gazetteer`. This collection of GeoNames metacards can be expanded or updated by using the `gazetteer:update` command.
 
-===== ${ddf-spatial} Gazetteer Console Commands
+==== ${ddf-spatial} Gazetteer Console Commands
 
 The `gazetteer` commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 
@@ -32,13 +34,13 @@ The `-c` or `--create` flag can be used to clear out the existing gazetteer meta
 
 |===
 
-====  ${ddf-spatial} Prerequisites
+===  ${ddf-spatial} Prerequisites
 
 To use the ${ddf-spatial} Application, the following apps/features must be installed:
 
 * ${ddf-platform}
 * ${ddf-catalog}
 
-====  Installing ${ddf-spatial}
+===  Installing ${ddf-spatial}
 
 The ${ddf-spatial} application is installed by default with a standard installation.
