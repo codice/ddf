@@ -23,6 +23,8 @@ pipeline {
         DISABLE_DOWNLOAD_PROGRESS_OPTS = '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
         COVERAGE_EXCLUSIONS = '**/test/**/*,**/itests/**/*,**/*Test*,**/sdk/**/*,**/*.js,**/node_modules/**/*,**/jaxb/**/*,**/wsdl/**/*,**/nces/sws/**/*,**/*.adoc,**/*.txt,**/*.xml,**/platform-solr-server-standalone/**/*'
+        OWASP_ANALYZER_OPTS = '-DarchiveAnalyzerEnabled=false -DopensslAnalyzerEnabled=false -DnspAnalyzerEnabled=false -DnuspecAnalyzerEnabled=false -DassemblyAnalyzerEnabled=false'
+        MUTE_LOGS = '-DitestLogLevel=FATAL -DsecurityLogLevel=FATAL'
     }
     stages {
         stage('Setup') {
@@ -57,7 +59,7 @@ pipeline {
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
                                 sh 'mvn install -B -pl !$DOCS -DskipStatic=true -DskipTests=true -T 1C $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 sh 'mvn clean install -B -T 1C -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS $MUTE_LOGS'
                             }
                         }
                     }
@@ -72,7 +74,7 @@ pipeline {
                             withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
                                 bat 'mvn install -B -pl !%DOCS% -DskipStatic=true -DskipTests=true -T 1C %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                                 bat 'mvn clean install -B -T 1C -pl !%ITESTS% -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/%CHANGE_TARGET% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
-                                bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                                bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS% %MUTE_LOGS%'
                             }
                         }
                     }
@@ -89,7 +91,7 @@ pipeline {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                 sh 'mvn clean install -B -T 1C -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
-                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS $MUTE_LOGS'
                             }
                         }
                     }
@@ -103,7 +105,7 @@ pipeline {
                         timeout(time: 3, unit: 'HOURS') {
                             withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
                                 bat 'mvn clean install -B -T 1C -pl !%ITESTS% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
-                                bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                                bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS% %MUTE_LOGS%'
                             }
                         }
                     }
@@ -118,9 +120,9 @@ pipeline {
                             script {
                                 // If this build is not a pull request, run full owasp scan. Otherwise run incremental scan
                                 if (env.CHANGE_ID == null) {
-                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS $DISABLE_DOWNLOAD_PROGRESS_OPTS $OWASP_ANALYZER_OPTS'
                                 } else {
-                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS $OWASP_ANALYZER_OPTS'
                                 }
                             }
                         }
