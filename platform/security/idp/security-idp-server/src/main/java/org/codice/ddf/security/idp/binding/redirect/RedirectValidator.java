@@ -56,7 +56,9 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
               new StringBuilder("SAMLRequest=")
                   .append(URLEncoder.encode(samlRequest, StandardCharsets.UTF_8.name()));
           if (relayState != null) {
-            signedParts.append("&RelayState=").append(relayState);
+            signedParts
+                .append("&RelayState=")
+                .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
           }
           signedParts
               .append("&SigAlg=")
