@@ -64,7 +64,7 @@ function getHomeCoordinates() {
                 let lat = parseFloat(coordinateObj.lat);
                 if (isNaN(lon) || isNaN(lat)) {
                     return undefined;
-                } 
+                }
                 lon = wrapNum(lon, [-180, 180]);
                 lat = wrapNum(lat, [-90, 90]);
                 return {
@@ -72,7 +72,7 @@ function getHomeCoordinates() {
                     lat: lat
                 };
             }).filter((coordinateObj) => {
-                return coordinateObj !== undefined;  
+                return coordinateObj !== undefined;
             });
         }
     } else {
@@ -214,8 +214,9 @@ module.exports = Marionette.LayoutView.extend({
         this.updateTarget(metacard);
         this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== ('userDrawing')));
     },
-    updateMouseCoordinates: function(coordinates){
+    updateMouseCoordinates: function(viewType, coordinates){
         this.mapModel.set({
+            currentCoordView: viewType,
             mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
             mouseLon: Number(wrapNum(coordinates.lon, [-180, 180]).toFixed(6))
         });

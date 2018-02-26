@@ -37,6 +37,9 @@ var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
 var pixelOffset = new Cesium.Cartesian2(0.0, 0);
 
+var POINTER_LOCATION_LABEL = "Pointer Location";
+var OFF_MAP_LABEL = "Cursor Off Map";
+
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
 var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
 
@@ -165,10 +168,18 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             var cartesian = map.scene.pickPosition(position);
             if (Cesium.defined(cartesian)){
                 let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                parentView.updateMouseCoordinates({
-                    lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
-                    lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
-                });
+                parentView.updateMouseCoordinates(
+                    POINTER_LOCATION_LABEL, 
+                    {
+                        lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+                        lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
+                    }
+                );
+            } else {
+              parentView.updateMouseCoordinates(
+                  OFF_MAP_LABEL, 
+                  { lat: 0, lon: 0 }
+                );
             }
         }
     }
