@@ -33,6 +33,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -47,6 +48,8 @@ import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
@@ -55,6 +58,7 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.io.CfgStrategy;
 import org.codice.ddf.platform.io.ConfigStrategy;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -109,6 +113,9 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID =
       "DDF_Custom_Mime_Type_Resolver";
+
+  private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME =
+      String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
 
   private static final List<PersistenceStrategy> STRATEGIES =
       ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
@@ -210,13 +217,30 @@ public class ConfigurationAdminMigratableTest {
   public void testDoExportDoImport() throws Exception {
     // Setup Export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
+    final String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
+    final Path configFile = setupConfigFile(tag);
+
+    // override to intercept doImport() and verify exported files from etc. Must be done before zip
+    // file is closed
     ConfigurationAdminMigratable eCam =
-        new ConfigurationAdminMigratable(configurationAdminForExport, STRATEGIES, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(
+            configurationAdminForExport, STRATEGIES, DEFAULT_FILE_EXT) {
+          @Override
+          public void doImport(ImportMigrationContext context) {
+            super.doImport(context);
+            assertThat(configFile.toFile(), Matchers.equalTo(false));
+            // Verify exported files from etc since we are currently not re-importing them
+            context.entries(Paths.get("etc")).forEach(ImportMigrationEntry::restore);
+            try {
+              verifyConfigFile(configFile, tag);
+            } catch (IOException e) {
+              throw new AssertionError(e);
+            }
+          }
+        };
     List<Migratable> eMigratables = Arrays.asList(eCam);
     ConfigurationMigrationManager eConfigurationMigrationManager =
         new ConfigurationMigrationManager(eMigratables, systemService);
-    String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
-    setupConfigFile(tag);
 
     // Perform Export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -235,8 +259,10 @@ public class ConfigurationAdminMigratableTest {
     FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
     setup(DDF_HOME);
 
+    // intercept doImport() to verify exported files from etc
     ConfigurationAdminMigratable iCam =
         new ConfigurationAdminMigratable(configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT);
+
     List<Migratable> iMigratables = Arrays.asList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
@@ -380,17 +406,26 @@ public class ConfigurationAdminMigratableTest {
         versionFile.toFile().getCanonicalFile(), version, StandardCharsets.UTF_8);
   }
 
-  private void setupConfigFile(String tag) throws IOException {
+  private Path setupConfigFile(String tag) throws IOException {
     Path configFile =
         ddfHome
             .resolve("etc")
             .toRealPath()
-            .resolve(String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
+            .resolve(ConfigurationAdminMigratableTest.DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME);
     Files.createFile(configFile);
     List<String> lines = new ArrayList<>(2);
     lines.add(String.format("#%s:%s", configFile.toRealPath().toString(), tag));
     lines.add(String.format("%s=%s", DirectoryWatcher.FILENAME, configFile.toUri().toString()));
     FileUtils.writeLines(
         configFile.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
+    return configFile;
+  }
+
+  private void verifyConfigFile(Path configFile, String tag) throws IOException {
+    assertThat(
+        FileUtils.readLines(configFile.toFile(), StandardCharsets.UTF_8.toString()),
+        Matchers.contains(
+            String.format("#%s:%s", configFile.toRealPath().toString(), tag),
+            String.format("%s=%s", DirectoryWatcher.FILENAME, configFile.toUri().toString())));
   }
 }

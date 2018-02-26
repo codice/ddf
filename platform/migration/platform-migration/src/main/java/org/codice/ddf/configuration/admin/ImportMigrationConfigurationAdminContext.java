@@ -58,6 +58,7 @@ public class ImportMigrationConfigurationAdminContext {
       LoggerFactory.getLogger(ImportMigrationConfigurationAdminContext.class);
 
   private static final Path ETC_PATH = Paths.get("etc");
+
   private static final Path ADMIN_DIR = Paths.get("admin");
 
   private final ImportMigrationContext context;

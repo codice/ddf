@@ -31,6 +31,7 @@ public class ExportMigrationContextTest {
 
   private final MigrationReport report = Mockito.mock(MigrationReport.class);
 
+  // This will create a mock of the interface to test method delegation later
   private final ExportMigrationContext context =
       Mockito.mock(ExportMigrationContext.class, Mockito.CALLS_REAL_METHODS);
 
@@ -106,26 +107,27 @@ public class ExportMigrationContextTest {
 
   @Test
   public void testEntries() throws Exception {
-    final Path p = Mockito.mock(Path.class);
-    final Stream s = Mockito.mock(Stream.class);
+    final Path path = Mockito.mock(Path.class);
+    final Stream stream = Mockito.mock(Stream.class);
 
-    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean())).thenReturn(s);
+    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean())).thenReturn(stream);
 
-    Assert.assertThat(context.entries(p), Matchers.sameInstance(s));
+    Assert.assertThat(context.entries(path), Matchers.sameInstance(stream));
 
-    Mockito.verify(context).entries(p, true);
+    Mockito.verify(context).entries(path, true);
   }
 
   @Test
   public void testEntriesWithFilter() throws Exception {
-    final PathMatcher m = Mockito.mock(PathMatcher.class);
-    final Path p = Mockito.mock(Path.class);
-    final Stream s = Mockito.mock(Stream.class);
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+    final Path path = Mockito.mock(Path.class);
+    final Stream stream = Mockito.mock(Stream.class);
 
-    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean(), Mockito.any())).thenReturn(s);
+    Mockito.when(context.entries(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        .thenReturn(stream);
 
-    Assert.assertThat(context.entries(p, m), Matchers.sameInstance(s));
+    Assert.assertThat(context.entries(path, filter), Matchers.sameInstance(stream));
 
-    Mockito.verify(context).entries(p, true, m);
+    Mockito.verify(context).entries(path, true, filter);
   }
 }

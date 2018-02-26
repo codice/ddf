@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * those and exporting {@link Configuration} objects to configuration files.
  */
 public class ConfigurationAdminMigratable implements Migratable {
+
   /**
    * Holds the current export version.
    *

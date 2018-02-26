@@ -557,6 +557,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     final Path other = createDirectory("other");
     final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
+    createFiles(etc, "another.cfg", "not-exported.properties");
     createFiles(ks, "testServerKeystore.jks");
     createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
     createFiles(other, "a", "b");
