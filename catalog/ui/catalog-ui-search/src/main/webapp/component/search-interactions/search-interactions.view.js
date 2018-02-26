@@ -78,7 +78,7 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
             model: new DropdownModel(),
             modelForComponent: this.model,
             selectionInterface: this.options.selectionInterface,
-            showSave: true
+            showFooter: true
         }), {
             replaceElement: true
         });

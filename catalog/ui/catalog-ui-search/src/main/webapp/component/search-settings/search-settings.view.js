@@ -36,18 +36,21 @@ define([
             propertySearchSettings: '.property-search-settings'
         },
         events: {
-            'click > .editor-properties > .editor-save': 'triggerSave'
+            'click > .editor-footer .editor-save': 'triggerSave',
+            'click > .editor-footer .editor-cancel': 'triggerCancel'
         },
         initialize: function() {
-            this.showSave();
+            this.showFooter();
         },
-        showSave: function() {
-            this.$el.toggleClass('show-save', this.options.showSave === true);
+        showFooter: function() {
+            this.$el.toggleClass('show-footer', this.options.showFooter === true);
         },
         onBeforeShow: function () {
             this.setupResultCount();
             this.setupSearchSettings();
-            this.listenToOnce(this.regionManager, 'before:remove:region', this.save);
+            if (this.options.showFooter !== true) {
+                this.listenToOnce(this.regionManager, 'before:remove:region', this.save);
+           }
         },
         setupSearchSettings: function() {
             this.propertySearchSettings.show(new QuerySettingsView({
@@ -97,6 +100,11 @@ define([
             this.updateSearchSettings();
             user.savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            this.onBeforeShow();
+        },
+        triggerCancel: function() {
+          this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+          this.onBeforeShow();
         }
     });
 });
