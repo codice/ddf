@@ -81,7 +81,8 @@ public class TestFailureLogger extends TestWatcher {
     } else {
       List<Bundle> bundles =
           Arrays.stream(bundleContext.getBundles())
-              .filter(bundle -> !bundleDiagnostics.isActive(bundle))
+              .filter(bundleDiagnostics::isNotActive)
+              .filter(bundleDiagnostics::isNotFragment)
               .collect(Collectors.toList());
 
       if (!bundles.isEmpty()) {
@@ -117,7 +118,7 @@ public class TestFailureLogger extends TestWatcher {
               bundle.getVersion().toString(),
               bundle.getSymbolicName()));
 
-      if (!bundleDiagnostics.isActive(bundle)) {
+      if (bundleDiagnostics.isNotActive(bundle)) {
         bundleInfo.append(bundleDiagnostics.getDetails(bundle));
       }
 
@@ -128,7 +129,9 @@ public class TestFailureLogger extends TestWatcher {
   private abstract static class BundleDiagnostics {
     abstract String getBundleState(Bundle bundle);
 
-    abstract boolean isActive(Bundle bundle);
+    abstract boolean isNotActive(Bundle bundle);
+
+    abstract boolean isNotFragment(Bundle bundle);
 
     StringBuilder getDetails(Bundle bundle) {
       StringBuilder details = new StringBuilder(" [ ");
@@ -147,12 +150,19 @@ public class TestFailureLogger extends TestWatcher {
 
   private static class PlainBundleDiagnostics extends BundleDiagnostics {
 
+    @Override
     String getBundleState(Bundle bundle) {
       return BUNDLE_STATES.getOrDefault(bundle.getState(), "UNKNOWN");
     }
 
-    boolean isActive(Bundle bundle) {
-      return bundle.getState() == Bundle.ACTIVE;
+    @Override
+    boolean isNotActive(Bundle bundle) {
+      return bundle.getState() != Bundle.ACTIVE;
+    }
+
+    @Override
+    boolean isNotFragment(Bundle bundle) {
+      return bundle.getHeaders().get("Fragment-Host") == null;
     }
   }
 
@@ -169,8 +179,13 @@ public class TestFailureLogger extends TestWatcher {
     }
 
     @Override
-    public boolean isActive(Bundle bundle) {
-      return bundleService.getInfo(bundle).getState() == BundleState.Active;
+    public boolean isNotActive(Bundle bundle) {
+      return bundleService.getInfo(bundle).getState() != BundleState.Active;
+    }
+
+    @Override
+    public boolean isNotFragment(Bundle bundle) {
+      return !bundleService.getInfo(bundle).isFragment();
     }
 
     @Override
