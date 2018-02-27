@@ -445,7 +445,6 @@
         <cxf.guava.version>${guava.version}</cxf.guava.version>
         <cxf.hazelcast.version>1.9.4.8</cxf.hazelcast.version>
         <cxf.httpcomponents.asyncclient.version>4.1.3</cxf.httpcomponents.asyncclient.version>
-        <cxf.httpcomponents.client.version>4.5.3</cxf.httpcomponents.client.version>
         <cxf.httpcomponents.core.version>4.4.6</cxf.httpcomponents.core.version>
         <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
         <cxf.javax.annotation-api.version>1.2</cxf.javax.annotation-api.version>
