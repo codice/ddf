@@ -70,7 +70,7 @@
         <httpcore.version>4.4.6</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <cxf.version>3.1.11</cxf.version>
-        <bouncy.version>1.55</bouncy.version>
+        <bouncy.version>1.59</bouncy.version>
         <xmlsec.version>2.0.8</xmlsec.version>
         <jts.version>1.12</jts.version>
         <jts.bundle.version>1.12_1</jts.bundle.version>
