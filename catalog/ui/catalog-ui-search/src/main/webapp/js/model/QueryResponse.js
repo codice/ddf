@@ -88,7 +88,7 @@ module.exports = Backbone.AssociatedModel.extend({
     sync: function (method, model, options) {
         let aborted = false;
         if (rpc !== null) {
-            rpc.call('query', [options.data])
+            rpc.call('query', [options.data], properties.timeout)
                 .then((...args) => {
                     if (!aborted) {
                         options.success(...args);
