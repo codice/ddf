@@ -136,27 +136,29 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
   }
 
   @Override
-  public Stream<ExportMigrationEntry> entries(Path path) {
+  public Stream<ExportMigrationEntry> entries(Path path, boolean recurse) {
     final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
 
     if (!isDirectory(entry)) {
       return Stream.empty();
     }
-    return FileUtils.listFiles(entry.getFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+    return FileUtils.listFiles(
+            entry.getFile(), TrueFileFilter.INSTANCE, recurse ? TrueFileFilter.INSTANCE : null)
         .stream()
         .map(File::toPath)
         .map(this::getEntry);
   }
 
   @Override
-  public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
+  public Stream<ExportMigrationEntry> entries(Path path, boolean recurse, PathMatcher filter) {
     Validate.notNull(filter, "invalid null path filter");
     final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
 
     if (!isDirectory(entry)) {
       return Stream.empty();
     }
-    return FileUtils.listFiles(entry.getFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+    return FileUtils.listFiles(
+            entry.getFile(), TrueFileFilter.INSTANCE, recurse ? TrueFileFilter.INSTANCE : null)
         .stream()
         .map(File::toPath)
         .map(p -> new ExportMigrationEntryImpl(this, p))
