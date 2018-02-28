@@ -263,7 +263,7 @@ public class ImportCommand extends CatalogCommands {
   private ZipValidator initZipValidator() {
     ZipValidator zipValidator = new ZipValidator();
     zipValidator.setSignaturePropertiesPath(
-        Paths.get(System.getProperty("ddf.home"), "/etc/ws-security/server/signature.properties")
+        Paths.get(System.getProperty("ddf.etc"), "/ws-security/server/signature.properties")
             .toString());
     zipValidator.init();
     return zipValidator;

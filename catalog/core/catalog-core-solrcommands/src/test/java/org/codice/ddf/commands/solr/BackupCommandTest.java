@@ -87,6 +87,8 @@ public class BackupCommandTest {
 
   private static final String DDF_HOME_PROP = "ddf.home";
 
+  private static final String DDF_ETC_PROP = "ddf.etc";
+
   private static final String DEFAULT_DDF_HOME = "/opt/ddf";
 
   private static final Path SYSTEM_PROPERTIES_PATH =
@@ -120,6 +122,7 @@ public class BackupCommandTest {
   @BeforeClass
   public static void beforeClass() throws Exception {
     setDdfHome();
+    setDdfEtc();
     createDefaultMiniSolrCloudCluster();
     addDocument("1");
   }
@@ -1025,6 +1028,10 @@ public class BackupCommandTest {
 
   private static void setDdfHome() {
     System.setProperty(DDF_HOME_PROP, DEFAULT_DDF_HOME);
+  }
+
+  private static void setDdfEtc() {
+    System.setProperty(DDF_ETC_PROP, Paths.get(DEFAULT_DDF_HOME, "etc").toString());
   }
 
   private void setupSolrClientType(String solrClientType) {

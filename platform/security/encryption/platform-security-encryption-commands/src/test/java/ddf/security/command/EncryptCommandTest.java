@@ -36,7 +36,8 @@ public class EncryptCommandTest {
   public void setUp() throws Exception {
     ddfHome = Files.createTempDirectory("encrypt").toFile();
     System.setProperty("ddf.home", ddfHome.toString());
-    String path = new File(System.getProperty("ddf.home").concat("/etc/certs")).getCanonicalPath();
+    System.setProperty("ddf.etc", ddfHome.getAbsolutePath().concat("/etc"));
+    String path = new File(System.getProperty("ddf.etc").concat("/certs")).getCanonicalPath();
     new File(path).mkdirs();
   }
 
