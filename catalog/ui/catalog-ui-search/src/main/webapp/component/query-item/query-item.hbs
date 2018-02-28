@@ -12,13 +12,13 @@
  **/
  --}}
 <div class="query-container"  data-queryid="{{id}}">
-    <div class="query-color" style="background: {{color}}" data-help="Color used to indicate a result came from this query.">
+    <div class="query-color" style="background: {{color}}" data-help="Color used to indicate a result came from this search.">
     </div>
     <div class="query-details">
-        <div class="details-title" data-help="The name you've given to the query.">
+        <div class="details-title" data-help="The name you've given to the search.">
             {{bind selector=".details-title" event="change:title" key=(path "title")}}
         </div>
-        <div class="details-feed" data-help="Shows the status of the query, such as the number of results.">
+        <div class="details-feed" data-help="Shows the status of the search, such as the number of results.">
         </div>
         <div class="details-footer">
             <button class="query-run is-button" title="Runs the search." data-help="Runs the search.">
@@ -39,7 +39,7 @@
             <div class="query-schedule is-button" title="Allows setting up search notifications." data-help="Allows setting up search notifications.">
                 <span class="fa fa-bell"></span>
             </div>
-            <div class="query-actions is-button" title="Shows a list of actions to take on the query." data-help="Shows a list of actions to take on the query.">
+            <div class="query-actions is-button" title="Shows a list of actions to take on the search." data-help="Shows a list of actions to take on the search.">
             </div>
         </div>
     </div>
