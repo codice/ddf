@@ -1,4 +1,5 @@
 @{customElementNamespace}navigation-right {
+    @navigation-right-usericon: 1.375rem;
     .customElement;
     white-space: nowrap;
     overflow: hidden;
@@ -12,7 +13,8 @@
     }
 
     .navigation-item.item-user {
-        max-width: 9rem + @minimumButtonSize;
+        padding: 0px @minimumSpacing;
+        max-width: 9rem + @navigation-right-usericon;
         width: auto;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -35,6 +37,7 @@
     .user-unique {
         white-space: nowrap;
         vertical-align: top;
+        position: relative;
     }
 
     .user-unique span:first-of-type {
@@ -42,8 +45,8 @@
         overflow: hidden;
         text-overflow: ellipsis;
         vertical-align: top;
-        max-width: 9rem;
-        padding-right: @minimumButtonSize;
+        max-width: 9rem - @navigation-right-usericon;
+        padding-right: @navigation-right-usericon;
     }
 
     .user-unique span:nth-of-type(2){
@@ -51,7 +54,7 @@
         right: 0px;
         top: 50%;
         display: inline-block;
-        width: @minimumButtonSize;
+        width: @navigation-right-usericon;
         line-height: inherit !important;
         vertical-align: top;
         transform: translateY(-50%);
