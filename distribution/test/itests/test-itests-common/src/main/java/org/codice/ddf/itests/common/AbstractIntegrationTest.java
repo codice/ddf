@@ -364,7 +364,7 @@ public abstract class AbstractIntegrationTest {
   public void waitForBaseSystemFeatures() {
     try {
       basePort = getBasePort();
-      getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+      getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
       getCatalogBundle().waitForCatalogProvider();
 

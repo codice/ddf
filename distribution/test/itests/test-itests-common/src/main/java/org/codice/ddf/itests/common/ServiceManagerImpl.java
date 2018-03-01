@@ -48,8 +48,6 @@ import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
-import org.codice.ddf.admin.application.service.ApplicationService;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -321,19 +319,6 @@ public class ServiceManagerImpl implements ServiceManager {
     return featuresService;
   }
 
-  // TODO - we should really make this a bundle and inject this.
-  private ApplicationService getApplicationService() {
-    BundleContext bundleContext = getBundleContext();
-
-    bundleContext = waitForBundleContext(bundleContext);
-    if (bundleContext == null) {
-      throw new RuntimeException("Unable to get bundle context for application service.");
-    }
-    ServiceReference<ApplicationService> applicationServiceRef =
-        bundleContext.getServiceReference(ApplicationService.class);
-    return bundleContext.getService(applicationServiceRef);
-  }
-
   @Override
   public void restartBundles(String... bundleSymbolicNames) throws BundleException {
     LOGGER.debug("Restarting bundles {}", bundleSymbolicNames);
@@ -368,23 +353,6 @@ public class ServiceManagerImpl implements ServiceManager {
     for (Bundle bundle : getBundleContext().getBundles()) {
       if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
         bundle.start();
-      }
-    }
-  }
-
-  @Override
-  public void waitForRequiredApps(String... appNames) throws InterruptedException {
-    ApplicationService appService = getApplicationService();
-    if (appNames.length > 0) {
-      for (String appName : appNames) {
-        try {
-          appService.startApplication(appName);
-        } catch (ApplicationServiceException e) {
-          LOGGER.error("Failed to start application", e);
-          printInactiveBundles();
-          fail("Failed to start boot feature: " + e.getMessage());
-        }
-        waitForAllBundles();
       }
     }
   }

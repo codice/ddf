@@ -16,21 +16,16 @@
 define([
         'backbone',
         'jquery',
-        'underscore',
-        'q'
+        'underscore'
     ],
-    function (Backbone, $, _, Q) {
+    function (Backbone, $, _) {
     "use strict";
 
     var Applications = {};
 
-    var startUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
-    var stopUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
-    var removeUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
+        var versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
-    var versionRegex = /([^0-9]*)([0-9]+.*$)/;
-
-    // Applications.TreeNode
+        // Applications.TreeNode
     // ---------------------
 
     // Represents a node in the application tree where children are dependent on their parent being
@@ -151,138 +146,8 @@ define([
                 var descArray = this.get('description').split('\\n');
                 this.set('paragraphs', descArray);
             }
-        },
-
-        // Flag used to signify an application that was selected by the user to undergo a
-        // certain action whether it be to be started or stopped
-        toggleChosenApp: function () {
-            this.set({chosenApp: true});
-        },
-
-        // Creates a promise for the start action of an application
-        startAction: function(statusUpdate) {
-            var promise;
-            promise = this.start(statusUpdate);
-            return promise;
-        },
-
-        // Creates a promise for the stop action of an application
-        stopAction: function(statusUpdate) {
-            var promise;
-            promise = this.stop(statusUpdate);
-            return promise;
-        },
-
-        removeAction: function(statusUpdate) {
-            var promise;
-            promise = this.removeCall(statusUpdate);
-            return promise;
-        },
-
-        // Checks to see if the given application is in the INACTIVE state which is used
-        // prior to starting an application
-        startInactive: function() {
-            return (this.get('state') === "INACTIVE");
-        },
-
-        // Checks to see if the given application is in the ACTIVE state which is used
-        // prior to stopping an application
-        stopActive: function() {
-            return (this.get('state') === "ACTIVE");
-        },
-
-        // Performs the actual AJAX call to start the current application. Takes a status
-        // function to keep anyone who cares informed about each step being performed.
-        start: function(statusUpdate) {
-            if (this.startInactive()) {
-                var name = this.get('name');
-                var type = 'GET';
-                var url = '';
-
-                var ajaxArgs = {};
-
-                statusUpdate('Starting ' + name);
-                url = startUrl + name;
-
-
-                url = url + '/';
-
-                ajaxArgs.type = type;
-                ajaxArgs.url = url;
-                ajaxArgs.dataType = 'JSON';
-
-                return $.ajax(ajaxArgs);
-            }
-        },
-
-        // Performs the actual AJAX call to stop the current application. Takes a status
-        // function to keep anyone who cares informed about each step being performed.
-        stop: function(statusUpdate) {
-            if (this.stopActive()) {
-                var name = this.get('name');
-                var type = 'GET';
-                var url = '';
-
-                var ajaxArgs = {};
-
-                statusUpdate('Stopping ' + name);
-                url = stopUrl + name;
-
-                url = url + '/';
-
-                ajaxArgs.type = type;
-                ajaxArgs.url = url;
-                ajaxArgs.dataType = 'JSON';
-
-                return $.ajax(ajaxArgs);
-            }
-        },
-
-        removeCall: function(statusUpdate){
-            var name = this.get('name');
-            var type = 'GET';
-            var url = '';
-
-            var ajaxArgs = {};
-
-            statusUpdate('Removing ' + name);
-            url = removeUrl + name;
-
-            url = url + '/';
-
-            ajaxArgs.type = type;
-            ajaxArgs.url = url;
-            ajaxArgs.dataType = 'JSON';
-
-            return $.ajax(ajaxArgs);
-        },
-
-        // Verifies that the applications that needed to be started or stopped
-        // are in fact in the proper state in the system
-        validateUpdatedNode: function(jsonModel, failList, action) {
-            var that = this;
-            if(action === "start") {
-                this.collection.each(function(child) {
-                    if((jsonModel.appId === child.attributes.appId) &&
-                        (child.attributes.state !== 'ACTIVE')) {
-                        failList.push(that.get('appId'));
-                        child.attributes.error = true;
-                    } else {
-                        child.attributes.chosenApp = false;
-                    }
-                });
-            } else {
-                this.collection.each(function(child) {
-                    if((jsonModel.appId === child.attributes.appId) &&
-                        (child.attributes.state !== 'INACTIVE')) {
-                        failList.push(that.get('appId'));
-                        child.attributes.error = true;
-                    } else {
-                        child.attributes.chosenApp = false;
-                    }
-                });
-            }
         }
+
     });
 
     // Applications.TreeNodeCollection
@@ -296,184 +161,6 @@ define([
 
         comparator : function(model){
             return  model.get('displayName');
-        },
-
-        // Reading the collection can be performed using a normal fetch (through the
-        // `Applications.Response` model - then pulling out the values.
-        // Saving the state of the selected applications doesn't follow the normal
-        // REST model - each application is uninstalled or installed through
-        // the application-service.
-        update: function(method, model, statusUpdate){
-            var thisModel = this;
-            if (method === 'read'){
-                return model.fetch({
-                    success: function(data){
-                        thisModel.reset(data.get('value'));
-                    }
-                });
-            } else if (method === 'start'){ // this is a save of the model (CUD)
-                return this.updateAction(statusUpdate, "start");
-            } else if (method === 'stop'){
-                return this.updateAction(statusUpdate, "stop");
-            } else if(method === 'remove'){
-                return this.removeAction(statusUpdate, 'remove');
-            }
-        },
-
-        removeAction: function(statusUpdate){
-            var that = this;
-            var promiseArr = [];
-
-            var appDependents;
-            var theChosenApp;
-            var finalList = [];
-
-
-            this.each(function(child) {
-                if(child.get('chosenApp') === true) {
-                    appDependents = child.get('dependencies');
-                    theChosenApp = child.get('appId');
-                }
-            });
-
-            if(appDependents.length > 0) {
-                this.each(function(child) {
-                    if(appDependents.indexOf(child.get('appId')) !== -1) {
-                        finalList.push(child.get('appId'));
-                    }
-                });
-            }
-            finalList.push(theChosenApp);
-
-
-            // Determine the total number of actions to be performed so that we can provide
-            // a percent complete in the `statusUpdate` method.
-            var count = 0;
-            var totalCount = finalList.length;
-            var internalStatusUpdate = function(message) {
-                if (typeof statusUpdate !== 'undefined') {
-                    statusUpdate(message, count/totalCount*100);
-                }
-                count++;
-            };
-
-            finalList.forEach(function(finalApps) {
-                that.each(function(app) {
-                    if(app.get('appId') === finalApps) {
-                        promiseArr.push(app.removeAction(internalStatusUpdate));
-                    }
-                });
-            });
-
-            return Q.all(promiseArr);
-
-        },
-
-        // Performs the application of the user-selected changes to the application dependency
-        // trees (each element of this collection is the root of one dependency tree). This save
-        // method accepts a `statusUpdate` function which will be called with `(message, percentComplete)`
-        // to keep the caller aware of the current status.
-        updateAction: function(statusUpdate, action) {
-            var that = this;
-            var promiseArr = [];
-
-            var appDependents;
-            var theChosenApp;
-            var finalList = [];
-
-            // Find app that was selected to be started/stopped
-            this.each(function(child) {
-                if(child.get('chosenApp') === true) {
-                    if(action === "start") {
-                        appDependents = child.get('parents');
-                    } else {
-                        appDependents = child.get('dependencies');
-                    }
-                    theChosenApp = child.get('appId');
-                }
-            });
-
-            // Create list of apps that will be started/stopped based on dependencies
-            if(appDependents.length > 0) {
-                this.each(function(child) {
-                    if(appDependents.indexOf(child.get('appId')) !== -1) {
-                        if(((action === "start") && (child.get('state') === 'INACTIVE')) ||
-                           ((action === "stop") && (child.get('state') === 'ACTIVE')) ) {
-                            finalList.push(child.get('appId'));
-                        }
-                    }
-                });
-            }
-            finalList.push(theChosenApp);
-
-            // Determine the total number of actions to be performed so that we can provide
-            // a percent complete in the `statusUpdate` method.
-            var count = 0;
-            var totalCount = finalList.length;
-            var internalStatusUpdate = function(message) {
-                if (typeof statusUpdate !== 'undefined') {
-                    statusUpdate(message, count/totalCount*100);
-                }
-                count++;
-            };
-
-            finalList.forEach(function(finalApps) {
-                that.each(function(app) {
-                    if(app.get('appId') === finalApps) {
-                        if(action === "start") {
-                            promiseArr.push(app.startAction(internalStatusUpdate));
-                        } else {
-                            promiseArr.push(app.stopAction(internalStatusUpdate));
-                        }
-                    }
-                });
-            });
-
-            return Q.all(promiseArr);
-        },
-
-        // verify the start/stop actions
-        validateUpdate: function(jsonModel, numNodes, statusUpdate, action) {
-            var that = this;
-            var failList = [];
-
-            jsonModel.forEach(function(child, index) {
-                if(child.chosenApp === true) {
-                    that.models[index].validateUpdatedNode(child, failList, action);
-                }
-            });
-
-            var donePercent = (numNodes - failList.length)/numNodes*100;
-
-            if(failList.length > 0) {
-                if(failList.length === 1) {
-                    if (typeof statusUpdate !== 'undefined') {
-                        if(action === 'start') {
-                            statusUpdate('An application failed to start.', donePercent);
-                        } else {
-                            statusUpdate('An application failed to stop.', donePercent);
-                        }
-                    }
-                } else if(failList.length > 1) {
-                    if (typeof statusUpdate !== 'undefined') {
-                        if(action === 'start') {
-                            statusUpdate('Several applications failed to start.', donePercent);
-                        } else {
-                            statusUpdate('Several applications failed to stop.', donePercent);
-                        }
-                    }
-                }
-            } else {
-                if (typeof statusUpdate !== 'undefined') {
-                    if(action === 'start') {
-                        statusUpdate('Start complete.', 100);
-                    } else if(action === 'stop'){
-                        statusUpdate('Stop complete.', 100);
-                    } else if(action === 'remove'){
-                        statusUpdate('Remove complete.', 100);
-                    }
-                }
-            }
         }
     });
 
@@ -483,7 +170,54 @@ define([
     // Represents the response from the application-service when obtaining the list of all applications
     // on the system.
     Applications.Response = Backbone.Model.extend({
-        url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/'
+        fetch: function (model) {
+            return $.ajax({
+                type: 'GET',
+                url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+                dataType: 'JSON',
+                success: function (appsResp) {
+                    var apps = appsResp.value;
+
+                    //Only display apps that have either configurations or plugins
+                    var appPluginReqs = apps.map(function (app) {
+                        return {
+                            type: "EXEC",
+                            mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+                            operation: "getPluginsForApplication",
+                            arguments: [app.name]
+                        };
+                    });
+
+                    var appConfigsReqs = apps.map(function (app) {
+                        return {
+                            type: "EXEC",
+                            mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+                            operation: "getServices",
+                            arguments: [app.name]
+                        };
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/jolokia',
+                        dataType: 'JSON',
+                        data: JSON.stringify(appPluginReqs.concat(appConfigsReqs))
+                    }).done(function (batchedResponses) {
+                        var appsToShow = batchedResponses
+                            .filter(function (resp) {
+                                return resp.value && resp.value.length !== 0;
+                            })
+                            .map(function (resp) {
+                                return resp.request.arguments[0];
+                            });
+
+                        model.reset(apps.filter(function (app) {
+                            return appsToShow.indexOf(app.name) !== -1;
+                        }));
+                    });
+                }
+            });
+        }
     });
 
     return Applications;

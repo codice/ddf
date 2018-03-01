@@ -57,7 +57,7 @@ define([
       return {
         hasNext: true,
         hasPrevious: false,
-        totalSteps: 5,
+        totalSteps: 4,
         stepNumber: 0,
         percentComplete: 0,
         busy: false,

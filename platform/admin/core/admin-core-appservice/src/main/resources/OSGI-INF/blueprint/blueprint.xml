@@ -11,20 +11,16 @@
  *
  **/ -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <ext:property-placeholder/>
 
-    <bean id="appService"
-          class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
+    <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
         <cm:managed-properties
             persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
             update-strategy="container-managed"/>
-        <argument ref="bundleStateServices"/>
-        <property name="configFileName"
-                  value="${ddf.home}/etc/org.codice.ddf.admin.applicationlist.properties"/>
+        <argument ref="featuresService"/>
     </bean>
 
     <service ref="appService"
@@ -51,16 +47,6 @@
 
     <reference id="configurationAdmin"
                interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"/>
-
-    <jaxrs:server id="restService" address="/application">
-        <jaxrs:serviceBeans>
-            <ref component-id="restSvc"/>
-        </jaxrs:serviceBeans>
-    </jaxrs:server>
-
-    <bean id="restSvc" class="org.codice.ddf.admin.application.rest.ApplicationUploadEndpoint">
-        <argument ref="appService"/>
-    </bean>
 
     <reference-list id="applicationPluginList"
                     interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"

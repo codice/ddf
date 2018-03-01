@@ -57,7 +57,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
 
   private static final String ADVANCED_PROFILE_INSTALL_FEATURES = "install-features";
   private static final String ADVANCED_PROFILE_UNINSTALL_FEATURES = "uninstall-features";
-  private static final String ADVANCED_PROFILE_START_APPS = "start-apps";
   private static final String ADVANCED_PROFILE_STOP_BUNDLES = "stop-bundles";
   private static final String FEATURE_FAILURE_MESSAGE = "Feature: %s does not exist";
   private static final EnumSet NO_AUTO_REFRESH =
@@ -95,13 +94,12 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
                 .stream()
                 .map(Dependency::getName)
                 .collect(Collectors.toList());
-        startApps(applicationService, profileApps);
+        installFeatures(featuresService, profileApps);
         uninstallInstallerModule(featuresService);
         printSuccess("Installation Complete");
       } else {
         if (optionalExtraProfiles.isPresent()) {
           Map<String, List<String>> profile = optionalExtraProfiles.get();
-          startApps(applicationService, profile.get(ADVANCED_PROFILE_START_APPS));
           installFeatures(featuresService, profile.get(ADVANCED_PROFILE_INSTALL_FEATURES));
           uninstallFeatures(featuresService, profile.get(ADVANCED_PROFILE_UNINSTALL_FEATURES));
           /* The stop-bundles operation is a workaround currently in place for dealing with
@@ -121,21 +119,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       SecurityLogger.audit("Failed to install profile: {}", profileName);
       printError(RESTART_WARNING);
       throw e;
-    }
-  }
-
-  private void startApps(ApplicationService applicationService, List<String> startupApps)
-      throws ApplicationServiceException {
-    if (startupApps != null) {
-      printSectionHeading("Starting Applications");
-      Set<String> uniqueValues = new HashSet<>();
-      for (String application : startupApps) {
-        if (uniqueValues.add(application)) {
-          printItemStatusPending("Starting: ", application);
-          startApplication(applicationService, application);
-          printItemStatusSuccess("Started: ", application);
-        }
-      }
     }
   }
 
@@ -249,16 +232,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     }
 
     return Optional.ofNullable(profileMap);
-  }
-
-  private void startApplication(ApplicationService applicationService, String application)
-      throws ApplicationServiceException {
-    try {
-      applicationService.startApplication(application);
-    } catch (ApplicationServiceException e) {
-      printItemStatusFailure("Start Failed: ", application);
-      throw e;
-    }
   }
 
   private void installFeature(FeaturesService featuresService, String feature) throws Exception {

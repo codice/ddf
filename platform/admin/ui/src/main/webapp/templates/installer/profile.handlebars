@@ -13,9 +13,9 @@
  --}}
 <h3>Setup Types</h3>
 
-<div class="well white">
+<div class="well white main-content">
     {{#if profiles}}
-        <p class="lead">Choose an application setup type.</p>
+        <p class="lead">Choose an installation profile</p>
         <div class="profile-options scroll-area ps-container">
             {{#profiles}}
                 <div class="profile-option clearfix">
@@ -28,11 +28,6 @@
                             <p>{{description}}</p>
                         </div>
                     </div>
-                    <div class="pull-right">
-                        <div class="cell">
-                            <button type="checkbox" class="btn customize" name="isCustomProfile"><i class="fa fa-check"></i> Customize</button>
-                        </div>
-                    </div>
                 </div>
             {{/profiles}}
         </div>
@@ -41,7 +36,13 @@
             No setup types are configured on the system.
             <br/>
             <br/>
-            Click next to proceed to Application Customization.
         </p>
     {{/if}}
+</div>
+<div class="loading-overlay">
+    <div class="block">
+        <div class="centered">
+            <i class="fa fa-spinner fa-spin fa-5x"></i>
+        </div>
+    </div>
 </div>

@@ -28,7 +28,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-<feature name="registry-core-api" install="auto" version="${project.version}" >
+<feature name="registry-core-api" version="${project.version}" >
     <bundle>mvn:org.codice.ddf.registry/registry-api/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-api/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service/${project.version}</bundle>
@@ -38,8 +38,8 @@
     <bundle>mvn:org.codice.ddf.registry/registry-identification-plugin/${project.version}</bundle>
 </feature>
 
-<feature name="registry-core" install="auto" version="${project.version}" >
-    <feature prerequisite="true">registry-app</feature>
+<feature name="registry-core" version="${project.version}" >
+    <feature>registry-core-api</feature>
     <bundle>mvn:org.codice.ddf.registry/registry-api-impl/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service-impl/${project.version}</bundle>
     <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-impl/${project.version}</bundle>
@@ -52,10 +52,11 @@
     <bundle>mvn:org.codice.ddf.registry/registry-admin-remote-ui/${project.version}</bundle>
 </feature>
 
-<feature name="registry-app" install="auto" version="${project.version}"
-         description="Registry contains the base registry components, plugins, sources and interfaces needed for the registry to function.::Registry">
-    <feature prerequisite="true">spatial-app</feature>
+<feature name="registry-app" version="${project.version}"
+         description="Registry contains the base registry components, plugins, sources and interfaces needed for the registry to function.">
+    <feature>spatial-app</feature>
     <feature>registry-core-api</feature>
+    <feature>registry-core</feature>
 </feature>
 
 </features>

@@ -14,7 +14,7 @@
 -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="catalog-security-ingestplugin" install="manual" version="${project.version}"
+    <feature name="catalog-security-ingestplugin" version="${project.version}"
              description="Security Ingest Plugins">
         <!-- this bundle should be listed in the dependency section of the pom -->
         <bundle>mvn:ddf.catalog.security/catalog-security-ingestplugin/${project.version}</bundle>

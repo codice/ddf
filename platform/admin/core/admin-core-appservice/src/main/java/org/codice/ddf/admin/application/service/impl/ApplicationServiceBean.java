@@ -15,8 +15,6 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,13 +34,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
-import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
@@ -69,22 +65,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private static final String MAP_DESCRIPTION = "description";
 
-  private static final String MAP_CHILDREN = "children";
-
-  private static final String MAP_STATE = "state";
-
-  private static final String MAP_URI = "uri";
-
   private static final String INSTALL_PROFILE_DEFAULT_APPLICATIONS = "defaultApplications";
 
   @SuppressWarnings("squid:S1192")
   private static final String INSTALL_PROFILE_DESCRIPTION = "description";
 
   private static final String INSTALL_PROFILE_NAME = "name";
-
-  private static final String MAP_DEPENDENCIES = "dependencies";
-
-  private static final String MAP_PARENTS = "parents";
 
   private static final String MAP_STATUS = "status";
 
@@ -202,167 +188,26 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   @Override
-  public List<Map<String, Object>> getApplicationTree() {
-    Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<>();
-    for (ApplicationNode curRoot : rootApplications) {
-      applications.add(convertApplicationNode(curRoot));
-    }
-    LOGGER.debug("Returning {} root applications.", applications.size());
-    return applications;
-  }
-
-  private Map<String, Object> convertApplicationNode(ApplicationNode application) {
-    LOGGER.debug("Converting {} to a map", application.getApplication().getName());
-    Map<String, Object> appMap = new HashMap<>();
-    Application internalApplication = application.getApplication();
-    appMap.put(MAP_NAME, internalApplication.getName());
-    appMap.put(MAP_VERSION, internalApplication.getVersion());
-    appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
-    appMap.put(MAP_STATE, application.getStatus().getState().toString());
-    appMap.put(MAP_URI, internalApplication.getURI().toString());
-    List<Map<String, Object>> children = new ArrayList<>();
-    for (ApplicationNode curNode : application.getChildren()) {
-      children.add(convertApplicationNode(curNode));
-    }
-    appMap.put(MAP_CHILDREN, children);
-    return appMap;
-  }
-
-  @Override
   public List<Map<String, Object>> getApplications() {
-    Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<>();
-    List<Map<String, Object>> applicationsArray = new ArrayList<>();
-    for (ApplicationNode curRoot : rootApplications) {
-      List<String> parentList = new ArrayList<>();
-      applications.add(convertApplicationEntries(curRoot, parentList, applicationsArray));
-    }
-    LOGGER.debug("Returning {} root applications.", applications.size());
-    return applicationsArray;
+    return appService
+        .getApplications()
+        .stream()
+        .map(this::convertApplicationEntries)
+        .collect(Collectors.toList());
   }
 
-  private Map<String, Object> convertApplicationEntries(
-      ApplicationNode application,
-      List<String> parentList,
-      List<Map<String, Object>> applicationsArray) {
-    LOGGER.debug("Converting {} to a map", application.getApplication().getName());
+  private Map<String, Object> convertApplicationEntries(Application application) {
+    LOGGER.debug("Converting {} to a map", application.getName());
     Map<String, Object> appMap = new HashMap<>();
-    Application internalApplication = application.getApplication();
-    appMap.put(MAP_NAME, internalApplication.getName());
-    appMap.put(MAP_VERSION, internalApplication.getVersion());
-    appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
-    appMap.put(MAP_STATE, application.getStatus().getState().toString());
-    appMap.put(MAP_URI, internalApplication.getURI().toString());
-    List<String> childrenList = new ArrayList<>();
-    parentList.add(internalApplication.getName());
-    List<String> transferParentList = new ArrayList<>();
-    appMap.put(MAP_PARENTS, parentList);
-
-    for (ApplicationNode curNode : application.getChildren()) {
-      Application node = curNode.getApplication();
-      childrenList.add(node.getName());
-      makeDependencyList(childrenList, curNode);
-
-      convertApplicationEntries(curNode, parentList, applicationsArray);
-    }
-    appMap.put(MAP_DEPENDENCIES, childrenList);
-
-    if (parentList.size() == 1) {
-      transferParentList.clear();
-      appMap.put(MAP_PARENTS, transferParentList);
-    } else {
-      int index = parentList.indexOf(internalApplication.getName());
-      for (int i = 0; i < index; i++) {
-        transferParentList.add(parentList.get(i));
-      }
-      appMap.put(MAP_PARENTS, transferParentList);
-      parentList.clear();
-      parentList.addAll(transferParentList);
-    }
-    applicationsArray.add(appMap);
+    appMap.put(MAP_NAME, application.getName());
+    appMap.put(MAP_DESCRIPTION, application.getDescription());
     return appMap;
-  }
-
-  private void makeDependencyList(List<String> childrenList, ApplicationNode application) {
-    LOGGER.debug("Getting Dependency List", application.getApplication().getName());
-    for (ApplicationNode curNode : application.getChildren()) {
-      Application node = curNode.getApplication();
-      childrenList.add(node.getName());
-      makeDependencyList(childrenList, curNode);
-    }
-  }
-
-  @Override
-  public synchronized boolean startApplication(String appName) {
-    try {
-      LOGGER.debug("Starting application with name {}", appName);
-      appService.startApplication(appName);
-      LOGGER.debug("Finished installing application {}", appName);
-      return true;
-    } catch (ApplicationServiceException ase) {
-      LOGGER.warn("Application {} was not successfully started.", appName, ase);
-      return false;
-    }
-  }
-
-  @Override
-  public synchronized boolean stopApplication(String appName) {
-    try {
-      LOGGER.debug("Stopping application with name {}", appName);
-      appService.stopApplication(appName);
-      LOGGER.debug("Finished stopping application {}", appName);
-      return true;
-    } catch (ApplicationServiceException ase) {
-      LOGGER.warn("Application {} was not successfully stopped.", appName, ase);
-      return false;
-    }
-  }
-
-  @Override
-  public void addApplications(List<Map<String, Object>> applicationURLList) {
-    for (Map<String, Object> curURL : applicationURLList) {
-      String applicationUrl = (String) curURL.get("value");
-      try {
-        appService.addApplication(new URI(applicationUrl));
-      } catch (URISyntaxException use) {
-        LOGGER.warn("Could not add application with url {}, not a valid URL.", applicationUrl);
-        LOGGER.debug("Could not add application", use);
-      } catch (ApplicationServiceException ase) {
-        LOGGER.warn(
-            "Could not add application with url {} due to error {}.",
-            applicationUrl,
-            ase.getMessage());
-        LOGGER.debug("Could not add application", ase);
-      }
-    }
-  }
-
-  @Override
-  public void removeApplication(String appName) {
-    if (!StringUtils.isEmpty(appName)) {
-      try {
-        LOGGER.debug("Removing application with name: {}", appName);
-        appService.removeApplication(appName);
-      } catch (ApplicationServiceException ase) {
-        LOGGER.warn("Could not remove application with nae {} due to error.", appName, ase);
-      }
-    }
   }
 
   @Nullable
   Set<BundleInfo> getBundleInfosForApplication(String applicationID) {
-    Set<BundleInfo> bundleInfos = null;
-    try {
-      Application app = appService.getApplication(applicationID);
-      if (app == null) {
-        return null;
-      }
-      bundleInfos = app.getBundles();
-    } catch (ApplicationServiceException e) {
-      LOGGER.warn("There was an error while trying to access the application", e);
-    }
-    return bundleInfos;
+    Application app = appService.getApplication(applicationID);
+    return app == null ? null : app.getBundles();
   }
 
   /** {@inheritDoc}. */
@@ -514,11 +359,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getAllFeatures() {
     return getFeatureMap(appService.getAllFeatures());
-  }
-
-  @Override
-  public List<Map<String, Object>> findApplicationFeatures(String applicationName) {
-    return getFeatureMap(appService.findApplicationFeatures(applicationName));
   }
 
   private List<Map<String, Object>> getFeatureMap(List<FeatureDetails> featureViews) {

@@ -60,7 +60,7 @@ public class TestEmbeddedSolr extends AbstractIntegrationTest {
   public void beforeExam() throws Exception {
     try {
       basePort = getBasePort();
-      getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+      getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
       getCatalogBundle().waitForCatalogProvider();
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");

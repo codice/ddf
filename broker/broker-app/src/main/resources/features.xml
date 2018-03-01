@@ -28,16 +28,15 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="broker-undelivered-messages-ui" install="auto" version="${project.version}">
+    <feature name="broker-undelivered-messages-ui" version="${project.version}">
         <bundle>mvn:org.codice.ddf.broker/broker-undelivered-messages-ui/${project.version}
         </bundle>
     </feature>
 
-    <feature name="broker-route-manager" install="auto" version="${project.version}">
+    <feature name="broker-route-manager" version="${project.version}">
         <bundle>mvn:org.codice.ddf.broker/broker-route-manager/${project.version}
         </bundle>
     </feature>
-
 
     <feature name="netty-core" version="${netty.version}" description="Netty libraries">
      <bundle>mvn:io.netty/netty-common/${netty.version}</bundle>
@@ -51,7 +50,7 @@
         <bundle>mvn:io.netty/netty-transport-native-unix-common/${netty.version}</bundle>
     </feature>
 
-    <feature name="artemis" install="manual" version="${artemis.version}"
+    <feature name="artemis" version="${artemis.version}"
              description="Full ActiveMQ Artemis broker with default configuration">
         <feature>broker-adapter</feature>
         <feature>artemis-core</feature>
@@ -59,7 +58,7 @@
         <feature>artemis-amqp</feature>
     </feature>
 
-    <feature name="artemis-core" install="manual" version="${artemis.version}"
+    <feature name="artemis-core" version="${artemis.version}"
              description="ActiveMQ Artemis broker libraries">
         <feature>transaction</feature>
         <feature>netty-core</feature>
@@ -95,7 +94,7 @@
         use the same version of proton, the explicit start level on this feature should not be
         necessary.
     -->
-    <feature name="artemis-amqp" install="manual" version="${artemis.version}"
+    <feature name="artemis-amqp" version="${artemis.version}"
              description="ActiveMQ Artemis AMQP protocol libraries" start-level="80">
         <feature>wrap</feature>
         <feature>artemis-core</feature>
@@ -104,27 +103,27 @@
         <bundle>mvn:org.apache.activemq/artemis-amqp-protocol/${artemis.version}</bundle>
     </feature>
 
-    <feature name="artemis-stomp" install="manual" version="${artemis.version}"
+    <feature name="artemis-stomp" version="${artemis.version}"
              description="ActiveMQ Artemis Stomp protocol libraries">
         <feature>artemis-core</feature>
         <bundle>mvn:org.apache.activemq/artemis-stomp-protocol/${artemis.version}</bundle>
     </feature>
 
-    <feature name="artemis-mqtt" install="manual" version="${artemis.version}"
+    <feature name="artemis-mqtt" version="${artemis.version}"
              description="ActiveMQ Artemis MQTT protocol libraries">
         <feature>artemis-core</feature>
         <bundle>mvn:io.netty/netty-codec-mqtt/${netty.version}</bundle>
         <bundle>mvn:org.apache.activemq/artemis-mqtt-protocol/${artemis.version}</bundle>
     </feature>
 
-    <feature name="artemis-hornetq" install="manual" version="${artemis.version}"
+    <feature name="artemis-hornetq" version="${artemis.version}"
              description="ActiveMQ Artemis HornetQ protocol libraries">
         <feature>artemis-core</feature>
         <bundle>mvn:org.apache.activemq/artemis-hqclient-protocol/${artemis.version}</bundle>
         <bundle>mvn:org.apache.activemq/artemis-hornetq-protocol/${artemis.version}</bundle>
     </feature>
 
-    <feature name="artemis-openwire" install="manual" version="${artemis.version}"
+    <feature name="artemis-openwire" version="${artemis.version}"
              description="ActiveMQ Artemis HornetQ protocol libraries">
         <feature>artemis-core</feature>
         <bundle>mvn:org.fusesource.hawtbuf/hawtbuf/1.11</bundle>
@@ -132,35 +131,39 @@
         <bundle>mvn:org.apache.activemq/artemis-openwire-protocol/${artemis.version}</bundle>
     </feature>
 
-    <feature name="broker-security" install="manual" version="${project.version}" description="Broker security bundles">
+    <feature name="broker-security" version="${project.version}" description="Broker security bundles">
         <bundle>mvn:org.codice.ddf.broker/broker-security-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.broker/broker-security-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="broker-adapter" install="manual" version="${project.version}"
+    <feature name="broker-adapter" version="${project.version}"
              description="Fragment used to integrate Artemis with DDF">
         <feature dependency="true">broker-security</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-adapter/${project.version}</bundle>
     </feature>
 
-    <feature name="broker-connection-factory" install="manual" version="${project.version}"
+    <feature name="broker-connection-factory" version="${project.version}"
              description="Common jms connection factory configuration">
         <feature>artemis</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-connection-factory/${project.version}
         </bundle>
     </feature>
 
-    <feature name="broker-topic-logger" install="auto" version="${project.version}"
+    <feature name="broker-topic-logger" version="${project.version}"
              description="Common topic sample and throughput logger">
         <feature>broker-connection-factory</feature>
         <feature>camel-sjms</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-topic-logger/${project.version}</bundle>
     </feature>
 
-    <feature name="broker-app" install="auto" version="${project.version}"
-             description="The Broker Application provides broker services for reliable message delivery.::Broker">
+    <feature name="broker-app" version="${project.version}"
+             description="The Broker Application provides broker services for reliable message delivery.">
         <feature>artemis</feature>
         <feature>broker-connection-factory</feature>
+        <feature>broker-undelivered-messages-ui</feature>
+        <feature>broker-route-manager</feature>
+        <feature>netty-core</feature>
+        <feature>broker-topic-logger</feature>
     </feature>
 
 </features>

@@ -18,9 +18,10 @@ define([
     'marionette',
     'backbone',
     'icanhaz',
-    'text!templates/installer/profile.handlebars'
+    'text!templates/installer/profile.handlebars',
+    'jquery'
 ],
-    function (Marionette, Backbone, ich, finishTemplate) {
+    function (Marionette, Backbone, ich, finishTemplate, $) {
 
         ich.addTemplate('profileTemplate', finishTemplate);
 
@@ -59,11 +60,39 @@ define([
                 this.modelBinder.unbind();
                 this.$('.profile-options').perfectScrollbar('destroy');
             },
+            showLoading: function(){
+                this.$('.main-content').toggleClass('visibility-hidden', true);
+                this.$('.loading-overlay').toggleClass('active', true);
+            },
+            showContent: function(){
+                this.$('.main-content').toggleClass('visibility-hidden', false);
+                this.$('.loading-overlay').toggleClass('active', false);
+            },
             next: function() {
                 //this is your hook to perform any validation you need to do before going to the next step
+                var selectedProfile = this.model.get('selectedProfile');
+                this.navigationModel.trigger('block');
+                this.showLoading();
+                this.installProfile(selectedProfile, this);
+            },
 
-                this.navigationModel.set(this.model.toJSON());
-                this.navigationModel.nextStep();
+            installProfile: function (profile, view) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/' + profile + "/true",
+                    dataType: 'JSON',
+                    success: function (data) {
+                        if(data.status === 200) {
+                            view.navigationModel.trigger('unblock');
+                            view.showContent();
+                            view.navigationModel.nextStep();
+                        } else {
+                            view.navigationModel.trigger('unblock');
+                            view.showContent();
+                            view.navigationModel.nextStep('Unable to save selected profile, please check logs', 0);
+                        }
+                    }
+                });
             },
             previous: function() {
                 //this is your hook to perform any teardown that must be done before going to the previous step

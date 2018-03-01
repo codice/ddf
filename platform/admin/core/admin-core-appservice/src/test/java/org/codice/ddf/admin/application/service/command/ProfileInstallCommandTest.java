@@ -22,23 +22,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ddf.security.Subject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.Callable;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.internal.BundleServiceImpl;
-import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.internal.service.FeaturesServiceImpl;
 import org.codice.ddf.admin.application.service.ApplicationService;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.codice.ddf.security.common.Security;
 import org.junit.Before;
@@ -46,7 +40,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -77,9 +70,6 @@ public class ProfileInstallCommandTest {
     Files.copy(
         this.getClass().getResourceAsStream("/profiles/profileWithDuplicates.json"),
         Paths.get(profilePath.toAbsolutePath().toString(), "profileWithDuplicates.json"));
-    Files.copy(
-        this.getClass().getResourceAsStream("/profiles/invalidApp.json"),
-        Paths.get(profilePath.toAbsolutePath().toString(), "invalidApp.json"));
     Files.copy(
         this.getClass().getResourceAsStream("/profiles/invalidFeatureInstall.json"),
         Paths.get(profilePath.toAbsolutePath().toString(), "invalidFeatureInstall.json"));
@@ -117,14 +107,6 @@ public class ProfileInstallCommandTest {
     profileInstallCommand.profileName = "profileWithDuplicates";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
     verifyExtraProfileMocks();
-  }
-
-  @Test(expected = ApplicationServiceException.class)
-  public void testExtraProfileInvalidAppInstall() throws Exception {
-    profileInstallCommand.profileName = "invalidApp";
-    doThrow(new ApplicationServiceException()).when(applicationService).startApplication("badApp");
-    profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-    verify(applicationService, times(2)).startApplication(anyString());
   }
 
   @Test(expected = ResolutionException.class)
@@ -176,22 +158,6 @@ public class ProfileInstallCommandTest {
     profileInstallCommand.profileName = "/testProfile";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
     verifyMocksNoOp();
-  }
-
-  @Test
-  public void testValidRegularProfile() throws Exception {
-    profileInstallCommand.profileName = "standard";
-    Feature feature = createMockFeature("standard");
-    List<Dependency> deps =
-        Arrays.asList(
-            createMockDependency("app1"),
-            createMockDependency("app2"),
-            createMockDependency("app3"));
-    when(feature.getDependencies()).thenReturn(deps);
-    when(applicationService.getInstallationProfiles())
-        .thenReturn(Collections.singletonList(feature));
-    profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-    verify(applicationService, times(3)).startApplication(anyString());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -281,10 +247,6 @@ public class ProfileInstallCommandTest {
 
     InOrder inOrder = Mockito.inOrder(applicationService, featuresService, bundleService);
 
-    verify(applicationService, times(2)).startApplication(anyString());
-    inOrder.verify(applicationService).startApplication("app1");
-    inOrder.verify(applicationService).startApplication("app2");
-
     verify(featuresService, times(3))
         .installFeature(anyString(), (EnumSet<FeaturesService.Option>) any());
     inOrder.verify(featuresService).installFeature(eq("feature1"), eq(NO_AUTO_REFRESH));
@@ -307,7 +269,6 @@ public class ProfileInstallCommandTest {
   }
 
   private void verifyMocksNoOp() throws Exception {
-    verify(applicationService, times(0)).startApplication(anyString());
     verify(featuresService, times(0)).installFeature(anyString(), eq(NO_AUTO_REFRESH));
     verify(featuresService, times(0))
         .uninstallFeature(anyString(), anyString(), eq(NO_AUTO_REFRESH));
@@ -319,25 +280,6 @@ public class ProfileInstallCommandTest {
     when(feature.getName()).thenReturn(name);
     when(feature.getVersion()).thenReturn("0.0.0");
     return feature;
-  }
-
-  private Dependency createMockDependency(String name) {
-    Dependency dependency = mock(Dependency.class);
-    when(dependency.getName()).thenReturn(name);
-    when(dependency.getVersion()).thenReturn("0.0.0");
-    return dependency;
-  }
-
-  private Security createSecurityMock() {
-    Subject subject = mock(Subject.class);
-    when(subject.execute(Matchers.<Callable<Object>>any()))
-        .thenAnswer(
-            invocation -> {
-              Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
-              return callable.call();
-            });
-    security = mock(Security.class);
-    return security;
   }
 
   private ProfileInstallCommand getProfileInstallCommand(Path profilePath) {

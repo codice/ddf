@@ -25,7 +25,8 @@ define([
     'text!templates/installer/certificate.handlebars',
     'modelbinder',
     'perfectscrollbar',
-    'multiselect'
+    'multiselect',
+    'fileupload'
 ], function (Marionette, ich, _, Backbone, $, CertsModel, FileHelper, certificateTemplate) {
 
     ich.addTemplate('certificateTemplate', certificateTemplate);
