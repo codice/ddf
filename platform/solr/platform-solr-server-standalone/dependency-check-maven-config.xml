@@ -30,6 +30,17 @@
     </suppress>
     <suppress>
         <notes>
+            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated remote code
+            execution. This is exploitable by sending maliciously crafted JSON input to the readValue method of
+            the ObjectMapper, bypassing a blacklist that is ineffective if the Spring libraries are available
+            in the classpath. We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still
+            being used by org.apache.cxf:cxf-rt-rs-security-sso-saml/ehcache-2.10.4/jackson-databind-2.6.3.
+            This suppression can be removed when DDF-3593 has been completed.
+        </notes>
+        <cve>CVE-2017-7525</cve>
+    </suppress>
+    <suppress>
+        <notes>
             CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the vulnerable class DiskFileItem is not used in the project
         </notes>
         <cve>CVE-2016-1000031</cve>
