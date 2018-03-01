@@ -25,9 +25,9 @@ ${ddf-registry} is not installed by default with a standard installation.
 To install:
 
 . Navigate to the *${admin-console}*.
-. Click the *Manage* applications button.
-. Click the *Install* icon.
-. ${ddf-registry} will move to *Active Applications* upon startup.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `registry-app` feature.
 
 ===  Customizing ${ddf-registry} Fields
 

@@ -34,9 +34,8 @@ The ${ddf-resource-management} application is not installed by default with a st
 
 To Install:
 
-. Navigate to ${admin-console}.
-. Select *Manage* applications.
-. Select *${ddf-resource-management}* application.
-. Select *Start*.
-. ${ddf-resource-management} application moves to *Active Applications* upon start.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `registry-app` feature.
 

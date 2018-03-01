@@ -4,15 +4,14 @@
 :summary: Developing applications.
 :order: 01
 
-The ${branding} applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles.
-These features can be installed/uninstalled using the ${admin-console} or ${command-console}.
-${branding} applications also consist of one or more OSGi bundles and, possibly, supplemental external files.
-These applications are packaged as Karaf KAR files for easy download and installation.
-These applications can be stored on a file system or a Maven repository.
+The ${branding} applications are a collection of OSGi bundles that contain configurations to be displayed in the ${admin-console}.
+The applications are defined in the ${etc/application-definitions} directory.
+Any json file added to the ${etc/application-definitions} with name, description and bundleLocations keys will be displayed in the ${admin-console}.
+The application will only display if one of the bundles listed in the bundleLocations key is running or there is at least 1 plugin associated with that application running.
 
 A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).
 It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
-The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
+The feature descriptor file identifies a set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
 
 ==== Describing Application Services
 

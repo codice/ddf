@@ -16,18 +16,17 @@ The embedded LDAP server is intended for testing purposes only and is not recomm
 
 The embedded LDAP server is not installed by default with a standard installation.
 
-. Navigate to the ${admin-console}.
-. Select *Manage* Applications.
-. Install the *OpenDJ Embedded* application.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `opendj-embedded` feature.
 
 ===== Configuring the Embedded LDAP
 
 Configure the Embedded LDAP from the ${admin-console}:
 
 . Navigate to the *${admin-console}*.
-. Select *Manage* Applications.
-. Start the *OpenDj Embedded* application.
-. Once started, select the *OpenDj* application.
+. Select the *OpenDj Embedded* application.
 . Select the *Configuration* tab.
 
 .OpenDJ Embedded Configurable Properties

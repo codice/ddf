@@ -11,7 +11,8 @@
 Install the included IdP implementation.
 
 . Navigate to the *${admin-console}*.
-. Select *Features*.
+. Select the *System* tab.
+. Select the *Features* tab.
 . Install `security-idp` feature.
 
 .Installing the IdP from the ${command-console}

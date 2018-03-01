@@ -12,8 +12,8 @@ The Metacard Backup File Storage Provider is a storage provider that will store 
 To install the Metacard Backup File Storage Provider
 
 . Navigate to the *${admin-console}*.
-. Select ${ddf-catalog} application.
-. Select *Features* tab.
+. Select the *System* tab.
+. Select the *Features* tab.
 . Install the `catalog-metacard-backup-filestorage` feature.
 
 ===== Configuring the Metacard Backup File Storage Provider
