@@ -1,0 +1,18 @@
+:title: Enforcing Errors or Warnings
+:type: subConfiguration
+:status: published
+:parent: Configuring Errors and Warnings
+:order: 00
+:summary: Prevent data with errors or warnings from being ingested at all.
+
+== {title}
+
+Prevent data with errors or warnings from being ingested at all.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select *Configuration*.
+. Select *Metacard Validation Marker Plugin*.
+. Enter *ID* of validator(s) to enforce.
+. Select *Enforce errors* to prevent ingest for errors.
+. Select *Enforce warnings* to prevent ingest for warnings.
