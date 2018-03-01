@@ -32,6 +32,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.osgi.service.cm.Configuration;
@@ -49,13 +50,17 @@ public class ExportMigrationConfigurationAdminContext {
 
   private static final Path ADMIN_PATH = Paths.get("admin");
 
+  private static final Path ETC_DIR = Paths.get("etc");
+
   private final ExportMigrationContext context;
 
   private final ConfigurationAdminMigratable admin;
 
   private final Set<String> warnedExtensions = new HashSet<>(8);
 
-  private final Map<Path, ExportMigrationConfigurationAdminEntry> entries;
+  private final Set<ExportMigrationEntry> fileEntries;
+
+  private final Map<Path, ExportMigrationConfigurationAdminEntry> memoryEntries;
 
   public ExportMigrationConfigurationAdminContext(
       ExportMigrationContext context, ConfigurationAdminMigratable admin, Configuration[] configs) {
@@ -64,7 +69,11 @@ public class ExportMigrationConfigurationAdminContext {
     Validate.notNull(configs, "invalid null configurations");
     this.context = context;
     this.admin = admin;
-    this.entries =
+    this.fileEntries =
+        context
+            .entries(ExportMigrationConfigurationAdminContext.ETC_DIR, false, admin::isConfigFile)
+            .collect(Collectors.toSet());
+    this.memoryEntries =
         Stream.of(configs)
             .filter(this::isValid)
             .map(this::getEntry)
@@ -105,13 +114,18 @@ public class ExportMigrationConfigurationAdminContext {
     return ConfigurationAdminMigratable.isManagedServiceFactory(cfg);
   }
 
-  public Stream<ExportMigrationConfigurationAdminEntry> entries() {
-    return entries.values().stream();
+  public Stream<ExportMigrationEntry> fileEntries() {
+    return fileEntries.stream();
+  }
+
+  public Stream<ExportMigrationConfigurationAdminEntry> memoryEntries() {
+    return memoryEntries.values().stream();
   }
 
   private ExportMigrationConfigurationAdminEntry getEntry(Configuration configuration) {
     Path path = getPathFromConfiguration(configuration);
-    final String extn = FilenameUtils.getExtension(path.toString());
+    final String pathString = path.toString();
+    final String extn = FilenameUtils.getExtension(pathString);
     PersistenceStrategy ps = admin.getPersister(extn);
 
     if (ps == null) {
@@ -125,7 +139,7 @@ public class ExportMigrationConfigurationAdminContext {
                         "Persistence strategy [%s] is not defined; defaulting to [%s]",
                         extn, ps.getExtension())));
       }
-      path = Paths.get(path.toString() + FilenameUtils.EXTENSION_SEPARATOR + ps.getExtension());
+      path = Paths.get(pathString + FilenameUtils.EXTENSION_SEPARATOR + ps.getExtension());
     }
     return new ExportMigrationConfigurationAdminEntry(context.getEntry(path), configuration, ps);
   }

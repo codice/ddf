@@ -109,10 +109,12 @@ while processing an export migration operation. It defines the following methods
 - `ExportMigrationEntry getEntry(Path path)`
 - `Stream<ExportMigrationEntry> entries(Path path)`
 - `Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter)`
+- `Stream<ExportMigrationEntry> entries(Path path, boolean recurse)`
+- `Stream<ExportMigrationEntry> entries(Path path, boolean recurse, PathMatcher filter)`
 
 The `getSystemPropertyReferencedEntry()` methods create a migration entry to track a file referenced by a given system property value. +
 The `getEntry()` method creates a migration entry given the path for a specific file or directory. +
-The `entries()` methods create multiple entries corresponding to all files recursively located underneath a given path with an optional path matcher to filter which files to create entries for.
+The `entries()` methods create multiple entries corresponding to all files recursively (or not) located underneath a given path with an optional path matcher to filter which files to create entries for.
 
 Once an entry is created, it is not stored with the exported data. It is the migratable's responsibility to store the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
