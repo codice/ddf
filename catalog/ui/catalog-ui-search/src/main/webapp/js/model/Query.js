@@ -131,9 +131,6 @@ define([
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
-            getHitCount: function () {
-                this.startSearch({hitCountOnly: true})
-            },
             startSearch: function (options) {
                 this.set('isOutdated', false);
                 if (this.get('cql') === '') {
@@ -146,7 +143,7 @@ define([
                 this.cancelCurrentSearches();
 
                 var data = Common.duplicate(this.buildSearchData());
-                if (options.hitCountOnly) {
+                if (options.resultCountOnly) {
                     data.count = 0;
                 }
                 var sources = data.src;
@@ -206,7 +203,7 @@ define([
                 }
 
                 result.set('initiated', Date.now());
-                result.set('hitCountOnly', options.hitCountOnly)
+                result.set('resultCountOnly', options.resultCountOnly);
                 result.get('results').fullCollection.sort();
 
                 if (sources.length === 0) {

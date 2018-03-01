@@ -42,7 +42,7 @@ define([
         },
         events: {
             'click .interaction-run': 'handleRun',
-            'click .interaction-hit-count': 'handleHitCount',
+            'click .interaction-refresh-result-count': 'handleRefreshResultCount',
             'click .interaction-stop': 'handleCancel',
             'click .interaction-delete': 'handleDelete',
             'click .interaction-duplicate': 'handleDuplicate',
@@ -79,8 +79,8 @@ define([
         handleRun: function(){
             this.model.startSearch();
         },
-        handleHitCount: function(){
-           this.model.getHitCount();
+        handleRefreshResultCount: function(){
+            this.model.startSearch({resultCountOnly: true})
         },
         handleCancel: function(){
             this.model.cancelCurrentSearches();

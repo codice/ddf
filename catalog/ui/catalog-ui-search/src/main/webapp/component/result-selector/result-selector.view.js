@@ -158,9 +158,9 @@ define([
             this.handleFiltering(collapsedResults);
             this.handleMerged();
             this.handleStatus();
-            let hitCountOnly = this.model.get('result').get('hitCountOnly') === true;
+            let resultCountOnly = this.model.get('result').get('resultCountOnly') === true;
             this.regionManager.forEach((region) => {
-                region.currentView.$el.toggleClass("is-hidden", hitCountOnly)
+                region.currentView.$el.toggleClass("is-hidden", resultCountOnly);
             });
         },
         handleFiltering: function(resultCollection){
