@@ -1,4 +1,4 @@
-:title: File Formats Supported
+:title: Common Metadata Attributes
 :type: appendix
 :status: published
 :parent: Metadata Attributes
@@ -9,8 +9,8 @@
 
 ${branding} supports a wide variety of file types and data types for ingest.
 The ${branding}'s internal Input Transformers extract the necessary data into a <<_catalog_taxonomy,generalized format>>.
-${branding} supports ingest of many datatypes and commonly used file formats, such as Microsoft office products: Word documents, Excel spreadsheets, and PowerPoint presentations as well as .pdf files, GeoJson and others. See <<_all_formats_supported,complete list>>.
-Many of these file types support additional <<_format_specific_attribute_mappings,format-specific attribute mappings>> from which additional metadata can be extracted.
+${branding} supports ingest of many datatypes and commonly used file formats, such as Microsoft office products: Word documents, Excel spreadsheets, and PowerPoint presentations as well as .pdf files, GeoJson and others. See <<_all_file_formats_supported,complete list>>.
+Many of these file types support additional <<_file_format_specific_attributes,file format-specific attributes>> from which additional metadata can be extracted.
 
 [NOTE]
 ====

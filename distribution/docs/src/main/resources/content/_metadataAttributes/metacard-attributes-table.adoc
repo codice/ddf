@@ -1,7 +1,7 @@
-:title: Metacard Attributes Table
+:title: Metacard Attributes
 :type: subAppendix
 :order: 07
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group describe the metacard itself.
 
@@ -16,29 +16,29 @@
 |Constraints
 |Example Value
 
-|metacard.created
+|[[metacard.created]]metacard.created
 |The creation date of the metacard.
 |Date
-| 
+|
 |
 
-|metacard.modified
+|[[metacard.modified]]metacard.modified
 |The modified date of the metacard.
 |Date
-| 
-| 
+|
+|
 
-|metacard.owner
+|[[metacard.owner]]metacard.owner
 |The email address of the metacard owner.
 |String
 |A valid email address per RFC 5322
-| 
- 
-|metacard-tags
+|
+
+|[[metacard-tags]]metacard-tags
 |Collections of data that go together, used for filtering.
-query results. NOTE: these are system tags. For descriptive tags, <<_topic_attributes_table,Topic Attributes>>.
+query results. NOTE: these are system tags. For descriptive tags, <<_topic_attributes,Topic Attributes>>.
 |List of Strings
 |< 1024 characters per entry
-| 
+|
 
 |===

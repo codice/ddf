@@ -1,7 +1,7 @@
-﻿:title: Validation Attributes Table
+﻿:title: Validation Attributes
 :type: subAppendix
 :order: 10
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group identify validation issues with the metacard and/or resource.
 
@@ -17,13 +17,13 @@
 |Constraints
 |Example Value
 
-|validation-warnings
+|[[validation-warnings]]validation-warnings
 |Textual description of validation warnings on the resource.
 |List of Strings
 |< 1024 characters per entry
 |
 
-|validation-errors
+|[[validation-errors]]validation-errors
 |Textual description of validation errors on the resource.
 |List of Strings
 |< 1024 characters per entry

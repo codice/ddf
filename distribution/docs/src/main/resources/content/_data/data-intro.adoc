@@ -57,7 +57,7 @@ The name of the default `MetacardType` can be retrieved from `ddf.catalog.data
 The default metacard type has the following required attributes.
 Though the following attributes are required on all metacard types, setting their values is optional except for ID.
 
-<<_core_attributes_table,Core Attributes>>
+<<_core_attributes,Core Attributes>>
 
 [NOTE]
 ====

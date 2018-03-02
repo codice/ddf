@@ -1,7 +1,7 @@
-﻿:title: Security Attributes Table
+﻿:title: Security Attributes
 :type: subAppendix
 :order: 08
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group relate to security of the resource and metadata.
 
@@ -17,14 +17,14 @@
 |Constraints
 |Example Value
 
-|security.access-groups
+|[[security.access-groups]]security.access-groups
 |Attribute name for storing groups to enforce access
 controls upon.
 |List of Strings
 |< 1024 characters per entry
 |
 
-|security.access-individuals
+|[[security.access-individuals]]security.access-individuals
 |Attribute name for storing the email addresses of users to
 enforce access controls upon.
 |List of Strings

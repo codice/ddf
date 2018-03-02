@@ -13,7 +13,7 @@
 It is recommended to apply the following security mitigations to the ${branding}.
 ====
 
-===== Known Issues with Environment Hardening
+=== Known Issues with Environment Hardening
 The session timeout should be configured longer than the UI polling time or you may get session
 timeout errors in the UI.
 

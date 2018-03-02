@@ -1,7 +1,7 @@
-﻿:title: Topic Attributes Table
+﻿:title: Topic Attributes
 :type: subAppendix
 :order: 09
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group describe the topic of the resource.
 
@@ -17,20 +17,20 @@
 |Constraints
 |Example Value
 
-|topic.category
+|[[topic.category]]topic.category
 |A category code from a given vocabulary.
 |List of Strings
 |A valid entry from the corresponding controlled vocabulary.
 |
 
-|topic.keyword
+|[[topic.keyword]]topic.keyword
 |One or more keywords describing the subject matter of the
 metacard or resource.
 |List of Strings
 |< 1024 characters per entry
 |
 
-|topic.vocabulary
+|[[topic.vocabulary]]topic.vocabulary
 |An identifier of a controlled vocabulary from which the
 topic category is derived.
 |List of Strings

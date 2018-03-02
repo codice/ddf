@@ -1,7 +1,7 @@
-:title: DateTime Attributes Table
+:title: DateTime Attributes
 :type: subAppendix
 :order: 03
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group reflect temporal aspects about the resource.  
 
@@ -16,21 +16,21 @@
 |Constraints
 |Example Value
  
-|datetime.start
+|[[datetime.start]]datetime.start
 |Start time(s) for the resource.
 |List of Dates
 | 
 | 
 
-|datetime.end
+|[[datetime.end]]datetime.end
 |End time(s) for the resource.
 |List of Dates
 | 
 | 
  
-|datetime.name
+|[[datetime.name]]datetime.name
 |A descriptive name for the corresponding temporal
-attributes. See datetime.start and datetime.end.
+attributes. See <<datetime.start,datetime.start>> and <<datetime.end,datetime.end>>.
 |List of Strings
 |< 1024 characters per entry
 | 

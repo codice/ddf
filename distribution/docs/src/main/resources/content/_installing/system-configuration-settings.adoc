@@ -11,8 +11,8 @@
 * Contact Info: Contact information for the point-of-contact or administrator for this installation.
 * Certificates: Add PKI certificates for the Keystore and Truststore for this installation.
 ** For a quick (test) installation, if the hostname/ports are not changed from the defaults, ${branding} includes self-signed certificates to use. Do not use in a working installation.
-** For more advanced testing, on initial startup of the *${admin-console}* append the string `?dev=true` to the url (\${secure_url}/admin?dev=true) to auto-generate self-signed certificates from a demo Certificate Authority(CA) which will enable change hostname and port settings. Do not use in a working installation.
-*** NOTE: `?dev=true` generates certifcates on initial installation only.
+** For more advanced testing, on initial startup of the *${admin-console}* append the string `?dev=true` to the url (\${secure_url}/admin?dev=true) to auto-generate self-signed certificates from a demo Certificate Authority(CA). This enables changing hostname and port settings during initial installation.
+*** NOTE: `?dev=true` generates certificates on initial installation only. Do not use in a working installation.
 ** For more information about importing certificate from a Certificate Authority, see <<_managing_keystores_and_certificates,Managing Keystores and Certificates>>.
 
 ****

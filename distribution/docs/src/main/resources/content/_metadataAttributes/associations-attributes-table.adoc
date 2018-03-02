@@ -1,7 +1,7 @@
-﻿:title: Associations Attributes Table
+﻿:title: Associations Attributes
 :type: subAppendix
 :order: 01
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Attributes in this group represent associations between products.
 
@@ -17,19 +17,19 @@
 |Constraints
 |Example Value
 
-|metacard.associations.derived
+|[[metacard.associations.derived]]metacard.associations.derived
 |ID of one or more metacards derived from this metacard.
 |List of Strings
 |A valid metacard ID (conventionally, a type 4 random UUID with hyphens removed).
 |70809f17782c42b8ba15747b86b50ebf
 
-|metacard.associations.related
+|[[metacard.associations.related]]metacard.associations.related
 |ID of one or more metacards related to this metacard.
 |List of Strings
 |A valid metacard ID (conventionally, a type 4 random UUID with hyphens removed).
 |70809f17782c42b8ba15747b86b50ebf
 
-|associations.external
+|[[associations.external]]associations.external
 |One or more URI's identifying external associated
 resources.
 |List of Strings

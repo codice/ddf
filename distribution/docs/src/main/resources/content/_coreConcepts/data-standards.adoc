@@ -7,7 +7,7 @@
 == {title}
 
 ${branding} has extended capabilities to extract rich metadata from many common data formats, if those attributes are populated in the source document.
-See <<_all_formats_supported,appendix>> for a complete list of file formats that can be ingested, with limited metadata coverage.
+See <<_all_file_formats_supported,appendix>> for a complete list of file formats that can be ingested, with limited metadata coverage.
 Metadata standards use XML or JSON, or both.
 
 .Data Formats Included in ${ddf-branding}
@@ -20,59 +20,59 @@ Metadata standards use XML or JSON, or both.
 
 |Word Document
 |doc, docx, dotx, docm
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |PowerPoint
 |ppt, pptx
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |Excel
 |xls, xlsx
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |PDF
 |pdf
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |GeoPDF
 |pdf
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |geojson
 |json,js
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |html
 |htm, html
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |jpeg
 |jpeg, jpeg2000
-|<<_file_formats_supported,Standard attributes>> and additional Media attributes
+|<<_common_metadata_attributes,Standard attributes>> and additional Media attributes
 
 |mp2
 |mp2, MPEG2
-|<<_file_formats_supported,Standard attributes>> and additional Media attributes
+|<<_common_metadata_attributes,Standard attributes>> and additional Media attributes
 
 |mp4
 |mp4
-|<<_file_formats_supported,Standard attributes>>, additional Media attributes, and <<_mp4_additional_attribute,mp4 additional attribute>>
+|<<_common_metadata_attributes,Standard attributes>>, additional Media attributes, and <<_mp4_additional_attribute,mp4 additional attribute>>
 
 |WMV
 |wmv
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |AVIs
 |avi
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |http://www.opengeospatial.org/standards/kml[Keyhole Markup Language (KML) ]
 |kml
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |http://dublincore.org/[Dublin Core]
 |n/a
-|<<_file_formats_supported,Standard attributes>>
+|<<_common_metadata_attributes,Standard attributes>>
 
 |===
 
