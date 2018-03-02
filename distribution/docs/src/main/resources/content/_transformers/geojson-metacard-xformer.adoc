@@ -14,7 +14,7 @@ The GeoJSON Metacard Transformer is not installed by default with a standard ins
 To install:
 
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-catalog}* application.
+. Select the *System* tab.
 . Select the *Features* tab.
 . Install the `catalog-transformer-json` feature.
 

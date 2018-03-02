@@ -8,36 +8,11 @@
 == {title}
 
 The ${admin-console} is the centralized location for administering the system.
-The ${admin-console} allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
+The ${admin-console} allows an administrator to configure and tailor system services and properties.
 The default address for the ${admin-console} is \${secure_url}/admin.
 
-.Managing Applications from ${admin-console}
-The *Manage* button enables activation/deactivation and adding/removing applications.
-
-.Activating / Deactivating Applications
-The *Deactivate* button stops individual applications and any dependent apps.
-Certain applications are central to overall functionality and cannot be deactivated.
-These will have the *Deactivate* button disabled.
-Disabled apps will be moved to a list at the bottom of the page, with an enable button to reactivate, if desired.
-
-The *Add Application* button is at the end of the list of currently active applications.
-
-.Removing Applications
-To remove an application, it must first be deactivated.
-This enables the *Remove Application* button.
-
-.Upgrading Applications
-Each application tile includes an upgrade button to select a new version to install.
-
 .System Settings Tab
-The configuration and features installed can be viewed and edited from the System tab as well; however, it is recommended that configuration be managed from the applications tab.
-
-[IMPORTANT]
-====
-In general, applications should be managed via the applications tab.
-Configuration via this page could result in an unstable system.
-Proceed with caution!
-====
+The configuration and features installed can be viewed and edited from the *System* tab of the *${admin-console}*.
 
 .Managing Federation in the ${admin-console}
 It is recommended to use the *${ddf-catalog} App -> Sources* tab to configure and manage sites/sources.
@@ -62,7 +37,7 @@ Either view has an `>` arrow icon to view more information about the application
 |===
 
 .Application Detailed View
-Each individual application has a detailed view to view information specific to that application, adjust configurations or enable/disable features.
+Each individual application has a detailed view to modify configurations specific to that application.
 All applications have a standard set of tabs, although some apps may have additional ones with further information.
 
 .Individual Application Views
@@ -73,12 +48,6 @@ All applications have a standard set of tabs, although some apps may have additi
 
 |Configuration
 |The Configuration tab lists all bundles associated with the application as links to configure any configurable properties of that bundle.
-
-|Details
-|The Details tab gives a description, version, status, and list of other applications that are required by, or rely on, the current application.
-
-|Features
-|The features tab breaks down the individual features of the application that can be installed or uninstalled as configurable features.
 
 |===
 
@@ -92,9 +61,10 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 Features may have dependencies on other features and will auto-install them as needed.
 ====
 
-In the ${admin-console}, Features are found on the *Features* tab of each application.
+In the ${admin-console}, Features are found on the *Features* tab of the *System* tab.
 
-. Select the appropriate application.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
 . Select the *Features* tab.
 . Uninstalled features are shown with a *play* arrow under the *Actions* column.
 .. Select the *play* arrow for the desired feature.
@@ -102,14 +72,4 @@ In the ${admin-console}, Features are found on the *Features* tab of each applic
 . Installed features are shown with a *stop* icon under the *Actions* column.
 .. Select the *stop* icon for the desired feature.
 .. The *Status* will change from *Installed* to *Uninstalled*.
-
-.Adding Feature Repositories
-If needed, custom feature repositories can be added to extend ${branding} functionality.
-
-. Select the *Manage* button in the upper right.
-. Select the *Add an Application* tile
-. Select *File Upload* to add a new `.kar` OR `.jar` file.
-. Select the *Maven URL* tab and enter the URL of the feature repository.
-.. Select the *Add URL* button.
-. Select the *Save Changes* button.
 

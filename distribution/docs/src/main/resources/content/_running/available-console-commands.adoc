@@ -27,9 +27,6 @@ For example, type `catalog`, then press *TAB*.
 |The Catalog Shell Commands are meant to be used with any `CatalogProvider` implementations.
 They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.
 
-|<<app_command_descriptions, app>>
-|The ${ddf-admin} Application Service contains operations to work with applications.
-
 |<<subscription_command_descriptions, subscription>>
 |The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
 

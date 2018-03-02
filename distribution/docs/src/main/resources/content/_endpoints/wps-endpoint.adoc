@@ -18,10 +18,10 @@ The WPS Endpoint is not installed by default with a standard installation.
 
 To install:
 
-* Navigate to ${admin-console}.
-* Navigate to *${ddf-spatial}* application.
-* Navigate to *Features* tab.
-* Install the *spatial-wps* feature.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the *spatial-wps* feature.
 
 ===== Configuring WPS Endpoint
 

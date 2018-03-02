@@ -22,7 +22,7 @@ Capability:: A general term used to refer to an ability of the system.
 Component:: Represents a portion of an Application that can be extended.
 Bundle:: Java Archives (JARs) with special OSGi manifest entries.
 Feature:: One or more bundles that form an installable unit; defined by Apache Karaf but portable to other OSGi containers.
-Application:: One or more features that together form a cohesive collection of capabilities.
+Application:: A JSON file defining a collection of bundles with configurations to be displayed in the ${admin-console}.
 
 ==== Packaging Capabilities as Bundles
 
@@ -131,52 +131,3 @@ ${ddf-branding-lowercase}${at-symbol}local>list | grep -i example
 ----
 
 The state is `Active`, indicating that the bundle is ready for program execution.
-
-==== Working with Features Files
-
-Features XML files group other features and/or bundle(s) for ease of installation/uninstallation.
-
-In order to ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
-
-* Ensure only one feature in the `features.xml` has the same name as the project itself. (e.g. If the project name is `spatial-app`, there should be one feature named `spatial-app`)
-This is the feature that the installer displays to the user (name, description, version, etc.) and  provides the description of what the application contains.
-This feature should only declare the `prerequisite` features of the app and any bundles or features that are required by all of the features within the app.
-* Be sure all features that should be installed by default include the `auto-install` flag.
-+
-[source]
-----
-install='auto'
-----
-+
-* Each feature should declare its `prerequisite` features. These are the features that are required to be installed prior to this feature starting up. At a minimum this should include the application feature, so that the application prerequisites and required dependencies are satisified before this feature starts.
-+
-[source]
-----
-<feature prerequisite="true">feature1</feature>
-----
-
-===== Auto-starting an Application Feature
-
-Within the `features.xml` file for an application, the feature that is named the same as the project will have the install attribute set to `auto`.
-Within this feature, refer to any prerequisites of the application as well as any features or bundles within the application that are required by all features.
-Features that should start automatically should have install set to `auto`.
-Other features should have install set to `manual`.
-
-The following example demonstrates configuring features to be auto-started. The naming convention for this feature is typically "`application name`" + "`-app`," as shown.
-
-.Auto-start Features
-[source,xml,linenums]
-----
-<feature name="example-app" install="auto">
-    <feature prerequisite="true">prereq-feature</feature>
-    <bundle>mvn:com.example/example.dependency/1.3</bundle>
-</feature>
-<feature name="auto-start-feature" install="auto">
-    <feature prerequisite="true">example-app</feature>
-    <bundle>mvn:com.example/example.auto/1.3</bundle>
-</feature>
-<feature name="manual-start-feature" install="manual">
-    <feature prerequisite="true">example-app</feature>
-    <bundle>mvn:com.example/example.manual/1.3</bundle>
-</feature>
-----

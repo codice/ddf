@@ -20,8 +20,9 @@ The ${message-broker} app is uninstalled by default and requires manual installa
 To install:
 
 . Navigate to the *${admin-console}*.
-. Select *Manage Applications*.
-. Select the *${message-broker}* application.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `broker-app` feature.
 
 === Configuring the ${message-broker} Application
 

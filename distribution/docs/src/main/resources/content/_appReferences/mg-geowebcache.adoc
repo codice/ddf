@@ -28,10 +28,10 @@ The ${ddf-geowebcache} application is *not* installed by default.
 
 To install:
 
-. Navigate to the ${admin-console}.
-. Select *Manage*.
-. Select the ${ddf-geowebcache} application *Start* button. The application will move to *Active Applications* on startup.
-. Select *Back* in ${admin-console}.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `geowebcache-app` feature.
 
 ===  Configuring ${ddf-geowebcache}
 

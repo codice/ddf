@@ -18,7 +18,7 @@ The STS is installed by default in ${branding}.
 .Configuring STS
 . Verify that the `serverKeystores.jks` file in `${home_directory}/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-security}* application.
+. Select the *System* tab.
 . Select the *Features* tab.
 . Start the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features.
 . Select the *Configuration* tab.

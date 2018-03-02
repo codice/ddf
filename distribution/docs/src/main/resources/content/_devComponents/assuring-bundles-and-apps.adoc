@@ -5,7 +5,7 @@
 :order: 22
 :summary: Assuring Authenticity of Bundles and Applications.
 
-${branding} Artifacts in the JAR file format (such as bundles or ${branding} applications packaged as KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
+${branding} Artifacts in the JAR file format (such as bundles or KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
 
 ==== Prerequisites
 
