@@ -80,7 +80,7 @@ define([
             this.model.startSearch();
         },
         handleRefreshResultCount: function(){
-            this.model.startSearch({resultCountOnly: true})
+            this.model.startSearch({resultCountOnly: true});
         },
         handleCancel: function(){
             this.model.cancelCurrentSearches();
