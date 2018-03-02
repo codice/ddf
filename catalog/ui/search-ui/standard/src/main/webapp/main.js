@@ -19,7 +19,7 @@ require.config({
 
         cometd: 'lib/cometd/org/cometd',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
-        moment: 'moment/2.18.1/min/moment.min',
+        moment: 'moment/2.20.1/min/moment.min',
         perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
         spin: 'spin.js/2.3.2/spin',
         q: 'q/1.4.1/q',

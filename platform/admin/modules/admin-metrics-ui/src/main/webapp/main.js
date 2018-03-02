@@ -19,7 +19,7 @@
 
         paths: {
 
-            moment: '../../admin/metrics/moment/2.10.3/moment',
+            moment: '../../admin/metrics/moment/2.20.1/moment',
 
             bootstrap: '../../admin/metrics/bootstrap/3.3.7/dist/js/bootstrap.min',
             spin: '../../admin/metrics/spin.js/1.3.3/spin',
