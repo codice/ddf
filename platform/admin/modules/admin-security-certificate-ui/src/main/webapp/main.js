@@ -17,7 +17,7 @@ require.config({
         bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        moment: 'moment/2.18.1/min/moment.min',
+        moment: 'moment/2.20.1/min/moment.min',
         perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
         q: 'q/1.4.1/q',
 
