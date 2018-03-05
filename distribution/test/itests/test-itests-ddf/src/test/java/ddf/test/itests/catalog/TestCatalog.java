@@ -1565,7 +1565,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       /* START SERVICES
       Add instances of the rules */
-      getServiceManager().startFeature(true, "catalog-metacardingest-network");
+      getServiceManager().startBundle("catalog-plugin-metacardingest-network");
       getServiceManager().createManagedService(factoryPid, networkRule1Properties);
       getServiceManager().createManagedService(factoryPid, networkRule2Properties);
       getServiceManager().waitForRequiredBundles(bundleSymbolicName);
@@ -1596,7 +1596,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       /* CLEAN UP
       Don't let the conditions spill-over and impact other tests */
-      getServiceManager().stopFeature(true, "catalog-metacardingest-network");
+      getServiceManager().uninstallBundle("catalog-plugin-metacardingest-network");
     }
   }
 

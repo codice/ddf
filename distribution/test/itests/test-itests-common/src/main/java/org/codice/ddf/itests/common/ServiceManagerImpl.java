@@ -358,6 +358,19 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
+  public void uninstallBundle(String bundleSymbolicName) throws BundleException {
+    for (Bundle bundle : getBundleContext().getBundles()) {
+      if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
+        bundle.uninstall();
+        WaitCondition.expect(String.format("Bundle %s uninstalled", bundleSymbolicName))
+            .within(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
+            .until(() -> bundle.getState() == Bundle.UNINSTALLED);
+        break;
+      }
+    }
+  }
+
+  @Override
   public void waitForAllBundles() throws InterruptedException {
     waitForRequiredBundles("");
   }
