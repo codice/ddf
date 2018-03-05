@@ -13,12 +13,9 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import ddf.catalog.Constants;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.nio.file.WatchEvent;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
@@ -34,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<File> {
-
-  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
 
@@ -80,7 +75,6 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Fi
   void submitExchange(Exchange exchange) {
     processExchange(exchange);
   }
-
 
   /** Utility class for building GenericFile exchanges from files. */
   public static class ExchangeHelper {
