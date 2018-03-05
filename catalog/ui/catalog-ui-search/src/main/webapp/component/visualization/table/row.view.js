@@ -65,7 +65,7 @@ module.exports = Marionette.LayoutView.extend({
     handleResultThumbnail: function() {
         var hiddenColumns = user.get('user').get('preferences').get('columnHide');
         if (this.model.get('metacard').get('properties').get('thumbnail') &&
-            !hiddenColumns.includes('thumbnail')) {
+            !_.includes(hiddenColumns, 'thumbnail')) {
             this.resultThumbnail.show(new HoverPreviewDropdown({
                 model: new DropdownModel(),
                 modelForComponent: this.model
