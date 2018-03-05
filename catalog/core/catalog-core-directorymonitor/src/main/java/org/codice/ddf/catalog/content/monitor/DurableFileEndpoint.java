@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
   consumerClass = AbstractDurableFileConsumer.class,
   label = "codice,file"
 )
-public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper> {
+public class DurableFileEndpoint extends GenericFileEndpoint<File> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileEndpoint.class);
 
@@ -61,8 +61,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
   }
 
   @Override
-  public GenericFileConsumer<EventfulFileWrapper> createConsumer(Processor processor)
-      throws Exception {
+  public GenericFileConsumer<File> createConsumer(Processor processor) throws Exception {
     ObjectHelper.notNull(file, "file");
 
     if (isDav) {
@@ -75,7 +74,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
   }
 
   @Override
-  public GenericFileProducer<EventfulFileWrapper> createProducer() throws Exception {
+  public GenericFileProducer<File> createProducer() throws Exception {
     return null;
   }
 
@@ -121,9 +120,9 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
   }
 
   private static class EventfulFileWrapperGenericFileOperations
-      implements GenericFileOperations<EventfulFileWrapper> {
+      implements GenericFileOperations<File> {
     @Override
-    public void setEndpoint(GenericFileEndpoint<EventfulFileWrapper> endpoint) {
+    public void setEndpoint(GenericFileEndpoint<File> endpoint) {
       // do nothing
     }
 
@@ -196,13 +195,12 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
     }
 
     @Override
-    public List<EventfulFileWrapper> listFiles() throws GenericFileOperationFailedException {
+    public List<File> listFiles() throws GenericFileOperationFailedException {
       return Collections.emptyList();
     }
 
     @Override
-    public List<EventfulFileWrapper> listFiles(String path)
-        throws GenericFileOperationFailedException {
+    public List<File> listFiles(String path) throws GenericFileOperationFailedException {
       return Collections.emptyList();
     }
   }

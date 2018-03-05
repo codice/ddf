@@ -48,10 +48,10 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
   private FileSystemPersistenceProvider productToMetacardIdMap;
 
   DurableWebDavFileConsumer(
-      GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<EventfulFileWrapper> operations) {
+      GenericFileOperations<File> operations) {
     super(endpoint, remaining, processor, operations);
     init();
   }

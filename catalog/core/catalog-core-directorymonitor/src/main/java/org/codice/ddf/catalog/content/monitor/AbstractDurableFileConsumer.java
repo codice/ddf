@@ -33,7 +33,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<EventfulFileWrapper> {
+public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<File> {
 
   private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
@@ -44,16 +44,16 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
   private String remaining;
 
   AbstractDurableFileConsumer(
-      GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<EventfulFileWrapper> operations) {
+      GenericFileOperations<File> operations) {
     super(endpoint, processor, operations);
     this.remaining = remaining;
   }
 
   @Override
-  protected void updateFileHeaders(GenericFile<EventfulFileWrapper> file, Message message) {
+  protected void updateFileHeaders(GenericFile<File> file, Message message) {
     // noop
   }
 
@@ -77,62 +77,10 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
 
   protected abstract boolean doPoll(@NotNull String sha1);
 
-  void createExchangeHelper(File file, WatchEvent.Kind<Path> fileEvent) {
-    Exchange exchange;
-    try {
-      exchange = getExchange(file, fileEvent, file.getCanonicalPath());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    submitExchange(exchange);
-  }
-
-  Exchange getExchange(File file, WatchEvent.Kind<Path> fileEvent, String reference) {
-    GenericFile<EventfulFileWrapper> genericFile = new GenericFile<>();
-    genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
-    try {
-      if (file == null) {
-        genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, null));
-      } else {
-        genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, file.toPath()));
-        genericFile.setAbsoluteFilePath(file.getCanonicalPath());
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-    Exchange exchange = endpoint.createExchange(genericFile);
-    exchange.getIn().setHeader(Constants.STORE_REFERENCE_KEY, reference);
-    exchange.addOnCompletion(new ErrorLoggingSynchronization(reference, fileEvent));
-    return exchange;
-  }
-
   void submitExchange(Exchange exchange) {
     processExchange(exchange);
   }
 
-  protected static class ErrorLoggingSynchronization implements Synchronization {
-
-    private final String file;
-    private final WatchEvent.Kind<Path> fileEvent;
-
-    ErrorLoggingSynchronization(String file, WatchEvent.Kind<Path> fileEvent) {
-      this.file = file;
-      this.fileEvent = fileEvent;
-    }
-
-    @Override
-    public void onComplete(Exchange exchange) {
-      // no-op
-    }
-
-    @Override
-    public void onFailure(Exchange exchange) {
-      if (INGEST_LOGGER.isErrorEnabled()) {
-        INGEST_LOGGER.error(
-            "Delivery failed for {} event on  {}", file, fileEvent.name(), exchange.getException());
-      }
-    }
-  }
 
   /** Utility class for building GenericFile exchanges from files. */
   public static class ExchangeHelper {
@@ -146,8 +94,8 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
      * @param file the file to populate the {@link GenericFile}
      * @param endpoint the consumer's endpoint
      */
-    public ExchangeHelper(File file, GenericFileEndpoint endpoint) {
-      GenericFile genericFile = new GenericFile<>();
+    public ExchangeHelper(File file, GenericFileEndpoint<File> endpoint) {
+      GenericFile<File> genericFile = new GenericFile<>();
       genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
 
       if (file == null) {
