@@ -11,16 +11,15 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.query.monitor.api;
+package org.codice.ddf.catalog.transform;
 
-import ddf.catalog.data.impl.QueryMetacardImpl;
+/**
+ * A ListMultiInputTransformer transformers an InputStream into a list of zero or more Metacards.
+ * The interface adds the contractual requirement that the transformer arguments include {@link
+ * #LIST_TYPE}. If the transformer cannot transform an item within the InputStream to the type
+ * indicated by LIST_TYPE, then it should skip that item.
+ */
+public interface ListMultiInputTransformer extends MultiInputTransformer {
 
-/** Determine if a query metacard is active. */
-public interface QueryService {
-
-  /**
-   * @param queryMetacard must be non-null
-   * @return true if the query is active
-   */
-  boolean isActiveStandingQuery(QueryMetacardImpl queryMetacard);
+  String LIST_TYPE = "List-Type";
 }

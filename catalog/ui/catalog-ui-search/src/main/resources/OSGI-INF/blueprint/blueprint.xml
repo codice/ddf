@@ -66,11 +66,11 @@
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
+        <bean class="ddf.catalog.data.impl.QueryMetacardTypeImpl"/>
     </service>
 
     <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
+        <bean class="ddf.catalog.data.impl.ListMetacardTypeImpl"/>
     </service>
 
     <bean id="workspacePreIngestPlugin"
@@ -238,6 +238,16 @@
         <argument ref="noteUtil" />
     </bean>
 
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+
+    <bean id="listApplication" class="org.codice.ddf.catalog.ui.metacard.ListApplication">
+        <argument ref="mimeTypeMapper"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="uuidGenerator"/>
+    </bean>
+
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
@@ -275,6 +285,7 @@
                 <ref component-id="userApplication"/>
                 <ref component-id="configurationApplication"/>
                 <ref component-id="feedbackApplication"/>
+                <ref component-id="listApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>

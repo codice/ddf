@@ -131,6 +131,14 @@ define([
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
+            isOutdated() {
+               return this.get('isOutdated');
+            },
+            startSearchIfOutdated() {
+                if (this.isOutdated()) {
+                  this.startSearch();
+                }
+            },
             startSearch: function (options) {
                 this.set('isOutdated', false);
                 if (this.get('cql') === '') {

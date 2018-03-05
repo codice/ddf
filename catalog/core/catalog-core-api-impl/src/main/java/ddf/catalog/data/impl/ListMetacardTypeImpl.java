@@ -11,14 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package ddf.catalog.data.impl;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardTypeImpl;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class ListMetacardTypeImpl extends MetacardTypeImpl {
@@ -32,6 +32,23 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
   public static final String LIST_ICON = "list.icon";
 
   public static final String LIST_BOOKMARKS = "list.bookmarks";
+
+  public static final List<String> STANDARD_LIST_TYPES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              "folder",
+              "target",
+              "video",
+              "text",
+              "word",
+              "powerpoint",
+              "excel",
+              "pdf",
+              "image",
+              "audio",
+              "code",
+              "archive",
+              "tasks"));
 
   private static final Set<AttributeDescriptor> LIST_DESCRIPTORS;
 

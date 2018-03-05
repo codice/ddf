@@ -53,12 +53,18 @@ module.exports = Marionette.LayoutView.extend({
     dropzone: undefined,
     uploadBatchModel: undefined,
     dropzoneAnimationRequestDetails: undefined,
-    initialize: function() {},
+    triggerNewUpload: function() {
+        this.onBeforeDestroy();
+        this.render();
+        this.onBeforeShow();
+    },
     onBeforeShow: function() {
         this.setupDropzone();
         this.setupBatchModel();
         this.showFiles();
         this.showSummary();
+        this.$el.removeClass();
+        this.handleUploadUpdate();
     },
     setupBatchModel: function() {
         this.uploadBatchModel = new UploadBatchModel({}, {
@@ -90,11 +96,15 @@ module.exports = Marionette.LayoutView.extend({
     },
     setupDropzone: function() {
         this.dropzone = new Dropzone(this.el.querySelector('.details-dropzone'), {
-            url: '/services/catalog/',
+            url: this.options.url,
             maxFilesize: 5000000, //MB
             method: 'post',
-            autoProcessQueue: false
+            autoProcessQueue: false,
+            headers: this.options.extraHeaders
         });
+        if (this.options.handleUploadSuccess) {
+            this.dropzone.on('success', this.options.handleUploadSuccess);
+        }
     },
     addFiles: function(){
         this.$el.find('.details-dropzone').click();
@@ -121,7 +131,7 @@ module.exports = Marionette.LayoutView.extend({
     newUpload: function() {
         this.$el.addClass('starting-new');
         setTimeout(function() {
-            this.triggerMethod('ingestDetails:new');
+            this.triggerNewUpload();
         }.bind(this), 250);
     },
     expandUpload: function() {
@@ -145,6 +155,7 @@ module.exports = Marionette.LayoutView.extend({
         $(window).off(namespacedEvent('resize', this));
     },
     onBeforeDestroy: function() {
-        $(window).off(namespacedEvent('resize', this));
+        this.stopListening(this.uploadBatchModel);
+        this.unlistenToResize();
     },
 });
