@@ -11,10 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package ddf.catalog.data.impl;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
 import java.util.Collections;
 
 public class ListMetacardImpl extends MetacardImpl {

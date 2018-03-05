@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+               http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <reference id="mimeMapper" interface="ddf.mime.MimeTypeMapper"/>
+
+    <reference id="transform" interface="org.codice.ddf.catalog.transform.Transform"/>
+
+    <bean id="explodingZipTransformer" class="org.codice.ddf.catalog.transformer.explodingzip.ExplodingZipTransformer">
+        <argument value="explode-zip"/>
+        <argument>
+            <list>
+                <value>application/zip</value>
+            </list>
+        </argument>
+        <argument ref="transform"/>
+        <argument ref="mimeMapper"/>
+    </bean>
+
+    <service interface="org.codice.ddf.catalog.transform.MultiInputTransformer" ref="explodingZipTransformer" ranking="20">
+        <service-properties>
+            <entry key="id" value="explode-zip"/>
+        </service-properties>
+    </service>
+
+</blueprint>

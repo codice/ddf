@@ -113,9 +113,7 @@ define([
 
                 switch (data.federation) {
                     case 'local':
-                        if (!properties.isDisableLocalCatalog()) {
-                            data.src = [Sources.localCatalog];
-                        }
+                        data.src = [Sources.localCatalog];
                         break;
                     case 'enterprise':
                         data.src = _.pluck(Sources.toJSON(), 'id');
@@ -130,6 +128,14 @@ define([
                 data.sort = this.get('sortField') + ':' + this.get('sortOrder');
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
+            },
+            isOutdated() {
+               return this.get('isOutdated');
+            },
+            startSearchIfOutdated() {
+                if (this.isOutdated()) {
+                  this.startSearch();
+                }
             },
             startSearch: function (options) {
                 this.set('isOutdated', false);

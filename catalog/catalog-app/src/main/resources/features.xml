@@ -43,7 +43,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-transform-api/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-core" install="manual" version="${project.version}"
+    <feature name="catalog-core" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
@@ -223,6 +223,11 @@
     <feature name="catalog-transformer-tika" version="${project.version}"
              description="Default Input Transformer.">
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-transformer-exploding-zip" version="${project.version}"
+             description="Exploding ZIP Transformer">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-exploding-zip/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-video" version="${project.version}"
@@ -497,6 +502,7 @@
     <feature name="catalog-app" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
         <feature>admin-app</feature>
+        <feature>catalog-core-transform-api</feature>
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
         <feature>catalog-core-plugins</feature>
@@ -545,5 +551,6 @@
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-thumbnail</feature>
         <feature>catalog-metacardingest-network</feature>
+        <feature>catalog-transformer-exploding-zip</feature>
     </feature>
 </features>

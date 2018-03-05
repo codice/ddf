@@ -11,13 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package ddf.catalog.data.impl;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardTypeImpl;
 import java.util.HashSet;
 import java.util.Set;
 

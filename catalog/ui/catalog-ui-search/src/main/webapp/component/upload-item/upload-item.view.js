@@ -63,6 +63,10 @@ module.exports = Marionette.LayoutView.extend({
         var success = this.model.get('success');
         this.$el.toggleClass('has-success', success);
         this.$el.find('.success-message .message-text').html(this.model.escape('message'));
+        this.handleChildren();
+    },
+    handleChildren() {
+        this.$el.toggleClass('has-children', this.model.hasChildren());
     },
     handleValidating: function() {
         var validating = this.model.get('validating');
@@ -97,7 +101,7 @@ module.exports = Marionette.LayoutView.extend({
         });
     },
     expandIfSuccess: function(){
-        if (this.model.get('success')){
+        if (this.model.get('success') && !this.model.hasChildren()){
             this.expandUpload();
         }
     }
