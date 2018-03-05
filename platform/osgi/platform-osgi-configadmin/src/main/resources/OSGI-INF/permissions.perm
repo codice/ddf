@@ -47,6 +47,7 @@
 (java.util.PropertyPermission "os.name" "read")
 (java.util.PropertyPermission "user.dir" "read")
 (java.io.FilePermission "-" "read,write,execute,delete")
+(java.io.FilePermission "<<ALL FILES>>" "read,write")
 
 # -> ConfigurationManager
 (org.osgi.framework.ServicePermission "org.apache.felix.cm.PersistenceManager" "register")

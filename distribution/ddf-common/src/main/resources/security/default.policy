@@ -186,7 +186,7 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
-grant codeBase "file:/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
+grant codeBase "file:/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
