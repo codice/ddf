@@ -25,13 +25,13 @@
 |Enforce errors
 |enforceErrors
 |Boolean
-|Sets whether validation errors are enforced.
+|Sets whether validation errors are enforced. This prevents ingest if errors are present.
 |true
 |true
 
 |Enforce warnings
 |enforceWarnings
-|Sets whether validation warnings are enforced.
+|Sets whether validation warnings are enforced. This prevents ingest if warnings are present.
 |Boolean
 |true
 |true
