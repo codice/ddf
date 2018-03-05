@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
 import ddf.catalog.data.Metacard;
@@ -110,6 +111,43 @@ public class RemoteDeleteOperationsTest {
     setUpFrameworkProperties();
     setUpDeleteOperations();
     setUpBlacklist();
+  }
+
+  @Test
+  public void testDeleteAcrossTwoStores() throws Exception {
+    CatalogStore store1 = mock(CatalogStore.class);
+    MetacardImpl store1Metacard = new MetacardImpl();
+    store1Metacard.setId("store1id");
+    store1Metacard.setTitle("store1title");
+    when(store1.getId()).thenReturn("store1");
+    when(store1.isAvailable()).thenReturn(true);
+    when(store1.delete(deleteRequest))
+        .thenReturn(
+            new DeleteResponseImpl(
+                deleteRequest, new HashMap<>(), ImmutableList.of(store1Metacard)));
+
+    CatalogStore store2 = mock(CatalogStore.class);
+    MetacardImpl store2Metacard = new MetacardImpl();
+    store2Metacard.setId("store2id");
+    store2Metacard.setTitle("store2title");
+    when(store2.getId()).thenReturn("store2");
+    when(store2.isAvailable()).thenReturn(true);
+    when(store2.delete(deleteRequest))
+        .thenReturn(
+            new DeleteResponseImpl(
+                deleteRequest, new HashMap<>(), ImmutableList.of(store2Metacard)));
+    List<CatalogStore> catalogStores = ImmutableList.of(store1, store2);
+
+    when(opsCatStoreSupport.isCatalogStoreRequest(deleteRequest)).thenReturn(true);
+    when(opsCatStoreSupport.getCatalogStoresForRequest(any(), any())).thenReturn(catalogStores);
+
+    DeleteResponse resultDeleteResponse =
+        remoteDeleteOperations.performRemoteDelete(deleteRequest, null);
+
+    assertEqualMetacards(
+        "Results from both stores are in response",
+        resultDeleteResponse.getDeletedMetacards(),
+        ImmutableList.of(store1Metacard, store2Metacard));
   }
 
   @Test
@@ -341,6 +379,8 @@ public class RemoteDeleteOperationsTest {
     opsSecuritySupport = mock(OperationsSecuritySupport.class);
 
     opsMetacardSupport = mock(OperationsMetacardSupport.class);
+    when(opsMetacardSupport.applyInjectors(any(Metacard.class), any()))
+        .thenAnswer(answer -> answer.getArguments()[0]);
 
     opsCatStoreSupport = mock(OperationsCatalogStoreSupport.class);
 

@@ -86,10 +86,9 @@ public class RemoteDeleteOperations {
           exceptions.add(
               new ProcessingDetailsImpl(store.getId(), null, "CatalogStore is not available"));
         } else {
-          // TODO: 4/27/17 Address bug in DDF-2970 for overwriting deleted metacards
           DeleteResponse response = store.delete(deleteRequest);
           properties.put(store.getId(), new ArrayList<>(response.getDeletedMetacards()));
-          metacards = response.getDeletedMetacards();
+          metacards.addAll(response.getDeletedMetacards());
         }
       } catch (IngestException e) {
         INGEST_LOGGER.error("Error deleting metacards for CatalogStore {}", store.getId(), e);
