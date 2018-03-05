@@ -34,11 +34,14 @@ define([
         tagName: CustomElements.register('metacard-archive'),
         events: {
             'click button.archive': 'handleArchive',
-            'click button.restore': 'handleRestore'
+            'click button.restore': 'handleRestore',
+            'click button.archive-confirm': 'triggerConfirmedArchive'
         },
         ui: {},
+        orphans: [],
         selectionInterface: store,
         initialize: function(options) {
+            this.orphans = [];
             this.selectionInterface = options.selectionInterface || this.selectionInterface;
             if (!options.model) {
                 this.setDefaultModel();
@@ -70,8 +73,7 @@ define([
             this.$el.toggleClass('is-remote', types.remote !== undefined);
         },
         handleArchive: function() {
-            var self = this;
-            var payload = JSON.stringify(self.model.map(function(result) {
+            var payload = JSON.stringify(this.model.map(function(result) {
                 return result.get('metacard').get('id');
             }));
             this.listenTo(ConfirmationView.generateConfirmation({
@@ -82,29 +84,69 @@ define([
                 'change:choice',
                 function(confirmation) {
                     if (confirmation.get('choice')) {
-                        var loadingView = new LoadingView();
-                        $.ajax({
-                            url: '/search/catalog/internal/metacards',
-                            type: 'DELETE',
-                            data: payload,
-                            contentType: 'application/json'
-                        }).then(function(response){
-                            //needed for high latency systems where refreshResults might take too long
-                            this.model.forEach(function(result){
-                                result.get('metacard').get('properties').set('metacard-tags', ['deleted']);
-                                result.trigger('refreshdata');
-                            });
-                            this.refreshResults();
-                        }.bind(this)).always(function(response) {
-                            setTimeout(function() { //let solr flush
-                                loadingView.remove();
-                            }, 2000);
-                        }.bind(this));
+                        this.handleCheckBeforeArchive(payload);
                     }
                 }.bind(this));
         },
+        triggerConfirmedArchive: function() {
+            var payload = JSON.stringify(this.model.map(function(result) {
+                return result.get('metacard').get('id');
+            }));
+            this.handleConfirmedArchive(payload);
+        },
+        handleConfirmedArchive: function(payload) {
+            var loadingView = new LoadingView();
+            $.ajax({
+                url: '/search/catalog/internal/metacards',
+                type: 'DELETE',
+                data: payload,
+                contentType: 'application/json'
+            }).then(function(response){
+                //needed for high latency systems where refreshResults might take too long
+                this.model.forEach(function(result){
+                    result.get('metacard').get('properties').set('metacard-tags', ['deleted']);
+                    result.trigger('refreshdata');
+                });
+                this.refreshResults();
+            }.bind(this)).always(function(response) {
+                setTimeout(function() { //let solr flush
+                    loadingView.remove();
+                }, 2000);
+            }.bind(this));
+        },
+        handleOrphans: function(payload) {
+            this.render();
+            this.listenTo(ConfirmationView.generateConfirmation({
+                prompt: 'Some results have associations not found in the list you are archiving.  Continuing will cause those associations to be orphaned.  Are you sure you want to continue?',
+                no: 'Cancel',
+                yes: 'Archive'
+            }),
+            'change:choice',
+            function(confirmation) {
+                if (confirmation.get('choice')) {
+                    this.handleConfirmedArchive(payload);
+                }
+            }.bind(this));
+        },
+        handleCheckBeforeArchive: function(payload) {
+            var loadingView = new LoadingView();
+            $.ajax({
+                url: '/search/catalog/internal/metacards/deletecheck',
+                type: 'POST',
+                data: payload,
+                contentType: 'application/json'
+            }).then(function(response){
+                this.orphans = response['broken-links'];
+                if (this.orphans.length !== 0) {
+                    this.handleOrphans(payload);
+                } else {
+                    this.handleConfirmedArchive(payload);
+                }
+            }.bind(this)).always(function(response) {
+                loadingView.remove();
+            }.bind(this));
+        },
         handleRestore: function() {
-            var self = this;
             this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'Are you sure you want to restore?  Doing so will include the item(s) in future search results.',
                     no: 'Cancel',
@@ -134,6 +176,11 @@ define([
             this.model.forEach(function(result){
                 ResultUtils.refreshResult(result);
             });
+        },
+        serializeData: function() {
+            return {
+                orphans: this.orphans
+            };
         }
     });
 });

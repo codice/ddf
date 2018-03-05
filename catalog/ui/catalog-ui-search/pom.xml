@@ -258,6 +258,26 @@
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
         </dependency>
+
+        <!-- Cyclops Dependencies
+        [root] com.oath.cyclops:cyclops:[10.0.0,11.0.0)
+         |-> org.reactivestreams:reactive-streams:[1.0.0,2.0.0)
+         |-> org.agrona:agrona:[0.9.0,1.0.0) -->
+        <dependency>
+            <groupId>com.oath.cyclops</groupId>
+            <artifactId>cyclops</artifactId>
+            <version>10.0.0-M1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.agrona</groupId>
+            <artifactId>agrona</artifactId>
+            <version>0.9.10</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -313,6 +333,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
+                            agrona,
                             antlr4-runtime,
                             boon,
                             c3p0,
@@ -321,6 +342,7 @@
                             camel-http-common,
                             catalog-core-api-impl;scope=!test,
                             commons-lang3,
+                            cyclops,
                             ddf-security-common,
                             gt-cql,
                             handlebars,
@@ -335,6 +357,7 @@
                             proxy-camel-servlet,
                             quartz,
                             quartz-jobs,
+                            reactive-streams,
                             spark-core,
                             spatial4j,
                             versioning-common
@@ -348,6 +371,7 @@
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
+                            !sun.nio.ch,
                             !sun.reflect,
                             !com.sun.management,
                             !org.eclipse.jetty.websocket.*,

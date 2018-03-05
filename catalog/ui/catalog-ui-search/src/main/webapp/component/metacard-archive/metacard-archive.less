@@ -1,4 +1,10 @@
 @{customElementNamespace}metacard-archive {
+  .customElement;
+  overflow: auto;
+  .section {
+    padding: @minimumSpacing;
+    margin-bottom: @minimumSpacing;
+  }
 
   button.is-negative,
   button.is-positive {
@@ -14,18 +20,18 @@
     font-size: @mediumFontSize;
   }
   
-  .restore {
+  .is-archived {
     display: none;
   }
 }
 
 @{customElementNamespace}metacard-archive.is-deleted {
 
-  .archive {
+  .is-not-archived {
     display: none;
   }
 
-  .restore {
+  .is-archived {
     display: block;
   }
 }
