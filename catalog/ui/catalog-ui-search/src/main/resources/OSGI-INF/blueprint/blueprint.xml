@@ -187,6 +187,7 @@
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
         <argument ref="endpointUtil"/>
+        <argument ref="metacardActionRegistry"/>
     </bean>
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
@@ -254,10 +255,10 @@
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
         <argument ref="associated"/>
-        <argument ref="csvQueryResponseTransformer"/>
-        <argument ref="attributeRegistry"/>
-        <argument ref="configurationApplication"/>
-        <argument ref="noteUtil"/>
+        <argument ref="csvQueryResponseTransformer" />
+        <argument ref="attributeRegistry" />
+        <argument ref="configurationApplication" />
+        <argument ref="noteUtil" />
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

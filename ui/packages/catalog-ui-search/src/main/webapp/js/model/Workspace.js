@@ -90,8 +90,13 @@ module.exports = Backbone.AssociatedModel.extend({
         this.listenTo(this, 'change', this.handleChange);
         this.listenTo(this, 'error', this.handleError);
     },
-    handleListChange: function() {
-        this.set('saved', false);
+    handleListChange: function(model) {
+        if (model !== undefined &&
+            _.intersection(Object.keys(model.changedAttributes()), [
+                'actions'
+            ]).length === 0) {
+            this.set('saved', false);
+        }
     },
     handleQueryChange: function () {
         this.set('saved', false);
