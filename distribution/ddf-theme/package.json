@@ -19,8 +19,8 @@
   "homepage": "https://github.com/codice/ddf#readme",
   "devDependencies": {
     "bootswatch": "3.3.7",
-    "compass-mixins": "^0.12.10",
-    "node-sass": "^4.7.2",
-    "sass-lint": "^1.12.1"
+    "compass-mixins": "0.12.10",
+    "node-sass": "4.7.2",
+    "sass-lint": "1.12.1"
   }
 }
