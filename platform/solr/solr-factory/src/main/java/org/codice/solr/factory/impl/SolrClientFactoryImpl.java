@@ -15,11 +15,11 @@ package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.concurrent.Future;
 import java.util.function.BiFunction;
-import org.apache.solr.client.solrj.SolrClient;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
 /**
@@ -28,20 +28,19 @@ import org.codice.solr.factory.SolrClientFactory;
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
-  private BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction;
+  private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
 
   public SolrClientFactoryImpl() {
     newClientFunction = (factory, core) -> factory.newClient(core);
   }
 
-  // Package-private for unit testing.
-  SolrClientFactoryImpl(
-      BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction) {
+  @VisibleForTesting
+  SolrClientFactoryImpl(BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
     this.newClientFunction = newClientFunction;
   }
 
   @Override
-  public Future<SolrClient> newClient(String core) {
+  public SolrClient newClient(String core) {
     notNull(core, "Solr core name cannot be null");
 
     String clientType =
