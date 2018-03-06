@@ -14,9 +14,7 @@
 package org.codice.banana;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import org.apache.solr.client.solrj.SolrClient;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,28 +30,16 @@ public class BananaSolrProvisioner {
    *
    * @param solrClientFactory client factory to use
    */
+  @SuppressWarnings("squid:S1118" /* instantiated from blueprint */)
   public BananaSolrProvisioner(SolrClientFactory solrClientFactory) {
-    CompletableFuture.supplyAsync(() -> bananaClientSupplier(solrClientFactory))
-        .thenAccept(BananaSolrProvisioner::closeSolrClient);
-  }
-
-  private static SolrClient bananaClientSupplier(SolrClientFactory solrClientFactory) {
-    SolrClient client = null;
-    try {
-      client = solrClientFactory.newClient("banana").get();
-    } catch (InterruptedException | ExecutionException e) {
-      LOGGER.debug("Failed to provision Banana Solr core", e);
-    }
-    return client;
+    solrClientFactory.newClient("banana").whenAvailable(BananaSolrProvisioner::closeSolrClient);
   }
 
   private static void closeSolrClient(SolrClient client) {
-    if (client != null) {
-      try {
-        client.close();
-      } catch (IOException e) {
-        LOGGER.debug("Failed to close Banana Solr core", e);
-      }
+    try {
+      client.close();
+    } catch (IOException e) {
+      LOGGER.debug("Failed to close Banana Solr core", e);
     }
   }
 }
