@@ -33,6 +33,7 @@
         <module>ddf-branding-app</module>
         <module>ddf-branding-plugin</module>
         <module>ddf-common</module>
+        <module>ddf-theme</module>
         <module>kernel</module>
         <module>install-profiles</module>
         <module>docs</module>

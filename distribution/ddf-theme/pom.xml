@@ -61,11 +61,11 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources-filtered</directory>
-                <filtering>true</filtering>
+                <directory>src/main/webapp/css</directory>
+                <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>src/main/webapp/fonts</directory>
                 <filtering>false</filtering>
             </resource>
         </resources>
@@ -101,7 +101,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run build -- --config=${webpackConfig}</arguments>
+                            <arguments>run build</arguments>
                         </configuration>
                     </execution>
                 </executions>
