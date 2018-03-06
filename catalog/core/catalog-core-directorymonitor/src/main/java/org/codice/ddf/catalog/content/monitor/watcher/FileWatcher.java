@@ -65,12 +65,13 @@ public class FileWatcher {
    * @return true if file size is considered "stable", false otherwise
    */
   public boolean check() {
-    if (watchedFile.length() == lastFileSize) {
+    long currentSize = watchedFile.length();
+    if (currentSize == lastFileSize) {
       LOGGER.debug("File [{}]'s size is stabilized.", watchedFile.getName());
       fileCallback.accept(watchedFile);
       return true;
     } else {
-      lastFileSize = watchedFile.length();
+      lastFileSize = currentSize;
       return false;
     }
   }
