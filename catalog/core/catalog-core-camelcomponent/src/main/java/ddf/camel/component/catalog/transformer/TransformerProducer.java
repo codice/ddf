@@ -112,17 +112,6 @@ public abstract class TransformerProducer extends DefaultProducer {
     LOGGER.trace("EXITING: process");
   }
 
-  protected String getHeaderAsStringAndRemove(Message message, String key) {
-    String value = message.getHeader(key, String.class);
-    if (value != null) {
-      LOGGER.trace(
-          "Retrieved and removed header [{}] from exchange message [{}]", message.getMessageId());
-      message.removeHeader(key);
-      return value;
-    }
-    return null;
-  }
-
   protected abstract Object transform(
       Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, IOException, CatalogTransformerException;

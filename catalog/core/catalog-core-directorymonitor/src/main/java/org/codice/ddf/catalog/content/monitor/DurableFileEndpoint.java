@@ -113,9 +113,7 @@ public class DurableFileEndpoint extends GenericFileEndpoint<File> {
     try {
       getConfiguration().setDirectory(file.getCanonicalPath());
     } catch (IOException e) {
-      LOGGER.warn(
-          "Unable to canonicalize processingMechanism{}. Verify location is accessible.",
-          file.toString());
+      LOGGER.warn("Unable to canonicalize {}. Verify location is accessible.", file.toString());
     }
   }
 

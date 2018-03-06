@@ -27,6 +27,7 @@ import org.codice.ddf.catalog.content.monitor.AbstractDurableFileConsumer.Exchan
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
 import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
 import org.codice.ddf.catalog.content.monitor.watcher.FileWatcher;
+import org.codice.ddf.catalog.content.monitor.watcher.FilesWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,18 +47,16 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
 
   private AbstractDurableFileConsumer consumer;
 
-  private FileWatcher fileWatcher;
+  private FilesWatcher filesWatcher;
 
   public DurableFileAlterationListener(@NotNull AbstractDurableFileConsumer consumer) {
-    this.consumer = consumer;
-    fileWatcher = new FileWatcher();
-    init();
+    this(consumer, new FilesWatcher());
   }
 
   public DurableFileAlterationListener(
-      @NotNull AbstractDurableFileConsumer consumer, @NotNull FileWatcher fileWatcher) {
+      @NotNull AbstractDurableFileConsumer consumer, @NotNull FilesWatcher fileWatcher) {
     this.consumer = consumer;
-    this.fileWatcher = fileWatcher;
+    this.filesWatcher = fileWatcher;
     init();
   }
 
@@ -70,6 +69,10 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
 
   @Override
   public void onFileChange(File file) {
+    filesWatcher.watch(new FileWatcher(file, this::fileUpdate));
+  }
+
+  private void fileUpdate(File file) {
     String fileUri = file.toURI().toASCIIString();
     String metacardId = getMetacardIdFromReference(fileUri, CATALOG_UPDATE, productToMetacardIdMap);
 
@@ -92,7 +95,7 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
 
   @Override
   public void onFileCreate(File file) {
-    fileWatcher.submit(file, this::fileCreate);
+    filesWatcher.watch(new FileWatcher(file, this::fileCreate));
   }
 
   private void fileCreate(File file) {
@@ -131,7 +134,7 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
   }
 
   public void destroy() {
-    fileWatcher.destroy();
+    filesWatcher.destroy();
   }
 
   private String getMetacardIdFromReference(

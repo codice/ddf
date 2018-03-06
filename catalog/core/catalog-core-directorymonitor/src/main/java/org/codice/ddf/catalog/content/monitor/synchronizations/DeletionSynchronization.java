@@ -52,6 +52,7 @@ public class DeletionSynchronization implements Synchronization {
   public void onFailure(Exchange exchange) {
     LOGGER.debug(
         "Reference [{}] to metacardId may not be removed from cache [{}].",
+        reference,
         productToMetacardIdMap.toString());
   }
 

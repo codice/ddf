@@ -173,4 +173,15 @@ public class InputTransformerProducer extends TransformerProducer {
       return null;
     }
   }
+
+  private String getHeaderAsStringAndRemove(Message message, String key) {
+    String value = message.getHeader(key, String.class);
+    if (value != null) {
+      LOGGER.trace(
+          "Retrieved and removed header [{}] from exchange message [{}]", message.getMessageId());
+      message.removeHeader(key);
+      return value;
+    }
+    return null;
+  }
 }
