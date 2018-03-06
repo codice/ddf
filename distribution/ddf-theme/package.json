@@ -1,0 +1,26 @@
+{
+  "name": "ddf-theme",
+  "version": "0.0.1",
+  "description": "DDF's Bootstrap Theme",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./node_modules/sass-lint/bin/sass-lint.js src/main/webapp/sass/**/*.*",
+    "build": "node ./node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/webapp/css/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codice/ddf.git"
+  },
+  "author": "Codice",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/codice/ddf/issues"
+  },
+  "homepage": "https://github.com/codice/ddf#readme",
+  "devDependencies": {
+    "bootswatch": "3.3.7",
+    "compass-mixins": "^0.12.10",
+    "node-sass": "^4.7.2",
+    "sass-lint": "^1.12.1"
+  }
+}
