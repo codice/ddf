@@ -15,14 +15,13 @@ package org.codice.ddf.catalog.content.monitor.watcher;
 
 import java.io.File;
 import java.util.function.Consumer;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Watches the size of a file. When a file's length is considered "stable" (non changing between
- * calls to check), the file's corresponding callback will be called.
+ * calls to {@link #check()}), the file's corresponding callback will be called.
  */
 public class FileWatcher {
 
@@ -35,12 +34,13 @@ public class FileWatcher {
   private long lastFileSize = -1L;
 
   /**
-   * Creates a FileWatcher
+   * Creates a FileWatcher. The file's callback will be called when a file is considered "stable".
+   * See {@link #check()} for a definition of stable.
    *
    * @param watchedFile the file to watch
    * @param fileCallback the file's callback
    */
-  public FileWatcher(@NotNull File watchedFile, @NotNull Consumer<File> fileCallback) {
+  public FileWatcher(File watchedFile, Consumer<File> fileCallback) {
     Validate.notNull(watchedFile, "argument {watchedFile} cannot be null");
     Validate.notNull(fileCallback, "argument {fileCallback} cannot be null");
 
@@ -59,8 +59,8 @@ public class FileWatcher {
    * next call of this method. If the files length equals its cached value, it is considered
    * "stable".
    *
-   * <p>>A file is considered stable when its size does not vary between 2 calls to {@code check},
-   * at which point the files callback will be invoked.
+   * <p>A file is considered stable when its size does not vary between 2 calls to {@code check}, at
+   * which point the files callback will be invoked.
    *
    * @return true if file size is considered "stable", false otherwise
    */

@@ -13,12 +13,26 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
+import java.io.Serializable;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -26,6 +40,12 @@ import org.apache.commons.lang.StringUtils;
  * on the metacard in an exchange.
  */
 public class InPlaceMetacardProcessor implements Processor {
+
+  private final AttributeRegistry attributeRegistry;
+
+  public InPlaceMetacardProcessor(AttributeRegistry attributeRegistry) {
+    this.attributeRegistry = attributeRegistry;
+  }
 
   @Override
   public void process(Exchange exchange) {
@@ -40,6 +60,9 @@ public class InPlaceMetacardProcessor implements Processor {
         metacard, Core.RESOURCE_SIZE, getHeaderAsString(exchange, Exchange.FILE_LENGTH));
     writeMetacardAttribute(
         metacard, Core.RESOURCE_URI, getHeaderAsString(exchange, Core.RESOURCE_URI));
+
+    Map overrides = exchange.getIn().getHeader(Constants.ATTRIBUTE_OVERRIDES_KEY, Map.class);
+    overrideAttributes(metacard, overrides);
   }
 
   /**
@@ -74,5 +97,70 @@ public class InPlaceMetacardProcessor implements Processor {
       return (String) fileName;
     }
     return null;
+  }
+
+  private void overrideAttributes(Metacard metacard, Map<String, Serializable> attributeOverrides) {
+    if (MapUtils.isEmpty(attributeOverrides)) {
+      return;
+    }
+
+    attributeOverrides
+        .keySet()
+        .stream()
+        .map(attributeRegistry::lookup)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(ad -> overrideAttributeValue(ad, attributeOverrides.get(ad.getName())))
+        .filter(Objects::nonNull)
+        .forEach(metacard::setAttribute);
+  }
+
+  private AttributeImpl overrideAttributeValue(
+      AttributeDescriptor attributeDescriptor, Serializable overrideValue) {
+    List<Serializable> newValue = new ArrayList<>();
+    for (Object o :
+        overrideValue instanceof List
+            ? (List) overrideValue
+            : Collections.singletonList(overrideValue)) {
+      try {
+        String override = String.valueOf(o);
+        switch (attributeDescriptor.getType().getAttributeFormat()) {
+          case INTEGER:
+            newValue.add(Integer.parseInt(override));
+            break;
+          case FLOAT:
+            newValue.add(Float.parseFloat(override));
+            break;
+          case DOUBLE:
+            newValue.add(Double.parseDouble(override));
+            break;
+          case SHORT:
+            newValue.add(Short.parseShort(override));
+            break;
+          case LONG:
+            newValue.add(Long.parseLong(override));
+            break;
+          case DATE:
+            Calendar calendar = DatatypeConverter.parseDateTime(override);
+            newValue.add(calendar.getTime());
+            break;
+          case BOOLEAN:
+            newValue.add(Boolean.parseBoolean(override));
+            break;
+          case BINARY:
+            newValue.add(override.getBytes(Charset.forName("UTF-8")));
+            break;
+          case OBJECT:
+          case STRING:
+          case GEOMETRY:
+          case XML:
+            newValue.add(override);
+            break;
+        }
+      } catch (IllegalArgumentException e) {
+        return null;
+      }
+    }
+    return new AttributeImpl(attributeDescriptor.getName(), newValue);
   }
 }

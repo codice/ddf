@@ -35,27 +35,26 @@ public class FilesWatcher {
 
   private ScheduledExecutorService executorService;
 
-  private final Map<File, FileWatcher> watchers;
+  private final Map<File, FileWatcher> watchers = new ConcurrentHashMap<>();
 
   private long executorPollTime;
 
   /**
-   * Creates a new FileWatcher with the system property {@link #CDM_FILE_CHECK_PERIOD_PROPERTY} poll
-   * time or {@link #DEFAULT_POLL_TIME_SEC} if not available.
+   * Creates a new {@link FileWatcher} with the system property {@code
+   * org.codice.ddf.cdm.fileCheckPeriod} poll time or {@link #DEFAULT_POLL_TIME_SEC} if not
+   * available.
    */
   public FilesWatcher() {
-    watchers = new ConcurrentHashMap<>();
     executorPollTime = getPollTimeOrDefault();
     init();
   }
 
   /**
-   * Creates a new FileWatcher with the given polling interval.
+   * Creates a new {@link FileWatcher} with the given polling interval.
    *
    * @param pollTime polling interval in seconds
    */
   public FilesWatcher(long pollTime) {
-    watchers = new ConcurrentHashMap<>();
     executorPollTime = pollTime;
     init();
   }

@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.AttributeRegistry;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +75,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final CamelContext camelContext;
 
+  private final AttributeRegistry attributeRegistry;
+
   private String monitoredDirectory = null;
 
   private String processingMechanism = DELETE;
@@ -100,9 +103,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    *     if Apache changes this ModelCamelContext interface there is no guarantee that whatever DM
    *     is being used (Blueprint in this case) will be updated accordingly.
    */
-  public ContentDirectoryMonitor(CamelContext camelContext) {
+  public ContentDirectoryMonitor(CamelContext camelContext, AttributeRegistry attributeRegistry) {
     this(
         camelContext,
+        attributeRegistry,
         20,
         5,
         Executors.newSingleThreadExecutor(
@@ -122,10 +126,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    */
   public ContentDirectoryMonitor(
       CamelContext camelContext,
+      AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
       Executor configurationExecutor) {
     this.camelContext = camelContext;
+    this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
@@ -432,7 +438,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                   simple(
                       "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
               .to("catalog:inputtransformer")
-              .process(new InPlaceMetacardProcessor())
+              .process(new InPlaceMetacardProcessor(attributeRegistry))
               .end()
               .to("catalog:framework");
         } else {
