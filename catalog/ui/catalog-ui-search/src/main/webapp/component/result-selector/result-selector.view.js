@@ -158,6 +158,10 @@ define([
             this.handleFiltering(collapsedResults);
             this.handleMerged();
             this.handleStatus();
+            let resultCountOnly = this.model.get('result').get('resultCountOnly') === true;
+            this.regionManager.forEach((region) => {
+                region.currentView.$el.toggleClass("is-hidden", resultCountOnly);
+            });
         },
         handleFiltering: function(resultCollection){
             this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0);

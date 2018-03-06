@@ -143,6 +143,9 @@ define([
                 this.cancelCurrentSearches();
 
                 var data = Common.duplicate(this.buildSearchData());
+                if (options.resultCountOnly) {
+                    data.count = 0;
+                }
                 var sources = data.src;
                 var initialStatus = sources.map(function (src) {
                     return {
@@ -200,6 +203,7 @@ define([
                 }
 
                 result.set('initiated', Date.now());
+                result.set('resultCountOnly', options.resultCountOnly);
                 result.get('results').fullCollection.sort();
 
                 if (sources.length === 0) {
