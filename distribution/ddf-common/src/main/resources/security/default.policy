@@ -419,6 +419,7 @@ grant {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
 
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.jvnet.ogc${/}-", "read";
 
     permission java.io.FilePermission "${/}groovy${/}shell", "read";
 
