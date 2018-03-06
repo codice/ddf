@@ -4,8 +4,10 @@
   "description": "DDF's Bootstrap Theme",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -Rf src/main/webapp/resources/css && mkdir src/main/webapp/resources/css",
     "test": "node ./node_modules/sass-lint/bin/sass-lint.js src/main/webapp/sass/**/*.*",
-    "build": "node ./node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/webapp/css/"
+    "build": "npm run clean && npm run build-sass",
+    "build-sass": "node ./node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/webapp/resources/css/"
   },
   "repository": {
     "type": "git",

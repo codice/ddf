@@ -59,16 +59,6 @@
         </dependency>
     </dependencies>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/webapp/css</directory>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/webapp/fonts</directory>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -115,24 +105,25 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-      Generates the resources from the /resources sub-directory into a JAR file and copies
-      it into the maven repo so other DDF distribution projects can access it.
-      -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <includeEmptyDirs>true</includeEmptyDirs>
-                    <escapeString>_DO_NOT_EXPAND_</escapeString>
-                </configuration>
+                <version>3.0.2</version>
                 <executions>
                     <execution>
-                        <id>filter</id>
-                        <phase>generate-resources</phase>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>resources</goal>
+                            <goal>copy-resources</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/webapp</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/webapp/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
