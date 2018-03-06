@@ -57,7 +57,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -66,6 +65,7 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +140,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     LOGGER.debug(
         "Constructing {} with Solr client [{}]", SolrCatalogProvider.class.getName(), solr);
 
-    resolver.addFieldsFromClient(solrClient);
+    solr.whenAvailable(this::addFieldsFromClientToResolver);
     this.client =
         new ProviderSolrMetacardClient(solrClient, adapter, solrFilterDelegateFactory, resolver);
   }
@@ -164,17 +164,20 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   }
 
   @Override
+  @SuppressWarnings("squid:S1181" /* bubbling out VirtualMachineError */)
   public boolean isAvailable() {
     try {
       SolrPingResponse ping = solr.ping();
 
       return "OK".equals(ping.getResponse().get("status"));
-    } catch (Exception e) {
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable t) {
       /*
        * if we get any type of exception, whether declared by Solr or not, we do not want to
        * fail, we just want to return false
        */
-      LOGGER.debug("Solr ping failed.", e);
+      LOGGER.debug("Solr ping failed.", t);
       LOGGER.warn(
           "Solr ping request/response failed while checking availability. Verify Solr is available and correctly configured.");
     }
@@ -184,7 +187,15 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   @Override
   public boolean isAvailable(SourceMonitor callback) {
-    return isAvailable();
+    solr.isAvailable( // first register the callback
+        (c, a) -> {
+          if (a) {
+            callback.setAvailable();
+          } else {
+            callback.setUnavailable();
+          }
+        });
+    return isAvailable(); // trigger an active ping
   }
 
   @Override
@@ -344,7 +355,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     /* 1b. Execute Query */
     try {
       idResults = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to query for metacard(s) before update.", e);
     }
 
@@ -479,6 +490,15 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
   }
 
+  private void addFieldsFromClientToResolver(SolrClient client) {
+    try {
+      resolver.addFieldsFromClient(client);
+    } catch (SolrServerException | SolrException | IOException e) {
+      // retry again when it comes back available
+      client.whenAvailable(this::addFieldsFromClientToResolver);
+    }
+  }
+
   private void deleteListOfMetacards(
       List<Metacard> deletedMetacards,
       List<? extends Serializable> identifiers,
@@ -493,7 +513,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       // right away, such as expired data, etc.
       // so we force the commit
       client.deleteByIds(fieldName, identifiers, true);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to delete metacards by ID(s).", e);
       throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
     }
@@ -541,7 +561,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     QueryResponse solrResponse;
     try {
       solrResponse = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to get list of Solr documents for delete.", e);
       throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
     }
