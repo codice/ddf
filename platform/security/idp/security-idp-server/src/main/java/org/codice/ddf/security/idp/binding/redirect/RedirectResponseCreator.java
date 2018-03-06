@@ -20,6 +20,7 @@ import ddf.security.samlp.impl.EntityInformation;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +94,9 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
             "UTF-8");
     StringBuilder requestToSign = new StringBuilder("SAMLResponse=").append(encodedResponse);
     if (relayState != null) {
-      requestToSign.append("&RelayState=").append(relayState);
+      requestToSign
+          .append("&RelayState=")
+          .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
     }
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
     UriBuilder uriBuilder = UriBuilder.fromUri(assertionConsumerServiceURL);
