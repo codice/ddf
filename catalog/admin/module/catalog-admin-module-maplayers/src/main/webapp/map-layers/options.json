@@ -61,13 +61,6 @@
     },
     "config": {}
   },
-  "MQ": {
-    "label": "Map Quest",
-    "help": {
-      "ol": "https://openlayers.org/en/latest/apidoc/ol.source.MapQuest.html"
-    },
-    "config": {}
-  },
   "TMS": {
     "label": "Tile Map Service",
     "help": {

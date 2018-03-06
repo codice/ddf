@@ -1,0 +1,9 @@
+:title: Configuring ${ddf-ui}
+:type: configuration
+:status: published
+:parent: Configuring User Interfaces
+:order: 02
+
+== {title}
+
+Start here to configure ${ddf-ui} as the primary interface for users.
