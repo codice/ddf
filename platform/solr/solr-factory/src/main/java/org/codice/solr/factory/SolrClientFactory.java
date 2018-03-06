@@ -13,21 +13,22 @@
  */
 package org.codice.solr.factory;
 
-import java.util.concurrent.Future;
-import org.apache.solr.client.solrj.SolrClient;
+import org.codice.solr.client.solrj.SolrClient;
 
 /** Interface implemented by factory classes used to create new {@link SolrClient} instances. */
 public interface SolrClientFactory {
-
   /**
-   * Requests the creation of a new {@code SolrClient} for a specific Solr core name. <br>
-   * Note that {@link Future#get()} will return {@code null} if a {@link SolrClient} could not be
-   * created either immediately or after a retry period determined by the implementing class.
-   * Clients of this class should consider implementing retry logic if needed based on that return
-   * value.
+   * Requests the creation of a new {@code SolrClient} for a specific Solr core name.
    *
-   * @param core name of the Solr core to create
-   * @return {@code Future} used to retrieve the new {@code SolrClient} created
+   * <p><i>Note:</i> The client returned might not yet be available (see {@link
+   * SolrClient#isAvailable}). Even after having reported to be available, a client might suddenly
+   * become unavailable. All methods will throw {@link
+   * org.codice.solr.factory.impl.UnavailableSolrClient} exceptions anytime the client is
+   * unavailable and the client will attempt to restablish the connection in the background.
+   *
+   * @param core the name of the Solr core to create to create a client for
+   * @return the newly created {@code SolrClient}
+   * @throws IllegalArgumentException if <code>core</code> is <code>null</code>
    */
-  Future<SolrClient> newClient(String core);
+  public SolrClient newClient(String core);
 }
