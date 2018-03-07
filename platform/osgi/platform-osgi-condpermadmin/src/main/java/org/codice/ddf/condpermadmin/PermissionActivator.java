@@ -58,6 +58,9 @@ public class PermissionActivator implements BundleActivator {
     permAdminTracker.open();
 
     ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
+    if (conditionalPermissionAdmin.getConditionalPermissionInfos().hasMoreElements()) {
+      return;
+    }
     String policyDir = SecurityActions.getSystemProperty("ddf.home") + File.separator + "security";
     if (policyDir.startsWith("=")) {
       policyDir = policyDir.substring(1);

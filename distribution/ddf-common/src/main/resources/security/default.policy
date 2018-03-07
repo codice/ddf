@@ -270,6 +270,8 @@ grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}-", "read";
     permission java.security.SecurityPermission "insertProvider";
 }
 
@@ -420,6 +422,7 @@ grant {
 
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.jvnet.ogc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.hisrc.w3c${/}-", "read";
 
     permission java.io.FilePermission "${/}groovy${/}shell", "read";
 
