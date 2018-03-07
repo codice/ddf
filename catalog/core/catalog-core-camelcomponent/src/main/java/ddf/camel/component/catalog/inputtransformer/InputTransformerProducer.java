@@ -69,13 +69,29 @@ public class InputTransformerProducer extends TransformerProducer {
       throw new CatalogTransformerException("Message body was null; unable to generate Metacard!");
     }
 
-    MimeType derivedMimeType;
+    MimeType derivedMimeType = null;
     if (StringUtils.isEmpty(mimeType)) {
-      derivedMimeType = new MimeType(getMimeTypeFromHeader(in, message));
+      try (TemporaryFileBackedOutputStream fileBackedOutputStream =
+          new TemporaryFileBackedOutputStream()) {
+        try {
+          IOUtils.copy(message, fileBackedOutputStream);
+          derivedMimeType =
+              new MimeType(
+                  getMimeTypeFromHeader(in, fileBackedOutputStream.asByteSource().openStream()));
+        } catch (IOException e) {
+          LOGGER.debug("Failed to copy incoming inputStream message", e);
+        } finally {
+          message = fileBackedOutputStream.asByteSource().openStream();
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Failed to create TemporaryFileBackedOuputStream", e);
+      }
     } else if (StringUtils.isNotBlank(transformerId)) {
       derivedMimeType =
           new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
-    } else {
+    }
+
+    if (derivedMimeType == null) {
       derivedMimeType = new MimeType(mimeType);
     }
 
