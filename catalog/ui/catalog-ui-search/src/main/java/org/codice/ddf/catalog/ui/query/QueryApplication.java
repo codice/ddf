@@ -24,16 +24,24 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.QueryFunction;
+import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -150,9 +158,39 @@ public class QueryApplication implements SparkApplication {
   private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-
     Stopwatch stopwatch = Stopwatch.createStarted();
-    QueryResponse response = catalogFramework.query(request);
+
+    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
+    QueryFunction queryFunction =
+        (queryRequest) -> {
+          QueryResponse queryResponse = catalogFramework.query(queryRequest);
+          responses.add(queryResponse);
+          return queryResponse;
+        };
+
+    List<Result> results =
+        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
+            .stream()
+            .collect(Collectors.toList());
+
+    QueryResponse response =
+        new QueryResponseImpl(
+            request,
+            results,
+            true,
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getHits)
+                .findFirst()
+                .orElse(-1l),
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getProperties)
+                .findFirst()
+                .orElse(Collections.emptyMap()));
+
     stopwatch.stop();
 
     return new CqlQueryResponse(
