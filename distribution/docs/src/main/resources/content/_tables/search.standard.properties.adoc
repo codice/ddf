@@ -26,7 +26,10 @@
 |Imagery Providers
 |imageryProviders
 |String
-|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}
+|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth).
+
+Example:
+{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png",  "order": 0, "alpha": 1.0 }
 |
 |false
 
@@ -34,7 +37,7 @@
 |terrainProvider
 |String
 |Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}
-|{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}
+|{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}
 |false
 
 |Map Projection

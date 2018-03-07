@@ -28,17 +28,17 @@
 |String
 |List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth).
 
-WMS example: `[{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha":1}]`
+WMS example: `{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}`
 
-OSM example: `[{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 1.0 }]`
+OSM example: `{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}`
+AGM example: `{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}`
 
-AGM example: `[{"name": "Example AGM", "show": true, "type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" }]`
+Multiple layer example: Topmost Layer: `{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}` Bottommost Layer: `{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}`
 
-Multiple layer example: `[{"name": "Example AGM", "show": true, "type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer" }, {"name": "Example AGM 2", "show": true, "type": "AGM","url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer" }]`
+WMT example: `{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}
+`
 
-WMT example: `[{"name": "Example WMT", "show": true, "type": "WMT", "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer" : "opengeo:countries", "style" : "", "format" : "image/jpeg", "tileMatrixSetID": "EPSG:4326", "tileMatrixLabels" : ['EPSG:4326:0', 'EPSG:4326:1', 'EPSG:4326:2', 'EPSG:4326:3', 'EPSG:4326:4', 'EPSG:4326:5', 'EPSG:4326:6', 'EPSG:4326:7', 'EPSG:4326:8', 'EPSG:4326:9', 'EPSG:4326:10', 'EPSG:4326:11', 'EPSG:4326:12', 'EPSG:4326:13', 'EPSG:4326:14', 'EPSG:4326:15', 'EPSG:4326:16', 'EPSG:4326:17', 'EPSG:4326:18', 'EPSG:4326:19', 'EPSG:4326:20', 'EPSG:4326:21']}]`
-
-TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type" : "TMS", "url" : "https://cesiumjs.org/tilesets/imagery/blackmarble"}]`
+TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}`
 |
 |false
 

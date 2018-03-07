@@ -1,0 +1,11 @@
+:title: Configuring User Interfaces
+:type: configuringIntro
+:status: published
+:parent: Configuring
+:order: 08
+:summary: Configuring UIs.
+
+== {title}
+
+${branding} has several user interfaces available for users.
+
