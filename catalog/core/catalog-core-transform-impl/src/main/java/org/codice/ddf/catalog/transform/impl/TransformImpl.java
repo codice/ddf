@@ -183,8 +183,7 @@ public class TransformImpl implements Transform {
 
     for (MultiMetacardTransformer transformer : multiMetacardTransformers) {
       binaryContents =
-          attemptTransform(
-              metacards, transformerArguments, stackTraceList, binaryContents, transformer);
+          attemptTransform(metacards, transformerArguments, stackTraceList, transformer);
 
       if (CollectionUtils.isNotEmpty(binaryContents)) {
         break;
@@ -205,10 +204,9 @@ public class TransformImpl implements Transform {
       List<Metacard> metacards,
       Map<String, Serializable> transformerArguments,
       List<String> stackTraceList,
-      List<BinaryContent> binaryContents,
       MultiMetacardTransformer transformer) {
     try {
-      binaryContents = transformer.transform(metacards, transformerArguments);
+      return transformer.transform(metacards, transformerArguments);
     } catch (CatalogTransformerException e) {
       List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
       stackTraceList.add(
@@ -216,7 +214,7 @@ public class TransformImpl implements Transform {
       stackTraceList.addAll(stackTraces);
       LOGGER.debug("Transformer [{}] could not transform metacard.", transformer, e);
     }
-    return binaryContents;
+    return null;
   }
 
   @Override
@@ -248,8 +246,7 @@ public class TransformImpl implements Transform {
 
     for (MultiMetacardTransformer transformer : multiMetacardTransformers) {
       binaryContents =
-          attemptTransform(
-              metacards, transformerArguments, stackTraceList, binaryContents, transformer);
+          attemptTransform(metacards, transformerArguments, stackTraceList, transformer);
 
       if (binaryContents != null) {
         break;
@@ -351,8 +348,7 @@ public class TransformImpl implements Transform {
 
     for (QueryResponseTransformer transformer : transformers) {
       binaryContent =
-          attemptTransform(
-              response, transformerArguments, stackTraceConsumer, binaryContent, transformer);
+          attemptTransform(response, transformerArguments, stackTraceConsumer, transformer);
 
       if (binaryContent != null) {
         break;
@@ -366,10 +362,9 @@ public class TransformImpl implements Transform {
       SourceResponse response,
       Map<String, Serializable> transformerArguments,
       Consumer<String> stackTraceConsumer,
-      BinaryContent binaryContent,
       QueryResponseTransformer transformer) {
     try {
-      binaryContent = transformer.transform(response, transformerArguments);
+      return transformer.transform(response, transformerArguments);
     } catch (CatalogTransformerException e) {
       List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
       stackTraceConsumer.accept(
@@ -377,7 +372,7 @@ public class TransformImpl implements Transform {
       stackTraces.forEach(stackTraceConsumer);
       LOGGER.debug("Transformer [{}] could not transform source response.", transformer, e);
     }
-    return binaryContent;
+    return null;
   }
 
   private void setMetacardId(Metacard metacard, String id) {
