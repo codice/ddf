@@ -1462,8 +1462,8 @@ public class TestCatalog extends AbstractIntegrationTest {
           configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
       Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
       config.update(configProps);
-      getServiceManager().stopFeature(true, "sample-filter");
       deleteMetacard(id1);
+      getServiceManager().stopFeature(true, "sample-filter");
     }
   }
 
@@ -1561,13 +1561,15 @@ public class TestCatalog extends AbstractIntegrationTest {
     networkRule2Properties.put("expectedValue", clientScheme);
     networkRule2Properties.put("newAttributes", attributeAdjustmentsForRule2);
 
+    Configuration managedService = null;
+    Configuration managedService1 = null;
     try {
 
       /* START SERVICES
       Add instances of the rules */
-      getServiceManager().startBundle("catalog-plugin-metacardingest-network");
-      getServiceManager().createManagedService(factoryPid, networkRule1Properties);
-      getServiceManager().createManagedService(factoryPid, networkRule2Properties);
+      managedService = getServiceManager().createManagedService(factoryPid, networkRule1Properties);
+      managedService1 =
+          getServiceManager().createManagedService(factoryPid, networkRule2Properties);
       getServiceManager().waitForRequiredBundles(bundleSymbolicName);
 
       /* INGEST
@@ -1596,7 +1598,12 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       /* CLEAN UP
       Don't let the conditions spill-over and impact other tests */
-      getServiceManager().uninstallBundle("catalog-plugin-metacardingest-network");
+      if (managedService != null) {
+        getServiceManager().stopManagedService(managedService.getFactoryPid());
+      }
+      if (managedService1 != null) {
+        getServiceManager().stopManagedService(managedService1.getFactoryPid());
+      }
     }
   }
 

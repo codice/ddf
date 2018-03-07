@@ -27,7 +27,9 @@
     <artifactId>osgi</artifactId>
 
     <modules>
+        <module>platform-osgi-conditions</module>
         <module>platform-osgi-configadmin</module>
+        <module>platform-osgi-condpermadmin</module>
         <module>platform-osgi-internal-api</module>
     </modules>
 

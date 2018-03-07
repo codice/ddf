@@ -47,6 +47,7 @@
 (java.util.PropertyPermission "os.name" "read")
 (java.util.PropertyPermission "user.dir" "read")
 (java.io.FilePermission "-" "read,write,execute,delete")
+(java.io.FilePermission "<<ALL FILES>>" "read,write")
 
 # -> ConfigurationManager
 (org.osgi.framework.ServicePermission "org.apache.felix.cm.PersistenceManager" "register")
@@ -62,3 +63,28 @@
 (org.osgi.framework.PackagePermission "javax.crypto.spec" "import")
 (org.osgi.framework.PackagePermission "org.apache.log4j" "import")
 (org.osgi.framework.PackagePermission "org.slf4j" "import")
+
+(javax.management.MBeanServerPermission "createMBeanServer")
+(java.util.PropertyPermission "org.ops4j.pax.logging.DefaultServiceLog.level" "read")
+(java.util.PropertyPermission "org.apache.felix.eventadmin.ThreadPoolSize" "read")
+(java.util.PropertyPermission "org.ops4j.pax.url.mvn.localRepository" "read")
+(java.util.PropertyPermission "felix.fileinstall.log.level" "read")
+(java.util.PropertyPermission "org.apache.felix.eventadmin.AsyncToSyncThreadRatio" "read")
+(java.util.PropertyPermission "user.home" "read")
+(java.util.PropertyPermission "felix.fileinstall.log.level" "read")
+(java.lang.RuntimePermission "getClassLoader")
+
+(java.util.PropertyPermission "org.apache.felix.eventadmin.Timeout" "read")
+(java.util.PropertyPermission "org.ops4j.pax.url.mvn.settings" "read")
+(java.lang.RuntimePermission "setContextClassLoader")
+
+(java.util.PropertyPermission "org.apache.felix.eventadmin.RequireTopic" "read")
+(java.util.PropertyPermission "org.ops4j.pax.url.mvn.useFallbackRepositories" "read")
+(java.net.SocketPermission "*" "resolve")
+(java.net.SocketPermission "*:0" "listen,resolve")
+(java.util.PropertyPermission "*" "read,write")
+(org.osgi.framework.AdminPermission" "*" "context")
+
+(org.osgi.framework.BundlePermission "platform-osgi-configadmin" "provide,require,host")
+(org.osgi.framework.CapabilityPermission "osgi.identity" "provide")
+(org.osgi.framework.CapabilityPermission "osgi.service" "provide")

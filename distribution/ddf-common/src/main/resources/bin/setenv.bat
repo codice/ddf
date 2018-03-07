@@ -33,9 +33,9 @@ rem karaf script afterwards.
 rem
 
 rem Set environment variable for DDF home directory (used by DDF Java code)
-rem DDF-3433: Settings for DDF_HOME and related items have been migrated to etc/system.properties
-rem set DDF_HOME=%~dp0%..
-rem set DDF_HOME=%DDF_HOME:\=/%
+set DDF_HOME=%~dp0%..
+set DDF_HOME=%DDF_HOME:\=/%
+set DDF_HOME=%DDF_HOME:/bin/..=/%
 
 rem
 rem The following section shows the possible configuration options for the default 
@@ -62,6 +62,9 @@ rem SET KARAF_OPTS=
 rem Uncomment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
+set DDF_HOME_PERM=%DDF_HOME:/=\%
+set DDF_HOME_PERM=%DDF_HOME_PERM:\bin\..=\%
+
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand
 rem variables as it does on Linux. Because the environment variable will be expanded by the batch
@@ -72,13 +75,12 @@ rem As a work around, we will have the ddf_on_error.bat script use the karaf.pid
 rem and it will default to being invoked via the 'script'
 rem The space would be important at the end of the DDF_ON_ERROR value to separate the last argument from
 rem the %p used by the JVM to represent the pid of the JVM
-rem set DDF_ON_ERROR=bin\ddf_on_error.bat script^ 
+rem make sure there is a space after the ^
+rem set DDF_ON_ERROR=bin\ddf_on_error.bat script^
 set DDF_ON_ERROR=bin\ddf_on_error.bat
 
 rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
-
 set KARAF_OPTS=-Dfile.encoding=UTF8
-
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%

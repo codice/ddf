@@ -122,6 +122,7 @@
                         <Private-Package>
                             ddf.catalog.transformer.xml,
                             ddf.catalog.transformer.xml.adapter,
+                            ddf.catalog.transformer.thread,
                             ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl

@@ -14,7 +14,6 @@
 package org.codice.ddf.itests.common;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 public class WaitCondition {
   private static final Logger LOGGER = LoggerFactory.getLogger(WaitCondition.class);
 
-  private static final long DEFAULT_TIMEOUT = SECONDS.toMillis(5);
+  private static final long DEFAULT_TIMEOUT = AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
   private static final long DEFAULT_POLLING_INTERVAL = MILLISECONDS.toMillis(500);
 

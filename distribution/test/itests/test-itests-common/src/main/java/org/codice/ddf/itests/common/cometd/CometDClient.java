@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -43,6 +42,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.cometd.bayeux.Channel;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
@@ -85,7 +85,7 @@ public class CometDClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CometDClient.class);
 
-  private static final long TIMEOUT = TimeUnit.SECONDS.toMillis(60);
+  private static final long TIMEOUT = AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
   private static final long MAX_NETWORK_DELAY = 60000;
 

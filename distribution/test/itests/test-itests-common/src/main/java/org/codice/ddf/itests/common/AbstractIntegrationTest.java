@@ -134,6 +134,11 @@ public abstract class AbstractIntegrationTest {
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
+
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(10);
+
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(10);
+
   protected static ServerSocket placeHolderSocket;
 
   protected static Integer basePort;
@@ -464,7 +469,7 @@ public abstract class AbstractIntegrationTest {
         logLevel(LogLevelOption.LogLevel.WARN),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
-        systemTimeout(TimeUnit.MINUTES.toMillis(10)),
+        systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),
         when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
         cleanCaches(true));
   }
@@ -621,7 +626,14 @@ public abstract class AbstractIntegrationTest {
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
-        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"));
+        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
+        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"),
+        HomeAwareVmOption.homeAwareVmOption("-Djava.security.policy=={karaf.home}/etc/all.policy"),
+        vmOption(
+            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
+        HomePermVmOption.homePermVmOption("-Dddf.home.perm={karaf.home}"),
+        HomePolicyVmOption.homePolicyVmOption("-Dddf.home.policy={karaf.home}"));
   }
 
   protected Option[] configureStartScript() {
@@ -828,7 +840,11 @@ public abstract class AbstractIntegrationTest {
   public void clearCatalogAndWait() {
     clearCatalog();
     clearCache();
-    with().pollInterval(1, SECONDS).await().atMost(30, SECONDS).until(this::isCatalogEmpty);
+    with()
+        .pollInterval(1, SECONDS)
+        .await()
+        .atMost(GENERIC_TIMEOUT_SECONDS, SECONDS)
+        .until(this::isCatalogEmpty);
   }
 
   public void clearCatalog() {
@@ -893,6 +909,95 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toAbsolutePath)
             .map(Path::toString)
             .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  static class HomePolicyVmOption extends VMOption {
+    static HomePolicyVmOption homePolicyVmOption(String option) {
+      return new HomePolicyVmOption(option);
+    }
+
+    private HomePolicyVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .map(s -> s.replace("c:", "C:"))
+            .map(s -> s.replace("C:", "/C:"))
+            .map(s -> s + "/")
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  static class HomePermVmOption extends VMOption {
+    static HomePermVmOption homePermVmOption(String option) {
+      return new HomePermVmOption(option);
+    }
+
+    private HomePermVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
+            .map(s -> s + File.separator)
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);

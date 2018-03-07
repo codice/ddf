@@ -130,7 +130,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(
             () -> {
@@ -140,7 +140,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(10, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(() -> doesMetacardExist(id[0]));
     return id[0];
@@ -208,7 +208,7 @@ public class CatalogTestCommons {
     ValidatableResponse response =
         given()
             .body(transactionRequest)
-            .header("Content-Type", MediaType.APPLICATION_XML)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
             .when()
             .post(CSW_PATH.getUrl())
             .then()
@@ -266,7 +266,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .ignoreExceptions()
         .until(() -> !doesMetacardExist(id));
   }
