@@ -40,8 +40,8 @@
         assembly using the maven-assemply-plugin and <componentDescriptors> to inject it (in resources)
   -->
     <artifactId>ddf-theme</artifactId>
-    <groupId>org.codice.ddf</groupId>
-    <name>DDF :: Distribution :: DDF Theme</name>
+    <groupId>ddf.distribution.theme</groupId>
+    <name>DDF :: Distribution :: DDF-Theme</name>
     <packaging>jar</packaging>
     <properties>
         <command.prompt.title>DDF-${project.version}</command.prompt.title>
@@ -101,28 +101,6 @@
                         </goals>
                         <configuration>
                             <arguments>run build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/webapp</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/webapp/resources</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
                         </configuration>
                     </execution>
                 </executions>
