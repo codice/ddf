@@ -161,6 +161,10 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
+bootstrap-sass@3.3.6:
+  version "3.3.6"
+  resolved "https://registry.yarnpkg.com/bootstrap-sass/-/bootstrap-sass-3.3.6.tgz#363b0d300e868d3e70134c1a742bb17288444fd1"
+
 bootswatch@3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/bootswatch/-/bootswatch-3.3.7.tgz#eb6f9a9a8523b87a706ea91deec3e0d7eaa8ab1f"

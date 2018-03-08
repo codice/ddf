@@ -4,9 +4,10 @@
   "description": "DDF's Bootstrap Theme",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -Rf src/main/resources/webapp/css && mkdir src/main/resources/webapp/css",
-    "test": "node ./node_modules/sass-lint/bin/sass-lint.js src/main/webapp/sass/**/*.*",
-    "build": "npm run clean && npm run build-sass",
+    "copy-fonts": "cp -R node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap && cp -R src/main/webapp/google-fonts/ src/main/resources/webapp/fonts",
+    "clean": "rm -Rf src/main/resources/webapp/css && rm -Rf src/main/resources/webapp/fonts && mkdir src/main/resources/webapp/css && mkdir src/main/resources/webapp/fonts && mkdir src/main/resources/webapp/fonts/bootstrap",
+    "test": "echo 'okay';",
+    "build": "npm run clean && npm run copy-fonts && npm run build-sass",
     "build-sass": "node ./node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/"
   },
   "repository": {
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/codice/ddf#readme",
   "devDependencies": {
+    "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
     "node-sass": "4.7.2",

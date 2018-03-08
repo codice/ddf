@@ -27,26 +27,6 @@ module.exports = function (grunt) {
         clean: {
             build: ['target/webapp']
         },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Droid\+Sans:400,700"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/webapp/lib/bootswatch/cyborg/*',
-                        dest: 'target/webapp/lib/bootswatch/cyborg'
-                    }
-                ]
-            }
-        },
         cssmin: {
             compress: {
                 files: {
