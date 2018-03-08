@@ -14,7 +14,6 @@
 package ddf.catalog.transformer;
 
 import static ddf.catalog.transformer.GeometryUtils.canHandleGeometry;
-import static ddf.catalog.transformer.GeometryUtils.parseGeometry;
 
 import com.jhlabs.image.PerspectiveFilter;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -59,10 +58,20 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
   private final BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>>
       imageSupplier;
 
+  private final BiFunction<Metacard, Map<String, Serializable>, Optional<Geometry>>
+      boundarySupplier;
+
   public OverlayMetacardTransformer(
-      BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> imageSupplier) {
+      BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> imageSupplier,
+      BiFunction<Metacard, Map<String, Serializable>, Optional<Geometry>> boundarySupplier) {
     Validate.notNull(imageSupplier, "The image supplier cannot be null.");
     this.imageSupplier = imageSupplier;
+    this.boundarySupplier = boundarySupplier;
+  }
+
+  public OverlayMetacardTransformer(
+      BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> imageSupplier) {
+    this(imageSupplier, new ThumbnailBoundarySupplier());
   }
 
   @Override
@@ -81,13 +90,15 @@ public class OverlayMetacardTransformer implements MetacardTransformer {
                 new CatalogTransformerException(
                     "Did not receive an image from the image supplier."));
 
-    List<Vector> boundary = parseBoundary(metacard.getLocation());
-    BufferedImage tile = createTileFromImageAndBoundary(image, boundary);
+    Optional<Geometry> boundary = boundarySupplier.apply(metacard, arguments);
+    if (!boundary.isPresent()) {
+      throw new CatalogTransformerException("No image boundary was provided");
+    }
+    BufferedImage tile = createTileFromImageAndBoundary(image, parseBoundary(boundary.get()));
     return createBinaryContent(tile);
   }
 
-  private List<Vector> parseBoundary(String location) throws CatalogTransformerException {
-    final Geometry geometry = parseGeometry(location);
+  private List<Vector> parseBoundary(Geometry geometry) throws CatalogTransformerException {
     if (!canHandleGeometry(geometry)) {
       throw new CatalogTransformerException("The Image boundary is not a rectangle");
     }
