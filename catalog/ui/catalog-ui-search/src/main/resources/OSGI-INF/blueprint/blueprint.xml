@@ -285,7 +285,7 @@
         <service-properties>
             <entry key="urlPatterns" value="/search/catalog/internal/*"/>
         </service-properties>
-</service>
+    </service>
 
     <bean id="securityService"
           class="org.codice.ddf.catalog.ui.query.monitor.impl.SecurityServiceImpl"/>
