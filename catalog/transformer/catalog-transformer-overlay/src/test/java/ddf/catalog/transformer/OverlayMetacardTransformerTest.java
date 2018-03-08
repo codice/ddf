@@ -15,12 +15,11 @@ package ddf.catalog.transformer;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -48,29 +47,22 @@ public class OverlayMetacardTransformerTest {
 
   @Before
   public void setUp() {
-    final BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> supplier =
-        (metacard, arguments) -> {
-          try (final InputStream inputStream =
-              getClass().getClassLoader().getResourceAsStream("flower.jpg")) {
-            return Optional.ofNullable(ImageIO.read(inputStream));
-          } catch (IOException e) {
-            return Optional.empty();
-          }
-        };
+    transformer = new OverlayMetacardTransformer(getImageSupplier());
+  }
 
-    transformer = new OverlayMetacardTransformer(supplier);
+  private MetacardImpl getMetacard(String wkt) {
+    final MetacardImpl metacard = new MetacardImpl();
+    metacard.setLocation(wkt);
+    return metacard;
   }
 
   private MetacardImpl getMetacard() {
-    final MetacardImpl metacard = new MetacardImpl();
-    metacard.setLocation("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
-    return metacard;
+    return getMetacard("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
   }
 
   @Test
   public void testOverlaySquishedHeight() throws Exception {
-    final MetacardImpl metacard = getMetacard();
-    metacard.setLocation("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
+    final MetacardImpl metacard = getMetacard("POLYGON ((0 0, 1 0, 1 -0.1, 0 -0.1, 0 0))");
     final BinaryContent content = transform(metacard, null);
 
     final BufferedImage originalImage = getImage(getImageBytes());
@@ -82,8 +74,7 @@ public class OverlayMetacardTransformerTest {
 
   @Test
   public void testOverlayRotated() throws Exception {
-    final MetacardImpl metacard = getMetacard();
-    metacard.setLocation("POLYGON ((0 1, 1 0, 0 -1, -1 0, 0 1))");
+    final MetacardImpl metacard = getMetacard("POLYGON ((0 1, 1 0, 0 -1, -1 0, 0 1))");
     final BinaryContent content = transform(metacard, null);
 
     final BufferedImage originalImage = getImage(getImageBytes());
@@ -99,6 +90,15 @@ public class OverlayMetacardTransformerTest {
     final BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>> imageSupplier =
         (metacard, arguments) -> Optional.empty();
     transformer = new OverlayMetacardTransformer(imageSupplier);
+    transform(getMetacard(), null);
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testNoBoundaryFromSupplier() throws IOException, CatalogTransformerException {
+    final BiFunction<Metacard, Map<String, Serializable>, Optional<Geometry>> boundarySupplier =
+        (metacard, arguments) -> Optional.empty();
+
+    transformer = new OverlayMetacardTransformer(getImageSupplier(), boundarySupplier);
     transform(getMetacard(), null);
   }
 
@@ -135,6 +135,18 @@ public class OverlayMetacardTransformerTest {
     assertThat(imageBytes[7], is((byte) 0x0A));
   }
 
+  private BiFunction<Metacard, Map<String, Serializable>, Optional<BufferedImage>>
+      getImageSupplier() {
+    return (metacard, arguments) -> {
+      try (final InputStream inputStream =
+          getClass().getClassLoader().getResourceAsStream("flower.jpg")) {
+        return Optional.ofNullable(ImageIO.read(inputStream));
+      } catch (IOException e) {
+        return Optional.empty();
+      }
+    };
+  }
+
   @Test(expected = CatalogTransformerException.class)
   public void testNoLocation() throws Exception {
     final MetacardImpl metacard = getMetacard();
@@ -148,7 +160,6 @@ public class OverlayMetacardTransformerTest {
     metacard.setLocation("INVALID WKT");
 
     expectedException.expect(CatalogTransformerException.class);
-    expectedException.expectCause(isA(ParseException.class));
     transform(metacard, null);
   }
 
