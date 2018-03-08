@@ -25,13 +25,16 @@
     <reference id="camelContext" interface="org.apache.camel.CamelContext"
                filter="(camel.context.name=catalogCamelContext)"/>
 
+    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+
     <cm:managed-service-factory
-            id="contentDirectoryMonitor_MSF"
-            factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
-            interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
+        id="contentDirectoryMonitor_MSF"
+        factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
+        interface="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
         <cm:managed-component class="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
+            <argument ref="attributeRegistry"/>
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

@@ -13,115 +13,143 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import ddf.catalog.data.types.Core;
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
 import javax.validation.constraints.NotNull;
+import org.apache.camel.Exchange;
+import org.apache.camel.component.file.GenericFileEndpoint;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.catalog.content.monitor.AbstractDurableFileConsumer.ExchangeHelper;
+import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
+import org.codice.ddf.catalog.content.monitor.watcher.FileWatcher;
+import org.codice.ddf.catalog.content.monitor.watcher.FilesWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DurableFileAlterationListener extends FileAlterationListenerAdaptor {
 
-  public static final long DEFAULT_PERIOD = 5;
-
-  public static final String CDM_FILE_CHECK_PERIOD_PROPERTY = "org.codice.ddf.cdm.fileCheckPeriod";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableFileAlterationListener.class);
 
-  private Map<File, Pair<Long, WatchEvent.Kind<Path>>> fileMap = new ConcurrentHashMap<>();
+  private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
 
-  private ScheduledExecutorService executorService;
+  private static final String OPERATION_HEADER = "operation";
+
+  private static final String CATALOG_UPDATE = "UPDATE";
+
+  private static final String CATALOG_DELETE = "DELETE";
+
+  private FileSystemPersistenceProvider productToMetacardIdMap;
 
   private AbstractDurableFileConsumer consumer;
 
+  private FilesWatcher filesWatcher;
+
   public DurableFileAlterationListener(@NotNull AbstractDurableFileConsumer consumer) {
-    this.consumer = consumer;
-    executorService =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("directoryMonitorFileChecker"));
-    this.startExecutor();
+    this(consumer, new FilesWatcher());
   }
 
   public DurableFileAlterationListener(
-      @NotNull AbstractDurableFileConsumer consumer,
-      @NotNull ScheduledExecutorService executorService) {
+      @NotNull AbstractDurableFileConsumer consumer, @NotNull FilesWatcher fileWatcher) {
     this.consumer = consumer;
-    this.executorService = executorService;
-    this.startExecutor();
+    this.filesWatcher = fileWatcher;
+    init();
   }
 
-  private void startExecutor() {
-    long period = DEFAULT_PERIOD;
-    try {
-      period =
-          Long.parseLong(
-              System.getProperty(CDM_FILE_CHECK_PERIOD_PROPERTY, Long.toString(DEFAULT_PERIOD)));
-      if (period < 1) {
-        period = DEFAULT_PERIOD;
-      }
-    } catch (NumberFormatException e) {
-      LOGGER.debug(
-          "Invalid value for system property org.codice.ddf.cdm.fileCheckPeriod. Expected an integer but was {}. Defaulting to {}",
-          System.getProperty(CDM_FILE_CHECK_PERIOD_PROPERTY),
-          period);
-    }
-    executorService.scheduleAtFixedRate(this::checkFiles, 10, period, TimeUnit.SECONDS);
-  }
-
-  public void destroy() {
-    // copied from the Executor javadocs
-    executorService.shutdown();
-    try {
-      if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-        executorService.shutdownNow();
-        if (!executorService.awaitTermination(60, TimeUnit.SECONDS))
-          LOGGER.debug("Error terminating scheduled executor service");
-      }
-    } catch (InterruptedException ie) {
-      executorService.shutdownNow();
-      Thread.currentThread().interrupt();
+  private void init() {
+    if (productToMetacardIdMap == null) {
+      productToMetacardIdMap =
+          new FileSystemPersistenceProvider(getClass().getSimpleName() + "-processed");
     }
   }
 
   @Override
   public void onFileChange(File file) {
-    if (!fileMap.containsKey(file)) {
-      fileMap.put(file, new ImmutablePair<>(-1L, StandardWatchEventKinds.ENTRY_MODIFY));
+    filesWatcher.watch(new FileWatcher(file, this::fileUpdate));
+  }
+
+  private void fileUpdate(File file) {
+    String fileUri = file.toURI().toASCIIString();
+    String metacardId = getMetacardIdFromReference(fileUri, CATALOG_UPDATE, productToMetacardIdMap);
+
+    if (StringUtils.isEmpty(metacardId)) {
+      return;
     }
+
+    Exchange exchange =
+        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+            .addHeader(OPERATION_HEADER, CATALOG_UPDATE)
+            .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
+            .addHeader(Core.RESOURCE_URI, fileUri)
+            .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
+            .addSynchronization(
+                new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
+            .getExchange();
+
+    consumer.submitExchange(exchange);
   }
 
   @Override
   public void onFileCreate(File file) {
-    fileMap.put(file, new ImmutablePair<>(-1L, StandardWatchEventKinds.ENTRY_CREATE));
+    filesWatcher.watch(new FileWatcher(file, this::fileCreate));
+  }
+
+  private void fileCreate(File file) {
+    String fileUri = file.toURI().toASCIIString();
+
+    Exchange exchange =
+        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+            .addHeader(OPERATION_HEADER, "CREATE")
+            .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(file.getName()))
+            .addHeader(Core.RESOURCE_URI, fileUri)
+            .addSynchronization(
+                new FileToMetacardMappingSynchronization(fileUri, productToMetacardIdMap))
+            .getExchange();
+
+    consumer.submitExchange(exchange);
   }
 
   @Override
   public void onFileDelete(File file) {
-    consumer.createExchangeHelper(file, StandardWatchEventKinds.ENTRY_DELETE);
+    String referenceKey = file.toURI().toASCIIString();
+    String metacardId =
+        getMetacardIdFromReference(referenceKey, CATALOG_DELETE, productToMetacardIdMap);
+
+    if (StringUtils.isEmpty(metacardId)) {
+      return;
+    }
+
+    Exchange exchange =
+        new ExchangeHelper(file, (GenericFileEndpoint) consumer.getEndpoint())
+            .setBody(Collections.singletonList(metacardId))
+            .addHeader(OPERATION_HEADER, CATALOG_DELETE)
+            .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))
+            .getExchange();
+
+    consumer.submitExchange(exchange);
   }
 
-  void checkFiles() {
-    List<File> completedFiles = new ArrayList<>();
-    for (Map.Entry<File, Pair<Long, WatchEvent.Kind<Path>>> entry : fileMap.entrySet()) {
-      if (entry.getKey().length() == entry.getValue().getKey()) {
-        completedFiles.add(entry.getKey());
-        consumer.createExchangeHelper(entry.getKey(), entry.getValue().getValue());
-      } else {
-        entry.setValue(new ImmutablePair<>(entry.getKey().length(), entry.getValue().getValue()));
-      }
+  public void destroy() {
+    filesWatcher.destroy();
+  }
+
+  private String getMetacardIdFromReference(
+      String referenceKey,
+      String catalogOperation,
+      FileSystemPersistenceProvider productToMetacardIdMap) {
+    String ref = DigestUtils.sha1Hex(referenceKey);
+    if (!productToMetacardIdMap.loadAllKeys().contains(ref)) {
+      LOGGER.debug(
+          "Received a [{}] operation, but no mapped metacardIds were available for product [{}].",
+          catalogOperation,
+          referenceKey);
+      return null;
     }
-    completedFiles.stream().forEach(file -> fileMap.remove(file));
+
+    return (String) productToMetacardIdMap.loadFromPersistence(ref);
   }
 }

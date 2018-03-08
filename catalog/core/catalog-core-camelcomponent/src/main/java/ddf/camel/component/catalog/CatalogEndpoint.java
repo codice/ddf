@@ -21,6 +21,7 @@ import ddf.camel.component.catalog.metacardtransformer.MetacardTransformerProduc
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerConsumer;
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerProducer;
 import ddf.catalog.CatalogFramework;
+import ddf.mime.MimeTypeMapper;
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.MultipleConsumersSupport;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author ddf.isgs@lmco.com
  */
 public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumersSupport {
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(CatalogEndpoint.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogEndpoint.class);
 
   private static final String INPUT_TRANSFORMER = "inputtransformer";
 
@@ -58,6 +59,8 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
 
   private CatalogFramework catalogFramework;
 
+  private MimeTypeMapper mimeTypeMapper;
+
   /**
    * Constructs a CatalogEndpoint for the specified custom <code>catalog</code> component.
    *
@@ -76,7 +79,8 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
       String transformerId,
       String mimeType,
       String contextPath,
-      CatalogFramework catalogFramework) {
+      CatalogFramework catalogFramework,
+      MimeTypeMapper mimeTypeMapper) {
     super(uri, component);
     LOGGER.debug(
         "INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework) constructor");
@@ -84,6 +88,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
     this.mimeType = mimeType;
     this.contextPath = contextPath;
     this.catalogFramework = catalogFramework;
+    this.mimeTypeMapper = mimeTypeMapper;
     setSynchronous(true);
   }
 
@@ -178,6 +183,10 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
 
   public String getMimeType() {
     return mimeType;
+  }
+
+  public MimeTypeMapper getMimeTypeMapper() {
+    return mimeTypeMapper;
   }
 
   /*

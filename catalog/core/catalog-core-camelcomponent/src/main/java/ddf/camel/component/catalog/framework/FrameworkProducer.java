@@ -121,12 +121,12 @@ public class FrameworkProducer extends DefaultProducer {
       LOGGER.debug("Entering process method");
 
       final Object operationValueObj = exchange.getIn().getHeader(OPERATION_HEADER_KEY);
-      String operation = null;
+      String operation;
 
       if (operationValueObj == null) {
         exchange.getIn().setBody(new ArrayList<Metacard>());
-
-        throw new FrameworkProducerException("Missing expected header!");
+        throw new FrameworkProducerException(
+            String.format("Missing expected [%s] header!", OPERATION_HEADER_KEY));
       }
 
       operation = operationValueObj.toString();
@@ -148,12 +148,9 @@ public class FrameworkProducer extends DefaultProducer {
     } catch (ClassCastException cce) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
       LOGGER.debug("Received a non-String as the operation type");
-    } catch (SourceUnavailableException sue) {
+    } catch (SourceUnavailableException | IngestException e) {
       exchange.getIn().setBody(new ArrayList<Metacard>());
-      LOGGER.debug("Exception cataloging metacards", sue);
-    } catch (IngestException ie) {
-      exchange.getIn().setBody(new ArrayList<Metacard>());
-      LOGGER.debug("Exception cataloging metacards", ie);
+      LOGGER.debug("Exception cataloging metacards", e);
     }
   }
 
@@ -373,9 +370,7 @@ public class FrameworkProducer extends DefaultProducer {
       return false;
     }
 
-    for (int i = 0; i < list.size(); i++) {
-      final Object o = list.get(i);
-
+    for (final Object o : list) {
       if (!cls.isInstance(o)) {
         LOGGER.debug("Received a list of non-{} objects", cls.getName());
         return false;
@@ -400,7 +395,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     if (response.getCreatedMetacards() == null) {
       LOGGER.debug("No Metacards created by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
@@ -416,13 +411,13 @@ public class FrameworkProducer extends DefaultProducer {
   private void processCatalogResponse(final UpdateResponse response, final Exchange exchange) {
     if (response == null) {
       LOGGER.debug(CATALOG_RESPONSE_NULL);
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
     if (response.getUpdatedMetacards() == null) {
       LOGGER.debug("No Metacards updated by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
@@ -438,13 +433,13 @@ public class FrameworkProducer extends DefaultProducer {
   private void processCatalogResponse(final DeleteResponse response, final Exchange exchange) {
     if (response == null) {
       LOGGER.debug(CATALOG_RESPONSE_NULL);
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 
     if (response.getDeletedMetacards() == null) {
       LOGGER.debug("No Metacards deleted by catalog framework");
-      exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+      exchange.getIn().setBody(new ArrayList<Metacard>());
       return;
     }
 

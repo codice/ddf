@@ -43,9 +43,9 @@ public class DavEntry implements Serializable {
 
   private static final DavEntry[] EMPTY_ENTRIES = new DavEntry[0];
 
-  public static final String HTTP = "http";
+  private static final String HTTP = "http";
 
-  public static final String FORSLASH = "/";
+  private static final String FORSLASH = "/";
 
   private final DavEntry parent;
 

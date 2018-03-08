@@ -15,7 +15,7 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
-        >
+>
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
@@ -23,24 +23,27 @@
 
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
 
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="uuidGenerator"
+               interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
 
     <!--
     Instantiate our custom Camel CatalogComponent and inject this bundle context into it.  
     -->
     <bean id="catalogComponent" class="ddf.camel.component.catalog.CatalogComponent">
-		<property name="bundleContext" ref="blueprintBundleContext"/>
-		<property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="catalogFramework" ref="framework"/>
-	</bean>
+        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+    </bean>
 
     <!--
     Used by Camel framework to resolve "catalog" scheme in route nodes.
     -->
     <bean id="catalogComponentResolver"
           class="ddf.camel.component.catalog.CatalogComponentResolver">
-	    <argument ref="catalogComponent"/>
-	</bean>
+        <argument ref="catalogComponent"/>
+    </bean>
 
     <!--
     Registers custom Camel catalogComponentResolver as a Camel ComponentResolver and
@@ -49,10 +52,10 @@
     chain so that route nodes using our custom "catalog" scheme can be resolved.
     -->
     <service ref="catalogComponentResolver" interface="org.apache.camel.spi.ComponentResolver">
-	    <service-properties>
-			<entry key="component" value="catalog"/>
-		</service-properties>
-	</service>
+        <service-properties>
+            <entry key="component" value="catalog"/>
+        </service-properties>
+    </service>
 
     <!--
     Instantiate our custom Camel ContentComponent and inject this bundle context into it.

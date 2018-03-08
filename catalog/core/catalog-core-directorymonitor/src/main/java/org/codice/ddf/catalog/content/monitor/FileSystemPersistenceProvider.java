@@ -210,4 +210,9 @@ public class FileSystemPersistenceProvider
       }
     }
   }
+
+  @Override
+  public String toString() {
+    return getMapStorePath();
+  }
 }

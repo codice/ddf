@@ -15,22 +15,27 @@ package org.codice.ddf.catalog.content.monitor;
 
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import ddf.catalog.data.types.Core;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
+import java.io.UncheckedIOException;
+import java.util.Collections;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
-import org.apache.camel.spi.Synchronization;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(DurableWebDavFileConsumer.class);
+
+  private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
 
   private DavAlterationObserver observer;
 
@@ -38,12 +43,24 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
   private Sardine sardine = SardineFactory.begin();
 
+  private static final String CATALOG_OPERATION_HEADER_KEY = "operation";
+
+  private FileSystemPersistenceProvider productToMetacardIdMap;
+
   DurableWebDavFileConsumer(
-      GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<EventfulFileWrapper> operations) {
+      GenericFileOperations<File> operations) {
     super(endpoint, remaining, processor, operations);
+    init();
+  }
+
+  private void init() {
+    if (productToMetacardIdMap == null) {
+      productToMetacardIdMap =
+          new FileSystemPersistenceProvider(getClass().getSimpleName() + "-processed");
+    }
   }
 
   @Override
@@ -79,29 +96,6 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
     sardine.shutdown();
   }
 
-  private Exchange getExchange(DavEntry entry, WatchEvent.Kind<Path> fileEvent) {
-    Exchange exchange = null;
-    try {
-      File file = entry.getFile(SardineFactory.begin());
-      exchange = super.getExchange(file, fileEvent, entry.getLocation());
-      exchange.addOnCompletion(
-          new Synchronization() {
-            @Override
-            public void onComplete(Exchange exchange) {
-              FileUtils.deleteQuietly(file.getParentFile());
-            }
-
-            @Override
-            public void onFailure(Exchange exchange) {
-              // noop
-            }
-          });
-    } catch (IOException e) {
-      LOGGER.error("failed to retrieve file " + entry.getLocation(), e);
-    }
-    return exchange;
-  }
-
   private class EntryAlterationListenerImpl implements EntryAlterationListener {
     @Override
     public void onDirectoryCreate(DavEntry entry) {
@@ -110,11 +104,17 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileCreate(DavEntry entry) {
-      Exchange exchange = getExchange(entry, StandardWatchEventKinds.ENTRY_CREATE);
+      Exchange exchange =
+          new ExchangeHelper(getDavFile(entry), endpoint)
+              .addHeader(CATALOG_OPERATION_HEADER_KEY, "CREATE")
+              .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
+              .addHeader(Core.RESOURCE_URI, entry.getLocation())
+              .addSynchronization(
+                  new FileToMetacardMappingSynchronization(
+                      entry.getLocation(), productToMetacardIdMap))
+              .getExchange();
 
-      if (exchange != null) {
-        processExchange(exchange);
-      }
+      submitExchange(exchange);
     }
 
     @Override
@@ -124,11 +124,25 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileChange(DavEntry entry) {
-      Exchange exchange = getExchange(entry, StandardWatchEventKinds.ENTRY_MODIFY);
+      String referenceKey = entry.getLocation();
+      String metacardId =
+          getMetacardIdFromReference(referenceKey, "UPDATE", productToMetacardIdMap);
 
-      if (exchange != null) {
-        processExchange(exchange);
+      if (StringUtils.isEmpty(metacardId)) {
+        return;
       }
+
+      Exchange exchange =
+          new ExchangeHelper(getDavFile(entry), endpoint)
+              .addHeader(CATALOG_OPERATION_HEADER_KEY, "UPDATE")
+              .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
+              .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
+              .addHeader(Core.RESOURCE_URI, entry.getLocation())
+              .addSynchronization(
+                  new FileToMetacardMappingSynchronization(referenceKey, productToMetacardIdMap))
+              .getExchange();
+
+      submitExchange(exchange);
     }
 
     @Override
@@ -136,9 +150,39 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
       // noop
     }
 
+    /**
+     * Looks up a map of DavEntry locations to metacardIds and populates the exchange body with the
+     * ids of the metacards to be deleted.
+     *
+     * @param entry dav resource entry to process
+     */
     @Override
     public void onFileDelete(DavEntry entry) {
-      processExchange(getExchange(null, StandardWatchEventKinds.ENTRY_DELETE, entry.getLocation()));
+      String referenceKey = entry.getLocation();
+      String metacardId =
+          getMetacardIdFromReference(referenceKey, "DELETE", productToMetacardIdMap);
+
+      if (StringUtils.isEmpty(metacardId)) {
+        return;
+      }
+
+      Exchange exchange =
+          new ExchangeHelper(null, endpoint)
+              .addHeader(CATALOG_OPERATION_HEADER_KEY, "DELETE")
+              .setBody(Collections.singletonList(metacardId))
+              .addSynchronization(new DeletionSynchronization(referenceKey, productToMetacardIdMap))
+              .getExchange();
+
+      submitExchange(exchange);
+    }
+  }
+
+  private File getDavFile(DavEntry entry) {
+    try {
+      return entry.getFile(SardineFactory.begin());
+    } catch (IOException e) {
+      LOGGER.debug("Failed to get file for dav entry [{}].", entry.getLocation(), e);
+      throw new UncheckedIOException(e);
     }
   }
 }

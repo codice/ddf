@@ -21,10 +21,10 @@ import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.util.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
-public class DurableFileComponent extends GenericFileComponent<EventfulFileWrapper> {
+public class DurableFileComponent extends GenericFileComponent<File> {
 
   @Override
-  protected GenericFileEndpoint<EventfulFileWrapper> buildFileEndpoint(
+  protected GenericFileEndpoint<File> buildFileEndpoint(
       String uri, String remaining, Map parameters) throws Exception {
     // the starting directory must be a static (not containing dynamic expressions)
     if (StringHelper.hasStartToken(remaining, "simple")) {
