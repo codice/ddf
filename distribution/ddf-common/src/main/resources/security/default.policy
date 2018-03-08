@@ -434,7 +434,7 @@ grant {
     permission java.lang.RuntimePermission "modifyThread";
     permission java.lang.RuntimePermission "accessClassInPackage.*";
     permission java.lang.RuntimePermission "getClassLoader";
-    permission org.osgi.framework.AdminPermission "*", "adapt, class, metadata, execute, resolve, resource, context, weave, lifecycle";
+    permission org.osgi.framework.AdminPermission "*", "*";
     permission javax.security.auth.AuthPermission "getSubject";
     permission org.osgi.framework.PackagePermission "*", "*";
     permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";
