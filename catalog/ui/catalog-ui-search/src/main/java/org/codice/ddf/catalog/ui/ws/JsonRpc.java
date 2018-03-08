@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -35,7 +34,7 @@ public class JsonRpc implements Socket {
   public static final int METHOD_NOT_FOUND = -32601;
   public static final int INVALID_PARAMS = 32602;
   public static final int INTERNAL_ERROR = -32603;
-
+  private final Map<String, Function> methods;
   private ObjectMapper mapper =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -45,56 +44,40 @@ public class JsonRpc implements Socket {
               .includeDefaultValues()
               .setJsonFormatForDates(false));
 
-  private final Map<String, Function> methods;
-
   public JsonRpc(Map<String, Function> methods) {
     this.methods = methods;
   }
 
-  private static Map<String, Object> parseError(Object message) {
-    return error(PARSE_ERROR, "Parse error", message);
+  public static Error error(int code, String message) {
+    return new Error(code, message);
   }
 
-  private static Map<String, Object> error(int code, String message) {
-    return error(code, message, null);
+  public static Error error(int code, String message, Object data) {
+    return new Error(code, message, data);
   }
 
-  private static Map<String, Object> error(int code, String message, Object data) {
+  private static Map<String, Object> response(Object id, Object value) {
     Map<String, Object> response = new HashMap<>();
-    response.put("code", code);
-    response.put("message", message);
-    if (data != null) {
-      response.put("data", data);
+    response.put("jsonrpc", VERSION);
+    response.put("id", id);
+    if (value instanceof Error) {
+      response.put("error", value);
+    } else {
+      response.put("result", value);
     }
     return response;
   }
 
-  private static Map<String, Object> success(Object id, Object result) {
-    Map<String, Object> response = new HashMap<>();
-    response.put("jsonrpc", VERSION);
-    response.put("id", id);
-    response.put("result", result);
-    return response;
+  public static Error invalid(String message) {
+    return invalid(message, null);
   }
 
-  private static Map<String, Object> fail(Object id, Object error) {
-    Map<String, Object> response = new HashMap<>();
-    response.put("jsonrpc", VERSION);
-    response.put("id", id);
-    response.put("error", error);
-    return response;
+  public static Error invalid(String message, Object data) {
+    return error(INVALID_REQUEST, String.format("Invalid Request: %s", message), data);
   }
 
-  private Map<String, Object> invalid() {
-    return invalid(null);
-  }
-
-  private Map<String, Object> invalid(Object data) {
-    return error(INVALID_REQUEST, "Invalid Request", data);
-  }
-
-  private Map<String, Object> invalidParams(Object data) {
-    return error(INVALID_PARAMS, "Invalid params", data);
+  public static Error invalidParams(String message, Object params) {
+    return error(INVALID_PARAMS, String.format("Invalid params: %s", message), params);
   }
 
   @Override
@@ -108,71 +91,79 @@ public class JsonRpc implements Socket {
 
   private Object exec(Object message) {
 
-    if (message instanceof List) {
-      return ((List) message).parallelStream().map(this::exec).collect(Collectors.toList());
-    }
-
     if (!(message instanceof Map)) {
-      return invalid();
+      return response(null, invalid("message must be a map", message));
     }
 
     Map msg = (Map) message;
 
     if (!msg.containsKey("id")) {
-      return fail(null, invalid("Required key `id` missing"));
+      return response(null, invalid("required key `id` missing"));
     }
 
     Object id = msg.get("id");
 
     if (!(id instanceof String || id instanceof Number || id == null)) {
-      return fail(null, invalid("Key `id` not string or number or null"));
+      return response(null, invalid("key `id` not string or number or null", id));
     }
 
     if (!msg.containsKey("jsonrpc")) {
-      return fail(id, invalid("Required key `jsonrpc` missing"));
+      return response(id, invalid("required key `jsonrpc` missing"));
     }
 
     if (!VERSION.equals(msg.get("jsonrpc"))) {
-      return fail(id, invalid("Key `jsonrpc` not equal to `2.0`"));
+      return response(id, invalid("key `jsonrpc` not equal to `2.0`", msg.get("jsonrpc")));
     }
 
     if (!msg.containsKey("method")) {
-      return fail(id, invalid("Required key `method` missing"));
+      return response(id, invalid("required key `method` missing"));
     }
 
     if (!(msg.get("method") instanceof String)) {
-      return fail(id, invalid("Key `method` not string"));
+      return response(id, invalid("key `method` not string", msg.get("method")));
     }
 
-    if (!methods.containsKey(msg.get("method"))) {
-      return fail("id", error(METHOD_NOT_FOUND, "Method not found"));
+    String method = (String) msg.get("method");
+
+    if (!methods.containsKey(method)) {
+      return response(id, error(METHOD_NOT_FOUND, String.format("method `%s` not found", method)));
     }
 
     Object params = msg.get("params");
 
     if (params != null && !(params instanceof List || params instanceof Map)) {
-      return fail(id, invalidParams("Parameters must be a structured value"));
+      return response(id, invalidParams("parameters must be a structured value", params));
     }
 
-    try {
-      return success(id, methods.get(msg.get("method")).apply(params));
-    } catch (IllegalArgumentException ex) {
-      return fail(id, invalidParams(ex.getMessage()));
-    } catch (Exception ex) {
-      return fail(id, error(INTERNAL_ERROR, "Internal error"));
-    }
+    return response(id, methods.get(method).apply(params));
   }
 
   private Object handleMessage(String message) {
     try {
       return exec(mapper.fromJson(message));
     } catch (Exception ex) {
-      return fail(null, parseError(message));
+      return response(null, error(PARSE_ERROR, "Parse error", message));
     }
   }
 
   @Override
   public void onMessage(Session session, String message) throws IOException {
     session.getRemote().sendStringByFuture(mapper.toJson(handleMessage(message)));
+  }
+
+  private static class Error {
+    public final int code;
+    public final String message;
+    public final Object data;
+
+    private Error(int code, String message) {
+      this(code, message, null);
+    }
+
+    private Error(int code, String message, Object data) {
+      this.code = code;
+      this.message = message;
+      this.data = data;
+    }
   }
 }

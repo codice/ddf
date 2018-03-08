@@ -88,15 +88,15 @@ module.exports = Backbone.AssociatedModel.extend({
     sync: function (method, model, options) {
         let aborted = false;
         if (rpc !== null) {
-            rpc.call('query', [options.data], properties.timeout)
-                .then((...args) => {
+            rpc.call('query', [options.data], options.timeout)
+                .then((res) => {
                     if (!aborted) {
-                        options.success(...args);
+                        options.success(res);
                     }
                 })
-                .catch(() => {
+                .catch((res) => {
                     if (!aborted) {
-                        Backbone.AssociatedModel.prototype.sync.apply(this, arguments);
+                        options.error({ responseJSON: res });
                     }
                 });
             return {

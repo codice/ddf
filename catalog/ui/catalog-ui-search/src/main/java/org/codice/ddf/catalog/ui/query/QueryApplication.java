@@ -52,6 +52,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
@@ -159,28 +160,35 @@ public class QueryApplication implements SparkApplication, Function {
   @Override
   public Object apply(Object req) {
     if (!(req instanceof List)) {
-      throw new IllegalArgumentException("params not list");
+      return JsonRpc.invalidParams("params not list", req);
     }
 
     List params = (List) req;
 
     if (params.size() != 1) {
-      throw new IllegalArgumentException("must pass exactly 1 param");
+      return JsonRpc.invalidParams("must pass exactly 1 param", params);
     }
 
     Object param = params.get(0);
 
     if (!(param instanceof String)) {
-      throw new IllegalArgumentException("param not string");
+      return JsonRpc.invalidParams("param not string", param);
     }
 
+    CqlRequest cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+
     try {
-      CqlRequest cqlRequest = mapper.readValue((String) param, CqlRequest.class);
       return executeCqlQuery(cqlRequest);
+    } catch (UnsupportedQueryException e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(400, "Unsupported query request.");
+    } catch (RuntimeException e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(404, "Could not find what you were looking for.");
     } catch (Exception e) {
       LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(500, "Error while processing query request.");
     }
-    return null;
   }
 
   private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)

@@ -43,10 +43,7 @@ define([
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || store;
-            this.render = _debounce(this.render, 200, {
-                leading: true,
-                trailing: true
-            });
+            this.render = _debounce(this.render, 200);
         },
         render: function() {
             if (this.isDestroyed) {
