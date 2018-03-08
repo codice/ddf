@@ -103,7 +103,8 @@ public class DownloadsStatusEventListenerTest {
     testDownloadManager.download(
         mock(ResourceRequest.class),
         testMetacard,
-        new LocalResourceRetriever(testResourceReaderList, testMetacard.getResourceURI(), tmpMap));
+        new LocalResourceRetriever(
+            testResourceReaderList, testMetacard.getResourceURI(), null, tmpMap));
 
     TimeUnit.SECONDS.sleep(2);
     testGetDownloadStatusHelper(

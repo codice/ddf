@@ -26,7 +26,7 @@ public class ContentComponent extends DefaultComponent {
   /** The name of the scheme this custom Camel component resolves to. */
   public static final String NAME = "content";
 
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentComponent.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ContentComponent.class);
 
   private CatalogFramework catalogFramework;
 

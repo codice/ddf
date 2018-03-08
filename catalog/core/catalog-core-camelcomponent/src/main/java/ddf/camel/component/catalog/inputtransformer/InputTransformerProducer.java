@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.camel.Message;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +43,12 @@ import org.slf4j.LoggerFactory;
  * @author ddf.isgs@lmco.com
  */
 public class InputTransformerProducer extends TransformerProducer {
-  private static final transient Logger LOGGER =
-      LoggerFactory.getLogger(InputTransformerProducer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InputTransformerProducer.class);
+
+  private static final String METACARD_ID_HEADER =
+      "org.codice.ddf.camel.transformer.MetacardUpdateId";
+
+  private static final String FILE_EXTENSION_HEADER = "org.codice.ddf.camel.FileExtension";
 
   /**
    * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent. This
@@ -56,34 +62,44 @@ public class InputTransformerProducer extends TransformerProducer {
   }
 
   protected Object transform(
-      Message in,
-      Object obj,
-      String mimeType,
-      String transformerId,
-      MimeTypeToTransformerMapper mapper)
-      throws MimeTypeParseException, IOException, CatalogTransformerException {
-    // Look up the InputTransformer for the request's mime type.
-    // If a transformer is found, then transform the request's payload into
-    // a Metacard.
-    // Otherwise, throw an exception.
+      Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
+      throws MimeTypeParseException, CatalogTransformerException {
+    InputStream message = in.getBody(InputStream.class);
+    if (message == null) {
+      throw new CatalogTransformerException("Message body was null; unable to generate Metacard!");
+    }
 
-    MimeType derivedMimeType = new MimeType(mimeType);
-
-    if (transformerId != null) {
+    MimeType derivedMimeType = null;
+    if (StringUtils.isEmpty(mimeType)) {
+      try (TemporaryFileBackedOutputStream fileBackedOutputStream =
+          new TemporaryFileBackedOutputStream()) {
+        try {
+          IOUtils.copy(message, fileBackedOutputStream);
+          derivedMimeType =
+              new MimeType(
+                  getMimeTypeFromHeader(in, fileBackedOutputStream.asByteSource().openStream()));
+        } catch (IOException e) {
+          LOGGER.debug("Failed to copy incoming inputStream message", e);
+        } finally {
+          message = fileBackedOutputStream.asByteSource().openStream();
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Failed to create TemporaryFileBackedOuputStream", e);
+      }
+    } else if (StringUtils.isNotBlank(transformerId)) {
       derivedMimeType =
           new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
     }
 
-    InputStream message = null;
-    Metacard metacard = null;
+    if (derivedMimeType == null) {
+      derivedMimeType = new MimeType(mimeType);
+    }
+
+    String metacardUpdateID = getHeaderAsStringAndRemove(in, METACARD_ID_HEADER);
+
+    Metacard metacard;
     try {
-      message = in.getBody(InputStream.class);
-      if (null != message) {
-        metacard = generateMetacard(derivedMimeType, mapper, message);
-      } else {
-        throw new CatalogTransformerException(
-            "Message body was null; unable to generate Metacard!");
-      }
+      metacard = generateMetacard(derivedMimeType, mapper, message, metacardUpdateID);
     } catch (MetacardCreationException e) {
       throw new CatalogTransformerException(
           "Did not find an InputTransformer for MIME Type ["
@@ -95,16 +111,14 @@ public class InputTransformerProducer extends TransformerProducer {
               + "]",
           e);
     } finally {
-      if (null != message) {
-        IOUtils.closeQuietly(message);
-      }
+      IOUtils.closeQuietly(message);
     }
 
     return metacard;
   }
 
   private Metacard generateMetacard(
-      MimeType mimeType, MimeTypeToTransformerMapper mapper, InputStream message)
+      MimeType mimeType, MimeTypeToTransformerMapper mapper, InputStream message, String metacardId)
       throws MetacardCreationException {
     LOGGER.trace("ENTERING: generateMetacard");
 
@@ -133,9 +147,13 @@ public class InputTransformerProducer extends TransformerProducer {
 
         try (InputStream inputStreamMessageCopy =
             fileBackedOutputStream.asByteSource().openStream()) {
-          generatedMetacard = transformer.transform(inputStreamMessageCopy);
+          if (StringUtils.isEmpty(metacardId)) {
+            generatedMetacard = transformer.transform(inputStreamMessageCopy);
+          } else {
+            generatedMetacard = transformer.transform(inputStreamMessageCopy, metacardId);
+          }
         } catch (IOException | CatalogTransformerException e) {
-          LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
+          LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
         }
         if (generatedMetacard != null) {
           break;
@@ -155,5 +173,31 @@ public class InputTransformerProducer extends TransformerProducer {
     }
 
     return generatedMetacard;
+  }
+
+  private String getMimeTypeFromHeader(Message in, InputStream is) {
+    String fileExtension = getHeaderAsStringAndRemove(in, FILE_EXTENSION_HEADER);
+    if (fileExtension == null) {
+      return null;
+    }
+
+    try {
+      return ((CatalogEndpoint) getEndpoint()).getMimeTypeMapper().guessMimeType(is, fileExtension);
+    } catch (MimeTypeResolutionException e) {
+      LOGGER.debug(
+          "Failed to get mimeType for file extension [{}] received from exchange headers.");
+      return null;
+    }
+  }
+
+  private String getHeaderAsStringAndRemove(Message message, String key) {
+    String value = message.getHeader(key, String.class);
+    if (value != null) {
+      LOGGER.trace(
+          "Retrieved and removed header [{}] from exchange message [{}]", message.getMessageId());
+      message.removeHeader(key);
+      return value;
+    }
+    return null;
   }
 }

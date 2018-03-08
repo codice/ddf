@@ -29,7 +29,7 @@
             name="ReadLock Time Interval" id="readLockIntervalMilliseconds" required="true"
             type="Integer" default="500"/>
 
-        <AD description="Choose what happens to the content item after it is ingested. Delete will remove the original file after storing it in the content store. Move will store the item in the content store, and a copy under ./ingested, then remove the original file. (NOTE: this will double the amount of disk space used.) Monitor in place will index the file and serve it from its original location."
+        <AD description="Choose what happens to the content item after it is ingested. Delete will remove the original file after storing it in the content store. Move will store the item in the content store, and a copy under ./ingested, then remove the original file. (NOTE: this will double the amount of disk space used.) Monitor in place will index the file and serve it from its original location. If in place is used, then the URLResourceReader root resource directories configuration must be updated to allow downloading from the monitored directory."
             name="Processing Mechanism" id="processingMechanism" required="false"
             type="String" default="in_place">
             <Option label="Delete" value="delete"/>
