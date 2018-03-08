@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.solr;
+package ddf.catalog.source.solr.provider;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -36,7 +36,7 @@ import org.opengis.temporal.Period;
 
 public class CommonQueryBuilder {
 
-  public final FilterFactory filterFactory = new FilterFactoryImpl();
+  private final FilterFactory filterFactory = new FilterFactoryImpl();
 
   /**
    * Builds an OGC {@link org.opengis.filter.PropertyIsEqualTo} filter and returns a generic {@link
@@ -331,5 +331,9 @@ public class CommonQueryBuilder {
     query.setRequestsTotalResultsCount(true);
 
     return query;
+  }
+
+  public FilterFactory getFilterFactory() {
+    return filterFactory;
   }
 }

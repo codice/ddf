@@ -92,7 +92,6 @@
                         </Include-Resource>
                         <Export-Package/>
                         <Import-Package>
-                            com.google.common.*,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.geom.impl,
