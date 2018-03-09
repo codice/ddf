@@ -17,17 +17,10 @@ import static org.codice.ddf.catalog.ui.util.AccessUtils.safeGet;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.CoreAttributes;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBElement;
-import net.opengis.filter.v_2_0.BinaryComparisonOpType;
-import net.opengis.filter.v_2_0.BinaryLogicOpType;
-import net.opengis.filter.v_2_0.LiteralType;
-import net.opengis.filter.v_2_0.LogicOpsType;
-import net.opengis.filter.v_2_0.ObjectFactory;
 import org.boon.json.annotations.JsonIgnore;
 import org.boon.json.annotations.JsonProperty;
 
