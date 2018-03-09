@@ -1,0 +1,41 @@
+{
+  "type": "AND",
+  "filters": [
+    {
+      "type": "OR",
+      "filters": [
+        {
+          "type": "BEFORE",
+          "property": "\"created\"",
+          "value": "2018-02-27T23:20:56.780Z"
+        },
+        {
+          "type": "BEFORE",
+          "property": "\"modified\"",
+          "value": "2018-02-27T23:20:56.780Z"
+        },
+        {
+          "type": "BEFORE",
+          "property": "\"effective\"",
+          "value": "2018-02-27T23:20:56.780Z"
+        },
+        {
+          "type": "BEFORE",
+          "property": "\"metacard.created\"",
+          "value": "2018-02-27T23:20:56.780Z"
+        },
+        {
+          "type": "BEFORE",
+          "property": "\"metacard.modified\"",
+          "value": "2018-02-27T23:20:56.780Z"
+        }
+      ]
+    },
+    {
+      "type": "DWITHIN",
+      "property": "anyGeo",
+      "value": "LINESTRING(-117.13230471468687 44.14686910368135,-115.76807564454025 39.98312582991066,-113.48157584359824 37.912516776342436,-111.32735611138365 40.816915235679254,-114.55723858194943 42.52119725321046,-117.29871236281292 44.078654446842506)",
+      "distance": 1
+    }
+  ]
+}

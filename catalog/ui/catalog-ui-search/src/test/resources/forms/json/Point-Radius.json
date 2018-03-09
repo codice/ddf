@@ -1,0 +1,11 @@
+{
+  "type": "AND",
+  "filters": [
+    {
+      "type": "DWITHIN",
+      "property": "anyGeo",
+      "value": "POINT(-93.25696492774843 43.14514690567744)",
+      "distance": 0.000001
+    }
+  ]
+}
