@@ -166,9 +166,7 @@ public class EndpointUtil {
     return getJson(result);
   }
 
-  public Map<String, Result> getMetacardsByFilter(String tagFilter)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-
+  public Map<String, Result> getMetacardsByFilter(String tagFilter) {
     Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagFilter);
     ResultIterable resultIterable =
         resultIterable(
