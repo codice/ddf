@@ -23,6 +23,36 @@
     <name>DDF :: Catalog :: UI :: Catalog UI Search</name>
     <packaging>bundle</packaging>
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>filter-v_2_0</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>ows-v_1_1_0-schema</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>1.11.1</version>
+        </dependency>
+
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>branding-api</artifactId>
@@ -249,6 +279,14 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <!-- Bulk XML test resources more concise without the header -->
+                    <excludes>src/test/resources/forms/</excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
@@ -276,7 +314,10 @@
                             quartz-jobs,
                             spark-core,
                             spatial4j,
-                            versioning-common
+                            versioning-common,
+                            filter-v_2_0,
+                            ows-v_1_1_0-schema,
+                            jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>

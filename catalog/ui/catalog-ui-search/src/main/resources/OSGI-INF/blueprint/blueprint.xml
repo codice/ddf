@@ -18,6 +18,24 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <bean id="queryFormMetacardType"
+          class="org.codice.ddf.catalog.ui.forms.data.FormTypes.Query"/>
+
+    <bean id="resultFormMetacardType"
+          class="org.codice.ddf.catalog.ui.forms.data.FormTypes.Result"/>
+
+    <service ref="queryFormMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="form-query"/>
+        </service-properties>
+    </service>
+
+    <service ref="resultFormMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="form-result"/>
+        </service-properties>
+    </service>
+
     <bean id="workspaceMetacardType"
           class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardType"/>
 
@@ -49,7 +67,9 @@
         <argument ref="uiCamelContext"/>
     </bean>
 
-    <reference-list id="historianConfigurations" interface="ddf.catalog.configuration.HistorianConfiguration" availability="optional">
+    <reference-list id="historianConfigurations"
+                    interface="ddf.catalog.configuration.HistorianConfiguration"
+                    availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="configurationApplication"/>
     </reference-list>
@@ -89,7 +109,7 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <ref component-id="workspacePreIngestPlugin" />
+        <ref component-id="workspacePreIngestPlugin"/>
     </service>
 
     <bean id="workspaceAccessPlugin"
@@ -101,7 +121,7 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin" />
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin"/>
     </service>
 
     <bean id="workspaceSecurityConfiguration"
@@ -115,8 +135,8 @@
 
     <bean id="workspacePolicyExtension"
           class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
-        <argument ref="workspaceSecurityConfiguration" />
-        <argument ref="subjectIdentity" />
+        <argument ref="workspaceSecurityConfiguration"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
 
@@ -154,7 +174,7 @@
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
         </argument>
-        <argument ref="configurationApplication" />
+        <argument ref="configurationApplication"/>
     </bean>
 
     <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
@@ -217,9 +237,10 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <reference id="csvQueryResponseTransformer" interface="ddf.catalog.transform.QueryResponseTransformer" filter="(id=csv)"/>
+    <reference id="csvQueryResponseTransformer"
+               interface="ddf.catalog.transform.QueryResponseTransformer" filter="(id=csv)"/>
 
-    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry" />
+    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
@@ -233,10 +254,10 @@
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
         <argument ref="associated"/>
-        <argument ref="csvQueryResponseTransformer" />
-        <argument ref="attributeRegistry" />
-        <argument ref="configurationApplication" />
-        <argument ref="noteUtil" />
+        <argument ref="csvQueryResponseTransformer"/>
+        <argument ref="attributeRegistry"/>
+        <argument ref="configurationApplication"/>
+        <argument ref="noteUtil"/>
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
@@ -245,7 +266,7 @@
         <property name="filterAdapter" ref="filterAdapter"/>
         <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
-        <property name="endpointUtil" ref="endpointUtil" />
+        <property name="endpointUtil" ref="endpointUtil"/>
     </bean>
 
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
@@ -292,7 +313,7 @@
 
         <property name="configurationApplication" ref="configurationApplication"/>
         <property name="smtpClient" ref="smtpClient"/>
-        <property name="endpointUtil" ref="endpointUtil" />
+        <property name="endpointUtil" ref="endpointUtil"/>
     </bean>
 
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
@@ -301,6 +322,12 @@
         <argument ref="persistentStore"/>
         <argument ref="endpointUtil"/>
         <argument ref="subjectIdentity"/>
+    </bean>
+
+    <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication"
+          init-method="setup">
+        <argument ref="catalogFramework"/>
+        <argument ref="endpointUtil"/>
     </bean>
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
@@ -312,6 +339,7 @@
                 <ref component-id="userApplication"/>
                 <ref component-id="configurationApplication"/>
                 <ref component-id="feedbackApplication"/>
+                <ref component-id="searchFormsApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>
@@ -415,16 +443,19 @@
     <service ref="workspaceQueryService"
              interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
 
-    <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+    <reference id="geoEntryQueryable"
+               interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
 
     <reference id="featureQueryable" interface="org.codice.ddf.spatial.geocoding.FeatureQueryable"
                availability="optional"/>
 
-    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
+    <bean id="featureService"
+          class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
         <property name="featureQueryable" ref="featureQueryable"/>
     </bean>
 
-    <service ref="featureService" interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
+    <service ref="featureService"
+             interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
 
 </blueprint>
