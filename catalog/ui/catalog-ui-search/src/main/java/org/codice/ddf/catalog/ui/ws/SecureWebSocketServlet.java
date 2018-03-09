@@ -23,25 +23,24 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocketServlet extends WebSocketServlet {
+public class SecureWebSocketServlet extends WebSocketServlet {
 
   private static final String TOKEN_KEY = "ddf.security.token";
-  private static final Logger LOGGER = LoggerFactory.getLogger(SocketServlet.class);
-  private final ExecutorService executor;
-  private final Socket socket;
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecureWebSocketServlet.class);
+  private final WebSocket ws;
   private final SecurityManager manager;
+  private final ExecutorService executor;
 
-  public SocketServlet(ExecutorService executor, Socket socket, SecurityManager manager) {
-    this.executor = executor;
-    this.socket = socket;
+  public SecureWebSocketServlet(ExecutorService executor, WebSocket ws, SecurityManager manager) {
+    this.ws = ws;
     this.manager = manager;
+    this.executor = executor;
   }
 
   public void destroy() {
@@ -50,20 +49,20 @@ public class SocketServlet extends WebSocketServlet {
 
   @Override
   public void configure(WebSocketServletFactory factory) {
-    factory.setCreator((req, resp) -> new SocketWrapper(executor, socket, manager));
+    factory.setCreator((req, resp) -> new SocketWrapper(executor, ws, manager));
   }
 
-  @WebSocket
+  @org.eclipse.jetty.websocket.api.annotations.WebSocket
   public static class SocketWrapper {
 
-    private final ExecutorService executor;
-    private final Socket socket;
+    private final WebSocket ws;
     private final SecurityManager manager;
+    private final ExecutorService executor;
 
-    SocketWrapper(ExecutorService executor, Socket socket, SecurityManager manager) {
-      this.executor = executor;
-      this.socket = socket;
+    SocketWrapper(ExecutorService executor, WebSocket ws, SecurityManager manager) {
+      this.ws = ws;
       this.manager = manager;
+      this.executor = executor;
     }
 
     private void runWithUser(Session session, Runnable runnable) {
@@ -85,17 +84,17 @@ public class SocketServlet extends WebSocketServlet {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-      runWithUser(session, () -> socket.onOpen(session));
+      runWithUser(session, () -> ws.onOpen(session));
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-      runWithUser(session, () -> socket.onClose(session, statusCode, reason));
+      runWithUser(session, () -> ws.onClose(session, statusCode, reason));
     }
 
     @OnWebSocketError
     public void onError(Session session, Throwable ex) {
-      runWithUser(session, () -> socket.onError(session, ex));
+      runWithUser(session, () -> ws.onError(session, ex));
     }
 
     @OnWebSocketMessage
@@ -104,9 +103,9 @@ public class SocketServlet extends WebSocketServlet {
           session,
           () -> {
             try {
-              socket.onMessage(session, message);
+              ws.onMessage(session, message);
             } catch (IOException e) {
-              LOGGER.error("Failed to receive socket message.", e);
+              LOGGER.error("Failed to receive ws message.", e);
             }
           });
     }

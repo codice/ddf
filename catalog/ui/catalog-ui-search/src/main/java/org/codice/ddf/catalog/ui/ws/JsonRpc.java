@@ -25,7 +25,7 @@ import org.boon.json.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 
 // An implementation of http://www.jsonrpc.org/specification over websockets
-public class JsonRpc implements Socket {
+public class JsonRpc implements WebSocket {
 
   public static final String VERSION = "2.0";
 

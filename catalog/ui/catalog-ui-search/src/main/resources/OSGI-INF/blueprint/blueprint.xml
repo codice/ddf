@@ -272,7 +272,7 @@
         <argument ref="socketThreadFactory"/>
     </bean>
 
-    <bean id="socketServlet" destroy-method="destroy" class="org.codice.ddf.catalog.ui.ws.SocketServlet">
+    <bean id="socketServlet" destroy-method="destroy" class="org.codice.ddf.catalog.ui.ws.SecureWebSocketServlet">
         <argument ref="socketThreadPool" />
         <argument ref="jsonRpc" />
         <argument ref="manager" />

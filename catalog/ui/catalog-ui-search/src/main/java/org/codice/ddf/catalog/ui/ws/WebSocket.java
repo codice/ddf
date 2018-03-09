@@ -16,7 +16,7 @@ package org.codice.ddf.catalog.ui.ws;
 import java.io.IOException;
 import org.eclipse.jetty.websocket.api.Session;
 
-public interface Socket {
+public interface WebSocket {
   void onOpen(Session session);
 
   void onClose(Session session, int statusCode, String reason);
