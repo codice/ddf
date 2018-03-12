@@ -175,7 +175,13 @@ public class QueryApplication implements SparkApplication, Function {
       return JsonRpc.invalidParams("param not string", param);
     }
 
-    CqlRequest cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+    CqlRequest cqlRequest;
+
+    try {
+      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+    } catch (RuntimeException e) {
+      return JsonRpc.invalidParams("param not valid json", param);
+    }
 
     try {
       return executeCqlQuery(cqlRequest);
@@ -183,8 +189,8 @@ public class QueryApplication implements SparkApplication, Function {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(400, "Unsupported query request.");
     } catch (RuntimeException e) {
-      LOGGER.error("Query endpoint failed", e);
-      return JsonRpc.error(404, "Could not find what you were looking for.");
+      LOGGER.debug("Exception occurred", e);
+      return JsonRpc.error(404, "Could not find what you were looking for");
     } catch (Exception e) {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(500, "Error while processing query request.");

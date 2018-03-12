@@ -96,7 +96,15 @@ module.exports = Backbone.AssociatedModel.extend({
                 })
                 .catch((res) => {
                     if (!aborted) {
-                        options.error({ responseJSON: res });
+                        switch (res.code) {
+                            case 400:
+                            case 404:
+                            case 500:
+                                options.error({ responseJSON: res });
+                                break;
+                            default:
+                                Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
+                        }
                     }
                 });
             return {

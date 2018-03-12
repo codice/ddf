@@ -135,15 +135,23 @@ public class JsonRpc implements WebSocket {
       return response(id, invalidParams("parameters must be a structured value", params));
     }
 
-    return response(id, methods.get(method).apply(params));
+    try {
+      return response(id, methods.get(method).apply(params));
+    } catch (RuntimeException e) {
+      return response(id, JsonRpc.error(INTERNAL_ERROR, "Internal Error"));
+    }
   }
 
   private Object handleMessage(String message) {
+    Object parsed;
+
     try {
-      return exec(mapper.fromJson(message));
-    } catch (Exception ex) {
+      parsed = mapper.fromJson(message);
+    } catch (RuntimeException ex) {
       return response(null, error(PARSE_ERROR, "Parse error", message));
     }
+
+    return exec(parsed);
   }
 
   @Override
