@@ -14,10 +14,11 @@
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Core;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,23 +39,9 @@ public class ListMetacardTypeImpl extends MetacardTypeImpl {
   static {
     LIST_DESCRIPTORS = new HashSet<>();
 
-    LIST_DESCRIPTORS.add(
-        new AttributeDescriptorImpl(
-            Metacard.ID,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            BasicTypes.STRING_TYPE));
+    LIST_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.ID));
 
-    LIST_DESCRIPTORS.add(
-        new AttributeDescriptorImpl(
-            Metacard.TITLE,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            BasicTypes.STRING_TYPE));
+    LIST_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.TITLE));
 
     LIST_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
