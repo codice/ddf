@@ -257,7 +257,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>
-                        <component.artifactId>${artifactId}</component.artifactId>
+                        <component.artifactId>${project.artifactId}</component.artifactId>
                         <component.version>${project.version}</component.version>
                     </systemPropertyVariables>
                 </configuration>
