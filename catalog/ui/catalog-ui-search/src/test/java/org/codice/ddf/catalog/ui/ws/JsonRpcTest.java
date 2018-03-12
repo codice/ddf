@@ -64,7 +64,7 @@ public class JsonRpcTest {
     RemoteEndpoint endpoint = mock(RemoteEndpoint.class);
     doReturn(endpoint).when(session).getRemote();
     rpc.onMessage(session, message);
-    verify(endpoint).sendString(captor.capture());
+    verify(endpoint).sendStringByFuture(captor.capture());
     return (Map<String, Object>) mapper.fromJson(captor.getValue());
   }
 
