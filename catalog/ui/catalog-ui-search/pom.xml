@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.ui</groupId>
@@ -321,6 +323,14 @@
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
+                            <!--
+                            Exclude exported package here because the FormTypes
+                            static inner classes cause Karaf confusion otherwise.
+                            Alternatively, those static classes could be extracted
+                            but at their small size that would be a lot of file clutter
+                            for little gain.
+                            -->
+                            !org.codice.ddf.catalog.ui.forms.data.*,
                             org.eclipse.jetty.server,
                             org.eclipse.jetty.server.handler,
                             javax.servlet.http;version="[3,4)",
