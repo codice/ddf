@@ -880,8 +880,8 @@ public abstract class AbstractIntegrationTest {
    * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
    * provided {@link #UNPACK_DIRECTORY}.
    */
-  static class HomeAwareVmOption extends VMOption {
-    static HomeAwareVmOption homeAwareVmOption(String option) {
+  protected static class HomeAwareVmOption extends VMOption {
+    public static HomeAwareVmOption homeAwareVmOption(String option) {
       return new HomeAwareVmOption(option);
     }
 
@@ -922,8 +922,8 @@ public abstract class AbstractIntegrationTest {
    * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
    * provided {@link #UNPACK_DIRECTORY}.
    */
-  static class HomePolicyVmOption extends VMOption {
-    static HomePolicyVmOption homePolicyVmOption(String option) {
+  protected static class HomePolicyVmOption extends VMOption {
+    public static HomePolicyVmOption homePolicyVmOption(String option) {
       return new HomePolicyVmOption(option);
     }
 
@@ -967,8 +967,8 @@ public abstract class AbstractIntegrationTest {
    * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
    * provided {@link #UNPACK_DIRECTORY}.
    */
-  static class HomePermVmOption extends VMOption {
-    static HomePermVmOption homePermVmOption(String option) {
+  protected static class HomePermVmOption extends VMOption {
+    public static HomePermVmOption homePermVmOption(String option) {
       return new HomePermVmOption(option);
     }
 
