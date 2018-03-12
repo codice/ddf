@@ -25,7 +25,7 @@
           class="org.codice.ddf.broker.security.impl.SubjectInjectorPlugin">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.broker.security.impl.SubjectInjectorPlugin"
-                update-strategy="component-managed" update-method="update"/>
+                update-strategy="container-managed"/>
         <property name="securityManager" ref="securityManagerService"/>
         <property name="configuredAddresses">
             <set>
