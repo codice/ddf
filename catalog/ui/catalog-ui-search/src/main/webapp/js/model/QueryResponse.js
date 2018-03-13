@@ -88,38 +88,48 @@ module.exports = Backbone.AssociatedModel.extend({
     sync: function (method, model, options) {
         if (rpc !== null) {
             let handled = false;
-            const promise = new Promise((resolve, reject) => {
-                rpc.call('query', [options.data], options.timeout)
+            const promise = rpc.call('query', [options.data], options.timeout)
                 .then((res) => {
                     if (!handled) {
                         handled = true;
                         options.success(res);
-                        resolve([res, "success"]);
+                        return [res, "success"];
                     }
                 })
                 .catch((res) => {
                     if (!handled) {
                         handled = true;
+                        res.options = options;
                         switch (res.code) {
                             case 400:
                             case 404:
                             case 500:
-                                res.options = options;
-                                options.error({ responseJSON: res });
-                                resolve([res, "error"]);
+                                options.error({
+                                    responseJSON: res
+                                });
                                 break;
                             default:
-                                Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
+                                // notify user and fallback to http
+                                rpc = null;
+                                options.error({
+                                    responseJSON: {
+                                        message: 'Search failed due to unknown reasons, please try again.'
+                                    }
+                                });
                         }
+                        return [res, "error"];
                     }
-                });  
-            });
+                });
             model.trigger('request', model, null, options);
             return {
-                abort() { 
+                abort() {
                     if (!handled) {
                         handled = true;
-                        options.error({ responseJSON: { message: 'Stopped' } });
+                        options.error({
+                            responseJSON: {
+                                message: 'Stopped'
+                            }
+                        });
                     }
                 },
                 promise() {
