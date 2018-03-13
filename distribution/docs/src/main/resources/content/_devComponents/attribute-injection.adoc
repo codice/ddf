@@ -9,26 +9,28 @@ Attribute injections are defined attributes that will be injected into all metac
 
 ==== Attribute Injection Definition
 
-To define attribute injections, the definition file must have an `inject` key in the root object.
+To define attribute injections, create a JSON file in the `${home_directory}/etc/definitions` directory. The definition file must have an `inject` key in the root object.
 
+.Inject Key
 [source,json]
 ----
 {
-    "inject": [...]
+  "inject": [...]
 }
 ----
 
 The value of `inject` is simply a list of objects where each object contains the key `attribute` and optionally `metacardTypes`.
 
+.Inject Values
 [source,json]
 ----
 {
-    "inject": [
-        {
-            "attribute": ...,
-            "metacardTypes": [...]
-        }
-    ]
+  "inject": [
+    {
+      "attribute": ...,
+      "metacardTypes": [...]
+    }
+  ]
 }
 ----
 
@@ -40,23 +42,68 @@ In that case it can be thought of as a 'global' attribute injection.
 If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type.
 In this case, the attribute will be injected only into metacard types that match one of the types given in the list.
 
-Example:
+.Global and Specific Inject Values
 [source,json]
 ----
 {
-    "inject": [
-        {
-            "attribute": "rating"
-        },
-        {
-            "attribute": "cloud-cover",
-            "metacardTypes": ["nitf", "video"]
-        }
-    ]
+  "inject": [
+    // Global attribute injection, all metacards
+    {
+      "attribute": "rating"
+    },
+    // Specific attribute injection, only "video" metacards
+    {
+      "attribute": "cloud-cover",
+      "metacardTypes": "video"
+    }
+  ]
 }
 ----
 
 [NOTE]
 ====
-Attributes must be registered in the attribute registry (see the `AttributeRegistry` interface) in order to be injected into metacard types. For example, attributes defined in JSON definition files are placed in the registry, so they can be injected.
+Attributes must be registered in the attribute registry (see the `AttributeRegistry` interface) to be injected into metacard types. For example, attributes defined in JSON definition files are placed in the registry, so they can be injected.
 ====
+
+Add a second key for `attributeTypes` to register the new types defined previously. For each attribute injections, specify the name and properties for that attribute.
+
+* type: Data type of the possible values for this attribute.
+* indexed: Boolean, attribute is indexed.
+* stored: Boolean, attribute is stored.
+* tokenized:  Boolean, attribute is stored.
+* multivalued: Boolean, attribute can hold multiple values.
+
+.Sample Attribute Injection File
+[source,json,linenums]
+----
+{
+  "inject": [
+    // Global attribute injection, all metacards
+    {
+      "attribute": "rating"
+    },
+    // Specific attribute injection, only "video" metacards
+    {
+      "attribute": "cloud-cover",
+      "metacardTypes": "video"
+    }
+  ],
+  "attributeTypes": {
+    "rating": {
+    "type": "STRING_TYPE",
+    "indexed": true,
+    "stored": true,
+    "tokenized": true,
+    "multivalued": true
+    },
+    "cloud-cover": {
+      "type": "STRING_TYPE",
+      "indexed": true,
+      "stored": true,
+      "tokenized": true,
+      "multivalued": false
+    }
+  }
+}
+----
+

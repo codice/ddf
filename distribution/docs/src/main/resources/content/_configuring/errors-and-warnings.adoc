@@ -1,0 +1,11 @@
+:title: Configuring Errors and Warnings
+:type: configuration
+:status: published
+:parent: Configuring Data Management
+:order: 025
+:summary: Enabling viewing of errors and warnings in data attributes.
+
+== {title}
+
+${branding} performs several types of validation on metadata ingested into the catalog.
+Depending on need, configure ${branding} to act on the warnings or errors discovered.

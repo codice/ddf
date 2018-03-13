@@ -1,0 +1,28 @@
+:title: Overriding Attributes
+:type: dataManagement
+:status: published
+:parent: Validating Data
+:order: 03
+:summary: Overriding attributes.
+
+== {title}
+
+Automatically change the value of an existing attribute on ingest by setting an attribute override.
+
+[NOTE]
+====
+Attribute overrides are available for the following ingest methods:
+
+* Content Directory Monitor.
+* Confluence source.
+====
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select *Configuration*.
+. Select the configuration for the desired ingest method.
+.. *Catalog Content Directory Monitor*.
+.. *Confluence Connected Source*.
+.. *Confluence Federated Source*.
+. Select *Attribute Overrides*.
+. Enter the key-value pair for the attribute to override and the value(s) to set.
