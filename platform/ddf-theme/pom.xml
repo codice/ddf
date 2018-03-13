@@ -43,9 +43,6 @@
     <groupId>ddf.platform.theme</groupId>
     <name>DDF :: Distribution :: DDF-Theme</name>
     <packaging>jar</packaging>
-    <properties>
-        <command.prompt.title>DDF-${project.version}</command.prompt.title>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.platform.osgi</groupId>
