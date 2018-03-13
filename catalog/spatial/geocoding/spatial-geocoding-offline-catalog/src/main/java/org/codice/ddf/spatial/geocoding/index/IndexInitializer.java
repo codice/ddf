@@ -49,7 +49,8 @@ public class IndexInitializer {
     File defaultGeoNamesDataFile = Paths.get(defaultGeoNamesDataPath).toFile();
     if (!defaultGeoNamesDataFile.exists()) {
       LOGGER.warn(
-          "Could not locate default GeoNames data file at {}. Check that your distribution is not corrupted.");
+          "Could not locate default GeoNames data file at {}. Check that your distribution is not corrupted.",
+          defaultGeoNamesDataPath);
       return;
     }
     submitUpdateIndexToExecutorService(defaultGeoNamesDataFile);
