@@ -58,15 +58,6 @@ public class PermissionActivator implements BundleActivator {
     permAdminTracker.open();
 
     ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
-    // This is here as a workaround since there is no way to add additional permissions once the
-    // first table is loaded
-    // adding all of the permissions again after the last deny will not work anyways and will make
-    // the container slower
-    // in a quadratic way unless Equinox takes the patch submitted to them:
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=532194
-    if (conditionalPermissionAdmin.getConditionalPermissionInfos().hasMoreElements()) {
-      return;
-    }
     String policyDir = SecurityActions.getSystemProperty("ddf.home") + File.separator + "security";
     if (policyDir.startsWith("=")) {
       policyDir = policyDir.substring(1);
@@ -78,6 +69,7 @@ public class PermissionActivator implements BundleActivator {
     }
     ConditionalPermissionUpdate conditionalPermissionUpdate =
         conditionalPermissionAdmin.newConditionalPermissionUpdate();
+    conditionalPermissionUpdate.getConditionalPermissionInfos().clear();
     Priority priorityResult = null;
     List<ConditionalPermissionInfo> allGrantInfos = new ArrayList<>();
     List<ConditionalPermissionInfo> allDenyInfos = new ArrayList<>();
