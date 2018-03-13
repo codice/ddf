@@ -86,32 +86,40 @@ module.exports = Backbone.AssociatedModel.extend({
         this.resultCountsBySource = {};
     },
     sync: function (method, model, options) {
-        let aborted = false;
+        let handled = false;
         if (rpc !== null) {
             rpc.call('query', [options.data], options.timeout)
-                .then((res) => {
-                    if (!aborted) {
-                        options.success(res);
+            .then((res) => {
+                if (!handled) {
+                    handled = true;
+                    options.success(res);
+                }
+            })
+            .catch((res) => {
+                if (!handled) {
+                    handled = true;
+                    switch (res.code) {
+                        case 400:
+                        case 404:
+                        case 500:
+                            options.error({ responseJSON: res });
+                            break;
+                        default:
+                            Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
                     }
-                })
-                .catch((res) => {
-                    if (!aborted) {
-                        switch (res.code) {
-                            case 400:
-                            case 404:
-                            case 500:
-                                options.error({ responseJSON: res });
-                                break;
-                            default:
-                                Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
-                        }
-                    }
-                });
+                }
+            });  
+            model.trigger('request', model, null, options);
             return {
-              abort: () => { aborted = true; }
+                abort() { 
+                    if (!handled) {
+                        handled = true;
+                        options.error({ responseJSON: { message: 'Stopped' } });
+                    }
+                }
             };
         } else {
-            return Backbone.AssociatedModel.prototype.sync.apply(this, arguments);
+            return Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
         }
     },
     handleError: function (resultModel, response, sent) {
