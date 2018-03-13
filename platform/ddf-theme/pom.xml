@@ -40,7 +40,7 @@
         assembly using the maven-assemply-plugin and <componentDescriptors> to inject it (in resources)
   -->
     <artifactId>ddf-theme</artifactId>
-    <groupId>ddf.distribution.theme</groupId>
+    <groupId>ddf.platform.theme</groupId>
     <name>DDF :: Distribution :: DDF-Theme</name>
     <packaging>jar</packaging>
     <properties>
