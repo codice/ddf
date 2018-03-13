@@ -41,9 +41,10 @@ The following table lists the two pre-defined instances used by ${ddf-branding} 
 
 Each instance of the expansion service can be configured using a configuration file.
 The configuration file can have three different types of lines:
-comments:: any line prefixed with the `#` character is ignored as a comment (for readability, blank lines are also ignored)
-attribute separator:: a line starting with `separator=` defines the attribute separator string.
-rule:: all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
+
+* comments: any line prefixed with the `#` character is ignored as a comment (for readability, blank lines are also ignored)
+* attribute separator: a line starting with `separator=` defines the attribute separator string.
+* rule: all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
 
 The following configuration file defines the rules shown above in the example table (using the space as a separator):
 
@@ -119,9 +120,9 @@ Title : VP-Engineering : VP-Engineering VP Engineering
 
 ====== security:expand
 
-The security:expand command runs the expansion service on the provided data.
+The `security:expand` command runs the expansion service on the provided data.
 It takes an attribute and an original value, expands the original value using the current expansion service and ruleset and dumps the results.
-For the ruleset shown above, the expand command produces the following results:
+For the ruleset shown above, the `security:expand` command produces the following results:
 
 [source]
 ----
