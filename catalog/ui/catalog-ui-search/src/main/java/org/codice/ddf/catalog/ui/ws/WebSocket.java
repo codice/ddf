@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.ws;
 import java.io.IOException;
 import org.eclipse.jetty.websocket.api.Session;
 
+/** WebSocket is a thin wrapper over the org.eclipse.jetty.websocket.api.annotations. */
 public interface WebSocket {
   void onOpen(Session session);
 

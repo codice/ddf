@@ -81,13 +81,19 @@ public class JsonRpc implements WebSocket {
   }
 
   @Override
-  public void onOpen(Session session) {}
+  public void onOpen(Session session) {
+    // no action required on open
+  }
 
   @Override
-  public void onClose(Session session, int statusCode, String reason) {}
+  public void onClose(Session session, int statusCode, String reason) {
+    // no action required on close
+  }
 
   @Override
-  public void onError(Session session, Throwable ex) {}
+  public void onError(Session session, Throwable ex) {
+    // no action required on error
+  }
 
   private Object exec(Object message) {
 
