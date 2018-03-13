@@ -86,29 +86,34 @@ module.exports = Backbone.AssociatedModel.extend({
         this.resultCountsBySource = {};
     },
     sync: function (method, model, options) {
-        let handled = false;
         if (rpc !== null) {
-            rpc.call('query', [options.data], options.timeout)
-            .then((res) => {
-                if (!handled) {
-                    handled = true;
-                    options.success(res);
-                }
-            })
-            .catch((res) => {
-                if (!handled) {
-                    handled = true;
-                    switch (res.code) {
-                        case 400:
-                        case 404:
-                        case 500:
-                            options.error({ responseJSON: res });
-                            break;
-                        default:
-                            Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
+            let handled = false;
+            const promise = new Promise((resolve, reject) => {
+                rpc.call('query', [options.data], options.timeout)
+                .then((res) => {
+                    if (!handled) {
+                        handled = true;
+                        options.success(res);
+                        resolve([res, "success"]);
                     }
-                }
-            });  
+                })
+                .catch((res) => {
+                    if (!handled) {
+                        handled = true;
+                        switch (res.code) {
+                            case 400:
+                            case 404:
+                            case 500:
+                                res.options = options;
+                                options.error({ responseJSON: res });
+                                resolve([res, "error"]);
+                                break;
+                            default:
+                                Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
+                        }
+                    }
+                });  
+            });
             model.trigger('request', model, null, options);
             return {
                 abort() { 
@@ -116,6 +121,9 @@ module.exports = Backbone.AssociatedModel.extend({
                         handled = true;
                         options.error({ responseJSON: { message: 'Stopped' } });
                     }
+                },
+                promise() {
+                    return promise;
                 }
             };
         } else {
