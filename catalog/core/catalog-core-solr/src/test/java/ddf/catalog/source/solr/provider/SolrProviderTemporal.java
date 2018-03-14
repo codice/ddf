@@ -61,11 +61,15 @@ public class SolrProviderTemporal extends SolrProviderTestBase {
 
     DateTime endDT = new DateTime();
 
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
-    QueryImpl query = queryBuilder.during(Metacard.MODIFIED, startDT.toDate(), endDT.toDate());
-
+    QueryImpl query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.MODIFIED)
+                .is()
+                .during()
+                .dates(startDT.toDate(), endDT.toDate()));
     query.setStartIndex(1);
+    query.setRequestsTotalResultsCount(true);
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 

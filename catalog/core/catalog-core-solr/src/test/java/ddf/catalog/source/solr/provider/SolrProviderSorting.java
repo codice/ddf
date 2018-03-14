@@ -37,11 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -534,88 +536,78 @@ public class SolrProviderSorting extends SolrProviderTestBase {
 
     LOGGER.info("CREATED {} records.", response.getCreatedMetacards().size());
 
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
-    QueryImpl query =
-        queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
-
-    int maxSize = 20;
-    int startIndex = 2;
+    FilterFactory filterFactory = new FilterFactoryImpl();
 
     // STARTINDEX=2, MAXSIZE=20
-    query.setPageSize(maxSize);
-    query.setStartIndex(startIndex);
+    int maxSize = 20;
+    int startIndex = 2;
     SortByImpl sortBy =
         new SortByImpl(
-            queryBuilder.getFilterFactory().property(Metacard.EFFECTIVE),
+            filterFactory.property(Metacard.EFFECTIVE),
             org.opengis.filter.sort.SortOrder.ASCENDING);
-    query.setSortBy(sortBy);
+    QueryImpl query =
+        query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
     assertEquals(maxSize, sourceResponse.getResults().size());
-
     assertSorting(dates, startIndex, sourceResponse);
 
     // STARTINDEX=20, MAXSIZE=5
     // a match-all queryByProperty
-    query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
-
     maxSize = 5;
     startIndex = 20;
-    query.setPageSize(maxSize);
-    query.setStartIndex(startIndex);
     sortBy =
         new SortByImpl(
-            queryBuilder.getFilterFactory().property(Metacard.EFFECTIVE),
+            filterFactory.property(Metacard.EFFECTIVE),
             org.opengis.filter.sort.SortOrder.ASCENDING);
-    query.setSortBy(sortBy);
+    query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
     assertEquals(maxSize, sourceResponse.getResults().size());
-
     assertSorting(dates, startIndex, sourceResponse);
 
     // STARTINDEX=80, MAXSIZE=20
     // a match-all queryByProperty
-    query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
-
     maxSize = 20;
     startIndex = 80;
-    query.setPageSize(maxSize);
-    query.setStartIndex(startIndex);
     sortBy =
         new SortByImpl(
-            queryBuilder.getFilterFactory().property(Metacard.EFFECTIVE),
+            filterFactory.property(Metacard.EFFECTIVE),
             org.opengis.filter.sort.SortOrder.ASCENDING);
-    query.setSortBy(sortBy);
+    query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
     assertEquals(maxSize, sourceResponse.getResults().size());
-
     assertSorting(dates, startIndex, sourceResponse);
 
     // STARTINDEX=1, MAXSIZE=100
     // a match-all queryByProperty
-    query = queryBuilder.queryByProperty(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE);
-
     maxSize = 100;
     startIndex = 1;
-    query.setPageSize(maxSize);
-    query.setStartIndex(startIndex);
     sortBy =
         new SortByImpl(
-            queryBuilder.getFilterFactory().property(Metacard.EFFECTIVE),
+            filterFactory.property(Metacard.EFFECTIVE),
             org.opengis.filter.sort.SortOrder.ASCENDING);
-    query.setSortBy(sortBy);
+    query = query(Metacard.CONTENT_TYPE, MockMetacard.DEFAULT_TYPE, startIndex, maxSize, sortBy);
 
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
     assertEquals(maxSize, sourceResponse.getResults().size());
-
     assertSorting(dates, startIndex, sourceResponse);
+  }
+
+  private QueryImpl query(
+      String property, String value, int startIndex, int pageSize, SortBy sortBy) {
+    return new QueryImpl(
+        filterBuilder.attribute(property).is().equalTo().text(value),
+        startIndex,
+        pageSize,
+        sortBy,
+        true,
+        0);
   }
 
   private void assertSorting(Date[] dates, int startIndex, SourceResponse sourceResponse) {

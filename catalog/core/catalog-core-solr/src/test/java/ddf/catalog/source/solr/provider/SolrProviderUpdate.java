@@ -181,9 +181,9 @@ public class SolrProviderUpdate extends SolrProviderTestBase {
     verifyUpdates(uri1, uri2, updateResponse);
 
     // READ
-    CommonQueryBuilder builder = new CommonQueryBuilder();
-
-    QueryImpl query = builder.queryByProperty(Metacard.RESOURCE_URI, uri2);
+    QueryImpl query =
+        new QueryImpl(filterBuilder.attribute(Metacard.RESOURCE_URI).is().equalTo().text(uri2));
+    query.setRequestsTotalResultsCount(true);
 
     QueryRequestImpl queryRequest = new QueryRequestImpl(query);
     SourceResponse sourceResponse = provider.query(queryRequest);

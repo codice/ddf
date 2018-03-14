@@ -815,50 +815,88 @@ public class SolrProviderQuery extends SolrProviderTestBase {
 
     create(list);
 
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
     QueryImpl query;
     SourceResponse sourceResponse;
 
     // CONTEXTUAL QUERY - REGRESSION TEST OF SIMPLE TERMS
 
     // Find one
-    query = queryBuilder.like(Metacard.METADATA, Library.FLAGSTAFF_QUERY_PHRASE, true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText(Library.FLAGSTAFF_QUERY_PHRASE));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
     // Find the other
-    query = queryBuilder.like(Metacard.METADATA, Library.TAMPA_QUERY_PHRASE, true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText(Library.TAMPA_QUERY_PHRASE));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
     // Find nothing
-    query = queryBuilder.like(Metacard.METADATA, "NO_SUCH_WORD", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText("NO_SUCH_WORD"));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
 
     // Find both
-    query = queryBuilder.like(Metacard.METADATA, Library.AIRPORT_QUERY_PHRASE, true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText(Library.AIRPORT_QUERY_PHRASE));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
 
     // Phrase
-    query = queryBuilder.like(Metacard.METADATA, "Airport TPA in FL", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText("Airport TPA in FL"));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
     // NEGATIVE CASES
-    query = queryBuilder.like(Metacard.METADATA, "Tamp", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.METADATA).is().like().caseSensitiveText("Tamp"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "TAmpa", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.METADATA).is().like().caseSensitiveText("TAmpa"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "AIrport TPA in FL", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.METADATA)
+                .is()
+                .like()
+                .caseSensitiveText("AIrport TPA in FL"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
@@ -876,31 +914,45 @@ public class SolrProviderQuery extends SolrProviderTestBase {
 
     create(list);
 
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
     QueryImpl query;
     SourceResponse sourceResponse;
 
     // WILDCARD CASE SENSITIVE CONTEXTUAL QUERY
     query =
-        queryBuilder.like(
-            Metacard.ANY_TEXT, "http://www.flagstaffchamber.com/arizona-cardinals*", true, false);
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .caseSensitiveText("http://www.flagstaffchamber.com/arizona-cardinals*"));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.ANY_TEXT, "http://*10160", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .caseSensitiveText("http://*10160"));
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
     // NEGATIVE CASES
     query =
-        queryBuilder.like(
-            Metacard.ANY_TEXT, "HTTP://www.flagstaffchamber.com/arizona-cardinals*", true, false);
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .caseSensitiveText("HTTP://www.flagstaffchamber.com/arizona-cardinals*"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.ANY_TEXT, "10160*", true, false);
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText("10160*"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());
@@ -987,45 +1039,46 @@ public class SolrProviderQuery extends SolrProviderTestBase {
 
     create(list);
 
-    // CONTEXTUAL QUERY - SIMPLE TERMS
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
     QueryImpl query;
     SourceResponse sourceResponse;
 
-    query = queryBuilder.like(Metacard.METADATA, "Flag*ff Chamber", false, false);
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.METADATA).is().like().text("Flag*ff Chamber"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
     // FIX FOR THIS IS IN https://issues.apache.org/jira/browse/SOLR-1604
     // Either roll this in yourself or wait for it to come in with Solr
-    query = queryBuilder.like(Metacard.METADATA, "Flag*ff Pulliam", false, false);
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.METADATA).is().like().text("Flag*ff Pulliam"));
     query.setStartIndex(1);
     provider.query(new QueryRequestImpl(query));
     // assertEquals(0, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "*rport", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.METADATA).is().like().text("*rport"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "*rpor*", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.METADATA).is().like().text("*rpor*"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "*", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.METADATA).is().like().text("*"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "airpo*t", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.METADATA).is().like().text("airpo*t"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
 
-    query = queryBuilder.like(Metacard.METADATA, "Airpo*t", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.METADATA).is().like().text("Airpo*t"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(2, sourceResponse.getResults().size());
@@ -1174,10 +1227,13 @@ public class SolrProviderQuery extends SolrProviderTestBase {
   public void testPropertyIsEqualToCaseSensitive() throws Exception {
     deleteAll();
 
-    CommonQueryBuilder commonBuilder = new CommonQueryBuilder();
+    FilterFactory filterFactory = new FilterFactoryImpl();
+    Filter filter =
+        filterFactory.equal(
+            filterFactory.property(Metacard.TITLE), filterFactory.literal("Mary"), false);
 
     // Expect an exception
-    queryAndVerifyCount(0, commonBuilder.equalTo(Metacard.TITLE, "Mary", false));
+    queryAndVerifyCount(0, filter);
   }
 
   /** Tests the offset aka start index (startIndex) functionality. */
@@ -1202,9 +1258,15 @@ public class SolrProviderQuery extends SolrProviderTestBase {
     create(list);
 
     // CONTEXTUAL QUERY
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-
-    QueryImpl query = queryBuilder.queryByProperty(Metacard.TITLE, Library.FLAGSTAFF_QUERY_PHRASE);
+    QueryImpl query =
+        new QueryImpl(
+            filterBuilder
+                .attribute(Metacard.TITLE)
+                .is()
+                .equalTo()
+                .text(Library.FLAGSTAFF_QUERY_PHRASE));
+    query.setStartIndex(1);
+    query.setRequestsTotalResultsCount(true);
 
     int index;
     int maxSize = 9;
