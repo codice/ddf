@@ -147,7 +147,7 @@ public class IngestCommand extends CatalogCommands {
   @Argument(
     name = "File path or Directory path",
     description =
-        "Path to a file or a directory of files to be ingested. Paths can be absolute or relative to installation directory."
+        "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory."
             + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
     index = 0,
     multiValued = false,
@@ -174,7 +174,7 @@ public class IngestCommand extends CatalogCommands {
     aliases = {"-t", "Transformer"},
     multiValued = false,
     description =
-        "The metacard transformer ID to use to transform data files into metacards. "
+        "The metacard transformer ID to use to transform data file(s) into metacard(s). "
             + "The default metacard transformer is the XML transformer."
   )
   String transformerId = DEFAULT_TRANSFORMER_ID;
@@ -197,7 +197,7 @@ public class IngestCommand extends CatalogCommands {
     aliases = {"-d", "-f", "Ingest Failure Directory"},
     multiValued = false,
     description =
-        "The directory to put files that failed to ingest.  Using this option will force a batch size of 1."
+        "The directory to put file(s) that failed to ingest. Using this option will force a batch size of 1."
   )
   String failedDir = null;
 
@@ -227,7 +227,7 @@ public class IngestCommand extends CatalogCommands {
     aliases = {},
     multiValued = false,
     description =
-        "Ingest a zip file that contains metacards and content using the default transformer.  The specified zip must be signed externally using DDF certificates."
+        "Ingest a zip file that contains metacards and content using the default transformer. The specified zip must be signed externally using DDF certificates."
   )
   boolean includeContent = false;
 
@@ -328,20 +328,20 @@ public class IngestCommand extends CatalogCommands {
             Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
         console.println();
         printErrorMessage(
-            failedAmount + " file(s) failed to be ingested.  See the ingest log for more details.");
-        INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+            failedAmount + " file(s) failed to be ingested. See the ingest log for more details.");
+        INGEST_LOGGER.warn("{} file(s) failed to be ingested.", failedAmount);
       }
       if (ignoreList != null) {
         String ignoredAmount = Integer.toString(ignoreCount.get());
         console.println();
         printColor(
             Ansi.Color.YELLOW,
-            ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
-        INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
+            ignoredAmount + " file(s) ignored. See the ingest log for more details.");
+        INGEST_LOGGER.warn("{} file(s) were ignored.", ignoredAmount);
       }
     }
     console.println();
-    SecurityLogger.audit("Ingested {} files from {}", ingestCount.get(), filePath);
+    SecurityLogger.audit("Ingested {} file(s) from {}", ingestCount.get(), filePath);
     return null;
   }
 
@@ -445,7 +445,7 @@ public class IngestCommand extends CatalogCommands {
   private void logIngestException(IngestException exception, File inputFile) {
     LOGGER.debug("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
     INGEST_LOGGER.warn(
-        "Failed to ingest file [{}]:  \n{}",
+        "Failed to ingest file [{}]:\n{}",
         inputFile.getAbsolutePath(),
         Exceptions.getFullMessage(exception));
   }
@@ -680,9 +680,9 @@ public class IngestCommand extends CatalogCommands {
         INGEST_LOGGER.warn("Unable to transform zip file into metacard list.", e);
       }
     } else {
-      LOGGER.info("No Zip Transformer found.  Unable to transform zip file into metacard list.");
+      LOGGER.info("No Zip Transformer found. Unable to transform zip file into metacard list.");
       INGEST_LOGGER.warn(
-          "No Zip Transformer found.  Unable to transform zip file into metacard list.");
+          "No Zip Transformer found. Unable to transform zip file into metacard list.");
     }
   }
 

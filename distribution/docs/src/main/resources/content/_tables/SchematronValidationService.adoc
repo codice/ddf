@@ -23,17 +23,19 @@
 |null
 |true
 
-|Root Namepsace
+|Root Namespace
 |namespace
 |String
 |The root namespace of the XML
 |null
 |true
 
-|Schematron Files
+|Schematron File Names
 |schematronFileNames
 |String
-|Schematron files (*.sch) to be validated against
+|Names of schematron files (*.sch) against which to validate metadata ingested into the Catalog.
+Absolute paths or relative paths may be specified.
+Relative paths are assumed to be relative to `${home_directory}/schematron`.
 |null
 |true
 
