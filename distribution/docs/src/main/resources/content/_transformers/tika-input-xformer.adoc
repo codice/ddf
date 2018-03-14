@@ -20,7 +20,7 @@ This allows any registered input transformers that are more specific to a docume
 |Mime-types
 
 |N/A
-|This basic transformer can ingest many file types. See <<_all_formats_supported,All Formats Supported>>.
+|This basic transformer can ingest many file types. See <<_all_file_formats_supported,All Formats Supported>>.
 |===
 
 ===== Installing the Tika Input Transformer
@@ -29,7 +29,7 @@ This transformer is installed by default with a standard installation in the ${d
 
 ===== Configuring the Tika Input Transformer
 
-The properties below describe how to configure the tika input transformer.
+The properties below describe how to configure the Tika input transformer.
 
 See <<ddf.catalog.transformer.input.tika.TikaInputTransformer,Tika Input Transformer configurations>> for all possible configurations.
 

@@ -1,9 +1,9 @@
-:title: Format-specific Attribute Mappings
+:title: File Format-specific Attributes
 :type: appendix
 :status: published
 :parent: Metadata Attributes
 :order: 01
-:summary: Format-specific attribute mappings by data/file format.
+:summary: File format-specific attribute mappings by data/file format.
 
 == {title}
 

@@ -1,7 +1,7 @@
-:title: Core Attributes Table
+:title: Core Attributes
 :type: subAppendix
 :order: 00
-:parent: Catalog Taxonomy
+:parent: Catalog Taxonomy Definitions
 :status: published
 :summary: Core Attributes.
 
@@ -16,57 +16,57 @@
 |Constraints
 |Example Value
 
-|title
+|[[title]]title
 |A name for the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#elements-title[Dublin Core elements-title].
 |String
 |< 1024 characters
 |
 
-|source-id
+|[[source-id]]source-id
 |ID of the source where the Metacard is cataloged. While this cannot be moved or renamed for legacy reasons, it should be treated as non-mappable, since this field is overwritten by the system when federated results are retrieved.
 |String
 |< 1024 characters
 |
 
-|metadata-content-type *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|metadata-content-type *[deprecated]* _see <<_media_attributes,Media Attributes>>_
 |Content type of the resource.
 |String
 |< 1024 characters
 | 
 
-|metadata-content-type-version *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|metadata-content-type-version *[deprecated]* _see <<_media_attributes,Media Attributes>>_
 |Version of the metadata content type of the resource.
 |String
 |< 1024 characters
 | 
 
-|metadata-target-namespace *[deprecated]* _see <<_media_attributes_table,Media Attributes>>_
+|metadata-target-namespace *[deprecated]* _see <<_media_attributes,Media Attributes>>_
 |Target namespace of the metadata.
 |String
 |< 1024 characters
 | 
 
-|metadata
+|[[metadata]]metadata
 |Additional XML metadata describing the resource.
 |XML
 |A valid XML string per RFC 4825 (must be well-formed but not necessarily schema-compliant).
 |
 
-|location
+|[[location]]location
 |The primary geospatial location of the resource.
 |Geometry
 |Valid Well Known Text (WKT) per http://www.opengeospatial.org/standards/wkt-crs +
 __Coordinates must be in *lon-lat* coordinate order__
 |POINT(150 30)
 
-|expiration
+|[[expiration]]expiration
 |The expiration date of the resource.
 |Date
 |
 |
 
 |effective *[deprecated]*
-|The `effective` time of the event or resource  represented by the metacard. Deprecated in favor of <<created>> and <<modified>>.
+|The `effective` time of the event or resource  represented by the metacard. Deprecated in favor of <<created,created>> and <<modified,modified>>.
 |Date
 | 
 |
@@ -77,80 +77,80 @@ __Coordinates must be in *lon-lat* coordinate order__
 |< 1024 characters
 |
 
-|resource-uri
+|[[resource-uri]]resource-uri
 |Location of the resource for the metacard.
 |String
 |Valid URI per RFC 2396
 |
 
-|resource-download-url
+|[[resource-download-url]]resource-download-url
 |URL location of the resource for the metacard. This attributes provides a resolvable URL to the download location of the resource.
 |String
 |Valid URL per RFC 2396
 |
 
-|resource-size
+|[[resource-size]]resource-size
 |Size in bytes of resource.
 |String
 |Although this type cannot be changed for legacy reasons, its value should always be a parsable whole number.
 |
 
-|thumbnail
+|[[thumbnail]]thumbnail
 |The thumbnail for the resource in JPEG format.
 |Base 64 encoded binary string per RFC 4648
 |<= 128 KB
 |
 
-|description
+|[[description]]description
 |An account of the resource. http://dublincore.org/documents/dcmi-terms/#elements-description[Dublin Core elements-description].
 |String
 |
 |
 
-|checksum
+|[[checksum]]checksum
 |Checksum value for the primary resource for the metacard.
 |String
 |< 1024 characters
 |
 
-|checksum-algorithm
+|[[checksum-algorithm]]checksum-algorithm
 |Algorithm used to calculate the checksum on the primary resource of the metacard.
 |String
 |< 1024 characters
 |
 
-|created
+|[[created]]created
 |The creation date of the resource http://dublincore.org/documents/dcmi-terms/#terms-created[Dublin Core terms-created].
 |Date
 |
 |
 
 
-|modified
+|[[modified]]modified
 |The modification date of the resource http://dublincore.org/documents/dcmi-terms/#terms-modified[Dublin Core terms-modified].
 |Date
 |
 |
 
-|language
+|[[language]]language
 |The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language].
 |List of Strings
 |Alpha-3 language code(s) per ISO_639-2
 |
 
-|resource.derived-download-url
+|[[resource.derived-download-url]]resource.derived-download-url
 |Download URL(s) for accessing the derived formats for the metacard resource.
 |List of Strings
 |Valid URL(s) per RFC 2396
 |
 
-|resource.derived-uri
+|[[resource.derived-uri]]resource.derived-uri
 |Location(s) for accessing the derived formats for the metacard resource.
 |List of Strings
 |Valid URI per RFC 2396
 |
 
-|datatype
+|[[datatype]]datatype
 |The generic type(s) of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type]. DCMI Type term labels are expected here as opposed to term names.
 |List of Strings
 |`Collection`, `Dataset`, `Event`, `Image`, `Interactive Resource`, `Moving Image`, `Physical Object`, `Service`, `Software`, `Sound`, `Still Image`, and/or `Text`
