@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.forms;
 
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
 import ddf.catalog.data.Metacard;
@@ -66,7 +67,7 @@ public class SearchFormsLoaderTest {
   private static void expectedCounts(
       List<Metacard> metacards, int total, int queryTemplates, int resultTemplates) {
     assertThat(
-        "Expected total number of generated metacards to be " + total, metacards.size(), is(total));
+        "Expected total number of generated metacards to be " + total, metacards, hasSize(total));
     assertThat(
         "Expected number of generated query template metacards to be " + queryTemplates,
         metacards.stream().filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard).count(),

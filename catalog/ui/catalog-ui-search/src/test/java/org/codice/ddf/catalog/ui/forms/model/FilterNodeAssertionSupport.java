@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
 import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode;
@@ -23,6 +25,16 @@ import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
 /** As more test cases are added, more support functions will be needed. */
 class FilterNodeAssertionSupport {
   private FilterNodeAssertionSupport() {}
+
+  static void assertParentNode(FilterNode node, String expectedType, int expectedChildCount) {
+    assertParentNode(node, expectedType);
+    assertThat(node.getNodes(), hasSize(expectedChildCount));
+  }
+
+  static void assertParentNode(FilterNode node, String expectedType) {
+    assertThat(node.getType(), is(expectedType));
+    assertThat(node.getNodes(), notNullValue());
+  }
 
   static void assertLeafNode(
       FilterNode node, String expectedType, String expectedProperty, String expectedValue) {

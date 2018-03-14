@@ -14,7 +14,7 @@
 package org.codice.ddf.catalog.ui.forms.data;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.types.Core;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,8 +37,8 @@ import java.util.List;
 public class QueryTemplateMetacardImpl extends ShareableMetacardImpl {
   public QueryTemplateMetacardImpl(String title, String description) {
     super(new FormTypes.Query());
-    setAttribute(CoreAttributes.TITLE, title);
-    setAttribute(CoreAttributes.DESCRIPTION, description);
+    setAttribute(Core.TITLE, title);
+    setAttribute(Core.DESCRIPTION, description);
     setTags(Collections.singleton(FormAttributes.Query.TAG));
   }
 

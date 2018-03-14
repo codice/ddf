@@ -42,6 +42,10 @@ public class JsonTransformVisitorTest {
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/filter2");
 
+  private static final String DEPTH_PROP = "depth";
+
+  private static final String DEPTH_VAL = "100";
+
   private JsonTransformVisitor visitor;
 
   @Before
@@ -52,38 +56,38 @@ public class JsonTransformVisitorTest {
   @Test
   public void testVisitPropertyIsEqualTo() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsEqualTo.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "=", "depth", "100");
+    assertLeafNode(visitor.getResult(), "=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsNotEqualTo() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsNotEqualTo.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "!=", "depth", "100");
+    assertLeafNode(visitor.getResult(), "!=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsLessThan() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsLessThan.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "<", "depth", "100");
+    assertLeafNode(visitor.getResult(), "<", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsLessThanOrEqualTo() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsLessThanOrEqualTo.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), "<=", "depth", "100");
+    assertLeafNode(visitor.getResult(), "<=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThan() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsGreaterThan.xml").accept(visitor);
-    assertLeafNode(visitor.getResult(), ">", "depth", "100");
+    assertLeafNode(visitor.getResult(), ">", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThanOrEqualTo() throws Exception {
     getRootFilterNode("comparison-binary-ops", "PropertyIsGreaterThanOrEqualTo.xml")
         .accept(visitor);
-    assertLeafNode(visitor.getResult(), ">=", "depth", "100");
+    assertLeafNode(visitor.getResult(), ">=", DEPTH_PROP, DEPTH_VAL);
   }
 
   private static VisitableXmlElement getRootFilterNode(String... resourceRoute) throws Exception {

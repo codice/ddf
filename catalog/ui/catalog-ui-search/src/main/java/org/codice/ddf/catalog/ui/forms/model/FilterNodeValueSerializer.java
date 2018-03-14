@@ -20,6 +20,8 @@ import org.boon.core.reflection.fields.FieldAccess;
 import org.boon.json.serializers.CustomFieldSerializer;
 import org.boon.json.serializers.JsonSerializerInternal;
 import org.boon.primitive.CharBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode} requires polymorphic
@@ -33,6 +35,8 @@ import org.boon.primitive.CharBuf;
  * out to their proper type.
  */
 public class FilterNodeValueSerializer implements CustomFieldSerializer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FilterNodeValueSerializer.class);
+
   @Override
   public boolean serializeField(
       JsonSerializerInternal serializer, Object parent, FieldAccess fieldAccess, CharBuf builder) {
@@ -40,9 +44,10 @@ public class FilterNodeValueSerializer implements CustomFieldSerializer {
     String name = field.getName();
 
     boolean shouldManuallySerialize =
-        (name.equals("value") || name.equals("defaultValue"))
+        ("value".equals(name) || "defaultValue".equals(name))
             && field.getType().equals(String.class);
     if (!shouldManuallySerialize) {
+      LOGGER.trace("Special serialization is not needed for field '{}'", name);
       return false;
     }
 
@@ -55,6 +60,7 @@ public class FilterNodeValueSerializer implements CustomFieldSerializer {
     }
 
     if (fieldValue == null) {
+      LOGGER.debug("Field '{}' held a null value, no special serialization needed", name);
       return false;
     }
 
@@ -62,27 +68,32 @@ public class FilterNodeValueSerializer implements CustomFieldSerializer {
 
     Integer i = Ints.tryParse(fieldValue);
     if (i != null) {
+      LOGGER.debug("Found Integer '{}' on field '{}', serializing appropriately", i, name);
       builder.addInt(i);
       return true;
     }
 
     Double d = Doubles.tryParse(fieldValue);
     if (d != null) {
+      LOGGER.debug("Found Double '{}' on field '{}', serializing appropriately", d, name);
       builder.addDouble(d);
       return true;
     }
 
     if (fieldValue.equalsIgnoreCase("true")) {
+      LOGGER.debug("Found Boolean '{}' on field '{}', serializing appropriately", fieldValue, name);
       builder.addBoolean(true);
       return true;
     }
 
     if (fieldValue.equalsIgnoreCase("false")) {
+      LOGGER.debug("Found Boolean '{}' on field '{}', serializing appropriately", fieldValue, name);
       builder.addBoolean(false);
       return true;
     }
 
     // Assume plain String
+    LOGGER.debug("Found String '{}' on field '{}', serializing appropriately", fieldValue, name);
     builder.addQuoted(fieldValue);
     return true;
   }

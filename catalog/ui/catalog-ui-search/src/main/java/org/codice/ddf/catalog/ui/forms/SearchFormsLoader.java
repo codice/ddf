@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,6 +44,17 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsLoader.class);
+
+  private static final Function<File, Consumer<? super Object>> UNEXPECTED_CONFIG_CONSUMER_FACTORY =
+      file ->
+          obj -> {
+            if (!Map.class.isInstance(obj)) {
+              LOGGER.warn(
+                  "Unexpected configuration in {}, values should be maps not {}",
+                  file.getName(),
+                  obj);
+            }
+          };
 
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
@@ -68,14 +80,15 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   @Override
   public List<Metacard> get() {
     if (!configDirectory.exists()) {
-      LOGGER.debug("Could not locate forms directory");
+      LOGGER.warn("Could not locate forms directory [{}]", configDirectory.getAbsolutePath());
       return Collections.emptyList();
     }
 
     // What's our policy here? Do we want the system to blowup / make noise if this isn't possible?
     // Especially due to the security manager?
     if (!configDirectory.canRead()) {
-      LOGGER.debug("Forms directory exists but could not be read");
+      LOGGER.warn(
+          "Forms directory [{}] exists but could not be read", configDirectory.getAbsolutePath());
       return Collections.emptyList();
     }
 
@@ -87,7 +100,15 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
         .collect(Collectors.toList());
   }
 
-  /** Read the provided JSON file and return a stream of metacards. */
+  /**
+   * Read the provided JSON file and return a stream of metacards.
+   *
+   * @param file the JSON file to read.
+   * @param mapper a transform function for converting raw JSON config into either a query or result
+   *     template metacard, as appropriate
+   * @return a stream of the converted metacards.
+   */
+  @SuppressWarnings("unchecked")
   private Stream<Metacard> loadFile(File file, Function<? super Map, Metacard> mapper) {
     if (!file.exists()) {
       LOGGER.debug("Could not locate {}", file.getName());
@@ -100,30 +121,27 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
       return Stream.empty();
     }
 
-    try {
-      return Stream.of(Boon.fromJson(payload))
-          .map(List.class::cast)
-          .flatMap(List::stream)
-          .filter(Map.class::isInstance)
-          .map(Map.class::cast)
-          .map(mapper)
-          .filter(Objects::nonNull)
-          // Invoke a terminal operation so the exception can be handled here
-          .collect(Collectors.toList())
-          .stream();
-    } catch (ClassCastException e) {
+    Object configObject = Boon.fromJson(payload);
+    if (!List.class.isInstance(configObject)) {
       LOGGER.warn(
           "Could not load forms configuration in {}, JSON should be a list of maps",
           file.getName());
       return Stream.empty();
     }
+
+    List<Object> configs = (List) configObject;
+    return configs
+        .stream()
+        .peek(UNEXPECTED_CONFIG_CONSUMER_FACTORY.apply(file))
+        .filter(Map.class::isInstance)
+        .map(Map.class::cast)
+        .map(mapper)
+        .filter(Objects::nonNull);
   }
 
   /** Parse the JSON map for initializing system form templates. */
   @Nullable
   private Metacard formMapper(Map map) {
-    LOGGER.debug("Starting form processing...");
-
     String title = safeGet(map, "title", String.class);
     String description = safeGet(map, "description", String.class);
     String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
@@ -153,8 +171,6 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /** Parse the JSON map for initializing system result templates. */
   @Nullable
   private Metacard resultsMapper(Map map) {
-    LOGGER.debug("Starting result processing...");
-
     String title = safeGet(map, "title", String.class);
     String description = safeGet(map, "description", String.class);
     List<String> descriptors = safeGetList(map, "descriptors", String.class);

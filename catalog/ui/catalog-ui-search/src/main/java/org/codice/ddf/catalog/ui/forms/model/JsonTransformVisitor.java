@@ -53,7 +53,18 @@ import org.slf4j.LoggerFactory;
 public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonTransformVisitor.class);
 
+  private static final Function<Serializable, Boolean> BOOL_FUNC =
+      s -> Boolean.parseBoolean((String) s);
+
   private static final String FORMS_FUNCTION_V1 = "forms.function.1";
+
+  private static final Integer DEFAULT_VALUE_INDEX = 0;
+
+  private static final Integer NODE_ID_INDEX = 1;
+
+  private static final Integer IS_VISIBLE_INDEX = 2;
+
+  private static final Integer IS_READONLY_INDEX = 3;
 
   private static final Map<String, String> BINARY_COMPARE_MAPPING =
       ImmutableMap.<String, String>builder()
@@ -75,8 +86,8 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   @Override
   public void visitString(VisitableXmlElement<String> visitable) {
     JAXBElement<String> element = visitable.getElement();
-    LOGGER.debug(element.getName().getLocalPart());
-    LOGGER.debug(element.getValue());
+    traceLocalPart(element.getName().getLocalPart());
+    traceValue(element.getValue());
 
     builder.setProperty(element.getValue());
   }
@@ -84,7 +95,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   @Override
   public void visitLiteralType(VisitableXmlElement<LiteralType> visitable) {
     JAXBElement<LiteralType> element = visitable.getElement();
-    LOGGER.debug(element.getName().getLocalPart());
+    traceLocalPart(element.getName().getLocalPart());
 
     List<Serializable> values = element.getValue().getContent();
     if (values == null || values.isEmpty()) {
@@ -92,15 +103,18 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
       return;
     }
 
+    if (LOGGER.isTraceEnabled()) {
+      values.forEach(this::traceValue);
+    }
+
     // Assumption: we only support one literal value
-    values.forEach(v -> LOGGER.debug((String) v));
     builder.setValue(values.get(0).toString());
   }
 
   @Override
   public void visitFunctionType(VisitableXmlElement<FunctionType> visitable) {
     JAXBElement<FunctionType> element = visitable.getElement();
-    LOGGER.debug(element.getName().getLocalPart());
+    traceLocalPart(element.getName().getLocalPart());
 
     FunctionType functionType = element.getValue();
     String functionName = functionType.getName();
@@ -113,20 +127,21 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
               .map(JAXBElement::getValue)
               .map(LiteralType.class::cast)
               .flatMap(
-                  t ->
-                      (t.getContent() == null || t.getContent().isEmpty())
+                  literalType ->
+                      (literalType.getContent() == null || literalType.getContent().isEmpty())
                           ? Stream.of(Optional.<Serializable>empty())
-                          : t.getContent().stream().map(Optional::of))
+                          : literalType.getContent().stream().map(Optional::of))
               .collect(Collectors.toList());
 
-      args.forEach(o -> LOGGER.debug(o.toString()));
+      if (LOGGER.isTraceEnabled()) {
+        args.stream().map(optional -> optional.orElse(null)).forEach(this::traceValue);
+      }
 
-      Function<Serializable, Boolean> boolFunc = s -> Boolean.parseBoolean((String) s);
       builder.setTemplatedValues(
-          get(args, 0, String.class), /* Default Value */
-          get(args, 1, String.class), /* Node ID */
-          get(args, 2, boolFunc), /* Is Visible */
-          get(args, 3, boolFunc)); /* Is Read-only */
+          get(args, DEFAULT_VALUE_INDEX, String.class),
+          get(args, NODE_ID_INDEX, String.class),
+          get(args, IS_VISIBLE_INDEX, BOOL_FUNC),
+          get(args, IS_READONLY_INDEX, BOOL_FUNC));
 
     } else {
       throw new FilterProcessingException("Could not find a valid function name");
@@ -137,7 +152,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   public void visitBinaryLogicType(VisitableXmlElement<BinaryLogicOpType> visitable) {
     JAXBElement<BinaryLogicOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    LOGGER.debug(localPart);
+    traceLocalPart(localPart);
 
     builder.beginBinaryLogicType(localPart.toUpperCase());
     element.getValue().getOps().forEach(jax -> makeVisitable(jax).accept(this));
@@ -148,7 +163,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   public void visitBinaryComparisonType(VisitableXmlElement<BinaryComparisonOpType> visitable) {
     JAXBElement<BinaryComparisonOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    LOGGER.debug(localPart);
+    traceLocalPart(localPart);
 
     String operator = BINARY_COMPARE_MAPPING.get(localPart);
     if (operator == null) {

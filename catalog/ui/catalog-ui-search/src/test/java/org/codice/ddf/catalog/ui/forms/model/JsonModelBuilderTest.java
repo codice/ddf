@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
-import static org.hamcrest.CoreMatchers.not;
+import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertParentNode;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -28,6 +28,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class JsonModelBuilderTest {
+  private static final String AND = "AND";
+
+  private static final String OR = "OR";
 
   private static void setupDefaultTestValue(JsonModelBuilder builder) {
     builder
@@ -199,6 +202,7 @@ public class JsonModelBuilderTest {
       new JsonModelBuilder().beginBinaryComparisonType("<");
       new JsonModelBuilder().beginBinaryComparisonType("<=");
       new JsonModelBuilder().beginBinaryComparisonType("!=");
+      // No IllegalArgumentException indicates a passing test
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -207,10 +211,10 @@ public class JsonModelBuilderTest {
     }
 
     @Test
-    public void testBinaryLogicType() {
+    public void testBinaryLogicTypeAnd() {
       FilterNode node =
           builder
-              .beginBinaryLogicType("AND")
+              .beginBinaryLogicType(AND)
               .beginBinaryComparisonType("=")
               .setProperty("name")
               .setValue("value")
@@ -218,15 +222,14 @@ public class JsonModelBuilderTest {
               .endBinaryLogicType()
               .getResult();
 
-      assertThat("", node.getType(), is("AND"));
-      assertThat("", node.getNodes(), is(not(nullValue())));
-      assertThat("", node.getNodes().size(), is(1));
+      assertParentNode(node, AND, 1);
     }
 
     @Test
     public void testBinaryLogicTypeAllOperators() {
-      new JsonModelBuilder().beginBinaryLogicType("AND");
-      new JsonModelBuilder().beginBinaryLogicType("OR");
+      new JsonModelBuilder().beginBinaryLogicType(AND);
+      new JsonModelBuilder().beginBinaryLogicType(OR);
+      // No IllegalArgumentException indicates a passing test
     }
 
     @Test(expected = IllegalArgumentException.class)

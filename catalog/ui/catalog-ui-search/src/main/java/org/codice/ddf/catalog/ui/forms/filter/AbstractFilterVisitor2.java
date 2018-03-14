@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -56,7 +57,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitFilter(VisitableXmlElement<FilterType> visitable) {
     JAXBElement<FilterType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
 
     FilterType filterType = element.getValue();
     JAXBElement<?> root =
@@ -70,7 +71,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
             .orElse(null);
 
     if (root != null) {
-      LOGGER.debug("Valid root found, beginning traversal...");
+      LOGGER.trace("Valid root found, beginning traversal...");
       makeVisitable(root).accept(this);
       return;
     }
@@ -89,63 +90,63 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitString(VisitableXmlElement<String> visitable) {
     JAXBElement<String> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitLiteralType(VisitableXmlElement<LiteralType> visitable) {
     JAXBElement<LiteralType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitFunctionType(VisitableXmlElement<FunctionType> visitable) {
     JAXBElement<FunctionType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitUnaryLogicType(VisitableXmlElement<UnaryLogicOpType> visitable) {
     JAXBElement<UnaryLogicOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitBinaryTemporalType(VisitableXmlElement<BinaryTemporalOpType> visitable) {
     JAXBElement<BinaryTemporalOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitBinarySpatialType(VisitableXmlElement<BinarySpatialOpType> visitable) {
     JAXBElement<BinarySpatialOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitDistanceBufferType(VisitableXmlElement<DistanceBufferType> visitable) {
     JAXBElement<DistanceBufferType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitBoundingBoxType(VisitableXmlElement<BBOXType> visitable) {
     JAXBElement<BBOXType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitBinaryLogicType(VisitableXmlElement<BinaryLogicOpType> visitable) {
     JAXBElement<BinaryLogicOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
 
     element.getValue().getOps().forEach(jax -> makeVisitable(jax).accept(this));
   }
@@ -154,7 +155,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitBinaryComparisonType(VisitableXmlElement<BinaryComparisonOpType> visitable) {
     JAXBElement<BinaryComparisonOpType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
 
     element.getValue().getExpression().forEach(jax -> makeVisitable(jax).accept(this));
   }
@@ -163,32 +164,28 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitPropertyIsLikeType(VisitableXmlElement<PropertyIsLikeType> visitable) {
     JAXBElement<PropertyIsLikeType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitPropertyIsNullType(VisitableXmlElement<PropertyIsNullType> visitable) {
     JAXBElement<PropertyIsNullType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitPropertyIsNilType(VisitableXmlElement<PropertyIsNilType> visitable) {
     JAXBElement<PropertyIsNilType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
+    traceLocalPart(localPart);
   }
 
   @Override
   public void visitPropertyIsBetweenType(VisitableXmlElement<PropertyIsBetweenType> visitable) {
     JAXBElement<PropertyIsBetweenType> element = visitable.getElement();
     String localPart = element.getName().getLocalPart();
-    logLocalPart(localPart);
-  }
-
-  private static void logLocalPart(String localPart) {
-    LOGGER.debug(localPart);
+    traceLocalPart(localPart);
   }
 
   private static void handleUnsupported(Object type) {
@@ -203,6 +200,14 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
       throw new IllegalArgumentException(
           "Encountered filter with unsupported element: " + type.getClass().getName());
     }
+  }
+
+  protected void traceLocalPart(String localPart) {
+    LOGGER.trace("Local Part: {}", localPart);
+  }
+
+  protected void traceValue(Serializable value) {
+    LOGGER.trace("Value: {}", value);
   }
 
   protected VisitableXmlElement makeVisitable(JAXBElement element) {

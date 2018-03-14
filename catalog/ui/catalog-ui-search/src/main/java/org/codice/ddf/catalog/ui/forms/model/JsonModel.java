@@ -16,7 +16,7 @@ package org.codice.ddf.catalog.ui.forms.model;
 import static org.codice.ddf.catalog.ui.util.AccessUtils.safeGet;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.types.Core;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -78,12 +78,11 @@ public class JsonModel {
     private final String owner;
 
     public CommonTemplate(Metacard metacard) {
-      this.id = safeGet(metacard, Metacard.ID, String.class);
-      this.title = safeGet(metacard, Metacard.TITLE, String.class);
-      this.description = safeGet(metacard, Metacard.DESCRIPTION, String.class);
-      this.created = safeGet(metacard, Metacard.CREATED, Date.class);
-      // Owner is not on the Metacard interface
-      this.owner = safeGet(metacard, CoreAttributes.METACARD_OWNER, String.class);
+      this.id = safeGet(metacard, Core.ID, String.class);
+      this.title = safeGet(metacard, Core.TITLE, String.class);
+      this.description = safeGet(metacard, Core.DESCRIPTION, String.class);
+      this.created = safeGet(metacard, Core.CREATED, Date.class);
+      this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
     }
 
     public String getId() {

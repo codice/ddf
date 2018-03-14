@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -90,8 +91,8 @@ public class SearchFormsApplication implements SparkApplication {
    */
   public void setup() {
     Function<Map<String, Result>, Set<String>> titles =
-        m ->
-            m.entrySet()
+        map ->
+            map.entrySet()
                 .stream()
                 .map(Map.Entry::getValue)
                 .map(Result::getMetacard)
@@ -102,17 +103,18 @@ public class SearchFormsApplication implements SparkApplication {
     Set<String> resultTitles = queryAsAdmin(FormAttributes.Result.TAG, titles);
     List<Metacard> initialTemplates = config().get();
 
-    initialTemplates
-        .stream()
-        .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
-        .filter(m -> !queryTitles.contains(m.getTitle()))
-        .forEach(this::saveMetacard);
+    Stream<Metacard> metacardStream =
+        Stream.concat(
+            initialTemplates
+                .stream()
+                .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
+                .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
+            initialTemplates
+                .stream()
+                .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
+                .filter(metacard -> !resultTitles.contains(metacard.getTitle())));
 
-    initialTemplates
-        .stream()
-        .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
-        .filter(m -> !resultTitles.contains(m.getTitle()))
-        .forEach(this::saveMetacard);
+    saveMetacards(metacardStream.collect(Collectors.toList()));
   }
 
   /** Spark's API-mandated init (not OSGi related) for registering REST functions. */
@@ -187,24 +189,28 @@ public class SearchFormsApplication implements SparkApplication {
             return SECURITY.runWithSubjectOrElevate(
                 () -> transform.apply(util.getMetacardsByFilter(tag)));
           } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.error("Can't query catalog", e);
+            LOGGER.warn(
+                "Can't query the catalog while trying to initialize system search templates, was "
+                    + "unable to elevate privileges",
+                e);
           }
           return Collections.emptySet();
         });
   }
 
-  private void saveMetacard(Metacard metacard) {
+  private void saveMetacards(List<Metacard> metacards) {
     SECURITY.runAsAdmin(
         () -> {
           try {
             return SECURITY.runWithSubjectOrElevate(
                 () ->
                     catalogFramework
-                        .create(new CreateRequestImpl(metacard))
-                        .getCreatedMetacards()
-                        .get(0));
+                        .create(new CreateRequestImpl(metacards))
+                        .getCreatedMetacards());
           } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.error("Can't create metacard", e);
+            LOGGER.warn(
+                "Can't create metacard for system search template, was unable to elevate privileges",
+                e);
           }
           return null;
         });

@@ -31,54 +31,59 @@ public class AccessUtils {
   }
 
   @Nullable
-  public static <T> T safeGet(Metacard m, String name, Class<T> type) {
-    Attribute a = m.getAttribute(name);
-    if (a == null) {
-      LOGGER.debug("Attribute {} was null for metacard {}", name, m);
+  public static <T> T safeGet(Metacard metacard, String attributeName, Class<T> type) {
+    Attribute attribute = metacard.getAttribute(attributeName);
+    if (attribute == null) {
+      LOGGER.debug("Attribute {} was null for metacard {}", attributeName, metacard);
       return null;
     }
-    Serializable s = a.getValue();
-    if (s == null) {
+    Serializable serializable = attribute.getValue();
+    if (serializable == null) {
       LOGGER.debug(
-          "Attribute {} for metacard {} was itself not null, but contained a null value", name, m);
+          "Attribute {} for metacard {} was itself not null, but contained a null value",
+          attributeName,
+          metacard);
       return null;
     }
-    if (!type.isInstance(s)) {
+    if (!type.isInstance(serializable)) {
       LOGGER.debug(
           "Attribute {} for metacard {} had a value of unexpected type, was expecting {} but got {}",
-          name,
-          m,
+          attributeName,
+          metacard,
           type.getName(),
-          s.getClass().getName());
+          serializable.getClass().getName());
       return null;
     }
-    return type.cast(s);
+    return type.cast(serializable);
   }
 
   @Nullable
-  public static <T> List<T> safeGetList(Metacard m, String name, Class<T> type) {
-    Attribute a = m.getAttribute(name);
-    if (a == null) {
-      LOGGER.debug("Attribute {} was null for metacard {}", name, m);
+  public static <T> List<T> safeGetList(Metacard metacard, String attributeName, Class<T> type) {
+    Attribute attribute = metacard.getAttribute(attributeName);
+    if (attribute == null) {
+      LOGGER.debug("Attribute {} was null for metacard {}", attributeName, metacard);
       return null;
     }
-    List<Serializable> s = a.getValues();
-    if (s == null) {
+    List<Serializable> serializables = attribute.getValues();
+    if (serializables == null) {
       LOGGER.debug(
-          "Attribute {} for metacard {} was itself not null, but contained a null list", name, m);
+          "Attribute {} for metacard {} was itself not null, but contained a null list",
+          attributeName,
+          metacard);
       return null;
     }
-    Optional<Serializable> entryWithBadType = s.stream().filter(o -> !type.isInstance(o)).findAny();
+    Optional<Serializable> entryWithBadType =
+        serializables.stream().filter(o -> !type.isInstance(o)).findAny();
     if (entryWithBadType.isPresent()) {
       Serializable invalid = entryWithBadType.get();
       LOGGER.debug(
           "Attribute {} for metacard {} had a value of unexpected type, was expecting {} but got {}",
-          name,
-          m,
+          attributeName,
+          metacard,
           type.getName(),
           invalid.getClass().getName());
       return null;
     }
-    return s.stream().map(type::cast).collect(Collectors.toList());
+    return serializables.stream().map(type::cast).collect(Collectors.toList());
   }
 }

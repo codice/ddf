@@ -41,23 +41,23 @@ public class ShareableMetacardImpl extends MetacardImpl {
   }
 
   /**
-   * Check if a given metacard is a query template metacard by checking the tags metacard attribute.
+   * Check if a given metacard is a shareable metacard by checking the tags metacard attribute.
    *
    * @param metacard the metacard to check.
-   * @return true if the provided metacard is a query template metacard, false otherwise.
+   * @return true if the provided metacard is a shareable metacard, false otherwise.
    */
   public static boolean isShareableMetacard(Metacard metacard) {
     return metacard != null
         && metacard.getTags().stream().anyMatch(FormAttributes.Sharing.NAME::equals);
   }
 
-  /** Wrap any metacard as a WorkspaceMetacardImpl. */
+  /** Wrap any metacard as a ShareableMetacardImpl. */
   public static ShareableMetacardImpl from(Metacard metacard) {
     return new ShareableMetacardImpl(metacard);
   }
 
   /**
-   * Compute the symmetric difference between the sharing permissions of two workspaces.
+   * Compute the symmetric difference between the sharing permissions of two shareable metacards.
    *
    * @param m - metacard to diff against
    */
