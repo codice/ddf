@@ -83,8 +83,7 @@ public abstract class SolrProviderTestBase {
 
     QueryImpl query;
     SourceResponse sourceResponse;
-    CommonQueryBuilder queryBuilder = new CommonQueryBuilder();
-    query = queryBuilder.like(Metacard.ID, "*", false, false);
+    query = new QueryImpl(filterBuilder.attribute(Metacard.ID).is().like().text("*"));
     query.setPageSize(ALL_RESULTS);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 

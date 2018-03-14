@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.codice.solr.factory.impl.ConfigurationStore;
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
@@ -45,6 +46,7 @@ import org.geotools.styling.UomOgcMapping;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -55,6 +57,8 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSpatial.class);
 
   private static final double METERS_PER_KM = 1000.0;
+
+  private final FilterFactory filterFactory = new FilterFactoryImpl();
 
   @Test
   public void testSpatialPointRadius() throws Exception {
@@ -78,10 +82,8 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertEquals("Failed to find all records.", 3, sourceResponse.getResults().size());
 
-    CommonQueryBuilder builder = new CommonQueryBuilder();
-
     // Right on Flagstaff
-    QueryImpl query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 10.0);
+    QueryImpl query = pointRadius(-111.67121887207031, 35.138454437255859, 10.0);
     query.setPageSize(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -96,7 +98,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     }
 
     // Right on Flagstaff, finding 2 records with 195 km radius
-    query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 195000);
+    query = pointRadius(-111.67121887207031, 35.138454437255859, 195000);
     query.setSortBy(new ddf.catalog.filter.impl.SortByImpl("foo", SortOrder.ASCENDING));
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -124,7 +126,7 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     }
 
     // NEGATIVE CASE
-    query = builder.pointRadius(80.1, 25, 195000);
+    query = pointRadius(80.1, 25, 195000);
     query.setPageSize(3);
     sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -134,20 +136,17 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
     double[] coords = {-111.67121887207031, 35.138454437255859};
     query =
         new QueryImpl(
-            builder
-                .getFilterFactory()
-                .dwithin(
-                    Metacard.ANY_GEO,
-                    new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
-                    195000,
-                    UomOgcMapping.FOOT.name()));
+            filterFactory.dwithin(
+                Metacard.ANY_GEO,
+                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
+                195000,
+                UomOgcMapping.FOOT.name()));
 
     query.setStartIndex(1);
 
     SortByImpl sortby =
         new SortByImpl(
-            builder.getFilterFactory().property(Result.DISTANCE),
-            org.opengis.filter.sort.SortOrder.ASCENDING);
+            filterFactory.property(Result.DISTANCE), org.opengis.filter.sort.SortOrder.ASCENDING);
     query.setSortBy(sortby);
     query.setPageSize(3);
     sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -775,5 +774,28 @@ public class SolrProviderSpatial extends SolrProviderTestBase {
 
     sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(negativeFilter)));
     assertEquals("Should not have found metacard record.", 0, sourceResponse.getResults().size());
+  }
+
+  /** Creates a point radius {@link QueryImpl} with units of measurement of meters. */
+  private QueryImpl pointRadius(double x, double y, double distance) {
+
+    double[] coords = {x, y};
+
+    QueryImpl query =
+        new QueryImpl(
+            filterFactory.dwithin(
+                Metacard.ANY_GEO,
+                new PointImpl(new DirectPositionImpl(coords), DefaultGeographicCRS.WGS84),
+                distance,
+                UomOgcMapping.METRE.name()));
+
+    query.setStartIndex(1);
+
+    SortByImpl sortby =
+        new SortByImpl(
+            filterFactory.property(Result.DISTANCE), org.opengis.filter.sort.SortOrder.ASCENDING);
+    query.setSortBy(sortby);
+
+    return query;
   }
 }
