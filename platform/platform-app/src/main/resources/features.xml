@@ -929,10 +929,10 @@
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-csw.config">mvn:ddf.platform/platform-app/${project.version}/config/csw</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-geojson.config">mvn:ddf.platform/platform-app/${project.version}/config/geojson</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-nitf.config">mvn:ddf.platform/platform-app/${project.version}/config/nitf</configfile>
-        <configfile finalname="/etc/DDF_Custom_Mime_Type_Resolver-xml.config">mvn:ddf.platform/platform-app/${project.version}/config/xml</configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">mvn:ddf.platform/platform-app/${project.version}/config/csw</configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-geojson.config">mvn:ddf.platform/platform-app/${project.version}/config/geojson</configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-nitf.config">mvn:ddf.platform/platform-app/${project.version}/config/nitf</configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-xml.config">mvn:ddf.platform/platform-app/${project.version}/config/xml</configfile>
     </feature>
 
     <feature name="mime-tika-resolver" version="${project.version}"
@@ -986,7 +986,7 @@
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/banana/conf/schema.xml">
+        <configfile finalname="${ddf.data}/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
         <configfile finalname="/examples/banana/DefaultDashboard.json">
@@ -1198,10 +1198,10 @@
         <feature>decanter-sla</feature>
         <feature>decanter-simple-scheduler</feature>
         <feature>persistence-core</feature>
-        <configfile override="true" finalname="/etc/org.apache.karaf.decanter.sla.checker.cfg">
+        <configfile override="true" finalname="${ddf.etc}/org.apache.karaf.decanter.sla.checker.cfg">
             mvn:ddf.platform/platform-app/${project.version}/config/sla
         </configfile>
-        <configfile override="true" finalname="/etc/org.apache.karaf.decanter.scheduler.simple.cfg">
+        <configfile override="true" finalname="${ddf.etc}/org.apache.karaf.decanter.scheduler.simple.cfg">
             mvn:ddf.platform/platform-app/${project.version}/config/scheduler
         </configfile>
     </feature>

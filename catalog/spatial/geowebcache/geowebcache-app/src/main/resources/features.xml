@@ -33,7 +33,7 @@
         <bundle>mvn:org.codice.geowebcache/geowebcache-server-standalone/${gwc-server.version}/war
         </bundle>
 
-        <configfile finalname="/etc/geowebcache.xml">
+        <configfile finalname="${ddf.etc}/geowebcache.xml">
             mvn:org.codice.geowebcache/geowebcache-server-standalone/${gwc-server.version}/xml/geowebcache
         </configfile>
     </feature>

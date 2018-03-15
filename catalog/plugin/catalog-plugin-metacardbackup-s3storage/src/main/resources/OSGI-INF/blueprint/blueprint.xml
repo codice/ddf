@@ -31,7 +31,7 @@
             <property name="metacardTransformerId" value="metadata"/>
             <property name="keepDeletedMetacards" value="false"/>
             <property name="backupInvalidMetacards" value="true"/>
-            <property name="objectTemplate" value="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
+            <property name="objectTemplate" value="${ddf.data}/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
             <property name="s3AccessKey" value="" />
             <property name="s3SecretKey" value="" />
             <property name="s3Endpoint" value="" />

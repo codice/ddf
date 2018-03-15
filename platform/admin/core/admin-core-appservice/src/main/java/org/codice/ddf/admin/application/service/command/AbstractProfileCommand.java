@@ -40,7 +40,7 @@ public abstract class AbstractProfileCommand implements Action {
 
   protected PrintStream console = System.out;
 
-  protected Path profilePath = Paths.get(System.getProperty("ddf.home"), "etc", "profiles");
+  protected Path profilePath = Paths.get(System.getProperty("ddf.etc"), "profiles");
 
   void setProfilePath(Path profilePath) {
     this.profilePath = profilePath;

@@ -69,7 +69,7 @@
 
     <bean id="indexInitializer" class="org.codice.ddf.spatial.geocoding.index.IndexInitializer"
         init-method="init" destroy-method="destroy">
-        <property name="defaultGeoNamesDataPath" value="data/default_geonames_data.zip"/>
+        <property name="defaultGeoNamesDataPath" value="${ddf.data}/default_geonames_data.zip"/>
         <property name="indexer" ref="geonamesIndexer"/>
         <property name="extractor" ref="geoExtractor"/>
         <property name="executor" ref="executorService"/>

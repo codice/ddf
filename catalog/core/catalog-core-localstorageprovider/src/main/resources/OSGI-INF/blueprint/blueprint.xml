@@ -22,7 +22,7 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider"
                 update-strategy="container-managed"/>
-        <property name="baseContentDirectory" value="${ddf.home}/data"/>
+        <property name="baseContentDirectory" value="${ddf.data}"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
     </bean>
 

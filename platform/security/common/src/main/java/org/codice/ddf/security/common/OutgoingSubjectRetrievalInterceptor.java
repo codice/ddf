@@ -51,7 +51,7 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
     super(Phase.PRE_STREAM);
     tokenFactory = new PKIAuthenticationTokenFactory();
     tokenFactory.setSignaturePropertiesPath(
-        System.getProperty("ddf.home") + "/etc/ws-security/server/signature.properties");
+        System.getProperty("ddf.etc") + "/ws-security/server/signature.properties");
     tokenFactory.init();
     securityManager = Security.getInstance().getSecurityManager();
   }

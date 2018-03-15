@@ -24,7 +24,7 @@
 
         <AD description="Location of the file containing the attribute expansion rules."
             name="Expansion Rules Configuration File Location" id="expansionFileName" type="String"
-            default="${ddf.home}/etc/pdp/ddf-metacard-attribute-ruleset.cfg"/>
+            default="${ddf.etc}/pdp/ddf-metacard-attribute-ruleset.cfg"/>
     </OCD>
 
     <Designate pid="ddf.security.metacard.attribute.mapping">

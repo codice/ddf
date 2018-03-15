@@ -58,7 +58,7 @@
             <property name="objectClass" value="groupOfNames"/>
             <property name="memberNameAttribute" value="member"/>
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-            <property name="propertyFileLocation" value="${ddf.home}/etc/ws-security/attributeMap.properties"/>
+            <property name="propertyFileLocation" value="${ddf.etc}/ws-security/attributeMap.properties"/>
             <property name="overrideCertDn" value="false" />
             <property name="bindMethod" value="Simple" />
             <cm:managed-properties persistent-id=""
