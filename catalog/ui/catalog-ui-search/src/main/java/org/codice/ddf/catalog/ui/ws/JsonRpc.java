@@ -34,7 +34,12 @@ public class JsonRpc implements WebSocket {
   public static final int METHOD_NOT_FOUND = -32601;
   public static final int INVALID_PARAMS = 32602;
   public static final int INTERNAL_ERROR = -32603;
+
+  private static final String JSONRPC = "jsonrpc";
+  private static final String METHOD = "method";
+
   private final Map<String, Function> methods;
+
   private ObjectMapper mapper =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -58,7 +63,7 @@ public class JsonRpc implements WebSocket {
 
   private static Map<String, Object> response(Object id, Object value) {
     Map<String, Object> response = new HashMap<>();
-    response.put("jsonrpc", VERSION);
+    response.put(JSONRPC, VERSION);
     response.put("id", id);
     if (value instanceof Error) {
       response.put("error", value);
@@ -113,23 +118,23 @@ public class JsonRpc implements WebSocket {
       return response(null, invalid("key `id` not string or number or null", id));
     }
 
-    if (!msg.containsKey("jsonrpc")) {
+    if (!msg.containsKey(JSONRPC)) {
       return response(id, invalid("required key `jsonrpc` missing"));
     }
 
-    if (!VERSION.equals(msg.get("jsonrpc"))) {
-      return response(id, invalid("key `jsonrpc` not equal to `2.0`", msg.get("jsonrpc")));
+    if (!VERSION.equals(msg.get(JSONRPC))) {
+      return response(id, invalid("key `jsonrpc` not equal to `2.0`", msg.get(JSONRPC)));
     }
 
-    if (!msg.containsKey("method")) {
+    if (!msg.containsKey(METHOD)) {
       return response(id, invalid("required key `method` missing"));
     }
 
-    if (!(msg.get("method") instanceof String)) {
-      return response(id, invalid("key `method` not string", msg.get("method")));
+    if (!(msg.get(METHOD) instanceof String)) {
+      return response(id, invalid("key `method` not string", msg.get(METHOD)));
     }
 
-    String method = (String) msg.get("method");
+    String method = (String) msg.get(METHOD);
 
     if (!methods.containsKey(method)) {
       return response(id, error(METHOD_NOT_FOUND, String.format("method `%s` not found", method)));

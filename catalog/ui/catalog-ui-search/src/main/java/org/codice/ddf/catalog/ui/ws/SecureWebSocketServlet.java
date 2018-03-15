@@ -43,6 +43,7 @@ public class SecureWebSocketServlet extends WebSocketServlet {
     this.executor = executor;
   }
 
+  @Override
   public void destroy() {
     executor.shutdown();
   }
