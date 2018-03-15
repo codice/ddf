@@ -17,7 +17,7 @@
 * com.connexta.arbitro:arbitro-core:jar:1.0.0
 * com.github.drapostolos:type-parser:jar:0.5.0
 * com.github.jai-imageio:jai-imageio-core:jar:1.3.1
-* com.github.jai-imageio:jai-imageio-jpeg2000:jar:1.3.0
+* com.github.jai-imageio:jai-imageio-jpeg2000:jar:1.3.1_CODICE_3
 * com.github.jknack:handlebars-jackson2:jar:1.0.0
 * com.github.jknack:handlebars:jar:1.1.2
 * com.github.jknack:handlebars:jar:2.0.0
