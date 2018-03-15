@@ -25,7 +25,7 @@ define([
 
     return DropdownView.extend({
         attributes: {
-            'data-help': 'Used to setup a local filter of a result set.  It does not re-execute the query.'
+            'data-help': 'Used to setup a local filter of a result set.  It does not re-execute the search.'
         },
         template: template,
         className: 'is-resultFilter',
