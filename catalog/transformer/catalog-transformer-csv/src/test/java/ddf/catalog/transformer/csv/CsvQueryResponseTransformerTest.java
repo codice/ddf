@@ -86,7 +86,7 @@ public class CsvQueryResponseTransformerTest {
     String[] hiddenFieldsArray = {"attribute3", "attribute5"};
     argumentsMap.put("hiddenFields", buildSet(hiddenFieldsArray));
 
-    String[] columnOrderArray = {"attribute4", "attribute2"};
+    String[] columnOrderArray = {"attribute4", "attribute2", "attribute1"};
     argumentsMap.put("columnOrder", buildList(columnOrderArray));
 
     String[][] aliases = {{"attribute1", "column1"}, {"attribute2", "column2"}};
@@ -98,7 +98,11 @@ public class CsvQueryResponseTransformerTest {
     Scanner scanner = new Scanner(bc.getInputStream());
     scanner.useDelimiter("\\n|\\r|,");
 
-    // OBJECT types, BINARY types and hidden attributes will be filtered out
+    /*
+     * OBJECT types, BINARY types and hidden attributes will be filtered out
+     * We want to ensure that the only output data matches the explicitly requested headers
+     */
+
     String[] expectedHeaders = {"attribute4", "column2", "column1"};
     validate(scanner, expectedHeaders);
 
