@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <suppress>
         <notes><![CDATA[
    file name: solr-*.jar
@@ -30,11 +30,13 @@
         </notes>
         <cve>CVE-2017-17485</cve>
         <cve>CVE-2017-7525</cve>
+        <cve>CVE-2016-7051</cve>
         <cve>CVE-2017-15095</cve>
     </suppress>
     <suppress>
         <notes>
-            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the vulnerable class DiskFileItem is not used in the project
+            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the
+            vulnerable class DiskFileItem is not used in the project
         </notes>
         <cve>CVE-2016-1000031</cve>
     </suppress>
@@ -58,7 +60,8 @@
 
     <suppress>
         <notes>
-            This CVE is related to hash collisions at the Java level. This is mitigated by newer versions of Java (8+).
+            This CVE is related to hash collisions at the Java level. This is mitigated by newer
+            versions of Java (8+).
             See http://openjdk.java.net/jeps/180 for more information.
             xercesImpl-2.11.0.jar
         </notes>

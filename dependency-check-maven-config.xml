@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <!-- Remove this suppression CVE-2017-5644 once DDF-3064 has been resolved-->
     <suppress>
         <notes>
@@ -9,22 +9,6 @@
             poi-3.12.jar (cpe:/a:apache:poi:3.12, org.apache.poi:poi:3.12) : CVE-2017-5644
         </notes>
         <cve>CVE-2017-5644</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
-            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
-            flaw. This is exploitable by sending maliciously crafted JSON input to the readValue
-            method of the ObjectMapper, bypassing a blacklist that is ineffective if the Spring
-            libraries are available in the classpath. We have upgraded to 2.9.4 which fixes the
-            issue but version 2.6.3 is still being used by
-            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
-            This suppression can be removed when DDF-3593 has been completed. CVE-2017-15095 extends
-            CVE-2017-7525 by blacklisting more classes.
-        </notes>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2017-15095</cve>
     </suppress>
     <suppress>
         <notes>
@@ -38,11 +22,21 @@
     </suppress>
     <suppress>
         <notes>
-            this CVE is generating a lot of false positives it should only include
-            jackson-dataformat-xml jar but it is catching all jackson dependencies unfortunately I
-            can't fix it so if we start depending on a vulnerable version of jackson-dataformat-xml
-            this will still suppress it.
+            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
+            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
+            flaw. This is exploitable by sending maliciously crafted JSON input to the
+            readValue method of the ObjectMapper, bypassing a blacklist that is ineffective
+            if the Spring libraries are available in the classpath.
+            We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still being used by
+            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
+            This suppression can be removed when DDF-3593 has been completed.
         </notes>
+        <cve>CVE-2017-17485</cve>
+        <cve>CVE-2016-7051</cve>
+        <cve>CVE-2018-5968</cve>
+        <cve>CVE-2017-7525</cve>
+        <cve>CVE-2017-15095</cve>
+        <cve>CVE-2016-7051</cve>
         <cve>CVE-2016-3720</cve>
     </suppress>
     <suppress>
@@ -194,7 +188,8 @@
     </suppress>
     <suppress>
         <notes>
-            These CVEs are incorrectly attributing a CXF vulnerability to Camel camel-cxf-2.19.0.jar.
+            These CVEs are incorrectly attributing a CXF vulnerability to Camel
+            camel-cxf-2.19.0.jar.
             The CVEs are in CXF versions in this case the camel version is incorrectly being used
         </notes>
         <cve>CVE-2017-5643</cve>
@@ -232,7 +227,8 @@
 
     <suppress>
         <notes>
-            This CVE is related to hash collisions at the Java level. This is mitigated by newer versions of Java (8+).
+            This CVE is related to hash collisions at the Java level. This is mitigated by newer
+            versions of Java (8+).
             See http://openjdk.java.net/jeps/180 for more information.
             xercesImpl-2.11.0.jar
         </notes>
@@ -241,14 +237,16 @@
 
     <suppress>
         <notes>
-            This CVE affects jetty's Password.java class, which is not relied on in the running system.
+            This CVE affects jetty's Password.java class, which is not relied on in the running
+            system.
             jetty-io-9.3.14.v20161028.jar
             jetty-jmx-9.3.14.v20161028.jar
             jetty-servlets-9.2.19.v20160908.jar
             jetty-util-ajax-9.2.14.v20151106.jar
             jetty-webapp-9.3.6.v20151106.jar
             websocket-api-9.3.6.v20151106.jar
-            ehcache-2.10.3.jar/rest-management-private-classpath/META-INF/maven/org.eclipse.jetty/jetty-io/pom.xml        </notes>
+            ehcache-2.10.3.jar/rest-management-private-classpath/META-INF/maven/org.eclipse.jetty/jetty-io/pom.xml
+        </notes>
         <cve>CVE-2017-9735</cve>
     </suppress>
 
@@ -271,7 +269,8 @@
 
     <suppress>
         <notes>
-            These CVEs only apply to the google android and google desktop libraries which do not affect the running system.
+            These CVEs only apply to the google android and google desktop libraries which do not
+            affect the running system.
             google-http-client-1.22.0.jar
         </notes>
         <cve>CVE-2016-5696</cve>
@@ -285,8 +284,10 @@
 
     <suppress>
         <notes>
-            This CVE is disputed by SUN, but the claim is that a denial of service attack can be incurred.
-            This dependency is used for workspace email notifications and is limited by the cron string configuration.
+            This CVE is disputed by SUN, but the claim is that a denial of service attack can be
+            incurred.
+            This dependency is used for workspace email notifications and is limited by the cron
+            string configuration.
             This cron string configuration mitigates the possibility of a denial of service attack.
             javax.mail-1.5.5.jar
             mail-1.4.5.jar
@@ -296,8 +297,10 @@
 
     <suppress>
         <notes>
-            This CVE applies to ganglia-web. OWASP is flagging this CVE on gmetric4j-1.0.7.jar (as a direct transitive and as a transitive to metrics-ganglia-3.2.2.jar).
-            Though gmetric4j-1.0.7.jar has the same group id as ganglia-web, it does not depend on ganglia-web.
+            This CVE applies to ganglia-web. OWASP is flagging this CVE on gmetric4j-1.0.7.jar (as a
+            direct transitive and as a transitive to metrics-ganglia-3.2.2.jar).
+            Though gmetric4j-1.0.7.jar has the same group id as ganglia-web, it does not depend on
+            ganglia-web.
             gmetric4j-1.0.7.jar
             metrics-ganglia-3.2.2.jar
         </notes>
@@ -315,7 +318,8 @@
     <suppress>
         <notes>
             These CVEs apply to ActiveMQ, but OWASP is looking at the version of Artemis (2.1.0).
-            These CVEs do not apply to the version of ActiveMQ server that is used in the system (currently 5.14.5).
+            These CVEs do not apply to the version of ActiveMQ server that is used in the system
+            (currently 5.14.5).
             artemis-core-client-2.1.0.jar
         </notes>
         <cve>CVE-2016-3088</cve>
@@ -334,7 +338,8 @@
     <suppress>
         <notes>
             This CVE is fixed in Artemis ActiveMQ for all released versions.
-            See https://github.com/apache/activemq-artemis/commit/48d9951d879e0c8cbb59d4b64ab59d53ef88310d
+            See
+            https://github.com/apache/activemq-artemis/commit/48d9951d879e0c8cbb59d4b64ab59d53ef88310d
             artemis-core-client-2.1.0.jar
         </notes>
         <cve>CVE-2015-3208</cve>
@@ -342,7 +347,8 @@
 
     <suppress>
         <notes>
-            This CVE applies to the Jolokia API provided by ActiveMQ which is secured by DDF security,
+            This CVE applies to the Jolokia API provided by ActiveMQ which is secured by DDF
+            security,
             so the vulnerability is mitigated.
             artemis-core-client-2.1.0.jar
         </notes>
@@ -369,7 +375,8 @@
 
     <suppress>
         <notes>
-            These CVEs apply to org.apache.geronimo:geronimo which is not a dependency of any of these artifacts.
+            These CVEs apply to org.apache.geronimo:geronimo which is not a dependency of any of
+            these artifacts.
 
             geronimo-activation_1.1_spec-1.1.jar
             geronimo-javamail_1.4_spec-1.7.1.jar
@@ -377,8 +384,10 @@
             geronimo-jms_2.0_spec-1.0-alpha-2.jar
             geronimo-servlet_3.0_spec-1.0.jar
             geronimo-stax-api_1.0_spec-1.0.1.jar
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar: org.apache.servicemix.specs.saaj-api-1.3-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-saaj_1.3_spec/pom.xml
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar: org.apache.servicemix.specs.jaxws-api-2.2-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/pom.xml
+            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
+            org.apache.servicemix.specs.saaj-api-1.3-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-saaj_1.3_spec/pom.xml
+            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
+            org.apache.servicemix.specs.jaxws-api-2.2-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/pom.xml
         </notes>
         <cve>CVE-2011-5034</cve>
         <cve>CVE-2008-0732</cve>
@@ -397,15 +406,18 @@
 
     <suppress>
         <notes>
-            This CVE applies to Apache-SSL 1.3.28+1.52 and earlier. It does not apply to the artifact that OWASP is reporting.
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar: org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
+            This CVE applies to Apache-SSL 1.3.28+1.52 and earlier. It does not apply to the
+            artifact that OWASP is reporting.
+            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
+            org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
         </notes>
         <cve>CVE-2004-0009</cve>
     </suppress>
 
     <suppress>
         <notes>
-            These CVEs apply to "Apache QPID 0.30" and previous versions. This particular maven artifact is a new qpid artifact.
+            These CVEs apply to "Apache QPID 0.30" and previous versions. This particular maven
+            artifact is a new qpid artifact.
             Its first release came after all of these CVEs.
             qpid-jms-client-0.11.1.jar
         </notes>
@@ -422,7 +434,8 @@
 
     <suppress>
         <notes>
-            Applies to an LDAP class that we do not use in the system. Also, this jar is only used in tests.
+            Applies to an LDAP class that we do not use in the system. Also, this jar is only used
+            in tests.
             groovy-all-2.4.7.jar
         </notes>
         <cve>CVE-2016-6497</cve>
@@ -466,7 +479,8 @@
 
     <suppress>
         <notes>
-            These CVEs apply to the Eclipse IDE. OWASP flagged it because eclipse is in the group id.
+            These CVEs apply to the Eclipse IDE. OWASP flagged it because eclipse is in the group
+            id.
             pax-url-aether-2.5.2.jar/META-INF/maven/org.eclipse.aether/aether-spi/pom.xml
         </notes>
         <cve>CVE-2010-4647</cve>
@@ -475,7 +489,8 @@
 
     <suppress>
         <notes>
-            These CVEs apply to the system-level project called spice. OWASP incorrectly labeled this.
+            These CVEs apply to the system-level project called spice. OWASP incorrectly labeled
+            this.
             pax-url-aether-2.5.2.jar/META-INF/maven/org.sonatype.plexus/plexus-cipher/pom.xml:
             pax-url-aether-2.5.2.jar/META-INF/maven/org.sonatype.plexus/plexus-sec-dispatcher/pom.xml
         </notes>
@@ -496,8 +511,11 @@
     <suppress>
         <notes>
             This CVE has been addressed by upgrading commons-beanutils to version 1.9.3. OWASP will
-            continue to report the vulnerability since OWASP sees the DDF version instead of the actual version.
-            security-pdp-authzrealm-2.11.4-SNAPSHOT.jar (cpe:/a:apache:commons_beanutils:2.11.4, cpe:/a:apache:commons_collections:2.11.4, ddf.security.pdp:security-pdp-authzrealm:2.11.4-SNAPSHOT)
+            continue to report the vulnerability since OWASP sees the DDF version instead of the
+            actual version.
+            security-pdp-authzrealm-2.11.4-SNAPSHOT.jar (cpe:/a:apache:commons_beanutils:2.11.4,
+            cpe:/a:apache:commons_collections:2.11.4,
+            ddf.security.pdp:security-pdp-authzrealm:2.11.4-SNAPSHOT)
         </notes>
         <cve>CVE-2017-15708</cve>
     </suppress>
