@@ -101,6 +101,15 @@ public class SecureCxfClientFactory<T> {
 
   private static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
+  // A default small value greater than one to handle loopbacks after validation.  Configurable
+  private static final Integer SAME_URI_REDIRECT_MAX = 3;
+
+  private static final String AUTO_REDIRECT_ALLOW_REL_URI = "http.redirect.relative.uri";
+
+  private static final String AUTO_REDIRECT_MAX_SAME_URI_COUNT = "http.redirect.max.same.uri.count";
+
+  private Integer sameUriRedirectMax = SAME_URI_REDIRECT_MAX;
+
   private boolean basicAuth = false;
 
   private Integer connectionTimeout;
@@ -365,6 +374,18 @@ public class SecureCxfClientFactory<T> {
     return newClient;
   }
 
+  public Integer getSameUriRedirectMax() {
+    return sameUriRedirectMax;
+  }
+
+  public void setSameUriRedirectMax(Integer sameUriRedirectMax) {
+    if (sameUriRedirectMax != null && sameUriRedirectMax > 0) {
+      this.sameUriRedirectMax = sameUriRedirectMax;
+    } else {
+      LOGGER.warn("Cannot set redirect to invalid value: {}", sameUriRedirectMax);
+    }
+  }
+
   private void auditRemoteConnection(String asciiString) {
     try {
       URI uri = new URI(asciiString);
@@ -423,7 +444,8 @@ public class SecureCxfClientFactory<T> {
         clientPolicy.setAutoRedirect(true);
         Bus bus = clientConfig.getBus();
         if (bus != null) {
-          bus.getProperties().put("http.redirect.relative.uri", true);
+          bus.getProperties().put(AUTO_REDIRECT_ALLOW_REL_URI, true);
+          bus.getProperties().put(AUTO_REDIRECT_MAX_SAME_URI_COUNT, getSameUriRedirectMax());
         }
       }
     }
