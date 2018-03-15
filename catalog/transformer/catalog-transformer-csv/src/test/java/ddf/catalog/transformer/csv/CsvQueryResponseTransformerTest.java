@@ -86,7 +86,7 @@ public class CsvQueryResponseTransformerTest {
     String[] hiddenFieldsArray = {"attribute3", "attribute5"};
     argumentsMap.put("hiddenFields", buildSet(hiddenFieldsArray));
 
-    String[] columnOrderArray = {"attribute4", "attribute2", "attribute1"};
+    String[] columnOrderArray = {"attribute4", "attribute2"};
     argumentsMap.put("columnOrder", buildList(columnOrderArray));
 
     String[][] aliases = {{"attribute1", "column1"}, {"attribute2", "column2"}};
@@ -103,12 +103,12 @@ public class CsvQueryResponseTransformerTest {
      * We want to ensure that the only output data matches the explicitly requested headers
      */
 
-    String[] expectedHeaders = {"attribute4", "column2", "column1"};
+    String[] expectedHeaders = {"attribute4", "column2"};
     validate(scanner, expectedHeaders);
 
     // The scanner will split "value,4" into two tokens even though the CSVPrinter will
     // handle it correctly.
-    String[] expectedValues = {"", "\"value", "4\"", "101", "value1"};
+    String[] expectedValues = {"", "\"value", "4\"", "101"};
 
     for (int i = 0; i < METACARD_COUNT; i++) {
       validate(scanner, expectedValues);
