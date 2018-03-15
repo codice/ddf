@@ -4,14 +4,14 @@
   "description": "DDF's Bootstrap Theme",
   "main": "index.js",
   "scripts": {
-    "copy-bootswatch-fonts": "./node_modules/cpr/bin/cpr node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap -o",
-    "copy-google-fonts": "./node_modules/cpr/bin/cpr src/main/webapp/google-fonts/ src/main/resources/webapp/fonts -o",
+    "copy-bootswatch-fonts": "node node_modules/cpr/bin/cpr node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap -o",
+    "copy-google-fonts": "node node_modules/cpr/bin/cpr src/main/webapp/google-fonts/ src/main/resources/webapp/fonts -o",
     "copy-fonts": "npm run copy-bootswatch-fonts && npm run  copy-google-fonts",
-    "make-folders": "./node_modules/mkdirp/bin/cmd.js src/main/resources/webapp/fonts/bootstrap && ./node_modules/mkdirp/bin/cmd.js src/main/resources/webapp/css/",
-    "clean": "./node_modules/rimraf/bin.js src/main/resources/webapp && npm run make-folders",
+    "make-folders": "node node_modules/mkdirp/bin/cmd.js src/main/resources/webapp/fonts/bootstrap && node node_modules/mkdirp/bin/cmd.js src/main/resources/webapp/css/",
+    "clean": "node node_modules/rimraf/bin.js src/main/resources/webapp && npm run make-folders",
     "test": "echo 'okay';",
     "build": "npm run clean && npm run copy-fonts && npm run build-sass",
-    "build-sass": "node ./node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/"
+    "build-sass": "node node_modules/node-sass/bin/node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/"
   },
   "repository": {
     "type": "git",
