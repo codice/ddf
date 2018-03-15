@@ -37,13 +37,13 @@ button,
 
 button.is-negative,
 .composed-button.is-negative {
-  color: @button-text-color;
+  color: contrast(@negative-color);
   .button-mixin(@negative-color);
 }
 
 button.is-positive,
 .composed-button.is-positive {
-  color: @button-text-color;
+  color: contrast(@positive-color);
   .button-mixin(@positive-color);
 }
 
@@ -54,17 +54,9 @@ button.is-neutral,
   background: rgba(0,0,0,0);
 }
 
-button.is-link,
-.is-button.is-link,
-.composed-button.is-link {
-  color: @links-color;
-  .button-mixin(rgba(0,0,0,0));
-  background: rgba(0,0,0,0);
-}
-
 button.is-primary,
 .composed-button.is-primary {
-  color: @button-text-color;
+  color: contrast(@primary-color);
   .button-mixin(@primary-color);
 }
 

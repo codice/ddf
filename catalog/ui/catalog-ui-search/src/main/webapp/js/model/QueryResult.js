@@ -19,6 +19,7 @@ var filter = require('js/filter');
 require('backboneassociations');
 
 var Metacard = require('js/model/Metacard');
+var MetacardActionModel = require('js/model/MetacardAction');
 
 function generateThumbnailUrl(url) {
     var newUrl = url;
@@ -47,6 +48,15 @@ module.exports = Backbone.AssociatedModel.extend({
         type: Backbone.One,
         key: 'metacard',
         relatedModel: Metacard
+    },{
+        type: Backbone.Many,
+        key: 'actions',
+        collectionType: Backbone.Collection.extend({
+            model: MetacardActionModel,
+            comparator: function(c) {
+                return c.get('title').toLowerCase();
+            }
+        })
     }],
     initialize: function () {
         this.refreshData = _.throttle(this.refreshData, 200);
@@ -86,6 +96,23 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     getGeometries: function (attribute) {
         return this.get('metacard').getGeometries(attribute);
+    },
+    hasExportActions() {
+        return this.getExportActions().length > 0;
+    },
+    getOtherActions() {
+        const otherActions = this.getExportActions().concat(this.getMapActions());
+        return this.get('actions').filter((action) => otherActions.indexOf(action) === -1);
+    },
+    getExportActions() {
+        const otherActions = this.getMapActions();
+        return this.get('actions').filter((action) => action.get('title').indexOf('Export') === 0).filter((action) => otherActions.indexOf(action) === -1);
+    },
+    hasMapActions() {
+        return this.getMapActions().length > 0;
+    },
+    getMapActions() {
+        return this.get('actions').filter((action) => action.id.indexOf('catalog.data.metacard.map.') === 0);
     },
     refreshData: function () {
         //let solr flush

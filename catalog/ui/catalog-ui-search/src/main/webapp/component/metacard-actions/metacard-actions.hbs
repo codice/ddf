@@ -11,9 +11,31 @@
  *
  **/
  --}}
- {{#each actions}}
+ <div class="is-divider"></div>
+ <div class="is-header">
+    Export as:
+ </div>
+ <div class="is-divider"></div>
+ <div class="actions">
+     {{#each this.exportActions}}
      <a href="{{this.url}}" target="_blank">
          {{this.title}}
      </a>
- {{/each}}
- <div class="map-actions"></div>
+    {{/each}}
+ </div>
+<div class="is-divider"></div>
+<div class="map-actions"></div>
+{{#if this.otherActions}} 
+    <div class="is-header">
+    Various:
+    </div>
+    <div class="is-divider"></div>
+    <div class="actions">
+        {{#each this.otherActions}}
+        <a href="{{this.url}}" target="_blank">
+            {{this.title}}
+        </a>
+        {{/each}}
+    </div>
+    <div class="is-divider"></div>
+{{/if}}

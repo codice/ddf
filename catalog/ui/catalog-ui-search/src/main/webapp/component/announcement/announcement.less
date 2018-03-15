@@ -8,7 +8,6 @@
     transform: translateX(-50%);
 
     .announcement {
-        color: @button-text-color;
         position: relative;
         padding: @minimumSpacing;
         border-radius: 2px;
@@ -22,18 +21,22 @@
     }
 
     .announcement.info {
+        color: contrast(@primary-color);
         background: @primary-color;
     }
 
     .announcement.warn {
+        color: contrast(@warning-color);
         background: @warning-color;
     }
 
     .announcement.error {
+        color: contrast(@negative-color);
         background: @negative-color;
     }
 
     .announcement.success {
+        color: contrast(@positive-color);
         background: @positive-color;
     }
 

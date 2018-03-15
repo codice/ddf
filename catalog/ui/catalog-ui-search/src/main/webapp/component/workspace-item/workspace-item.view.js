@@ -40,7 +40,7 @@ define([
             button: {}
         },
         events: {
-            'click > .choice-details': 'handleChoice',
+            'click': 'handleChoice',
         },
         initialize: function(){
             this.listenTo(this.model, 'change:saved', this.handleSaved);
@@ -54,7 +54,10 @@ define([
             }));
             this.workspaceActions.show(new WorkspaceInteractionsDropdownView({
                 model: new DropdownModel(),
-                modelForComponent: this.model
+                modelForComponent: this.model,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                }
             }));
             this.handleSaved();
         },

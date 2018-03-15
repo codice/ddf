@@ -64,7 +64,7 @@ define([
                 showLabel: false,
                 placeholder: 'Search ' + properties.branding + ' ' + properties.product
             }));
-            this.textField.currentView.$el.keyup((event) => {
+            this.textField.currentView.$el.keypress((event) => {
                 switch(event.keyCode){
                     case 13:
                         this.$el.trigger('saveQuery.'+CustomElements.getNamespace());

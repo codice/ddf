@@ -26,16 +26,14 @@ define([
     'component/singletons/user-instance',
     'component/loading/loading.view',
     'component/lightbox/lightbox.view.instance',
-    'component/workspace-sharing/workspace-sharing.view',
-    'decorator/menu-navigation.decorator',
-    'decorator/Decorators'
+    'component/workspace-sharing/workspace-sharing.view'
 ], function(wreqr, Marionette, _, $, template, CustomElements, store, router, user,
-    LoadingView, lightboxInstance, WorkspaceSharing, MenuNavigationDecorator, Decorators) {
+    LoadingView, lightboxInstance, WorkspaceSharing) {
 
-    return Marionette.ItemView.extend(Decorators.decorate({
+    return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('workspace-interactions'),
-        className: 'is-action-list',
+        className: 'composed-menu',
         modelEvents: {
             'change': 'render'
         },
@@ -137,5 +135,5 @@ define([
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
-    }, MenuNavigationDecorator));
+    });
 });

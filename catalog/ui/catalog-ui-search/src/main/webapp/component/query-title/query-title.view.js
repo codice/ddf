@@ -51,7 +51,10 @@ module.exports = Marionette.LayoutView.extend({
     showSearchInteractions: function() {
         this.searchInteractions.show(new SearchInteractionsDropdownView({
             model: new DropdownModel(),
-            modelForComponent: this.model
+            modelForComponent: this.model,
+            dropdownCompanionBehaviors: {
+                navigation: {}
+            }
         }));
     },
     focus: function(){

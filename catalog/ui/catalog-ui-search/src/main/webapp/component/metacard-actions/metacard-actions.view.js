@@ -15,7 +15,7 @@
 /*global define, setTimeout*/
 define([
     'marionette',
-    'underscore',
+    'lodash',
     'jquery',
     './metacard-actions.hbs',
     'js/CustomElements',
@@ -27,7 +27,6 @@ define([
         setDefaultModel: function(){
             this.model = this.selectionInterface.getSelectedResults().first();
         },
-        className: 'is-list',
         template: template,
         tagName: CustomElements.register('metacard-actions'),
         regions: {
@@ -43,6 +42,18 @@ define([
             if (!options.model){
                 this.setDefaultModel();
             }
+        },
+        serializeData: function() {
+            return {
+                exportActions: _.sortBy(this.model.getExportActions().map(action => ({
+                    url: action.get('url'),
+                    title: action.get('title').replace('Export as', '').replace('Export','')
+                })), (action) => action.title.toLowerCase()),
+                otherActions: _.sortBy(this.model.getOtherActions().map(action => ({
+                    url: action.get('url'),
+                    title: action.get('title')
+                })), (action) => action.title.toLowerCase())   
+            };
         },
         onRender: function () {
             this.mapActions.show(new MapActions({ model: this.model }), {replaceElement: true});

@@ -24,7 +24,7 @@ define([
     'js/store',
     'js/Common',
     'component/dropdown/dropdown',
-    'component/dropdown/metacard-interactions/dropdown.metacard-interactions.view',
+    'component/metacard-interactions/metacard-interactions.view',
     'component/result-indicator/result-indicator.view',
     'properties',
     'component/router/router',
@@ -37,7 +37,7 @@ define([
     'component/dropdown/popout/dropdown.popout.view',
     'behaviors/button.behavior'
 ], function (Backbone, Marionette, _, $, template, CustomElements, IconHelper, store, Common, DropdownModel,
-             MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
+             MetacardInteractionsView, ResultIndicatorView, properties, router, user,
              metacardDefinitions, moment, sources, HoverPreviewDropdown, ResultAddView, PopoutView) {
 
     return Marionette.LayoutView.extend({
@@ -108,9 +108,13 @@ define([
             this.checkIfDownloadable();
         },
         onBeforeShow: function(){
-            this.resultActions.show(new MetacardInteractionsDropdownView({
-                model: new DropdownModel(),
-                modelForComponent: new Backbone.Collection([this.model])
+            this.resultActions.show(PopoutView.createSimpleDropdown({
+                componentToShow: MetacardInteractionsView,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                },
+                modelForComponent: new Backbone.Collection([this.model]),
+                leftIcon: 'fa fa-ellipsis-v'
             }));
             this.resultIndicator.show(new ResultIndicatorView({
                 model: this.model

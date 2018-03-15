@@ -94,7 +94,10 @@ define([
             this._queryInteractions = new DropdownModel();
             this.queryActions.show(new DropdownQueryInteractionsView({
                 model: this._queryInteractions,
-                modelForComponent: this.model
+                modelForComponent: this.model,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                }
             }));
             this.querySchedule.show(new QueryScheduleView({
                 model: new DropdownModel(),

@@ -16,13 +16,11 @@
 var Marionette = require('marionette');
 var template = require('./list-interactions.hbs');
 var CustomElements = require('js/CustomElements');
-var MenuNavigationDecorator = require('decorator/menu-navigation.decorator');
-var Decorators = require('decorator/Decorators');
 
-module.exports = Marionette.ItemView.extend(Decorators.decorate({
+module.exports = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('list-interactions'),
-    className: 'is-action-list',
+    className: 'composed-menu',
     events: {
         'click .interaction-run': 'triggerRun',
         'click .interaction-stop': 'triggerCancel',
@@ -64,4 +62,4 @@ module.exports = Marionette.ItemView.extend(Decorators.decorate({
     triggerClick: function(){
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
     }
-}, MenuNavigationDecorator));
+});

@@ -17,8 +17,6 @@ var _ = require('underscore');
 var Marionette = require('marionette');
 var template = require('./map-context-menu.hbs');
 var CustomElements = require('js/CustomElements');
-var MenuNavigationDecorator = require('decorator/menu-navigation.decorator')
-var Decorators = require('decorator/Decorators');
 var Clipboard = require('clipboard');
 var announcement = require('component/announcement');
 var InspectorView = require('component/visualization/inspector/inspector.view');
@@ -26,10 +24,10 @@ var HistogramView = require('component/visualization/histogram/histogram.view');
 var SelectionInterfaceModel = require('component/selection-interface/selection-interface.model.js');
 var lightboxInstance = require('component/lightbox/lightbox.view.instance');
 
-module.exports = Marionette.LayoutView.extend(Decorators.decorate({
+module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('map-context-menu'),
-    className: 'is-action-list',
+    className: 'composed-menu',
     modelEvents: {},
     events: {
         'click > .interaction-view-details': 'triggerViewDetails',
@@ -144,4 +142,4 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     repositionDropdown: function () {
         this.$el.trigger('repositionDropdown.' + CustomElements.getNamespace());
     }
-}, MenuNavigationDecorator));
+});

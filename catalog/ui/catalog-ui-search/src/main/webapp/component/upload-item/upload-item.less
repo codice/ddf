@@ -60,7 +60,6 @@
         transition: transform @coreTransitionTime linear;
         line-height: 2*@minimumButtonSize;
         text-align: center;
-        color: @button-text-color;
     }
 
     .upload-actions div span {
@@ -68,6 +67,7 @@
     }
 
     .upload-fail {
+        color: contrast(@negative-color);
         background: @negative-color;
     }
 

@@ -21,14 +21,14 @@ Behaviors.addBehavior('button', Marionette.Behavior.extend({
         'change:isEditing': 'onRender'
     },
     events: {
-        'keydown': 'emulateClick',
+        'keypress': 'emulateClick',
         'click': 'blur'
     },
     emulateClick: function(e) {
         if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
             e.preventDefault();
             e.stopPropagation();
-            this.$el.click();
+            this.$el.mousedown().click();
         }
     },
     /*

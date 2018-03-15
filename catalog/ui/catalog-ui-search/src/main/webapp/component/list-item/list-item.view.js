@@ -72,9 +72,12 @@ module.exports = Marionette.LayoutView.extend({
   setupListActions: function() {
     this.listActions.show(DropdownView.createSimpleDropdown({
       componentToShow: ListInteractionsView,
+      dropdownCompanionBehaviors: {
+        navigation: {}
+      },
       modelForComponent: this.model,
       leftIcon: 'fa fa-ellipsis-v'
-    }))
+    }));
   },
   setupFeed: function() {
     this.queryFeed.show(new QueryFeedView({

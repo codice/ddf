@@ -75,7 +75,10 @@ define([
             if (workspace && workspace.changed.currentWorkspace) {
                 this.workspaceInteractions.show(new WorkspaceInteractionsView({
                     model: new DropdownModel(),
-                    modelForComponent: this.model.get('currentWorkspace')
+                    modelForComponent: this.model.get('currentWorkspace'),
+                    dropdownCompanionBehaviors: {
+                        navigation: {}
+                    }
                 }));
             }
         },

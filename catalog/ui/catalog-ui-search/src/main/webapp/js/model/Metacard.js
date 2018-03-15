@@ -14,7 +14,6 @@ var _ = require('underscore');
 require('backboneassociations');
 
 var MetacardPropertiesModel = require('js/model/MetacardProperties');
-var MetacardActionModel = require('js/model/MetacardAction');
 
 module.exports = Backbone.AssociatedModel.extend({
     hasGeometry: function (attribute) {
@@ -30,11 +29,6 @@ module.exports = Backbone.AssociatedModel.extend({
             type: Backbone.One,
             key: 'properties',
             relatedModel: MetacardPropertiesModel
-        },
-        {
-            type: Backbone.Many,
-            key: 'actions',
-            relatedModel: MetacardActionModel
         }
     ],
     defaults: {
