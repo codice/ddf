@@ -21,7 +21,7 @@ Behaviors.addBehavior('button', Marionette.Behavior.extend({
         'change:isEditing': 'onRender'
     },
     events: {
-        'keypress': 'emulateClick',
+        'keyup': 'emulateClick',
         'click': 'blur'
     },
     emulateClick: function(e) {

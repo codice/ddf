@@ -67,7 +67,7 @@ const findEnclosingMenuItem = (menuItems, element, rootNode) => {
 Behaviors.addBehavior('navigation', Marionette.Behavior.extend({
     events: {
         'focusin': 'handleFocusIn',
-        'keypress': 'handleSpecialKeys',
+        'keydown': 'handleSpecialKeys',
         'mouseover': 'handleMouseEnter'
     },
     onRender: function() {

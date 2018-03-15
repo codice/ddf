@@ -24,7 +24,7 @@ define([
     geocoder.View = Marionette.ItemView.extend({
         template: geocoderTemplate,
         events: {
-            'keypress #searchfield': 'searchOnEnter',
+            'keyup #searchfield': 'searchOnEnter',
             'click #searchbutton': 'search'
         },
         initialize: function() {
