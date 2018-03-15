@@ -14,6 +14,8 @@
 package org.codice.ddf.condition;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -67,7 +69,9 @@ public class SignerCondition extends AbstractCondition implements Condition {
   @Override
   public boolean isSatisfied() {
     Map<X509Certificate, List<X509Certificate>> signerCertificates =
-        bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED);
+        AccessController.doPrivileged(
+            (PrivilegedAction<Map<X509Certificate, List<X509Certificate>>>)
+                () -> bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED));
     Set<X509Certificate> x509Certificates = signerCertificates.keySet();
     for (String arg : args) {
       boolean satisfied = false;

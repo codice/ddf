@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.condition;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +56,9 @@ public class BundleNameCondition extends AbstractCondition implements Condition 
     if (args.length == 0) {
       return false;
     }
-    String bundleName = bundle.getHeaders().get("Bundle-SymbolicName");
+    String bundleName =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> bundle.getHeaders().get("Bundle-SymbolicName"));
     String key = bundleName + Arrays.toString(args);
     Boolean storedResult = DECISION_MAP.get(key);
     if (storedResult != null) {
