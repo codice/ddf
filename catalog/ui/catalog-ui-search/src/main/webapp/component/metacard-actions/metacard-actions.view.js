@@ -47,7 +47,7 @@ define([
             return {
                 exportActions: _.sortBy(this.model.getExportActions().map(action => ({
                     url: action.get('url'),
-                    title: action.get('title').replace('Export as', '').replace('Export','')
+                    title: action.getExportType()
                 })), (action) => action.title.toLowerCase()),
                 otherActions: _.sortBy(this.model.getOtherActions().map(action => ({
                     url: action.get('url'),

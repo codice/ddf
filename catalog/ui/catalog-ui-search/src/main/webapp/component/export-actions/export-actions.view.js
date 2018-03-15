@@ -31,7 +31,7 @@ module.exports = Marionette.LayoutView.extend({
         const exportActions = this.model.getExportActions();
         return _.sortBy(exportActions.map(action => ({
             url: action.get('url'),
-            title: action.get('title').replace('Export as', '').replace('Export','')
+            title: action.getExportType()
         })), (action) => action.title.toLowerCase());
     }
 });
