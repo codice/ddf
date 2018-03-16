@@ -19,36 +19,35 @@
  var SearchForm = require('./search-form');
  var Common = require('js/Common');
 
+ let systemTemplates = [];
+ let templatePromise = $.ajax({
+    type: 'GET',
+    context: this,
+    url: '/search/catalog/internal/forms/query',
+    contentType: 'application/json',
+    success: function (data) {
+        systemTemplates = data;
+    }
+});;
+
  module.exports = Backbone.Collection.extend({
    model: SearchForm,
    initialize: function() {
        this.add(new SearchForm({type: 'basic'}));
        this.add(new SearchForm({type: 'text'}));
-       this.getCustomQueryForms();
+       this.addCustomForms();
    },
-   getCustomQueryForms: function() {
-        $.ajax({
-            type: 'GET',
-            context: this,
-            url: '/search/catalog/internal/forms/query',
-            contentType: 'application/json',
-            success: function (data) {
-                this.saveExport(data)
-            },
-            failure: function () {
+   addCustomForms: function() {
+       templatePromise.then(() => {
+            if (!this.isDestroyed){
+                $.each(systemTemplates, (index, value) => {
+                    var utcSeconds = value.created / 1000;
+                    var d = new Date(0);
+                    d.setUTCSeconds(utcSeconds);
+                    this.add(new SearchForm({createdOn: Common.getHumanReadableDate(d), id: value.id, name: value.title, type: 'custom', filterTemplate: value.filterTemplate}));
+                });
                 this.trigger("doneLoading");
-
             }
-        });
-   },
-   saveExport: function(data) {
-        var that = this;
-        $.each(data, function(index, value) {
-            var utcSeconds = value.created / 1000;
-            var d = new Date(0);
-            d.setUTCSeconds(utcSeconds);
-            that.add(new SearchForm({createdOn: Common.getHumanReadableDate(d), id: value.id, name: value.title, type: 'custom', filterTemplate: value.filterTemplate}));
-        });
-        this.trigger("doneLoading");
+       });
    }
  });

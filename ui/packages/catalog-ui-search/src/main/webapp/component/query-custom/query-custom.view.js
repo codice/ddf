@@ -39,9 +39,8 @@ define([
                 model: new FilterBuilderModel()
             }));
 
-            if (this.model.get('filterTemplate')) {
-                this.setCqlFromFilter(this.model.get('filterTemplate'));
-                this.model.unset('filterTemplate');
+            if (this.options.filterTemplate) {
+                this.setCqlFromFilter(this.options.filterTemplate);
             } else if (this.model.get('cql')) {
                 this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
             }
@@ -53,6 +52,7 @@ define([
         edit: function(){
             this.$el.addClass('is-editing');
             this.queryAdvanced.currentView.turnOnEditing();
+            this.querySettings.currentView.turnOnEditing();
         },
         setDefaultTitle: function(){
             this.model.set('title', "Custom Title");

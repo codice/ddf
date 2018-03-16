@@ -46,10 +46,12 @@
                 var oldType = this.options.queryModel.get('type');
                 this.options.queryModel.set({
                     type: 'custom',
-                    title: this.model.get('name'),
-                    filterTemplate: this.model.get('filterTemplate')
+                    title: this.model.get('name')
                 });
-                user.getQuerySettings().set('type', 'custom');
+                user.getQuerySettings().set({
+                    type: 'custom',
+                    template: this.model.toJSON()
+                });
 
                 if (oldType  === 'custom') {
                     this.options.queryModel.trigger('change:type');

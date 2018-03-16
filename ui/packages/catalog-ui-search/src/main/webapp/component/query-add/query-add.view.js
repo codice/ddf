@@ -26,6 +26,8 @@ var store = require('js/store');
 var QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
 var LoadingView = require('component/loading/loading.view');
 var wreqr = require('wreqr');
+const cql = require('js/cql');
+const user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -94,8 +96,12 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
+        this.model.set({
+            title: user.getQuerySettings().get('template').name
+        });
         this.queryContent.show(new QueryCustom({
-            model: this.model
+            model: this.model,
+            filterTemplate: user.getQuerySettings().get('template').filterTemplate
         }));
     },
     focus: function () {
