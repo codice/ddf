@@ -80,7 +80,7 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <!--Felix styles don't match ours, even after running the formatter-->
-                    <excludes>src/main/java/org/apache/</excludes>
+                    <excludes>**/org/apache/**</excludes>
                 </configuration>
             </plugin>
             <plugin>
