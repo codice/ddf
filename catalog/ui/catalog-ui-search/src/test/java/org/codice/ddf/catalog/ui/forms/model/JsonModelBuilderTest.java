@@ -37,7 +37,7 @@ public class JsonModelBuilderTest {
         .beginBinaryComparisonType("=")
         .setProperty("name")
         .setValue("value")
-        .endBinaryComparisonType()
+        .endTerminalType()
         .getResult();
   }
 
@@ -90,7 +90,7 @@ public class JsonModelBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void testEndBinaryComparisonTypeCanModify() {
       setupDefaultTestValue(builder);
-      builder.endBinaryComparisonType();
+      builder.endTerminalType();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -152,7 +152,7 @@ public class JsonModelBuilderTest {
               .beginBinaryComparisonType("=")
               .setProperty("name")
               .setValue("value")
-              .endBinaryComparisonType()
+              .endTerminalType()
               .getResult();
 
       assertThat(node.getType(), is("="));
@@ -173,7 +173,7 @@ public class JsonModelBuilderTest {
               .beginBinaryComparisonType("=")
               .setProperty("name")
               .setTemplatedValues("5", "id", true, false)
-              .endBinaryComparisonType()
+              .endTerminalType()
               .getResult();
 
       assertThat(node.getType(), is("="));
@@ -218,7 +218,7 @@ public class JsonModelBuilderTest {
               .beginBinaryComparisonType("=")
               .setProperty("name")
               .setValue("value")
-              .endBinaryComparisonType()
+              .endTerminalType()
               .endBinaryLogicType()
               .getResult();
 

@@ -81,19 +81,19 @@ public class AbstractFilterVisitor2Test {
     verify(mockNewVisitable).accept(eq(visitor));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testFilterHasIdType() {
     when(mockFilterType.getId()).thenReturn(mock(List.class));
     visitor.visitFilter(mockInput);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testFilterHasExtensionOp() {
     when(mockFilterType.getExtensionOps()).thenReturn(mock(ExtensionOpsType.class));
     visitor.visitFilter(mockInput);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = UnsupportedOperationException.class)
   public void testFilterStartsWithFunction() {
     when(mockFilterType.getFunction()).thenReturn(mock(FunctionType.class));
     visitor.visitFilter(mockInput);

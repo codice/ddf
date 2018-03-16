@@ -42,6 +42,8 @@ public class JsonModelBuilder {
   private static final Set<String> BINARY_COMPARE_OPS =
       ImmutableSet.of("=", "!=", ">", ">=", "<", "<=");
 
+  private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
+
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
 
   private final Deque<List<FilterNode>> depth;
@@ -119,7 +121,17 @@ public class JsonModelBuilder {
     return this;
   }
 
-  public JsonModelBuilder endBinaryComparisonType() {
+  public JsonModelBuilder beginBinarySpatialType(String operator) {
+    canModify();
+    canStartNew();
+    if (!BINARY_SPATIAL_OPS.contains(operator)) {
+      throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
+    }
+    nodeInProgress = new FilterLeafNode(operator);
+    return this;
+  }
+
+  public JsonModelBuilder endTerminalType() {
     canModify();
     if (depth.isEmpty() && rootNode != null) {
       throw new IllegalStateException("If stack is empty, the root node should not be initialized");

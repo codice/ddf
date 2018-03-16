@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.model;
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertLeafNode;
+import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -88,6 +89,12 @@ public class JsonTransformVisitorTest {
     getRootFilterNode("comparison-binary-ops", "PropertyIsGreaterThanOrEqualTo.xml")
         .accept(visitor);
     assertLeafNode(visitor.getResult(), ">=", DEPTH_PROP, DEPTH_VAL);
+  }
+
+  @Test
+  public void testVisitIntersectsWithFunction() throws Exception {
+    getRootFilterNode("function-ops", "Intersects.xml").accept(visitor);
+    assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
   }
 
   private static VisitableXmlElement getRootFilterNode(String... resourceRoute) throws Exception {

@@ -24,6 +24,8 @@ import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
+import net.opengis.filter.v_2_0.BinarySpatialOpType;
+import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
 import org.codice.ddf.catalog.ui.forms.filter.AbstractFilterVisitor2;
@@ -173,7 +175,57 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
 
     builder.beginBinaryComparisonType(operator);
     element.getValue().getExpression().forEach(jax -> makeVisitable(jax).accept(this));
-    builder.endBinaryComparisonType();
+    builder.endTerminalType();
+  }
+
+  @Override
+  public void visitBinarySpatialType(VisitableXmlElement<BinarySpatialOpType> visitable) {
+    JAXBElement<BinarySpatialOpType> element = visitable.getElement();
+    String localPart = element.getName().getLocalPart();
+    traceLocalPart(localPart);
+
+    List<JAXBElement> expression;
+    try {
+      expression =
+          element
+              .getValue()
+              .getExpressionOrAny()
+              .stream()
+              .map(JAXBElement.class::cast)
+              .collect(Collectors.toList());
+    } catch (ClassCastException e) {
+      throw new UnsupportedOperationException("Filter 2.0 and GML are currently not supported", e);
+    }
+
+    builder.beginBinarySpatialType("INTERSECTS");
+    expression.forEach(jax -> makeVisitable(jax).accept(this));
+    builder.endTerminalType();
+  }
+
+  @Override
+  public void visitDistanceBufferType(VisitableXmlElement<DistanceBufferType> visitable) {
+    JAXBElement<DistanceBufferType> element = visitable.getElement();
+    String localPart = element.getName().getLocalPart();
+    traceLocalPart(localPart);
+
+    List<JAXBElement> expression;
+    try {
+      expression =
+          element
+              .getValue()
+              .getExpressionOrAny()
+              .stream()
+              .map(JAXBElement.class::cast)
+              .collect(Collectors.toList());
+    } catch (ClassCastException e) {
+      throw new UnsupportedOperationException("Filter 2.0 and GML are currently not supported", e);
+    }
+
+    expression.forEach(jax -> makeVisitable(jax).accept(this));
+
+    // TODO: Will these be necessary?
+    element.getValue().getDistance().getUom();
+    element.getValue().getDistance().getValue();
   }
 
   private static <T> T get(List<Optional<Serializable>> args, int i, Class<T> expectedType) {

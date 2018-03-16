@@ -190,14 +190,14 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
 
   private static void handleUnsupported(Object type) {
     if (type != null) {
-      throw new IllegalArgumentException(
+      throw new UnsupportedOperationException(
           "Encountered filter with unsupported element: " + type.getClass().getName());
     }
   }
 
   private static void handleUnsupported(List type) {
     if (!type.isEmpty()) {
-      throw new IllegalArgumentException(
+      throw new UnsupportedOperationException(
           "Encountered filter with unsupported element: " + type.getClass().getName());
     }
   }

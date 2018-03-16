@@ -101,20 +101,24 @@ public class SearchFormsApplication implements SparkApplication {
 
     Set<String> queryTitles = queryAsAdmin(FormAttributes.Query.TAG, titles);
     Set<String> resultTitles = queryAsAdmin(FormAttributes.Result.TAG, titles);
-    List<Metacard> initialTemplates = config().get();
 
-    Stream<Metacard> metacardStream =
+    List<Metacard> systemTemplates = config().get();
+    if (systemTemplates.isEmpty()) {
+      return;
+    }
+
+    Stream<Metacard> dedupedTemplateMetacardStream =
         Stream.concat(
-            initialTemplates
+            systemTemplates
                 .stream()
                 .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
                 .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
-            initialTemplates
+            systemTemplates
                 .stream()
                 .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
                 .filter(metacard -> !resultTitles.contains(metacard.getTitle())));
 
-    saveMetacards(metacardStream.collect(Collectors.toList()));
+    saveMetacards(dedupedTemplateMetacardStream.collect(Collectors.toList()));
   }
 
   /** Spark's API-mandated init (not OSGi related) for registering REST functions. */

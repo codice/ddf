@@ -6,10 +6,10 @@
             http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
     <fes:Beyond>
         <fes:ValueReference>location</fes:ValueReference>
-        <fes:Distance uom="km">100</fes:Distance>
         <gml:Envelope srsName="urn:ogc:def:crs:EPSG::4326">
             <gml:lowerCorner>13.0983 31.5899</gml:lowerCorner>
             <gml:upperCorner>35.5472 42.8143</gml:upperCorner>
         </gml:Envelope>
+        <fes:Distance uom="km">100</fes:Distance>
     </fes:Beyond>
 </fes:Filter>

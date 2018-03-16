@@ -21,6 +21,7 @@ import static org.hamcrest.core.Is.is;
 
 import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode;
 import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
+import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterTemplatedLeafNode;
 
 /** As more test cases are added, more support functions will be needed. */
 class FilterNodeAssertionSupport {
@@ -45,5 +46,21 @@ class FilterNodeAssertionSupport {
     FilterLeafNode leaf = (FilterLeafNode) node;
     assertThat(leaf.getProperty(), is(expectedProperty));
     assertThat(leaf.getValue(), is(expectedValue));
+  }
+
+  static void assertTemplatedNode(
+      FilterNode node,
+      String expectedType,
+      String expectedProperty,
+      String defaultValue,
+      String nodeId) {
+    assertLeafNode(node, expectedType, expectedProperty, null);
+    FilterLeafNode leaf = (FilterLeafNode) node;
+
+    assertThat(leaf.isTemplated(), is(true));
+    FilterTemplatedLeafNode template = (FilterTemplatedLeafNode) leaf;
+
+    assertThat(template.getDefaultValue(), is(defaultValue));
+    assertThat(template.getNodeId(), is(nodeId));
   }
 }
