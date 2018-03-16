@@ -128,6 +128,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <!--  We don't want to inherit this *change* to the plugin configuration. -->
                 <!--  Sub modules will still inherit the plugin and the configuration from pluginManagment -->
                 <inherited>false</inherited>
