@@ -241,7 +241,7 @@ public class SecurityPluginTest {
     private List<Metacard> metacards;
 
     @Override
-    public List<Metacard> getMetacards() {
+    public Set<Metacard> getMetacards() {
       if (metacards == null) {
         metacards = new ArrayList<>();
         metacards.add(new MetacardImpl());

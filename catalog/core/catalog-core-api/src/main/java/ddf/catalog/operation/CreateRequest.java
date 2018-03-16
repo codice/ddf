@@ -15,6 +15,7 @@ package ddf.catalog.operation;
 
 import ddf.catalog.data.Metacard;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Defines a Create Request Object which can be sent to the {@link CatalogFramework#create
@@ -26,9 +27,9 @@ import java.util.List;
  */
 public interface CreateRequest extends Request {
   /**
-   * Gets a {@link List} of {@link Metacard} to be stored.
+   * Gets a {@link Set} of {@link Metacard} to be stored.
    *
-   * @return the {@link List} of {@link Metacard}
+   * @return the {@link Set} of {@link Metacard}
    */
-  public List<Metacard> getMetacards();
+   Set<Metacard> getMetacards();
 }
