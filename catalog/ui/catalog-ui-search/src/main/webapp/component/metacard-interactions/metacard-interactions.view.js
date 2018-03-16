@@ -78,12 +78,13 @@ define([
         },
         setupResultActionsExport() {
             this.resultActionsExport.show(PopoutView.createSimpleDropdown({
-                componentToShow: ExportActionsView.extend({className: 'composed-menu'}),
+                componentToShow: ExportActionsView,
                 dropdownCompanionBehaviors: {
                     navigation: {}
                 },
                 modelForComponent: this.model.first(),
-                leftIcon: 'fa fa-chevron-down',
+                leftIcon: 'fa fa-external-link',
+                rightIcon: 'fa fa-chevron-down',
                 label: 'Export as'
             }));
         },
@@ -92,6 +93,7 @@ define([
                 componentToShow: ResultAddView,
                 modelForComponent: this.model,
                 leftIcon: 'fa fa-plus',
+                rightIcon: 'fa fa-chevron-down',
                 label: 'Add / Remove from List'
             }));
         },

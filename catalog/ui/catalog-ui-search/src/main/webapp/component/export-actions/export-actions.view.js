@@ -21,6 +21,7 @@ const _ = require('lodash');
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('export-actions'),
+    className: 'composed-menu',
     events: {
         'click > div': 'triggerAction'
     },
