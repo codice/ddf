@@ -110,6 +110,7 @@
         <module>catalog-transformer-pptx</module>
         <module>catalog-transformer-overlay</module>
         <module>catalog-transformer-zip</module>
+        <module>catalog-transformer-exploding-zip</module>
         <module>catalog-transformer-propertyjson-metacard</module>
         <module>catalog-transformer-preview</module>
     </modules>

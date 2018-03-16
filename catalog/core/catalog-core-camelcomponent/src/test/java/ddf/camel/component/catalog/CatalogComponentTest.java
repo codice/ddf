@@ -13,25 +13,20 @@
  */
 package ddf.camel.component.catalog;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.mime.MimeTypeToTransformerMapper;
 import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.activation.MimeType;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
@@ -42,6 +37,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.tika.io.IOUtils;
+import org.codice.ddf.catalog.transform.Transform;
+import org.codice.ddf.catalog.transform.TransformResponse;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -110,6 +107,8 @@ public class CatalogComponentTest extends CamelTestSupport {
 
   private BundleContext bundleContext;
 
+  private Transform transform;
+
   private CatalogComponent catalogComponent;
 
   // The route being tested
@@ -145,6 +144,8 @@ public class CatalogComponentTest extends CamelTestSupport {
         new PojoServiceRegistryFactoryImpl().newPojoServiceRegistry(new HashMap());
     bundleContext = reg.getBundleContext();
 
+    transform = mock(Transform.class);
+
     // Since the Camel BlueprintComponentResolver does not execute outside
     // of an OSGi container, we cannot
     // rely on the CatalogComponentResolver to be used for resolving the
@@ -155,6 +156,7 @@ public class CatalogComponentTest extends CamelTestSupport {
     // for this unit test.
     catalogComponent = new CatalogComponent();
     catalogComponent.setBundleContext(bundleContext);
+    catalogComponent.setTransform(transform);
     camelContext.addComponent(CatalogComponent.NAME, catalogComponent);
 
     return camelContext;
@@ -222,96 +224,22 @@ public class CatalogComponentTest extends CamelTestSupport {
   }
 
   @Test
-  public void testTransformMetacardNoMimeTypeToTransformerMapperRegistered() throws Exception {
-    LOGGER.debug("Running testTransformMetacard_NoMimeTypeToTransformerMapperRegistered()");
-
-    catalogComponent.setMimeTypeToTransformerMapper(null);
-
-    // Mock a XML InputTransformer and register it in the OSGi Registry
-    // (PojoSR)
-    InputTransformer mockTransformer = getMockInputTransformer();
-    Hashtable<String, String> props = new Hashtable<String, String>();
-    props.put(MimeTypeToTransformerMapper.ID_KEY, "xml");
-    props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
-    bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
-
-    // Send in sample XML as InputStream to InputTransformer
-    InputStream input = IOUtils.toInputStream(xmlInput);
-
-    // Get the InputTransformer registered with the ID associated with the
-    // <from> node in the Camel route
-    InputTransformer transformer = getTransformer("text/xml", "identity");
-    assertNotNull("InputTransformer for text/xml;id=identity not found", transformer);
-
-    // Attempt to transform the XML input into a Metacard
-    try {
-      transformer.transform(input);
-      fail("Should have thrown a CatalogTransformerException");
-    } catch (CatalogTransformerException e) {
-      assertEquals("Did not find a MimeTypeToTransformerMapper service", e.getMessage());
-    }
-  }
-
-  @Test
-  public void testTransformMetacardNoProducerInputTransformerRegistered() throws Exception {
-    LOGGER.debug("Running testTransformMetacard()");
-
-    // Mock the MimeTypeToTransformerMapper and register it in the OSGi
-    // Registry (PojoSR)
-    MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
-    // bundleContext.registerService(
-    // MimeTypeToTransformerMapper.class.getName(), matchingService, null );
-    catalogComponent.setMimeTypeToTransformerMapper(matchingService);
-
-    // Mock the MimeTypeToTransformerMapper returning empty list of
-    // InputTransformers
-    List list = new ArrayList<InputTransformer>();
-    when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
-        .thenReturn(list);
-
-    // Send in sample XML as InputStream to InputTransformer
-    InputStream input = IOUtils.toInputStream(xmlInput);
-
-    // Get the InputTransformer registered with the ID associated with the
-    // <from> node in the Camel route
-    InputTransformer transformer = getTransformer("text/xml", "identity");
-    assertNotNull("InputTransformer for text/xml;id=identity not found", transformer);
-
-    // Attempt to transform the XML input into a Metacard
-    try {
-      transformer.transform(input);
-      fail("Should have thrown a CatalogTransformerException");
-    } catch (CatalogTransformerException e) {
-      assertEquals(
-          "Did not find an InputTransformer for MIME Type [text/xml] and id [xml]", e.getMessage());
-    }
-  }
-
-  @Test
   public void testTransformMetacard() throws Exception {
     LOGGER.debug("Running testTransformMetacard()");
     MockEndpoint mock = getMockEndpoint("mock:result");
     mock.expectedMinimumMessageCount(1);
 
-    // Mock a XML InputTransformer and register it in the OSGi Registry
-    // (PojoSR)
-    InputTransformer mockTransformer = getMockInputTransformer();
-    Hashtable<String, String> props = new Hashtable<String, String>();
-    props.put(MimeTypeToTransformerMapper.ID_KEY, "xml");
-    props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, "text/xml");
-    bundleContext.registerService(InputTransformer.class.getName(), mockTransformer, props);
+    TransformResponse transformResponse = mock(TransformResponse.class);
+    when(transformResponse.getParentMetacard()).thenReturn(Optional.of(getSimpleMetacard()));
 
-    // Mock the MimeTypeToTransformerMapper and register it in the OSGi
-    // Registry (PojoSR)
-    MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
-    // HUGH bundleContext.registerService(
-    // MimeTypeToTransformerMapper.class.getName(), matchingService, null );
-    catalogComponent.setMimeTypeToTransformerMapper(matchingService);
-
-    // Mock the MimeTypeToTransformerMapper returning the mock XML
-    // InputTransformer
-    when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
-        .thenReturn((List) Arrays.asList(mockTransformer));
+    when(transform.transform(
+            any(MimeType.class),
+            any(String.class),
+            any(Supplier.class),
+            any(InputStream.class),
+            any(String.class),
+            any(Map.class)))
+        .thenReturn(transformResponse);
 
     // Send in sample XML as InputStream to InputTransformer
     InputStream input = IOUtils.toInputStream(xmlInput);
@@ -343,16 +271,7 @@ public class CatalogComponentTest extends CamelTestSupport {
 
     ServiceReference[] refs = null;
     try {
-      String filter =
-          "(&("
-              + MimeTypeToTransformerMapper.MIME_TYPE_KEY
-              + "="
-              + mimeType
-              + ")("
-              + MimeTypeToTransformerMapper.ID_KEY
-              + "="
-              + id
-              + "))";
+      String filter = "(&(" + "mime-type" + "=" + mimeType + ")(" + "id" + "=" + id + "))";
       LOGGER.debug("Looking for InputTransformer with filter: {}", filter);
       refs = bundleContext.getServiceReferences(InputTransformer.class.getName(), filter);
     } catch (Exception e) {
@@ -369,29 +288,6 @@ public class CatalogComponentTest extends CamelTestSupport {
     LOGGER.trace("EXITING: getTransformer");
 
     return transformer;
-  }
-
-  /**
-   * Mock an InputTransformer, returning a canned Metacard when the transform() method is invoked on
-   * the InputTransformer.
-   *
-   * @return
-   */
-  protected InputTransformer getMockInputTransformer() {
-    InputTransformer inputTransformer = mock(InputTransformer.class);
-
-    Metacard generatedMetacard = getSimpleMetacard();
-
-    try {
-      when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-      when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
-          .thenReturn(generatedMetacard);
-    } catch (IOException e) {
-      LOGGER.debug("IOException", e);
-    } catch (CatalogTransformerException e) {
-      LOGGER.debug("CatalogTransformerException", e);
-    }
-    return inputTransformer;
   }
 
   protected Metacard getSimpleMetacard() {

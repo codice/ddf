@@ -21,6 +21,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 import com.google.common.collect.Lists;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.impl.QueryMetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -53,7 +54,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;

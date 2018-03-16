@@ -15,10 +15,10 @@ package ddf.camel.component.catalog;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.mime.MimeTypeToTransformerMapper;
 import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
+import org.codice.ddf.catalog.transform.Transform;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +43,9 @@ public class CatalogComponent extends DefaultComponent {
 
   private BundleContext bundleContext;
 
-  private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
-
   private CatalogFramework catalogFramework;
+
+  private Transform transform;
 
   public CatalogComponent() {
     super();
@@ -73,7 +73,8 @@ public class CatalogComponent extends DefaultComponent {
     LOGGER.debug("transformerId = {}", transformerId);
 
     Endpoint endpoint =
-        new CatalogEndpoint(uri, this, transformerId, mimeType, contextPath, catalogFramework);
+        new CatalogEndpoint(
+            uri, this, transformerId, mimeType, contextPath, catalogFramework, transform);
     try {
       setProperties(endpoint, parameters);
     } catch (Exception e) {
@@ -105,31 +106,19 @@ public class CatalogComponent extends DefaultComponent {
   }
 
   /**
-   * Retrieves the mimetype-to-transformer mapper service.
-   *
-   * @return the mimetype-to-transformer mapper service
-   */
-  public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
-    return mimeTypeToTransformerMapper;
-  }
-
-  /**
-   * Sets the mimetype-to-transformer mapper service.
-   *
-   * @param mimeTypeToTransformerMapper
-   */
-  public void setMimeTypeToTransformerMapper(
-      MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
-    LOGGER.debug("Setting mimeTypeToTransformerMapper");
-    this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
-  }
-
-  /**
    * Sets the catalog framework
    *
    * @param catalogFramework the catalog framework
    */
   public void setCatalogFramework(CatalogFramework catalogFramework) {
     this.catalogFramework = catalogFramework;
+  }
+
+  public void setTransform(Transform transform) {
+    this.transform = transform;
+  }
+
+  public Transform getTransform() {
+    return transform;
   }
 }

@@ -36,14 +36,8 @@
 
     <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
 
-    <bean id="cfMetafactory" class="ddf.catalog.impl.operations.MetacardFactory">
-        <argument ref="transformerMapper"/>
-        <argument ref="uuidGenerator"/>
-    </bean>
-
     <bean id="cfOpsMetacard" class="ddf.catalog.impl.operations.OperationsMetacardSupport">
         <argument ref="frameworkProperties"/>
-        <argument ref="cfMetafactory"/>
     </bean>
 
     <bean id="cfOpsStorage" class="ddf.catalog.impl.operations.OperationsStorageSupport">

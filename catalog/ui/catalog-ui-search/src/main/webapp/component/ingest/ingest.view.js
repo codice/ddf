@@ -33,9 +33,6 @@ module.exports = Marionette.LayoutView.extend({
         ingestMenu: '.ingest-menu',
         ingestDetails: '.ingest-details'
     },
-    childEvents: {
-        'ingestDetails:new' : 'showNewIngest'
-    },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
         this.handleRoute();
@@ -49,9 +46,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     onBeforeShow: function() {
         this.ingestMenu.show(new NavigationView());
-        this.ingestDetails.show(new IngestDetails());
-    },
-    showNewIngest: function(){
-        this.ingestDetails.show(new IngestDetails());
+        this.ingestDetails.show(new IngestDetails({url: '/services/catalog/'}));
     }
 });

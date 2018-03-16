@@ -23,7 +23,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -59,7 +63,6 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +80,6 @@ public class DumpCommand extends CqlCommands {
   private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
 
   private static final String ZIP_COMPRESSION = "zipCompression";
-
-  private static List<MetacardTransformer> transformers = null;
 
   private final PeriodFormatter timeFormatter =
       new PeriodFormatterBuilder()
@@ -116,7 +117,7 @@ public class DumpCommand extends CqlCommands {
   )
   int pageSize = 1000;
 
-  // DDF-535: remove "Transformer" alias in DDF 3.0
+  // DDF-535: remove "TransformerProperties" alias in DDF 3.0
   @Option(
     name = "--transformer",
     required = false,
@@ -190,12 +191,10 @@ public class DumpCommand extends CqlCommands {
       return null;
     }
 
-    if (!SERIALIZED_OBJECT_ID.matches(transformerId)) {
-      transformers = getTransformers();
-      if (transformers == null) {
-        console.println(transformerId + " is an invalid metacard transformer.");
-        return null;
-      }
+    if (!SERIALIZED_OBJECT_ID.matches(transformerId)
+        && !getTransform().isMetacardTransformerIdValid(transformerId)) {
+      console.println(transformerId + " is an invalid metacard transformer.");
+      return null;
     }
 
     if (StringUtils.isNotBlank(zipFileName) && new File(dirPath + zipFileName).exists()) {
@@ -248,17 +247,18 @@ public class DumpCommand extends CqlCommands {
 
       if (StringUtils.isNotBlank(zipFileName)) {
         try {
-          Optional<QueryResponseTransformer> zipCompression = getZipCompression();
-          if (zipCompression.isPresent()) {
-            BinaryContent binaryContent = zipCompression.get().transform(response, zipArgs);
-            if (binaryContent != null) {
-              IOUtils.closeQuietly(binaryContent.getInputStream());
-            }
-            Long resultSize = (long) response.getResults().size();
-            printStatus(resultCount.addAndGet(resultSize));
+
+          BinaryContent binaryContent =
+              getTransform().transform(response, ZIP_COMPRESSION, zipArgs);
+
+          if (binaryContent != null) {
+            IOUtils.closeQuietly(binaryContent.getInputStream());
           }
-        } catch (InvalidSyntaxException e) {
-          LOGGER.info("No Zip Transformer found.  Unable export metacards to a zip file.");
+          Long resultSize = (long) response.getResults().size();
+          printStatus(resultCount.addAndGet(resultSize));
+        } catch (IllegalArgumentException e) {
+          LOGGER.info(
+              "No Zip TransformerProperties found.  Unable export metacards to a zip file.");
         }
       } else if (multithreaded > 1) {
         final List<Result> results = new ArrayList<>(response.getResults());
@@ -323,27 +323,52 @@ public class DumpCommand extends CqlCommands {
         oos.flush();
       }
     } else {
-      BinaryContent binaryContent;
-      if (metacard != null) {
-        for (MetacardTransformer transformer : transformers) {
-          binaryContent = transformer.transform(metacard, new HashMap<>());
-          if (binaryContent != null) {
-            try (FileOutputStream fos =
-                new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
-              fos.write(binaryContent.getByteArray());
-            }
-            break;
+      List<BinaryContent> binaryContents =
+          getTransform()
+              .transform(
+                  Collections.singletonList(metacard), transformerId, Collections.emptyMap());
+
+      if (CollectionUtils.isNotEmpty(binaryContents)) {
+        if (binaryContents.size() == 1) {
+          try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
+
+            fos.write(binaryContents.get(0).getByteArray());
           }
+        } else {
+          createZip(binaryContents, dumpLocation, metacard);
         }
       }
     }
   }
 
-  private File getOutputFile(File dumpLocation, Metacard metacard) throws IOException {
+  private void createZip(List<BinaryContent> binaryContents, File dumpLocation, Metacard metacard)
+      throws CatalogTransformerException, IOException {
+    File zipPath = new File(getOutputFile(dumpLocation, metacard).getAbsolutePath() + ".zip");
+    try {
+      ZipFile zipFile = new ZipFile(zipPath);
+      int index = 1;
+      for (BinaryContent binaryContent : binaryContents) {
+        ZipParameters zipParameters = new ZipParameters();
+        zipParameters.setSourceExternalStream(true);
+        zipParameters.setFileNameInZip(String.format("%d%s", index++, generateExtension()));
+        zipFile.addStream(binaryContent.getInputStream(), zipParameters);
+      }
+    } catch (ZipException e) {
+      throw new CatalogTransformerException(
+          String.format("unable to create zip file: %s", zipPath.getAbsolutePath()), e);
+    }
+  }
+
+  private String generateExtension() {
     String extension = "";
     if (fileExtension != null) {
       extension = "." + fileExtension;
     }
+    return extension;
+  }
+
+  private File getOutputFile(File dumpLocation, Metacard metacard) throws IOException {
+    String extension = generateExtension();
 
     String id = metacard.getId();
     File parent = dumpLocation;
@@ -361,29 +386,6 @@ public class DumpCommand extends CqlCommands {
   protected void printStatus(long count) {
     console.print(String.format(" %d file(s) dumped\t\r", count));
     console.flush();
-  }
-
-  protected List<MetacardTransformer> getTransformers() {
-    ServiceReference[] refs = null;
-    try {
-      refs =
-          bundleContext.getAllServiceReferences(
-              MetacardTransformer.class.getName(),
-              "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
-
-    } catch (InvalidSyntaxException e) {
-      console.printf("Fail to get MetacardTransformer references due to %s", e.getMessage());
-    }
-    if (refs == null || refs.length == 0) {
-      return null;
-    }
-
-    List<MetacardTransformer> metacardTransformerList = new ArrayList<>();
-    for (ServiceReference ref : refs) {
-      metacardTransformerList.add((MetacardTransformer) bundleContext.getService(ref));
-    }
-
-    return metacardTransformerList;
   }
 
   private Optional<QueryResponseTransformer> getZipCompression() throws InvalidSyntaxException {

@@ -11,31 +11,27 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package org.codice.ddf.catalog.transform;
 
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-public class ListMetacardImpl extends MetacardImpl {
-  private static final ListMetacardTypeImpl TYPE = new ListMetacardTypeImpl();
+public interface TransformResponse {
 
-  public ListMetacardImpl() {
-    super(TYPE);
-    setTags(Collections.singleton(ListMetacardTypeImpl.LIST_TAG));
-  }
+  /** The returned metacard represents the entire input stream to the transformer. */
+  Optional<Metacard> getParentMetacard();
 
-  public ListMetacardImpl(String title) {
-    this();
-    setTitle(title);
-  }
+  /**
+   * The list of metacards represents items derived from the input stream that do not directly
+   * reference a resource.
+   */
+  List<Metacard> getDerivedMetacards();
 
-  public ListMetacardImpl(Metacard wrappedMetacard) {
-    super(wrappedMetacard, TYPE);
-    setTags(Collections.singleton(ListMetacardTypeImpl.LIST_TAG));
-  }
-
-  public static ListMetacardImpl from(Metacard metacard) {
-    return new ListMetacardImpl(metacard);
-  }
+  /**
+   * The list of content items represent items derived from the input stream that directly reference
+   * a resource.
+   */
+  List<ContentItem> getDerivedContentItems();
 }

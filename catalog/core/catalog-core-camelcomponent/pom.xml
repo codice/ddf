@@ -127,6 +127,11 @@
             <artifactId>powermock-module-junit4-rule-agent</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-transform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
