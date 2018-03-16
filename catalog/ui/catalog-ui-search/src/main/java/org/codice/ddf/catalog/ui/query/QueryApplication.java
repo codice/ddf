@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -51,13 +52,14 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
-public class QueryApplication implements SparkApplication {
+public class QueryApplication implements SparkApplication, Function {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
@@ -153,6 +155,46 @@ public class QueryApplication implements SparkApplication {
               mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
           LOGGER.error("Query endpoint failed", e);
         });
+  }
+
+  @Override
+  public Object apply(Object req) {
+    if (!(req instanceof List)) {
+      return JsonRpc.invalidParams("params not list", req);
+    }
+
+    List params = (List) req;
+
+    if (params.size() != 1) {
+      return JsonRpc.invalidParams("must pass exactly 1 param", params);
+    }
+
+    Object param = params.get(0);
+
+    if (!(param instanceof String)) {
+      return JsonRpc.invalidParams("param not string", param);
+    }
+
+    CqlRequest cqlRequest;
+
+    try {
+      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+    } catch (RuntimeException e) {
+      return JsonRpc.invalidParams("param not valid json", param);
+    }
+
+    try {
+      return executeCqlQuery(cqlRequest);
+    } catch (UnsupportedQueryException e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(400, "Unsupported query request.");
+    } catch (RuntimeException e) {
+      LOGGER.debug("Exception occurred", e);
+      return JsonRpc.error(404, "Could not find what you were looking for");
+    } catch (Exception e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(500, "Error while processing query request.");
+    }
   }
 
   private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)

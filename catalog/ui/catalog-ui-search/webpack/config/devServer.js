@@ -20,6 +20,7 @@ var handleProxyRes = function (proxyRes, req, res) {
 
 var proxyConfig = function (target) {
     return {
+        ws: true,
         target: target,
         secure: false,
         changeOrigin: true,

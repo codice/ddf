@@ -21,6 +21,15 @@ require('backboneassociations');
 var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus');
 var QueryResultCollection = require('js/model/QueryResult.collection');
 
+let rpc = null
+
+if (window.WebSocket) {
+  const Client = require('rpc-websockets').Client
+  const protocol = { 'http:': 'ws:', 'https:': 'wss:' }
+  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}/search/catalog/ws`
+  rpc = new Client(url)
+}
+
 function generateThumbnailUrl(url) {
     var newUrl = url;
     if (url.indexOf("?") >= 0) {
@@ -75,6 +84,61 @@ module.exports = Backbone.AssociatedModel.extend({
         this.listenTo(this, 'error', this.handleError);
         this.listenTo(this, 'sync', this.handleSync);
         this.resultCountsBySource = {};
+    },
+    sync: function (method, model, options) {
+        if (rpc !== null) {
+            let handled = false;
+            const promise = rpc.call('query', [options.data], options.timeout)
+                .then((res) => {
+                    if (!handled) {
+                        handled = true;
+                        options.success(res);
+                        return [res, "success"];
+                    }
+                })
+                .catch((res) => {
+                    if (!handled) {
+                        handled = true;
+                        res.options = options;
+                        switch (res.code) {
+                            case 400:
+                            case 404:
+                            case 500:
+                                options.error({
+                                    responseJSON: res
+                                });
+                                break;
+                            default:
+                                // notify user and fallback to http
+                                rpc = null;
+                                options.error({
+                                    responseJSON: {
+                                        message: 'Search failed due to unknown reasons, please try again.'
+                                    }
+                                });
+                        }
+                        return [res, "error"];
+                    }
+                });
+            model.trigger('request', model, null, options);
+            return {
+                abort() {
+                    if (!handled) {
+                        handled = true;
+                        options.error({
+                            responseJSON: {
+                                message: 'Stopped'
+                            }
+                        });
+                    }
+                },
+                promise() {
+                    return promise;
+                }
+            };
+        } else {
+            return Backbone.AssociatedModel.prototype.sync.call(this, method, model, options);
+        }
     },
     handleError: function (resultModel, response, sent) {
         var dataJSON = JSON.parse(sent.data);
