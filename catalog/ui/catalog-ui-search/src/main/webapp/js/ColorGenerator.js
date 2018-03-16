@@ -25,17 +25,21 @@ define([
     return {
         getNewGenerator: function(){
             var colors = [
-                // http://colorbrewer2.org/?type=qualitative&scheme=Paired&n=10
-                '#cab2d6',
-                '#6a3d9a',
-                '#fdbf6f',
-                '#ff7f00',
-                '#fb9a99',
-                '#e31a1c',
-                '#b2df8a',
-                '#33a02c',
-                '#a6cee3',
-                '#1f78b4'
+                // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
+                // http://mkweb.bcgsc.ca/colorblind/
+                '#004949',  //dark turquoise
+                '#009292',  //turquoise
+                '#ff6db6',  //pink
+              //  '#ffb677',  //lightpink 
+                '#490092', //darkpurple
+                '#006ddb',  //darkblue
+                '#b66dff',  //purple
+                '#6db6ff',  //blue
+                '#b6dbff', //lightblue
+                '#924900',  //brown
+               // '#dbd100',  //orange
+                '#24ff24',  //green
+               // '#ffff6d'  //yellow
             ];
             var idToColor = {};
 
