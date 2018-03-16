@@ -17,13 +17,14 @@ var Marionette = require('marionette');
 var template = require('./query-editor.hbs');
 var CustomElements = require('js/CustomElements');
 var QueryBasic = require('component/query-basic/query-basic.view');
-var QueryCustom = require('component/query-custom/query-custom.view');
+var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
 var QueryAdvanced = require('component/query-advanced/query-advanced.view');
 var QueryTitle = require('component/query-title/query-title.view');
 var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 var cql = require('js/cql');
 var CQLUtils = require('js/CQLUtils');
 var store = require('js/store');
+const user = require('component/singletons/user-instance');
 
 function isNested(filter) {
     var nested = false;
@@ -127,7 +128,6 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     reshow: function() {
-        this.translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
         switch (this.model.get('type')) {
             case 'text':
                 this.showText();
@@ -155,8 +155,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
-            model: this.model,
-            text: this.translationToBasicMap.propertyValueMap.anyText ? this.translationToBasicMap.propertyValueMap.anyText[0].value : ''
+            model: this.model
         }));
     },
     showBasic: function () {
@@ -165,8 +164,12 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
+        this.model.set({
+            title: user.getQuerySettings().get('template').name
+        });
         this.queryContent.show(new QueryCustom({
-            model: this.model
+            model: this.model,
+            filterTemplate: user.getQuerySettings().get('template').filterTemplate
         }));
     },
     handleEditOnShow: function(){

@@ -19,7 +19,7 @@ define([
     'jquery',
     './query-custom.hbs',
     'js/CustomElements',
-    'component/filter-builder-search-form/filter-builder.view',
+    'component/filter-builder/search-form/filter-builder.search-form.view',
     'component/filter-builder/filter-builder',
     'js/cql',
     'js/store',
@@ -30,6 +30,7 @@ define([
 
     return QueryAdvanced.extend({
         template: template,
+        className: 'is-custom',
         onBeforeShow: function(){
             this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
             this.querySettings.show(new QuerySettingsView({

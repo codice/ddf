@@ -21,7 +21,7 @@ var CustomElements = require('js/CustomElements');
 var lightboxInstance = require('component/lightbox/lightbox.view.instance');
 var SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
 var DropdownModel = require('component/dropdown/dropdown');
-var SearchTypeDropdownView = require('component/dropdown/search-type/dropdown.search-type.view');
+var SearchFormSelectorDropdownView = require('component/dropdown/search-form-selector/dropdown.search-form-selector.view');
 var _merge = require('lodash/merge');
 var ConfirmationView = require('component/confirmation/confirmation.view');
 var user = require('component/singletons/user-instance');
@@ -40,16 +40,13 @@ module.exports = Marionette.LayoutView.extend({
         'click > .interaction-type-advanced': 'triggerTypeAdvanced',
         'click > .interaction-form': 'triggerCloseDropdown'
     },
-    initialize: function() {
-
-    },
     onRender: function(){
-        this.listenTo(this.model, 'closeDropDown', this.triggerCloseDropdown);
-        this.generateSearchType();
+        this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
+        this.generateSearchFormSelector();
         this.generateSearchSettings();
     },
-    generateSearchType: function() {
-        this.searchType.show(new SearchTypeDropdownView({
+    generateSearchFormSelector: function() {
+        this.searchType.show(new SearchFormSelectorDropdownView({
             model: new DropdownModel(),
             modelForComponent: this.model,
             selectionInterface: this.options.selectionInterface

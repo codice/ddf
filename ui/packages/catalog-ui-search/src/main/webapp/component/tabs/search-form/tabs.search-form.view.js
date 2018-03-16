@@ -15,7 +15,7 @@
  /*global require*/
  var Marionette = require('marionette');
  var TabsView = require('../tabs.view');
- var SearchFormModel = require('./tabs-search-form');
+ var SearchFormModel = require('./tabs.search-form');
  var store = require('js/store');
 
  module.exports = TabsView.extend({

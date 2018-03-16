@@ -17,10 +17,10 @@
 var template = require('./search-form-selector.hbs');
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
-var SearchFormsView = require('component/tabs/search-form/tabs-search-form.view');
+var SearchFormsView = require('component/tabs/search-form/tabs.search-form.view');
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('search-form-system'),
+    tagName: CustomElements.register('search-form-selector'),
     template: template,
     regions: {
         tabsContent: {

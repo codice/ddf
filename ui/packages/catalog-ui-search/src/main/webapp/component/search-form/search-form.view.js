@@ -52,7 +52,6 @@
                     type: 'custom',
                     template: this.model.toJSON()
                 });
-
                 if (oldType  === 'custom') {
                     this.options.queryModel.trigger('change:type');
                 }

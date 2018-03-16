@@ -182,7 +182,10 @@ define([
                         }
                         break;
                     case 'INTERSECTS':
-                        var filterValue = typeof(filter.value) === 'string' ? filter.value : filter.value.value;
+                        var filterValue = typeof(filter.value) === 'object' ? filter.value.value : filter.value;
+                        if (!filterValue || typeof(filterValue) !== 'string') {
+                            break;
+                        }
                         this.model.set({
                             polygon: CQLUtils.arrayFromCQLGeometry(filterValue)
                         });
