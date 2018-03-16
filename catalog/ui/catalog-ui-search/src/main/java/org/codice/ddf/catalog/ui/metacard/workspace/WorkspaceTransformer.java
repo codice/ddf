@@ -46,6 +46,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.boon.core.value.ValueMap;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class WorkspaceTransformer {
 
@@ -302,15 +303,19 @@ public class WorkspaceTransformer {
   }
 
   private List<Map<String, Object>> getListActions(Metacard workspaceMetacard) {
+    final String host =
+        SystemBaseUrl.getProtocol() + SystemBaseUrl.getHost() + ":" + SystemBaseUrl.getPort();
     return actionRegistry
         .list(workspaceMetacard)
         .stream()
         .filter(action -> action.getId().startsWith("catalog.data.metacard.list"))
         .map(
             action -> {
+              // Work-around for paths being behind VPCs with non-public DNS values
+              final String url = action.getUrl().toString().replaceFirst(host, "");
               final Map<String, Object> actionMap = new HashMap<>();
               actionMap.put("id", action.getId());
-              actionMap.put("url", action.getUrl());
+              actionMap.put("url", url);
               actionMap.put("title", action.getTitle());
               actionMap.put("description", action.getDescription());
               return actionMap;
