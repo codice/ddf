@@ -30,14 +30,17 @@
 }
 
 .is-negative {
-  background: spin(@primary-color, 180);
+  color: contrast(@negative-color);
+  background: @negative-color;
 }
 
 .is-neutral {
+  color: contrast(@primary-color);
   background: @primary-color;
 }
 
 .is-positive {
+  color: contrast(@positive-color);
   background: @positive-color;
 }
 

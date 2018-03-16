@@ -27,6 +27,7 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         searchResults: '> .select-list'
     },
+    className: 'composed-menu',
     events: {
         'click > button.select-add': 'addQuery',
         'click > .select-one .quick-add': 'triggerQuery'

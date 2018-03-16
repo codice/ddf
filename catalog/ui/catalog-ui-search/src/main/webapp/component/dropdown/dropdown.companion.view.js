@@ -20,7 +20,8 @@ define([
     'js/CustomElements',
     './dropdown.companion.hbs',
     'js/Common',
-    'js/store'
+    'js/store',
+    'behaviors/navigation.behavior'
 ], function (Marionette, _, $, CustomElements, template, Common, store) {
 
     function drawing(event) {
@@ -56,6 +57,9 @@ define([
         },
         attributes: {
             'tabindex': 0
+        },
+        behaviors: function() {
+            return this.options.linkedView.options.dropdownCompanionBehaviors;
         },
         initialize: function(){
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
@@ -127,7 +131,7 @@ define([
                 this.render();
                 this.handleTail();
                 var componentToShow = this.options.linkedView.componentToShow ||  this.options.linkedView.options.componentToShow;
-                this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
+                this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options, this.options.linkedView.options.options, {
                     model: this.options.linkedView.modelForComponent
                 })));
                 this.listenForReposition();
@@ -167,6 +171,9 @@ define([
             this.componentToShow.currentView.handleToggleAll();
         },
         handleFilterUpdate: function(event){
+            if (this.isDestroyed) {
+                return;
+            }
             var code = event.keyCode;
             if (event.charCode && code == 0)
                 code = event.charCode;
@@ -193,6 +200,9 @@ define([
             }
         },
         handleSpecialKeys: function(event){
+            if (this.isDestroyed) {
+                return;
+            }
             var code = event.keyCode;
             if (event.charCode && code == 0)
                 code = event.charCode;

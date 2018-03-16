@@ -12,4 +12,16 @@
 var Backbone = require('backbone');
 require('backboneassociations');
 
-module.exports = Backbone.AssociatedModel.extend({});
+module.exports = Backbone.AssociatedModel.extend({
+    defaults: function() {
+        return {
+            url: undefined,
+            title: undefined,
+            description: undefined,
+            id: undefined
+        };
+    },
+    getExportType: function() {
+        return this.get('title').replace(/^Export( as)?\s+\b/, '');
+    }
+});

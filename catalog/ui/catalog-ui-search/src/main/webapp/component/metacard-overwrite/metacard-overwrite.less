@@ -1,7 +1,6 @@
 @{customElementNamespace}metacard-overwrite {
   overflow: auto;
   white-space: nowrap;
-  color: @button-text-color;
 
   > div, > button {
     display: inline-block;
@@ -45,10 +44,12 @@
   }
 
   .overwrite-success {
+    color: contrast(@positive-color);
     background: @positive-color;
   }
 
   .overwrite-error {
+    color: contrast(@negative-color);
     background: @negative-color;
   }
 
@@ -69,6 +70,7 @@
     height: 100%;
     z-index: 1;
     font-size: @largeFontSize;
+    color: contrast(@positive-color);
   }
 
   .progress-info {

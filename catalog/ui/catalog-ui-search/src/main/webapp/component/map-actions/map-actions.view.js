@@ -25,7 +25,7 @@ define([
         template: template,
         tagName: CustomElements.register('map-actions'),
         events: {
-            'click .overlay-link': 'overlayImage'
+            'click a': 'overlayImage'
         },
         initialize: function(){
             this.handleEmpty();
@@ -42,7 +42,7 @@ define([
         },
 
         getActions: function () {
-            return new Backbone.Collection(this.model.get('actions'));
+            return this.model.get('actions');
         },
 
         getMapActions: function () {

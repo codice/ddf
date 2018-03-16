@@ -18,8 +18,6 @@ var _ = require('underscore');
 var $ = require('jquery');
 var template = require('./search-interactions.hbs');
 var CustomElements = require('js/CustomElements');
-var MenuNavigationDecorator = require('decorator/menu-navigation.decorator');
-var Decorators = require('decorator/Decorators');
 var lightboxInstance = require('component/lightbox/lightbox.view.instance');
 var SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
 var DropdownModel = require('component/dropdown/dropdown');
@@ -28,9 +26,10 @@ var _merge = require('lodash/merge');
 var ConfirmationView = require('component/confirmation/confirmation.view');
 var user = require('component/singletons/user-instance');
 
-module.exports = Marionette.LayoutView.extend(Decorators.decorate({
+module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('search-interactions'),
+    className: 'composed-menu',
     regions: {
         searchType: '.interaction-type',
         searchSettings: '.interaction-settings'
@@ -114,4 +113,4 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     triggerTypeAdvanced: function() {
         this.triggerType('advanced');
     }
-}, MenuNavigationDecorator));
+});

@@ -18,8 +18,6 @@ var _ = require('underscore');
 var $ = require('jquery');
 var CustomElements = require('js/CustomElements');
 var ListItemCollectionView = require('component/list-item/list-item.collection.view');
-var MenuNavigationDecorator = require('decorator/menu-navigation.decorator');
-var Decorators = require('decorator/Decorators');
 var template = require('./list-select.hbs');
 var ListCreateView = require('component/list-create/list-create.view');
 var PopoutView = require('component/dropdown/popout/dropdown.popout.view');
@@ -33,7 +31,7 @@ var listItemClickEvent = 'click '+namespace+'list-item';
 eventsHash[listItemClickEvent] = 'handleListItemClick';
 
 let ListSelectingView = ListItemCollectionView.extend({
-    className: 'is-list-select is-action-list composed-menu',
+    className: 'is-list-select composed-menu',
     events: eventsHash,
     onBeforeShow: function(){
         this.handleValue();
@@ -52,9 +50,10 @@ let ListSelectingView = ListItemCollectionView.extend({
     }
 });
 
-module.exports = Marionette.LayoutView.extend(Decorators.decorate({
+module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('list-select'),
     template: template,
+    className: 'composed-menu',
     regions: {
       listCollection: '> .list-collection',
       listCreate: '> .list-create'
@@ -82,4 +81,4 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
             workspaceLists: this.options.workspaceLists
         }));
     }
-  }, MenuNavigationDecorator));
+  });

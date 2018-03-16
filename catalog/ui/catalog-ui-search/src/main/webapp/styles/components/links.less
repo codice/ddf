@@ -1,17 +1,20 @@
-a {
-    color: @links-color;
-    .is-bold();
-
-    &:hover {
-        .is-bold();
-        color: shade(@links-color, 10%);
+.is-link(@contrastColor: white) {
+    a {
+        padding: @minimumSpacing;
+        color: @contrastColor;
         text-decoration: underline;
-    }
-
-    &:visited {
-        color: @links-visited-color;
+        .is-bold();
+    
         &:hover {
-            color: shade(@links-visited-color, 10%);
+            .is-bold();
+            color: @contrastColor;
+            text-decoration: underline;
+            background: fade(@contrastColor, 10%);
+        }
+    
+        &:visited {
+            color: @contrastColor;
         }
     }
 }
+.is-link();

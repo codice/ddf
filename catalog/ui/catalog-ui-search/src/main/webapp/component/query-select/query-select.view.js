@@ -19,10 +19,8 @@ define([
     'jquery',
     'js/CustomElements',
     'js/store',
-    'component/query-item/query-item.collection.view',
-    'decorator/menu-navigation.decorator',
-    'decorator/Decorators'
-], function (Marionette, _, $, CustomElements, store, QueryItemCollectionView, MenuNavigationDecorator, Decorators) {
+    'component/query-item/query-item.collection.view'
+], function (Marionette, _, $, CustomElements, store, QueryItemCollectionView) {
 
     var eventsHash = {
         'click': 'handleClick'
@@ -32,8 +30,8 @@ define([
     var queryItemClickEvent = 'click '+namespace+'query-item';
     eventsHash[queryItemClickEvent] = 'handleQueryItemClick';
 
-    return QueryItemCollectionView.extend(Decorators.decorate({
-        className: 'is-query-select is-action-list',
+    return QueryItemCollectionView.extend({
+        className: 'is-query-select composed-menu',
         events: eventsHash,
         onBeforeShow: function(){
             this.handleValue();
@@ -50,5 +48,5 @@ define([
                 this.$el.find(namespace+'query-item[data-queryid="'+queryId+'"]').addClass('is-selected');
             }
         }
-    }, MenuNavigationDecorator));
+    });
 });

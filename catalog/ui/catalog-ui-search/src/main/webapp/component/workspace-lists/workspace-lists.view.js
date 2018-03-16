@@ -78,7 +78,10 @@ module.exports = Marionette.LayoutView.extend({
             model: new DropdownModel({
                 value: this.getPreselectedList()
             }),
-            workspaceLists: this.model
+            workspaceLists: this.model,
+            dropdownCompanionBehaviors: {
+                navigation: {}
+            }
         }));
         this.listenTo(this.listSelect.currentView.model, 'change:value', this.updateResultsList);
         this.listenTo(this.listSelect.currentView.model, 'change:value', this.handleSelection);

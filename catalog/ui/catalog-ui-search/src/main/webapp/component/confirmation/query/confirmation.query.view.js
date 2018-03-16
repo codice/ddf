@@ -51,7 +51,10 @@ define([
                 model: new DropdownModel({
                     value: undefined
                 }),
-                hideActions: true
+                hideActions: true,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                }
             }));
             this.listenTo(this.querySelect.currentView.model, 'change:value', this.handleValue);
             ConfirmationView.prototype.onRender.call(this);

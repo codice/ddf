@@ -67,7 +67,10 @@ define([
                 value: this.getPreselectedQuery()
             });
             this.resultsSelect.show(new QuerySelectDropdown({
-                model: this._resultsSelectDropdownModel
+                model: this._resultsSelectDropdownModel,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                }
             }));
             this.listenTo(this._resultsSelectDropdownModel, 'change:value', this.updateResultsList);
             this.listenTo(store.get('content'), 'change:currentQuery', this.handleCurrentQuery);

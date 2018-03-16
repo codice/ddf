@@ -21,8 +21,6 @@ define([
     './query-interactions.hbs',
     'js/CustomElements',
     'js/store',
-    'decorator/menu-navigation.decorator',
-    'decorator/Decorators',
     'component/lightbox/lightbox.view.instance',
     'component/query-feedback/query-feedback.view',
     'component/confirmation/query/confirmation.query.view',
@@ -30,14 +28,14 @@ define([
     'component/query-annotations/query-annotations.view',
     'properties'
 ], function (wreqr, Marionette, _, $, template, CustomElements, 
-    store, MenuNavigationDecorator, Decorators, lightboxInstance, 
+    store, lightboxInstance, 
     QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView,
     properties) {
 
-    return Marionette.ItemView.extend(Decorators.decorate({
+    return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('query-interactions'),
-        className: 'is-action-list',
+        className: 'composed-menu',
         modelEvents: {
         },
         events: {
@@ -151,5 +149,5 @@ define([
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
-    }, MenuNavigationDecorator));
+    });
 });

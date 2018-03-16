@@ -51,11 +51,12 @@ define([
     'component/property/property',
     'component/dropdown/details-filter/dropdown.details-filter.view',
     'component/dropdown/dropdown',
-    'component/dropdown/details-interactions/dropdown.details-interactions.view',
+    'component/details-interactions/details-interactions.view',
+    'component/dropdown/popout/dropdown.popout.view',
     'component/singletons/user-instance',
     'properties'
 ], function (Backbone, Marionette, _, $, template, CustomElements, PropertyView, Property, DetailsFilterView, DropdownModel, DetailsInteractionsView,
-    user, properties) {
+    PopoutView, user, properties) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -124,10 +125,19 @@ define([
             };
         },
         generateEditorActions: function(){
-            this.editorActions.show(new DetailsInteractionsView(_.extend({
-                model: new DropdownModel({}),
-                selectionInterface: this.selectionInterface
-            }, this.getEditorActionsOptions())));            
+            this.editorActions.show(PopoutView.createSimpleDropdown(_.extend({
+                componentToShow: DetailsInteractionsView,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                },
+                modelForComponent: this.model,
+                label: 'Actions',
+                rightIcon: 'fa fa-ellipsis-v',
+                selectionInterface: this.selectionInterface,
+                options: _.extend({
+                    selectionInterface: this.selectionInterface
+                }, this.getEditorActionsOptions())
+            })));         
             this.listenTo(this.editorActions.currentView.model, 'change:attributesToAdd', this.handleAttributeAdd);
             this.listenTo(this.editorActions.currentView.model, 'change:attributesToRemove', this.handleAttributeRemove);
         },

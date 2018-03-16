@@ -18,20 +18,19 @@ define([
     'underscore',
     './details-interactions.hbs',
     'js/CustomElements',
-    'decorator/menu-navigation.decorator',
-    'decorator/Decorators',
     'component/dropdown/dropdown',
     'component/dropdown/add-attribute/dropdown.add-attribute.view',
     'component/dropdown/remove-attribute/dropdown.remove-attribute.view',
     'component/dropdown/attributes-rearrange/dropdown.attributes-rearrange.view',
     'component/dropdown/show-attribute/dropdown.show-attribute.view',
     'component/dropdown/hide-attribute/dropdown.hide-attribute.view'
-], function (Marionette, _, template, CustomElements, MenuNavigationDecorator, Decorators, DropdownModel, AddAttributeView, RemoveAttributeView,
+], function (Marionette, _, template, CustomElements, DropdownModel, AddAttributeView, RemoveAttributeView,
     AttributesRearrangeView, ShowAttributeView, HideAttributeView) {
 
-    return Marionette.LayoutView.extend(Decorators.decorate({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('details-interactions'),
+        className: 'composed-menu',
         regions: {
             detailsAdd: '.interaction-add',
             detailsRemove: '.interaction-remove',
@@ -128,5 +127,5 @@ define([
         handleAddAttribute: function(){
             this.model.set('attributesToAdd', this.detailsAdd.currentView.model.get('value'));
         }
-    }, MenuNavigationDecorator));
+    });
 });

@@ -27,7 +27,8 @@ module.exports = SaveView.extend({
     isSaved: function() {
         return this.model.isSaved();
     },
-    triggerSave: function() {
+    triggerSave: function(e) {
+        e.stopPropagation();
         this.model.save();
     }
 });

@@ -243,7 +243,10 @@ module.exports = Marionette.LayoutView.extend({
         this.mapContextMenu.show(new MapContextMenuDropdown({
             model: new DropdownModel(),
             mapModel: this.mapModel,
-            selectionInterface: this.options.selectionInterface
+            selectionInterface: this.options.selectionInterface,
+            dropdownCompanionBehaviors: {
+                navigation: {}
+            }
         }));
     },
     setupMapInfo: function(){

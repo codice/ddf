@@ -22,10 +22,10 @@ define([
     'js/CustomElements',
     'js/IconHelper',
     'js/store',
-    'component/dropdown/dropdown',
-    'component/dropdown/metacard-interactions/dropdown.metacard-interactions.view'
+    'component/dropdown/popout/dropdown.popout.view',
+    'component/metacard-interactions/metacard-interactions.view'
 ], function (wreqr, Marionette, _, $, template, CustomElements, IconHelper, store,
-             DropdownModel, MetacardInteractionsDropdownView) {
+            PopoutView, MetacardInteractionsView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -42,10 +42,13 @@ define([
             metacardInteractions: '.metacard-interactions'
         },
         onBeforeShow: function(){
-            this._metacardInteractions = new DropdownModel();
-            this.metacardInteractions.show(new MetacardInteractionsDropdownView({
-                model: this._metacardInteractions,
-                modelForComponent: this.model
+            this.metacardInteractions.show(PopoutView.createSimpleDropdown({
+                componentToShow: MetacardInteractionsView,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                },
+                modelForComponent: this.model,
+                leftIcon: 'fa fa-ellipsis-v'
             }));
         },
         initialize: function(){

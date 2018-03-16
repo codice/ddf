@@ -24,29 +24,28 @@ define([
     'component/router/router',
     'component/singletons/user-instance',
     'component/singletons/sources-instance',
-    'decorator/menu-navigation.decorator',
-    'decorator/Decorators',
     'js/model/Query',
     'wkx',
     'js/CQLUtils',
     'component/confirmation/query/confirmation.query.view',
     'component/loading/loading.view',
     'component/dropdown/popout/dropdown.popout.view',
-    'component/result-add/result-add.view'
+    'component/result-add/result-add.view',
+    'component/export-actions/export-actions.view'
 ], function (wreqr, Marionette, _, $, template, 
-    CustomElements, store, router, user, sources, 
-    MenuNavigationDecorator, Decorators, Query, wkx, 
-    CQLUtils, QueryConfirmationView, LoadingView, PopoutView, ResultAddView) {
+    CustomElements, store, router, user, sources, Query, wkx, 
+    CQLUtils, QueryConfirmationView, LoadingView, PopoutView, ResultAddView, ExportActionsView) {
 
-    return Marionette.LayoutView.extend(Decorators.decorate({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('metacard-interactions'),
-        className: 'is-action-list',
+        className: 'composed-menu',
         modelEvents: {
             'change': 'render'
         },
         regions: {
-            resultAdd: '.interaction-add'
+            resultAdd: '.interaction-add',
+            resultActionsExport: '.interaction-actions-export'
         },
         events: {
             'click .interaction-add': 'handleAdd',
@@ -75,12 +74,26 @@ define([
             this.checkIfBlacklisted();
             this.checkHasLocation();
             this.setupResultAdd();
+            this.setupResultActionsExport();
+        },
+        setupResultActionsExport() {
+            this.resultActionsExport.show(PopoutView.createSimpleDropdown({
+                componentToShow: ExportActionsView,
+                dropdownCompanionBehaviors: {
+                    navigation: {}
+                },
+                modelForComponent: this.model.first(),
+                leftIcon: 'fa fa-external-link',
+                rightIcon: 'fa fa-chevron-down',
+                label: 'Export as'
+            }));
         },
         setupResultAdd: function() {
             this.resultAdd.show(PopoutView.createSimpleDropdown({
                 componentToShow: ResultAddView,
                 modelForComponent: this.model,
                 leftIcon: 'fa fa-plus',
+                rightIcon: 'fa fa-chevron-down',
                 label: 'Add / Remove from List'
             }));
         },
@@ -264,5 +277,5 @@ define([
                 workspace: workspaceJSON
             }
         }
-    }, MenuNavigationDecorator));
+    });
 });
