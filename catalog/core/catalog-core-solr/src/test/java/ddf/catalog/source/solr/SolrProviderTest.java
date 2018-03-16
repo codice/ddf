@@ -512,7 +512,7 @@ public class SolrProviderTest extends SolrProviderTestCase {
               }
 
               @Override
-              public List<Metacard> getMetacards() {
+              public Set<Metacard> getMetacards() {
                 return null;
               }
             });

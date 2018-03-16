@@ -29,7 +29,7 @@ import java.util.Set;
 public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
   /** The metacards to be created */
-  private List<Metacard> metacards;
+  private Set<Metacard> metacards;
 
   /** The set of destination ids to send this request to */
   private Set<String> destinations = new HashSet<>();
@@ -66,7 +66,10 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
   public CreateRequestImpl(
       List<Metacard> metacards, Map<String, Serializable> properties, Set<String> destinations) {
     super(properties);
-    this.metacards = metacards;
+    this.metacards = new HashSet<>();
+    for (Metacard metacard : metacards) {
+      this.metacards.add(metacard);
+    }
     if (destinations != null) {
       this.destinations = destinations;
     }
@@ -83,7 +86,7 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
    * @see ddf.catalog.operation.CreateRequest#getMetacards()
    */
   @Override
-  public List<Metacard> getMetacards() {
+  public Set<Metacard> getMetacards() {
     return metacards;
   }
 }
