@@ -125,6 +125,7 @@
         <tika.thirdparty.bundle.version>1.14.0_2</tika.thirdparty.bundle.version>
         <poi.version>3.12</poi.version>
         <poi.contrib.version>3.7-beta3</poi.contrib.version>
+        <moment.version>2.20.1</moment.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-validator.version>1.6</commons-validator.version>

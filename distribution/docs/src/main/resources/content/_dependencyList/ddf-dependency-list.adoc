@@ -362,8 +362,7 @@
 * org.webjars.bower:js-cookie:jar:2.1.4
 * org.webjars.bower:lodash:jar:3.7.0
 * org.webjars.bower:marionette:jar:2.4.5
-* org.webjars.bower:moment:jar:2.10.3
-* org.webjars.bower:moment:jar:2.18.1
+* org.webjars.bower:moment:jar:2.20.1
 * org.webjars.bower:perfect-scrollbar:jar:0.7.0
 * org.webjars.bower:purl:jar:2.3.1
 * org.webjars.bower:require-css:jar:0.1.10
