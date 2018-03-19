@@ -285,9 +285,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.thirdparty</groupId>
+            <groupId>com.xebialabs.restito</groupId>
             <artifactId>restito</artifactId>
-            <version>${project.version}</version>
+            <version>${restito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

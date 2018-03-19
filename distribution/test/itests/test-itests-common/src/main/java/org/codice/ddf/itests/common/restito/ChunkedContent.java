@@ -20,11 +20,13 @@ import static com.xebialabs.restito.semantics.Action.header;
 import static java.lang.Thread.sleep;
 
 import com.xebialabs.restito.semantics.Action;
-import com.xebialabs.restito.semantics.Function;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.grizzly.http.server.Response;
 import org.glassfish.grizzly.http.util.HttpStatus;
@@ -85,7 +87,7 @@ public class ChunkedContent {
      * the response will ignore range requests and return the entire message every time.
      *
      * @param headerCapture HeaderCapture object that contains the request's headers.
-     * @return
+     * @return this object
      */
     public ChunkedContentBuilder allowPartialContent(HeaderCapture headerCapture) {
       this.headerCapture = headerCapture;
@@ -103,10 +105,7 @@ public class ChunkedContent {
   }
 
   private static Action getChunkedResponseHeaders() {
-    return composite(
-        contentType("text/plain"),
-        header("Transfer-Encoding", "chunked"),
-        header("content-type", "text/plain"));
+    return composite(contentType("text/plain"), header("Transfer-Encoding", "chunked"));
   }
 
   private static Action getRangeSupportHeaders() {
@@ -150,8 +149,8 @@ public class ChunkedContent {
     return response;
   }
 
-  /** Private inner class representing the response function */
-  private static class ChunkedContentFunction implements Function<Response, Response> {
+  /** Inner class representing the response function */
+  public static class ChunkedContentFunction implements Function<Response, Response> {
     private char[] responseMessage;
 
     private long messageDelayMs;
@@ -197,7 +196,7 @@ public class ChunkedContent {
     }
 
     private Response respond(Response response) {
-      Map<String, String> requestHeaders = Collections.emptyMap();
+      Map<String, List<String>> requestHeaders = Collections.emptyMap();
       if (headerCapture != null) {
         requestHeaders = headerCapture.getHeaders();
         LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]", requestHeaders);
@@ -206,8 +205,10 @@ public class ChunkedContent {
       // if range header is present, return 206 - Partial Content status and set Content-Range
       // header if byte Offset is specified
       ByteRange byteRange;
-      if (StringUtils.isNotBlank(requestHeaders.get("range"))) {
-        byteRange = new ByteRange(requestHeaders.get("range"), responseMessage.length);
+      List<String> range = requestHeaders.get("range");
+      if (CollectionUtils.isNotEmpty(range)) {
+        String firstRangeValue = range.get(0);
+        byteRange = new ByteRange(firstRangeValue, responseMessage.length);
         response.setStatus(HttpStatus.PARTIAL_CONTENT_206);
         response.setHeader("Content-Range", byteRange.contentRangeValue());
         LOGGER.debug(
@@ -228,7 +229,7 @@ public class ChunkedContent {
      *
      * @param response Response object containing an output stream to the client
      * @param byteRange Object containing the range of bytes to send to the client
-     * @return
+     * @return Rewritten response
      */
     private Response send(Response response, ByteRange byteRange) {
       // send each character, respecting the range header

@@ -38,13 +38,13 @@
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
 
-        <bundle>mvn:ddf.thirdparty/restito/${project.version}</bundle>
         <feature>camel-sjms</feature>
     </feature>
 
     <feature name="third-party-dependencies" version="${project.version}">
         <bundle>mvn:commons-io/commons-io/2.5</bundle>
         <bundle>mvn:io.fastjson/boon/0.33</bundle>
+        <bundle>wrap:mvn:com.xebialabs.restito/restito/${restito.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/${commons-codec.servicemix.version}
         </bundle>

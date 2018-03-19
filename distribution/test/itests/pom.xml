@@ -125,11 +125,6 @@
             <version>${felix.configadmin.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf.thirdparty</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>

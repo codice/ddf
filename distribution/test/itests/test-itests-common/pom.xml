@@ -26,6 +26,11 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>ddf.thirdparty</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
             <version>${pax.exam.version}</version>
@@ -83,9 +88,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.thirdparty</groupId>
+            <groupId>com.xebialabs.restito</groupId>
             <artifactId>restito</artifactId>
-            <version>${project.version}</version>
+            <version>${restito.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
@@ -145,6 +150,11 @@
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.7</version>
         </dependency>
     </dependencies>
 

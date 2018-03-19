@@ -296,7 +296,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
         new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
         new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"),
-        new BundleInfo("ddf.thirdparty", "restito"),
+        new BundleInfo("com.xebialabs.restito", "restito"),
         new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"));
   }
 

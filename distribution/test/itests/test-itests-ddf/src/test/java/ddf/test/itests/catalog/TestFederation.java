@@ -1478,6 +1478,7 @@ public class TestFederation extends AbstractIntegrationTest {
     String metacardId = generateUniqueMetacardId();
     String resourceData = getResourceData(metacardId);
     HeaderCapture headerCapture = new HeaderCapture();
+
     Action response =
         new ChunkedContent.ChunkedContentBuilder(resourceData)
             .delayBetweenChunks(Duration.ofMillis(200))
@@ -2855,6 +2856,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
   @Override
   protected Option[] configureCustom() {
-    return options(mavenBundle("ddf.thirdparty", "restito").versionAsInProject());
+    return options(mavenBundle("com.xebialabs.restito", "restito").versionAsInProject());
   }
 }

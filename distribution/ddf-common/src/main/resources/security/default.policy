@@ -350,7 +350,7 @@ grant codeBase "file:/ddf.thirdparty.rest-assured" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
-grant codeBase "file:/PAXEXAM-PROBE/ddf.thirdparty.restito/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/sample-soap-endpoint" {
+grant codeBase "file:/PAXEXAM-PROBE/com.xebialabs/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/sample-soap-endpoint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
 }
