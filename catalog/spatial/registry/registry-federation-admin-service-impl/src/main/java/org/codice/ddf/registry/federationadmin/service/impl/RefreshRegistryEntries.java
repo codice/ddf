@@ -314,9 +314,9 @@ public class RefreshRegistryEntries {
                     .collect(Collectors.toMap(Metacard::getId, Function.identity()));
             LOGGER.debug(
                 "Retrieved {} registry entries from {} with {} local entries filtered.",
-                results.size(),
+                response.getResults().size(),
                 store.getId(),
-                response.getResults().size());
+                response.getResults().size() - results.size());
             logRegistryMetacards("Filtered remote entries", results.values());
             return new RemoteResult(store.getRegistryId(), results);
           });
@@ -364,7 +364,7 @@ public class RefreshRegistryEntries {
               () -> federationAdminService.getLocalRegistryMetacards());
       return localMetacards
           .stream()
-          .map(e -> RegistryUtility.getRegistryId(e))
+          .map(RegistryUtility::getRegistryId)
           .collect(Collectors.toList());
     } catch (Exception e) {
       throw new FederationAdminException("Error querying for local metacards ", e);
@@ -487,7 +487,7 @@ public class RefreshRegistryEntries {
                 "%s: %s%s",
                 mcard.getTitle(), RegistryUtility.getRegistryId(mcard), System.lineSeparator()));
       }
-      LOGGER.debug("{}: {}", message, buffer.toString());
+      LOGGER.debug("{}: {}", message, buffer);
     }
   }
 

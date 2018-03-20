@@ -25,32 +25,18 @@
         <argument ref="xmlParser"/>
     </bean>
 
-    <bean id="executor" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadScheduledExecutor">
-        <argument ref="registryIdentificationThreadFactory"/>
-    </bean>
-
-    <bean id="registryIdentificationThreadFactory"
-          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
-          factory-method="newThreadFactory">
-        <argument value="registryIdentificationThread"/>
-    </bean>
-
-    <bean id="registryPostIngestPlugin"
-          class="org.codice.ddf.registry.identification.RegistryIdPostIngestPlugin"
-          init-method="init" destroy-method="destroy">
+    <bean id="registryIdRetriever"
+          class="org.codice.ddf.registry.identification.RegistryIdRetriever">
         <property name="catalogFramework" ref="catalogFramework"/>
         <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="executorService" ref="executor"/>
     </bean>
 
     <bean id="identificationPlugin"
           class="org.codice.ddf.registry.identification.IdentificationPlugin">
         <argument ref="uuidGenerator"/>
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
-        <property name="registryIdPostIngestPlugin" ref="registryPostIngestPlugin"/>
+        <property name="registryIdRetriever" ref="registryIdRetriever"/>
     </bean>
 
     <service ref="identificationPlugin" auto-export="interfaces" ranking="-1000"/>
-    <service ref="registryPostIngestPlugin" auto-export="interfaces" ranking="1000"/>
 </blueprint>

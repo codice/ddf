@@ -49,7 +49,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
   private MetacardMarshaller metacardMarshaller;
 
-  private RegistryIdPostIngestPlugin registryIdPostIngestPlugin;
+  private RegistryIdRetriever registryIdRetriever;
 
   private UuidGenerator uuidGenerator;
 
@@ -74,20 +74,20 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
     for (Metacard metacard : input.getMetacards()) {
       if (RegistryUtility.isRegistryMetacard(metacard)) {
-        if (registryIdPostIngestPlugin
-            .getLocalRegistryIds()
-            .contains(RegistryUtility.getRegistryId(metacard))) {
+        RegistryIdRetriever.RegistryIdInfo idInfo = registryIdRetriever.getRegistryIdInfo();
+        if (idInfo == null) {
+          throw new StopProcessingException("Can't retrieve existing registry info.");
+        }
+        if (idInfo.getLocalRegistryIds().contains(RegistryUtility.getRegistryId(metacard))) {
           throw new StopProcessingException("Can't create duplicate local node registry entries.");
         }
 
         if (!RegistryUtility.hasAttribute(metacard, RegistryObjectMetacardType.REMOTE_REGISTRY_ID)
-            && registryIdPostIngestPlugin
-                .getRegistryIds()
-                .contains(RegistryUtility.getRegistryId(metacard))) {
+            && idInfo.getRegistryIds().contains(RegistryUtility.getRegistryId(metacard))) {
           throw new StopProcessingException("Can't create duplicate registry entries");
         }
 
-        if (registryIdPostIngestPlugin
+        if (idInfo
             .getRemoteMetacardIds()
             .contains(
                 RegistryUtility.getStringAttribute(
@@ -312,7 +312,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
     this.metacardMarshaller = helper;
   }
 
-  public void setRegistryIdPostIngestPlugin(RegistryIdPostIngestPlugin registryIdPostIngestPlugin) {
-    this.registryIdPostIngestPlugin = registryIdPostIngestPlugin;
+  public void setRegistryIdRetriever(RegistryIdRetriever registryIdRetriever) {
+    this.registryIdRetriever = registryIdRetriever;
   }
 }
