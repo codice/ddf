@@ -16,7 +16,6 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "backbone": "1.3.3",
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
     "colors": "1.1.2",

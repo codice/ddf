@@ -14,7 +14,7 @@ var Query = require('./Query');
 var cql = require('js/cql');
 var Common = require('js/Common');
 var _ = require('lodash');
-require('backboneassociations');
+require('backbone-associations');
 
 var iconMap = {
     folder: 'fa fa-folder',

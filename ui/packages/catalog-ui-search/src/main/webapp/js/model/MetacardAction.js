@@ -10,7 +10,7 @@
  *
  **/
 var Backbone = require('backbone');
-require('backboneassociations');
+require('backbone-associations');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function() {

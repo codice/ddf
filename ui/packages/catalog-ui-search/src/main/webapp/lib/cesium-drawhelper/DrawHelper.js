@@ -7,8 +7,9 @@
  * www.metaaps.com
  *
  */
+const Cesium = require('cesium')
 
-var DrawHelper = (function() {
+var DrawHelper = module.exports = (function() {
 
     // static variables
     var ellipsoid = Cesium.Ellipsoid.WGS84;

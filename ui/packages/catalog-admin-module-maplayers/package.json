@@ -3,7 +3,7 @@
   "author": "Codice",
   "description": "The map-layers admin ui module.",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/main/webapp/index.js",
   "license": "LGPL-3.0",
   "repository": {
     "type": "git",
@@ -19,20 +19,15 @@
       "afterEach"
     ]
   },
-  "mocha": {
-    "hooks": "mocha-phantomjs-istanbul",
-    "coverageFile":"target/coverage.json"
-  },
   "scripts": {
-    "start": "webpack-dev-server --progress --open",
-    "start:test": "webpack-dev-server --progress --open --env=test",
-    "pretest": "standard ./src/**/*.js && webpack --bail --env=ci",
-    "test": "ace test target/ci/index.html",
+    "start": "ace start --open",
+    "start:test": "ace start --env=test --open",
+    "pretest": "standard ./src/**/*.js && ace bundle --env=test",
+    "test": "ace test target/test/index.html",
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "format": "standard --fix ./src/**/*.js",
-    "build": "webpack --bail --progress && ace package",
-    "build:stat": "webpack --json --env=production | webpack-bundle-size-analyzer",
+    "build": "ace bundle && ace package",
     "clean": "ace clean"
   },
   "peerDependencies": {
@@ -57,34 +52,12 @@
     "whatwg-fetch": "2.0.2"
   },
   "devDependencies": {
-    "babel-core": "6.22.1",
-    "babel-loader": "6.2.10",
-    "babel-plugin-istanbul": "4.0.0",
-    "babel-plugin-transform-react-jsx-source": "6.22.0",
-    "babel-polyfill": "6.22.0",
-    "babel-preset-latest": "6.22.0",
-    "babel-preset-react": "6.22.0",
-    "babel-preset-stage-0": "6.22.0",
     "chai": "3.5.0",
-    "css-loader": "0.26.1",
     "enzyme": "2.7.1",
-    "glob": "7.1.1",
-    "html-webpack-plugin": "2.28.0",
     "istanbul": "0.4.5",
-    "json-loader": "0.5.4",
-    "mocha": "3.2.0",
-    "mocha-loader": "1.1.0",
-    "mocha-phantomjs-istanbul": "0.0.2",
     "opn-cli": "3.1.0",
     "react-addons-test-utils": "15.4.2",
-    "react-hot-loader": "3.0.0-beta.6",
-    "stack-source-map": "1.0.6",
     "standard": "8.6.0",
-    "style-loader": "0.13.1",
-    "webpack": "2.4.1",
-    "webpack-bundle-size-analyzer": "2.5.0",
-    "webpack-dev-server": "2.3.0",
-    "webpack-merge": "2.6.1",
     "ace": "*"
   },
   "files": [

@@ -17,7 +17,7 @@ var moment = require('moment');
 var properties = require('properties');
 var user = require('component/singletons/user-instance');
 var Common = require('js/Common');
-require('backboneassociations');
+require('backbone-associations');
 var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus');
 var QueryResultCollection = require('js/model/QueryResult.collection');
 

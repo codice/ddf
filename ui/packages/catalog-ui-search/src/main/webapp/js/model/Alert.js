@@ -13,7 +13,7 @@
 define([
     'backbone',
     'js/Common',
-    'backboneassociations'
+    'backbone-associations'
 ], function(Backbone, Common) {
 
     return Backbone.AssociatedModel.extend({

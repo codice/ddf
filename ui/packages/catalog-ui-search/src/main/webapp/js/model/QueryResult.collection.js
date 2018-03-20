@@ -21,7 +21,7 @@ var wkx = require('wkx');
 var moment = require('moment');
 var properties = require('properties');
 var Common = require('js/Common');
-require('backboneassociations');
+require('backbone-associations');
 require('backbone.paginator');
 
 var QueryResultModel = require('js/model/QueryResult');

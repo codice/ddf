@@ -17,7 +17,7 @@ var List = require('js/model/List');
 var Common = require('js/Common');
 var ColorGenerator = require('js/ColorGenerator');
 var QueryPolling = require('js/QueryPolling');
-require('backboneassociations');
+require('backbone-associations');
 
 const WorkspaceQueryCollection = Backbone.Collection.extend({
     model: Query.Model,

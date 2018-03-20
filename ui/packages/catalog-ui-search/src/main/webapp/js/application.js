@@ -22,10 +22,10 @@ define([
     'templates/banner.layout.handlebars',
     // Load non attached libs and plugins
     'bootstrap/dist/js/bootstrap.min',
-    'backboneassociations',
-    'modelbinder',
-    'collectionbinder',
-    'multiselect',
+    'backbone-associations',
+    'backbone.modelbinder',
+    'backbone.modelbinder/Backbone.CollectionBinder',
+    'jquery-ui-multiselect-widget/src/jquery.multiselect'
 ], function ($, _, Marionette, Backbone, properties, maptype, banner) {
     var Application = {};
     Application.App = new Marionette.Application();

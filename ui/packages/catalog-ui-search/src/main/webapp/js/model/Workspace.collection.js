@@ -16,7 +16,7 @@ var Query = require('js/model/Query');
 var cql = require('js/cql');
 var user = require('component/singletons/user-instance');
 var moment = require('moment');
-require('backboneassociations');
+require('backbone-associations');
 var WorkspaceModel = require('js/model/Workspace');
 
 module.exports = Backbone.Collection.extend({

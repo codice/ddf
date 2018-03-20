@@ -11,7 +11,7 @@
  **/
 var Backbone = require('backbone');
 var _ = require('underscore');
-require('backboneassociations');
+require('backbone-associations');
 
 var MetacardPropertiesModel = require('js/model/MetacardProperties');
 
