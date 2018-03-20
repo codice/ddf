@@ -14,7 +14,7 @@ define([
     'underscore',
     'backbone',
     'component/property/property',
-    'backboneassociations'
+    'backbone-associations'
 ], function (_, Backbone, PropertyModel) {
 
     return Backbone.AssociatedModel.extend({

@@ -23,7 +23,7 @@ define([
     '../input.view',
     'js/Common',
     'component/singletons/user-instance',
-    'bootstrapDatepicker'
+    'eonasdan-bootstrap-datetimepicker'
 ], function (Marionette, _, $, template, CustomElements, moment, InputView, Common, user) {
 
     function getDateFormat() {

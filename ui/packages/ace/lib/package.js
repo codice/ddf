@@ -79,7 +79,14 @@ Web-ContextPath: ${pkg['context-path']}`, { name: 'META-INF/MANIFEST.MF' })
   </web-app>`, { name: 'WEB-INF/web.xml' })
 
   pkg.files
-    .map((d) => path.resolve(d))
+    .map((d) => {
+      if (!d.startsWith('node_modules')) {
+        return path.resolve(d)
+      }
+      const [pkg, ...rest] = d.split(path.sep).slice(1)
+      const resolved = require.resolve(pkg + '/package.json')
+      return path.join(resolved, '../', ...rest)
+    })
     .map((d) => glob.sync(d + '/**')
       .map((file) => ({ relative: d, file })))
     .reduce(flatten, [])

@@ -16,7 +16,7 @@ var Turf = require('@turf/turf');
 var TurfMeta = require('@turf/meta');
 var wkx = require('wkx');
 var properties = require('properties');
-require('backboneassociations');
+require('backbone-associations');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function () {

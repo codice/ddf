@@ -13,8 +13,8 @@
 define([
     'underscore',
     'backbone',
-    'wellknown',
-    'usngs',
+    'wellknown/wellknown',
+    'usng.js/usng',
     'js/store',
     'js/Common',
     'wreqr'

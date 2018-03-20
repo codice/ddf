@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
 }
 
-window.CESIUM_BASE_URL = './cesium/';
+window.CESIUM_BASE_URL = '/search/catalog/cesium/assets';
 require([
     'underscore',
     'backbone',

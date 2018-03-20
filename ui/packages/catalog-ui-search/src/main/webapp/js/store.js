@@ -14,7 +14,7 @@
 define([
     'jquery',
     'backbone',
-    'poller',
+    'backbone-poller',
     'underscore',
     'js/model/Workspace.collection',
     'component/content/content'

@@ -5,14 +5,14 @@
   "version": "0.0.1",
   "license": "LGPL-3.0",
   "scripts": {
-    "startplus": "webpack-dev-server --config=./webpack/config/devServer.js --open --port 8080 --host 0.0.0.0",
-    "start": "webpack-dev-server --config=./webpack/config/devServer.js",
-    "pretest": "webpack --config webpack/config/ci.js",
+    "startplus": "ace start --open",
+    "start": "ace start",
+    "pretest": "ace bundle --env=test",
     "test": "ace test ./target/test/index.html",
-    "testplus": "webpack-dev-server --config=./webpack/config/test.js --open",
+    "testplus": "ace start --env=test --open",
     "install": "napa ehynds/jquery-ui-multiselect-widget#1.14:jquery-ui-multiselect-widget",
-    "build": "webpack --bail --config=./webpack/config && ace package",
-    "clean": "ace clean"
+    "build": "ace bundle",
+    "postbuild": "ace package"
   },
   "repository": {
     "type": "git",
@@ -21,54 +21,18 @@
   "engines": {
     "node": ">=0.10.5"
   },
+  "peerDependencies": {
+    "handlebars": "4.0.5"
+  },
   "devDependencies": {
     "@types/backbone": "1.3.41",
     "@types/backbone-associations": "0.6.31",
     "@types/backbone.marionette": "3.3.2",
     "@types/openlayers": "4.3.11",
     "ace": "*",
-    "babel-core": "6.22.1",
-    "babel-loader": "6.2.4",
-    "babel-plugin-istanbul": "4.0.0",
-    "babel-plugin-transform-react-jsx-source": "6.22.0",
-    "babel-polyfill": "6.22.0",
-    "babel-preset-es2015": "6.24.1",
-    "babel-preset-latest": "6.22.0",
-    "babel-preset-react": "6.22.0",
-    "babel-preset-stage-0": "6.22.0",
     "chai": "4.1.1",
-    "chai-as-promised": "4.3.0",
-    "console-polyfill": "0.2.2",
-    "copy-webpack-plugin": "3.0.1",
-    "css-loader": "0.23.1",
-    "exports-loader": "0.6.3",
-    "extract-text-webpack-plugin": "1.0.1",
-    "file-loader": "0.8.5",
-    "glob": "7.1.1",
-    "handlebars-loader": "1.3.0",
-    "html-webpack-plugin": "2.30.1",
-    "imports-loader": "0.6.5",
-    "jsdom": "8.1.0",
-    "less": "2.7.2",
-    "less-loader": "4.0.5",
-    "less-plugin-clean-css": "1.5.1",
-    "mocha": "2.3.3",
-    "mocha-loader": "0.7.1",
     "napa": "2.3.0",
-    "react-addons-test-utils": "15.2.1",
-    "react-hot-loader": "1.3.1",
-    "script-loader": "0.7.0",
-    "sinon": "1.17.3",
-    "squirejs": "0.2.1",
-    "stack-source-map": "1.0.5",
-    "ts-loader": "3.1.1",
-    "tslint": "5.8.0",
-    "typescript": "2.6.1",
-    "url-loader": "0.5.8",
-    "webpack": "codice/webpack#v1.13.0-hotReloadJSDisabled",
-    "webpack-dev-server": "1.16.3",
-    "webpack-merge": "0.14.0",
-    "worker-loader": "1.1.0"
+    "react-addons-test-utils": "15.2.1"
   },
   "dependencies": {
     "@turf/circle": "3.3.3",
@@ -92,7 +56,6 @@
     "handlebars": "4.0.5",
     "jquery": "3.2.1",
     "jquery-ui": "1.12.1",
-    "json-loader": "0.5.7",
     "less-vars-to-js": "1.1.2",
     "lodash": "4.17.4",
     "lodash.get": "4.4.2",
@@ -101,7 +64,6 @@
     "openlayers": "4.6.5",
     "plotly.js": "1.10.5",
     "q": "1.5.0",
-    "raw-loader": "0.5.1",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-redux": "4.4.5",
@@ -119,6 +81,12 @@
     "vis": "4.15.0",
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "wkx": "0.4.1"
+  },
+  "main": "src/main/webapp/js/ApplicationSetup.js",
+  "alias": {
+    "marionette": "backbone.marionette",
+    "Backbone.ModelBinder": "backbone.modelbinder/Backbone.ModelBinder",
+    "cesium$": "cesium/Build/Cesium/Cesium.js"
   },
   "files": [
     "src/main/resources",

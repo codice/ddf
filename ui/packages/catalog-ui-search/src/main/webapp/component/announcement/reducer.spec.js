@@ -1,3 +1,4 @@
+var expect = require('chai').expect;
 var actions = require('./actions');
 var configureStore = require('./configureStore');
 

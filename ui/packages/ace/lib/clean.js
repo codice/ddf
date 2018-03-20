@@ -4,8 +4,8 @@ const glob = require('glob')
 
 const flatten = (l, v) => l.concat(v)
 
-const getTargets = (pkg) => {
-  const targets = [path.resolve('target')]
+const getTargets = (pkg, onlyWorkspaces) => {
+  const targets = onlyWorkspaces ? [] : [path.resolve('target')]
 
   if (!pkg.workspaces) {
     return targets
@@ -21,7 +21,7 @@ const getTargets = (pkg) => {
 }
 
 module.exports = ({ args, pkg }) => {
-  getTargets(pkg)
+  getTargets(pkg, args.workspaces)
     .forEach((directory) => {
       rimraf.sync(directory)
       console.log('ace info removed ' + directory)

@@ -12,7 +12,7 @@
 /*global require*/
 //meant to be used for just in time feature detection
 var Backbone = require('backbone');
-require('backboneassociations');
+require('backbone-associations');
 
 var LogoutAction = Backbone.AssociatedModel.extend({
     defaults: {

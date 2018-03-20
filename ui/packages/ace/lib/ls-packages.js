@@ -5,6 +5,7 @@ const flatten = (l, v) => l.concat(v)
 
 module.exports = (dirs) => {
   return dirs
+    .filter((dir) => !dir.match('target'))
     .map((d) => path.resolve(d))
     .map((d) => glob.sync(d))
     .reduce(flatten, [])
