@@ -63,7 +63,6 @@ import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
-import com.xebialabs.restito.server.secure.SecureStubServer;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
 import ddf.catalog.endpoint.impl.CatalogEndpointImpl;
@@ -308,7 +307,7 @@ public class TestFederation extends AbstractIntegrationTest {
       fail("An unrecoverable error occurred from previous test");
     }
 
-    server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
+    server = new StubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
     server.start();
 
     metacardIds[GEOJSON_RECORD_INDEX] =
