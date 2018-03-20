@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
     <!-- Remove this suppression CVE-2017-5644 once DDF-3064 has been resolved-->
     <suppress>
         <notes>
@@ -9,22 +9,6 @@
             poi-3.12.jar (cpe:/a:apache:poi:3.12, org.apache.poi:poi:3.12) : CVE-2017-5644
         </notes>
         <cve>CVE-2017-5644</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
-            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
-            flaw. This is exploitable by sending maliciously crafted JSON input to the readValue
-            method of the ObjectMapper, bypassing a blacklist that is ineffective if the Spring
-            libraries are available in the classpath. We have upgraded to 2.9.4 which fixes the
-            issue but version 2.6.3 is still being used by
-            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
-            This suppression can be removed when DDF-3593 has been completed. CVE-2017-15095 extends
-            CVE-2017-7525 by blacklisting more classes.
-        </notes>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2017-15095</cve>
     </suppress>
     <suppress>
         <notes>
@@ -38,11 +22,21 @@
     </suppress>
     <suppress>
         <notes>
-            this CVE is generating a lot of false positives it should only include
-            jackson-dataformat-xml jar but it is catching all jackson dependencies unfortunately I
-            can't fix it so if we start depending on a vulnerable version of jackson-dataformat-xml
-            this will still suppress it.
+            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
+            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
+            flaw. This is exploitable by sending maliciously crafted JSON input to the
+            readValue method of the ObjectMapper, bypassing a blacklist that is ineffective
+            if the Spring libraries are available in the classpath.
+            We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still being used by
+            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
+            This suppression can be removed when DDF-3593 has been completed.
         </notes>
+        <cve>CVE-2017-17485</cve>
+        <cve>CVE-2016-7051</cve>
+        <cve>CVE-2018-5968</cve>
+        <cve>CVE-2017-7525</cve>
+        <cve>CVE-2017-15095</cve>
+        <cve>CVE-2016-7051</cve>
         <cve>CVE-2016-3720</cve>
     </suppress>
     <suppress>
