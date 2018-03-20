@@ -90,12 +90,12 @@ define([
             var keystoreOptions, truststoreOptions;
             keystoreOptions = {
                 title: "Keystore Info",
-                content: "This is a keystore file in jks or pkcs12 format that contains the systems private key and associated CA. The CN of the private key should match that of the configured hostname/FQDN.",
+                content: "This is a keystore file in jks or pkcs12 format that contains the system\'s private key and associated CA. The CN of the private key should match that of the configured hostname/FQDN.",
                 trigger: 'hover'
             };
             truststoreOptions = {
                 title: "Truststore Info",
-                content: "This is a keystore file in jks or pkcs12 format that contains the trusted CA certificates. At a minimum must contain one CA associated with the systems private key.",
+                content: "This is a keystore file in jks or pkcs12 format that contains the trusted CA certificates. At a minimum must contain one CA associated with the system\'s private key.",
                 trigger: 'hover'
             };
             view.$('.keystore-info').popover(keystoreOptions);
