@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import net.sourceforge.prograde.policy.SecurityActions;
 import net.sourceforge.prograde.policyparser.ParsedPermission;
 import net.sourceforge.prograde.policyparser.ParsedPolicy;
@@ -49,15 +50,15 @@ public class PermissionActivator implements BundleActivator {
   private static final String PERM_ADMIN_SERVICE_NAME =
       "org.osgi.service.condpermadmin.ConditionalPermissionAdmin";
 
+  private static final Pattern REGEX = Pattern.compile("/");
+
   private ServiceTracker<ConditionalPermissionAdmin, ConditionalPermissionAdmin> permAdminTracker;
 
   @Override
   public void start(BundleContext bundleContext) throws Exception {
     System.setProperty("/", File.separator);
-    permAdminTracker = new ServiceTracker<>(bundleContext, PERM_ADMIN_SERVICE_NAME, null);
-    permAdminTracker.open();
-
-    ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
+    ConditionalPermissionAdmin conditionalPermissionAdmin =
+        getConditionalPermissionAdmin(bundleContext);
     String policyDir = SecurityActions.getSystemProperty("ddf.home") + File.separator + "security";
     if (policyDir.startsWith("=")) {
       policyDir = policyDir.substring(1);
@@ -92,6 +93,10 @@ public class PermissionActivator implements BundleActivator {
       }
     }
 
+    if (priorityResult == null && !allGrantInfos.isEmpty() && !allDenyInfos.isEmpty()) {
+      priorityResult = Priority.GRANT;
+    }
+
     if (priorityResult == Priority.GRANT) {
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allGrantInfos);
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(allDenyInfos);
@@ -107,6 +112,13 @@ public class PermissionActivator implements BundleActivator {
     }
 
     conditionalPermissionUpdate.commit();
+  }
+
+  ConditionalPermissionAdmin getConditionalPermissionAdmin(BundleContext bundleContext) {
+    permAdminTracker = new ServiceTracker<>(bundleContext, PERM_ADMIN_SERVICE_NAME, null);
+    permAdminTracker.open();
+
+    return permAdminTracker.getService();
   }
 
   private ConditionalPermissionInfo getAllPermission(
@@ -184,7 +196,7 @@ public class PermissionActivator implements BundleActivator {
       conditionInfos.add(
           new ConditionInfo(
               BUNDLE_NAME_CONDITION,
-              new String[] {replaceSystemProperties(getBundleName(codebase))}));
+              REGEX.split(replaceSystemProperties(getBundleName(codebase)))));
     } else {
       conditionInfos.add(new ConditionInfo(BUNDLE_NAME_CONDITION, new String[] {""}));
     }
