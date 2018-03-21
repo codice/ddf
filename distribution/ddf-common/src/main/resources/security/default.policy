@@ -527,3 +527,6 @@ grant {
 
     permission org.osgi.service.cm.ConfigurationPermission "*", "configure";
 };
+
+grant codebase "file:/spatial-wfs-featuretransformer-xstream" {
+    permission java.lang.RuntimePermission "createClassLoader", "*" };

@@ -11,15 +11,13 @@
  *
  **/
 -->
-<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
-                       xmlns:sf="http://www.openplans.org/spearfish">
-    <gml:featureMembers>
-        <sf:roads gml:id="roads.1">
-            <sf:the_geom>
-                <gml:LinearRing srsName="urn:x-ogc:def:crs:EPSG:26713">
-                    <gml:posList>0 0 0 10 10 10 10 0 0 0</gml:posList>
-                </gml:LinearRing>
-            </sf:the_geom>
-        </sf:roads>
-    </gml:featureMembers>
-</wfs:FeatureCollection>
+<gml:featureMember xmlns:gml="http://www.opengis.net/gml"
+                   xmlns:sf="http://www.openplans.org/spearfish">
+    <sf:roads gml:id="roads.1">
+        <sf:the_geom>
+            <gml:LinearRing srsName="urn:x-ogc:def:crs:EPSG:26713">
+                <gml:posList>0 0 0 10 10 10 10 0 0 0</gml:posList>
+            </gml:LinearRing>
+        </sf:the_geom>
+    </sf:roads>
+</gml:featureMember>

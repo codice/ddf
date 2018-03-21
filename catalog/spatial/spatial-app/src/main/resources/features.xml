@@ -35,8 +35,37 @@
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
     </feature>
 
+    <feature name="spatial-common-ogc" version="${project.version}" description="Common ogc">
+        <bundle>mvn:org.jvnet.jaxb2_commons/jaxb2-basics-runtime/0.11.0</bundle>
+        <bundle>wrap:mvn:org.hisrc.w3c/xlink-v_1_0/1.4.0$Bundle-Name=xlink-v_1_0&amp;Bundle-SymbolicName=xlink-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+    </feature>
+
+    <feature name="spatial-wfs-ogc" version="${project.version}"
+             description="Web Feature Service (WFS). OGC ">
+        <feature>spatial-common-ogc</feature>
+        <bundle>wrap:mvn:org.jvnet.ogc/gml-v_3_1_1/2.6.1$Bundle-Name=gml-v_3_1_1&amp;Bundle-SymbolicName=gml-v_3_1_1&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/ows-v_1_0_0/2.6.1$Bundle-Name=ows-v_1_0_0&amp;Bundle-SymbolicName=ows-v_1_0_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/filter-v_1_1_0/2.6.1$Bundle-Name=filter-v_1_1_0&amp;Bundle-SymbolicName=filter-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/wfs-v_1_1_0/2.6.1$Bundle-Name=wfs-v_1_1_0&amp;Bundle-SymbolicName=wfs-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+    </feature>
+
+    <feature name="spatial-wfs-feature-transformer-xstream" description="Xstream feature transformer" version="${project.version}">
+        <feature>spatial-wfs-core</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-xstream/${project.version}</bundle>
+    </feature>
+
+    <feature name="spatial-wfs-feature-transformer-handlebars" description="handlebars feature transformer" version="${project.version}">
+        <feature>spatial-wfs-core</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-handlebars/${project.version}</bundle>
+    </feature>
+
     <feature name="spatial-wfs-core" version="${project.version}"
              description="Web Feature Service (WFS).">
+        <feature>spatial-wfs-ogc</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${xpp3.bundle.version}
@@ -45,6 +74,7 @@
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-metacardtype-registry/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-wfs-v1_0_0" version="${project.version}"
@@ -118,9 +148,8 @@
     </feature>
 
     <feature name="spatial-wps-api" version="${project.version}" description="Spatial WPS API">
+        <feature>spatial-common-ogc</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wps-api/${project.version}</bundle>
-        <bundle>mvn:org.jvnet.jaxb2_commons/jaxb2-basics-runtime/0.11.0</bundle>
-        <bundle>wrap:mvn:org.hisrc.w3c/xlink-v_1_0/1.4.0$Bundle-Name=xlink-v_1_0&amp;Bundle-SymbolicName=xlink-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
         <bundle>wrap:mvn:org.hisrc.w3c/xmlschema-v_1_0/1.4.0$Bundle-Name=xmlschema-v_1_0&amp;Bundle-SymbolicName=xmlschema-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
         <bundle>wrap:mvn:org.jvnet.ogc/ows-v_2_0/2.6.1$Bundle-Name=ows-v_2_0&amp;Bundle-SymbolicName=ows-v_2_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",org.hisrc.w3c.xlink.v_1_0.*;version="1.4.0",*</bundle>
         <bundle>wrap:mvn:org.jvnet.ogc/wps-v_2_0/2.6.1$Bundle-Name=wps-v_2_0&amp;Bundle-SymbolicName=wps-v_2_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.ows.v_2_0.*;version="2.6.1",*</bundle>
@@ -134,11 +163,6 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-wps-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="feature-index" version="${project.version}"
-             description="Offline gazetteer service storing geographic features in the catalog">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
-    </feature>
-
     <feature name="spatial-app" version="${project.version}"
              description="Spatial contains standards-based, geospatial endpoints, sources, and transforms.">
         <feature>catalog-app</feature>
@@ -149,13 +173,18 @@
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <feature>spatial-kml</feature>
         <feature>spatial-wfs-core</feature>
-        <feature>spatial-wfs-v1_0_0</feature>
-        <feature>spatial-wfs-v1_1_0</feature>
-        <feature>spatial-wfs-v2_0_0</feature>
         <feature>spatial-csw</feature>
         <feature>offline-gazetteer</feature>
         <feature>spatial-process-api</feature>
         <feature>spatial-wps-api</feature>
+        <feature>spatial-wfs-feature-transformer-xstream</feature>
+        <feature>spatial-wfs-feature-transformer-handlebars</feature>
+        <feature>spatial-wfs-v1_1_0</feature>
+    </feature>
+
+    <feature name="feature-index" version="${project.version}"
+             description="Offline gazetteer service storing geographic features in the catalog">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
     </feature>
 
 </features>

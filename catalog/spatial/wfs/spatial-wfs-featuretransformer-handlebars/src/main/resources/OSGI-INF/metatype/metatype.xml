@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD description="WFS Feature to Metacard Templated Mapping"
+         name="WFS Feature to Metacard Templated Mapping"
+         id="Wfs_Templated_Mapping">
+
+        <AD name="Feature Type" id="featureType" required="true" type="String"
+            description="Feature Type. Format is {URI}local-name"/>
+
+        <AD description="The Units of the Feature Property that corresponds to the Metacard Resource Size"
+            name="The Units of the Feature Property that corresponds to the Metacard Resource Size"
+            id="dataUnit" required="true"
+            type="String" default="B">
+            <Option label="B" value="B"/>
+            <Option label="KB" value="KB"/>
+            <Option label="MB" value="MB"/>
+            <Option label="GB" value="GB"/>
+            <Option label="TB" value="TB"/>
+            <Option label="PB" value="PB"/>
+        </AD>
+
+        <AD id="attributeMappings"
+            name="Attribute Mappings"
+            description='List of attribute mappings using a handlebars template. Example: {"attributeName": "the-attribute", "featureName": "TheId", "template": "{{myFeature.theid}}"}'
+            type="String"
+            default=''
+            required="false"
+            cardinality="1000"/>
+
+    </OCD>
+
+    <Designate pid="Wfs_Templated_Mapping"
+               factoryPid="Wfs_Templated_Mapping">
+        <Object ocdref="Wfs_Templated_Mapping"/>
+    </Designate>
+</metatype:MetaData>

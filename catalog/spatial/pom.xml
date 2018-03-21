@@ -27,7 +27,7 @@
     <packaging>pom</packaging>
     <name>DDF :: Spatial</name>
     <properties>
-        <jaxb2.version>0.9.4</jaxb2.version>
+        <jaxb2.version>1.11.1</jaxb2.version>
     </properties>
     <dependencyManagement>
         <dependencies>

@@ -14,12 +14,12 @@
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +31,6 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.junit.Test;
@@ -44,41 +42,33 @@ public class GenericFeatureConverterWfs11Test {
   @Test
   public void testPointSrs26713Pos() throws IOException {
     try (InputStream is = open("/point-eps26713-pos.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
-      assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
-          is("POINT (598566.26906782 4914058.52150682)"));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
+      assertThat(metacard.getLocation(), is("POINT (598566.26906782 4914058.52150682)"));
     }
   }
 
   @Test
   public void testLinearRingSrs26713PosList() throws IOException {
     try (InputStream is = open("/linearring-eps26713-poslist.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
-      assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
-          is("LINEARRING (0 0, 0 10, 10 10, 10 0, 0 0)"));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
+      assertThat(metacard.getLocation(), is("LINEARRING (0 0, 0 10, 10 10, 10 0, 0 0)"));
     }
   }
 
   @Test
   public void testLinearRingSrs26713PointProperty() throws IOException {
     try (InputStream is = open("/linearring-eps26713-pointproperty.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
-      assertThat(wfc.getFeatureMembers().get(0).getLocation(), is("POINT (0 0)"));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
+      assertThat(metacard.getLocation(), is("POINT (0 0)"));
     }
   }
 
   @Test
   public void testLineStringSrs26713() throws IOException {
     try (InputStream is = open("/linestring-eps26713.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
       assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
+          metacard.getLocation(),
           is(
               "LINESTRING (598566.26906782 4914058.52150682, 598557.69477679 4914085.33977038, 598494.67747205 4914254.76475676, 598513.91541973 4914348.11723536, 598593.95441378 4914440.37147034, 598656.43584271 4914500.87603708, 598659.42742456 4914521.61846645, 598652.10605456 4914532.58195028, 598648.43115534 4914544.16261933, 598635.63083991 4914558.16462797, 598554.58586588 4914636.67913744, 598498.3814486 4914752.4469346, 598489.81000042 4914778.04541272, 598421.49284933 4914873.66244196, 598409.19817361 4914931.57794141, 598404.90249957 4914948.64642947, 598340.17638384 4915068.66645978, 598342.49317686 4915118.07263127, 598346.0824185 4915117.02463364, 598566.26906782 4914058.52150682)"));
     }
@@ -87,10 +77,9 @@ public class GenericFeatureConverterWfs11Test {
   @Test
   public void testCurveSrs26713() throws IOException {
     try (InputStream is = open("/curve-eps26713.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
       assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
+          metacard.getLocation(),
           is(
               "MULTILINESTRING ((598566.26906782 4914058.52150682, 598557.69477679 4914085.33977038, 598494.67747205 4914254.76475676, 598513.91541973 4914348.11723536, 598593.95441378 4914440.37147034, 598656.43584271 4914500.87603708, 598659.42742456 4914521.61846645, 598652.10605456 4914532.58195028, 598648.43115534 4914544.16261933, 598635.63083991 4914558.16462797, 598554.58586588 4914636.67913744, 598498.3814486 4914752.4469346, 598489.81000042 4914778.04541272, 598421.49284933 4914873.66244196, 598409.19817361 4914931.57794141, 598404.90249957 4914948.64642947, 598340.17638384 4915068.66645978, 598342.49317686 4915118.07263127, 598346.0824185 4915117.02463364, 598566.26906782 4914058.52150682))"));
     }
@@ -99,10 +88,9 @@ public class GenericFeatureConverterWfs11Test {
   @Test
   public void testPolygonCurveSrs26713() throws IOException {
     try (InputStream is = open("/polygon-eps26713.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
       assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
+          metacard.getLocation(),
           is("POLYGON ((45.256 -110.45, 46.46 -109.48, 43.84 -109.86, 45.256 -110.45))"));
     }
   }
@@ -110,12 +98,9 @@ public class GenericFeatureConverterWfs11Test {
   @Test
   public void testSurfaceSrs26713() throws IOException {
     try (InputStream is = open("/surface-eps26713.xml")) {
-      WfsFeatureCollection wfc = (WfsFeatureCollection) getxStream().fromXML(is);
-      assertThat(wfc.getFeatureMembers(), hasSize(1));
-      assertThat(wfc.getFeatureMembers().get(0).getLocation(), notNullValue());
-      assertThat(
-          wfc.getFeatureMembers().get(0).getLocation(),
-          is("MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0, 0 0)))"));
+      Metacard metacard = (Metacard) getxStream().fromXML(is);
+      assertThat(metacard.getLocation(), notNullValue());
+      assertThat(metacard.getLocation(), is("MULTIPOLYGON (((0 0, 0 1, 1 1, 1 0, 0 0)))"));
     }
   }
 
@@ -126,21 +111,13 @@ public class GenericFeatureConverterWfs11Test {
   private XStream getxStream() {
     XStream xstream = new XStream(new WstxDriver());
 
-    FeatureCollectionConverterWfs11 fcConverter = new FeatureCollectionConverterWfs11();
-    Map<String, FeatureConverter> fcMap = new HashMap<>();
-
     GenericFeatureConverterWfs11 converter =
         new GenericFeatureConverterWfs11("urn:x-ogc:def:crs:EPSG:26713");
-
-    fcMap.put("roads", converter);
-    fcConverter.setFeatureConverterMap(fcMap);
-
-    xstream.registerConverter(fcConverter);
 
     converter.setMetacardType(buildMetacardType());
     xstream.registerConverter(converter);
     xstream.registerConverter(new GmlGeometryConverter());
-    xstream.alias("FeatureCollection", WfsFeatureCollection.class);
+    xstream.alias("featureMember", Metacard.class);
     return xstream;
   }
 

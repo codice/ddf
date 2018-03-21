@@ -1,0 +1,59 @@
+Index: catalog/spatial/wfs/spatial-wfs-featuretransformer-xstream/src/main/java/org/codice/ddf/spatial/ogc/wfs/transformer/xstream/XStreamWfsFeatureTransformer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- catalog/spatial/wfs/spatial-wfs-featuretransformer-xstream/src/main/java/org/codice/ddf/spatial/ogc/wfs/transformer/xstream/XStreamWfsFeatureTransformer.java	(revision ea7b066558b497fad6d0c22d661f5a08ac80f1ed)
++++ catalog/spatial/wfs/spatial-wfs-featuretransformer-xstream/src/main/java/org/codice/ddf/spatial/ogc/wfs/transformer/xstream/XStreamWfsFeatureTransformer.java	(date 1524699228390)
+@@ -45,33 +45,35 @@
+ 
+   protected WfsMetacardTypeRegistry metacardTypeRegistry;
+ 
+-  @Override
+-  public Optional<Metacard> apply(InputStream document, WfsMetadata metadata) {
+-    Metacard metacard = null;
+-    XStream xStream = createXStream(metadata);
+-    try {
+-      metacard = (Metacard) xStream.fromXML(document);
+-    } catch (XStreamException e) {
+-      LOGGER.trace("Failed to parse FeatureMember into Metacard", e);
+-    }
++  private XStream xStream;
+ 
+-    return Optional.ofNullable(metacard);
+-  }
+-
+-  private XStream createXStream(WfsMetadata<T> metadata) {
+-    XStream xStream = new XStream(new WstxDriver());
++  public XStreamWfsFeatureTransformer() {
++    xStream = new XStream(new WstxDriver());
+     xStream.alias("featureMember", Metacard.class);
+     xStream.addPermission(NoTypePermission.NONE);
+     xStream.allowTypeHierarchy(Metacard.class);
+     xStream.setClassLoader(this.getClass().getClassLoader());
+     xStream.registerConverter(new GmlGeometryConverter());
+     xStream.registerConverter(new GmlEnvelopeConverter());
++  }
++
++  @Override
++  public Optional<Metacard> apply(InputStream document, WfsMetadata<T> metadata) {
++    Metacard metacard = null;
+ 
+     for (T featureType : metadata.getDescriptors()) {
+-      lookupFeatureConverter(metadata, featureType).ifPresent(xStream::registerConverter);
++      if (xStream.getConverterLookup().lookupConverterForType(featureType.getClass()) == null) {
++        lookupFeatureConverter(metadata, featureType).ifPresent(xStream::registerConverter);
++      }
+     }
+ 
+-    return xStream;
++    try {
++      metacard = (Metacard) xStream.fromXML(document);
++    } catch (XStreamException e) {
++      LOGGER.trace("Failed to parse FeatureMember into Metacard", e);
++    }
++
++    return Optional.ofNullable(metacard);
+   }
+ 
+   protected Optional<FeatureConverter> lookupFeatureConverter(
