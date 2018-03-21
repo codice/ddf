@@ -81,6 +81,6 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('build', ['replace', 'newer:cssmin', 'newer:jshint']);
+    grunt.registerTask('build', ['newer:cssmin', 'newer:jshint']);
     grunt.registerTask('default', ['build', 'watch']);
 };

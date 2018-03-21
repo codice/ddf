@@ -118,7 +118,6 @@ module.exports = function (grunt) {
     });
 
 
-    //grunt.loadNpmTasks('grunt-replace');
     //grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('test', ['simplemocha:test']);

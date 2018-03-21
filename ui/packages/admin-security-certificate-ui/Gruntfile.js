@@ -113,6 +113,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
+    grunt.registerTask('build', ['less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
 };

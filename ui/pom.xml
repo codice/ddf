@@ -125,14 +125,9 @@
                             <version>3.3.7</version>
                         </artifactItem>
                         <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.2.0</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.3.7</version>
+                            <groupId>ddf.platform.theme</groupId>
+                            <artifactId>ddf-theme</artifactId>
+                            <version>${project.version}</version>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
@@ -368,7 +363,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/webjars</Web-ContextPath>
-                        <_wab>${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>${project.build.directory}/META-INF/resources/webjars,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.eclipse.jetty.servlets;version="[9.2.19, 9.2.19]"
@@ -561,5 +556,12 @@
             </properties>
         </profile>
     </profiles>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.platform.theme</groupId>
+            <artifactId>ddf-theme</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
 

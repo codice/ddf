@@ -30,7 +30,6 @@
     "grunt-contrib-watch": "1.0.0",
     "grunt-express-server": "0.5.3",
     "grunt-port-allocator": "*",
-    "grunt-replace": "1.0.1",
     "grunt-simple-mocha": "0.4.1",
     "jquery": "3.2.1",
     "jsdom": "7.2.2",

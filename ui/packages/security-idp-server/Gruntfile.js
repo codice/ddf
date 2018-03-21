@@ -74,6 +74,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', ['clean', 'replace', 'cssmin', 'jshint']);
+    grunt.registerTask('build', ['clean', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build']);
 };

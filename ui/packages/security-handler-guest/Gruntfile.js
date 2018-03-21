@@ -95,7 +95,7 @@ module.exports = function (grunt) {
         }
     });
 
-    var buildTasks = ['clean', 'replace', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'cssmin', 'jshint'];
 
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);

@@ -171,6 +171,6 @@ module.exports = function (grunt) {
     // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
+    grunt.registerTask('build', ['less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
 };
