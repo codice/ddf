@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -80,6 +81,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+
+  private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
 
   private final ConfigurationAdmin configAdmin;
 
@@ -233,7 +236,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         (metatypeService == null)
             ? Collections.emptySet()
             : Arrays.stream(getContext().getBundles())
-                .filter(b -> bundleLocations.contains(b.getLocation()))
+                .filter(b -> bundleLocations.contains(computeLocation(b)))
                 .map(metatypeService::getMetaTypeInformation)
                 .collect(Collectors.toSet());
 
@@ -420,5 +423,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    */
   void setServiceTracker(ServiceTracker serviceTracker) {
     this.serviceTracker = (ServiceTracker<Object, Object>) serviceTracker;
+  }
+
+  private static String computeLocation(Bundle bundle) {
+    return BUNDLE_LOCATIONS.computeIfAbsent(bundle.getBundleId(), id -> bundle.getLocation());
   }
 }

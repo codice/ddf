@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -79,6 +80,8 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminImpl.class);
 
+  private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
+
   private final ConfigurationAdmin configurationAdmin;
 
   private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
@@ -96,6 +99,10 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     this.configurationAdminPluginList = configurationAdminPluginList;
   }
 
+  private static String getBundleLocation(Bundle bundle) {
+    return BUNDLE_LOCATIONS.computeIfAbsent(bundle.getBundleId(), id -> bundle.getLocation());
+  }
+
   static Bundle getBundle(final BundleContext bundleContext, final String bundleLocation) {
     if (bundleLocation == null) {
       return null;
@@ -103,7 +110,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     Bundle[] bundles = bundleContext.getBundles();
     for (Bundle bundle : bundles) {
-      if (bundleLocation.equals(bundle.getLocation())) {
+      if (bundleLocation.equals(getBundleLocation(bundle))) {
         return bundle;
       }
     }
@@ -154,7 +161,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
     final Bundle bundles[] = getBundleContext().getBundles();
     for (int i = 0; bundles != null && i < bundles.length; i++) {
-      if (bundles[i].getLocation().equals(location)) {
+      if (location.equals(getBundleLocation(bundles[i]))) {
         return bundles[i];
       }
     }
@@ -165,13 +172,16 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     List<Service> serviceList = null;
     List<Service> serviceFactoryList = null;
 
+    Map<Long, MetaTypeInformation> metaTypeInformationByBundle = new HashMap<>();
+
     try {
       // Get ManagedService instances
       serviceList = getServices(ManagedService.class.getName(), serviceFilter, true);
 
       // Get ManagedService Metatypes
       List<Metatype> metatypeList =
-          addMetaTypeNamesToMap(getPidObjectClasses(), serviceFilter, SERVICE_PID);
+          addMetaTypeNamesToMap(
+              getPidObjectClasses(metaTypeInformationByBundle), serviceFilter, SERVICE_PID);
 
       // Get ManagedServiceFactory instances
       serviceFactoryList =
@@ -180,7 +190,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
       // Get ManagedServiceFactory Metatypes
       metatypeList.addAll(
           addMetaTypeNamesToMap(
-              getFactoryPidObjectClasses(), serviceFactoryFilter, SERVICE_FACTORYPID));
+              getFactoryPidObjectClasses(metaTypeInformationByBundle),
+              serviceFactoryFilter,
+              SERVICE_FACTORYPID));
 
       for (Service service : serviceFactoryList) {
 
@@ -423,8 +435,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    *
    * @return see the method description
    */
-  private Map<String, Object> getPidObjectClasses() {
-    return getObjectClassDefinitions(PID_GETTER);
+  private Map<String, Object> getPidObjectClasses(
+      Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
+    return getObjectClassDefinitions(PID_GETTER, metaTypeInformationByBundle);
   }
 
   /**
@@ -437,14 +450,17 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    * @return Map of <code>ObjectClassDefinition</code> objects indexed by the PID (or factory PID)
    *     to which they pertain
    */
-  private Map<String, Object> getObjectClassDefinitions(final IdGetter idGetter) {
+  private Map<String, Object> getObjectClassDefinitions(
+      final IdGetter idGetter, Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
     Locale locale = Locale.getDefault();
     final Map<String, Object> objectClassesDefinitions = new HashMap<>();
     final MetaTypeService mts = this.getMetaTypeService();
     if (mts != null) {
       final Bundle[] bundles = this.getBundleContext().getBundles();
       for (Bundle bundle : bundles) {
-        final MetaTypeInformation mti = mts.getMetaTypeInformation(bundle);
+        final MetaTypeInformation mti =
+            metaTypeInformationByBundle.computeIfAbsent(
+                bundle.getBundleId(), id -> mts.getMetaTypeInformation(bundle));
         if (mti != null) {
           final String[] idList = idGetter.getIds(mti);
           for (int j = 0; idList != null && j < idList.length; j++) {
@@ -565,8 +581,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    *
    * @return see the method description
    */
-  private Map<String, Object> getFactoryPidObjectClasses() {
-    return getObjectClassDefinitions(FACTORY_PID_GETTER);
+  private Map<String, Object> getFactoryPidObjectClasses(
+      Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
+    return getObjectClassDefinitions(FACTORY_PID_GETTER, metaTypeInformationByBundle);
   }
 
   private List<Service> getServices(String serviceClass, String serviceFilter, boolean ocdRequired)

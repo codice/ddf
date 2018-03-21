@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.karaf.features.BundleInfo;
@@ -35,6 +36,8 @@ import org.slf4j.LoggerFactory;
 public class ApplicationImpl implements Application {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationImpl.class);
+
+  private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
 
   private String name;
 
@@ -99,6 +102,10 @@ public class ApplicationImpl implements Application {
   private Map<String, Bundle> bundlesByLocation() {
     return Arrays.stream(
             FrameworkUtil.getBundle(ApplicationImpl.class).getBundleContext().getBundles())
-        .collect(Collectors.toMap(Bundle::getLocation, Function.identity()));
+        .collect(Collectors.toMap(ApplicationImpl::computeLocation, Function.identity()));
+  }
+
+  private static String computeLocation(Bundle bundle) {
+    return BUNDLE_LOCATIONS.computeIfAbsent(bundle.getBundleId(), id -> bundle.getLocation());
   }
 }
