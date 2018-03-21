@@ -32,8 +32,6 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -42,7 +40,6 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
