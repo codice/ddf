@@ -32,8 +32,6 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -42,7 +40,6 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
@@ -1251,53 +1248,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   void restoreKeystoreFile() throws IOException {
     Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
-  }
-
-  // Purpose is to make sure operations of the security certificate generator are accessible
-  // at runtime. The actual functionality of these operations is proved in unit tests.
-  @Test
-  public void testCertificateGeneratorService() throws Exception {
-    String commonName = "myCn";
-    String expectedValue = "CN=" + commonName;
-    String featureName = "security-certificate";
-    String certGenPath =
-        SECURE_ROOT_AND_PORT
-            + "/admin/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
-    getBackupKeystoreFile();
-    try {
-      getServiceManager().startFeature(true, featureName);
-
-      // Test first operation
-      Response response =
-          given()
-              .auth()
-              .preemptive()
-              .basic("admin", "admin")
-              .when()
-              .get(certGenPath + "/configureDemoCert/" + commonName);
-      String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
-      assertThat(actualValue, equalTo(expectedValue));
-
-      // Test second operation
-      response =
-          given()
-              .auth()
-              .preemptive()
-              .basic("admin", "admin")
-              .when()
-              .get(certGenPath + "/configureDemoCertWithDefaultHostname");
-
-      String jsonString = response.getBody().asString();
-      JsonPath jsonPath = JsonPath.from(jsonString);
-      // If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
-      assertThat(jsonPath.getString("value"), notNullValue());
-
-      // Make sure an invalid key would return null
-      assertThat(jsonPath.getString("someinvalidkey"), nullValue());
-    } finally {
-      restoreKeystoreFile();
-      getServiceManager().stopFeature(false, featureName);
-    }
   }
 
   @Test
