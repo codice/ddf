@@ -13,10 +13,6 @@
  */
 package ddf.test.itests.platform;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
@@ -37,11 +33,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
-import com.google.common.collect.ImmutableList;
-import com.jayway.restassured.path.json.JsonPath;
-import ddf.catalog.data.Metacard;
-import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,9 +56,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -89,6 +87,12 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
+
+import com.google.common.collect.ImmutableList;
+import com.jayway.restassured.path.json.JsonPath;
+
+import ddf.catalog.data.Metacard;
+import ddf.security.SecurityConstants;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -1362,7 +1366,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     String getConfigurationsNotPermitted =
         sendNotPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getConfigurations/(service.pid=ddf.security.pdp.realm.AuthzRealm)");
-    assertEquals(JsonPath.given(getConfigurationsNotPermitted).getString("value"), "[]");
+    assertEquals("[]", JsonPath.given(getConfigurationsNotPermitted).getString("value"));
   }
 
   // ApplicationService tests
