@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,9 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="interaction-icon fa fa-file">
-</div>
-<div class="interaction-text">
-    Use Another Search Form
-</div>
+ /*global require*/
+ var Tabs = require('component/tabs/tabs');
+ var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
+
+ module.exports = Tabs.extend({
+    defaults: {
+        tabs: {
+            'My Search Forms': MySearchFormCollectionView
+         }
+    }
+ });

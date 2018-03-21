@@ -1,0 +1,45 @@
+@{customElementNamespace}filter-search-form {
+  .customElement;
+  white-space: nowrap;
+  margin: @minimumSpacing;
+
+  > .filter-remove,
+  > .filter-attribute,
+  > .filter-comparator,
+  > .filter-input {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: @minimumSpacing;
+  }
+
+  > .filter-comparator,
+  > .filter-attribute {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  > .filter-remove {
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    display: none;
+  }
+
+  > .filter-input {
+    min-width: 12.5*@minimumFontSize;
+  }
+}
+
+@{customElementNamespace}filter-search-form.is-location {
+  > .filter-input {
+    margin-top: @minimumSpacing;
+    display: block;
+  }
+}
+
+@{customElementNamespace}filter-search-form-collection {
+  > @{customElementNamespace}filter.is-editing {
+    > .filter-remove {
+      display: inline-block;
+    }
+  }
+}

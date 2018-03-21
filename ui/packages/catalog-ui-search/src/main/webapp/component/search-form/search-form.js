@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,9 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="interaction-icon fa fa-file">
-</div>
-<div class="interaction-text">
-    Use Another Search Form
-</div>
+ /*global require*/
+ var _ = require('underscore');
+ var Backbone = require('backbone');
+
+ module.exports = Backbone.Model.extend({
+    defaults: {
+        name: "A Search Form",
+        createdBy: "admin",
+        type: "custom",
+        filterTemplate: "{}"
+    }
+ });

@@ -1,0 +1,138 @@
+@{customElementNamespace}filter-builder-search-form {
+  display: table;
+  width: 100%;
+  position: relative;
+
+  white-space: nowrap;
+
+  @{customElementNamespace}dropdown.is-simpleDropdown.is-editing {
+    width: auto;
+    max-width: 200px;
+  }
+
+  > .filter-header > .contents-buttons .add-filterBuilder {
+    position: relative;
+    padding-right: @minimumSpacing;
+  }
+
+  > .filter-header > .contents-buttons .add-filterBuilder span:nth-of-type(2) {
+    margin-right: @minimumSpacing;
+  }
+
+  > .filter-header > .contents-buttons .add-filterBuilder span:nth-of-type(2)::after {
+    content: '';
+    position: absolute;
+    right: 0px;
+    border-left: 1px solid;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    height:100%;
+    width: @minimumSpacing;
+  }
+
+  > .filter-header {
+    white-space: nowrap;
+    margin-bottom: @minimumSpacing;
+  }
+
+  > .filter-header {
+    > .filter-remove,
+    > .filter-operator {
+      margin-right: @minimumSpacing;
+    }
+
+    > .filter-remove {
+      display: none;
+      vertical-align: top;
+    }
+
+    > .filter-operator {
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    > .filter-operator {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+    }
+
+      > .contents-buttons > button{
+      padding: 0px @minimumSpacing;
+    }
+
+    > .contents-buttons {
+      display: none;
+    }
+
+    > .filter-remove {
+      width: @minimumButtonSize;
+      height: @minimumButtonSize;
+    }
+
+  }
+
+  > .filter-contents {
+    margin-right: @minimumSpacing;
+    position: relative;
+  }
+
+  > .filter-contents {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  > .filter-contents:before {
+    content: '';
+    position: absolute;
+    border-left: 1px solid;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    height:100%;
+    width: @minimumSpacing;
+    opacity: @minimumOpacity;
+  }
+
+  > .filter-contents > .contents-filters {
+    padding-left: @minimumSpacing;
+  }
+
+  .contents-buttons {
+    margin-left: @minimumSpacing;
+
+    .add-filter {
+      margin-right: @minimumSpacing;
+    }
+  }
+
+  .filter-header:hover + .filter-contents {
+    .dropshadowlight;
+  }
+
+  @{customElementNamespace}filter-builder-search-form {
+    margin: @minimumSpacing;
+  }
+
+}
+
+@{customElementNamespace}filter-builder-search-form.is-editing {
+
+  > .filter-header > .contents-buttons {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+}
+
+@{customElementNamespace}filter-builder-search-form.hide-nesting {
+  > .filter-header > .contents-buttons > .add-filterBuilder {
+    display: none;
+  }
+}
+
+@{customElementNamespace}filter-collection {
+  > @{customElementNamespace}filter-builder-search-form.is-editing {
+    > .filter-header > .filter-remove {
+      display: inline-block;
+    }
+  }
+}

@@ -11,8 +11,27 @@
  *
  **/
  --}}
-<div class="interaction-icon fa fa-file">
-</div>
-<div class="interaction-text">
-    Use Another Search Form
-</div>
+
+{{#is type 'basic'}}
+    <div>
+        <h3>Basic</h3>
+    </div>
+{{/is}}
+{{#is type 'text'}}
+    <div>
+        <h3>Text</h3>
+    </div>
+{{/is}}
+{{#is type 'custom'}}
+    <div>
+        <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
+        <span class="search-form-contents">
+            <span class="search-form-label">Created On: </span>
+            {{createdOn}}
+        </span>
+        <span class="search-form-contents">
+            <span class="search-form-label">Created By: </span>
+            {{createdBy}}
+        </span>
+    </div>
+{{/is}}
