@@ -1,0 +1,54 @@
+<!--
+  ~ *Copyright (c) Codice Foundation
+  ~ <p>
+  ~ This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+  ~ General Public License as published by the Free Software Foundation, either version 3 of the
+  ~ License, or any later version.
+  ~ <p>
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+  ~ even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+  ~ is distributed along with this program and can be found at
+  ~ <http://www.gnu.org/licenses/lgpl.html>.
+  -->
+<xsd:schema elementFormDefault="qualified" targetNamespace="http://www.nga.mil/gims/gin"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml"
+  xmlns:gin="http://www.nga.mil/gims/gin">
+    <xsd:complexType name="GeneralGIN_Type">
+        <xsd:complexContent>
+            <xsd:extension base="gml:AbstractFeatureType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="CountryCode" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="GeneralGINFriends"
+                      nillable="true" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="GeneralGINNotify" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="GINStatus" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="GINAction" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="NIPFTopic" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="GINMissionElement"
+                      nillable="true" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="Analytics" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="Keyword" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="POCName" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="POCEmail" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="POCPhone" nillable="true"
+                      type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="Created" nillable="true"
+                      type="xsd:dateTime"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="SpatialData" nillable="true"
+                      type="gml:MultiSurfacePropertyType"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="GeneralGIN" substitutionGroup="gml:_Feature" type="gin:GeneralGIN_Type"/>
+</xsd:schema>

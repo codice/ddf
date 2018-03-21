@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <!-- Wire up the WfsTransformerProcessor -->
+
+
+    <reference-list id="wfsTransformers"
+                    interface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformer"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin">
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
+        </reference-listener>
+    </reference-list>
+
+    <bean id="wfsTransformerProcessor" class="org.codice.ddf.spatial.ogc.wfs.catalog.message.WfsTransformerProcessor">
+        <cm:managed-properties persistent-id="org.codice.ddf.spatial.ogc.wfs.catalog.message.WfsTransformerProcessor"
+                               update-strategy="container-managed"/>
+        <argument ref="wfsTransformers"/>
+    </bean>
+
+    <!-- Wire up the FeatureTransformationService -->
+    <bean id="wfsRouteBuilder" class="org.codice.ddf.spatial.ogc.wfs.catalog.message.WfsRouteBuilder"/>
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint"
+                  id="wfsTransformationContext"
+                  trace="true">
+        <proxy id="featureTransformationService"
+               serviceInterface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformationService"
+               serviceUrl="direct://wfsTransform"/>
+
+        <routeBuilder ref="wfsRouteBuilder" id="wfsTransformationRoute"/>
+    </camelContext>
+
+    <service ref="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.catalog.message.api.FeatureTransformationService"/>
+</blueprint>

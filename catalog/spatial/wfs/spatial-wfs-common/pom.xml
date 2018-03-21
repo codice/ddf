@@ -80,5 +80,10 @@
             <artifactId>spatial-wfs-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-message-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
