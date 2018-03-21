@@ -28,7 +28,6 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <pax.exam.version>4.11.0</pax.exam.version>
         <pax.url.version>2.5.2</pax.url.version>
         <awaitility.version>3.0.0</awaitility.version>
     </properties>

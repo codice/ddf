@@ -26,7 +26,7 @@
 |OpenSearch service URL
 |endpointUrl
 |String
-|The OpenSearch endpoint URL or DDF's OpenSearch endpoint (${secure_url}/services/catalog/query)
+|The OpenSearch endpoint URL or DDF's OpenSearch endpoint (\${secure_url}/services/catalog/query)
 |${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query
 |true
 
@@ -61,7 +61,7 @@
 |Convert to BBox
 |shouldConvertToBBox
 |Boolean
-|Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry.
+|Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.
 |true
 |true
 

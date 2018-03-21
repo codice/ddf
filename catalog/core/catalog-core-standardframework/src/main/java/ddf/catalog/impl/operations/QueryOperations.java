@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
@@ -86,6 +87,9 @@ public class QueryOperations extends DescribableImpl {
 
   private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
 
+  private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
+      "catalog.zeroPageSizeCompatibility";
+
   /**
    * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many
    * records. In practice, correct paging techniques should be implemented. If needed, this property
@@ -96,6 +100,9 @@ public class QueryOperations extends DescribableImpl {
   private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
 
   public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
+
+  private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
+      () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
   // Inject properties
   private final FrameworkProperties frameworkProperties;
@@ -542,19 +549,29 @@ public class QueryOperations extends DescribableImpl {
           "Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
     }
 
-    int queryPageSize = queryRequest.getQuery().getPageSize();
+    Query originalQuery = queryRequest.getQuery();
 
-    if (queryPageSize >= 1 && queryPageSize <= MAX_PAGE_SIZE) {
-      return queryRequest;
+    int queryPageSize = originalQuery.getPageSize();
+
+    if (originalQuery.getPageSize() < 0) {
+      queryPageSize = MAX_PAGE_SIZE;
     }
 
-    Query originalQuery = queryRequest.getQuery();
+    if (originalQuery.getPageSize() == 0) {
+      if (ZERO_PAGESIZE_COMPATIBILTY.get()) {
+        queryPageSize = MAX_PAGE_SIZE;
+      }
+    }
+
+    if (originalQuery.getPageSize() > 0) {
+      queryPageSize = Math.min(originalQuery.getPageSize(), MAX_PAGE_SIZE);
+    }
 
     Query modifiedQuery =
         new QueryImpl(
             originalQuery,
             originalQuery.getStartIndex(),
-            MAX_PAGE_SIZE,
+            queryPageSize,
             originalQuery.getSortBy(),
             originalQuery.requestsTotalResultsCount(),
             originalQuery.getTimeoutMillis());
@@ -703,9 +720,9 @@ public class QueryOperations extends DescribableImpl {
 
     Set<ProcessingDetails> exceptions = new HashSet<>();
 
-    boolean addConnectedSources = false;
+    boolean needToAddConnectedSources = false;
 
-    boolean addCatalogProvider = false;
+    boolean needToAddCatalogProvider = false;
 
     QuerySources(FrameworkProperties frameworkProperties) {
       this.frameworkProperties = frameworkProperties;
@@ -714,8 +731,8 @@ public class QueryOperations extends DescribableImpl {
     QuerySources initializeSources(
         QueryOperations queryOps, QueryRequest queryRequest, Set<String> sourceIds) {
       if (queryRequest.isEnterprise()) { // Check if it's an enterprise query
-        addConnectedSources = true;
-        addCatalogProvider = queryOps.hasCatalogProvider();
+        needToAddConnectedSources = true;
+        needToAddCatalogProvider = queryOps.hasCatalogProvider();
 
         if (sourceIds != null && !sourceIds.isEmpty()) {
           LOGGER.debug("Enterprise Query also included specific sites which will now be ignored");
@@ -746,9 +763,9 @@ public class QueryOperations extends DescribableImpl {
         // it's a targeted federated query
         if (queryOps.includesLocalSources(sourceIds)) {
           LOGGER.debug("Local source is included in sourceIds");
-          addConnectedSources =
+          needToAddConnectedSources =
               CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-          addCatalogProvider = queryOps.hasCatalogProvider();
+          needToAddCatalogProvider = queryOps.hasCatalogProvider();
           sourceIds.remove(queryOps.getId());
           sourceIds.remove(null);
           sourceIds.remove("");
@@ -791,8 +808,9 @@ public class QueryOperations extends DescribableImpl {
         }
       } else {
         // default to local sources
-        addConnectedSources = CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-        addCatalogProvider = queryOps.hasCatalogProvider();
+        needToAddConnectedSources =
+            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+        needToAddCatalogProvider = queryOps.hasCatalogProvider();
       }
 
       return this;
@@ -800,7 +818,7 @@ public class QueryOperations extends DescribableImpl {
 
     QuerySources addConnectedSources(
         QueryOperations queryOps, FrameworkProperties frameworkProperties) {
-      if (addConnectedSources) {
+      if (needToAddConnectedSources) {
         // add Connected Sources
         for (ConnectedSource source : frameworkProperties.getConnectedSources()) {
           if (queryOps.sourceOperations.isSourceAvailable(source)) {
@@ -816,7 +834,7 @@ public class QueryOperations extends DescribableImpl {
     }
 
     QuerySources addCatalogProvider(QueryOperations queryOps) {
-      if (addCatalogProvider) {
+      if (needToAddCatalogProvider) {
         if (queryOps.sourceOperations.isSourceAvailable(queryOps.sourceOperations.getCatalog())) {
           sourcesToQuery.add(queryOps.sourceOperations.getCatalog());
         } else {

@@ -14,7 +14,11 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="metacardLocationValidator" class="org.codice.ddf.validator.metacard.location.MetacardLocationValidator"/>
+    <reference id="wktValidator" interface="org.codice.ddf.validator.wkt.WktValidator"/>
+
+    <bean id="metacardLocationValidator" class="org.codice.ddf.validator.metacard.location.MetacardLocationValidator">
+        <argument ref="wktValidator"/>
+    </bean>
     
     <service ref="metacardLocationValidator">
         <interfaces>

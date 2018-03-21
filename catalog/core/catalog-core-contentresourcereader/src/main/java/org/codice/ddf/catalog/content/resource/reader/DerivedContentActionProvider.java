@@ -70,7 +70,7 @@ public class DerivedContentActionProvider implements MultiActionProvider {
 
                   builder.addParameters(
                       Collections.singletonList(
-                          new BasicNameValuePair(ContentItem.QUALIFIER, qualifier)));
+                          new BasicNameValuePair(ContentItem.QUALIFIER_KEYWORD, qualifier)));
                   return Optional.of(
                       new ActionImpl(
                           ID,

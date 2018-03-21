@@ -88,7 +88,7 @@ The metric's historical data can be displayed in several formats, including PNG 
 The PNG, CSV, and XLS formats are accessed via hyperlinks provided in the Metrics tab web page.
 The PPT, XML, and JSON formats are accessed by specifying the format in the custom URL, e.g., ${public_url}/services/internal/metrics/catalogQueries.json?dateOffset=1800.
 
-The table below describes each of the supported formats, how to access them, and an example where applicable. (NOTE: all example URLs begin with ${secure_url} which is omitted in the table for brevity.)
+The table below describes each of the supported formats, how to access them, and an example where applicable. (NOTE: all example URLs begin with \${secure_url} which is omitted in the table for brevity.)
 
 .Metrics Formats
 [cols="1,2,1,3a" options="header"]

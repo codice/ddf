@@ -181,15 +181,11 @@ public class CreateOperations {
                   .orElseGet(HashMap::new));
 
       createResponse = doCreate(createRequest);
+    } catch (IngestException e) {
+      rollbackStorage(createStorageRequest);
+      throw e;
     } catch (IOException | RuntimeException e) {
-      if (createStorageRequest != null) {
-        try {
-          sourceOperations.getStorage().rollback(createStorageRequest);
-        } catch (StorageException e1) {
-          LOGGER.info(
-              "Unable to remove temporary content for id: {}", createStorageRequest.getId(), e1);
-        }
-      }
+      rollbackStorage(createStorageRequest);
       throw new IngestException(
           "Unable to store products for request: " + streamCreateRequest.getId(), e);
 
@@ -200,6 +196,17 @@ public class CreateOperations {
     createResponse = doPostIngest(createResponse);
 
     return createResponse;
+  }
+
+  private void rollbackStorage(CreateStorageRequest createStorageRequest) {
+    if (createStorageRequest != null) {
+      try {
+        sourceOperations.getStorage().rollback(createStorageRequest);
+      } catch (StorageException e1) {
+        LOGGER.info(
+            "Unable to remove temporary content for id: {}", createStorageRequest.getId(), e1);
+      }
+    }
   }
 
   //

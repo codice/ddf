@@ -67,9 +67,9 @@ public class ConfluenceSource extends MaskableImpl
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceSource.class);
 
-  private static final String USERNAME = "username";
+  private static final String USERNAME_KEY = "username";
 
-  private static final String PASSWORD = "password";
+  private static final String PASSWORD_KEY = "password";
 
   private String endpointUrl;
 
@@ -109,7 +109,7 @@ public class ConfluenceSource extends MaskableImpl
 
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
-  private Map<String, Set<String>> additionalMetacardAttributes = new HashMap<>();
+  private Map<String, Set<String>> attributeOverrides = new HashMap<>();
 
   public ConfluenceSource(
       FilterAdapter adapter,
@@ -271,8 +271,8 @@ public class ConfluenceSource extends MaskableImpl
   public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-      arguments.put(USERNAME, username);
-      arguments.put(PASSWORD, password);
+      arguments.put(USERNAME_KEY, username);
+      arguments.put(PASSWORD_KEY, password);
     }
     return resourceReader.retrieveResource(uri, arguments);
   }
@@ -337,8 +337,8 @@ public class ConfluenceSource extends MaskableImpl
     this.excludeSpaces = excludeSpaces;
   }
 
-  public void setAdditionalAttributes(List<String> attributes) {
-    additionalMetacardAttributes = Permissions.parsePermissionsFromString(attributes);
+  public void setAttributeOverrides(List<String> attributes) {
+    attributeOverrides = Permissions.parsePermissionsFromString(attributes);
   }
 
   public void setBodyExpansion(String bodyExpansion) {
@@ -351,7 +351,7 @@ public class ConfluenceSource extends MaskableImpl
 
   private Result getUpdatedResult(Metacard metacard) {
     metacard.setSourceId(this.getId());
-    for (Map.Entry<String, Set<String>> entry : additionalMetacardAttributes.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : attributeOverrides.entrySet()) {
       Set<String> value = entry.getValue();
       if (value.size() == 1) {
         metacard.setAttribute(new AttributeImpl(entry.getKey(), value.iterator().next()));

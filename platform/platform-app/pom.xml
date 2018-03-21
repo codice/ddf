@@ -32,6 +32,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-session-invalidator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -348,6 +353,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.command</groupId>
+            <artifactId>security-command-sessionmanager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>
@@ -386,7 +396,7 @@
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <gson-version>2.7</gson-version>
-        <jackson2-version>2.8.10</jackson2-version>
+        <cxf.jackson.version>2.9.4</cxf.jackson.version>
         <javax.servlet-api-version>3.1.0</javax.servlet-api-version>
         <junit-bundle-version>4.11_1</junit-bundle-version>
         <mchange-commons-java-version>0.2.11</mchange-commons-java-version>
@@ -435,9 +445,7 @@
         <cxf.guava.version>${guava.version}</cxf.guava.version>
         <cxf.hazelcast.version>1.9.4.8</cxf.hazelcast.version>
         <cxf.httpcomponents.asyncclient.version>4.1.3</cxf.httpcomponents.asyncclient.version>
-        <cxf.httpcomponents.client.version>4.5.3</cxf.httpcomponents.client.version>
         <cxf.httpcomponents.core.version>4.4.6</cxf.httpcomponents.core.version>
-        <cxf.jackson.version>2.8.8</cxf.jackson.version>
         <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
         <cxf.javax.annotation-api.version>1.2</cxf.javax.annotation-api.version>
         <cxf.geronimo.jms.version>${geronimo-jms-spec-version}</cxf.geronimo.jms.version>
@@ -593,22 +601,6 @@
                                     <classifier>features</classifier>
                                 </artifact>
                             </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>kar</id>
-                        <goals>
-                            <goal>kar</goal>
-                        </goals>
-                        <configuration>
-                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
                         </configuration>
                     </execution>
                 </executions>

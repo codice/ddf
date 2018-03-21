@@ -15,9 +15,9 @@ package org.codice.ddf.configuration.migration;
 
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteSource;
@@ -149,7 +149,7 @@ public class AbstractMigrationSupport {
 
         if (ze == null) {
           return entries;
-        } else if (!ze.isDirectory()) {
+        } else {
           entries.put(ze.getName(), new MigrationZipEntry(ze, IOUtils.toByteArray(zin)));
         }
       }

@@ -18,14 +18,13 @@
     <OCD description="Expansion Service for Metacard Attributes"
          name="Security Metacard Attribute Mapping"
          id="ddf.security.metacard.attribute.mapping">
-        <AD description="Attribute separator - used to separate attributes in replacement strings - defaults to space (specified by no value)."
-            name="Attribute Separator" id="attributeSeparator" required="false"
-            type="String" default=" "/>
+        <AD description="Used to separate attributes in replacement strings. Defaults to space (specified by no value)."
+            name="Attribute Separator" id="attributeSeparator" required="false" type="String"
+            default=" "/>
 
         <AD description="Location of the file containing the attribute expansion rules."
-            name="Expansion Rules Configuration File Location" id="expansionFileName"
-            required="true"
-            type="String" default="${ddf.home}/etc/pdp/ddf-metacard-attribute-ruleset.cfg"/>
+            name="Expansion Rules Configuration File Location" id="expansionFileName" type="String"
+            default="${ddf.etc}/pdp/ddf-metacard-attribute-ruleset.cfg"/>
     </OCD>
 
     <Designate pid="ddf.security.metacard.attribute.mapping">

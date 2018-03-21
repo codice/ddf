@@ -52,9 +52,9 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -500,8 +500,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testValidationUnenforced() throws Exception {
-    getServiceManager().stopFeature(true, "catalog-security-filter");
-    configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
+    getServiceManager().stopBundle("catalog-security-filter");
 
     String id1 = ingestXmlFromResourceAndWait("/metacard1.xml");
     String id2 = ingestXmlFromResourceAndWait("/metacard2.xml");
@@ -611,7 +610,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               hasXPath(
                   format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
     } finally {
-      getServiceManager().startFeature(true, "catalog-security-filter");
+      getServiceManager().startBundle("catalog-security-filter");
     }
   }
 

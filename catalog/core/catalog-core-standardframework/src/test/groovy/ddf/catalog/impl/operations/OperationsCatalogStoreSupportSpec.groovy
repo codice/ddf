@@ -19,7 +19,7 @@ import ddf.catalog.source.CatalogProvider
 import ddf.catalog.source.CatalogStore
 import spock.lang.Specification
 
-class OperationsCatalogStoreSupportTest extends Specification {
+class OperationsCatalogStoreSupportSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
     private List<CatalogProvider> catalogProviders

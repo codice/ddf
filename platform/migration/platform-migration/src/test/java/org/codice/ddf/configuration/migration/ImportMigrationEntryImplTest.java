@@ -14,10 +14,10 @@
 package org.codice.ddf.configuration.migration;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresent;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -547,9 +547,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   @Test
   public void isNotMigratableWithSymbolicLink() throws Exception {
-    PathUtils pathUtils = new PathUtils();
-    when(mockContext.getPathUtils()).thenReturn(pathUtils);
-
     Path symlink = createSoftLink("symbolic-link", Paths.get("path1/"));
 
     final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext, symlink, true);

@@ -1,0 +1,250 @@
+{
+  "inject": [
+    {
+      "attribute": "associations.external"
+    },
+    {
+      "attribute": "metacard.associations.related"
+    },
+    {
+      "attribute": "metacard.associations.derived"
+    },
+    {
+      "attribute": "contact.contributor-address"
+    },
+    {
+      "attribute": "contact.contributor-email"
+    },
+    {
+      "attribute": "contact.contributor-name"
+    },
+    {
+      "attribute": "contact.contributor-phone"
+    },
+    {
+      "attribute": "contact.creator-address"
+    },
+    {
+      "attribute": "contact.creator-email"
+    },
+    {
+      "attribute": "contact.creator-name"
+    },
+    {
+      "attribute": "contact.creator-phone"
+    },
+    {
+      "attribute": "contact.point-of-contact-address"
+    },
+    {
+      "attribute": "contact.point-of-contact-email"
+    },
+    {
+      "attribute": "contact.point-of-contact-name"
+    },
+    {
+      "attribute": "contact.point-of-contact-phone"
+    },
+    {
+      "attribute": "contact.publisher-address"
+    },
+    {
+      "attribute": "contact.publisher-email"
+    },
+    {
+      "attribute": "contact.publisher-name"
+    },
+    {
+      "attribute": "contact.publisher-phone"
+    },
+    {
+      "attribute": "datetime.start"
+    },
+    {
+      "attribute": "datetime.name"
+    },
+    {
+      "attribute": "datetime.end"
+    },
+    {
+      "attribute": "location.altitude-meters"
+    },
+    {
+      "attribute": "location.country-code"
+    },
+    {
+      "attribute": "location.crs-code"
+    },
+    {
+      "attribute": "location.crs-name"
+    },
+    {
+      "attribute": "media.format"
+    },
+    {
+      "attribute": "media.format-version"
+    },
+    {
+      "attribute": "media.bit-rate"
+    },
+    {
+      "attribute": "media.bits-per-sample"
+    },
+    {
+      "attribute": "media.compression"
+    },
+    {
+      "attribute": "media.encoding"
+    },
+    {
+      "attribute": "media.frame-center"
+    },
+    {
+      "attribute": "media.frame-rate"
+    },
+    {
+      "attribute": "media.height-pixels"
+    },
+    {
+      "attribute": "media.number-of-bands"
+    },
+    {
+      "attribute": "media.scanning-mode"
+    },
+    {
+      "attribute": "media.type"
+    },
+    {
+      "attribute": "media.width-pixels"
+    },
+    {
+      "attribute": "media.duration"
+    },
+    {
+      "attribute": "security.access-groups"
+    },
+    {
+      "attribute": "security.access-individuals"
+    },
+    {
+      "attribute": "topic.category"
+    },
+    {
+      "attribute": "topic.keyword"
+    },
+    {
+      "attribute": "topic.vocabulary"
+    },
+    {
+      "attribute": "validation-warnings"
+    },
+    {
+      "attribute": "validation-errors"
+    },
+    {
+      "attribute": "failed-validators-warnings"
+    },
+    {
+      "attribute": "failed-validators-errors"
+    },
+    {
+      "attribute": "version.action"
+    },
+    {
+      "attribute": "version.edited-by"
+    },
+    {
+      "attribute": "version.id"
+    },
+    {
+      "attribute": "version.tags"
+    },
+    {
+      "attribute": "version.types"
+    },
+    {
+      "attribute": "version.type-binary"
+    },
+    {
+      "attribute": "version.versioned-by"
+    },
+    {
+      "attribute": "checksum"
+    },
+    {
+      "attribute": "checksum-algorithm"
+    },
+    {
+      "attribute": "created"
+    },
+    {
+      "attribute": "description"
+    },
+    {
+      "attribute": "expiration"
+    },
+    {
+      "attribute": "effective"
+    },
+    {
+      "attribute": "language"
+    },
+    {
+      "attribute": "location"
+    },
+    {
+      "attribute": "metadata"
+    },
+    {
+      "attribute": "modified"
+    },
+    {
+      "attribute": "resource.derived-download-url"
+    },
+    {
+      "attribute": "resource.derived-uri"
+    },
+    {
+      "attribute": "resource-download-url"
+    },
+    {
+      "attribute": "resource-size"
+    },
+    {
+      "attribute": "resource-uri"
+    },
+    {
+      "attribute": "source-id"
+    },
+    {
+      "attribute": "thumbnail"
+    },
+    {
+      "attribute": "title"
+    },
+    {
+      "attribute": "datatype"
+    },
+    {
+      "attribute": "metacard.created"
+    },
+    {
+      "attribute": "metacard.modified"
+    },
+    {
+      "attribute": "metacard.owner"
+    },
+    {
+      "attribute": "metacard-tags"
+    },
+    {
+      "attribute": "point-of-contact"
+    }
+  ],
+  "defaults": [
+    {
+      "attribute": "metacard-tags",
+      "value": "resource"
+    }
+  ]
+}

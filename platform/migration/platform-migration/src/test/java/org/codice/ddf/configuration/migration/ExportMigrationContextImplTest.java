@@ -387,7 +387,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
   }
 
   @Test
-  public void testEntriesWithRelativePath() throws Exception {
+  public void testEntriesWhenRecursingWithRelativePathAndSubDirectories() throws Exception {
     final Path etc = createDirectory("etc");
     final Path ks = createDirectory("etc", "keystores");
     final Path other = createDirectory("other");
@@ -398,6 +398,28 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     createDirectory("etc", "keystores", "empty");
 
     final List<ExportMigrationEntry> entries = context.entries(etc).collect(Collectors.toList());
+
+    Assert.assertThat(
+        entries.stream().map(ExportMigrationEntry::getPath).collect(Collectors.toList()),
+        Matchers.containsInAnyOrder(paths.toArray()));
+    // finally make sure no warnings or errors were recorded
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testEntriesWhenNotRecursingWithRelativePathAndSubDirectories() throws Exception {
+    final Path etc = createDirectory("etc");
+    final Path ks = createDirectory("etc", "keystores");
+    final Path other = createDirectory("other");
+    final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
+
+    createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
+    createFiles(other, "a", "b");
+    createDirectory("etc", "keystores", "empty");
+
+    final List<ExportMigrationEntry> entries =
+        context.entries(etc, false).collect(Collectors.toList());
 
     Assert.assertThat(
         entries.stream().map(ExportMigrationEntry::getPath).collect(Collectors.toList()),
@@ -504,12 +526,13 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
   }
 
   @Test
-  public void testEntriesWithFilterAndRelativePath() throws Exception {
+  public void testEntriesWhenRecursingWithFilterAndRelativePath() throws Exception {
     final Path etc = createDirectory("etc");
     final Path ks = createDirectory("etc", "keystores");
     final Path other = createDirectory("other");
     final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
+    createFiles(paths, ks, "testServerKeystore.jks");
     createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
     createFiles(other, "a", "b");
     createDirectory("etc", "keystores", "empty");
@@ -517,6 +540,32 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     final List<ExportMigrationEntry> entries =
         context
             .entries(etc, p -> p.getFileName().toString().startsWith("test"))
+            .collect(Collectors.toList());
+
+    Assert.assertThat(
+        entries.stream().map(ExportMigrationEntry::getPath).collect(Collectors.toList()),
+        Matchers.containsInAnyOrder(paths.toArray()));
+    // finally make sure no warnings or errors were recorded
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testEntriesWhenNotRecursingWithFilterAndRelativePath() throws Exception {
+    final Path etc = createDirectory("etc");
+    final Path ks = createDirectory("etc", "keystores");
+    final Path other = createDirectory("other");
+    final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
+
+    createFiles(etc, "another.cfg", "not-exported.properties");
+    createFiles(ks, "testServerKeystore.jks");
+    createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
+    createFiles(other, "a", "b");
+    createDirectory("etc", "keystores", "empty");
+
+    final List<ExportMigrationEntry> entries =
+        context
+            .entries(etc, false, p -> p.getFileName().toString().startsWith("test"))
             .collect(Collectors.toList());
 
     Assert.assertThat(

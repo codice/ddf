@@ -106,26 +106,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>kar</id>
-                        <goals>
-                            <goal>kar</goal>
-                        </goals>
-                        <configuration>
-                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
@@ -390,6 +378,11 @@
         <dependency>
             <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.idp</groupId>
+            <artifactId>security-idp-plugin-audiencerestriction</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

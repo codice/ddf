@@ -61,7 +61,10 @@ import org.codice.ddf.registry.schemabindings.EbrimConstants;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class IdentificationPluginTest {
 
   private IdentificationPlugin identificationPlugin;
@@ -78,9 +81,14 @@ public class IdentificationPluginTest {
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
 
     parser = new XmlParser();
+
+    RegistryIdRetriever registryIdRetriever = mock(RegistryIdRetriever.class);
+    when(registryIdRetriever.getRegistryIdInfo())
+        .thenReturn(new RegistryIdRetriever.RegistryIdInfo(Collections.emptyList()));
+
     identificationPlugin = new IdentificationPlugin(uuidGenerator);
     identificationPlugin.setMetacardMarshaller(new MetacardMarshaller(parser));
-    identificationPlugin.setRegistryIdPostIngestPlugin(new RegistryIdPostIngestPlugin());
+    identificationPlugin.setRegistryIdRetriever(registryIdRetriever);
     setParser(parser);
     sampleData = new MetacardImpl();
     sampleData.setId("testNewMetacardId");

@@ -15,7 +15,7 @@ Within the Identity Provider, IdP and SP (Service Provider) are used for SSO aut
 
 The IdP bundles are installed by default with the ${ddf-security} application.
 
-. Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *${ddf-security}* -> *Features* -> `security-idp`
+. Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *System* tab -> *Features* tab -> `security-idp`
 
 === Security IdP Service Provider (SP)
 
@@ -31,7 +31,7 @@ The IdP client that interacts with the specified Identity Provider.
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
-... (e.g., ${secure_url}/services/idp/login/metadata)
+... (e.g., \${secure_url}/services/idp/login/metadata)
 
 .IdP Client (SP) example.xml
 [source,xml,linenums]

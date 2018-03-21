@@ -33,7 +33,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>${commons-beanutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
@@ -217,6 +217,7 @@
     </dependencyManagement>
     <modules>
         <module>platform-security-core-api</module>
+        <module>security-saml-util</module>
         <module>encryption</module>
         <module>expansion</module>
         <module>common</module>

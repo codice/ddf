@@ -9,6 +9,3 @@
 
 Data ingested into ${branding} has security attributes that can be mapped to users' permissions to ensure proper access.
 This section covers configurations that ensure only the appropriate data is contained in or exposed by ${branding}.
-////
-TODO: https://codice.atlassian.net/browse/DDF-3352 - Update documentation for Configuring Data Management section
-////

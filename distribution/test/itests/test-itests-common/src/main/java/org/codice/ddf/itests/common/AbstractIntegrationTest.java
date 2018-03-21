@@ -38,7 +38,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
-import com.sun.istack.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
@@ -69,13 +69,13 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
-import org.codice.ddf.itests.common.annotations.PaxExamRule;
-import org.codice.ddf.itests.common.annotations.PostTestConstruct;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.PaxExamRule;
+import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -92,12 +92,16 @@ import org.slf4j.LoggerFactory;
 /** Abstract integration test with helper methods and configuration at the container level */
 public abstract class AbstractIntegrationTest {
 
+  @SuppressWarnings({"squid:S1075" /* resource path should use forward slashes */})
   public static final String JSON_RECORD_RESOURCE_PATH = "/json/record";
 
+  @SuppressWarnings({"squid:S1075" /* resource path should use forward slashes */})
   public static final String CSW_RECORD_RESOURCE_PATH = "/csw/record";
 
+  @SuppressWarnings({"squid:S1075" /* resource path should use forward slashes */})
   public static final String XML_RECORD_RESOURCE_PATH = "/xml/record";
 
+  @SuppressWarnings({"squid:S1075" /* resource path should use forward slashes */})
   public static final String CSW_REQUEST_RESOURCE_PATH = "/csw/request";
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
@@ -118,15 +122,22 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String SYSTEM_ADMIN_USER = "system-admin-user";
 
+  @SuppressWarnings("squid:S2068") // Password ok, test class
   protected static final String SYSTEM_ADMIN_USER_PASSWORD = "password";
 
   public static final String RESOURCE_VARIABLE_DELIMETER = "$";
 
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
 
+  public static final long REMOVE_ALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
+
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
+
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(10);
+
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(10);
 
   protected static ServerSocket placeHolderSocket;
 
@@ -158,6 +169,14 @@ public abstract class AbstractIntegrationTest {
   private CatalogBundle catalogBundle;
 
   private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
+  private static final String MVN_LOCAL_REPO = "maven.repo.local";
+
+  private static final String PAX_URL_MVN_LOCAL_REPO = "org.ops4j.pax.url.mvn.localRepository";
+
+  private static final String SYSTEM_PROPERTIES_REL_PATH = "etc/system.properties";
+
+  private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
   protected static final String[] DEFAULT_REQUIRED_APPS = {
     "catalog-app", "solr-app", "spatial-app", "sdk-app"
@@ -317,12 +336,14 @@ public abstract class AbstractIntegrationTest {
 
   static {
     // Make Pax URL use the maven.repo.local setting if present
-    if (System.getProperty("maven.repo.local") != null) {
-      System.setProperty(
-          "org.ops4j.pax.url.mvn.localRepository", System.getProperty("maven.repo.local"));
+    if (System.getProperty(MVN_LOCAL_REPO) != null) {
+      System.setProperty(PAX_URL_MVN_LOCAL_REPO, System.getProperty(MVN_LOCAL_REPO));
     }
   }
 
+  @SuppressWarnings({
+    "squid:S2696" /* writing to static ddfHome to share state between test methods */
+  })
   @PostTestConstruct
   public void initFacades() {
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
@@ -342,10 +363,13 @@ public abstract class AbstractIntegrationTest {
     console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
   }
 
+  @SuppressWarnings({
+    "squid:S2696" /* writing to static basePort to share state between test methods */
+  })
   public void waitForBaseSystemFeatures() {
     try {
       basePort = getBasePort();
-      getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+      getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
       getCatalogBundle().waitForCatalogProvider();
 
@@ -360,10 +384,10 @@ public abstract class AbstractIntegrationTest {
     }
   }
 
-  public void waitForSystemReady() throws Exception {
+  public void waitForSystemReady() {
     SystemStateManager manager =
         SystemStateManager.getManager(serviceManager, features, adminConfig, console);
-    manager.setSystemBaseState(() -> waitForBaseSystemFeatures(), false);
+    manager.setSystemBaseState(this::waitForBaseSystemFeatures, false);
     manager.waitForSystemBaseState();
   }
 
@@ -372,6 +396,9 @@ public abstract class AbstractIntegrationTest {
    *
    * @return list of pax exam options
    */
+  @SuppressWarnings({
+    "squid:S2696" /* writing to static basePort to share state between test methods */
+  })
   @org.ops4j.pax.exam.Configuration
   public Option[] config() throws URISyntaxException, IOException {
     basePort = findPortNumber(20000);
@@ -442,41 +469,36 @@ public abstract class AbstractIntegrationTest {
         logLevel(LogLevelOption.LogLevel.WARN),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
-        systemTimeout(TimeUnit.MINUTES.toMillis(10)),
+        systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),
         when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
         cleanCaches(true));
   }
 
   protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
     return options(
-        editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
-        editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-        editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
-        editConfigurationFilePut("etc/system.properties", "maven.home", "${user.home}"),
-        editConfigurationFilePut("etc/system.properties", "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
             "etc/users.properties",
             SYSTEM_ADMIN_USER,
             SYSTEM_ADMIN_USER_PASSWORD + ",system-admin"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, DDF_HOME_PROPERTY, "${karaf.home}"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "maven.home", "${user.home}"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
-            "etc/system.properties", HTTP_PORT.getSystemProperty(), HTTP_PORT.getPort()),
+            SYSTEM_PROPERTIES_REL_PATH, HTTP_PORT.getSystemProperty(), HTTP_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", HTTPS_PORT.getSystemProperty(), HTTPS_PORT.getPort()),
+            SYSTEM_PROPERTIES_REL_PATH, HTTPS_PORT.getSystemProperty(), HTTPS_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", DEFAULT_PORT.getSystemProperty(), DEFAULT_PORT.getPort()),
+            SYSTEM_PROPERTIES_REL_PATH, DEFAULT_PORT.getSystemProperty(), DEFAULT_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", BASE_PORT.getSystemProperty(), BASE_PORT.getPort()),
+            SYSTEM_PROPERTIES_REL_PATH, BASE_PORT.getSystemProperty(), BASE_PORT.getPort()),
 
         // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
         // backups serves no purpose and it appears that intermittent failures have occurred
         // when the background thread attempts to create the backup before the exam bundle
         // is completely exploded.
         editConfigurationFilePut(
-            "etc/system.properties", "eclipse.enableStateSaver", Boolean.FALSE.toString()),
+            SYSTEM_PROPERTIES_REL_PATH, "eclipse.enableStateSaver", Boolean.FALSE.toString()),
         editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
         editConfigurationFilePut(
             "etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", HTTP_PORT.getPort()),
         editConfigurationFilePut(
@@ -516,27 +538,31 @@ public abstract class AbstractIntegrationTest {
                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                 + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-        when(System.getProperty("maven.repo.local") != null)
+        when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 editConfigurationFilePut(
                     "etc/org.ops4j.pax.url.mvn.cfg",
-                    "org.ops4j.pax.url.mvn.localRepository",
-                    System.getProperty("maven.repo.local"))));
+                    PAX_URL_MVN_LOCAL_REPO,
+                    System.getProperty(MVN_LOCAL_REPO))));
   }
 
   protected Option[] configureSystemSettings() {
     return options(
         when(Boolean.getBoolean("isDebugEnabled"))
             .useOptions(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-        when(System.getProperty("maven.repo.local") != null)
+        when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
-                systemProperty("org.ops4j.pax.url.mvn.localRepository")
-                    .value(System.getProperty("maven.repo.local", ""))),
+                systemProperty(PAX_URL_MVN_LOCAL_REPO)
+                    .value(System.getProperty(MVN_LOCAL_REPO, ""))),
         editConfigurationFilePut(
-            "etc/system.properties",
+            SYSTEM_PROPERTIES_REL_PATH,
+            "org.codice.ddf.system.version",
+            MavenUtils.getArtifactVersion(DDF_ITESTS_GROUP_ID, "test-itests-common")),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH,
             "ddf.version",
-            MavenUtils.getArtifactVersion("ddf.test.itests", "test-itests-common")),
-        editConfigurationFilePut("etc/system.properties", "artemis.diskusage", "100"));
+            MavenUtils.getArtifactVersion(DDF_ITESTS_GROUP_ID, "test-itests-common")),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "artemis.diskusage", "100"));
   }
 
   protected Option[] configureLogLevel() {
@@ -558,7 +584,7 @@ public abstract class AbstractIntegrationTest {
                     createSetLogLevelOption(
                         "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))),
         editConfigurationFilePut(
-            "etc/org.ops4j.pax.logging.cfg",
+            LOGGER_CONFIGURATION_FILE_PATH,
             "log4j2.logger.org_apache_activemq_artemis.additivity",
             "true"));
   }
@@ -600,7 +626,14 @@ public abstract class AbstractIntegrationTest {
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
-        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"));
+        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
+        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"),
+        HomeAwareVmOption.homeAwareVmOption("-Djava.security.policy=={karaf.home}/etc/all.policy"),
+        vmOption(
+            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
+        HomePermVmOption.homePermVmOption("-Dddf.home.perm={karaf.home}"),
+        HomePolicyVmOption.homePolicyVmOption("-Dddf.home.policy={karaf.home}"));
   }
 
   protected Option[] configureStartScript() {
@@ -609,7 +642,7 @@ public abstract class AbstractIntegrationTest {
         junitBundles(),
         features(
             maven()
-                .groupId("ddf.test.itests")
+                .groupId(DDF_ITESTS_GROUP_ID)
                 .artifactId("test-itests-dependencies-app")
                 .type("xml")
                 .classifier("features")
@@ -639,16 +672,16 @@ public abstract class AbstractIntegrationTest {
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
-    return null;
+    return new Option[0];
   }
 
   private Option[] configureEmbeddedSolr() {
     return options(
-        editConfigurationFilePut("etc/system.properties", "solr.client", "EmbeddedSolrServer"),
-        editConfigurationFilePut("etc/system.properties", "solr.http.url", ""),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "EmbeddedSolrServer"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", ""),
         editConfigurationFilePut(
-            "etc/system.properties", "solr.data.dir", "${karaf.home}/data/solr"),
-        editConfigurationFilePut("etc/system.properties", "solr.cloud.zookeeper", ""));
+            SYSTEM_PROPERTIES_REL_PATH, "solr.data.dir", "${karaf.home}/data/solr"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
   }
 
   /**
@@ -665,7 +698,6 @@ public abstract class AbstractIntegrationTest {
       return installStartupFile(is, destination);
     }
   }
-
   /**
    * Copies the content of a JAR resource to the destination specified before the container starts
    * up. Useful to add test configuration files before tests are run.
@@ -738,6 +770,9 @@ public abstract class AbstractIntegrationTest {
    * @param classRelativeToResource
    * @return
    */
+  @SuppressWarnings({
+    "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+  })
   public static String getFileContent(
       String filePath, ImmutableMap<String, String> params, Class classRelativeToResource) {
 
@@ -805,11 +840,16 @@ public abstract class AbstractIntegrationTest {
   public void clearCatalogAndWait() {
     clearCatalog();
     clearCache();
-    with().pollInterval(1, SECONDS).await().atMost(30, SECONDS).until(this::isCatalogEmpty);
+    with()
+        .pollInterval(1, SECONDS)
+        .await()
+        .atMost(GENERIC_TIMEOUT_SECONDS, SECONDS)
+        .until(this::isCatalogEmpty);
   }
 
   public void clearCatalog() {
-    console.runCommand(REMOVE_ALL);
+    String output = console.runCommand(REMOVE_ALL, REMOVE_ALL_TIMEOUT);
+    LOGGER.debug("{} output: {}", REMOVE_ALL, output);
   }
 
   public void clearCache() {
@@ -840,8 +880,8 @@ public abstract class AbstractIntegrationTest {
    * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
    * provided {@link #UNPACK_DIRECTORY}.
    */
-  static class HomeAwareVmOption extends VMOption {
-    static HomeAwareVmOption homeAwareVmOption(String option) {
+  protected static class HomeAwareVmOption extends VMOption {
+    public static HomeAwareVmOption homeAwareVmOption(String option) {
       return new HomeAwareVmOption(option);
     }
 
@@ -869,6 +909,95 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toAbsolutePath)
             .map(Path::toString)
             .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  protected static class HomePolicyVmOption extends VMOption {
+    public static HomePolicyVmOption homePolicyVmOption(String option) {
+      return new HomePolicyVmOption(option);
+    }
+
+    private HomePolicyVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .map(s -> s.replace("c:", "C:"))
+            .map(s -> s.replace("C:", "/C:"))
+            .map(s -> s + "/")
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  protected static class HomePermVmOption extends VMOption {
+    public static HomePermVmOption homePermVmOption(String option) {
+      return new HomePermVmOption(option);
+    }
+
+    private HomePermVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
+            .map(s -> s + File.separator)
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);

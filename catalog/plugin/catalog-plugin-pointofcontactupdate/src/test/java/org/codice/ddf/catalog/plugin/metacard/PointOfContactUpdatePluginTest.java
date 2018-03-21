@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.plugin.metacard;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,6 +21,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -162,6 +165,17 @@ public class PointOfContactUpdatePluginTest {
         deleteResponse,
         queryResponse,
         resourceResponse);
+  }
+
+  @Test
+  public void getPreviousMetacardWithIdNullTest() throws Exception {
+    UpdateRequestImpl updateRequestInput =
+        new UpdateRequestImpl(
+            new String[] {REGISTRY_ID},
+            ImmutableList.of(getMetacardWithIdAndTag(REGISTRY_ID, "registry")));
+    UpdateRequest updateRequestOutput =
+        pointOfContactUpdatePlugin.processPreUpdate(updateRequestInput, ImmutableMap.of());
+    assertEquals(updateRequestInput.getUpdates().get(0), updateRequestOutput.getUpdates().get(0));
   }
 
   private List<Metacard> getListOfUpdatedMetacards() {

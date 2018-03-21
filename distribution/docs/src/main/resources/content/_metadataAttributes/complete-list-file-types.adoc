@@ -1,9 +1,8 @@
-:title: All Formats Supported
-:type: appendix
+:title: All File Formats Supported
+:type: subAppendix
 :status: published
-:parent: Metadata Attributes
-:children: File Formats
-:order: 03
+:parent: File Format-specific Attributes
+:order: 99
 :summary: Complete list of supported file types.
 
 ////
@@ -14,6 +13,7 @@ If adding or removing items, be sure to add or subtract empty cells at the end o
 
 .Supported File Types
 Using the various input transformers, ${branding} supports ingest of the following MIME types.
+While ingest is possible for these files, metadata will be limited unless otherwise noted.
 
 .Application File Types
 [cols="3"]

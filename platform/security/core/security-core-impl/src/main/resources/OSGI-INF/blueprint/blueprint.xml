@@ -18,7 +18,11 @@
                                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder/>
-    
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
@@ -39,12 +43,13 @@
     <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
 
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
-        <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
-        <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
+        <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
+        <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
 
     <bean id="logoutMessageImpl" class="ddf.security.samlp.impl.LogoutMessageImpl">
+        <argument ref="uuidGenerator"/>
         <cm:managed-properties persistent-id="ddf.security.samlp.LogoutMessage"
                                update-strategy="container-managed"/>
         <property name="systemCrypto" ref="crypto"/>
@@ -69,5 +74,16 @@
 
     <service id="sessionListenerService" ref="sessionListener"
              interface="javax.servlet.http.HttpSessionListener"/>
+
+    <bean id="subjectIdentityImpl"
+      class="ddf.security.impl.SubjectIdentityImpl">
+        <cm:managed-properties
+          persistent-id="ddf.security.SubjectIdentity"
+          update-strategy="container-managed"/>
+        <property name="identityAttribute" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+    </bean>
+
+    <service id="subjectIdentity" ref="subjectIdentityImpl"
+      interface="ddf.security.SubjectIdentity"/>
 
 </blueprint>

@@ -41,8 +41,11 @@ public class ErrorServlet extends HttpServlet {
   public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ERROR_SERVLET_NAME);
+
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint. */)
   private ErrorHandler errorHandler;
 
+  @Override
   public void init() {
     setErrorHandler();
   }

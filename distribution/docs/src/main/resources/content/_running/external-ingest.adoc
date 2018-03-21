@@ -1,0 +1,52 @@
+:title: External Methods of Ingesting Data
+:type: dataManagement
+:status: published
+:summary: External methods of ingesting data.
+:parent: Ingesting Data
+:order: 03
+
+== {title}
+
+Third-party tools, such as https://curl.haxx.se/[cURL.exe] and the https://advancedrestclient.com/[Chrome Advanced Rest Client], can be used to send files to ${branding} for ingest.
+
+.Windows Example
+----
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}"C:\path\to\geojson_valid.json" ${secure_url}/services/catalog
+----
+
+.*NIX Example
+----
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d ${at-symbol}geojson_valid.json ${secure_url}/services/catalog
+----
+
+Where: +
+*-H* adds an HTTP header. In this case, Content-type header `application/json;id=geojson` is added to match the data being sent in the request. +
+*-i* requests that HTTP headers are displayed in the response. +
+*-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server. +
+*-d* specifies the data sent in the POST request. The `${at-symbol}` character is necessary to specify that the data is a file. +
+
+The last parameter is the URL of the server that will receive the data.
+
+This should return a response similar to the following (the actual catalog ID in the id and Location URL fields will be different):
+
+.Sample Response
+[source,http,linenums]
+----
+HTTP/1.1 201 Created
+Content-Length: 0
+Date: Mon, 22 Apr 2015 22:02:22 GMT
+id: 44dc84da101c4f9d9f751e38d9c4d97b
+Location: ${secure_url}/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
+Server: Jetty(7.5.4.v20111024)
+----
+
+. Use a web browser to verify a file was successfully ingested. Enter the URL returned in the response's HTTP header in a web browser. For instance in our example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. The browser will display the catalog entry as XML in the browser.
+. Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
+. Enter the following URL in a browser `/services/catalog/query?q=${branding-lowercase}`. A single result, in Atom format, should be returned.
+
+A resource can also be ingested with metacard metadata associated with it using the multipart/mixed content type.
+
+.Example
+----
+curl -k -X POST -i -H "Content-Type: multipart/mixed" -F parse.resource=@/path/to/resource -F parse.metadata=@/path/to/metacard ${secure_url}/services/catalog
+----

@@ -248,7 +248,8 @@ public class AssertionConsumerService {
     String redirectLocation = relayStates.decode(relayState);
     if (StringUtils.isBlank(redirectLocation)) {
       return Response.serverError()
-          .entity("AuthN response returned unknown or expired relay state.")
+          .entity(
+              "AuthN response returned unknown or expired relay state. Please refresh the page or resend the request to continue the login process.")
           .build();
     }
 

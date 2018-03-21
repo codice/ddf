@@ -13,268 +13,259 @@
 -->
 <component>
 
-  <fileSets>
+    <fileSets>
 
-    <!-- Expanded Karaf Standard Distribution -->
-    <fileSet>
-      <directory>${setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <excludes>
-        <exclude>**/demos/**</exclude>
-        <exclude>bin/**</exclude>
-        <!-- Don't copy over config files that are customized -->
-        <exclude>etc/custom.properties</exclude>
-        <exclude>etc/jetty.xml</exclude>
-        <exclude>etc/profile.cfg</exclude>
-        <exclude>etc/org.apache.karaf.command.acl.shell.cfg</exclude>
-        <exclude>etc/org.apache.karaf.command.acl.ssh.cfg</exclude>
-        <exclude>etc/org.apache.karaf.features.cfg</exclude>
-        <exclude>etc/org.apache.karaf.shell.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
-        <exclude>etc/org.apache.karaf.log.cfg</exclude>
-        <exclude>etc/org.ops4j.pax.web.cfg</exclude>
-        <exclude>etc/startup.properties</exclude>
-        <exclude>etc/users.properties</exclude>
-        <exclude>etc/system.properties</exclude>
-        <exclude>etc/shell.init.script</exclude>
-        <exclude>etc/org.apache.karaf.kar.cfg</exclude>
-        <!--
-        Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
-        when running client script it logs in as "karaf" user without requiring a password.
-        So exclude this file from DDF distro to prevent unauthorized access.
-        -->
-        <exclude>etc/keys.properties</exclude>
-        <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
-        <exclude>deploy/*</exclude>
-        <!-- All Karaf distributions take out the extra files when being distributed -->
-        <exclude>LICENSE</exclude>
-        <exclude>NOTICE</exclude>
-        <exclude>README</exclude>
-        <exclude>RELEASE-NOTES</exclude>
-        <exclude>karaf-manual*.html</exclude>
-        <exclude>karaf-manual*.pdf</exclude>
+        <!-- Expanded Karaf Standard Distribution -->
+        <fileSet>
+            <directory>${setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>**/demos/**</exclude>
+                <exclude>bin/**</exclude>
+                <!-- Don't copy over config files that are customized -->
+                <exclude>etc/custom.properties</exclude>
+                <exclude>etc/jetty.xml</exclude>
+                <exclude>etc/profile.cfg</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.shell.cfg</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.ssh.cfg</exclude>
+                <exclude>etc/org.apache.karaf.features.cfg</exclude>
+                <exclude>etc/org.apache.karaf.shell.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
+                <exclude>etc/org.apache.karaf.log.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.web.cfg</exclude>
+                <exclude>etc/startup.properties</exclude>
+                <exclude>etc/users.properties</exclude>
+                <exclude>etc/system.properties</exclude>
+                <exclude>etc/shell.init.script</exclude>
+                <exclude>etc/org.apache.karaf.kar.cfg</exclude>
+                <!--
+                Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
+                when running client script it logs in as "karaf" user without requiring a password.
+                So exclude this file from DDF distro to prevent unauthorized access.
+                -->
+                <exclude>etc/keys.properties</exclude>
+                <!-- Karaf comes with a README in deploy folder which throws warnings in log -->
+                <exclude>deploy/*</exclude>
+                <!-- All Karaf distributions take out the extra files when being distributed -->
+                <exclude>LICENSE</exclude>
+                <exclude>NOTICE</exclude>
+                <exclude>README</exclude>
+                <exclude>RELEASE-NOTES</exclude>
+                <exclude>karaf-manual*.html</exclude>
+                <exclude>karaf-manual*.pdf</exclude>
 
-        <!--
-        Skipping customized libraries.
-        <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar</exclude>
-        -->
+                <!-- Skipping customized libraries. -->
+                <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar</exclude>
+                <exclude>**/org/eclipse/platform/org.eclipse.osgi/3.11.3/org.eclipse.osgi-3.11.3.jar</exclude>
 
-        <!-- excluding jars we don't need that have OWASP vulnerabilities -->
-        <!--
-        Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
-        and it's associated with CVE-2009-3095, CVE-2009-1955, CVE-2009-1890, CVE-2007-4723, CVE-2007-0086, CVE-1999-1412, CVE-1999-1237, CVE-1999-0236
-        -->
-        <exclude>
-          **/org/apache/cxf/cxf-rt-transports-http-netty-server/3.1.4/cxf-rt-transports-http-netty-server-3.1.4.jar
-        </exclude>
-        <!--
-        Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
-        and it's associated with CVE-2013-2185, CVE-2002-0493
-        -->
-        <exclude>
-          **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-core/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-core-8.0.14.1.jar
-        </exclude>
-        <exclude>
-          **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-websocket/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-websocket-8.0.14.1.jar
-        </exclude>
-        <!-- 3.2.2 is binary compatibles and we want to exclude this since it has vulnerabilities -->
-        <exclude>**/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
-        </exclude>
-      </excludes>
-    </fileSet>
+                <!-- excluding jars we don't need that have OWASP vulnerabilities -->
+                <!--
+                Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
+                and it's associated with CVE-2009-3095, CVE-2009-1955, CVE-2009-1890, CVE-2007-4723, CVE-2007-0086, CVE-1999-1412, CVE-1999-1237, CVE-1999-0236
+                -->
+                <exclude>**/org/apache/cxf/cxf-rt-transports-http-netty-server/3.1.4/cxf-rt-transports-http-netty-server-3.1.4.jar</exclude>
+                <!--
+                Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
+                and it's associated with CVE-2013-2185, CVE-2002-0493
+                -->
+                <exclude>**/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-core/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-core-8.0.14.1.jar</exclude>
+                <exclude>**/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-websocket/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-websocket-8.0.14.1.jar</exclude>
+                <!-- 3.2.2 is binary compatibles and we want to exclude this since it has vulnerabilities -->
+                <exclude>**/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar</exclude>
+            </excludes>
+        </fileSet>
 
-    <!-- Copy over unix bin/* separately to get the correct file mode -->
-    <fileSet>
-      <directory>${setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>bin/admin</include>
-        <include>bin/karaf</include>
-        <include>bin/stop</include>
-        <include>bin/shell</include>
-        <include>bin/client</include>
-        <include>bin/inc</include>
-      </includes>
-      <excludes>
-        <exclude>bin/start</exclude>
-      </excludes>
-      <fileMode>0755</fileMode>
-    </fileSet>
+        <!-- Copy over unix bin/* separately to get the correct file mode -->
+        <fileSet>
+            <directory>${setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/admin</include>
+                <include>bin/stop</include>
+                <include>bin/shell</include>
+                <include>bin/client</include>
+                <include>bin/inc</include>
+                <include>bin/karaf</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
-    <!-- Copy over windows executable scripts -->
-    <fileSet>
-      <directory>${win.setup.folder}/${karaf.folder}
-      </directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>bin/admin.bat</include>
-        <include>bin/karaf.bat</include>
-        <include>bin/stop.bat</include>
-        <include>bin/shell.bat</include>
-        <include>bin/client.bat</include>
-        <include>bin/inc.bat</include>
-      </includes>
-      <excludes>
-        <exclude>bin/start.bat</exclude>
-      </excludes>
-      <lineEnding>dos</lineEnding>
-      <fileMode>0755</fileMode>
-    </fileSet>
+        <!-- Copy over windows executable scripts -->
+        <fileSet>
+            <directory>${win.setup.folder}/${karaf.folder}
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/admin.bat</include>
+                <include>bin/stop.bat</include>
+                <include>bin/shell.bat</include>
+                <include>bin/client.bat</include>
+                <include>bin/inc.bat</include>
+                <include>bin/karaf.bat</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
-    <!-- Exported Empty Directory -->
+        <!-- Exported Empty Directory -->
     <fileSet>
       <directory>${setup.folder}</directory>
       <outputDirectory>/exported</outputDirectory>
       <excludes><exclude>**/*</exclude></excludes>
     </fileSet>
-    
+
     <!-- HTML & PDF Documentation -->
-    <fileSet>
-      <directory>${setup.folder}/docs</directory>
-      <outputDirectory>/documentation</outputDirectory>
-    </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/docs</directory>
+            <outputDirectory>/documentation</outputDirectory>
+        </fileSet>
 
-    <!-- Javadoc -->
-    <fileSet>
-      <directory>${setup.folder}/catalog_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/catalog_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/mime_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/mime_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/content_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/content_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/action_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/action_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/security_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/security_api_javadoc</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/encryption_api_javadoc</directory>
-      <outputDirectory>/documentation/javadoc/encryption_api_javadoc</outputDirectory>
-    </fileSet>
+        <!-- Javadoc -->
+        <fileSet>
+            <directory>${setup.folder}/catalog_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/catalog_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/mime_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/mime_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/content_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/content_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/action_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/action_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/security_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/security_api_javadoc</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/encryption_api_javadoc</directory>
+            <outputDirectory>/documentation/javadoc/encryption_api_javadoc</outputDirectory>
+        </fileSet>
 
-    <!-- Console Branding -->
-    <fileSet>
-      <directory>${setup.folder}</directory>
-      <includes>
-        <include>ddf-branding.jar</include>
-      </includes>
-      <outputDirectory>/lib/</outputDirectory>
-    </fileSet>
+        <!-- Console Branding -->
+        <fileSet>
+            <directory>${setup.folder}</directory>
+            <includes>
+                <include>ddf-branding.jar</include>
+            </includes>
+            <outputDirectory>/lib/</outputDirectory>
+        </fileSet>
 
-    <!-- Endorsed Libraries -->
-    <fileSet>
-      <directory>${setup.folder}/ext</directory>
-      <outputDirectory>/lib/ext</outputDirectory>
-    </fileSet>
+        <!-- Endorsed Libraries -->
+        <fileSet>
+            <directory>${setup.folder}/ext</directory>
+            <outputDirectory>/lib/ext</outputDirectory>
+        </fileSet>
 
-    <!-- Deployable Files -->
-    <fileSet>
-      <directory>${setup.folder}/deploy</directory>
-      <outputDirectory>/deploy</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Deployable Files -->
+        <fileSet>
+            <directory>${setup.folder}/deploy</directory>
+            <outputDirectory>/deploy</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <!-- Static Config Files -->
-    <fileSet>
-      <directory>${setup.folder}/etc</directory>
-      <outputDirectory>/etc</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Static Config Files -->
+        <fileSet>
+            <directory>${setup.folder}/etc</directory>
+            <outputDirectory>/etc</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <!-- Dynamic Config Files -->
-    <fileSet>
-      <directory>target/classes/etc</directory>
-      <outputDirectory>/etc</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Dynamic Config Files -->
+        <fileSet>
+            <directory>target/classes/etc</directory>
+            <outputDirectory>/etc</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <!-- Static Executable Files -->
-    <fileSet>
-      <directory>${setup.folder}/bin</directory>
-      <outputDirectory>/bin</outputDirectory>
-      <fileMode>0755</fileMode>
-    </fileSet>
+        <!-- Static Executable Files -->
+        <fileSet>
+            <directory>${setup.folder}/bin</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
 
-    <!-- Schema Files -->
-    <fileSet>
-      <directory>${setup.folder}/schema</directory>
-      <outputDirectory>/schema</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- Schema Files -->
+        <fileSet>
+            <directory>${setup.folder}/schema</directory>
+            <outputDirectory>/schema</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <!-- License Files -->
-    <fileSet>
-      <directory>${setup.folder}/licenses</directory>
-      <outputDirectory>/licenses</outputDirectory>
-      <fileMode>0444</fileMode>
-    </fileSet>
+        <!-- License Files -->
+        <fileSet>
+            <directory>${setup.folder}/licenses</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <fileMode>0444</fileMode>
+        </fileSet>
 
-    <!-- Legal files -->
-    <fileSet>
-      <directory>${setup.folder}</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>*.txt</include>
-        <include>README</include>
-        <include>NOTICE</include>
-      </includes>
-      <fileMode>0444</fileMode>
-    </fileSet>
+        <!-- Legal files -->
+        <fileSet>
+            <directory>${setup.folder}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+                <include>README</include>
+                <include>NOTICE</include>
+            </includes>
+            <fileMode>0444</fileMode>
+        </fileSet>
 
-    <fileSet>
-      <directory>target/classes</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>*.txt</include>
-      </includes>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.txt</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <!-- DDF Files -->
-    <fileSet>
-      <directory>${setup.folder}/security</directory>
-      <outputDirectory>/security</outputDirectory>
-      <fileMode>0644</fileMode>
-    </fileSet>
+        <!-- DDF Files -->
+        <fileSet>
+            <directory>${setup.folder}/security</directory>
+            <outputDirectory>/security</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
 
-    <fileSet>
-      <directory>${setup.folder}/data</directory>
-      <outputDirectory>/data</outputDirectory>
-      <directoryMode>0775</directoryMode>
-    </fileSet>
-    <fileSet>
-      <directory>${setup.folder}/routes</directory>
-      <outputDirectory>/etc/routes/</outputDirectory>
-      <includes>
-        <include>*.xml</include>
-      </includes>
-      <fileMode>0644</fileMode>
-    </fileSet>
-
-    <!-- Custom library overrides -->
-    <!--
-    <fileSet>
-        <directory>${setup.folder}/libraryOverrides</directory>
-        <outputDirectory>
-            /system/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2
-        </outputDirectory>
-        <includes>
-            <include>org.apache.aries.blueprint.core-1.8.2.jar</include>
-        </includes>
-    </fileSet>
-    -->
-  </fileSets>
+        <fileSet>
+            <directory>${setup.folder}/data</directory>
+            <outputDirectory>/data</outputDirectory>
+            <directoryMode>0775</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/routes</directory>
+            <outputDirectory>/etc/routes/</outputDirectory>
+            <includes>
+                <include>*.xml</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/libraryOverrides</directory>
+            <outputDirectory>
+                /system/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2
+            </outputDirectory>
+            <includes>
+                <include>org.apache.aries.blueprint.core-1.8.2.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${setup.folder}/libraryOverrides</directory>
+            <outputDirectory>
+                /system/org/eclipse/platform/org.eclipse.osgi/3.11.3
+            </outputDirectory>
+            <includes>
+                <include>org.eclipse.osgi-3.11.3.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 
   <!-- We need this because the feature service is not up when we want to provision our
     own config admin -->
@@ -291,6 +282,20 @@
       </outputDirectory>
       <includes>
         <include>ddf.platform.osgi:platform-osgi-internal-api:jar:${project.version}</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>system/ddf/platform/osgi/platform-osgi-condpermadmin/${project.version}
+      </outputDirectory>
+      <includes>
+        <include>ddf.platform.osgi:platform-osgi-condpermadmin:jar:${project.version}</include>
+      </includes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>system/ddf/platform/osgi/platform-osgi-conditions/${project.version}
+      </outputDirectory>
+      <includes>
+        <include>ddf.platform.osgi:platform-osgi-conditions:jar:${project.version}</include>
       </includes>
     </dependencySet>
   </dependencySets>

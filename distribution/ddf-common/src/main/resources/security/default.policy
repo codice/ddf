@@ -5,10 +5,10 @@ deny {
     permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute";
 
     // Deny deletion of the security policy file through any Java code
-    permission java.io.FilePermission "${ddf.home}${/}security${/}default.policy", "read, write, execute, delete";
+    permission java.io.FilePermission "${ddf.home.perm}security${/}default.policy", "read, write, execute, delete";
 
     // Deny deletion of the restart.jvm command file through any Java code
-    permission java.io.FilePermission "${ddf.home}${/}bin{/}restart.jvm", "read, write, execute, delete";
+    permission java.io.FilePermission "${ddf.home.perm}bin${/}restart.jvm", "read, write, execute, delete";
 
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
     permission java.util.PropertyPermission "java.io.tmpdir", "write";
@@ -19,7 +19,6 @@ deny {
 
     // Modify application permissions at will.
     permission java.security.SecurityPermission "getDomainCombiner";
-    permission java.security.SecurityPermission "createAccessControlContext";
     permission java.security.SecurityPermission "setPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "removeProvider.*";
@@ -31,153 +30,347 @@ deny {
 };
 
 //
-// DDF Libraries have broad file permissions within the install directory
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
-
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
-};
-grant
-  codeBase "file:${ddf.home.policy}system/org/codice/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
-
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
-};
-
-//
-// DDF Migration Framework and Config Admin Migratable
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission javax.management.MBeanServerPermission "createMBeanServer";
-
-    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}-", "read, write, delete";
-
-    permission java.util.PropertyPermission "*", "read";
-    permission java.util.PropertyPermission "ddf.home", "read";
-    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
-    permission java.util.PropertyPermission "wrapper.key", "read";
-};
-
-//
 // DDF Platform Migratable
 //
 grant
-  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
+  codeBase "file:/platform-migratable" {
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
-    permission java.io.FilePermission "${ddf.home}${/}bin${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read, delete";
 
     permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
     permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
+
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}-", "read, write, delete";
+
+    permission java.util.PropertyPermission "*", "read";
+    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
 };
 
 //
 // DDF Security Migratable
 //
 grant
-  codeBase "file:${ddf.home.policy}system/ddf/security/migration/security-migratable/-" {
+  codeBase "file:/security-migratable" {
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
 };
 
-//
-// The lib directory contains root, trusted jars for DDF, OSGi, and security
-//
-grant
-  codeBase "file:${ddf.home.policy}lib/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}*", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
+grant codeBase "file:/admin-core-appservice" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
+}
 
-    permission java.lang.RuntimePermission "createClassLoader";
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
-};
-grant
-  codeBase "file:${ddf.home.policy}lib/ext/-" {
-    // Modify application permissions at will. These are needed for BouncyCastle
-    permission java.security.SecurityPermission "getDomainCombiner";
+grant codeBase "file:/org.apache.felix.fileinstall" {
+    permission java.io.FilePermission "${ddf.home.perm}etc", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}deploy", "read";
+    permission java.io.FilePermission "${ddf.home.perm}deploy${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
+}
+
+grant codeBase "file:/platform-osgi-condpermadmin" {
+    permission java.io.FilePermission "${ddf.home.perm}security${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.felix.configadmin" {
     permission java.security.SecurityPermission "createAccessControlContext";
-    permission java.security.SecurityPermission "setPolicy";
-    permission java.security.SecurityPermission "insertProvider";
-    permission java.security.SecurityPermission "removeProvider.*";
-    permission java.security.SecurityPermission "clearProviderProperties.*";
-    permission java.security.SecurityPermission "putProviderProperty.*";
-    permission java.security.SecurityPermission "removeProviderProperty.*";
-};
-grant
-  codeBase "file:${ddf.home.policy}lib/boot/-" {
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}config.properties", "write";
-    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+    permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";
+}
 
-    permission java.security.SecurityPermission "insertProvider";
-};
-grant
-  codeBase "file:${ddf.home.policy}lib/boot/org.osgi.core-6.0.0.jar" {
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, execute";
-    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, execute";
-};
+grant codeBase "file:/org.apache.karaf.features.core" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}examples", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}examples${/}-", "read,write";
+}
 
-//
-// Core OSGi libraries
-//
-grant
-  codeBase "file:${ddf.home.policy}system/org/eclipse/platform/org.eclipse.osgi/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write, execute";
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, write, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}examples", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}examples${/}-", "read, write";
-
+grant codeBase "file:/org.apache.karaf.services.eventadmin" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission javax.security.auth.AuthPermission "getSubject";
     permission java.lang.RuntimePermission "createClassLoader";
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+}
 
-    permission java.io.FilePermission "${ddf.home}${/}bin_third_party${/}-", "read, execute";
+grant codeBase "file:/org.eclipse.osgi" {
+    permission java.security.AllPermission;
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.url.war.cfg", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}jmx.acl.org.apache.camel.cfg", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
+}
 
+grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/broker-route-manager/spatial-csw-transformer/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
+}
+
+grant codeBase "file:/registry-federation-admin-impl" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}registry${/}-", "read";
+}
+
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-api-impl/org.apache.camel.camel-blueprint" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-corba/org.apache.cxf.cxf-rt-transports-jms/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/org.apache.cxf.cxf-rt-frontend-jaxrs/org.apache.cxf.cxf-rt-ws-security/org.apache.cxf.cxf-rt-wsdl/org.apache.cxf.cxf-rt-frontend-jaxws" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "read,execute";
+}
+
+grant codeBase "file:/persistence-core-impl/persistence-core-listeners/org.apache.aries.blueprint.core/org.apache.aries.blueprint.cm/org.ops4j.pax.web.pax-web-spi/catalog-ui-search/standard/catalog-solr-provider/catalog-solr-solrclient" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
+}
+
+grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+}
+
+grant codeBase "file:/org.apache.karaf.shell.ssh/org.apache.sshd.core" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}host.key", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}branding-ssh.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.shell.cfg", "read";
+}
+
+grant codeBase "file:/org.apache.karaf.shell.core/org.apache.shiro.core" {
+    //permission java.io.FilePermission "${ddf.home.perm}etc${/}host.key", "read";
+    //permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.shell.cfg", "read";
+    //permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    //permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    //permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    //should only need the above, but the itests try to read random files, leaving for now to hopefully change in the future
+    permission java.io.FilePermission "<<ALL FILES>>", "read,write";
+}
+
+grant codeBase "file:/catalog-core-commands" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read,write";
+}
+
+grant codeBase "file:/platform-osgi-configadmin" {
+    permission java.security.AllPermission;
+}
+
+grant codeBase "file:/org.apache.karaf.deployer.blueprint/org.apache.karaf.deployer.kar" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}definitions${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.karaf.jaas.modules" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keys.properties", "read";
+}
+
+grant codeBase "file:/pax-logging-log4j2" {
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ingest_error.log", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}solr.log", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}artemis.log", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}security.log", "read,write";
+    permission java.io.FilePermission "pax-logging.properties", "read";
+    permission java.net.SocketPermission "*", "listen,resolve";
+}
+
+grant codeBase "file:/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/security-sts-server/security-sts-realm/catalog-opensearch-source/catalog-opensearch-endpoint" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-rest-endpoint/catalog-transformer-resource/ftp/org.apache.tika.core/org.codice.thirdparty.tika-bundle/tika-input-transformer/video-input-transformer" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+}
 
-    // Security permissions
-    permission java.security.SecurityPermission "createAccessControlContext";
-};
+grant codeBase "file:/security-encryption-impl" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}certs${/}-", "read,write";
+}
+
+grant codeBase "file:/security-handler-pki/security-sts-pkivalidator/security-sts-x509validator/security-handler-guest" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "getClassLoader";
+}
+
+grant codeBase "file:/security-sts-propertyclaimshandler" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read";
+}
+
+grant codeBase "file:/security-certificate-keystoreeditor" {
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
+}
+
+grant codeBase "file:/org.apache.wss4j.wss4j-ws-security-common" {
+    permission java.security.SecurityPermission "removeProvider.ApacheXMLDSig";
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.wss4j.wss4j-ws-security-dom" {
+    permission java.security.SecurityPermission "removeProvider.STRTransform";
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.security.SecurityPermission "removeProvider.AttachmentContentSignatureTransform";
+    permission java.security.SecurityPermission "removeProvider.AttachmentCompleteSignatureTransform";
+}
+
+grant codeBase "file:/security-pdp-authzrealm" {
+    //This is a bug in Arbitro and should not be here
+    permission java.io.FilePermission "${ddf.home.perm}src${/}main${/}resources${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
+    permission java.lang.RuntimePermission "modifyThread";
+}
+
+grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apache.karaf.decanter.scheduler.simple/org.apache.activemq.artemis-server-osgi/io.netty.common/io.netty.transport" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis.xml", "read";
+}
+
+grant codeBase "file:/admin-core-impl/catalog-admin-poller-service" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}profiles.json", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core/org.eclipse.jetty.io/org.eclipse.jetty.security/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-runtime/org.apache.cxf.cxf-rt-transports-http/org.eclipse.jetty.servlet/org.eclipse.jetty.util/platform-filter-clientinfo/platform-filter-delegate/platform-filter-response/security-certificate-generator/security-filter-authorization/security-filter-login/security-filter-web-sso" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}-", "read";
+    permission java.security.SecurityPermission "insertProvider";
+}
+
+grant codeBase "file:/security-core-api/security-core-impl/security-idp-server/security-idp-client/security-idp-plugin-subjectconfirmation" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    //the redundant permission without the file root is necessary for some checks
+    permission java.io.FilePermission "etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
+}
+
+grant codeBase "file:/org.apache.commons.io" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read,write";
+}
+
+grant codeBase "file:/admin-ui" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+}
+
+grant codeBase "file:/admin-configuration-configupdater" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+}
+
+grant codeBase "file:/catalog-core-standardframework" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
+grant codeBase "file:/catalog-plugin-videothumbnail" {
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}-", "read,write,execute";
+}
+
+grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/security-certificate-generator" {
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
+}
+
+grant codeBase "file:/platform-parser-xml" {
+    permission java.lang.RuntimePermission "setContextClassLoader";
+}
 
 //
-// Commons-io includes functionality to monitor directories asynchronously
+// itest specific perms
 //
-grant
-  codeBase "file:${ddf.home.policy}system/commons-io/commons-io/-" {
-    permission java.io.FilePermission "${ddf.home}${/}-", "read";
-};
+grant codeBase "file:/ddf.thirdparty.rest-assured" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read";
+    permission java.io.FilePermission "-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/PAXEXAM-PROBE/ddf.thirdparty.restito/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/sample-soap-endpoint" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
+}
+
+grant {
+    permission java.io.FilePermission "/jenkins/-", "read";
+}
+
+//
+// Permissions granted to all bundles
+//
 
 grant {
     // User's home directory
-    permission java.io.FilePermission "${user.home}${/}-", "read, write";
+    permission java.io.FilePermission "${user.home}", "read, write";
+    permission java.io.FilePermission "${user.home}${/}-", "read, write, delete";
 
     // Schema and Schematron directories
-    permission java.io.FilePermission "${ddf.home}${/}schema${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}schematron${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}schema${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}schematron${/}-", "read";
 
     // Temporary file storage
     permission java.io.FilePermission "${java.io.tmpdir}", "read, write, execute, delete";
@@ -188,29 +381,79 @@ grant {
     permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
 
     // System libraries
-    permission java.io.FilePermission "/dev/urandom", "read";
+    permission java.io.FilePermission "${/}dev${/}urandom", "read";
     permission java.io.FilePermission "/lib", "read";
     permission java.io.FilePermission "/proc/self/exe", "read";
     permission java.io.FilePermission "/usr/lib", "read";
-
+    permission java.io.FilePermission "${/}proc${/}sys${/}net${/}core${/}somaxconn", "read";
 
     // Distribution File Permissions
     permission java.io.FilePermission "${ddf.home}", "read";
-    permission java.io.FilePermission "${ddf.home}${/}*", "read";
-    permission java.io.FilePermission "${ddf.home}${/}lib${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}documentation${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}lib${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}documentation${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}examples{/}-", "read";
 
-    permission java.io.FilePermission "${ddf.home}${/}karaf.pid", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}karaf.pid", "read, write";
 
-    permission java.io.FilePermission "${ddf.home}${/}data", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}instances", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}solr", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}system", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}workspace", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}data", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}instances", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}solr", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}system", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}workspace", "read, write";
 
-    permission java.io.FilePermission "${ddf.home}${/}data${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}instances${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}solr${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}system${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}workspace${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}instances${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}solr${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}system${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}workspace${/}-", "read, write";
+
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}overrides.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}blacklisted.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}branding.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}shell.init.script", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.features.cfg", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}templates", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}templates${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}scripts", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}scripts${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
+
+    permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.jvnet.ogc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.hisrc.w3c${/}-", "read";
+
+    permission java.io.FilePermission "${/}groovy${/}shell", "read";
+
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    permission java.util.PropertyPermission "*", "read, write";
+
+    permission java.net.NetPermission "getProxySelector";
+
+    permission java.lang.RuntimePermission "modifyThread";
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
+    permission java.lang.RuntimePermission "getClassLoader";
+    permission org.osgi.framework.AdminPermission "*", "*";
+    permission javax.security.auth.AuthPermission "getSubject";
+    permission org.osgi.framework.PackagePermission "*", "*";
+    permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";
+    permission org.osgi.framework.CapabilityPermission "*", "require, provide";
+    permission org.osgi.framework.ServicePermission "*", "get, register";
+
+    permission java.lang.RuntimePermission "accessDeclaredMembers";
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+
+    permission org.osgi.service.event.TopicPermission "*", "publish, subscribe";
+
+    permission java.lang.RuntimePermission "setContextClassLoader";
+
+    permission java.util.logging.LoggingPermission "control";
+
+    permission java.net.SocketPermission "*", "connect,listen,accept,resolve";
+
+    permission javax.management.MBeanPermission "*", "registerMBean, unregisterMBean";
+    permission javax.management.MBeanTrustPermission "register";
+
+    permission org.osgi.service.cm.ConfigurationPermission "*", "configure";
 };

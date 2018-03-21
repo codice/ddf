@@ -41,7 +41,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
@@ -80,11 +79,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.xml.HasXPath;
 import org.junit.After;
 import org.junit.Test;
@@ -1454,65 +1453,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     for (String feature : FEATURES_TO_FILTER) {
       assertThat(filteredFeatures, containsString(feature));
     }
-  }
-
-  @Test
-  public void testAdminConfigPolicyConfigureApplication() {
-
-    // stop sdk-app
-    String stopApplicationNotPermitted =
-        sendNotPermittedRequest(
-            "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
-    assertFalse(JsonPath.given(stopApplicationNotPermitted).get("value"));
-
-    String stopApplicationPermitted =
-        sendPermittedRequest(
-            "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
-    assertTrue(JsonPath.given(stopApplicationPermitted).get("value"));
-
-    // remove sdk-app
-    sendNotPermittedRequest(
-        "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/sdk-app");
-
-    String checkApplicationRemovedResponse =
-        sendPermittedRequest(
-            "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications");
-    checkApplicationRemovedResponse =
-        JsonPath.given(checkApplicationRemovedResponse).getString("value.name");
-    assertThat(checkApplicationRemovedResponse, containsString("sdk-app"));
-
-    sendPermittedRequest(
-        "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/sdk-app");
-
-    checkApplicationRemovedResponse =
-        sendPermittedRequest(
-            "/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications");
-    checkApplicationRemovedResponse =
-        JsonPath.given(checkApplicationRemovedResponse).getString("value.name");
-    assertThat(checkApplicationRemovedResponse, not(containsString("sdk-app")));
-
-    // add the sdk-app back
-    given()
-        .auth()
-        .basic("admin", "admin")
-        .contentType(ContentType.JSON)
-        .body(ADD_SDK_APP_JOLOKIA_REQ)
-        .post(
-            SECURE_ROOT_AND_PORT
-                + "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/addApplications")
-        .body()
-        .print();
-
-    // start sdk-app
-    String startApplicationNotPermitted =
-        sendNotPermittedRequest(
-            "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
-    assertFalse(JsonPath.given(startApplicationNotPermitted).get("value"));
-
-    String startApplicationPermitted =
-        sendPermittedRequest(
-            "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
-    assertTrue(JsonPath.given(startApplicationPermitted).get("value"));
   }
 
   private void waitForSecurityHandlers(String url) throws InterruptedException {

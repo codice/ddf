@@ -1,0 +1,34 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+                       xmlns:sf="http://www.openplans.org/spearfish">
+    <gml:featureMembers>
+        <sf:roads gml:id="roads.1">
+            <sf:the_geom>
+                <gml:LineString>
+                    <gml:posList>598566.26906782 4914058.52150682 598557.69477679 4914085.33977038
+                        598494.67747205 4914254.76475676 598513.91541973 4914348.11723536 598593.95441378
+                        4914440.37147034 598656.43584271 4914500.87603708 598659.42742456 4914521.61846645
+                        598652.10605456 4914532.58195028 598648.43115534 4914544.16261933 598635.63083991
+                        4914558.16462797 598554.58586588 4914636.67913744 598498.3814486 4914752.4469346
+                        598489.81000042 4914778.04541272 598421.49284933 4914873.66244196 598409.19817361
+                        4914931.57794141 598404.90249957 4914948.64642947 598340.17638384 4915068.66645978
+                        598342.49317686 4915118.07263127 598346.0824185 4915117.02463364
+                        598566.26906782 4914058.52150682
+                    </gml:posList>
+                </gml:LineString>
+            </sf:the_geom>
+        </sf:roads>
+    </gml:featureMembers>
+</wfs:FeatureCollection>

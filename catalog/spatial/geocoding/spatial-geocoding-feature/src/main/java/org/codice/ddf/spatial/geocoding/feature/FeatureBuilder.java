@@ -25,6 +25,7 @@ public class FeatureBuilder {
     typeBuilder.setName("CountryFeatureType");
     typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
     typeBuilder.add("coordinates", geometry.getClass());
+    typeBuilder.add("name", String.class);
     SimpleFeatureType featureType = typeBuilder.buildFeatureType();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
     builder.add(geometry);

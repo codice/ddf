@@ -39,7 +39,10 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
+            <type>jar</type>
+            <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
+                See: https://issues.apache.org/jira/browse/MDEP-587 -->
+            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -99,6 +102,7 @@
                             com.vividsolutions.jts.simplify,
                             com.vividsolutions.jts.util,
                             ddf.catalog.data;version="[2.0,3)",
+                            ddf.catalog.data.types;version="[2.0,3)",
                             ddf.catalog.filter;version="[2.0,3)",
                             ddf.catalog.operation;version="[2.0,3)",
                             ddf.catalog.source;version="[2.0,3)",

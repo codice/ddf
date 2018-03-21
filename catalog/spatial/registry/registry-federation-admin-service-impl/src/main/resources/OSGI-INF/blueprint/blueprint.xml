@@ -39,8 +39,6 @@
         <property name="executor" ref="registryPollerThreadPool"/>
     </bean>
 
-    <bean id="identityNodeInitializerExecutor" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadScheduledExecutor"/>
     <bean id="registryPollerThreadPool" class="java.util.concurrent.Executors"
           factory-method="newScheduledThreadPool">
         <argument value="${org.codice.ddf.system.threadPoolSize}"/>
@@ -55,11 +53,10 @@
 
     <bean id="identityNodeInitialization"
           class="org.codice.ddf.registry.federationadmin.service.impl.IdentityNodeInitialization"
-          init-method="init" destroy-method="destroy">
+          init-method="init">
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryTransformer" ref="inputTransformer"/>
         <property name="federationAdminService" ref="federationAdminService"/>
-        <property name="executorService" ref="identityNodeInitializerExecutor"/>
     </bean>
 
     <bean id="metacardMarshaller"

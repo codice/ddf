@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "ace pom && lerna run test",
+    "bootstrap": "lerna bootstrap",
+    "clean": "ace clean",
+    "build": "ace set-env lerna run build && ace gen-feature"
+  },
+  "devDependencies": {
+    "ace": "*",
+    "lerna": "2.8.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

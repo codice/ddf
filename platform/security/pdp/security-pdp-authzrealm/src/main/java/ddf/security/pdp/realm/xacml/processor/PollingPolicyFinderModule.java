@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
@@ -197,7 +198,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
   }
 
   private FileFilter getXmlFileFilter() {
-    return pathName -> pathName.getName().toLowerCase().endsWith(".xml");
+    return pathName -> pathName.getName().toLowerCase(Locale.getDefault()).endsWith(".xml");
   }
 
   public void reloadPolicies() {

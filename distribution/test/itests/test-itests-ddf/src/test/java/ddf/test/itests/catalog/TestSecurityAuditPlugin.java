@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -29,9 +30,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -56,11 +56,6 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     waitForSystemReady();
-  }
-
-  @Before
-  public void before() {
-    clearCatalogAndWait();
   }
 
   @After
@@ -108,16 +103,17 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testFeatureStartAndStop() throws Exception {
+  public void testBundleStartAndStop() throws Exception {
     String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
     File securityLog = new File(logFilePath);
-    getServiceManager().stopFeature(true, "catalog-plugin-security-audit");
+
+    getServiceManager().stopBundle("catalog-plugin-security-audit");
     WaitCondition.expect("Securitylog has log message: " + stoppedMessage)
         .within(2, TimeUnit.MINUTES)
         .checkEvery(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(stoppedMessage));
 
-    getServiceManager().startFeature(true, "catalog-plugin-security-audit");
+    getServiceManager().startBundle("catalog-plugin-security-audit");
     WaitCondition.expect("Securitylog has log message: " + startedMessage)
         .within(2, TimeUnit.MINUTES)
         .checkEvery(2, TimeUnit.SECONDS)
@@ -126,11 +122,11 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
 
   private String getResourceAsString(String resourcePath) throws IOException {
     InputStream inputStream = getFileContentAsStream(resourcePath);
-    return IOUtils.toString(inputStream);
+    return IOUtils.toString(inputStream, Charset.forName("UTF-8"));
   }
 
   private String getFileContent(File file) throws IOException {
     InputStream inputStream = new FileInputStream(file);
-    return IOUtils.toString(inputStream);
+    return IOUtils.toString(inputStream, Charset.forName("UTF-8"));
   }
 }

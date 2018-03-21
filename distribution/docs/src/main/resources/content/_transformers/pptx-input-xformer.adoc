@@ -10,6 +10,16 @@ The PPTX Input Transformer ingests PPTX documents into the ${branding} Content R
 
 The PPTX Input Transformer will take precedence over the Tika Input Transformer for PPTX documents.
 
+.{title} Usage
+[cols="1,2m" options="header"]
+|===
+|Schema
+|Mime-types
+
+|N/A
+|application/vnd.openxmlformats-officedocument.presentationml.presentation
+|===
+
 ===== Installing the PPTX Input Transformer
 
 This transformer is installed by default with a standard installation in the ${ddf-catalog} application.

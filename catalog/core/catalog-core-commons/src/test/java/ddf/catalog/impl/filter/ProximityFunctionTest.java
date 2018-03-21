@@ -43,6 +43,6 @@ public class ProximityFunctionTest {
     exprs.add(Expression.NIL);
     exprs.add(Expression.NIL);
     ProximityFunction func = new ProximityFunction(exprs, null);
-    assertThat(func.getName(), is(ProximityFunction.NAME.getName()));
+    assertThat(func.getName(), is(ProximityFunction.FUNCTION_NAME.getName()));
   }
 }

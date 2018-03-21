@@ -1,0 +1,35 @@
+@{customElementNamespace}alert-settings {
+  .customElement;
+
+  overflow: auto;
+  padding: @minimumSpacing @minimumSpacing;
+  font-size: @largeFontSize;
+
+  .editor-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - @{minimumButtonSize} - 2*@{minimumSpacing})";
+    text-align: center;
+
+    .property-label {
+      text-align: center;
+    }
+  }
+
+  .property-expiration {
+    display: none;
+  }
+
+  .editor-properties {
+    .property-label {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+      .is-bold();
+    }
+  }
+}
+
+@{customElementNamespace}alert-settings.is-persisted {
+  .property-expiration {
+    display: block;
+  }
+}

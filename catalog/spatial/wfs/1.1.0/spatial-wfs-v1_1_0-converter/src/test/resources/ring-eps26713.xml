@@ -1,0 +1,33 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+                       xmlns:sf="http://www.openplans.org/spearfish">
+    <gml:featureMembers>
+        <sf:roads gml:id="roads.1">
+            <sf:the_geom>
+                <gml:Ring srsName="urn:x-ogc:def:crs:EPSG:26713">
+                    <gml:curveMember>
+                        <gml:Curve gml:id="HKU.710644.1.1.2">
+                            <gml:segments>
+                                <gml:ArcString>
+                                    <gml:posList>546786.61 1119372.36 546781.98 1119405.6 546774.32 1119438.15 546770.02 1119449.2 546765.34 1119460.1</gml:posList>
+                                </gml:ArcString>
+                            </gml:segments>
+                        </gml:Curve>
+                    </gml:curveMember>
+                </gml:Ring>
+            </sf:the_geom>
+        </sf:roads>
+    </gml:featureMembers>
+</wfs:FeatureCollection>

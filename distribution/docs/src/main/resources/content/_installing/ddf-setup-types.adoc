@@ -24,15 +24,4 @@ ${branding} is pre-configured with several installation profiles.
 ** <<_security_application_reference,${ddf-security}>>
 
 * Development: Includes all demo, beta, and experimental applications.
-* Custom Installation: *Advanced*. Click *Customize* on either profile to add or remove applications to be installed.
-
-** If apps are preselected when the *Select Applications* page is reached, they will be uninstalled if unselected.
-
-[WARNING]
-====
-The ${ddf-platform}, ${ddf-admin}, and ${ddf-security} applications are required and CANNOT be selected or unselected.
-
-The ${ddf-security} Application appears to be unselected upon first view of the tree structure, but it is in fact automatically installed with a later part of the installation process.
-====
-
 ****

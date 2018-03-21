@@ -1,0 +1,39 @@
+:title: Available Console Commands
+:type: maintaining
+:status: published
+:parent: Console Commands
+:summary: Types of console commands available.
+:order: 02
+
+== {title}
+
+Many console commands are available, including DFF commands and the core Karaf console commands. For more information about these core Karaf commands and using the console, see the Commands documentation for Karaf ${karaf.version} at https://karaf.apache.org/documentation.html[Karaf documentation].
+
+For a complete list of all available commands, from the ${command-console}, press *TAB* and confirm when prompted.
+
+Console commands follow a format of `namespace:command`.
+
+To get a list of commands, type in the namespace of the desired extension then press *TAB*.
+
+For example, type `catalog`, then press *TAB*.
+
+.[[available_console_commands]]${branding} Console Command Namespaces
+[cols="1,5" options="header"]
+|===
+|Namespace
+|Description
+
+|<<catalog_command_descriptions, catalog>>
+|The Catalog Shell Commands are meant to be used with any `CatalogProvider` implementations.
+They provide general useful queries and functions against the Catalog API that can be used for debugging, printing, or scripting.
+
+|<<subscription_command_descriptions, subscription>>
+|The ${branding} PubSub shell commands provide functions to list the registered subscriptions in ${branding} and to delete subscriptions.
+
+|<<platform_command_descriptions, platform>>
+|The ${branding} Platform Shell Commands provide generic platform management functions
+
+|<<store_command_descriptions, store>>
+|The Persistence Shell Commands are meant to be used with any `PersistentStore` implementations. They provide the ability to query and delete entries from the persistence store.
+
+|===

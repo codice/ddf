@@ -13,14 +13,15 @@
  */
 package org.codice.ddf.security.idp.server;
 
-import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -30,21 +31,26 @@ import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
 import ddf.security.samlp.LogoutMessage;
-import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SimpleSign.SignatureException;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
+import ddf.security.samlp.impl.EntityInformation.ServiceInfo;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SPMetadataParser;
 import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -58,18 +64,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -94,6 +106,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -103,13 +116,16 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.boon.Boon;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.HttpUtils;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
@@ -146,19 +162,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 @Path("/")
-public class IdpEndpoint implements Idp {
+public class IdpEndpoint implements Idp, SessionHandler {
 
   public static final String SERVICES_IDP_PATH = SystemBaseUrl.getRootContext() + "/idp";
-
+  public static final ImmutableSet<UsageType> USAGE_TYPES =
+      ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
-
   private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
   private static final String IDP_LOGIN = "/idp/login";
   private static final String IDP_LOGOUT = "/idp/logout";
   private static final String AUTHN_REQUEST_MUST_USE_TLS = "Authn Request must use TLS.";
 
   /** Input factory */
-  private static volatile XMLInputFactory xmlInputFactory = null;
+  private static volatile XMLInputFactory xmlInputFactory;
 
   static {
     XMLInputFactory xmlInputFactoryTmp = XMLInputFactory2.newInstance();
@@ -170,40 +186,25 @@ public class IdpEndpoint implements Idp {
     xmlInputFactory = xmlInputFactoryTmp;
   }
 
+  private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
-
   private PKIAuthenticationTokenFactory tokenFactory;
-
   private SecurityManager securityManager;
-
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
       new AtomicReference<>();
-
   private List<String> spMetadata;
-
   private String indexHtml;
-
   private String submitForm;
-
   private String redirectPage;
-
-  private String soapMessage;
-
+  private String ecpMessage;
   private Boolean strictSignature = true;
-
   private SystemCrypto systemCrypto;
-
   private LogoutMessage logoutMessage;
-
   private RelayStates<LogoutState> logoutStates;
-
   private boolean guestAccess = true;
 
   private Map<ServiceReference<SamlPresignPlugin>, SamlPresignPlugin> presignPlugins =
       new ConcurrentSkipListMap<>();
-
-  public static final ImmutableSet<UsageType> USAGE_TYPES =
-      ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
 
   public IdpEndpoint(
       String signaturePropertiesPath,
@@ -211,6 +212,16 @@ public class IdpEndpoint implements Idp {
       EncryptionService encryptionService) {
     systemCrypto =
         new SystemCrypto(encryptionPropertiesPath, signaturePropertiesPath, encryptionService);
+
+    this.asyncLogoutService =
+        MoreExecutors.getExitingExecutorService(
+            new ThreadPoolExecutor(
+                1,
+                1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                StandardThreadFactoryBuilder.newThreadFactory("asyncLogoutService")));
   }
 
   public void init() {
@@ -220,14 +231,14 @@ public class IdpEndpoint implements Idp {
             IdpEndpoint.class.getResourceAsStream("/templates/submitForm.handlebars");
         InputStream redirectPageStream =
             IdpEndpoint.class.getResourceAsStream("/templates/redirect.handlebars");
-        InputStream soapMessageStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/soap.handlebars")
+        InputStream ecpMessageStream =
+            IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars");
         //
         ) {
       indexHtml = IOUtils.toString(indexStream, StandardCharsets.UTF_8);
       submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
       redirectPage = IOUtils.toString(redirectPageStream, StandardCharsets.UTF_8);
-      soapMessage = IOUtils.toString(soapMessageStream, StandardCharsets.UTF_8);
+      ecpMessage = IOUtils.toString(ecpMessageStream, StandardCharsets.UTF_8);
     } catch (Exception e) {
       LOGGER.info("Unable to load index page for IDP.", e);
     }
@@ -247,10 +258,176 @@ public class IdpEndpoint implements Idp {
         new ResponseUnmarshaller());
   }
 
+  @Override
+  public Map<String, Set<String>> getActiveSessions() {
+    try {
+      return Security.getInstance().runWithSubjectOrElevate(this::getActiveSessionsSecure);
+    } catch (SecurityServiceException | InvocationTargetException e) {
+      SecurityLogger.audit("Failed to run command; insufficient permissions");
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @VisibleForTesting
+  Map<String, Set<String>> getActiveSessionsSecure() {
+    return cookieCache.getAllSamlSubjects(securityManager);
+  }
+
+  @Override
+  public void invalidateSession(String subjectName) {
+    try {
+      Security.getInstance()
+          .runWithSubjectOrElevate(
+              (Callable<Void>)
+                  () -> {
+                    invalidateSessionSecure(subjectName);
+                    return null;
+                  });
+    } catch (SecurityServiceException | InvocationTargetException e) {
+      SecurityLogger.audit("Failed to run command; insufficient permissions");
+    }
+  }
+
+  @VisibleForTesting
+  void invalidateSessionSecure(String subjectName) {
+    String cacheKey = cookieCache.getCacheKeyBySubjectName(subjectName, securityManager);
+    if (cacheKey == null) {
+      LOGGER.debug(
+          "No cache element found for subject name {}; skipping invalidation.", subjectName);
+      return;
+    }
+
+    LogoutState logoutState = new LogoutState(getActiveSps(cacheKey));
+
+    logoutState.setNameId(subjectName);
+    logoutState.setOriginalRequestId(UUID.randomUUID().toString());
+    logoutStates.encode(cacheKey, logoutState);
+
+    cookieCache.removeSamlAssertion(cacheKey);
+
+    asyncLogoutService.submit(() -> asyncBackchannelLogout(cacheKey, logoutState));
+  }
+
+  private void asyncBackchannelLogout(String cacheKey, LogoutState logoutState) {
+    ExecutorService executorService =
+        Executors.newFixedThreadPool(
+            4, StandardThreadFactoryBuilder.newThreadFactory("sessionLogout"));
+    Map<String, Future<?>> futures = new HashMap<>();
+    for (Optional<String> nextTarget = logoutState.getNextTarget();
+        nextTarget.isPresent();
+        nextTarget = logoutState.getNextTarget()) {
+      String entityId = nextTarget.get();
+
+      Future<?> future =
+          executorService.submit(() -> sendSoapLogout(cacheKey, logoutState, entityId));
+
+      futures.put(entityId, future);
+    }
+
+    if (!MoreExecutors.shutdownAndAwaitTermination(executorService, 5, TimeUnit.MINUTES)
+        && LOGGER.isDebugEnabled()) {
+      String failedEntityIds =
+          futures
+              .entrySet()
+              .stream()
+              .filter(e -> e.getValue().isCancelled())
+              .map(Entry::getKey)
+              .collect(Collectors.joining());
+      LOGGER.debug("Timed out waiting for backchannel logout for entityIds [{}]", failedEntityIds);
+    }
+  }
+
+  private void sendSoapLogout(String cacheKey, LogoutState logoutState, String entityId) {
+    LogoutRequest logoutRequest =
+        logoutMessage.buildLogoutRequest(
+            logoutState.getNameId(),
+            SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+            logoutState.getSessionIndexes());
+
+    logoutState.setCurrentRequestId(logoutRequest.getID());
+    ServiceInfo entityServiceInfo = getServiceInfo(entityId);
+    if (entityServiceInfo == null) {
+      return;
+    }
+
+    String entityServiceInfoUrl = entityServiceInfo.getUrl();
+
+    // Craft a dummy cookie to hold the cacheKey
+    Cookie cookie = new Cookie(COOKIE, cacheKey);
+    URI uri = URI.create(entityServiceInfoUrl);
+    cookie.setPath(uri.getPath());
+    cookie.setDomain(uri.getHost());
+    cookie.setSecure(true);
+
+    try {
+      logoutRequest = signLogoutRequest(logoutRequest);
+    } catch (SignatureException | XMLStreamException | WSSecurityException e) {
+      LOGGER.warn("Unable to sign logout request");
+      LOGGER.debug("Unable to sign logout request", e);
+      return;
+    }
+
+    try {
+      String response =
+          logoutMessage.sendSamlLogoutRequest(logoutRequest, entityServiceInfoUrl, true, cookie);
+
+      LogoutResponse logoutResponse = parseSoapLogoutResponse(response);
+      if (logoutResponse != null) {
+        String issuer = logoutResponse.getIssuer().getValue();
+        String statusCode = logoutResponse.getStatus().getStatusCode().getValue();
+        SecurityLogger.audit(
+            "Logout response from entity {} for user {} -- Issuer: {}; StatusCode: {}",
+            entityId,
+            logoutState.getNameId(),
+            issuer,
+            statusCode);
+      }
+    } catch (IOException | WSSecurityException | XMLStreamException | SOAPException e) {
+      LOGGER.debug("Error occurred executing idp-initiated single signout");
+    }
+  }
+
+  private LogoutResponse parseSoapLogoutResponse(String soapResponse)
+      throws IOException, XMLStreamException, SOAPException, WSSecurityException {
+    try (ByteArrayInputStream bais =
+        new ByteArrayInputStream(Base64.getMimeDecoder().decode(soapResponse))) {
+      String decodedResponse = IOUtils.toString(bais, StandardCharsets.UTF_8.name());
+      SOAPPart soapPart = SamlProtocol.parseSoapMessage(decodedResponse);
+      Document document = soapPart.getEnvelope().getBody().extractContentAsDocument();
+      return (LogoutResponse) SamlProtocol.getXmlObjectFromNode(document.getFirstChild());
+    }
+  }
+
+  private LogoutRequest signLogoutRequest(LogoutRequest logoutRequest)
+      throws SignatureException, WSSecurityException, XMLStreamException {
+    new SimpleSign(systemCrypto).signSamlObject(logoutRequest);
+    Element reqElem = logoutMessage.getElementFromSaml(logoutRequest);
+    String nodeString = DOM2Writer.nodeToString(reqElem);
+
+    final Document responseDoc =
+        StaxUtils.read(new ByteArrayInputStream(nodeString.getBytes(StandardCharsets.UTF_8)));
+    return (LogoutRequest) OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+  }
+
+  private ServiceInfo getServiceInfo(String entityId) {
+    ServiceInfo entityServiceInfo =
+        getServiceProvidersMap().get(entityId).getLogoutService(SamlProtocol.Binding.SOAP);
+    if (entityServiceInfo == null) {
+      LOGGER.info("Could not find entity service info for {}", entityId);
+      return null;
+    }
+    if (entityServiceInfo.getBinding() != SamlProtocol.Binding.SOAP) {
+      LOGGER.info("SOAP binding not available for SP [{}]", entityId);
+      return null;
+    }
+    return entityServiceInfo;
+  }
+
   private Map<String, EntityInformation> getServiceProvidersMap() {
     Map<String, EntityInformation> spMap = serviceProviders.get();
     if (spMap == null) {
-      spMap = parseServiceProviderMetadata();
+      spMap = SPMetadataParser.parse(spMetadata, SUPPORTED_BINDINGS);
 
       boolean updated = serviceProviders.compareAndSet(null, spMap);
       if (!updated) {
@@ -259,46 +436,6 @@ public class IdpEndpoint implements Idp {
     }
 
     return Collections.unmodifiableMap(spMap);
-  }
-
-  // TODO: 12/11/17 Extract to service DDF-3493
-  private Map<String, EntityInformation> parseServiceProviderMetadata() {
-    if (spMetadata == null) {
-      return Collections.emptyMap();
-    }
-
-    Map<String, EntityInformation> spMap = new ConcurrentHashMap<>();
-    try {
-      MetadataConfigurationParser metadataConfigurationParser =
-          new MetadataConfigurationParser(
-              spMetadata,
-              ed -> {
-                EntityInformation entityInfo =
-                    new EntityInformation.Builder(ed, SUPPORTED_BINDINGS).build();
-                if (entityInfo != null) {
-                  spMap.put(ed.getEntityID(), entityInfo);
-                }
-              });
-
-      spMap.putAll(
-          metadataConfigurationParser
-              .getEntryDescriptions()
-              .entrySet()
-              .stream()
-              .map(
-                  e ->
-                      Maps.immutableEntry(
-                          e.getKey(),
-                          new EntityInformation.Builder(e.getValue(), SUPPORTED_BINDINGS).build()))
-              .filter(e -> nonNull(e.getValue()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-    } catch (IOException e) {
-      LOGGER.warn(
-          "Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
-    }
-
-    return spMap;
   }
 
   @POST
@@ -339,7 +476,7 @@ public class IdpEndpoint implements Idp {
       Response samlpResponse =
           soapBinding
               .creator()
-              .getSamlpResponse(relayState, authnRequest, response, null, soapMessage);
+              .getSamlpResponse(relayState, authnRequest, response, null, ecpMessage);
       samlpResponse
           .getHeaders()
           .put(
@@ -485,7 +622,6 @@ public class IdpEndpoint implements Idp {
             getPresignPlugins(),
             spMetadata,
             SUPPORTED_BINDINGS),
-        submitForm,
         SamlProtocol.POST_BINDING);
   }
 
@@ -493,7 +629,7 @@ public class IdpEndpoint implements Idp {
   @Path("/login")
   public Response showGetLogin(
       @QueryParam(SAML_REQ) String samlRequest,
-      @Encoded @QueryParam(RELAY_STATE) String relayState,
+      @QueryParam(RELAY_STATE) String relayState,
       @QueryParam(SSOConstants.SIG_ALG) String signatureAlgorithm,
       @QueryParam(SSOConstants.SIGNATURE) String signature,
       @Context HttpServletRequest request)
@@ -511,7 +647,6 @@ public class IdpEndpoint implements Idp {
             getPresignPlugins(),
             spMetadata,
             SUPPORTED_BINDINGS),
-        redirectPage,
         SamlProtocol.REDIRECT_BINDING);
   }
 
@@ -527,10 +662,10 @@ public class IdpEndpoint implements Idp {
       String signature,
       HttpServletRequest request,
       Binding binding,
-      String template,
       String originalBinding)
       throws WSSecurityException {
     String responseStr;
+    String template;
     AuthnRequest authnRequest = null;
     try {
       Map<String, Object> responseMap = new HashMap<>();
@@ -556,6 +691,35 @@ public class IdpEndpoint implements Idp {
         LOGGER.debug("Received Passive & PKI AuthnRequest.");
         org.opensaml.saml.saml2.core.Response samlpResponse;
         try {
+
+          // Find binding supported by SP and change template
+          String assertionConsumerServiceBinding =
+              ResponseCreator.getAssertionConsumerServiceBinding(
+                  authnRequest, getServiceProvidersMap());
+
+          if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+            binding =
+                new PostBinding(
+                    systemCrypto,
+                    getServiceProvidersMap(),
+                    getPresignPlugins(),
+                    spMetadata,
+                    SUPPORTED_BINDINGS);
+            template = submitForm;
+          } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+            binding =
+                new RedirectBinding(
+                    systemCrypto,
+                    getServiceProvidersMap(),
+                    getPresignPlugins(),
+                    spMetadata,
+                    SUPPORTED_BINDINGS);
+            template = redirectPage;
+          } else {
+            throw new IdpException(
+                new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
+          }
+
           samlpResponse =
               handleLogin(
                   authnRequest,
@@ -577,6 +741,10 @@ public class IdpEndpoint implements Idp {
           LOGGER.debug(e.getMessage(), e);
           return getErrorResponse(
               relayState, authnRequest, StatusCode.REQUEST_UNSUPPORTED, binding);
+        } catch (IdpException e) {
+          LOGGER.debug(e.getMessage(), e);
+          return getErrorResponse(
+              relayState, authnRequest, StatusCode.UNSUPPORTED_BINDING, binding);
         }
         LOGGER.debug("Returning Passive & PKI SAML Response.");
         NewCookie cookie = null;
@@ -596,13 +764,14 @@ public class IdpEndpoint implements Idp {
             .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie, template);
       } else {
         LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
-        Document doc = DOMUtils.createDocument();
-        doc.appendChild(doc.createElement("root"));
-        String authn = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(authnRequest, doc, false));
-        String encodedAuthn = RestSecurity.deflateAndBase64Encode(authn);
         responseMap.put(PKI, hasCerts);
         responseMap.put(GUEST, guestAccess);
-        responseMap.put(SAML_REQ, encodedAuthn);
+        // Using the ORIGINAL request
+        // SAML Spec: "The relying party MUST therefore perform the verification step using the
+        // original URL-encoded values it received on the query string. It is not sufficient to
+        // re-encode the parameters after they have been processed by software because the resulting
+        // encoding may not match the signer's encoding".
+        responseMap.put(SAML_REQ, samlRequest);
         responseMap.put(RELAY_STATE, relayState);
         String assertionConsumerServiceURL =
             binding.creator().getAssertionConsumerServiceURL(authnRequest);
@@ -672,7 +841,7 @@ public class IdpEndpoint implements Idp {
     } else if (binding instanceof RedirectBinding) {
       template = redirectPage;
     } else if (binding instanceof SoapBinding) {
-      template = soapMessage;
+      template = ecpMessage;
     }
     return binding
         .creator()
@@ -701,19 +870,6 @@ public class IdpEndpoint implements Idp {
       if (!request.isSecure()) {
         throw new IllegalArgumentException(AUTHN_REQUEST_MUST_USE_TLS);
       }
-      // the authn request is always encoded as if it came in via redirect when coming from the web
-      // app
-      Binding redirectBinding =
-          new RedirectBinding(
-              systemCrypto,
-              getServiceProvidersMap(),
-              getPresignPlugins(),
-              spMetadata,
-              SUPPORTED_BINDINGS);
-      AuthnRequest authnRequest = redirectBinding.decoder().decodeRequest(samlRequest);
-      String assertionConsumerServiceBinding =
-          ResponseCreator.getAssertionConsumerServiceBinding(
-              authnRequest, getServiceProvidersMap());
       if (HTTP_POST_BINDING.equals(originalBinding)) {
         binding =
             new PostBinding(
@@ -724,12 +880,20 @@ public class IdpEndpoint implements Idp {
                 SUPPORTED_BINDINGS);
         template = submitForm;
       } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
-        binding = redirectBinding;
+        binding =
+            new RedirectBinding(
+                systemCrypto,
+                getServiceProvidersMap(),
+                getPresignPlugins(),
+                spMetadata,
+                SUPPORTED_BINDINGS);
         template = redirectPage;
       } else {
         throw new IdpException(
             new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
       }
+
+      AuthnRequest authnRequest = binding.decoder().decodeRequest(samlRequest);
       binding
           .validator()
           .validateAuthnRequest(
@@ -740,6 +904,9 @@ public class IdpEndpoint implements Idp {
               signature,
               strictSignature);
 
+      String assertionConsumerServiceBinding =
+          ResponseCreator.getAssertionConsumerServiceBinding(
+              authnRequest, getServiceProvidersMap());
       if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)
           && !(binding instanceof PostBinding)) {
         binding =
@@ -749,6 +916,7 @@ public class IdpEndpoint implements Idp {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
+        template = submitForm;
       } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)
           && !(binding instanceof RedirectBinding)) {
         binding =
@@ -758,6 +926,7 @@ public class IdpEndpoint implements Idp {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
+        template = redirectPage;
       }
       org.opensaml.saml.saml2.core.Response encodedSaml =
           handleLogin(
@@ -1152,7 +1321,8 @@ public class IdpEndpoint implements Idp {
     try {
       if (samlRequest != null) {
         LogoutRequest logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(RestSecurity.inflateBase64(samlRequest));
+            logoutMessage.extractSamlLogoutRequest(
+                new String(RestSecurity.base64Decode(samlRequest), StandardCharsets.UTF_8));
         validatePost(request, logoutRequest);
         return handleLogoutRequest(
             cookie, logoutState, logoutRequest, SamlProtocol.Binding.HTTP_POST, relayState);
@@ -1223,6 +1393,8 @@ public class IdpEndpoint implements Idp {
     localLogoutState.setNameId(logoutRequest.getNameID().getValue());
     localLogoutState.setOriginalRequestId(logoutRequest.getID());
     localLogoutState.setInitialRelayState(relayState);
+    localLogoutState.setSessionIndexObjects(logoutRequest.getSessionIndexes());
+
     logoutStates.encode(cookie.getValue(), localLogoutState);
 
     cookieCache.removeSamlAssertion(cookie.getValue());
@@ -1251,7 +1423,9 @@ public class IdpEndpoint implements Idp {
         }
         LogoutRequest logoutRequest =
             logoutMessage.buildLogoutRequest(
-                logoutState.getNameId(), SystemBaseUrl.constructUrl(IDP_LOGOUT, true));
+                logoutState.getNameId(),
+                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
+                logoutState.getSessionIndexes());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
         samlType = SamlProtocol.Type.REQUEST;
@@ -1263,9 +1437,17 @@ public class IdpEndpoint implements Idp {
             logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
         logoutObject =
             logoutMessage.buildLogoutResponse(
-                SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
                 status,
                 logoutState.getOriginalRequestId());
+
+        ((LogoutResponse) logoutObject)
+            .setDestination(
+                getServiceProvidersMap()
+                    .get(entityId)
+                    .getLogoutService(SamlProtocol.Binding.HTTP_POST)
+                    .getUrl());
+
         relay = logoutState.getInitialRelayState();
         logoutStates.decode(cookie.getValue(), true);
         samlType = SamlProtocol.Type.RESPONSE;
@@ -1313,12 +1495,15 @@ public class IdpEndpoint implements Idp {
             RestSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))),
             "UTF-8");
-    String requestToSign =
-        String.format("%s=%s&RelayState=%s", samlType.getKey(), encodedResponse, relayState);
+    StringBuilder requestToSign =
+        new StringBuilder(samlType.getKey()).append("=").append(encodedResponse);
+    if (relayState != null) {
+      requestToSign.append("&RelayState=").append(relayState);
+    }
     UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
     uriBuilder.queryParam(samlType.getKey(), encodedResponse);
     uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
-    new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
+    new SimpleSign(systemCrypto).signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
     return Response.ok(HtmlResponseTemplate.getRedirectPage(uriBuilder.build().toString())).build();
   }

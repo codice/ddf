@@ -92,6 +92,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
    *
    * @see org.apache.camel.impl.DefaultEndpoint#getComponent()
    */
+  @Override
   public CatalogComponent getComponent() {
     return (CatalogComponent) super.getComponent();
   }
@@ -101,6 +102,7 @@ public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumer
    *
    * @see org.apache.camel.impl.DefaultEndpoint#getExchangePattern()
    */
+  @Override
   public ExchangePattern getExchangePattern() {
     return ExchangePattern.InOut;
   }

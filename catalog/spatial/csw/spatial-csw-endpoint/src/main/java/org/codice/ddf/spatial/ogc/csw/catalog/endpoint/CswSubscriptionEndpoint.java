@@ -414,7 +414,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   public synchronized String addOrUpdateSubscription(
       GetRecordsType request, boolean persistSubscription) throws CswException {
     String methodName = "createSubscription";
-    LOGGER.trace("ENTERING: {}    (persistSubscription = {})", methodName);
+    LOGGER.trace("ENTERING: {}    (persistSubscription = {})", methodName, persistSubscription);
 
     if (request.getResponseHandler() == null
         || request.getResponseHandler().isEmpty()

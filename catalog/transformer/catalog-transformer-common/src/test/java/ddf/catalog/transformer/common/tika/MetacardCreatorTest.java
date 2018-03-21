@@ -23,7 +23,9 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Media;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,6 +35,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.Office;
 import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.junit.Test;
@@ -43,7 +46,7 @@ public class MetacardCreatorTest {
     final Metadata metadata = new Metadata();
 
     final Metacard metacard =
-        MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD);
+        MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD);
 
     assertThat(metacard, notNullValue());
     assertThat(metacard.getTitle(), nullValue());
@@ -58,7 +61,7 @@ public class MetacardCreatorTest {
   @Test
   public void testBasicMetacard() {
     Metacard metacard = createTestMetacard(null);
-    assertThat(metacard.getMetacardType(), is(BasicTypes.BASIC_METACARD));
+    assertThat(metacard.getMetacardType(), is(MetacardImpl.BASIC_METACARD));
   }
 
   @Test
@@ -73,7 +76,7 @@ public class MetacardCreatorTest {
     metadata.add(MetacardCreator.DURATION_METDATA_KEY, durationValue);
     MetacardTypeImpl extendedMetacardType =
         new MetacardTypeImpl(
-            BasicTypes.BASIC_METACARD.getName(), BasicTypes.BASIC_METACARD, extraAttributes);
+            MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
     final String id = "id";
     final String metadataXml = "<xml>test</xml>";
 
@@ -94,7 +97,7 @@ public class MetacardCreatorTest {
     metadata.add(MetacardCreator.COMPRESSION_TYPE_METADATA_KEY, null);
     MetacardTypeImpl extendedMetacardType =
         new MetacardTypeImpl(
-            BasicTypes.BASIC_METACARD.getName(), BasicTypes.BASIC_METACARD, extraAttributes);
+            MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
     final String id = "id";
     final String metadataXml = "<xml>test</xml>";
 
@@ -116,7 +119,7 @@ public class MetacardCreatorTest {
     metadata.add(MetacardCreator.DURATION_METDATA_KEY, durationValue);
     MetacardTypeImpl extendedMetacardType =
         new MetacardTypeImpl(
-            BasicTypes.BASIC_METACARD.getName(), BasicTypes.BASIC_METACARD, extraAttributes);
+            MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
     final String id = "id";
     final String metadataXml = "<xml>test</xml>";
 
@@ -138,7 +141,7 @@ public class MetacardCreatorTest {
     metadata.add(TIFF.IMAGE_LENGTH, imageLength);
     MetacardTypeImpl extendedMetacardType =
         new MetacardTypeImpl(
-            BasicTypes.BASIC_METACARD.getName(), BasicTypes.BASIC_METACARD, extraAttributes);
+            MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
     final String id = "id";
     final String metadataXml = "<xml>test</xml>";
 
@@ -152,7 +155,7 @@ public class MetacardCreatorTest {
   public void testMetacardExtended() {
     Metacard metacard =
         createTestMetacard(ImmutableSet.of(createObjectAttr("attr1"), createObjectAttr("attr2")));
-    assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
+    assertThat(metacard.getMetacardType().getName(), is(MetacardImpl.BASIC_METACARD.getName()));
 
     ImmutableSet<String> attrNames = ImmutableSet.of("attr1", "attr2");
     int count =
@@ -173,9 +176,45 @@ public class MetacardCreatorTest {
 
     metadata.add(TikaCoreProperties.TITLE, "metadata title");
     final Metacard metacard =
-        MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD, false);
+        MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD, false);
 
     assertThat(metacard.getTitle(), nullValue());
+  }
+
+  @Test
+  public void testContributorAdded() {
+    final Metadata metadata = new Metadata();
+
+    metadata.add(Office.LAST_AUTHOR, "AnotherFirst AnotherLast");
+    metadata.add(TikaCoreProperties.CREATOR, "First Last");
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD, false);
+
+    assertThat(
+        metacard.getAttribute(Contact.CONTRIBUTOR_NAME).getValue().toString(),
+        is("AnotherFirst AnotherLast"));
+  }
+
+  @Test
+  public void testContributorNotAdded() {
+    final Metadata metadata = new Metadata();
+
+    metadata.add(Office.LAST_AUTHOR, "First Last");
+    metadata.add(TikaCoreProperties.CREATOR, "First Last");
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD, false);
+
+    assertThat(metacard.getAttribute(Contact.CONTRIBUTOR_NAME), nullValue());
+  }
+
+  @Test
+  public void testContributorNull() {
+    final Metadata metadata = new Metadata();
+
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, MetacardImpl.BASIC_METACARD, false);
+
+    assertThat(metacard.getAttribute(Contact.CONTRIBUTOR_NAME), nullValue());
   }
 
   private AttributeDescriptorImpl createObjectAttr(String name) {
@@ -205,11 +244,11 @@ public class MetacardCreatorTest {
     final Metacard metacard;
     if (CollectionUtils.isEmpty(extraAttributes)) {
       metacard =
-          MetacardCreator.createMetacard(metadata, id, metadataXml, BasicTypes.BASIC_METACARD);
+          MetacardCreator.createMetacard(metadata, id, metadataXml, MetacardImpl.BASIC_METACARD);
     } else {
       MetacardTypeImpl extendedMetacardType =
           new MetacardTypeImpl(
-              BasicTypes.BASIC_METACARD.getName(), BasicTypes.BASIC_METACARD, extraAttributes);
+              MetacardImpl.BASIC_METACARD.getName(), MetacardImpl.BASIC_METACARD, extraAttributes);
       metacard = MetacardCreator.createMetacard(metadata, id, metadataXml, extendedMetacardType);
     }
 

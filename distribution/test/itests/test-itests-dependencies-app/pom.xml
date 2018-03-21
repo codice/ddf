@@ -27,8 +27,6 @@
 
     <properties>
         <httpcore.version>4.4.5</httpcore.version>
-        <httpclient.version>4.5.2</httpclient.version>
-        <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <commons-codec.servicemix.version>1.3_5</commons-codec.servicemix.version>
     </properties>
 
@@ -36,6 +34,11 @@
         <dependency>
             <groupId>ddf.test.itests</groupId>
             <artifactId>test-itests-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>test-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -74,23 +77,6 @@
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>kar</id>
-                        <goals>
-                            <goal>kar</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Workaround to prevent features.xml file from being included twice in the kar file. -->
-                            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
                         </configuration>
                     </execution>
                 </executions>

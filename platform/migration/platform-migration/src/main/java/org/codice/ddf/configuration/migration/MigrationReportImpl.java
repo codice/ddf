@@ -108,7 +108,7 @@ public class MigrationReportImpl implements MigrationReport {
     } else {
       level = "message";
     }
-    LOGGER.debug("migration {}: {}", level, msg);
+    LOGGER.debug("migration {}: {}", level, msg, msg); // 2nd 'msg' is for stack trace
     messages.add(msg);
     consumer.ifPresent(c -> c.accept(msg));
     return this;

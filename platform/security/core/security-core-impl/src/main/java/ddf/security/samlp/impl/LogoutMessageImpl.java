@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.helpers.DOMUtils;
@@ -31,13 +33,18 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
+import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SAMLObject;
@@ -55,13 +62,18 @@ public class LogoutMessageImpl implements LogoutMessage {
 
   public static final String SAML_SOAP_ACTION = "http://www.oasis-open.org/committees/security";
 
-  private SystemCrypto systemCrypto;
-
   static {
     OpenSAMLUtil.initSamlEngine();
   }
 
-  public String getIdpSingleLogoutLocation(@NotNull IDPSSODescriptor descriptor) {
+  private SystemCrypto systemCrypto;
+  private UuidGenerator uuidGenerator;
+
+  public LogoutMessageImpl(UuidGenerator generator) {
+    uuidGenerator = generator;
+  }
+
+  public String getIdpSingleLogoutLocation(IDPSSODescriptor descriptor) {
     return descriptor
         .getSingleLogoutServices()
         .stream()
@@ -71,7 +83,7 @@ public class LogoutMessageImpl implements LogoutMessage {
         .orElse("");
   }
 
-  public SignableSAMLObject extractXmlObject(@NotNull String samlLogoutResponse)
+  public SignableSAMLObject extractXmlObject(String samlLogoutResponse)
       throws WSSecurityException, XMLStreamException {
     Document responseDoc =
         StaxUtils.read(
@@ -83,7 +95,7 @@ public class LogoutMessageImpl implements LogoutMessage {
     return null;
   }
 
-  private <T extends SAMLObject> T extract(@NotNull String samlObject, @NotNull Class<T> clazz)
+  private <T extends SAMLObject> T extract(String samlObject, Class<T> clazz)
       throws WSSecurityException, XMLStreamException {
     Document responseDoc =
         StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes(StandardCharsets.UTF_8)));
@@ -95,13 +107,13 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public LogoutResponse extractSamlLogoutResponse(@NotNull String samlLogoutResponse)
+  public LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
       throws XMLStreamException, WSSecurityException {
     return extract(samlLogoutResponse, LogoutResponse.class);
   }
 
   @Override
-  public LogoutRequest extractSamlLogoutRequest(@NotNull String samlLogoutResponse)
+  public LogoutRequest extractSamlLogoutRequest(String samlLogoutResponse)
       throws XMLStreamException, WSSecurityException {
     return extract(samlLogoutResponse, LogoutRequest.class);
   }
@@ -112,16 +124,18 @@ public class LogoutMessageImpl implements LogoutMessage {
    *
    * @param nameIdString NameId of user to log out
    * @param issuerOrEntityId The Issuer of the LogoutRequest
+   * @param sessionIndexes The list of session indexes selected for log out
    * @return the built <code>LogoutRequest</code>
    */
   @Override
   public LogoutRequest buildLogoutRequest(
-      @NotNull String nameIdString, @NotNull String issuerOrEntityId) {
-    return buildLogoutRequest(nameIdString, issuerOrEntityId, UUID.randomUUID().toString());
+      String nameIdString, String issuerOrEntityId, List<String> sessionIndexes) {
+    return buildLogoutRequest(
+        nameIdString, issuerOrEntityId, getUuidGenerator().generateUuid(), sessionIndexes);
   }
 
   public LogoutRequest buildLogoutRequest(
-      @NotNull String nameIdString, @NotNull String issuerOrEntityId, @NotNull String id) {
+      String nameIdString, String issuerOrEntityId, String id, List<String> sessionIndexes) {
     if (nameIdString == null) {
       throw new IllegalArgumentException("Name ID cannot be null");
     }
@@ -131,9 +145,15 @@ public class LogoutMessageImpl implements LogoutMessage {
     if (id == null) {
       throw new IllegalArgumentException("ID cannot be null");
     }
+    if (sessionIndexes == null) {
+      throw new IllegalArgumentException("Session Index collection can be empty, but not null.");
+    }
 
     return SamlProtocol.createLogoutRequest(
-        SamlProtocol.createIssuer(issuerOrEntityId), SamlProtocol.createNameID(nameIdString), id);
+        SamlProtocol.createIssuer(issuerOrEntityId),
+        SamlProtocol.createNameID(nameIdString),
+        id,
+        sessionIndexes);
   }
 
   /**
@@ -144,8 +164,7 @@ public class LogoutMessageImpl implements LogoutMessage {
    * @return LogoutResponse
    */
   @Override
-  public LogoutResponse buildLogoutResponse(
-      @NotNull String issuerOrEntityId, @NotNull String statusCodeValue) {
+  public LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue) {
     return buildLogoutResponse(issuerOrEntityId, statusCodeValue, null);
   }
 
@@ -157,10 +176,7 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   public LogoutResponse buildLogoutResponse(
-      @NotNull String issuerOrEntityId,
-      @NotNull String statusCodeValue,
-      String inResponseTo,
-      @NotNull String id) {
+      String issuerOrEntityId, String statusCodeValue, String inResponseTo, String id) {
     if (issuerOrEntityId == null) {
       throw new IllegalArgumentException("Issuer cannot be null");
     }
@@ -179,49 +195,61 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public Element getElementFromSaml(@NotNull XMLObject xmlObject) throws WSSecurityException {
+  public Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException {
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
     return OpenSAMLUtil.toDom(xmlObject, doc);
   }
 
   @Override
-  public String sendSamlLogoutRequest(@NotNull LogoutRequest request, @NotNull String targetUri)
+  public String sendSamlLogoutRequest(
+      LogoutRequest request, String targetUri, boolean isSoap, @Nullable Cookie cookie)
       throws IOException, WSSecurityException {
-    Element requestElement = getElementFromSaml(request);
+    XMLObject xmlObject = isSoap ? SamlProtocol.createSoapMessage(request) : request;
+
+    Element requestElement = getElementFromSaml(xmlObject);
     String requestMessage = DOM2Writer.nodeToString(requestElement);
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       HttpPost post = new HttpPost(targetUri);
       post.addHeader("Cache-Control", "no-cache, no-store");
       post.addHeader("Pragma", "no-cache");
       post.addHeader("SOAPAction", SAML_SOAP_ACTION);
+
+      post.addHeader("Content-Type", "application/soap+xml");
+
       post.setEntity(new StringEntity(requestMessage, "utf-8"));
       ResponseHandler<String> responseHandler = new BasicResponseHandler();
-      return httpClient.execute(post, responseHandler);
+      BasicHttpContext context = new BasicHttpContext();
+      if (cookie != null) {
+        BasicClientCookie basicClientCookie =
+            new BasicClientCookie(cookie.getName(), cookie.getValue());
+        basicClientCookie.setDomain(cookie.getDomain());
+        basicClientCookie.setPath(cookie.getPath());
+
+        BasicCookieStore cookieStore = new BasicCookieStore();
+        cookieStore.addCookie(basicClientCookie);
+        context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+      }
+
+      return httpClient.execute(post, responseHandler, context);
     }
   }
 
   @Override
-  public URI signSamlGetResponse(
-      @NotNull SAMLObject samlObject, @NotNull URI target, String relayState)
+  public URI signSamlGetResponse(SAMLObject samlObject, URI target, String relayState)
       throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
     return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_RESPONSE);
   }
 
   @Override
-  public URI signSamlGetRequest(
-      @NotNull SAMLObject samlObject, @NotNull URI target, String relayState)
+  public URI signSamlGetRequest(SAMLObject samlObject, URI target, String relayState)
       throws WSSecurityException, SimpleSign.SignatureException, IOException {
 
     return signSamlGet(samlObject, target, relayState, SSOConstants.SAML_REQUEST);
   }
 
-  private URI signSamlGet(
-      @NotNull SAMLObject samlObject,
-      @NotNull URI target,
-      String relayState,
-      @NotNull String requestType)
+  private URI signSamlGet(SAMLObject samlObject, URI target, String relayState, String requestType)
       throws WSSecurityException, SimpleSign.SignatureException, IOException {
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
@@ -242,5 +270,9 @@ public class LogoutMessageImpl implements LogoutMessage {
 
   public void setSystemCrypto(SystemCrypto systemCrypto) {
     this.systemCrypto = systemCrypto;
+  }
+
+  public UuidGenerator getUuidGenerator() {
+    return uuidGenerator;
   }
 }

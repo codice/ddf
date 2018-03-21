@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class SamlValidator {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SamlValidator.class);
 
   protected final Builder builder;
@@ -96,6 +97,7 @@ public abstract class SamlValidator {
   protected abstract SAMLVersion getSamlVersion();
 
   void checkPostSignature(SignableSAMLObject samlObject) throws ValidationException {
+    // Signing is optional, so null is OK
     if (samlObject.getSignature() != null) {
       try {
         builder.simpleSign.validateSignature(
@@ -108,16 +110,18 @@ public abstract class SamlValidator {
 
   void checkRedirectSignature(String reqres) throws ValidationException {
     try {
-      String signedParts =
-          String.format(
-              "%s=%s&RelayState=%s&SigAlg=%s",
-              reqres,
-              URLEncoder.encode(builder.samlString, "UTF-8"),
-              builder.relayState,
-              URLEncoder.encode(builder.sigAlgo, "UTF-8"));
+      StringBuilder signedParts =
+          new StringBuilder(reqres)
+              .append("=")
+              .append(URLEncoder.encode(builder.samlString, "UTF-8"));
+      String relayState = builder.relayState;
+      if (relayState != null) {
+        signedParts.append("&RelayState=").append(relayState);
+      }
+      signedParts.append("&SigAlg=").append(URLEncoder.encode(builder.sigAlgo, "UTF-8"));
 
       if (!builder.simpleSign.validateSignature(
-          signedParts, builder.signature, builder.signingCertificate)) {
+          signedParts.toString(), builder.signature, builder.signingCertificate)) {
         throw new ValidationException("Signature verification failed for redirect binding.");
       }
     } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
@@ -280,11 +284,28 @@ public abstract class SamlValidator {
   }
 
   public abstract static class Request extends SamlValidator {
+
     protected final LogoutRequest logoutRequest;
 
     private Request(Builder builder) {
       super(builder);
       logoutRequest = (LogoutRequest) builder.xmlObject;
+    }
+
+    /**
+     * A SAML LogoutRequest must include at least one SessionIndex, if the logout is initiated by
+     * Session Participant. However, if the Session Authority initiates the logout, a SessionIndex
+     * is optional. In that case, the absence of a SessionIndex means to logout of all sessions
+     * associated with the Principle. Because the SAMLValidator does not have enough information to
+     * determine who initiated the logout, this method does not throw a ValidationException.
+     * Instead, it logs the condition.
+     */
+    protected void checkSessionIndexes() {
+      if (logoutRequest.getSessionIndexes().isEmpty()) {
+        LOGGER.trace(
+            "Logout request does not contain a session index for name-id {}",
+            logoutRequest.getNameID());
+      }
     }
 
     @Override
@@ -367,35 +388,30 @@ public abstract class SamlValidator {
 
     @Override
     protected void checkId() throws ValidationException {
-      if (isNotBlank(builder.requestId)) {
-        if (!builder.requestId.equals(logoutResponse.getInResponseTo())) {
-          throw new ValidationException(
-              "The InResponseTo value did not match the Logout Request Id");
-        }
+      if (isNotBlank(builder.requestId)
+          && !builder.requestId.equals(logoutResponse.getInResponseTo())) {
+        throw new ValidationException("The InResponseTo value did not match the Logout Request Id");
       }
     }
   }
 
   public static class PostRequest extends Request {
-    protected final LogoutRequest logoutRequest;
 
     private PostRequest(Builder builder) {
       super(builder);
-      logoutRequest = (LogoutRequest) builder.xmlObject;
     }
 
     @Override
     protected void additionalValidation() throws ValidationException {
       checkPostSignature(logoutRequest);
+      checkSessionIndexes();
     }
   }
 
   public static class PostResponse extends Response {
-    protected final LogoutResponse logoutResponse;
 
     private PostResponse(Builder builder) {
       super(builder);
-      logoutResponse = (LogoutResponse) builder.xmlObject;
     }
 
     @Override
@@ -405,25 +421,22 @@ public abstract class SamlValidator {
   }
 
   public static class RedirectRequest extends Request {
-    protected final LogoutRequest logoutRequest;
 
     private RedirectRequest(Builder builder) {
       super(builder);
-      logoutRequest = (LogoutRequest) builder.xmlObject;
     }
 
     @Override
     protected void additionalValidation() throws ValidationException {
       checkRedirectSignature("SAMLRequest");
+      checkSessionIndexes();
     }
   }
 
   public static class RedirectResponse extends Response {
-    protected final LogoutResponse logoutResponse;
 
     private RedirectResponse(Builder builder) {
       super(builder);
-      logoutResponse = (LogoutResponse) builder.xmlObject;
     }
 
     @Override

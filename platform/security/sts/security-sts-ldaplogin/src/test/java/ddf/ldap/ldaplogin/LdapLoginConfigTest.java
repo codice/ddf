@@ -13,9 +13,9 @@
  */
 package ddf.ldap.ldaplogin;
 
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER_OPTIONS_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -86,7 +86,7 @@ public class LdapLoginConfigTest {
     List<Module> ldapModules = ldapService.getModules();
     for (Module module : ldapModules) {
       String moduleName = module.getName();
-      String username = module.getOptions().getProperty(CONNECTION_USERNAME);
+      String username = module.getOptions().getProperty(CONNECTION_USERNAME_OPTIONS_KEY);
       // Assert the ldap modules were updated.
       if (moduleName.equals(configIdOne)) {
         assertThat(username, is(equalTo("cn=user1")));
@@ -112,7 +112,7 @@ public class LdapLoginConfigTest {
   }
 
   private LdapLoginConfig createLdapConfig(LdapService ldapService) {
-    LdapLoginConfig ldapConfig = new LdapLoginConfig();
+    LdapLoginConfig ldapConfig = new LdapLoginConfig(context);
     ldapConfig.setLdapService(ldapService);
     ldapConfig.setLdapBindUserDn("cn=admin");
     ldapConfig.setLdapBindUserPass("password");
@@ -151,9 +151,10 @@ public class LdapLoginConfigTest {
     config.configure();
 
     Properties properties = ldapService.getModules().get(0).getOptions();
-    assertThat(properties.getProperty(USER_FILTER), is("(cn=%u)"));
+    assertThat(properties.getProperty(USER_FILTER_OPTIONS_KEY), is("(cn=%u)"));
     assertThat(
-        properties.getProperty(ROLE_FILTER), is("(member=uid=%u,ou=users,dc=example,dc=com)"));
+        properties.getProperty(ROLE_FILTER_OPTIONS_KEY),
+        is("(member=uid=%u,ou=users,dc=example,dc=com)"));
   }
 
   @Test
@@ -165,8 +166,9 @@ public class LdapLoginConfigTest {
     config.configure();
 
     Properties properties = ldapService.getModules().get(0).getOptions();
-    assertThat(properties.getProperty(USER_FILTER), is("(uid=%u)"));
+    assertThat(properties.getProperty(USER_FILTER_OPTIONS_KEY), is("(uid=%u)"));
     assertThat(
-        properties.getProperty(ROLE_FILTER), is("(member=cn=%u,ou=users,dc=example,dc=com)"));
+        properties.getProperty(ROLE_FILTER_OPTIONS_KEY),
+        is("(member=cn=%u,ou=users,dc=example,dc=com)"));
   }
 }

@@ -1,0 +1,59 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="home-templates-center">
+    <div class="home-templates-header">
+            <span class="home-templates-header-item home-templates-header-hint">
+                Start a new workspace
+            </span>
+        <div class="home-templates-header-item home-templates-header-button is-button" data-help="Click to see more choices for starting workspaces.">
+            <div class="home-templates-header-button-closed">
+                Show Templates
+                <span class="fa fa-caret-down"/>
+            </div>
+            <div class="home-templates-header-button-expanded is-hidden">
+                Hide Templates
+                <span class="fa fa-caret-up"/>
+            </div>
+        </div>
+    </div>
+    <div class="home-templates-adhoc">
+        <div class="adhoc-search">
+
+        </div><button class="adhoc-go is-primary">
+            <span class="fa fa-search"></span>
+        </button>
+    </div>
+    <div class="home-templates-choices is-list has-list-highlighting is-inline">
+        <div class="home-templates-choices-choice" data-template="blank" data-help="Click to create a new workspace from scratch.">
+            <div class="home-templates-choices-choice-preview">+</div>
+            <div class="home-templates-choices-choice-description">Blank</div>
+        </div>
+        <div class="home-templates-choices-choice" data-template="local" data-help="Click to create a new workspace with an example of a local constrained search.">
+            <div class="fa fa-home home-templates-choices-choice-preview home-templates-choices-choice-preview-icon"></div>
+            <div class="home-templates-choices-choice-description">Local</div>
+        </div>
+        <div class="home-templates-choices-choice" data-template="all" data-help="Click to create a new workspace with an example of a federated search.">
+            <div class="fa fa-cloud home-templates-choices-choice-preview home-templates-choices-choice-preview-icon"></div>
+            <div class="home-templates-choices-choice-description">Federated</div>
+        </div>
+        <div class="home-templates-choices-choice" data-template="geo" data-help="Click to create a new workspace with an example of a geographically constrained search.">
+            <div class="fa fa-globe home-templates-choices-choice-preview home-templates-choices-choice-preview-icon"></div>
+            <div class="home-templates-choices-choice-description">Location</div>
+        </div>
+        <div class="home-templates-choices-choice" data-template="latest" data-help="Click to create a new workspace with an example of a temporally constrained search.">
+            <div class="fa fa-clock-o home-templates-choices-choice-preview home-templates-choices-choice-preview-icon"></div>
+            <div class="home-templates-choices-choice-description">Temporal</div>
+        </div>
+    </div>
+</div>

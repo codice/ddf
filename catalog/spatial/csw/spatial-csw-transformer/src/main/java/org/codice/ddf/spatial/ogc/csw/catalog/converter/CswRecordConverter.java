@@ -31,7 +31,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -320,8 +319,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
   private MetacardType getMetacardTypeWithBackwardsCompatibility(MetacardType metacardType) {
     Set<AttributeDescriptor> additionalDescriptors =
         ImmutableSet.of(
-            BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE),
-            BasicTypes.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
+            MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.EFFECTIVE),
+            MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Metacard.CONTENT_TYPE));
     return new MetacardTypeImpl(metacardType.getName(), metacardType, additionalDescriptors);
   }
 

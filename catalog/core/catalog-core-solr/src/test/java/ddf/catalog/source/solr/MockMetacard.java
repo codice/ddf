@@ -15,7 +15,6 @@ package ddf.catalog.source.solr;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,7 +54,7 @@ public class MockMetacard extends MetacardImpl {
   }
 
   public MockMetacard(String metadata) {
-    this(metadata, BasicTypes.BASIC_METACARD);
+    this(metadata, MetacardImpl.BASIC_METACARD);
   }
 
   public static List<String> toStringList(List<Metacard> cards) {

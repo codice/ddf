@@ -87,6 +87,11 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-saml-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -99,6 +104,7 @@
                         <Embed-Dependency>
                             ddf-security-common,httpclient,httpcore,platform-util-unavailableurls,platform-util
                         </Embed-Dependency>
+                        <Conditional-Package>org.codice.ddf.security.util</Conditional-Package>
                         <Import-Package>
                             org.apache.cxf.common.util,
                             *

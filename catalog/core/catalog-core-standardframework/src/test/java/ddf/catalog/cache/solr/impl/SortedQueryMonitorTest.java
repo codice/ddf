@@ -219,7 +219,8 @@ public class SortedQueryMonitorTest {
 
     with()
         .await()
-        .atMost(200, TimeUnit.MILLISECONDS)
+        .atMost(5, TimeUnit.MINUTES) // It won't wait 5 minutes
+        .pollInterval(1, TimeUnit.MILLISECONDS)
         .until(
             () -> {
               queryMonitor.run();

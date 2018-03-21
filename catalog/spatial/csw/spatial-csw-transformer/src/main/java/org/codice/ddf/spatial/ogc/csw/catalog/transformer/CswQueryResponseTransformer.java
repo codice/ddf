@@ -436,7 +436,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
   public void init() {
     int numThreads = Runtime.getRuntime().availableProcessors();
-    LOGGER.debug(QUERY_POOL_NAME + " size: {}", numThreads);
+    LOGGER.debug("{} size: {}", QUERY_POOL_NAME, numThreads);
 
     /*
         - when first two args the same, get fixed size thread pool.

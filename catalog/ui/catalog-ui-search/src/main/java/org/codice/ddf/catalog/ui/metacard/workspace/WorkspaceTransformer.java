@@ -76,7 +76,18 @@ public class WorkspaceTransformer {
               List<Map<String, Object>> queries = (List) value;
               return queries
                   .stream()
-                  .map(transformIntoMetacard(new QueryMetacardImpl()))
+                  .map(query -> transformIntoMetacard(new QueryMetacardImpl()).apply(query))
+                  .map(this::toMetacardXml)
+                  .collect(Collectors.toList());
+            }));
+    metacardToJsonEntryMapper.put(
+        WorkspaceAttributes.WORKSPACE_LISTS,
+        remapValue(
+            value -> {
+              List<Map<String, Object>> content = (List) value;
+              return content
+                  .stream()
+                  .map(transformIntoMetacard(new ListMetacardImpl()))
                   .map(this::toMetacardXml)
                   .collect(Collectors.toList());
             }));
@@ -110,6 +121,18 @@ public class WorkspaceTransformer {
               List<String> queries = (List) value;
 
               return queries
+                  .stream()
+                  .map(this::toMetacardFromXml)
+                  .map(this::transform)
+                  .collect(Collectors.toList());
+            }));
+    jsonToMetacardEntryMapper.put(
+        WorkspaceAttributes.WORKSPACE_LISTS,
+        remapValue(
+            value -> {
+              List<String> lists = (List) value;
+
+              return lists
                   .stream()
                   .map(this::toMetacardFromXml)
                   .map(this::transform)

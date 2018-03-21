@@ -49,9 +49,7 @@ public class AbstractProfileCommandTest {
 
   @Test(expected = ApplicationServiceException.class)
   public void testApplicationServiceFailure() throws Exception {
-    doThrow(ApplicationServiceException.class)
-        .when(applicationService)
-        .startApplication(anyString());
+    doThrow(ApplicationServiceException.class).when(applicationService).getApplication(anyString());
     abstractProfileCommand.execute();
   }
 
@@ -70,7 +68,7 @@ public class AbstractProfileCommandTest {
   @Test
   public void testWorkingServices() throws Exception {
     abstractProfileCommand.execute();
-    verify(applicationService).startApplication(eq("test-app"));
+    verify(applicationService).getApplication(eq("test-app"));
     verify(featuresService).installFeature(eq("test-feature"));
     verify(bundleService).getBundle("test-bundle");
   }
@@ -89,7 +87,7 @@ public class AbstractProfileCommandTest {
               BundleService bundleService)
               throws Exception {
 
-            applicationService.startApplication("test-app");
+            applicationService.getApplication("test-app");
             featuresService.installFeature("test-feature");
             bundleService.getBundle("test-bundle");
           }

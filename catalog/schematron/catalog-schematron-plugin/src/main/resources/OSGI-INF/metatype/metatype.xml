@@ -14,23 +14,23 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="Schematron Validators"
-       name="Schematron Validation Services"
-       id="ddf.services.schematron.SchematronValidationService" >
+    <OCD description="Schematron Validators"
+         name="Schematron Validation Services"
+         id="ddf.services.schematron.SchematronValidationService">
 
-    <AD name="Ruleset Name" id="id" required="true" type="String"
-        description="Give this ruleset a name" />
+        <AD name="Ruleset Name" id="id" type="String" description="Give this ruleset a name"/>
 
-    <AD name="Root Namepsace" id="namespace" required="true" type="String"
-        description="The root namespace of the XML" />
+        <AD name="Root Namespace" id="namespace" type="String"
+            description="The root namespace of the XML"/>
 
-    <AD name="Schematron Files" id="schematronFileNames" required="true" type="String" cardinality="100"
-        description="Schematron files (*.sch) to be validated against" />
+        <AD name="Schematron File Names" id="schematronFileNames" type="String" cardinality="100"
+            description="Names of schematron files (*.sch) against which to validate metadata ingested into the Catalog. Absolute paths or relative paths may be specified. Relative paths are assumed to be relative to `${home_directory}/schematron`."/>
 
-  </OCD>
+    </OCD>
 
-  <Designate pid="ddf.services.schematron.SchematronValidationService" factoryPid="ddf.services.schematron.SchematronValidationService">
-    <Object ocdref="ddf.services.schematron.SchematronValidationService" />
-  </Designate>
+    <Designate pid="ddf.services.schematron.SchematronValidationService"
+               factoryPid="ddf.services.schematron.SchematronValidationService">
+        <Object ocdref="ddf.services.schematron.SchematronValidationService"/>
+    </Designate>
 
 </metatype:MetaData>

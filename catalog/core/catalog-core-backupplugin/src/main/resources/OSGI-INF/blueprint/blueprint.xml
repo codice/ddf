@@ -34,7 +34,7 @@
           destroy-method="shutdown">
         <cm:managed-properties persistent-id="ddf.catalog.backup.CatalogBackupPlugin"
                                update-strategy="container-managed"/>
-        <property name="rootBackupDir" value="${ddf.home}/data/backup"/>
+        <property name="rootBackupDir" value="${ddf.data}/backup"/>
         <property name="subDirLevels" value="2"/>
         <property name="terminationTimeoutSeconds" value="30"/>
         <property name="executor" ref="executorService"/>

@@ -30,6 +30,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
+import ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import java.io.File;
@@ -555,12 +556,13 @@ public class ReliableResourceDownloader implements Runnable {
       // If caching was not successful, then remove this product from the pending cache list
       // (Otherwise partially cached files will remain in pending list and returned to
       // subsequent clients)
-      if (reliableResourceStatus.getDownloadStatus() != DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE) {
+      if (!DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE.equals(
+          reliableResourceStatus.getDownloadStatus())) {
         if (doCaching) {
           resourceCache.removePendingCacheEntry(reliableResource.getKey());
         }
-        if (reliableResourceStatus.getDownloadStatus()
-            == DownloadStatus.RESOURCE_DOWNLOAD_CANCELED) {
+        if (DownloadStatus.RESOURCE_DOWNLOAD_CANCELED.equals(
+            reliableResourceStatus.getDownloadStatus())) {
           this.downloadState.setDownloadState(DownloadManagerState.DownloadState.CANCELED);
         } else {
           this.downloadState.setDownloadState(DownloadManagerState.DownloadState.FAILED);

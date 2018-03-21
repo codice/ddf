@@ -31,7 +31,7 @@ import com.google.common.io.CountingOutputStream;
 import ddf.catalog.cache.MockInputStream;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
@@ -42,6 +42,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -276,7 +277,7 @@ public class ReliableResourceDownloaderTest {
 
     when(metacard.getSourceId()).thenReturn(source);
 
-    when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
+    when(metacard.getMetacardType()).thenReturn(MetacardImpl.BASIC_METACARD);
 
     return metacard;
   }

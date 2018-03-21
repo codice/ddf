@@ -28,8 +28,8 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
-import org.codice.ddf.test.matchers.CastingMatchers;
-import org.codice.ddf.test.matchers.MappingMatchers;
+import org.codice.ddf.test.common.matchers.CastingMatchers;
+import org.codice.ddf.test.common.matchers.MappingMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -137,7 +137,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
   @Test
   public void testConstructorWithMigratable() throws Exception {
-    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable, false);
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.sameInstance(migratable));
@@ -154,7 +154,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null "));
 
-    new ImportMigrationContextImpl(null, mockMigrationZipFile, migratable);
+    new ImportMigrationContextImpl(null, mockMigrationZipFile, migratable, false);
   }
 
   @Test
@@ -162,7 +162,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratable"));
 
-    new ImportMigrationContextImpl(report, mockMigrationZipFile, (Migratable) null);
+    new ImportMigrationContextImpl(report, mockMigrationZipFile, (Migratable) null, false);
   }
 
   @Test
@@ -797,7 +797,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 
-    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable, false);
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION);
@@ -815,7 +815,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 
-    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable, false);
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION + "2");
@@ -830,7 +830,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
   @Test
   public void testDoImportWhenNotExported() throws Exception {
-    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable, false);
 
     Mockito.doNothing().when(migratable).doMissingImport(Mockito.any());
 
@@ -839,5 +839,23 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Mockito.verify(migratable, Mockito.never()).doImport(context);
     Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
     Mockito.verify(migratable).doMissingImport(context);
+  }
+
+  @Test
+  public void testDoImportWhenRequestedToSkip() throws Exception {
+    final Map<String, Object> metadata =
+        ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
+
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable, true);
+    context.processMetadata(metadata); // make sure context has a version
+
+    Mockito.when(migratable.getVersion()).thenReturn(VERSION);
+    Mockito.doNothing().when(migratable).doImport(Mockito.any());
+
+    context.doImport();
+
+    Mockito.verify(migratable, Mockito.never()).doImport(context);
+    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 }

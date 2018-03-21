@@ -11,10 +11,9 @@ The Metacard Backup S3 Storage Provider is a storage provider that will store ba
 
 To install the Metacard Backup File Storage Provider
 
-. Navigate to the *${admin-console}*.
-. Select ${ddf-catalog} application.
-. Select *Features* tab.
-. Install the `ccatalog-metacard-backup-s3storage` feature.
+. Navigate to the *System* tab.
+. Select the *Features* tab.
+. Install the `catalog-metacard-backup-s3storage` feature.
 
 ===== Configuring the Metacard S3 File Storage Provider
 

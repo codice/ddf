@@ -15,8 +15,11 @@ package org.codice.ddf.spatial.admin.module.service;
 
 import java.lang.management.ManagementFactory;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
@@ -45,33 +48,32 @@ public class Geocoding implements GeocodingMBean {
   }
 
   private void registerMbean() {
-    ObjectName objectName = null;
-    MBeanServer mBeanServer = null;
     try {
-      objectName = new ObjectName(Geocoding.class.getName() + ":service=geocoding");
-      mBeanServer = ManagementFactory.getPlatformMBeanServer();
-    } catch (MalformedObjectNameException e) {
+      ObjectName objectName = new ObjectName(Geocoding.class.getName() + ":service=geocoding");
+      MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+      tryRegisterMBean(mBeanServer, objectName);
+    } catch (MalformedObjectNameException
+        | InstanceAlreadyExistsException
+        | MBeanRegistrationException
+        | InstanceNotFoundException
+        | NotCompliantMBeanException e) {
       LOGGER.info("Unable to create Geocoding Configuration MBean.", e);
     }
-    if (mBeanServer != null) {
-      try {
-        try {
-          mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug(
-              "Registered Geocoding Configuration MBean under object name: {}", objectName);
-        } catch (InstanceAlreadyExistsException e) {
-          // Try to remove and re-register
-          mBeanServer.unregisterMBean(objectName);
-          mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug("Re-registered Geocoding Configuration MBean");
-        }
-      } catch (Exception e) {
-        // objectName is not always non-null because new ObjectName(...) can throw an exception
-        LOGGER.info(
-            "Could not register MBean [{}].",
-            objectName != null ? objectName.toString() : Geocoding.class.getName(),
-            e);
-      }
+  }
+
+  private void tryRegisterMBean(MBeanServer mBeanServer, ObjectName objectName)
+      throws InstanceAlreadyExistsException, MBeanRegistrationException, InstanceNotFoundException,
+          NotCompliantMBeanException {
+    try {
+      mBeanServer.registerMBean(this, objectName);
+      LOGGER.debug("Registered Geocoding Configuration MBean under object name: {}", objectName);
+    } catch (InstanceAlreadyExistsException e) {
+      // Try to remove and re-register
+      mBeanServer.unregisterMBean(objectName);
+      mBeanServer.registerMBean(this, objectName);
+      LOGGER.debug("Re-registered Geocoding Configuration MBean");
+    } catch (MBeanRegistrationException | NotCompliantMBeanException e) {
+      LOGGER.info("Could not register MBean [{}].", objectName);
     }
   }
 
@@ -105,13 +107,7 @@ public class Geocoding implements GeocodingMBean {
 
   private boolean updateIndex(String resource, boolean createIndex) {
 
-    final ProgressCallback progressCallback =
-        new ProgressCallback() {
-          @Override
-          public void updateProgress(final int progress) {
-            setProgress(progress);
-          }
-        };
+    final ProgressCallback progressCallback = this::setProgress;
 
     LOGGER.trace("Updating GeoNames Index...");
 

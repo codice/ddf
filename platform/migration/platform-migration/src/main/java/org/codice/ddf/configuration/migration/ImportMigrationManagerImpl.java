@@ -18,10 +18,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +33,7 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.OptionalMigratable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,8 @@ import org.slf4j.LoggerFactory;
 public class ImportMigrationManagerImpl implements Closeable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationManagerImpl.class);
+
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private final MigrationReport report;
 
@@ -64,22 +69,21 @@ public class ImportMigrationManagerImpl implements Closeable {
    *
    * @param report the migration report where warnings and errors can be recorded
    * @param zip the exported zip file
+   * @param mandatoryMigratables a set of mandatory migratable identifiers
    * @param migratables a stream of all migratables in the system
    * @throws MigrationException if a failure occurs while processing the zip file (the error will
    *     not be recorded with the report)
    * @throws IllegalArgumentException if <code>report</code> is <code>null</code> or if it is not
-   *     for an import migration operation or if <code>exportFile</code> or <code>migratables</code>
-   *     is <code>null</code>
+   *     for an import migration operation or if <code>zip</code> or <code>migratables</code> is
+   *     <code>null</code>
    */
   public ImportMigrationManagerImpl(
-      MigrationReport report, MigrationZipFile zip, Stream<? extends Migratable> migratables) {
-    this(report, migratables, zip);
-  }
-
-  ImportMigrationManagerImpl(
-      MigrationReport report, Stream<? extends Migratable> migratables, MigrationZipFile zip) {
+      MigrationReport report,
+      MigrationZipFile zip,
+      Set<String> mandatoryMigratables,
+      Stream<? extends Migratable> migratables) {
     Validate.notNull(report, "invalid null report");
-    Validate.notNull(zip, "null zip file");
+    Validate.notNull(zip, "invalid null zip file");
     Validate.isTrue(
         report.getOperation() == MigrationOperation.IMPORT, "invalid migration operation");
     Validate.notNull(migratables, "invalid null migratables");
@@ -94,7 +98,13 @@ public class ImportMigrationManagerImpl implements Closeable {
           migratables.collect(
               Collectors.toMap(
                   Migratable::getId,
-                  m -> new ImportMigrationContextImpl(report, zip, m),
+                  m ->
+                      new ImportMigrationContextImpl(
+                          report,
+                          zip,
+                          m,
+                          (m instanceof OptionalMigratable)
+                              && !mandatoryMigratables.contains(m.getId())),
                   ConfigurationMigrationManager.throwingMerger(),
                   LinkedHashMap::new)); // to preserved ranking order and remove duplicates
       // add a system contexts
@@ -119,7 +129,7 @@ public class ImportMigrationManagerImpl implements Closeable {
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-    } catch (SecurityException | IOException e) {
+    } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
     } catch (RuntimeException e) {
@@ -193,7 +203,9 @@ public class ImportMigrationManagerImpl implements Closeable {
       is =
           me.getInputStream()
               .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
-      return JsonUtils.MAPPER.parser().parseMap(IOUtils.toString(is, Charset.defaultCharset()));
+      return JsonUtils.MAPPER
+          .parser()
+          .parseMap(IOUtils.toString(is, ImportMigrationManagerImpl.DEFAULT_CHARSET));
     } finally {
       IOUtils.closeQuietly(is);
     }

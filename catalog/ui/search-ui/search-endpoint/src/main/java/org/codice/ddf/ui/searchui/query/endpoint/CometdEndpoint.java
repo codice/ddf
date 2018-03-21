@@ -17,6 +17,7 @@ import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.security.SubjectIdentity;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * The CometdEndpoint binds the SearchService and the CometdServlet together. This is where the
  * asynchronous endpoint is initially started.
  */
+@SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
 public class CometdEndpoint extends CometDServlet {
   private static final long serialVersionUID = 1L;
 
@@ -62,6 +64,8 @@ public class CometdEndpoint extends CometDServlet {
 
   private transient SearchController searchController;
 
+  private transient SubjectIdentity subjectIdentity;
+
   /**
    * Create a new CometdEndpoint
    *
@@ -76,7 +80,8 @@ public class CometdEndpoint extends CometDServlet {
       BundleContext bundleContext,
       EventAdmin eventAdmin,
       ActionRegistry actionRegistry,
-      ExecutorService executorService) {
+      ExecutorService executorService,
+      SubjectIdentity subjectIdentity) {
     LOGGER.trace("Constructing Cometd Endpoint");
     this.filterBuilder = filterBuilder;
     this.searchController =
@@ -85,6 +90,7 @@ public class CometdEndpoint extends CometDServlet {
     this.notificationController =
         new NotificationController(persistentStore, bundleContext, eventAdmin);
     this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
+    this.subjectIdentity = subjectIdentity;
 
     LOGGER.trace("Exiting CometdEndpoint constructor. ");
   }
@@ -149,7 +155,7 @@ public class CometdEndpoint extends CometDServlet {
 
       searchController.setBayeuxServer(bayeuxServer);
       searchService = new SearchService(filterBuilder, searchController);
-      UserService userService = new UserService(persistentStore);
+      UserService userService = new UserService(persistentStore, subjectIdentity);
       WorkspaceService workspaceService = new WorkspaceService(persistentStore);
       cometdAnnotationProcessor.process(userService);
       cometdAnnotationProcessor.process(workspaceService);
@@ -159,6 +165,7 @@ public class CometdEndpoint extends CometDServlet {
     }
   }
 
+  @Override
   public void destroy() {
     searchController.destroy();
   }

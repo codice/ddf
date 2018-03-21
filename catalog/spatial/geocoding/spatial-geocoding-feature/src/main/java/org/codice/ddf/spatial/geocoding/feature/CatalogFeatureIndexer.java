@@ -13,14 +13,18 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Location;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
@@ -49,19 +53,25 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
+  private static final String NAME_KEY = "name";
+
   private Security security = Security.getInstance();
 
   private CatalogFramework catalogFramework;
 
   private CatalogHelper catalogHelper;
 
+  private MetacardType metacardType;
+
   public void setSecurity(Security security) {
     this.security = security;
   }
 
-  public CatalogFeatureIndexer(CatalogFramework catalogFramework, CatalogHelper catalogHelper) {
+  public CatalogFeatureIndexer(
+      CatalogFramework catalogFramework, CatalogHelper catalogHelper, MetacardType metacardType) {
     this.catalogFramework = catalogFramework;
     this.catalogHelper = catalogHelper;
+    this.metacardType = metacardType;
   }
 
   @Override
@@ -114,33 +124,42 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   }
 
   private Metacard createMetacardForFeature(SimpleFeature feature) throws FeatureIndexingException {
-    Metacard metacard = new MetacardImpl();
+    Metacard metacard = new MetacardImpl(metacardType);
     String countryCode = feature.getID();
-    metacard.setAttribute(new AttributeImpl(Core.TITLE, countryCode));
 
-    String wkt = WKT_WRITER_THREAD_LOCAL.get().write((Geometry) feature.getDefaultGeometry());
-    metacard.setAttribute(new AttributeImpl(Core.LOCATION, wkt));
+    Object nameObject = feature.getAttribute(NAME_KEY);
+    if (nameObject instanceof String) {
+      metacard.setAttribute(new AttributeImpl(Core.TITLE, (String) nameObject));
 
-    List<Serializable> tags =
-        Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.COUNTRY_TAG);
-    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
-    return metacard;
+      metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, countryCode));
+      String wkt = WKT_WRITER_THREAD_LOCAL.get().write((Geometry) feature.getDefaultGeometry());
+      metacard.setAttribute(new AttributeImpl(Core.LOCATION, wkt));
+
+      List<Serializable> tags =
+          Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG);
+      metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
+      return metacard;
+    }
+
+    throw new FeatureIndexingException("Malformed feature");
   }
 
   private Metacard findMetacardForFeature(SimpleFeature feature) throws FeatureIndexingException {
-    String countryCode = feature.getID();
-
-    QueryRequest queryRequest =
-        new QueryRequestImpl(catalogHelper.getQueryForCountryCode(countryCode));
-    try {
-      SourceResponse response = catalogFramework.query(queryRequest);
-      if (response.getResults().isEmpty()) {
-        return null;
+    Object nameObject = feature.getAttribute(NAME_KEY);
+    if (nameObject instanceof String) {
+      String name = (String) nameObject;
+      QueryRequest queryRequest = new QueryRequestImpl(catalogHelper.getQueryForName(name));
+      try {
+        SourceResponse response = catalogFramework.query(queryRequest);
+        if (response.getResults().isEmpty()) {
+          return null;
+        }
+        return response.getResults().get(0).getMetacard();
+      } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+        throw new FeatureIndexingException(e.getMessage());
       }
-      return response.getResults().get(0).getMetacard();
-    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      throw new FeatureIndexingException(e.getMessage());
     }
+    throw new FeatureIndexingException("Unable to find feature");
   }
 
   private void removeExistingMetacards() throws FeatureIndexingException {

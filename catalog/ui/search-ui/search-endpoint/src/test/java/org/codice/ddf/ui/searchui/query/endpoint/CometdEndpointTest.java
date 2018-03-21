@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.security.SubjectIdentity;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 import javax.servlet.ServletConfig;
@@ -142,7 +143,8 @@ public class CometdEndpointTest {
                 mock(BundleContext.class),
                 mock(EventAdmin.class),
                 new ActionRegistryImpl(Collections.EMPTY_LIST, Collections.EMPTY_LIST),
-                Executors.newSingleThreadExecutor()));
+                Executors.newSingleThreadExecutor(),
+                mock(SubjectIdentity.class)));
     doNothing().when(cometdEndpoint).init();
   }
 

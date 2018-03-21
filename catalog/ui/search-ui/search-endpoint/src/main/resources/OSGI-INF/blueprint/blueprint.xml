@@ -52,6 +52,8 @@
         <argument ref="actionsProviders"/>
     </bean>
 
+    <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
+
     <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint" id="cometdEndpoint" destroy-method="destroy">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.endpoint"
                                update-strategy="container-managed"/>
@@ -63,6 +65,7 @@
         <argument ref="eventAdmin"/>
         <argument ref="actionRegistry"/>
         <argument ref="searchThreadPool"/>
+        <argument ref="subjectIdentity" />
     </bean>
 
     <service interface="javax.servlet.Servlet" ref="cometdEndpoint">

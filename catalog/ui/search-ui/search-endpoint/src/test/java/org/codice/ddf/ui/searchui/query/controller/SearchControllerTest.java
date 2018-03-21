@@ -528,12 +528,12 @@ public class SearchControllerTest {
   private void assertReplies(List<Mutable> replies) {
     for (Mutable reply : replies) {
       assertThat(reply, is(not(nullValue())));
-      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES), is(not(nullValue())));
-      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES), instanceOf(Map.class));
+      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES_KEY), is(not(nullValue())));
+      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES_KEY), instanceOf(Map.class));
 
       @SuppressWarnings("unchecked")
       Map<String, Object> types =
-          (Map<String, Object>) reply.getDataAsMap().get(Search.METACARD_TYPES);
+          (Map<String, Object>) reply.getDataAsMap().get(Search.METACARD_TYPES_KEY);
 
       assertThat(types.get("ddf.metacard"), is(not(nullValue())));
       assertThat(types.get("ddf.metacard"), instanceOf(Map.class));
@@ -554,8 +554,7 @@ public class SearchControllerTest {
       assertThat((String) typeInfo.get("metadata-target-namespace").get("format"), is("STRING"));
       assertThat((String) typeInfo.get("resource-uri").get("format"), is("STRING"));
       assertThat((Boolean) typeInfo.get("resource-uri").get("indexed"), is(true));
-      // since resource-size is not indexed, it should be filtered out
-      assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(false));
+      assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(true));
       assertThat((String) typeInfo.get("metadata").get("format"), is("XML"));
       assertThat((String) typeInfo.get("location").get("format"), is("GEOMETRY"));
     }

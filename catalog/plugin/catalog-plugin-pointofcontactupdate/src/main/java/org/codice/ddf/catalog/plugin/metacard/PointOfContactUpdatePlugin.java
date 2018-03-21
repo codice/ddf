@@ -25,7 +25,6 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PreAuthorizationPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,16 +94,16 @@ public class PointOfContactUpdatePlugin implements PreAuthorizationPlugin {
 
   private Metacard getPreviousMetacardWithId(String id, Map<String, Metacard> previousMetacards) {
     Metacard previous;
-    try {
-      previous =
-          previousMetacards
-              .entrySet()
-              .stream()
-              .map(e -> e.getValue())
-              .filter((x) -> x.getId().equals(id))
-              .findFirst()
-              .get();
-    } catch (NoSuchElementException e) {
+    previous =
+        previousMetacards
+            .entrySet()
+            .stream()
+            .map(Map.Entry::getValue)
+            .filter(x -> x.getId().equals(id))
+            .findFirst()
+            .orElse(null);
+
+    if (previous == null) {
       LOGGER.debug("Cannot locate metacard {} for update.", id);
       return null;
     }

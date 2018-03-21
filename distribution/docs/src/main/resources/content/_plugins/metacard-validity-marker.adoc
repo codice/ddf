@@ -26,10 +26,6 @@ This plugin is installed by default with a standard installation in the ${ddf-ca
 
 ===== Configuring Metacard Validity Marker
 
-By default, it will mark metacards with validation errors and warnings as they are reported by each metacard validator and then allow the ingest.
-To prevent the ingest of certain invalid metacards, the `Metacard Validity Marker` plugin can be configured to "enforce" one or more validators.
-Metacards that are invalid according to an "enforced" validator will not be ingested.
-
 See <<ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
 
 ===== Using Metacard Validity Marker

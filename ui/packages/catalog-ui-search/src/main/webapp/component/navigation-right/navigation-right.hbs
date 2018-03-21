@@ -1,0 +1,32 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<button class="navigation-item item-help is-button" title="Shows helpful hints in the current context.">
+    <span class="fa fa-question"></span>
+</button>
+<button class="navigation-item item-settings is-button" title="Shows settings for the application.">
+    <span class="fa fa-cog"></span>
+</button>
+<button class="navigation-item item-alerts is-button" title="Shows notifications.">
+    <span class="fa fa-bell"></span>
+    <span class="alerts-badge fa fa-exclamation"></span>
+</button>
+<button class="navigation-item item-user is-button">
+    <div class="user-unique" title="Logged in as {{user.username}}">
+        <span class="">{{user.username}}</span>
+        <span class="fa fa-user"></span>
+    </div>
+    <div class="user-guest" title="Logged in as guest."> 
+        <span class="">Sign In</span>
+    </div>
+</button>

@@ -16,7 +16,7 @@ To exit this mode, click the `?` again or press `escape`.
 
 === Accessing ${catalog-ui}
 
-The default URL for ${catalog-ui} is ${secure_url}/search/catalog
+The default URL for ${catalog-ui} is \${secure_url}/search/catalog
 
 .Catalog UI Guest Users
 [NOTE]
@@ -287,6 +287,10 @@ Details:: A detailed view of the result.
 
 Results can be edited from the *Summary* or *Details* tabs in the *Inspector* visual.
 
+==== Viewing Text Previews
+
+If a preview for a result is available, an extra tab will appear in the *Inspector* visual that allows you to see a preview of the resource.
+
 ==== Editing Associations on a Record
 
 Update relationships between records through *Associations*.
@@ -400,3 +404,8 @@ image::catalog-ui-settings-options.png[]
 ==== ${catalog-ui} Notifications
 
 Notifications can be checked/dismissed by clicking the *Notifications* icon (image:notifications-icon.png[]) on the navigation bar.
+
+==== ${catalog-ui} Low Bandwidth Mode
+
+Low bandwidth mode can be enabled by passing in a `?lowBandwidth` parameter along with any URL targeting the ${catalog-ui} endpoint.
+Ex: `${secure_url}/search/catalog/?lowBandwidth#workspaces`. Currently, enabling this parameter causes the system to prompt the user for confirmation before loading potentially bandwidth-intensive components like the 2D or 3D Maps.

@@ -1,4 +1,4 @@
-:title: Catalog Taxonomy
+:title: Catalog Taxonomy Definitions
 :type: appendix
 :status: published
 :parent: Metadata Attributes

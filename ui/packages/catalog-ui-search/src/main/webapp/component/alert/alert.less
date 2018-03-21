@@ -1,0 +1,32 @@
+@{customElementNamespace}alert {
+  .customElement;
+  overflow: hidden;
+
+  > .alert-menu {
+    margin: auto;
+  }
+
+  > .alert-menu {
+    height: 2*@minimumLineSize;
+  }
+
+  > .alert-details {
+    height: ~'calc(100% - 2*@{minimumLineSize})';
+  }
+
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}alert {
+    > .metacard-menu,
+    > .metacard-details {
+      max-width: 100%;
+    }
+    > .metacard-menu {
+      padding: 0px 20px;
+    }
+    > .metacard-details {
+      padding: 0px 0px;
+    }
+  }
+}

@@ -10,7 +10,6 @@
 This scenario describes how to configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
 All queries are enterprise queries and no catalog provider needs to be configured.
 
-. Reconfigure ${branding} in fanout proxy mode by going to the Features tab in the
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Select the *Configuration* tab.

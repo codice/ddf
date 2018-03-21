@@ -17,7 +17,7 @@
 
     <OCD name="Catalog Content Directory Monitor"
          id="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
-        <AD description="Specifies the directory to be monitored, can be a filesystem path or webdav address (only supported for Monitor in place)"
+        <AD description="Specifies the directory to be monitored, can be a filesystem path (absolute path) or webdav address (only supported for Monitor in place)"
             name="Directory Path" id="monitoredDirectoryPath" required="true"
             type="String" default=""/>
 

@@ -57,4 +57,29 @@ public class DynamicRouteDeployerTest {
     verify(dynamicRouteDeployer, times(1)).install(testFile);
     verify(dynamicRouteDeployer, times(1)).uninstall(testFile);
   }
+
+  @Test
+  public void testRestart() throws Exception {
+    CamelContext contextBeforeRestart = new DefaultCamelContext();
+    DynamicRouteDeployer dynamicRouteDeployerBeforeRestart =
+        new DynamicRouteDeployer(contextBeforeRestart);
+    dynamicRouteDeployerBeforeRestart.install(
+        new File(this.getClass().getResource("/test-route.xml").toURI()));
+    dynamicRouteDeployerBeforeRestart.destroy();
+
+    CamelContext contextAfterRestart = new DefaultCamelContext();
+    DynamicRouteDeployer dynamicRouteDeployerAfterRestart =
+        new DynamicRouteDeployer(contextAfterRestart);
+    assertThat(contextAfterRestart.getRouteDefinitions().size(), is(0));
+    dynamicRouteDeployerAfterRestart.init();
+    assertThat(contextAfterRestart.getRouteDefinitions().size(), is(1));
+  }
+
+  @Test
+  public void testCanHandle() throws Exception {
+    DynamicRouteDeployer dynamicRouteDeployer = mock(DynamicRouteDeployer.class);
+    doCallRealMethod().when(dynamicRouteDeployer).canHandle(any(File.class));
+    File testRoute = new File(this.getClass().getResource("/test-route.xml").toURI());
+    assertThat(dynamicRouteDeployer.canHandle(testRoute), is(Boolean.TRUE));
+  }
 }

@@ -8,39 +8,47 @@
 
 ${catalog-ui} includes capabilities to support custom map layer providers as well as support for several popular map layer providers.
 
+Some provider types are currently only supported by the https://openlayers.org[2D OpenLayers] map and some only by the https://cesiumjs.org[3D Cesium] map.
+
 .Map Formats Included in ${ddf-branding}
-[cols="1,1" options="header"]
+[cols="1,1,1" options="header"]
 |===
 
 |Format
-|Status
+|2D Documentation
+|3D Documentation
 
-|https://cesiumjs.org/Cesium/Build/Documentation/createOpenStreetMapImageryProvider.html[Open Street Map]
-|Supported
+|Open Street Map
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.OSM.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/createOpenStreetMapImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.ImageWMS.html[Web Map Service]
-|Supported
+|Web Map Service
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.ImageWMS.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/WebMapServiceImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.WMTS.html[Web Map Tile Service]
-|Supported
+|Web Map Tile Service
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.WMTS.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/WebMapTileServiceImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.XYZ.html[ArcGIS Map Server]
-|Supported
+|ArcGIS Map Server
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.XYZ.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/ArcGisMapServerImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.ImageStatic.html[Single Tile]
-|Supported
+|Single Tile
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.ImageStatic.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/SingleTileImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.BingMaps.html[Bing Maps]
-|Supported
+|Bing Maps
+|https://openlayers.org/en/v${openlayers.version}/apidoc/ol.source.BingMaps.html[OpenLayers]
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/BingMapsImageryProvider.html[Cesium]
 
-|https://openlayers.org/en/latest/apidoc/ol.source.MapQuest.html[Map Quest]
-|Supported
+|Tile Map Service
+|
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/createTileMapServiceImageryProvider.html[Cesium]
 
-|https://cesiumjs.org/Cesium/Build/Documentation/createTileMapServiceImageryProvider.html[Tile Map Service]
-|Supported
-
-|https://cesiumjs.org/Cesium/Build/Documentation/GoogleEarthImageryProvider.html[Google Earth]
-|Supported
+|Google Earth
+|
+|https://cesiumjs.org/releases/${cesium.version}/Build/Documentation/GoogleEarthImageryProvider.html[Cesium]
 
 |===
 

@@ -22,9 +22,6 @@
     <artifactId>catalog-ui-search</artifactId>
     <name>DDF :: Catalog :: UI :: Catalog UI Search</name>
     <packaging>bundle</packaging>
-    <properties>
-        <webpackConfig>./webpack/config/prod</webpackConfig>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -89,11 +86,6 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.error</groupId>
-            <artifactId>platform-error-servlet</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -200,12 +192,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>9.2.19.v20160908</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.email</groupId>
             <artifactId>platform-email-api</artifactId>
             <version>${project.version}</version>
@@ -250,11 +236,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>alerts</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>geotools-suite</artifactId>
             <version>${org.geotools.bundle.version}</version>
@@ -267,51 +248,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>${node.version}</nodeVersion>
-                            <npmVersion>4.1.2</npmVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm test</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <skip>${skipTests}</skip>
-                            <arguments>test</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>grunt build</id>
-                        <goals>
-                            <goal>grunt</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run build -- --config=${webpackConfig}</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -331,9 +267,7 @@
                             handlebars,
                             httpclient,
                             httpcore,
-                            jetty-servlets,
                             platform-email-impl,
-                            platform-error-servlet,
                             platform-util,
                             platform-util-unavailableurls,
                             proxy-camel-route,
@@ -342,11 +276,8 @@
                             quartz-jobs,
                             spark-core,
                             spatial4j,
-                            versioning-common,
-                            alerts
+                            versioning-common
                         </Embed-Dependency>
-                        <Web-ContextPath>/search/catalog</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.eclipse.jetty.server,
@@ -356,7 +287,6 @@
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
                             !sun.reflect,
                             !com.sun.management,
-                            !org.eclipse.jetty.websocket.*,
                             !org.noggit,
                             !commonj.work.*,
                             !oracle.sql.*,
@@ -420,18 +350,4 @@
 
     </build>
 
-    <profiles>
-        <profile>
-            <id>webpack dev</id>
-            <activation>
-                <property>
-                    <name>webBuildEnv</name>
-                    <value>dev</value>
-                </property>
-            </activation>
-            <properties>
-                <webpackConfig>./webpack/config/dev</webpackConfig>
-            </properties>
-        </profile>
-    </profiles>
 </project>

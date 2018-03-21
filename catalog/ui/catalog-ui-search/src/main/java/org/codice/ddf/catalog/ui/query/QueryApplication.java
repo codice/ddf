@@ -24,16 +24,25 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.QueryFunction;
+import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -43,13 +52,14 @@ import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
-public class QueryApplication implements SparkApplication {
+public class QueryApplication implements SparkApplication, Function {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
@@ -147,12 +157,82 @@ public class QueryApplication implements SparkApplication {
         });
   }
 
+  @Override
+  public Object apply(Object req) {
+    if (!(req instanceof List)) {
+      return JsonRpc.invalidParams("params not list", req);
+    }
+
+    List params = (List) req;
+
+    if (params.size() != 1) {
+      return JsonRpc.invalidParams("must pass exactly 1 param", params);
+    }
+
+    Object param = params.get(0);
+
+    if (!(param instanceof String)) {
+      return JsonRpc.invalidParams("param not string", param);
+    }
+
+    CqlRequest cqlRequest;
+
+    try {
+      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+    } catch (RuntimeException e) {
+      return JsonRpc.invalidParams("param not valid json", param);
+    }
+
+    try {
+      return executeCqlQuery(cqlRequest);
+    } catch (UnsupportedQueryException e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(400, "Unsupported query request.");
+    } catch (RuntimeException e) {
+      LOGGER.debug("Exception occurred", e);
+      return JsonRpc.error(404, "Could not find what you were looking for");
+    } catch (Exception e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(500, "Error while processing query request.");
+    }
+  }
+
   private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-
     Stopwatch stopwatch = Stopwatch.createStarted();
-    QueryResponse response = catalogFramework.query(request);
+
+    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
+    QueryFunction queryFunction =
+        (queryRequest) -> {
+          QueryResponse queryResponse = catalogFramework.query(queryRequest);
+          responses.add(queryResponse);
+          return queryResponse;
+        };
+
+    List<Result> results =
+        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
+            .stream()
+            .collect(Collectors.toList());
+
+    QueryResponse response =
+        new QueryResponseImpl(
+            request,
+            results,
+            true,
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getHits)
+                .findFirst()
+                .orElse(-1l),
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getProperties)
+                .findFirst()
+                .orElse(Collections.emptyMap()));
+
     stopwatch.stop();
 
     return new CqlQueryResponse(

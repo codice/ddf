@@ -8,7 +8,7 @@
 
 Set the configurations needed to run ${branding}.
 
-. In a browser, navigate to the ${admin-console} at ${secure_url}/admin.
+. In a browser, navigate to the ${admin-console} at \${secure_url}/admin.
 .. The ${admin-console} may take a few minutes to start up.
 . Enter the default username of `admin` and the password of `admin`.
 . Follow the installer prompts for a standard installation.

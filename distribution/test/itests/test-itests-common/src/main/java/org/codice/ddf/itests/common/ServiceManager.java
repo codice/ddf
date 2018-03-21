@@ -96,7 +96,7 @@ public interface ServiceManager {
 
   void startBundle(String bundleSymbolicName) throws BundleException;
 
-  void waitForRequiredApps(String... appNames) throws InterruptedException;
+  void uninstallBundle(String bundleSymbolicName) throws BundleException;
 
   void waitForAllBundles() throws InterruptedException;
 

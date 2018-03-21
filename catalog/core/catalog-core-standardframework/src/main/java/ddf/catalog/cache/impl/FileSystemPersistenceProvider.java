@@ -20,23 +20,22 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.io.IOUtils;
-import org.codice.ddf.configuration.AbsolutePathResolver;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,54 +48,26 @@ public class FileSystemPersistenceProvider
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
 
-  private static final String SER = ".ser";
+  private static final String EXT = ".ser";
 
-  private static final String SER_REGEX = "\\.ser";
+  private static final String EXT_REGEX = "\\.ser";
 
-  private String mapName = "default";
+  private static final String EXT_PATH_MATCH = "glob:**.ser";
+  private File persistencePath;
 
-  FileSystemPersistenceProvider(String mapName) {
+  FileSystemPersistenceProvider(String mapName, String persistencePath) {
     LOGGER.trace("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
-    this.mapName = mapName;
-    File dir = new File(getPersistencePath());
-    if (!dir.exists()) {
-      boolean success = dir.mkdir();
-      if (!success) {
-        LOGGER.info("Could not make directory: {}", dir.getAbsolutePath());
-      }
-    }
-  }
-
-  /**
-   * Retrieve root directory of all persisted Hazelcast objects for this cache. The path is relative
-   * to containing bundle, i.e., DDF install directory.
-   *
-   * @return the path to root directory where serialized objects will be persisted
-   */
-  String getPersistencePath() {
-    return new AbsolutePathResolver("data").getPath();
-  }
-
-  /**
-   * Path to where persisted Hazelcast objects will be stored to disk.
-   *
-   * @return
-   */
-  String getMapStorePath() {
-    return Paths.get(getPersistencePath(), mapName).toString() + File.separator;
+    this.persistencePath = new File(persistencePath);
+    initializePersistencePath();
   }
 
   @Override
   public void store(String key, Object value) {
-    File dir = new File(getMapStorePath());
-    if (!dir.exists() && !dir.mkdir()) {
-      LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
-    }
     LOGGER.trace("Entering: store - key: {}", key);
-    try (OutputStream file = new FileOutputStream(getMapStoreFile(key));
-        OutputStream buffer = new BufferedOutputStream(file);
-        ObjectOutput output = new ObjectOutputStream(buffer)) {
-      LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
+    try (ObjectOutput output =
+        new ObjectOutputStream(
+            new BufferedOutputStream(new FileOutputStream(getMapStoreFile(key))))) {
+      LOGGER.debug("file name: {}/{}{}", persistencePath, key, EXT);
       output.writeObject(value);
     } catch (IOException e) {
       LOGGER.debug("IOException storing value in cache with key = " + key, e);
@@ -106,27 +77,17 @@ public class FileSystemPersistenceProvider
 
   @Override
   public void storeAll(Map<String, Object> keyValueMap) {
-    for (Map.Entry<String, Object> entry : keyValueMap.entrySet()) {
-      store(entry.getKey(), entry.getValue());
-    }
+    keyValueMap.forEach(this::store);
   }
 
   @Override
   public void delete(String key) {
-    File file = getMapStoreFile(key);
-    if (file.exists()) {
-      boolean success = file.delete();
-      if (!success) {
-        LOGGER.info("Could not delete file {}", file.getAbsolutePath());
-      }
-    }
+    FileUtils.deleteQuietly(getMapStoreFile(key));
   }
 
   @Override
   public void deleteAll(Collection<String> keys) {
-    for (String key : keys) {
-      delete(key);
-    }
+    keys.forEach(this::delete);
   }
 
   @Override
@@ -137,85 +98,89 @@ public class FileSystemPersistenceProvider
     return null;
   }
 
-  Object loadFromPersistence(String key) {
-    File file = getMapStoreFile(key);
-    if (!file.exists()) {
-      return null;
-    }
-    InputStream inputStream = null;
-    try {
-      inputStream = new FileInputStream(getMapStorePath() + key + SER);
-      InputStream buffer = new BufferedInputStream(inputStream);
-
-      try (ObjectInput input = new ObjectInputStream(buffer)) {
-        return input.readObject();
-      }
-    } catch (IOException e) {
-      LOGGER.info("Unable to read object.", e);
-    } catch (ClassNotFoundException e) {
-      LOGGER.info("Class for object being read from stream does not exist.", e);
-    } finally {
-      IOUtils.closeQuietly(inputStream);
-    }
-    return null;
-  }
-
   @Override
   public Map<String, Object> loadAll(Collection<String> keys) {
-    Map<String, Object> values = new HashMap<String, Object>();
+    Map<String, Object> values = new HashMap<>();
 
-    for (String key : keys) {
-      Object obj = loadFromPersistence(key);
-      if (obj != null) {
-        values.put(key, obj);
-      }
-    }
-    return values;
-  }
-
-  private FilenameFilter getFilenameFilter() {
-    FilenameFilter filter =
-        new FilenameFilter() {
-          @Override
-          public boolean accept(File file, String name) {
-            return name.toLowerCase(Locale.getDefault()).endsWith(SER);
+    keys.forEach(
+        key -> {
+          Object obj = loadFromPersistence(key);
+          if (obj != null) {
+            values.put(key, obj);
           }
-        };
-    return filter;
+        });
+    return values;
   }
 
   @Override
   public Set<String> loadAllKeys() {
-    Set<String> keys = new HashSet<String>();
-    LOGGER.debug("Entering loadAllKeys");
+    Set<String> keys = new HashSet<>();
+    LOGGER.trace("Entering loadAllKeys");
 
-    File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-    if (files == null) {
-      return keys;
+    try (Stream<Path> stream = Files.list(persistencePath.toPath())) {
+      keys =
+          stream
+              .filter(getPathMatcher()::matches)
+              .map(Path::getFileName)
+              .map(Path::toString)
+              .map(fileName -> fileName.replaceFirst(EXT_REGEX, ""))
+              .collect(Collectors.toSet());
+    } catch (IOException e) {
+      LOGGER.warn("Unable to read files at {}", persistencePath);
     }
 
-    for (File file : files) {
-      keys.add(file.getName().replaceFirst(SER_REGEX, ""));
-    }
-
-    LOGGER.debug("Leaving loadAllKeys");
+    LOGGER.trace("Leaving loadAllKeys");
 
     return keys;
   }
 
   public void clear() {
-    File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-    if (null != files) {
-      for (File file : files) {
-        boolean success = file.delete();
-        if (!success) {
-          LOGGER.info("Could not delete file {}", file.getAbsolutePath());
-        }
-      }
+    try (Stream<Path> stream = Files.list(persistencePath.toPath())) {
+      stream.filter(getPathMatcher()::matches).map(Path::toFile).forEach(FileUtils::deleteQuietly);
+    } catch (IOException e) {
+      LOGGER.warn("Unable to delete files at {}", persistencePath.getAbsolutePath());
     }
   }
 
+  public File getPersistencePath() {
+    return persistencePath;
+  }
+
+  private Object loadFromPersistence(String key) {
+    File file = getMapStoreFile(key);
+
+    if (!file.exists()) {
+      return null;
+    }
+
+    try (ObjectInput input =
+        new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+      return input.readObject();
+    } catch (IOException e) {
+      LOGGER.info("Unable to read object.", e);
+    } catch (ClassNotFoundException e) {
+      LOGGER.info("Class for object being read from stream does not exist.", e);
+      FileUtils.deleteQuietly(file);
+    }
+
+    return null;
+  }
+
   private File getMapStoreFile(String key) {
-    return new File(getMapStorePath() + key + SER);
+    return persistencePath.toPath().resolve(key + EXT).toFile();
+  }
+
+  private PathMatcher getPathMatcher() {
+    return persistencePath.toPath().getFileSystem().getPathMatcher(EXT_PATH_MATCH);
+  }
+
+  private void initializePersistencePath() {
+    if (!persistencePath.exists()) {
+      try {
+        FileUtils.forceMkdir(persistencePath);
+      } catch (IOException e) {
+        LOGGER.warn("Could not make directory: {}", persistencePath.getAbsolutePath());
+      }
+    }
   }
 }

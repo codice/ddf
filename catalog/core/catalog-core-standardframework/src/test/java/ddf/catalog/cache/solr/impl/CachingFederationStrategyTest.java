@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
@@ -61,12 +62,14 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
 import org.codice.ddf.configuration.SystemInfo;
@@ -74,9 +77,13 @@ import org.geotools.filter.NullFilterImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.sort.SortBy;
 
+@RunWith(MockitoJUnitRunner.class)
 public class CachingFederationStrategyTest {
 
   private static final long LONG_TIMEOUT = 1000;
@@ -85,39 +92,35 @@ public class CachingFederationStrategyTest {
 
   private ExecutorService cacheExecutor, queryExecutor;
 
-  private Query mockQuery;
+  @Mock private Query mockQuery;
 
   private CachingFederationStrategy strategy;
 
-  private PreFederatedQueryPlugin preQueryPlugin;
+  private CachingFederationStrategy federateStrategy;
 
-  private MetacardImpl mockMetacard;
+  @Mock private PreFederatedQueryPlugin preQueryPlugin;
 
-  private Result mockResult;
+  private MetacardImpl metacard;
 
-  private SourceResponse mockResponse;
+  @Mock private SourceResponse mockResponse;
 
-  private List<Result> results;
+  @Mock private SortedQueryMonitorFactory mockSortedQueryMonitorFactory;
 
-  private SortedQueryMonitorFactory mockSortedQueryMonitorFactory;
+  @Mock private SortedQueryMonitor mockSortedQueryMonitor;
 
-  private SortedQueryMonitor mockSortedQueryMonitor;
+  @Mock private SolrClientAdaptor mockClientAdaptor;
 
-  private SolrClientAdaptor clientAdaptor;
-
-  private SolrCache cache;
+  @Mock private SolrCache cache;
 
   private HashMap<String, Serializable> properties;
 
-  private ValidationQueryFactory validationQueryFactory;
-
-  private ArgumentCaptor<QueryResponseImpl> responseArgumentCaptor;
+  @Mock private ValidationQueryFactory validationQueryFactory;
 
   private ArgumentCaptor<QueryRequestImpl> requestArgumentCaptor;
 
-  private CacheBulkProcessor cacheBulkProcessor;
+  @Mock private CacheBulkProcessor cacheBulkProcessor;
 
-  private CacheCommitPhaser cacheCommitPhaser;
+  @Mock private CacheCommitPhaser cacheCommitPhaser;
 
   private ArgumentCaptor<List<Result>> cacheArgs;
 
@@ -126,20 +129,10 @@ public class CachingFederationStrategyTest {
     cacheExecutor = MoreExecutors.newDirectExecutorService();
     queryExecutor = MoreExecutors.newDirectExecutorService();
 
-    preQueryPlugin = mock(PreFederatedQueryPlugin.class);
     when(preQueryPlugin.process(any(), any()))
         .thenAnswer(invocation -> invocation.getArguments()[1]);
 
-    clientAdaptor = mock(SolrClientAdaptor.class);
-
-    cache = mock(SolrCache.class);
-
-    cacheBulkProcessor = mock(CacheBulkProcessor.class);
-    cacheCommitPhaser = mock(CacheCommitPhaser.class);
-
     cacheArgs = ArgumentCaptor.forClass((Class) List.class);
-
-    validationQueryFactory = mock(ValidationQueryFactory.class);
 
     strategy =
         new CachingFederationStrategy(
@@ -151,10 +144,18 @@ public class CachingFederationStrategyTest {
             validationQueryFactory,
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
-    mockSortedQueryMonitorFactory = mock(SortedQueryMonitorFactory.class);
-    mockSortedQueryMonitor = mock(SortedQueryMonitor.class);
+    federateStrategy =
+        new CachingFederationStrategy(
+            queryExecutor,
+            Arrays.asList(preQueryPlugin),
+            new ArrayList<>(),
+            cache,
+            cacheExecutor,
+            validationQueryFactory,
+            new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
-    responseArgumentCaptor = ArgumentCaptor.forClass(QueryResponseImpl.class);
+    ArgumentCaptor<QueryResponseImpl> responseArgumentCaptor =
+        ArgumentCaptor.forClass(QueryResponseImpl.class);
     requestArgumentCaptor = ArgumentCaptor.forClass(QueryRequestImpl.class);
 
     when(mockSortedQueryMonitorFactory.createMonitor(
@@ -169,27 +170,88 @@ public class CachingFederationStrategyTest {
     strategy.setCacheCommitPhaser(cacheCommitPhaser);
     strategy.setCacheBulkProcessor(cacheBulkProcessor);
 
-    mockQuery = mock(Query.class);
     when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
     when(mockQuery.getPageSize()).thenReturn(-1);
 
-    mockMetacard = new MetacardImpl();
-    mockMetacard.setId("mock metacard");
+    metacard = new MetacardImpl();
+    metacard.setId("mock metacard");
 
-    mockResult = new ResultImpl(mockMetacard);
+    Result mockResult = new ResultImpl(metacard);
 
-    mockResponse = mock(SourceResponse.class);
-    results = Arrays.asList(mockResult);
+    List<Result> results = Arrays.asList(mockResult);
     when(mockResponse.getResults()).thenReturn(results);
 
     // Set general properties
     properties = new HashMap<>();
-    properties.put(QUERY_MODE, NATIVE_QUERY_MODE);
   }
 
   @After
   public void tearDownClass() throws Exception {
     strategy.shutdown();
+  }
+
+  @Test
+  public void testFederateGetResults() throws Exception {
+    // The incoming QueryRequest's siteNames are checked before CachingFederationStrategy is called,
+    // so they don't need to be set here.
+    // CachingFederationStrategy will return all the results from
+    // the sourceList and never touch the QueryRequest's siteNames
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
+
+    Source mockSource1 = getMockSource();
+    Source mockSource2 = getMockSource();
+    Source mockSource3 = getMockSource();
+
+    List<Source> sourceList = ImmutableList.of(mockSource1, mockSource2, mockSource3);
+
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    assertThat(federateResponse.getResults().size(), is(sourceList.size()));
+  }
+
+  @Test
+  public void testFederateGetEmptyResults() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
+
+    List<Source> sourceList = ImmutableList.of();
+
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    assertThat(federateResponse.getResults().size(), is(0));
+  }
+
+  @Test
+  public void testFederateGetHits() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, true, null, null);
+
+    Source mockSource1 = getMockSource();
+    Source mockSource2 = getMockSource();
+    Source mockSource3 = getMockSource();
+
+    List<Source> sourceList = ImmutableList.of(mockSource1, mockSource2, mockSource3);
+
+    long numHits = 2;
+
+    when(mockResponse.getHits()).thenReturn(numHits);
+
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    assertThat(federateResponse.getHits(), is(numHits * sourceList.size()));
+  }
+
+  @Test
+  public void testFederateGetEmptyHits() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
+
+    List<Source> sourceList = ImmutableList.of();
+
+    long numHits = 5;
+
+    when(mockResponse.getHits()).thenReturn(numHits);
+
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    assertThat(federateResponse.getHits(), is((long) 0));
   }
 
   @Test
@@ -539,7 +601,7 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessUpdateResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(clientAdaptor));
+    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -586,7 +648,7 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessDeleteResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(clientAdaptor));
+    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -738,9 +800,18 @@ public class CachingFederationStrategyTest {
     strategy.federate(sources, fedQueryRequest);
   }
 
+  private Source getMockSource() throws UnsupportedQueryException {
+    Source mockSource = mock(Source.class);
+    when(mockSource.getId()).thenReturn(UUID.randomUUID().toString());
+
+    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+    return mockSource;
+  }
+
   private void verifyCacheUpdated() {
     for (Result result : cacheArgs.getValue()) {
-      assertThat(result.getMetacard().getId(), is(mockMetacard.getId()));
+      assertThat(result.getMetacard().getId(), is(metacard.getId()));
     }
   }
 

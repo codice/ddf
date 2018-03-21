@@ -11,20 +11,16 @@
  *
  **/ -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
-    <bean id="appService"
-          class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
+    <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
-                update-strategy="container-managed"/>
-        <argument ref="bundleStateServices"/>
-        <property name="configFileName"
-                  value="${ddf.home}/etc/org.codice.ddf.admin.applicationlist.properties"/>
+            persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
+            update-strategy="container-managed"/>
+        <argument ref="featuresService"/>
     </bean>
 
     <service ref="appService"
@@ -49,20 +45,39 @@
         <property name="applicationPlugins" ref="applicationPluginList"/>
     </bean>
 
-    <reference id="configurationAdmin" interface="org.codice.ddf.admin.core.api.ConfigurationAdmin" />
+    <reference id="configurationAdmin"
+               interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"/>
 
-    <jaxrs:server id="restService" address="/application">
-        <jaxrs:serviceBeans>
-            <ref component-id="restSvc"/>
-        </jaxrs:serviceBeans>
-    </jaxrs:server>
-
-    <bean id="restSvc" class="org.codice.ddf.admin.application.rest.ApplicationUploadEndpoint">
-        <argument ref="appService"/>
-    </bean>
-    
     <reference-list id="applicationPluginList"
                     interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
                     availability="optional"/>
 
+    <bean id="featureProcessor"
+          class="org.codice.ddf.admin.application.service.migratable.FeatureProcessor">
+        <argument ref="featuresService"/>
+    </bean>
+
+    <bean id="featureMigrator"
+          class="org.codice.ddf.admin.application.service.migratable.FeatureMigrator">
+        <argument ref="featuresService"/>
+        <argument ref="featureProcessor"/>
+    </bean>
+
+    <bean id="bundleProcessor"
+          class="org.codice.ddf.admin.application.service.migratable.BundleProcessor"/>
+
+    <bean id="bundleMigrator"
+          class="org.codice.ddf.admin.application.service.migratable.BundleMigrator">
+        <argument ref="bundleProcessor"/>
+    </bean>
+
+    <bean id="profileMigratable"
+          class="org.codice.ddf.admin.application.service.migratable.ProfileMigratable">
+        <argument ref="featureMigrator"/>
+        <argument ref="bundleMigrator"/>
+    </bean>
+
+    <!-- ranking is set to 9999 to ensure it will be migrated first -->
+    <service id="profileMigratableService" ref="profileMigratable"
+             interface="org.codice.ddf.migration.Migratable" ranking="9999"/>
 </blueprint>

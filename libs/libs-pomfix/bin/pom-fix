@@ -62,6 +62,7 @@ var options = {
     group: [/^org\.codice/, /^ddf/].concat(program.include || [])
   },
   exclude: {
+    group: [/org.codice.webjars/],
     artifact: ['docs', /^sample-/],
     type: ['javadoc']
   }

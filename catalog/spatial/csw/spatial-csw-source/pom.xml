@@ -78,6 +78,11 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-action</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-schema-bindings</artifactId>
         </dependency>
         <dependency>
@@ -184,6 +189,7 @@
                         <Import-Package>
                             !org.jvnet.staxex,
                             ddf.security.permission,
+                            org.codice.ddf.spatial.ogc.csw.catalog.actions,
                             *
                         </Import-Package>
                         <!-- Don't Export Anything -->

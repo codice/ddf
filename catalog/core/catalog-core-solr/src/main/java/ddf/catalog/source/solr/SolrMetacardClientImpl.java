@@ -15,7 +15,14 @@ package ddf.catalog.source.solr;
 
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
+import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
+import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_FILTER_QUERY;
+import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
+import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
@@ -50,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -61,6 +69,8 @@ import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SuggesterResponse;
+import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
@@ -88,6 +98,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String QUOTE = "\"";
 
+  private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
+      "catalog.zeroPageSizeCompatibility";
+
   public static final String SORT_FIELD_KEY = "sfield";
 
   public static final String POINT_KEY = "pt";
@@ -101,6 +114,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final FilterAdapter filterAdapter;
 
   private final DynamicSchemaResolver resolver;
+
+  private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
+      () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
   public SolrMetacardClientImpl(
       SolrClient client,
@@ -120,10 +136,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
     if (request == null || request.getQuery() == null) {
-      return new QueryResponseImpl(request, new ArrayList<Result>(), true, 0L);
+      return new QueryResponseImpl(request, new ArrayList<>(), true, 0L);
     }
 
     SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
+
+    List<Result> results = new ArrayList<>();
+    Map<String, Serializable> responseProps = new HashMap<>();
 
     boolean isFacetedQuery = false;
     Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
@@ -147,13 +166,44 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
 
-    long totalHits;
-    List<Result> results = new ArrayList<>();
-    Map<String, Serializable> responseProps = new HashMap<>();
+    Serializable suggestQueryProp = request.getPropertyValue(SUGGESTION_QUERY_KEY);
+    Serializable suggestContextProp = request.getPropertyValue(SUGGESTION_CONTEXT_KEY);
+    Serializable suggestDictProp = request.getPropertyValue(SUGGESTION_DICT_KEY);
+
+    if (suggestQueryProp instanceof String && suggestContextProp instanceof String) {
+      query = new SolrQuery();
+      query.setRequestHandler("/suggest");
+      query.setParam(SUGGEST_Q, (String) suggestQueryProp);
+      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, (String) suggestContextProp);
+      query.setParam(SUGGEST_DICT, (String) suggestDictProp);
+    }
+
+    long totalHits = 0;
+
     try {
       QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
-      totalHits = solrResponse.getResults().getNumFound();
+
       SolrDocumentList docs = solrResponse.getResults();
+      if (docs != null) {
+        totalHits = docs.getNumFound();
+        addDocsToResults(docs, results);
+      }
+
+      SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
+
+      if (suggesterResponse != null) {
+        List<String> suggestionResults =
+            suggesterResponse
+                .getSuggestions()
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .flatMap(List::stream)
+                .map(Suggestion::getTerm)
+                .collect(Collectors.toList());
+
+        responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
+      }
 
       if (isFacetedQuery) {
         List<FacetField> facetFields = solrResponse.getFacetFields();
@@ -164,25 +214,28 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
       }
 
-      for (SolrDocument doc : docs) {
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-        }
-        ResultImpl tmpResult;
-        try {
-          tmpResult = createResult(doc);
-        } catch (MetacardCreationException e) {
-          throw new UnsupportedQueryException("Could not create metacard(s).", e);
-        }
-
-        results.add(tmpResult);
-      }
-
     } catch (SolrServerException | IOException | SolrException e) {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private void addDocsToResults(SolrDocumentList docs, List<Result> results)
+      throws UnsupportedQueryException {
+    for (SolrDocument doc : docs) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+      }
+      ResultImpl tmpResult;
+      try {
+        tmpResult = createResult(doc);
+      } catch (MetacardCreationException e) {
+        throw new UnsupportedQueryException("Could not create result metacard(s).", e);
+      }
+
+      results.add(tmpResult);
+    }
   }
 
   private String addAttributeTypeSuffix(String attribute) {
@@ -433,7 +486,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
-    return request.getQuery().getPageSize() < 1;
+    if (ZERO_PAGESIZE_COMPATIBILTY.get()) {
+      return request.getQuery().getPageSize() < 1;
+    }
+
+    return request.getQuery().getPageSize() < 0;
   }
 
   private int queryForNumberOfRows(SolrQuery query) throws SolrServerException, IOException {

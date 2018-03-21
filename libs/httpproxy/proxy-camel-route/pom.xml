@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>httpproxy-pom</artifactId>
@@ -77,6 +79,11 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+            <version>3.0.2_1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -87,16 +94,17 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-            	org.apache.camel.component.http,
-            	org.apache.camel.component.servlet,
-            	org.apache.camel.core.osgi,
-            	*
-            </Import-Package>
+                            org.apache.camel.component.http,
+                            org.apache.camel.component.servlet,
+                            org.apache.camel.core.osgi,
+                            javax.annotation;version="[1.2,2)",
+                            *
+                        </Import-Package>
                         <Export-Package>
-            	org.apache.camel.component.servlet,
-            	org.apache.camel.core.osgi,
-            	org.codice.proxy.http
-            </Export-Package>
+                            org.apache.camel.component.servlet,
+                            org.apache.camel.core.osgi,
+                            org.codice.proxy.http
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

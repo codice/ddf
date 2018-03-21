@@ -77,4 +77,4 @@ JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON
 
 export KARAF_OPTS="-Dfile.encoding=UTF8"
 
-export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
+export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME}/ -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"

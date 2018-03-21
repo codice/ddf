@@ -1,0 +1,159 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
+                       xmlns:sf="http://www.openplans.org/spearfish"
+                       xmlns:xlink="http://www.w3.org/1999/xlink">
+    <gml:featureMembers>
+        <sf:roads gml:id="roads.1">
+            <sf:the_geom>
+                <gml:GeometricComplex>
+                    <gml:element>
+                        <gml:Point gml:id="p23">
+                            <gml:pos>0 0 0</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p87">
+                            <gml:pos>2 0 0</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p99">
+                            <gml:pos>2 2 0</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p10">
+                            <gml:pos>0 2 0</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p34">
+                            <gml:pos>0 0 2</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <!-- vertex 0 -->
+                        <!-- vertex 1 -->
+                        <!-- vertex 2 -->
+                        <!-- vertex 3 -->
+                        <!-- vertex 4 -->
+                        <gml:Point gml:id="p7">
+                            <gml:pos>2 0 2</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p157">
+                            <gml:pos>2 2 2</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Point gml:id="p88">
+                            <gml:pos>0 2 2</gml:pos>
+                        </gml:Point>
+                    </gml:element>
+                    <gml:element>
+                        <gml:Solid gml:id="solid1">
+                            <gml:exterior>
+                                <gml:Shell>
+                                    <gml:surfaceMember>
+                                        <!-- vertex 5 -->
+                                        <!-- vertex 6 -->
+                                        <!-- vertex 7 -->
+                                        <gml:Surface gml:id="surface57">
+                                            <gml:patches>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <!-- face 0 -->
+                                                        <gml:LinearRing>
+                                                            <gml:pointProperty xlink:href="#p23"/>
+                                                            <gml:pointProperty xlink:href="#p34"/>
+                                                            <gml:pointProperty xlink:href="#p7"/>
+                                                            <gml:pointProperty xlink:href="#p87"/>
+                                                            <gml:pointProperty xlink:href="#p23"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <!-- face 1 -->
+                                                            <gml:pointProperty xlink:href="#p87"/>
+                                                            <gml:pointProperty xlink:href="#p7"/>
+                                                            <gml:pointProperty xlink:href="#p157"/>
+                                                            <gml:pointProperty xlink:href="#p99"/>
+                                                            <gml:pointProperty xlink:href="#p87"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <!-- face 2 -->
+                                                            <gml:pointProperty xlink:href="#p99"/>
+                                                            <gml:pointProperty xlink:href="#p157"/>
+                                                            <gml:pointProperty xlink:href="#p88"/>
+                                                            <gml:pointProperty xlink:href="#p10"/>
+                                                            <gml:pointProperty xlink:href="#p99"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <!-- face 3 -->
+                                                            <gml:pointProperty xlink:href="#p10"/>
+                                                            <gml:pointProperty xlink:href="#p88"/>
+                                                            <gml:pointProperty xlink:href="#p34"/>
+                                                            <gml:pointProperty xlink:href="#p23"/>
+                                                            <gml:pointProperty xlink:href="#p10"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <!-- face 4 -->
+                                                            <gml:pointProperty xlink:href="#p23"/>
+                                                            <gml:pointProperty xlink:href="#p87"/>
+                                                            <gml:pointProperty xlink:href="#p99"/>
+                                                            <gml:pointProperty xlink:href="#p10"/>
+                                                            <gml:pointProperty xlink:href="#p23"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                                <gml:PolygonPatch>
+                                                    <gml:exterior>
+                                                        <gml:LinearRing>
+                                                            <!-- face 5 -->
+                                                            <gml:pointProperty xlink:href="#p34"/>
+                                                            <gml:pointProperty xlink:href="#p88"/>
+                                                            <gml:pointProperty xlink:href="#p157"/>
+                                                            <gml:pointProperty xlink:href="#p7"/>
+                                                            <gml:pointProperty xlink:href="#p34"/>
+                                                        </gml:LinearRing>
+                                                    </gml:exterior>
+                                                </gml:PolygonPatch>
+                                            </gml:patches>
+                                        </gml:Surface>
+                                    </gml:surfaceMember>
+                                </gml:Shell>
+                            </gml:exterior>
+                        </gml:Solid>
+                    </gml:element>
+                </gml:GeometricComplex>
+            </sf:the_geom>
+        </sf:roads>
+    </gml:featureMembers>
+</wfs:FeatureCollection>

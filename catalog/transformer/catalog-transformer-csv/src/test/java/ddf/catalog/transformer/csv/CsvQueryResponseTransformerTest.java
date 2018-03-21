@@ -98,13 +98,17 @@ public class CsvQueryResponseTransformerTest {
     Scanner scanner = new Scanner(bc.getInputStream());
     scanner.useDelimiter("\\n|\\r|,");
 
-    // OBJECT types, BINARY types and hidden attributes will be filtered out
-    String[] expectedHeaders = {"attribute4", "column2", "column1"};
+    /*
+     * OBJECT types, BINARY types and hidden attributes will be filtered out
+     * We want to ensure that the only output data matches the explicitly requested headers
+     */
+
+    String[] expectedHeaders = {"attribute4", "column2"};
     validate(scanner, expectedHeaders);
 
     // The scanner will split "value,4" into two tokens even though the CSVPrinter will
     // handle it correctly.
-    String[] expectedValues = {"", "\"value", "4\"", "101", "value1"};
+    String[] expectedValues = {"", "\"value", "4\"", "101"};
 
     for (int i = 0; i < METACARD_COUNT; i++) {
       validate(scanner, expectedValues);

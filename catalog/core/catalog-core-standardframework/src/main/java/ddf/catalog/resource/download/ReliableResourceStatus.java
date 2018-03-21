@@ -16,9 +16,9 @@ package ddf.catalog.resource.download;
 /**
  * Provides the status of the product caching thread @ReliableResourceCallable, and the total number
  * of bytes read from the product's @InputStream. If the entire product @InputStream was read
- * successfully a value of -1 is returned for bytes read. The @DownloadStatus indicates if the
- * caching was successful or whether an exception in reading or writing to one of the streams was
- * encountered.
+ * successfully a value of -1 is returned for bytes read. The {@link
+ * ReliableResourceStatus#downloadStatus} indicates if the caching was successful or whether an
+ * exception in reading or writing to one of the streams was encountered.
  */
 public class ReliableResourceStatus {
 
@@ -63,5 +63,21 @@ public class ReliableResourceStatus {
             + message;
 
     return s;
+  }
+
+  /**
+   * The current status of a single product download. Since a product retrieval may go through
+   * several retry attempts during the download process, it is possible for the download status to
+   * have several of these values over the entire span of the download. For example, a product
+   * download could be interrupted due to a brief network connection drop, and then the download
+   * could complete successfully.
+   */
+  public enum DownloadStatus {
+    RESOURCE_DOWNLOAD_COMPLETE,
+    RESOURCE_DOWNLOAD_INTERRUPTED,
+    RESOURCE_DOWNLOAD_CANCELED,
+    CLIENT_OUTPUT_STREAM_EXCEPTION,
+    CACHED_FILE_OUTPUT_STREAM_EXCEPTION,
+    PRODUCT_INPUT_STREAM_EXCEPTION
   }
 }

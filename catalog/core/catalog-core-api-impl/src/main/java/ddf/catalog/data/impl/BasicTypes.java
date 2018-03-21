@@ -13,19 +13,13 @@
  */
 package ddf.catalog.data.impl;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.types.Validation;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
@@ -33,8 +27,6 @@ import java.util.Set;
  * @author ddf.isgs@lmco.com
  */
 public class BasicTypes {
-  /** A Constant for a {@link MetacardType} with the required {@link AttributeType}s. */
-  public static final MetacardType BASIC_METACARD;
 
   /** A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE} . */
   public static final AttributeType<Date> DATE_TYPE;
@@ -72,15 +64,7 @@ public class BasicTypes {
   /** A Constant for an {@link AttributeType} with {@link AttributeFormat#SHORT}. */
   public static final AttributeType<Short> SHORT_TYPE;
 
-  /** Use {@link Validation#VALIDATION_WARNINGS}. */
-  @Deprecated public static final String VALIDATION_WARNINGS = "validation-warnings";
-
-  /** Use {@link Validation#VALIDATION_ERRORS}. */
-  @Deprecated public static final String VALIDATION_ERRORS = "validation-errors";
-
   private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP;
-
-  private static final Set<AttributeDescriptor> DESCRIPTORS;
 
   static {
     Map<String, AttributeType> attributeTypeMap = new HashMap<>();
@@ -120,238 +104,9 @@ public class BasicTypes {
         addAttributeType("SHORT_TYPE", AttributeFormat.SHORT, Short.class, attributeTypeMap);
 
     ATTRIBUTE_TYPE_MAP = Collections.unmodifiableMap(attributeTypeMap);
-
-    Set<AttributeDescriptor> descriptors = new HashSet<>();
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.MODIFIED,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            DATE_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.EXPIRATION,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            DATE_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.EFFECTIVE,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            DATE_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.CREATED,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            DATE_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.ID,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.TITLE,
-            true /* indexed */,
-            true /* stored */,
-            true /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.POINT_OF_CONTACT,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.CONTENT_TYPE,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.CONTENT_TYPE_VERSION,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.TARGET_NAMESPACE,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.METADATA,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            XML_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.RESOURCE_URI,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.RESOURCE_DOWNLOAD_URL,
-            false /* indexed */,
-            false /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.RESOURCE_SIZE,
-            false /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.THUMBNAIL,
-            false /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            BINARY_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.GEOGRAPHY,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            GEO_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.DESCRIPTION,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Validation.VALIDATION_WARNINGS,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Validation.VALIDATION_ERRORS,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.TAGS,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.CHECKSUM_ALGORITHM,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.CHECKSUM,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.DERIVED_RESOURCE_URI,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.DERIVED,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Metacard.RELATED,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Validation.FAILED_VALIDATORS_WARNINGS,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            Validation.FAILED_VALIDATORS_ERRORS,
-            true /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            true /* multivalued */,
-            STRING_TYPE));
-    DESCRIPTORS = Collections.unmodifiableSet(descriptors);
-
-    BASIC_METACARD =
-        new MetacardTypeImpl(
-            MetacardType.DEFAULT_METACARD_TYPE_NAME, getBasicAttributeDescriptors());
   }
+
+  private BasicTypes() {}
 
   private static <T extends Serializable> AttributeType<T> addAttributeType(
       final String typeName,
@@ -376,10 +131,6 @@ public class BasicTypes {
     map.put(typeName, attributeType);
 
     return attributeType;
-  }
-
-  private static Set<AttributeDescriptor> getBasicAttributeDescriptors() {
-    return DESCRIPTORS;
   }
 
   public static AttributeType getAttributeType(String type) {

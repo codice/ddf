@@ -26,7 +26,7 @@ import spock.lang.Specification
 import java.nio.file.Files
 import java.nio.file.Path
 
-class OperationsMetacardSupportTest extends Specification {
+class OperationsMetacardSupportSpec extends Specification {
     private OperationsMetacardSupport opsMetacard
     private FrameworkProperties frameworkProperties
     private MimeTypeMapper mimeTypeMapper

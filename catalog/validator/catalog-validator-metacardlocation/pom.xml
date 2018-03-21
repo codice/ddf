@@ -33,26 +33,19 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
+            <groupId>org.codice.ddf.validator</groupId>
+            <artifactId>catalog-validator-wkt</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.codice.ddf.validator</groupId>
+            <artifactId>catalog-validator-metacardwkt</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.locationtech.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-            <version>${spatial4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -64,16 +57,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util,
-                            spatial4j
-                        </Embed-Dependency>
-                        <Export-Package/>
-                        <Import-Package>
-                            !org.noggit,
-                            *
-                        </Import-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

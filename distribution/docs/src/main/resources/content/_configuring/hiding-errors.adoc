@@ -1,0 +1,17 @@
+:title: Hiding Errors or Warnings from Queries
+:type: subConfiguration
+:status: published
+:parent: Configuring Errors and Warnings
+:order: 01
+:summary: Prevent invalid metacards from being displayed in query results, unless specifically queried.
+
+== {title}
+
+Prevent invalid metacards from being displayed in query results, unless specifically queried.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select *Configuration*.
+. Select *Catalog Federation Strategy*.
+. Deselect *Show Validations Errors* to hide metacards with errors.
+. Deselect *Show Validations Warnings* to hide metacards with warnings.

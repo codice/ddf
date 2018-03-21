@@ -16,10 +16,12 @@ package org.codice.solr.factory.impl;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivilegedAction;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
@@ -77,13 +79,25 @@ public class HttpSolrClientFactory implements SolrClientFactory {
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
   private static final String KEY_STORE = "javax.net.ssl.keyStore";
-  public static final List<String> DEFAULT_PROTOCOLS =
-      Collections.unmodifiableList(
-          Arrays.asList(StringUtils.split(System.getProperty(HTTPS_PROTOCOLS, ""), ",")));
+  public static final List<String> DEFAULT_PROTOCOLS;
+  public static final List<String> DEFAULT_CIPHER_SUITES;
 
-  public static final List<String> DEFAULT_CIPHER_SUITES =
-      Collections.unmodifiableList(
-          Arrays.asList(StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES, ""), ",")));
+  static {
+    DEFAULT_PROTOCOLS =
+        AccessController.doPrivileged(
+            (PrivilegedAction<List<String>>)
+                () ->
+                    Collections.unmodifiableList(
+                        Arrays.asList(
+                            StringUtils.split(System.getProperty(HTTPS_PROTOCOLS, ""), ","))));
+    DEFAULT_CIPHER_SUITES =
+        AccessController.doPrivileged(
+            (PrivilegedAction<List<String>>)
+                () ->
+                    Collections.unmodifiableList(
+                        Arrays.asList(
+                            StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES, ""), ","))));
+  }
 
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
@@ -99,7 +113,10 @@ public class HttpSolrClientFactory implements SolrClientFactory {
 
   @Override
   public Future<SolrClient> newClient(String core) {
-    String solrUrl = System.getProperty("solr.http.url", getDefaultHttpsAddress());
+    String solrUrl =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>)
+                () -> System.getProperty("solr.http.url", getDefaultHttpsAddress()));
     return getHttpSolrClient(solrUrl, core);
   }
 
@@ -162,8 +179,13 @@ public class HttpSolrClientFactory implements SolrClientFactory {
     String solrUrl = StringUtils.defaultIfBlank(url, SystemBaseUrl.constructUrl("/solr"));
     String coreUrl = url + "/" + coreName;
 
-    if (System.getProperty(SOLR_DATA_DIR) != null) {
-      ConfigurationStore.getInstance().setDataDirectoryPath(System.getProperty(SOLR_DATA_DIR));
+    if (AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR))
+        != null) {
+      ConfigurationStore.getInstance()
+          .setDataDirectoryPath(
+              AccessController.doPrivileged(
+                  (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR)));
     }
 
     RetryPolicy retryPolicy =
@@ -195,7 +217,11 @@ public class HttpSolrClientFactory implements SolrClientFactory {
   private static ScheduledExecutorService getThreadPool() throws NumberFormatException {
     Integer threadPoolSize =
         Integer.parseInt(
-            System.getProperty("org.codice.ddf.system.threadPoolSize", THREAD_POOL_DEFAULT_SIZE));
+            AccessController.doPrivileged(
+                (PrivilegedAction<String>)
+                    () ->
+                        System.getProperty(
+                            "org.codice.ddf.system.threadPoolSize", THREAD_POOL_DEFAULT_SIZE)));
     return Executors.newScheduledThreadPool(
         threadPoolSize,
         StandardThreadFactoryBuilder.newThreadFactory("httpSolrClientFactoryThread"));
@@ -239,44 +265,71 @@ public class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static String[] getProtocols() {
-    if (System.getProperty(HTTPS_PROTOCOLS) != null) {
-      return StringUtils.split(System.getProperty(HTTPS_PROTOCOLS), ",");
+    if (AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS))
+        != null) {
+      return StringUtils.split(
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS)),
+          ",");
     } else {
       return DEFAULT_PROTOCOLS.toArray(new String[DEFAULT_PROTOCOLS.size()]);
     }
   }
 
   private static String[] getCipherSuites() {
-    if (System.getProperty(HTTPS_CIPHER_SUITES) != null) {
-      return StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES), ",");
+    if (AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES))
+        != null) {
+      return StringUtils.split(
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES)),
+          ",");
     } else {
       return DEFAULT_CIPHER_SUITES.toArray(new String[DEFAULT_CIPHER_SUITES.size()]);
     }
   }
 
   private static SSLContext getSslContext() {
-    if (System.getProperty(KEY_STORE) == null
-        || //
-        System.getProperty(KEY_STORE_PASS) == null
-        || //
-        System.getProperty(TRUST_STORE) == null
-        || //
-        System.getProperty(TRUST_STORE_PASS) == null) {
+    Boolean check =
+        AccessController.doPrivileged(
+            (PrivilegedAction<Boolean>)
+                () ->
+                    (System.getProperty(KEY_STORE) == null
+                        || //
+                        System.getProperty(KEY_STORE_PASS) == null
+                        || //
+                        System.getProperty(TRUST_STORE) == null
+                        || //
+                        System.getProperty(TRUST_STORE_PASS) == null));
+    if (check) {
       throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
     }
 
-    KeyStore trustStore =
-        getKeyStore(System.getProperty(TRUST_STORE), System.getProperty(TRUST_STORE_PASS));
-    KeyStore keyStore =
-        getKeyStore(System.getProperty(KEY_STORE), System.getProperty(KEY_STORE_PASS));
+    final KeyStore[] trustStore = new KeyStore[1];
+    final KeyStore[] keyStore = new KeyStore[1];
+    AccessController.doPrivileged(
+        (PrivilegedAction<Object>)
+            () -> {
+              trustStore[0] =
+                  getKeyStore(
+                      System.getProperty(TRUST_STORE), System.getProperty(TRUST_STORE_PASS));
+              keyStore[0] =
+                  getKeyStore(System.getProperty(KEY_STORE), System.getProperty(KEY_STORE_PASS));
+              return null;
+            });
 
     SSLContext sslContext = null;
 
     try {
       sslContext =
           SSLContexts.custom()
-              .loadKeyMaterial(keyStore, System.getProperty(KEY_STORE_PASS).toCharArray())
-              .loadTrustMaterial(trustStore)
+              .loadKeyMaterial(
+                  keyStore[0],
+                  AccessController.doPrivileged(
+                          (PrivilegedAction<String>) () -> System.getProperty(KEY_STORE_PASS))
+                      .toCharArray())
+              .loadTrustMaterial(trustStore[0])
               .useTLS()
               .build();
     } catch (UnrecoverableKeyException
@@ -298,7 +351,11 @@ public class HttpSolrClientFactory implements SolrClientFactory {
     KeyStore keyStore = null;
 
     try (FileInputStream storeStream = new FileInputStream(location)) {
-      keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+      keyStore =
+          KeyStore.getInstance(
+              AccessController.doPrivileged(
+                  (PrivilegedAction<String>)
+                      () -> System.getProperty("javax.net.ssl.keyStoreType")));
       keyStore.load(storeStream, password.toCharArray());
     } catch (CertificateException | IOException | NoSuchAlgorithmException | KeyStoreException e) {
       LOGGER.warn("Unable to load keystore at {}", location, e);
@@ -325,10 +382,19 @@ public class HttpSolrClientFactory implements SolrClientFactory {
           String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
 
           String solrDir;
-          if (System.getProperty(SOLR_DATA_DIR) != null) {
-            solrDir = System.getProperty(SOLR_DATA_DIR);
+          if (AccessController.doPrivileged(
+              (PrivilegedAction<Boolean>) () -> System.getProperty(SOLR_DATA_DIR) != null)) {
+            solrDir =
+                AccessController.doPrivileged(
+                    (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
           } else {
-            solrDir = Paths.get(System.getProperty("karaf.home"), "data", "solr").toString();
+            solrDir =
+                Paths.get(
+                        AccessController.doPrivileged(
+                            (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
+                        "data",
+                        "solr")
+                    .toString();
           }
 
           String instanceDir = Paths.get(solrDir, coreName).toString();

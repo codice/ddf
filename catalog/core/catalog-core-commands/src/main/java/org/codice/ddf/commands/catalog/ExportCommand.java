@@ -43,17 +43,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -94,15 +94,14 @@ public class ExportCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportCommand.class);
 
-  private static final SimpleDateFormat ISO_8601_DATE_FORMAT;
-
-  static {
-    ISO_8601_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSS'Z'");
-    ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-  }
+  private static final DateTimeFormatter FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH-mm-ss.SSS'Z'").withZone(ZoneOffset.UTC);
 
   private static final Supplier<String> FILE_NAMER =
-      () -> "export-" + ISO_8601_DATE_FORMAT.format(Date.from(Instant.now())) + ".zip";
+      () ->
+          String.format(
+              "export-%s.zip",
+              LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).format(FORMATTER));
 
   private static final int PAGE_SIZE = 64;
 
@@ -550,6 +549,7 @@ public class ExportCommand extends CqlCommands {
         revisionFilter, filterBuilder.attribute("metacard.version.id").is().equalTo().text(id));
   }
 
+  @Override
   protected Filter getFilter() throws ParseException, CQLException {
     Filter filter = super.getFilter();
     if (archived) {

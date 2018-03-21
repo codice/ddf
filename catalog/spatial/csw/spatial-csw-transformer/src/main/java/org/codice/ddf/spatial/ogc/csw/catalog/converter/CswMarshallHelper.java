@@ -23,7 +23,6 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.io.Serializable;
 import java.util.Base64;
@@ -98,7 +97,7 @@ class CswMarshallHelper {
 
         /*  Backwards Compatibility */
         if (ad == null) {
-          ad = BasicTypes.BASIC_METACARD.getAttributeDescriptor(attrName);
+          ad = MetacardImpl.BASIC_METACARD.getAttributeDescriptor(attrName);
         }
         writeAttribute(writer, context, metacard, ad, qName);
       }

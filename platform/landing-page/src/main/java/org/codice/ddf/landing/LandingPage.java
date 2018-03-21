@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * properties. The Title and Version are retrieved via the {@link BrandingPlugin}. Additionally, a
  * phone number, email address, external website, and description are configurable properties.
  */
+@SuppressWarnings({"squid:S2226", "squid:S1068"} /* Lifecycle managed by blueprint. */)
 public class LandingPage extends HttpServlet {
   private static final long serialVersionUID = 1L;
 

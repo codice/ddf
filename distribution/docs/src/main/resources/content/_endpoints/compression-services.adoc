@@ -20,9 +20,9 @@ The compression services are not installed by default with a standard installati
 
 To Install:
 
-* Navigate to ${admin-console}.
-* Select the *${ddf-platform} Application*.
-* Select the *Features* Tab.
+* Navigate to the *${admin-console}*.
+* Select the *System* tab.
+* Select the *Features* tab.
 * Start the service for the desired compression format:
 ** `compression-exi`
 ** `compression-gzip`

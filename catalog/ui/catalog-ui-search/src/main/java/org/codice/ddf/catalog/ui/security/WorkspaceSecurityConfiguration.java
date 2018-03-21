@@ -15,19 +15,9 @@ package org.codice.ddf.catalog.ui.security;
 
 public class WorkspaceSecurityConfiguration {
 
-  private String ownerAttribute = Constants.EMAIL_ADDRESS_CLAIM_URI;
-
   private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
 
   private String systemUserAttributeValue = "admin";
-
-  public String getOwnerAttribute() {
-    return ownerAttribute;
-  }
-
-  public void setOwnerAttribute(String ownerAttribute) {
-    this.ownerAttribute = ownerAttribute.trim();
-  }
 
   public String getSystemUserAttribute() {
     return systemUserAttribute;

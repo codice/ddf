@@ -87,7 +87,7 @@ public abstract class CatalogCommands extends SubjectCommands {
 
   protected SolrCacheMBean getCacheProxy()
       throws IOException, MalformedObjectNameException, InstanceNotFoundException {
-    ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
+    ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECT_NAME);
     MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
     return MBeanServerInvocationHandler.newProxyInstance(
         mBeanServer, solrCacheObjectName, SolrCacheMBean.class, false);

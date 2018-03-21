@@ -1,0 +1,34 @@
+{
+  "name": "grunt-port-allocator",
+  "version": "1.0.0",
+  "description": "Grunt port allocator task.",
+  "main": "src/main/js/tasks/grunt-port-allocator.js",
+  "scripts": {
+    "pretest": "jshint tasks lib test",
+    "test": "tap ./test/port-allocator.js && grunt --gruntfile ./test/Gruntfile.js"
+  },
+  "author": "Codice",
+  "license": "LGPL-3.0",
+  "keywords": [
+    "grunt",
+    "task",
+    "port",
+    "allocator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-cli": "1.2.0",
+    "jshint": "2.8.0",
+    "tap": "3.1.2"
+  },
+  "dependencies": {
+    "async": "1.5.2"
+  }
+}

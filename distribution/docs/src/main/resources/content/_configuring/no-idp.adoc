@@ -9,8 +9,8 @@
 
 To configure ${branding} to not use an Identity Provider (IdP), simply disable the IdP feature.
 
-. Navigate to the *{admin-console}*.
-. Select the *${ddf-security}* application.
-. Select *Features*.
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
 . Uninstall the `security-idp` feature.
 

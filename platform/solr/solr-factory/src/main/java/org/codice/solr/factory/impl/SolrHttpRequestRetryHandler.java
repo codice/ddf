@@ -43,9 +43,11 @@ public class SolrHttpRequestRetryHandler implements HttpRequestRetryHandler {
     LOGGER.debug("Connection failed", e);
     try {
       long waitTime = (long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
-      LOGGER.debug(
-          "Solr Client: Connection failed, waiting {} before retrying.",
-          DurationFormatUtils.formatDurationWords(waitTime, true, true));
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Solr Client: Connection failed, waiting {} before retrying.",
+            DurationFormatUtils.formatDurationWords(waitTime, true, true));
+      }
       synchronized (this) {
         wait(waitTime);
       }

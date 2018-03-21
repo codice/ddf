@@ -39,9 +39,9 @@ public class FtpServerManager {
 
   private static final String DEFAULT_LISTENER = "default";
 
-  public static final String PORT = "port";
+  public static final String PORT_PROPERTY_KEY = "port";
 
-  public static final String CLIENT_AUTH = "clientAuth";
+  public static final String CLIENT_AUTH_PROPERTY_KEY = "clientAuth";
 
   public static final String WANT = "want";
 
@@ -131,7 +131,7 @@ public class FtpServerManager {
     LOGGER.debug("Updating FTP Endpoint configuration");
     Boolean restart = false;
 
-    if (properties.get(PORT) instanceof String) {
+    if (properties.get(PORT_PROPERTY_KEY) instanceof String) {
       // using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
       PropertyResolver propertyResolver = new PropertyResolver((String) properties.get("port"));
       int port = Integer.parseInt(propertyResolver.getResolvedString());
@@ -141,7 +141,7 @@ public class FtpServerManager {
       }
     }
 
-    if (properties.get(CLIENT_AUTH) instanceof String) {
+    if (properties.get(CLIENT_AUTH_PROPERTY_KEY) instanceof String) {
       String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
       if (!this.clientAuth.toString().equalsIgnoreCase(clientAuth)) {
         setClientAuth(clientAuth);

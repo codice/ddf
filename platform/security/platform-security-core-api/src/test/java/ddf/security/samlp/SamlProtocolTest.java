@@ -18,10 +18,12 @@ import static ddf.security.samlp.SamlProtocol.POST_BINDING;
 import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 import static ddf.security.samlp.SamlProtocol.SOAP_BINDING;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
@@ -92,7 +94,6 @@ public class SamlProtocolTest {
             .getNameIDFormats()
             .get(0)
             .getFormat());
-
     assertEquals(
         "logoutlocation",
         entityDescriptor
@@ -100,12 +101,10 @@ public class SamlProtocolTest {
             .getSingleLogoutServices()
             .get(0)
             .getLocation());
-
     List<SingleSignOnService> ssoServices =
         entityDescriptor
             .getIDPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
             .getSingleSignOnServices();
-
     assertTrue(
         ssoServices
             .stream()
@@ -135,6 +134,8 @@ public class SamlProtocolTest {
                         && service.getLocation().equals("soaplocation"))
             .findFirst()
             .isPresent());
+
+    assertNotNull(entityDescriptor.getCacheDuration());
   }
 
   @Test
@@ -173,7 +174,6 @@ public class SamlProtocolTest {
             .getX509Certificates()
             .get(0)
             .getValue());
-
     assertEquals(
         "logoutlocation",
         entityDescriptor
@@ -181,12 +181,10 @@ public class SamlProtocolTest {
             .getSingleLogoutServices()
             .get(0)
             .getLocation());
-
     List<AssertionConsumerService> acServices =
         entityDescriptor
             .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
             .getAssertionConsumerServices();
-
     assertTrue(
         acServices
             .stream()
@@ -216,6 +214,8 @@ public class SamlProtocolTest {
                         && service.getLocation().equals("paoslocation"))
             .findFirst()
             .isPresent());
+
+    assertNotNull(entityDescriptor.getCacheDuration());
   }
 
   @Test
@@ -245,7 +245,10 @@ public class SamlProtocolTest {
   public void testCreateLogoutRequest() {
     LogoutRequest logoutRequest =
         SamlProtocol.createLogoutRequest(
-            SamlProtocol.createIssuer("myissuer"), SamlProtocol.createNameID("mynameid"), "myid");
+            SamlProtocol.createIssuer("myissuer"),
+            SamlProtocol.createNameID("mynameid"),
+            "myid",
+            Collections.emptyList());
     assertEquals("myissuer", logoutRequest.getIssuer().getValue());
     assertEquals("mynameid", logoutRequest.getNameID().getValue());
     assertEquals("myid", logoutRequest.getID());

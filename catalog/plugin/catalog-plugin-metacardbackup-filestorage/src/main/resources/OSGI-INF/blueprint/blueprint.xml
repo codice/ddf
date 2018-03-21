@@ -37,7 +37,7 @@
                 </list>
             </property>
             <property name="outputPathTemplate"
-                      value="data/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
+                      value="${ddf.data}/backup/metacard/{{substring id 0 3}}/{{substring id 3 6}}/{{id}}.xml"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 

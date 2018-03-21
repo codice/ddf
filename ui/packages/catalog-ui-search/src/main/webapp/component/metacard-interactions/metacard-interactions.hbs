@@ -1,0 +1,74 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="metacard-interaction interaction-add" data-help="Add the result to a list.">
+    <div class="interaction-icon fa fa-plus">
+    </div>
+    <div class="interaction-text">
+        Add / Remove from List
+    </div>
+</div>
+<div class="metacard-interaction interaction-hide" data-help="Adds to a list
+of results that will be hidden from future searches.  To clear this list,
+click the Settings icon, select Hidden, then choose to unhide the record.">
+    <div class="interaction-icon fa fa-eye-slash">
+    </div>
+    <div class="interaction-text">
+        Hide from Future Searches
+    </div>
+</div>
+<div class="metacard-interaction interaction-show" data-help="Removes from the
+list of results that are hidden from future searches.">
+    <div class="interaction-icon fa fa-eye">
+    </div>
+    <div class="interaction-text">
+        Unhide from Future Searches
+    </div>
+</div>
+<div class="metacard-interaction interaction-expand" data-help="Takes you to a
+view that only focuses on this particular result.  Bookmarking it will allow
+you to come back to this result directly.">
+    <div class="interaction-icon fa fa-expand">
+    </div>
+    <div class="interaction-text">
+        Expand Metacard View
+    </div>
+</div>
+<div class="metacard-interaction interaction-share" data-help="Copies the
+URL that leads to this result directly to your clipboard.">
+    <div class="interaction-icon fa fa-share-alt">
+    </div>
+    <div class="interaction-text">
+        Share Metacard
+    </div>
+</div>
+<div class="metacard-interaction interaction-download" data-help="Downloads
+the results associated product directly to your machine.">
+    <div class="interaction-icon fa fa-download">
+    </div>
+    <div class="interaction-text">
+        Download
+    </div>
+    {{#if remoteResourceCached}}
+        <span data-help="Displayed if the remote resource has been cached locally." class="download-cached">Local</span>
+    {{/if}}
+</div>
+<div class="metacard-interaction interaction-create-search" data-help="Uses the geometry of the metacard to populate a search.">
+    <div class="interaction-icon fa fa-globe">
+    </div>
+    <div class="interaction-text">
+        Create Search from Location
+    </div>
+</div>
+<div class="metacard-interaction interaction-actions-export composed-menu" data-help="Opens the available actions for the item.">
+</div>

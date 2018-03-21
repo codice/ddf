@@ -111,7 +111,7 @@ public class ConfluenceSourceTest {
     List<String> additionalAttributes = new ArrayList<>();
     additionalAttributes.add("attrib1=val1");
     additionalAttributes.add("attrib2=val1,val2,val3");
-    confluence.setAdditionalAttributes(additionalAttributes);
+    confluence.setAttributeOverrides(additionalAttributes);
   }
 
   @Test

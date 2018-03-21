@@ -437,7 +437,7 @@ public class RrdJmxCollector implements JmxCollector {
       // underlying MBean counter's value is reset to zero, causing spikes in the
       // RRD graph (and the MBean value gets reset to zero after every system restart
       // since all JMX MBeans are recreated).
-      if (dsType == DsType.COUNTER || dsType == DsType.DERIVE) {
+      if (dsType == DsType.COUNTER || dsType == DsType.DERIVE || dsType == DsType.GAUGE) {
         // 1 minute resolution for last 60 minutes
         def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
 
@@ -464,33 +464,6 @@ public class RrdJmxCollector implements JmxCollector {
 
         // Use a GAUGE to store the values we measure directly as they are,
         // e.g., response time for an ingest or query
-      } else if (dsType == DsType.GAUGE) {
-        // If you want to know the amount, look at the averages.
-        // If you want to know the rate, look at the maximum.
-
-        // 1 minute resolution for last 60 minutes
-        def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
-
-        // 15 minute resolution for the last year
-        def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
-
-        // 1 minute resolution for last 60 minutes
-        def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);
-
-        // 15 minute resolution for the last year
-        def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
-
-        // 1 minute resolution for last 60 minutes
-        def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 1, 60);
-
-        // 15 minute resolution for the last year
-        def.addArchive(ConsolFun.MAX, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
-
-        // 1 minute resolution for last 60 minutes
-        def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 1, 60);
-
-        // 15 minute resolution for the last year
-        def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
       }
 
       // Create RRD file based on the RRD file definition

@@ -104,7 +104,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
-  private static MetacardType gmdMetacardType;
+  private final MetacardType gmdMetacardType;
 
   private final XStream xstream;
 

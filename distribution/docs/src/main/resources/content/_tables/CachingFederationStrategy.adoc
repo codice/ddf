@@ -37,11 +37,11 @@
 |10080
 |true
 
-|Cache Everything
-|cachingEverything
-|Boolean
-|Cache all results unless configured as native
-|false
+|Query Result Cache Strategy
+|cacheStrategy
+|String
+|Strategy for caching query results. Valid entries are ALL, FEDERATED, and NONE.
+|ALL
 |true
 
 |Cache Remote Ingests

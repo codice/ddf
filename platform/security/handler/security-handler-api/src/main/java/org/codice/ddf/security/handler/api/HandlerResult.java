@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.handler.api;
 
+import java.util.Objects;
+
 /**
  * Encapsulates the return status for each handler. Consists of the status of any action taken by
  * the handler (successfully retrieved desired tokens, responded to a client in order to obtain
@@ -67,7 +69,7 @@ public class HandlerResult {
     sb.append("; Source: ");
     sb.append(source);
     sb.append("; Token: ");
-    sb.append(token.toString());
+    sb.append(Objects.isNull(token) ? "null" : token.toString());
     return sb.toString();
   }
 

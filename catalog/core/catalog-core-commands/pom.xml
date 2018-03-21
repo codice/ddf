@@ -176,7 +176,9 @@
                         <Private-Package>
                             org.codice.ddf.commands.*
                         </Private-Package>
-                        <Export-Package/>
+                        <Export-Package>
+                            org.codice.ddf.commands.catalog
+                        </Export-Package>
                         <Import-Package>
                             org.osgi.framework;version="[1.5,2)",
                             *

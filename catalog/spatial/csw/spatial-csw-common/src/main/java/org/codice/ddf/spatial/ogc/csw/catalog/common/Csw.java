@@ -41,7 +41,6 @@ public interface Csw {
    * @return
    */
   @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
       throws CswException;
@@ -64,7 +63,6 @@ public interface Csw {
    * @return
    */
   @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   DescribeRecordResponseType describeRecord(@QueryParam("") DescribeRecordRequest request)
       throws CswException;
@@ -108,7 +106,6 @@ public interface Csw {
    * @return
    */
   @GET
-  @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   CswRecordCollection getRecordById(
       @QueryParam("") GetRecordByIdRequest request,

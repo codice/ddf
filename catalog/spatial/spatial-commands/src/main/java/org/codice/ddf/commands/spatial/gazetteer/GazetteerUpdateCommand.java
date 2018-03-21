@@ -14,12 +14,13 @@
 package org.codice.ddf.commands.spatial.gazetteer;
 
 import java.io.PrintStream;
-import org.apache.karaf.shell.api.action.Action;
+import java.util.Locale;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.commands.catalog.SubjectCommands;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
   name = "update",
   description = "Updates the gazetteer entries from a resource"
 )
-public final class GazetteerUpdateCommand implements Action {
+public final class GazetteerUpdateCommand extends SubjectCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerUpdateCommand.class);
 
@@ -98,7 +99,7 @@ public final class GazetteerUpdateCommand implements Action {
   }
 
   @Override
-  public Object execute() {
+  protected Object executeWithSubject() throws Exception {
     final PrintStream console = System.out;
 
     final ProgressCallback progressCallback =
@@ -144,7 +145,7 @@ public final class GazetteerUpdateCommand implements Action {
   }
 
   private boolean isResourceGeoJSON() {
-    String path = resource.toLowerCase();
+    String path = resource.toLowerCase(Locale.getDefault());
     return path.endsWith(".geojson") || path.endsWith(".geo.json");
   }
 }

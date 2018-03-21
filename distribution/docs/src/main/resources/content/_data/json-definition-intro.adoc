@@ -19,7 +19,7 @@ The following may be defined in a JSON definition file:
 - <<_metacard_type_definition_file,Metacard Types>>
 - <<_global_attribute_validators_file,Global Attribute Validators>>
 - <<_default_attribute_values,Default Attribute Values>>
-- <<_attribute_injections,Attribute Injections>>
+- <<_attribute_injection_definition,Attribute Injections>>
 
 ==== Definition File Format
 

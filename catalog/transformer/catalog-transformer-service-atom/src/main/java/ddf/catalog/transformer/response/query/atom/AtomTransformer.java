@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.response.query.atom;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.action.Action;
@@ -25,6 +26,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -39,6 +41,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -66,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * http://tools.ietf.org/html/rfc4287
  */
 public class AtomTransformer implements QueryResponseTransformer {
+  private static final int ALL_RESULTS_COUNT_VALUE = -1;
 
   /**
    * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW"
@@ -98,6 +102,8 @@ public class AtomTransformer implements QueryResponseTransformer {
 
   private static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
 
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
   // expensive creation, meant to be done once
   private static final Abdera ABDERA = new Abdera();
 
@@ -118,8 +124,6 @@ public class AtomTransformer implements QueryResponseTransformer {
   private ActionProvider resourceActionProvider;
 
   private ActionProvider thumbnailActionProvider;
-
-  private WKTReader reader = new WKTReader();
 
   public void setViewMetacardActionProvider(ActionProvider viewMetacardActionProvider) {
     this.viewMetacardActionProvider = viewMetacardActionProvider;
@@ -146,19 +150,8 @@ public class AtomTransformer implements QueryResponseTransformer {
           "Cannot transform null " + SourceResponse.class.getName());
     }
 
-    Date currentDate = new Date();
-
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-    Feed feed = null;
-    try {
-
-      Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
-
-      feed = ABDERA.newFeed();
-
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
-    }
+    final Date currentDate = new Date();
+    final Feed feed = createFeed();
 
     /*
      * Atom spec text (rfc4287) Sect 4.2.14: "The "atom:title" element is a Text construct that
@@ -196,7 +189,6 @@ public class AtomTransformer implements QueryResponseTransformer {
      * required in the atom:feed element.
      */
     if (!StringUtils.isEmpty(SystemInfo.getSiteName())) {
-
       // text is required.
       feed.setGenerator(null, SystemInfo.getVersion(), SystemInfo.getSiteName());
     }
@@ -212,7 +204,6 @@ public class AtomTransformer implements QueryResponseTransformer {
 
     if (sourceResponse.getRequest() != null && sourceResponse.getRequest().getQuery() != null) {
       Element itemsPerPage = feed.addExtension(OpenSearchConstants.ITEMS_PER_PAGE);
-
       Element startIndex = feed.addExtension(OpenSearchConstants.START_INDEX);
 
       /*
@@ -233,156 +224,177 @@ public class AtomTransformer implements QueryResponseTransformer {
       startIndex.setText(Integer.toString(sourceResponse.getRequest().getQuery().getStartIndex()));
     }
 
-    for (Result result : sourceResponse.getResults()) {
-
-      Metacard metacard = result.getMetacard();
-
-      if (metacard == null) {
-        continue;
-      }
-
-      Entry entry = feed.addEntry();
-
-      String sourceName = DEFAULT_SOURCE_ID;
-
-      if (result.getMetacard().getSourceId() != null) {
-        sourceName = result.getMetacard().getSourceId();
-      }
-
-      Element source =
-          entry.addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE, "resultSource", "fs"));
-
-      /*
-       * According to the os-federation.xsd, the resultSource element text has a max length of
-       * 16 and is the shortname of the source id. Previously, we were duplicating the names
-       * in both positions, but since we truly do not have a shortname for our source ids, I
-       * am purposely omitting the shortname text and leaving it as the empty string. The real
-       * source id can still be found in the attribute instead.
-       */
-
-      source.setAttributeValue(new QName(FEDERATION_EXTENSION_NAMESPACE, "sourceId"), sourceName);
-
-      if (result.getRelevanceScore() != null) {
-        Element relevance =
-            entry.addExtension(
-                new QName(
-                    "http://a9.com/-/opensearch/extensions/relevance/1.0/", "score", "relevance"));
-        relevance.setText(result.getRelevanceScore().toString());
-      }
-
-      entry.setId(URN_CATALOG_ID + metacard.getId());
-
-      /*
-       * Atom spec text (rfc4287): "The "atom:title" element is a Text construct that conveys
-       * a human- readable title for an entry or feed."
-       */
-      entry.setTitle(metacard.getTitle());
-
-      /*
-       * Atom spec text (rfc4287): "The "atom:updated" element is a Date construct indicating
-       * the most recent instant in time when an entry or feed was modified in a way the
-       * publisher considers significant." Therefore, a new Date is used because we are making
-       * the entry for the first time.
-       */
-      if (metacard.getModifiedDate() != null) {
-        entry.setUpdated(metacard.getModifiedDate());
-      } else {
-        entry.setUpdated(currentDate);
-      }
-
-      /*
-       * Atom spec text (rfc4287): "Typically, atom:published will be associated with the
-       * initial creation or first availability of the resource."
-       */
-      if (metacard.getCreatedDate() != null) {
-        entry.setPublished(metacard.getCreatedDate());
-      }
-
-      /*
-       * For atom:link elements, Atom spec text (rfc4287): "The value "related" signifies that
-       * the IRI in the value of the href attribute identifies a resource related to the
-       * resource described by the containing element."
-       */
-      addLink(resourceActionProvider, metacard, entry, Link.REL_RELATED);
-
-      addLink(viewMetacardActionProvider, metacard, entry, Link.REL_ALTERNATE);
-
-      addLink(thumbnailActionProvider, metacard, entry, REL_PREVIEW);
-
-      /*
-       * Atom spec text (rfc4287) Sect. 4.2.2.: "The "atom:category" element conveys
-       * information about a category associated with an entry or feed. This specification
-       * assigns no meaning to the content (if any) of this element."
-       */
-      if (metacard.getContentTypeName() != null) {
-        entry.addCategory(metacard.getContentTypeName());
-      }
-
-      for (Position position : getGeoRssPositions(metacard)) {
-        GeoHelper.addPosition(entry, position, Encoding.GML);
-      }
-
-      BinaryContent binaryContent = null;
-
-      String contentOutput = metacard.getId();
-      Type atomContentType = Type.TEXT;
-
-      if (metacardTransformer != null) {
-
-        try {
-          binaryContent = metacardTransformer.transform(metacard, new HashMap<>());
-
-        } catch (CatalogTransformerException | RuntimeException e) {
-          LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
-        }
-
-        if (binaryContent != null) {
-          try {
-            byte[] xmlBytes = binaryContent.getByteArray();
-            if (xmlBytes != null && xmlBytes.length > 0) {
-              contentOutput = new String(xmlBytes, StandardCharsets.UTF_8);
-
-              atomContentType = Type.XML;
-            }
-          } catch (IOException e) {
-            LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
-          }
-        }
-      }
-
-      tccl = Thread.currentThread().getContextClassLoader();
-      try {
-
-        Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
-
-        entry.setContent(contentOutput, atomContentType);
-
-      } finally {
-        Thread.currentThread().setContextClassLoader(tccl);
-      }
+    if (getCount(sourceResponse) != 0) {
+      sourceResponse.getResults().stream().forEach(r -> addSingleResult(currentDate, feed, r));
     }
 
+    byte[] bytes = createOutputStream(feed);
+    return new BinaryContentImpl(new ByteArrayInputStream(bytes), MIME_TYPE);
+  }
+
+  private byte[] createOutputStream(Feed feed) throws CatalogTransformerException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
     try {
-
-      tccl = Thread.currentThread().getContextClassLoader();
-      try {
-
-        Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
-
-        feed.writeTo(baos);
-
-      } finally {
-        Thread.currentThread().setContextClassLoader(tccl);
-      }
-
+      Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
+      feed.writeTo(baos);
     } catch (IOException e) {
       LOGGER.info("Could not write to output stream.", e);
       throw new CatalogTransformerException("Could not transform into Atom.", e);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+    return baos.toByteArray();
+  }
+
+  private Feed createFeed() {
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
+    try {
+      Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
+      return ABDERA.newFeed();
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+  }
+
+  private void addSingleResult(Date currentDate, Feed feed, Result result) {
+    Metacard metacard = result.getMetacard();
+
+    if (metacard == null) {
+      return;
     }
 
-    return new BinaryContentImpl(new ByteArrayInputStream(baos.toByteArray()), MIME_TYPE);
+    Entry entry = feed.addEntry();
+    entry.setId(URN_CATALOG_ID + metacard.getId());
+
+    addSourceExtension(result, entry);
+    addRelevanceScoreExtension(result, entry);
+
+    /*
+     * Atom spec text (rfc4287): "The "atom:title" element is a Text construct that conveys
+     * a human- readable title for an entry or feed."
+     */
+    entry.setTitle(metacard.getTitle());
+
+    /*
+     * Atom spec text (rfc4287): "The "atom:updated" element is a Date construct indicating
+     * the most recent instant in time when an entry or feed was modified in a way the
+     * publisher considers significant." Therefore, a new Date is used because we are making
+     * the entry for the first time.
+     */
+    entry.setUpdated(Optional.ofNullable(metacard.getModifiedDate()).orElse(currentDate));
+
+    /*
+     * Atom spec text (rfc4287): "Typically, atom:published will be associated with the
+     * initial creation or first availability of the resource."
+     */
+    Optional.ofNullable(metacard.getCreatedDate()).ifPresent(entry::setPublished);
+
+    /*
+     * For atom:link elements, Atom spec text (rfc4287): "The value "related" signifies that
+     * the IRI in the value of the href attribute identifies a resource related to the
+     * resource described by the containing element."
+     */
+    addLink(resourceActionProvider, metacard, entry, Link.REL_RELATED);
+    addLink(viewMetacardActionProvider, metacard, entry, Link.REL_ALTERNATE);
+    addLink(thumbnailActionProvider, metacard, entry, REL_PREVIEW);
+
+    /*
+     * Atom spec text (rfc4287) Sect. 4.2.2.: "The "atom:category" element conveys
+     * information about a category associated with an entry or feed. This specification
+     * assigns no meaning to the content (if any) of this element."
+     */
+
+    Optional.ofNullable(metacard.getContentTypeName()).ifPresent(entry::addCategory);
+    addPosition(metacard, entry);
+    setContent(metacard, entry);
+  }
+
+  private void addPosition(Metacard metacard, Entry entry) {
+    for (Position position : getGeoRssPositions(metacard)) {
+      GeoHelper.addPosition(entry, position, Encoding.GML);
+    }
+  }
+
+  private void setContent(Metacard metacard, Entry entry) {
+    String contentOutput = metacard.getId();
+    Type atomContentType = Type.TEXT;
+
+    if (metacardTransformer != null) {
+      BinaryContent binaryContent = getBinaryContent(metacard);
+
+      String content = getContentOutput(binaryContent);
+      contentOutput = Optional.ofNullable(content).orElse(metacard.getId());
+
+      if (content != null) {
+        atomContentType = Type.XML;
+      }
+    }
+
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+
+    try {
+      Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
+      entry.setContent(contentOutput, atomContentType);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+  }
+
+  private String getContentOutput(BinaryContent binaryContent) {
+    if (binaryContent != null) {
+      try {
+        byte[] xmlBytes = binaryContent.getByteArray();
+
+        if (xmlBytes != null && xmlBytes.length > 0) {
+          return new String(xmlBytes, StandardCharsets.UTF_8);
+        }
+      } catch (IOException e) {
+        LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
+      }
+    }
+
+    return null;
+  }
+
+  private BinaryContent getBinaryContent(Metacard metacard) {
+    try {
+      return metacardTransformer.transform(metacard, new HashMap<>());
+    } catch (CatalogTransformerException | RuntimeException e) {
+      LOGGER.debug(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
+    }
+
+    return null;
+  }
+
+  private void addRelevanceScoreExtension(Result result, Entry entry) {
+    if (result.getRelevanceScore() != null) {
+      Element relevance =
+          entry.addExtension(
+              new QName(
+                  "http://a9.com/-/opensearch/extensions/relevance/1.0/", "score", "relevance"));
+      relevance.setText(result.getRelevanceScore().toString());
+    }
+  }
+
+  private void addSourceExtension(Result result, Entry entry) {
+    String sourceName =
+        Optional.ofNullable(result.getMetacard().getSourceId()).orElse(DEFAULT_SOURCE_ID);
+
+    Element source =
+        entry.addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE, "resultSource", "fs"));
+
+    /*
+     * According to the os-federation.xsd, the resultSource element text has a max length of
+     * 16 and is the shortname of the source id. Previously, we were duplicating the names
+     * in both positions, but since we truly do not have a shortname for our source ids, I
+     * am purposely omitting the shortname text and leaving it as the empty string. The real
+     * source id can still be found in the attribute instead.
+     */
+
+    source.setAttributeValue(new QName(FEDERATION_EXTENSION_NAMESPACE, "sourceId"), sourceName);
   }
 
   // a Link object could not be made and returned without a classpath problem in the OSGi runtime
@@ -453,7 +465,7 @@ public class AtomTransformer implements QueryResponseTransformer {
           if (geo != null) {
 
             try {
-              Geometry geometry = reader.read(geo.toString());
+              Geometry geometry = new WKTReader(GEOMETRY_FACTORY).read(geo.toString());
 
               CompositeGeometry formatter = CompositeGeometry.getCompositeGeometry(geometry);
 
@@ -472,5 +484,29 @@ public class AtomTransformer implements QueryResponseTransformer {
       }
     }
     return georssPositions;
+  }
+
+  private int getCount(SourceResponse queryResponse) {
+    if (queryResponse == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    QueryRequest queryRequest = queryResponse.getRequest();
+
+    if (queryRequest == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    Serializable countSerializable = queryRequest.getProperties().get("count");
+
+    if (countSerializable == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    try {
+      return Integer.valueOf((String) countSerializable);
+    } catch (NumberFormatException nfe) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
   }
 }

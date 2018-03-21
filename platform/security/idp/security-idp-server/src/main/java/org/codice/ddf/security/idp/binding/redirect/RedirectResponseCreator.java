@@ -20,6 +20,7 @@ import ddf.security.samlp.impl.EntityInformation;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,13 +92,19 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
             RestSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))),
             "UTF-8");
-    String requestToSign =
-        String.format("SAMLResponse=%s&RelayState=%s", encodedResponse, relayState);
+    StringBuilder requestToSign = new StringBuilder("SAMLResponse=").append(encodedResponse);
+    if (relayState != null) {
+      requestToSign
+          .append("&RelayState=")
+          .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
+    }
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
     UriBuilder uriBuilder = UriBuilder.fromUri(assertionConsumerServiceURL);
     uriBuilder.queryParam(SSOConstants.SAML_RESPONSE, encodedResponse);
-    uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
-    getSimpleSign().signUriString(requestToSign, uriBuilder);
+    if (relayState != null) {
+      uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
+    }
+    getSimpleSign().signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
     return uriBuilder.build();
   }

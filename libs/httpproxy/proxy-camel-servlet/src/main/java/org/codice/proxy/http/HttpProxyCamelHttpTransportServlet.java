@@ -32,7 +32,6 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +65,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
 
   private final Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient CamelContext camelContext;
 
   private transient HttpRegistry httpRegistry;
@@ -280,7 +280,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     HttpConsumer answer = consumers.get(endpointName);
 
     if (answer == null) {
-      log.debug("Consumer Keys: {}", Arrays.toString(consumers.keySet().toArray()));
+      if (LOGGER.isDebugEnabled()) {
+        log.debug("Consumer Keys: {}", consumers.keySet());
+      }
       for (Entry<String, HttpConsumer> entry : consumers.entrySet()) {
         if (entry.getValue().getEndpoint().isMatchOnUriPrefix()
             && path.startsWith(entry.getKey())) {

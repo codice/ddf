@@ -11,7 +11,7 @@
 To configure ${branding} to use the included Security Token Service (STS) without an IdP, follow the same <<_configuring_included_sts,Configuring STS>> steps, with one additional configuration to make via the <<_configuring_the_web_context_policy_manager,Web Context Policy Manager>>.
 
 .Configuring Authentication Types for STS
-. Navigate to the *{admin-console}*.
+. Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select *Configuration*.
 . Select the *Web Context Policy Manager*.

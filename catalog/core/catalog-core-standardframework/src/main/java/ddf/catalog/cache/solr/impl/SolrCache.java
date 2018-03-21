@@ -72,8 +72,6 @@ public class SolrCache implements SolrCacheMBean {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrCache.class);
 
-  private ObjectName objectName;
-
   private final SolrClientAdaptor solrClientAdaptor;
 
   private AtomicBoolean dirty = new AtomicBoolean(false);
@@ -119,7 +117,7 @@ public class SolrCache implements SolrCacheMBean {
   }
 
   public void create(Collection<Metacard> metacards) {
-    if (metacards == null || metacards.size() == 0) {
+    if (CollectionUtils.isEmpty(metacards)) {
       return;
     }
 
@@ -194,15 +192,17 @@ public class SolrCache implements SolrCacheMBean {
     LOGGER.debug("Registering Cache Manager Service MBean");
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
+    final ObjectName objectName;
     try {
-      objectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
+      objectName = new ObjectName(SolrCacheMBean.OBJECT_NAME);
+
     } catch (MalformedObjectNameException e) {
       LOGGER.info("Could not create object name", e);
+      return;
     }
 
     try {
       try {
-
         mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
       } catch (InstanceAlreadyExistsException e) {
         LOGGER.debug("Re-registering Cache Manager MBean");

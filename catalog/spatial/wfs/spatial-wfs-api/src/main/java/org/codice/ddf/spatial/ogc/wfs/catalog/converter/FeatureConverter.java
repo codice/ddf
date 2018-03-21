@@ -33,33 +33,33 @@ public interface FeatureConverter extends Converter {
    *
    * @param id
    */
-  public void setSourceId(String id);
+  void setSourceId(String id);
 
   /**
    * Get this converter's MetacardType
    *
    * @return
    */
-  public MetacardType getMetacardType();
+  MetacardType getMetacardType();
 
   /**
    * Set the MetacardType on the converter
    *
    * @param metacardType
    */
-  public void setMetacardType(MetacardType metacardType);
+  void setMetacardType(MetacardType metacardType);
 
   /**
    * Set the URL on the on converter
    *
    * @param wfsUrl
    */
-  public void setWfsUrl(String wfsUrl);
+  void setWfsUrl(String wfsUrl);
 
   /**
    * Set the coordinate order, LAT_LON or LON_LAT, on the converter.
    *
    * @param coordinateOrder
    */
-  public void setCoordinateOrder(String coordinateOrder);
+  void setCoordinateOrder(String coordinateOrder);
 }

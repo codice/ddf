@@ -181,7 +181,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
               "Solr collection [" + collection + "] was not ready in time.");
         }
       } else {
-        LOGGER.debug("Collection already exists: " + collection);
+        LOGGER.debug("Collection already exists: {}", collection);
       }
     } catch (SolrServerException | IOException e) {
       throw new SolrFactoryException("Failed to create collection: " + collection, e);
@@ -237,7 +237,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
             .get(() -> client.getZkStateReader().getClusterState().hasCollection(collection));
 
     if (!collectionCreated) {
-      LOGGER.debug("Timeout while waiting for collection to be created: " + collection);
+      LOGGER.debug("Timeout while waiting for collection to be created: {}", collection);
       return false;
     }
 
@@ -256,7 +256,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                         == SHARD_COUNT);
 
     if (!shardsStarted) {
-      LOGGER.debug("Timeout while waiting for collection shards to start: " + collection);
+      LOGGER.debug("Timeout while waiting for collection shards to start: {}", collection);
     }
 
     return shardsStarted;

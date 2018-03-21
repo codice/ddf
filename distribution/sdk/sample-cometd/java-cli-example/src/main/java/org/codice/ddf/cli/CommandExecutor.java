@@ -20,6 +20,7 @@ import org.codice.ddf.cli.ui.Notify;
 
 public class CommandExecutor {
 
+  @SuppressWarnings("squid:S1181" /*Want to catch throwable*/)
   private static <T extends RunnableCommand> void execute(T cmd) {
     try {
       int exitCode = cmd.run();
@@ -31,6 +32,7 @@ public class CommandExecutor {
     }
   }
 
+  @SuppressWarnings("squid:S1181" /*Want to catch throwable*/)
   public static <T extends RunnableCommand> void executeSingleCommand(Class<T> cls, String[] args) {
     SingleCommand<T> parser = SingleCommand.singleCommand(cls);
     try {
@@ -45,6 +47,7 @@ public class CommandExecutor {
     }
   }
 
+  @SuppressWarnings("squid:S1181" /*Want to catch throwable*/)
   public static <T extends RunnableCommand> void executeCli(Cli<T> cli, String[] args) {
     try {
       T cmd = cli.parse(args);

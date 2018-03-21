@@ -18,7 +18,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
@@ -123,7 +123,7 @@ public class AdaptedSourceResponse implements SourceResponse {
 
       if (metacard.getMetacardType() != null) {
 
-        String metacardTypeName = BasicTypes.BASIC_METACARD.getName();
+        String metacardTypeName = MetacardImpl.BASIC_METACARD.getName();
 
         if (isNotBlank(metacard.getMetacardType().getName())) {
           metacardTypeName = metacard.getMetacardType().getName();

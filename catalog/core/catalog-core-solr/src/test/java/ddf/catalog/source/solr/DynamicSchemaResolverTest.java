@@ -63,7 +63,7 @@ public class DynamicSchemaResolverTest {
     boolean tokenized = false;
     boolean multiValued = false;
     addtributeDescriptors.add(
-        new AttributeDescriptorImplTest(
+        new TestAttributeDescriptorImpl(
             name, propertyName, indexed, stored, tokenized, multiValued, BasicTypes.OBJECT_TYPE));
     Serializable mockValue = mock(Serializable.class);
     Attribute mockAttribute = mock(Attribute.class);
@@ -80,7 +80,7 @@ public class DynamicSchemaResolverTest {
     // Perform Test
     resolver.addFields(mockMetacard, mockSolrInputDocument);
 
-    // Verify: Verify that TestAttributeDescritorImpl has been recreated as a
+    // Verify: Verify that TestAttributeDescriptorImpl has been recreated as a
     // AttributeDescriptorImpl.
     verify(mockSolrInputDocument)
         .addField(eq(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME), metacardTypeBytes.capture());

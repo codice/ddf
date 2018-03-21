@@ -1,0 +1,34 @@
+@{customElementNamespace}paging {
+  position: relative;
+  .customElement;
+  padding: 10px;
+
+  width: 100%;
+  text-align: center;
+  padding: 5px 0;
+
+  button {
+    width: 10%;
+
+    &.server-next, 
+    &.server-previous {
+      width: auto;
+      padding: 0 10px;
+      
+      span {
+        font-size: @mediumFontSize;
+      }
+    }
+  }
+
+  .status {
+    padding: 0 10px;
+  }
+
+}
+
+ .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}paging {
+
+  }
+}

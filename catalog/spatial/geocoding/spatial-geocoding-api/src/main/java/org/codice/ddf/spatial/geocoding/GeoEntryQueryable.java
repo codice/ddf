@@ -36,6 +36,16 @@ public interface GeoEntryQueryable {
   List<GeoEntry> query(String queryString, int maxResults) throws GeoEntryQueryException;
 
   /**
+   * Retrieves auto-complete suggestions based on a partial or full word {@code queryString}
+   *
+   * @param queryString a partial or full search phrase
+   * @param maxResults the maximum number of results to return
+   * @return
+   * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
+   */
+  List<String> getSuggestedNames(String queryString, int maxResults) throws GeoEntryQueryException;
+
+  /**
    * Retrieves the cities within {@code radiusInKm} kilometers of {@code metacard}, sorted by
    * population in descending order.
    *

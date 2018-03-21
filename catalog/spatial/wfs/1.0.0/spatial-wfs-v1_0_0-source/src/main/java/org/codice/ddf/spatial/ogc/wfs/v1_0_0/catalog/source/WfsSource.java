@@ -32,13 +32,9 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
@@ -82,12 +78,14 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
+import org.codice.ddf.cxf.ClientKeyInfo;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.AbstractWfsSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
@@ -109,8 +107,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Provides a Federated and Connected source implementation for OGC WFS servers. */
-public class WfsSource extends MaskableImpl
-    implements FederatedSource, ConnectedSource, ConfiguredService {
+public class WfsSource extends AbstractWfsSource {
 
   public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -338,6 +335,20 @@ public class WfsSource extends MaskableImpl
               null,
               username,
               password);
+    } else if (StringUtils.isNotBlank(getCertAlias())
+        && StringUtils.isNotBlank(getKeystorePath())) {
+      factory =
+          new SecureCxfClientFactory(
+              wfsUrl,
+              Wfs.class,
+              initProviders(),
+              new MarkableStreamInterceptor(),
+              this.disableCnCheck,
+              false,
+              null,
+              null,
+              new ClientKeyInfo(getCertAlias(), getKeystorePath()),
+              getSslProtocol());
     } else {
       factory =
           new SecureCxfClientFactory(

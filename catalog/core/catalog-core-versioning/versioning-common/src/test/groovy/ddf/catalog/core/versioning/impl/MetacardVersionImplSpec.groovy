@@ -82,7 +82,7 @@ class MetacardVersionImplSpec extends Specification {
                 SecurityUtils.subject)
 
         when:
-        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD])
+        Metacard metacard = history.getMetacard([MetacardImpl.BASIC_METACARD])
 
         then:
         metacard != null
@@ -102,7 +102,7 @@ class MetacardVersionImplSpec extends Specification {
                 meta.metacard as Metacard,
                 action,
                 SecurityUtils.subject,
-                [BasicTypes.BASIC_METACARD, meta.metacardType])
+                [MetacardImpl.BASIC_METACARD, meta.metacardType])
 
         then: "The metacard type should contain non default attribute descriptors"
         meta.attributeDescriptor in history.metacardType.attributeDescriptors
@@ -110,7 +110,7 @@ class MetacardVersionImplSpec extends Specification {
                 meta.metacard.metacardType.attributeDescriptors)
 
         when:
-        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD, meta.metacardType])
+        Metacard metacard = history.getMetacard([MetacardImpl.BASIC_METACARD, meta.metacardType])
 
         then:
         metacard != null
@@ -138,7 +138,7 @@ class MetacardVersionImplSpec extends Specification {
         history.getAttribute(MetacardVersion.VERSION_TYPE_BINARY)?.value != null
 
         when: "reconstructing metacard with only serialized type available"
-        Metacard metacard = history.getMetacard([BasicTypes.BASIC_METACARD])
+        Metacard metacard = history.getMetacard([MetacardImpl.BASIC_METACARD])
 
         then: "ensure metacard and type are properly restored"
         metacard.metacardType == meta.metacard.metacardType
@@ -152,7 +152,7 @@ class MetacardVersionImplSpec extends Specification {
         res.tags = [Metacard.DEFAULT_TAG]
         res.uri = URI.create("http://google.com")
 
-        MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        MetacardImpl metacard = new MetacardImpl()
         metacard.id = res.id
         metacard.tags = res.tags
         metacard.metadata = res.metadata
@@ -176,7 +176,7 @@ class MetacardVersionImplSpec extends Specification {
                 BasicTypes.STRING_TYPE)
         res.metacardType = new MetacardTypeImpl(
                 "NonBasicType",
-                BasicTypes.BASIC_METACARD, [res.attributeDescriptor] as Set)
+                MetacardImpl.BASIC_METACARD, [res.attributeDescriptor] as Set)
         res.metacard = new MetacardImpl(res.metacardType)
         res.attributeValue = "My New Attribute Value"
         res.metacard.with {

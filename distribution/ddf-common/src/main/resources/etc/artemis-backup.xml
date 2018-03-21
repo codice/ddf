@@ -27,15 +27,18 @@
                 </anycast>
             </address>
         </addresses>
+        <broker-plugins>
+            <broker-plugin class-name="org.codice.ddf.broker.security.BrokerAuthenticationPlugin" />
+        </broker-plugins>
 
         <persistence-enabled>true</persistence-enabled>
 
         <!-- this could be ASYNCIO or NIO -->
         <journal-type>ASYNCIO</journal-type>
-        <paging-directory>${ddf.home:.}/data/artemis/paging</paging-directory>
-        <bindings-directory>${ddf.home:.}/data/artemis/bindings</bindings-directory>
-        <journal-directory>${ddf.home:.}/data/artemis/journal</journal-directory>
-        <large-messages-directory>${ddf.home:.}/data/artemis/large-messages
+        <paging-directory>${ddf.data:.}/artemis/paging</paging-directory>
+        <bindings-directory>${ddf.data:.}/artemis/bindings</bindings-directory>
+        <journal-directory>${ddf.data:.}/artemis/journal</journal-directory>
+        <large-messages-directory>${ddf.data:.}/artemis/large-messages
         </large-messages-directory>
 
         <journal-datasync>true</journal-datasync>
@@ -54,6 +57,7 @@
         <network-check-URL-list>http://www.apache.org</network-check-URL-list> -->
 
         <network-check-period>10000</network-check-period>
+        <!-- This value should not be changed from 255 -->
         <network-check-timeout>255</network-check-timeout>
 
         <!-- this is a comma separated list, no spaces, just DNS or IPs

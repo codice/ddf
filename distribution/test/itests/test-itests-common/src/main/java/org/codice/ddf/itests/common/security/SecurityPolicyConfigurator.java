@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.ServiceManager;
 import org.codice.ddf.itests.common.SynchronizedConfiguration;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -69,14 +70,14 @@ public class SecurityPolicyConfigurator {
 
   public void waitForBasicAuthReady(String url) {
     expect("Waiting for basic auth")
-        .within(120, TimeUnit.SECONDS)
+        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .checkEvery(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 401);
   }
 
   public void waitForGuestAuthReady(String url) {
     expect("Waiting for guest auth")
-        .within(120, TimeUnit.SECONDS)
+        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .checkEvery(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 200);
   }

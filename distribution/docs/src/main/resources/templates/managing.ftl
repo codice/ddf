@@ -78,10 +78,25 @@ include::${si.file}[]
 
 === Maintaining
 
-<#list maintainings?sort_by("order") as maintaining>
-<#if (maintaining.status == "published")>
-include::${maintaining.file}[]
+<#list maintainingIntros?sort_by("order") as mi>
+<#if (mi.status == "published")>
 
+include::${mi.file}[leveloffset=+2]
+
+<#list maintainings?sort_by("order") as maintaining>
+<#if (maintaining.status == "published" && maintaining.parent == mi.title)>
+
+include::${maintaining.file}[leveloffset=+3]
+
+<#list subMaintainings?sort_by("order") as subMaintaining>
+<#if (subMaintaining.status == "published" && subMaintaining.parent == maintaining.title)>
+
+include::${subMaintaining.file}[leveloffset=+4]
+
+</#if>
+</#list>
+</#if>
+</#list>
 </#if>
 </#list>
 
@@ -105,10 +120,15 @@ include::${troubleshooting.file}[]
 
 == Data Management
 
-<#list dataManagements?sort_by("order") as dataManagement>
-<#if (dataManagement.status == "published")>
-include::${dataManagement.file}[]
+<#list dataManagementIntros?sort_by("order") as dataManagementIntro>
+<#if (dataManagementIntro.status == "published")>
+include::${dataManagementIntro.file}[leveloffset=+1]
 
+<#list dataManagements?sort_by("order") as dataManagement>
+<#if (dataManagement.status == "published" && dataManagement.parent == dataManagementIntro.title)>
+include::${dataManagement.file}[leveloffset=+2]
+</#if>
+</#list>
 </#if>
 </#list>
 

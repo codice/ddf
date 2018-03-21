@@ -23,7 +23,7 @@
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
     <!--
-    Packages the DDF Standard distribution, which consists of the DDF Core distribution.​ 
+    Packages the DDF Standard distribution, which consists of the DDF Core distribution.
 
     Note that this distribution has the DDF Kernel distribution as its parent, hence all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden in this pom.
     -->
@@ -106,6 +106,9 @@
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.distribution/install-profiles/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.ddf/ui/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -351,6 +354,13 @@
         <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>install-profiles</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>ui</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

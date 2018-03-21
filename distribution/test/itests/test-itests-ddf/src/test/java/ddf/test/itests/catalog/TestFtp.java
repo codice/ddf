@@ -13,7 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
-import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH_PROPERTY_KEY;
 import static ddf.catalog.ftp.FtpServerManager.NEED;
 import static ddf.catalog.ftp.FtpServerManager.WANT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -40,9 +40,9 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.commons.net.util.KeyManagerUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.AfterExam;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -449,7 +449,7 @@ public class TestFtp extends AbstractIntegrationTest {
     Configuration config = getAdminConfig().getConfiguration("ddf.catalog.ftp.FtpServerManager");
     config.setBundleLocation("mvn:ddf.catalog/ftp/" + System.getProperty("ddf.version"));
     Dictionary properties = new Hashtable<>();
-    properties.put(CLIENT_AUTH, clientAuth);
+    properties.put(CLIENT_AUTH_PROPERTY_KEY, clientAuth);
     config.update(properties);
 
     // wait until the clientAuth configuration has taken effect at the FTP server level

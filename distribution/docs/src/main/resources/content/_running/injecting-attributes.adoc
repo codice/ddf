@@ -1,0 +1,13 @@
+:title: Injecting Attributes
+:type: dataManagement
+:status: published
+:parent: Validating Data
+:order: 02
+:summary: Injecting attributes.
+
+== {title}
+
+To create a new attribute, it must be injected into the metacard before it is available to edit or override.
+
+Injections are defined in a JSON-formatted file
+See <<_developing_attribute_injections, Developing Attribute Injections>> for details on creating an attribute injection file.

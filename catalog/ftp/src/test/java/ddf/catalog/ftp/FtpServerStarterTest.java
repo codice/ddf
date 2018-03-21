@@ -13,9 +13,9 @@
  */
 package ddf.catalog.ftp;
 
-import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH_PROPERTY_KEY;
 import static ddf.catalog.ftp.FtpServerManager.NEED;
-import static ddf.catalog.ftp.FtpServerManager.PORT;
+import static ddf.catalog.ftp.FtpServerManager.PORT_PROPERTY_KEY;
 import static ddf.catalog.ftp.FtpServerManager.WANT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -158,8 +158,8 @@ public class FtpServerStarterTest {
   private Map<String, Object> createProperties(int port, String clientAuth) {
     Map<String, Object> properties = new HashMap<>();
 
-    properties.put(PORT, Integer.toString(port));
-    properties.put(CLIENT_AUTH, clientAuth);
+    properties.put(PORT_PROPERTY_KEY, Integer.toString(port));
+    properties.put(CLIENT_AUTH_PROPERTY_KEY, clientAuth);
 
     return properties;
   }

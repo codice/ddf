@@ -31,20 +31,27 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.CombinableMatcher.both;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
+import ddf.security.Subject;
+import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,9 +63,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.handler.api.SessionHandler;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,7 +93,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private static final DynamicUrl IDP_URL = new DynamicUrl(SERVICE_ROOT, "/idp/login");
 
-  private static final DynamicUrl WHO_AM_I_URL = new DynamicUrl(SERVICE_ROOT, "/whoami");
+  private static final DynamicUrl WHO_AM_I_URL =
+      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/whoami");
 
   private static final DynamicUrl AUTHENTICATION_REQUEST_ISSUER =
       new DynamicUrl(SERVICE_ROOT, "/saml/sso");
@@ -95,6 +106,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   public static final String BROWSER_USER_AGENT =
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
+
+  private String ddfSpMetadataEntityId;
+
+  private Subject systemSubject;
 
   private enum Binding {
     REDIRECT {
@@ -126,6 +141,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     validateSaml(metadata, SamlSchema.METADATA);
     validateSaml(ddfSpMetadata, SamlSchema.METADATA);
 
+    // Save the spMetadata entityId
+    new MetadataConfigurationParser(
+        Collections.singletonList(ddfSpMetadata), ed -> ddfSpMetadataEntityId = ed.getEntityID());
+
     // The IdP server can point to multiple Service Providers and as such expects an array.
     // Thus, even though we are only setting a single item, we must wrap it in an array.
     setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
@@ -133,6 +152,20 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         "org.codice.ddf.security.idp.server.IdpEndpoint",
         "spMetadata",
         new String[] {ddfSpMetadata});
+
+    Security security = Security.getInstance();
+    systemSubject = security.runAsAdmin(security::getSystemSubject);
+  }
+
+  @After
+  public void teardown() throws Exception {
+    // Clear all active login sessions to ensure a clean slate
+    SessionHandler sessionHandler = getServiceManager().getService(SessionHandler.class);
+    Map<String, Set<String>> activeSessions =
+        systemSubject.execute(sessionHandler::getActiveSessions);
+    for (String sessionName : activeSessions.keySet()) {
+      systemSubject.execute(() -> sessionHandler.invalidateSession(sessionName));
+    }
   }
 
   @BeforeExam
@@ -270,19 +303,20 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private String getUserName() {
     // @formatter:off
-    return get(WHO_AM_I_URL.getUrl()).body().asString();
+    Response response = get(WHO_AM_I_URL.getUrl()).then().extract().response();
+    return response.jsonPath().get("karaf.name");
     // @formatter:on
   }
 
   private String getUserName(Map<String, String> cookies) {
     // @formatter:off
-    return given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).body().asString();
+    Response response =
+        given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).then().extract().response();
+    return response.jsonPath().get("idp.name");
     // @formatter:on
   }
 
-  private ResponseHelper performHttpRequestUsingBinding(Binding binding, String relayState)
-      throws Exception {
-
+  private String setupHttpRequestUsingBinding(Binding binding) throws Exception {
     // Signing is tested in the unit tests, so we don't require signing here to make things simpler
     setConfig("org.codice.ddf.security.idp.server.IdpEndpoint", "strictSignature", false);
 
@@ -305,8 +339,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             binding.toString(),
             AUTHENTICATION_REQUEST_ISSUER);
     validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);
+    return mockAuthnRequest;
+  }
 
-    String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
+  private ResponseHelper performHttpRequestUsingBinding(
+      Binding binding, String relayState, String encodedRequest) throws Exception {
     // @formatter:off
     Response idpResponse =
         given()
@@ -332,7 +369,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   @Test
   public void testRedirectBinding() throws Exception {
     String relayState = "test";
-    ResponseHelper helper = performHttpRequestUsingBinding(Binding.REDIRECT, relayState);
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT);
+    String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
+    ResponseHelper helper =
+        performHttpRequestUsingBinding(Binding.REDIRECT, relayState, encodedRequest);
 
     assertThat(helper.parseBody(), is(Binding.REDIRECT));
     assertThat(helper.get("RelayState"), is(relayState));
@@ -346,7 +386,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // We should get back a POST form that has everything we put in, thus the only thing
     // of interest to really check is that we do get back a post form
-    ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test");
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.POST);
+    String encodedRequest =
+        Base64.getEncoder()
+            .encodeToString(mockAuthnRequest.getBytes(StandardCharsets.UTF_8.name()));
+    ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test", encodedRequest);
     assertThat(helper.parseBody(), is(Binding.POST));
   }
 
@@ -468,14 +512,15 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     acsHelper.parseHeader();
 
     // Access search again, but now as an authenticated user.
-    // @formatter:off
     given()
         .cookies(acsResponse.getCookies())
         .expect()
         .statusCode(200)
         .when()
-        .get(acsHelper.redirectUrl);
-    // @formatter:on
+        .get(acsHelper.redirectUrl)
+        .then()
+        .log()
+        .ifValidationFails();
 
     // Make sure we are logged in as admin.
     assertThat(getUserName(acsResponse.getCookies()), is("admin"));
@@ -483,9 +528,39 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   @Test
   public void testLogout() throws Exception {
+    Response acsResponse = loginUser("admin", "admin");
 
-    // Negative test to make sure we aren't admin yet
+    // Create logout request
+    // @formatter:off
+    Response createLogoutRequest =
+        given()
+            .cookies(acsResponse.getCookies())
+            .expect()
+            .statusCode(200)
+            .when()
+            .get(LOGOUT_REQUEST_URL.getUrl());
+    // @formatter:on
+
+    ResponseHelper createLogoutHelper = new ResponseHelper(createLogoutRequest);
+    createLogoutHelper.parseBody();
+
+    // Logout via url returned in logout request
+    // @formatter:off
+    given()
+        .expect()
+        .statusCode(200)
+        .body(containsString("You are now signed out."))
+        .when()
+        .get(createLogoutHelper.get("url"));
+    // @formatter:on
+
+    // Verify admin user is no longer logged in
     assertThat(getUserName(), not("admin"));
+  }
+
+  private Response loginUser(String username, String password) throws Exception {
+    // Negative test to make sure we aren't admin yet
+    assertThat(getUserName(), not(username));
 
     // First time hitting search, expect to get redirected to the Identity Provider.
     ResponseHelper searchHelper = getSearchResponse(false, null);
@@ -497,7 +572,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         given()
             .auth()
             .preemptive()
-            .basic("admin", "admin")
+            .basic(username, password)
             .param("AuthMethod", "up")
             .params(searchHelper.params)
             .expect()
@@ -526,44 +601,19 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     acsHelper.parseHeader();
 
     // Access search again, but now as an authenticated user.
-    // @formatter:off
     given()
         .cookies(acsResponse.getCookies())
         .expect()
         .statusCode(200)
         .when()
-        .get(acsHelper.redirectUrl);
-    // @formatter:on
+        .get(acsHelper.redirectUrl)
+        .then()
+        .log()
+        .ifValidationFails();
 
     // Make sure we are logged in as admin.
-    assertThat(getUserName(acsResponse.getCookies()), is("admin"));
-
-    // Create logout request
-    // @formatter:off
-    Response createLogoutRequest =
-        given()
-            .cookies(acsResponse.getCookies())
-            .expect()
-            .statusCode(200)
-            .when()
-            .get(LOGOUT_REQUEST_URL.getUrl());
-    // @formatter:on
-
-    ResponseHelper createLogoutHelper = new ResponseHelper(createLogoutRequest);
-    createLogoutHelper.parseBody();
-
-    // Logout via url returned in logout request
-    // @formatter:off
-    given()
-        .expect()
-        .statusCode(200)
-        .body(containsString("You are now signed out."))
-        .when()
-        .get(createLogoutHelper.get("url"));
-    // @formatter:on
-
-    // Verify admin user is no longer logged in
-    assertThat(getUserName(), not("admin"));
+    assertThat(getUserName(acsResponse.getCookies()), is(username));
+    return acsResponse;
   }
 
   @Test
@@ -643,6 +693,44 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                     + "']"),
             hasXPath("/metacards/metacard/geometry/value"));
     // @formatter:on
+  }
+
+  @Test
+  public void testSessionManagement() throws Exception {
+    // logon a couple of users
+    loginUser("tchalla", "password1");
+    loginUser("slang", "password1");
+    loginUser("srogers", "password1");
+
+    SessionHandler sessionHandler = getServiceManager().getService(SessionHandler.class);
+    assertNotNull(sessionHandler);
+
+    // Attempt query for sessions without admin subject
+    Map<String, Set<String>> activeSessions = sessionHandler.getActiveSessions();
+    assertThat(activeSessions.size(), is(0));
+
+    // Query with admin subject
+    activeSessions = systemSubject.execute(sessionHandler::getActiveSessions);
+    assertThat(activeSessions.size(), is(3));
+
+    // Attempt to invalidate real session without admin subject
+    sessionHandler.invalidateSession("slang");
+    activeSessions = systemSubject.execute(sessionHandler::getActiveSessions);
+    assertThat(activeSessions.size(), is(3));
+
+    // Attempt to invalidate non-existent subject with admin subject
+    systemSubject.execute(() -> sessionHandler.invalidateSession("NOT_A_SESSION"));
+    activeSessions = systemSubject.execute(sessionHandler::getActiveSessions);
+    assertThat(activeSessions.size(), is(3));
+
+    // Attempt to invalidate real session with admin subject
+    systemSubject.execute(() -> sessionHandler.invalidateSession("slang"));
+    activeSessions = systemSubject.execute(sessionHandler::getActiveSessions);
+    assertThat(activeSessions.size(), is(2));
+
+    Set<String> activeSPs = activeSessions.get("tchalla");
+    assertThat(activeSPs.size(), is(1));
+    assertThat(activeSPs.iterator().next(), is(ddfSpMetadataEntityId));
   }
 
   private class ResponseHelper {

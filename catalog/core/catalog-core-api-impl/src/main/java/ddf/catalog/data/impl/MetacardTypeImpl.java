@@ -32,8 +32,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Default implementation of the {@link MetacardType}, used by {@link BasicTypes} to create the
- * {@link BasicTypes#BASIC_METACARD}.
+ * Default implementation of the {@link MetacardType}, used by {@link MetacardImpl} to create the
+ * {@link MetacardImpl#BASIC_METACARD}.
  *
  * <p>This class is {@link java.io.Serializable} and care should be taken with compatibility if
  * changes are made.

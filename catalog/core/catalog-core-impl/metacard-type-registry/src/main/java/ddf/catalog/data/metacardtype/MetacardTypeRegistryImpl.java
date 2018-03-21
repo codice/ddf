@@ -16,7 +16,7 @@ package ddf.catalog.data.metacardtype;
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.MetacardTypeUnregistrationException;
 import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,7 +39,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
   private MetacardTypeRegistryImpl() {
     this.registeredMetacardTypes = new CopyOnWriteArraySet<QualifiedMetacardType>();
-    register(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
+    register(new QualifiedMetacardTypeImpl(MetacardImpl.BASIC_METACARD));
   }
 
   public static MetacardTypeRegistry getInstance() {

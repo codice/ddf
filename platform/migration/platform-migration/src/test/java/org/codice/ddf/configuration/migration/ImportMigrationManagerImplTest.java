@@ -18,12 +18,14 @@ import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
+import org.codice.ddf.migration.OptionalMigratable;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +43,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   private final Migratable migratable2 = Mockito.mock(Migratable.class);
 
-  private final Migratable migratable3 = Mockito.mock(Migratable.class);
+  private final Migratable migratable3 =
+      Mockito.mock(
+          Migratable.class, Mockito.withSettings().extraInterfaces(OptionalMigratable.class));
 
   private final Migratable[] migratables = new Migratable[] {migratable, migratable2, migratable3};
 
@@ -89,7 +93,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
         .when(mockMigrationZipFile)
         .stream();
 
-    mgr = new ImportMigrationManagerImpl(report, Stream.of(migratables), mockMigrationZipFile);
+    mgr =
+        new ImportMigrationManagerImpl(
+            report, mockMigrationZipFile, Collections.emptySet(), Stream.of(migratables));
   }
 
   private MigrationZipEntry getMetadataZipEntry(
@@ -118,6 +124,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
                 .append(v));
     sb.append("\",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
     boolean first = true;
+
     for (final Migratable m : migratables) {
       if (first) {
         first = false;
@@ -183,8 +190,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     mgr =
         new ImportMigrationManagerImpl(
             report,
-            Stream.concat(Stream.of(migratables), Stream.of(migratable4)),
-            mockMigrationZipFile);
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.concat(Stream.of(migratables), Stream.of(migratable4)));
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -205,7 +213,10 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   public void testConstructorWithLessMigratables() throws Exception {
     mgr =
         new ImportMigrationManagerImpl(
-            report, Stream.of(migratable, migratable3), mockMigrationZipFile);
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratable, migratable3));
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -254,7 +265,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null report"));
 
-    new ImportMigrationManagerImpl(null, Stream.empty(), mockMigrationZipFile);
+    new ImportMigrationManagerImpl(
+        null, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
   }
 
   @Test
@@ -265,15 +277,16 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("invalid migration operation"));
 
-    new ImportMigrationManagerImpl(report, Stream.empty(), mockMigrationZipFile);
+    new ImportMigrationManagerImpl(
+        report, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
   }
 
   @Test
-  public void testConstructorWithNullExportFile() throws Exception {
+  public void testConstructorWithNullZipFile() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null zip file"));
 
-    new ImportMigrationManagerImpl(report, null, Stream.empty());
+    new ImportMigrationManagerImpl(report, null, Collections.emptySet(), Stream.empty());
   }
 
   @Test
@@ -281,7 +294,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratables"));
 
-    new ImportMigrationManagerImpl(report, null, mockMigrationZipFile);
+    new ImportMigrationManagerImpl(report, mockMigrationZipFile, Collections.emptySet(), null);
   }
 
   @Test
@@ -293,11 +306,28 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(MigrationException.class);
     thrown.expectMessage("unsupported exported version");
 
-    new ImportMigrationManagerImpl(report, Stream.empty(), mockMigrationZipFile);
+    new ImportMigrationManagerImpl(
+        report, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
   }
 
   @Test
   public void testDoImport() throws Exception {
+    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
+
+    Mockito.verify(migratable).doImport(Mockito.notNull());
+    Mockito.verify(migratable2).doImport(Mockito.notNull());
+    Mockito.verify(migratable3, Mockito.never()).doImport(Mockito.notNull());
+  }
+
+  @Test
+  public void testDoImportWithMigratable3NowMandatory() throws Exception {
+    final ImportMigrationManagerImpl mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.singleton(MIGRATABLE_ID3),
+            Stream.of(migratables));
+
     mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     Mockito.verify(migratable).doImport(Mockito.notNull());

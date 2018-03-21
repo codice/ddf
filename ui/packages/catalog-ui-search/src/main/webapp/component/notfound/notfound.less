@@ -1,0 +1,26 @@
+@{customElementNamespace}notfound {
+    .customElement;
+    overflow: hidden;
+    .changeBackground(@backgroundContent);
+
+    .content .navigator {
+      margin-top: @minimumSpacing;
+    }
+
+    .content {
+        margin: auto;
+        max-width: 1200px;
+        padding: @minimumSpacing 100px;
+        overflow: auto;
+        height: ~'calc(100% - 2*@{minimumLineSize})';
+    }
+}
+
+.is-small-screen, .is-mobile-screen {
+    @{customElementNamespace}notfound {
+      .content {
+        max-width: 100%;
+        padding: @minimumSpacing;
+      }
+    }
+  }

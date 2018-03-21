@@ -144,12 +144,10 @@ public class X509PathTokenValidator implements TokenValidator {
             || X509TokenValidator.X509_V3_TYPE.equals(
                 ((BinarySecurityTokenType) token).getValueType()))) {
       return true;
-    } else if (token instanceof Element
-        && WSConstants.SIG_NS.equals(((Element) token).getNamespaceURI())
-        && WSConstants.X509_DATA_LN.equals(((Element) token).getLocalName())) {
-      return true;
     }
-    return false;
+    return (token instanceof Element
+        && WSConstants.SIG_NS.equals(((Element) token).getNamespaceURI())
+        && WSConstants.X509_DATA_LN.equals(((Element) token).getLocalName()));
   }
 
   /**

@@ -24,7 +24,7 @@ import spock.lang.Specification
 
 import java.nio.file.Path
 
-class OperationsStorageSupportTest extends Specification {
+class OperationsStorageSupportSpec extends Specification {
     private Historian historian
     private SourceOperations sourceOperations
     private QueryOperations queryOperations

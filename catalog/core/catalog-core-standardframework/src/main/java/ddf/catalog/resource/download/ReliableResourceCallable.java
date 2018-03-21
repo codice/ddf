@@ -14,6 +14,7 @@
 package ddf.catalog.resource.download;
 
 import com.google.common.io.CountingOutputStream;
+import ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

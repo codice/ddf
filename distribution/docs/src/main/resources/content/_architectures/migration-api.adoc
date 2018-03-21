@@ -31,6 +31,7 @@ be provided as a non-blank string.
 When an import operation is processed, the migration API will do another look-up for all registered OSGi services that are implementing `Migratable` and call their `doImport()`
 or `doIncompatibleImport()` methods based on whether the recorded version string at export time is equal to the version string currently provided by the migratable or not. The
 `doMissingImport()` method will be called instead of one of the other two methods when the migration API detects that the corresponding migratable data is missing from the exported data.
+Any migratables that are tagged using the `OptionalMigratable` tag interface will automatically be skipped unless otherwise specified when the import phase is initiated.
 
 The services that implement the migratable interface will be called one at a time based on their service ranking order, and do not need to be thread safe.
 A bundle or a feature can have as many services implementing the interfaces as needed.
@@ -38,6 +39,7 @@ A bundle or a feature can have as many services implementing the interfaces as n
 === The Migration API Interfaces and Classes
 
 . `org.codice.ddf.migration.Migratable`
+. `org.codice.ddf.migration.OptionalMigratable`
 . `org.codice.ddf.migration.MigrationContext`
 . `org.codice.ddf.migration.ExportMigrationContext`
 . `org.codice.ddf.migration.ImportMigrationContext`
@@ -53,7 +55,6 @@ A bundle or a feature can have as many services implementing the interfaces as n
 . `org.codice.ddf.migration.MigrationSuccessfulInformation`
 
 ==== `Migratable`
-
 The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGi
 service. All other interfaces will be implemented by the migration API that provides support for migratables.
 
@@ -87,6 +88,9 @@ This will be the case when a migratable is later introduced in the software dist
 In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGi service in the OSGi service registry.
 Creating an OSGi service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
 
+==== `OptionalMigratable`
+This interface is designed as a tagged interface to identify optional migratables. An optional migratable will be skipped by default during the import phase. It can still be manually marked as mandatory when initiating the import phase.
+
 ==== `MigrationContext`
 The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sandbox that is unique to each migratable. This interface defines the following methods:
 
@@ -105,10 +109,12 @@ while processing an export migration operation. It defines the following methods
 - `ExportMigrationEntry getEntry(Path path)`
 - `Stream<ExportMigrationEntry> entries(Path path)`
 - `Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter)`
+- `Stream<ExportMigrationEntry> entries(Path path, boolean recurse)`
+- `Stream<ExportMigrationEntry> entries(Path path, boolean recurse, PathMatcher filter)`
 
 The `getSystemPropertyReferencedEntry()` methods create a migration entry to track a file referenced by a given system property value. +
 The `getEntry()` method creates a migration entry given the path for a specific file or directory. +
-The `entries()` methods create multiple entries corresponding to all files recursively located underneath a given path with an optional path matcher to filter which files to create entries for.
+The `entries()` methods create multiple entries corresponding to all files recursively (or not) located underneath a given path with an optional path matcher to filter which files to create entries for.
 
 Once an entry is created, it is not stored with the exported data. It is the migratable's responsibility to store the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.

@@ -35,7 +35,7 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
   private static final MetacardType METACARD_TYPE;
 
   private static final Set<AttributeDescriptor> DESCRIPTORS =
-      new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+      new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
   static {
     DESCRIPTORS.add(

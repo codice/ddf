@@ -1,0 +1,37 @@
+:title: Manual Removal of Expired Records
+:type: dataManagement
+:status: published
+:summary: Methods of removing expired records from the Catalog.
+:parent: Removing expired records from the Catalog
+:order: 00
+
+== {title}
+
+To manually remove expired records from the Catalog, execute in the ${command-console}:
+
+----
+catalog:removeall --expired
+----
+
+When prompted, type `yes` to remove all expired records.
+
+[TIP]
+====
+For help on the `removeall` command, execute
+
+`help catalog:removeall`
+====
+
+The `catalog:removeall` command removes records from the local Catalog.
+
+The `--force` option skips confirmation messages.
+
+The `--expired` option is to remove only expired records.
+
+[IMPORTANT]
+====
+If the `--expired` option is omitted, then all records will be removed from the Catalog.
+====
+
+The Catalog Command is convenient for removing records but it is not guaranteed to be fast or efficient. Additionally, certain configurations for archiving Catalog records can dramatically slow the process. If efficiency and speed are desired, interact directly with the catalog storage provider to delete records.
+Consult the specific Catalog implementation's documentation on the best method to remove metadata.

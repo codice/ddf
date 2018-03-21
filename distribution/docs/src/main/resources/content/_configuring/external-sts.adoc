@@ -32,7 +32,7 @@ Configure the location and credentials for the STS.
 Disable the client configuration for the Security STS
 
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-security}* application.
-. Select *Features*.
+. Select the *System* tab.
+. Select the *Features* tab.
 . Uninstall the *Security STS Client* feature.
 

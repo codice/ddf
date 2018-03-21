@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import com.google.common.io.Closeables;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -56,6 +56,10 @@ public class ImportMigrationConfigurationAdminContext {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationConfigurationAdminContext.class);
+
+  private static final Path ETC_PATH = Paths.get("etc");
+
+  private static final Path ADMIN_DIR = Paths.get("admin");
 
   private final ImportMigrationContext context;
 
@@ -102,10 +106,10 @@ public class ImportMigrationConfigurationAdminContext {
         Stream.of(memoryConfigs)
             .filter(ConfigurationAdminMigratable::isManagedServiceFactory)
             .collect(Collectors.groupingBy(Configuration::getFactoryPid));
-    // categorize exported configurations
+    // categorize exported admin configurations
     final ImportMigrationConfigurationAdminEntry[] entries =
         context
-            .entries()
+            .entries(ImportMigrationConfigurationAdminContext.ADMIN_DIR)
             .map(this::proxy)
             .filter(Objects::nonNull)
             .toArray(ImportMigrationConfigurationAdminEntry[]::new);
@@ -123,7 +127,7 @@ public class ImportMigrationConfigurationAdminContext {
     context.getReport().doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
   }
 
-  public Stream<ImportMigrationConfigurationAdminEntry> entries() {
+  public Stream<ImportMigrationConfigurationAdminEntry> memoryEntries() {
     if (!isValid) {
       return Stream.empty();
     }
@@ -226,7 +230,7 @@ public class ImportMigrationConfigurationAdminContext {
     }
     // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under
     // etc
-    return Paths.get("etc").resolve(path.getFileName());
+    return ImportMigrationConfigurationAdminContext.ETC_PATH.resolve(path.getFileName());
   }
 
   private Dictionary<String, Object> readProperties(
@@ -271,7 +275,7 @@ public class ImportMigrationConfigurationAdminContext {
         throw new MigrationException(
             "Import error: failed to read configuration [%s]; %s.", path, e);
       } finally {
-        IOUtils.closeQuietly(is);
+        Closeables.closeQuietly(is);
       }
       // note: we also remove bunde location, factory pid, and pid from the dictionary as we do not
       // want to restore those later
@@ -310,7 +314,7 @@ public class ImportMigrationConfigurationAdminContext {
   }
 
   @SuppressWarnings(
-      "PMD.UnusedFormalParameter" /* report parameter is require as this method is used as a functional interface */)
+      "PMD.UnusedFormalParameter" /* report parameter is required as this method is used as a functional interface */)
   private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
     if (isValid) {
       Stream.concat(

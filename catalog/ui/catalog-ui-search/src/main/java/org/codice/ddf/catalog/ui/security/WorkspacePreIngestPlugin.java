@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import com.google.common.collect.ImmutableSet;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -23,40 +22,22 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.security.SubjectUtils;
-import ddf.security.common.audit.SecurityLogger;
-import java.util.Collections;
+import ddf.security.SubjectIdentity;
+import ddf.security.principal.GuestPrincipal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.system.alerts.NoticePriority;
-import org.codice.ddf.system.alerts.SystemNotice;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 
 public class WorkspacePreIngestPlugin implements PreIngestPlugin {
 
-  private static final String ALERT_TITLE = "User missing owner claim for creating workspaces";
+  private final SubjectIdentity subjectIdentity;
 
-  private static final String OWNER_ATTRIBUTE_MESSAGE = "The owner attribute value is [%s].";
-
-  private static final String USER_MESSAGE = "The user trying to create the workspace is [%s].";
-
-  public static final String EXCEPTION_MESSAGE =
-      "Cannot create workspace. Missing required attributes.";
-
-  private final WorkspaceSecurityConfiguration config;
-
-  private final EventAdmin eventAdmin;
-
-  public WorkspacePreIngestPlugin(WorkspaceSecurityConfiguration config, EventAdmin eventAdmin) {
-    this.config = config;
-    this.eventAdmin = eventAdmin;
+  public WorkspacePreIngestPlugin(SubjectIdentity subjectIdentity) {
+    this.subjectIdentity = subjectIdentity;
   }
 
   private static Map<String, WorkspaceMetacardImpl> getPreviousWorkspaces(UpdateRequest request) {
@@ -71,38 +52,6 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
         .collect(Collectors.toMap(Metacard::getId, m -> m));
   }
 
-  protected Map<String, SortedSet<String>> getSubjectAttributes() {
-    return SubjectUtils.getSubjectAttributes(SecurityUtils.getSubject());
-  }
-
-  private SortedSet<String> getSubjectAttribute(String key) {
-    Map<String, SortedSet<String>> attrs = getSubjectAttributes();
-
-    if (attrs.containsKey(key)) {
-      return attrs.get(key);
-    }
-
-    return Collections.emptySortedSet();
-  }
-
-  protected String getSubjectName() {
-    return SubjectUtils.getName(SecurityUtils.getSubject());
-  }
-
-  protected void alertMissingClaim(String ownerAttribute) {
-    String attribute = String.format(OWNER_ATTRIBUTE_MESSAGE, ownerAttribute);
-    String subject = String.format(USER_MESSAGE, getSubjectName());
-    SystemNotice notice =
-        new SystemNotice(
-            WorkspacePolicyExtension.class.toString(),
-            NoticePriority.CRITICAL,
-            ALERT_TITLE,
-            ImmutableSet.of(attribute, subject));
-    eventAdmin.postEvent(
-        new Event(SystemNotice.SYSTEM_NOTICE_BASE_TOPIC.concat("audit"), notice.getProperties()));
-    SecurityLogger.auditWarn(ALERT_TITLE, SecurityUtils.getSubject());
-  }
-
   /**
    * Ensures a workspace has an owner.
    *
@@ -114,10 +63,8 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
   @Override
   public CreateRequest process(CreateRequest request)
       throws PluginExecutionException, StopProcessingException {
-
-    final String ownerAttr = config.getOwnerAttribute();
-
-    Optional<String> owner = getSubjectAttribute(ownerAttr).stream().findFirst();
+    Subject ownerSubject = getSubject();
+    final String owner = subjectIdentity.getUniqueIdentifier(ownerSubject);
 
     List<WorkspaceMetacardImpl> workspaces =
         request
@@ -128,12 +75,11 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
             .filter(workspace -> StringUtils.isEmpty(workspace.getOwner()))
             .collect(Collectors.toList());
 
-    if (!workspaces.isEmpty() && !owner.isPresent()) {
-      alertMissingClaim(ownerAttr);
-      throw new StopProcessingException(EXCEPTION_MESSAGE);
+    if (!workspaces.isEmpty() && isGuest(ownerSubject)) {
+      throw new StopProcessingException("Guest user not allowed to create workspaces");
     }
 
-    workspaces.stream().forEach(workspace -> workspace.setOwner(owner.get()));
+    workspaces.stream().forEach(workspace -> workspace.setOwner(owner));
 
     return request;
   }
@@ -169,5 +115,13 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
   public DeleteRequest process(DeleteRequest input)
       throws PluginExecutionException, StopProcessingException {
     return input;
+  }
+
+  protected Subject getSubject() {
+    return SecurityUtils.getSubject();
+  }
+
+  private boolean isGuest(Subject subject) {
+    return subject.getPrincipal() instanceof GuestPrincipal;
   }
 }

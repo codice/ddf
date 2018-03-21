@@ -18,7 +18,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transformer.xml.binding.Base64BinaryElement;
 import ddf.catalog.transformer.xml.binding.BooleanElement;
@@ -33,9 +32,11 @@ import ddf.catalog.transformer.xml.binding.ShortElement;
 import ddf.catalog.transformer.xml.binding.StringElement;
 import ddf.catalog.transformer.xml.binding.StringxmlElement;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -49,7 +50,7 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jvnet.jaxb2_commons.lang.StringUtils;
 
-/** @see http://stackoverflow.com/a/11967459 */
+/** @see <a href="http://stackoverflow.com/a/11967459">http://stackoverflow.com/a/11967459</a> */
 @XmlRootElement(name = "metacard", namespace = "urn:catalog:metacard")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"metacardType", "sourceId", "attributes"})
@@ -66,22 +67,22 @@ public class AdaptedMetacard implements Metacard {
 
   private String sourceId = null;
 
-  private Attribute id;
+  private Attribute idAttribute;
 
-  // Suppressing Warnings and using ArrayList rather than List here because
-  // ArrayList implements Serializable (List does not).
+  // Suppressing Warnings and using HashSet rather than Set here because
+  // HashSet implements Serializable (Set does not).
   @SuppressWarnings("all")
-  private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+  private HashSet<Attribute> attributes = new HashSet<>();
 
   public AdaptedMetacard(Metacard metacard) {
     if (metacard == null) {
-      this.metacardType = BasicTypes.BASIC_METACARD;
+      this.metacardType = MetacardImpl.BASIC_METACARD;
     } else {
       this.sourceId = metacard.getSourceId();
       this.metacardType =
           metacard.getMetacardType() != null
               ? metacard.getMetacardType()
-              : BasicTypes.BASIC_METACARD;
+              : MetacardImpl.BASIC_METACARD;
       for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
         if (descriptor != null) {
           this.setAttribute(metacard.getAttribute(descriptor.getName()));
@@ -160,7 +161,7 @@ public class AdaptedMetacard implements Metacard {
     @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
     @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)
   })
-  protected List<Attribute> getAttributes() {
+  protected Set<Attribute> getAttributes() {
     return attributes;
   }
 
@@ -175,16 +176,14 @@ public class AdaptedMetacard implements Metacard {
       return null;
     }
     if (Metacard.ID.equals(name)) {
-      return this.id;
+      return this.idAttribute;
     }
-    for (Attribute attribute : attributes) {
-      if (attribute == null || StringUtils.isEmpty(attribute.getName())) {
-        continue;
-      } else if (name.equals(attribute.getName())) {
-        return attribute;
-      }
-    }
-    return null;
+    return attributes
+        .stream()
+        .filter(Objects::nonNull)
+        .filter(attr -> name.equals(attr.getName()))
+        .findFirst()
+        .orElse(null);
   }
 
   /*
@@ -193,11 +192,10 @@ public class AdaptedMetacard implements Metacard {
    * @see ddf.catalog.data.MetacardImpl#setAttribute(ddf.catalog.data.Attribute)
    */
   @Override
-  public final void setAttribute(Attribute attribute) {
+  public final void setAttribute(@Nullable Attribute attribute) {
     if (attribute != null) {
-
       if (Metacard.ID.equals(attribute.getName())) {
-        this.id = attribute;
+        this.idAttribute = attribute;
       } else {
         Attribute currentAttribute = getAttribute(attribute.getName());
         if (currentAttribute != null) {

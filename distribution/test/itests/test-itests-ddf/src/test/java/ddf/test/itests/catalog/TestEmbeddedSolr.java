@@ -30,10 +30,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,7 +60,7 @@ public class TestEmbeddedSolr extends AbstractIntegrationTest {
   public void beforeExam() throws Exception {
     try {
       basePort = getBasePort();
-      getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
+      getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();
       getCatalogBundle().waitForCatalogProvider();
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");

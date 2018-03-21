@@ -1,0 +1,41 @@
+:title: Configuring Map Layers for ${catalog-ui}
+:type: subConfiguration
+:status: published
+:parent: Configuring ${catalog-ui}
+:order: 00
+:summary: Configuring map layers for ${catalog-ui}.
+
+== {title}
+
+Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Map Layers* tab.
+. *Add*, *Configure* or *Remove* map layers as desired.
+
+.Adding a Map Layer
+. Enter a unique alpahnumeric *Name* (no special characters).
+. Enter the *Provider URL* for the server hosting the map layer instance.
+. Select *Proxy* _if_ security policies _or_ the tile server does not allow Cross-Origin Resource Sharing (CORS).
+. Select *Allow Credential Formatting* if map layer server prompts for credentials.
+.. _If selected, requests will fail if the server does not prompt for credentials._
+. Select from the list of available *Provider Types*.
+. Select a value for the *Alpha* to set the overall opacity of the _map layer_.
+.. Setting *Alpha* to 0 will prevent the layer from loading.
+. Select *Show* to make the layer visible in ${catalog-ui}. (Deselect to hide.)
+. Select *Transparent* if _tile_ images contain transparency.
+
+.Deleting a Map Layer
+. Delete an unneeded map layer with the *Delete Layer*(image:trash.png[trash icon]) icon associated with that layer.
+
+To remove all map layers, select *RESET*.
+
+.Reordering Map Layers
+. Move layers *Up* and *Down* in loading order with the *Arrow Icons* associated with each layer.
+
+.Map Layer Advanced Configuration
+Select *Advanced Configuration* to edit the JSON-formatted configuration directly.
+See <<org.codice.ddf.catalog.ui.config,${catalog-ui} Configurations>> for examples of map layer configurations.
+
+External links to the specific API documentation of the map layer is alson available from the *Advanced Configuration* menu.

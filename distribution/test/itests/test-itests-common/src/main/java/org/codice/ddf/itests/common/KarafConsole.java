@@ -83,7 +83,27 @@ public class KarafConsole extends KarafTestSupport {
    * @param command command to execute. Cannot be {@code null}.
    * @return command output. Can be empty but not {@code null}.
    */
+  @SuppressWarnings("squid:S00112") /* test code, don't care if we throw runtime exception */
   public String runCommand(String command) {
-    return executeCommand(command, DEFAULT_ROLES);
+    String response =
+        executeCommand(
+            command, AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS, false, DEFAULT_ROLES);
+    if (response.contains("SHELL COMMAND TIMED OUT:")) {
+      throw new RuntimeException("Shell command timed out: " + command);
+    }
+    return response;
+  }
+
+  /**
+   * Runs a shell command and returns output as a String. The command will timeout after the
+   * supplied timeout (in milliseconds). Uses the DEFAULT_ROLES to execute the command as an
+   * administrator.
+   *
+   * @param command command to execute. Cannot be {@code null}.
+   * @param timeout command timeout in milliseconds.
+   * @return command output. Can be empty but not {@code null}.
+   */
+  public String runCommand(String command, long timeout) {
+    return executeCommand(command, timeout, false, DEFAULT_ROLES);
   }
 }

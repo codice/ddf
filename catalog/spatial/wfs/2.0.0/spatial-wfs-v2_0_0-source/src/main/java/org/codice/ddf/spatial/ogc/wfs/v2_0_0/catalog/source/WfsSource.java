@@ -31,13 +31,9 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
@@ -88,6 +84,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
+import org.codice.ddf.cxf.ClientKeyInfo;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
@@ -95,6 +92,7 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.AbstractWfsSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
@@ -120,8 +118,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Provides a Federated and Connected source implementation for OGC WFS servers. */
-public class WfsSource extends MaskableImpl
-    implements FederatedSource, ConnectedSource, ConfiguredService {
+public class WfsSource extends AbstractWfsSource {
 
   public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -145,6 +142,7 @@ public class WfsSource extends MaskableImpl
 
   private static final String USERNAME_PROPERTY = "username";
 
+  @SuppressWarnings("squid:S2068" /* Real credentials are not hard coded */)
   private static final String PASSWORD_PROPERTY = "password";
 
   private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
@@ -369,6 +367,20 @@ public class WfsSource extends MaskableImpl
               null,
               username,
               password);
+    } else if (StringUtils.isNotBlank(getCertAlias())
+        && StringUtils.isNotBlank(getKeystorePath())) {
+      factory =
+          new SecureCxfClientFactory(
+              wfsUrl,
+              Wfs.class,
+              initProviders(),
+              new MarkableStreamInterceptor(),
+              this.disableCnCheck,
+              false,
+              null,
+              null,
+              new ClientKeyInfo(getCertAlias(), getKeystorePath()),
+              getSslProtocol());
     } else {
       factory =
           new SecureCxfClientFactory(
@@ -665,20 +677,14 @@ public class WfsSource extends MaskableImpl
     if (this.metacardToFeatureMappers != null) {
       for (MetacardMapper mapper : this.metacardToFeatureMappers) {
         if (mapper != null && StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
-          LOGGER.debug(
-              "Found {} for feature type {}.",
-              MetacardMapper.class.getSimpleName(),
-              featureType.toString());
+          LOGGER.debug("Found MetacardMapper for feature type {}.", featureType);
           metacardAttributeToFeaturePropertyMapper = mapper;
           break;
         }
       }
 
       if (metacardAttributeToFeaturePropertyMapper == null) {
-        LOGGER.debug(
-            "Unable to find a {} for feature type {}.",
-            MetacardMapper.class.getSimpleName(),
-            featureType.toString());
+        LOGGER.debug("Unable to find a MetacardMapper for feature type {}.", featureType);
       }
     }
 
@@ -830,7 +836,9 @@ public class WfsSource extends MaskableImpl
                     buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
 
                 if (sortBy != null) {
-                  LOGGER.debug("Sorting using sort order of [{}].", sortOrder.identifier());
+                  if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sorting using sort order of [{}].", sortOrder.identifier());
+                  }
                   wfsQuery.setAbstractSortingClause(sortBy);
                 }
               } else if (filterDelegateEntry.getValue().isSortingSupported()
@@ -841,9 +849,11 @@ public class WfsSource extends MaskableImpl
                     buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
 
                 if (sortBy != null) {
-                  LOGGER.debug(
-                      "No sort orders defined in getCapabilities.  Attempting to sort using sort order of [{}].",
-                      sortOrder.identifier());
+                  if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                        "No sort orders defined in getCapabilities.  Attempting to sort using sort order of [{}].",
+                        sortOrder.identifier());
+                  }
                   wfsQuery.setAbstractSortingClause(sortBy);
                 }
               } else if (filterDelegateEntry.getValue().isSortingSupported()

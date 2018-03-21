@@ -118,7 +118,7 @@ public class RemoveSearchAfterCompleteCommand implements Action {
     if (!removeSearchAfterComplete.equals("")) {
       if (Boolean.valueOf(removeSearchAfterComplete)) {
         queryMonitor.setRemoveSearchAfterComplete(true);
-      } else if (removeSearchAfterComplete.toLowerCase().equals("false")) {
+      } else if (removeSearchAfterComplete.equalsIgnoreCase("false")) {
         queryMonitor.setRemoveSearchAfterComplete(false);
       } else {
         console.println(

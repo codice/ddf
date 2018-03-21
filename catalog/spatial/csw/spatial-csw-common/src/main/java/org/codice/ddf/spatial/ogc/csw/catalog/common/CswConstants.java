@@ -278,7 +278,7 @@ public final class CswConstants {
 
   public static final String NAMESPACE_DELIMITER = ":";
 
-  public static final String EQUALS = "=";
+  public static final String EQUALS_CHAR = "=";
 
   // NOTE: "csw:" prefix is not needed for AnyText queries
   public static final String ANY_TEXT = "AnyText";

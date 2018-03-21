@@ -72,10 +72,13 @@ public class Query extends HttpServlet {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient CatalogFramework catalogFramework;
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient SecurityManager securityManager;
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient FilterBuilder filterBuilder;
 
   public void setCatalogFramework(CatalogFramework catalogFramework) {
@@ -157,12 +160,16 @@ public class Query extends HttpServlet {
     sb.append("</body>");
     sb.append("</html>");
 
-    StringBuilder message = new StringBuilder();
-    message.append("\n########################################################################\n");
-    message.append(" Query result html:\n");
-    message.append(sb.toString());
-    message.append("\n########################################################################\n");
-    LOGGER.debug(message.toString());
+    if (LOGGER.isDebugEnabled()) {
+      StringBuilder message = new StringBuilder();
+      message.append(
+          "\n########################################################################\n");
+      message.append(" Query result html:\n");
+      message.append(sb.toString());
+      message.append(
+          "\n########################################################################\n");
+      LOGGER.debug(message.toString());
+    }
 
     return sb.toString();
   }
@@ -175,7 +182,7 @@ public class Query extends HttpServlet {
   private String getMetacardForId(String searchPhrase, String proxyTicket) {
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase);
-    LOGGER.info("Query filter: {}", filter.toString());
+    LOGGER.info("Query filter: {}", filter);
     String queryError = "Unable to perform query " + filter.toString() + ".";
     QueryRequest request = new QueryRequestImpl(new QueryImpl(filter), true);
     StringBuilder responseString = new StringBuilder();
@@ -193,9 +200,9 @@ public class Query extends HttpServlet {
     }
 
     try {
-      LOGGER.debug("About to query the catalog framework with query {}", filter.toString());
+      LOGGER.debug("About to query the catalog framework with query {}", filter);
       QueryResponse queryResponse = catalogFramework.query(request, null);
-      LOGGER.debug("Got query response from catalog framework for query {}", filter.toString());
+      LOGGER.debug("Got query response from catalog framework for query {}", filter);
       List<Result> results = queryResponse.getResults();
       if (results != null) {
         String message =

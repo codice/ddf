@@ -28,7 +28,7 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.util.concurrent.AsyncConditions
 
-class SourceOperationsTest extends Specification {
+class SourceOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
     private FrameworkProperties frameworkProperties

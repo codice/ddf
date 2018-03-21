@@ -27,7 +27,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
@@ -65,7 +64,9 @@ public class IdentityNodeInitialization {
   private static final String DATE_TIME =
       CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(":dateTime");
 
-  private static final int RETRY_INTERVAL = 30;
+  private static final long DEFAULT_RETRY_INTERVAL = TimeUnit.SECONDS.toMillis(30);
+
+  private static final int DEFAULT_RETRY_COUNT = 20;
 
   private static final String KARAF_ETC = "karaf.etc";
 
@@ -79,12 +80,33 @@ public class IdentityNodeInitialization {
 
   private SlotTypeHelper slotTypeHelper = new SlotTypeHelper();
 
-  private ScheduledExecutorService executorService;
-
   private InternationalStringTypeHelper internationalStringTypeHelper =
       new InternationalStringTypeHelper();
 
-  public void init() {
+  private long retryInterval = DEFAULT_RETRY_INTERVAL;
+
+  private int retryCount = DEFAULT_RETRY_COUNT;
+
+  public IdentityNodeInitialization() {}
+
+  public IdentityNodeInitialization(long retryInterval, int retryCount) {
+    this.retryInterval = retryInterval;
+    this.retryCount = retryCount;
+  }
+
+  public void init() throws InterruptedException {
+
+    for (int count = 0; count < retryCount; count++) {
+      if (updateOrCreateIdentity()) {
+        return;
+      }
+      Thread.sleep(retryInterval);
+    }
+    throw new IllegalStateException(
+        "The registry identity metacard could not be created in the allotted time");
+  }
+
+  boolean updateOrCreateIdentity() {
     try {
       Security security = Security.getInstance();
 
@@ -104,12 +126,9 @@ public class IdentityNodeInitialization {
           });
     } catch (PrivilegedActionException e) {
       LOGGER.debug("Error checking for local registry identity node. Will try again later");
-      executorService.schedule(this::init, RETRY_INTERVAL, TimeUnit.SECONDS);
+      return false;
     }
-  }
-
-  public void destroy() {
-    executorService.shutdown();
+    return true;
   }
 
   private void updateIdentityNodeName(Metacard metacard)
@@ -248,9 +267,5 @@ public class IdentityNodeInitialization {
 
   public void setFederationAdminService(FederationAdminService federationAdminService) {
     this.federationAdminService = federationAdminService;
-  }
-
-  public void setExecutorService(ScheduledExecutorService executorService) {
-    this.executorService = executorService;
   }
 }

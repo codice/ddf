@@ -122,7 +122,7 @@ public class CswFilterFactory {
       LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
       jaxbContext =
           JAXBContext.newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
-      LOGGER.debug(jaxbContext.toString());
+      LOGGER.debug("{}", jaxbContext);
     } catch (JAXBException e) {
       LOGGER.info("Unable to create JAXB context using contextPath: {}.", contextPath, e);
     }

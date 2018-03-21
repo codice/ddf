@@ -237,7 +237,7 @@ public class DumpCommand extends CqlCommands {
             StandardThreadFactoryBuilder.newThreadFactory("dumpCommandThread"),
             rejectedExecutionHandler);
 
-    while (response.getResults().size() > 0) {
+    while (!response.getResults().isEmpty()) {
       response =
           new SourceResponseImpl(
               new QueryRequestImpl(query, props),

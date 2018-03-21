@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import ddf.catalog.Constants;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transform.MetacardTransformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,13 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
   private static final String SCHEMA = "schema";
 
+  private static final String FILTER = "(id=*)";
+
+  private static final String ACTIVE_METACARD_TRANSFORMERS =
+      "%n%n%n%nActive Metacard Transformers: %d%n";
+
+  private static final String ACTIVE_INPUT_TRANSFORMERS = "%n%n%n%nActive Input Transformers: %d%n";
+
   @Mock BundleContext bundleContext;
 
   TransformersCommand transformersCommand;
@@ -53,7 +61,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
   }
 
   @Test
-  public void testNullIds() throws Exception {
+  public void testNullIdsForInputTransformers() throws Exception {
 
     List<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
     ServiceReference<InputTransformer> serviceReference = mock(ServiceReference.class);
@@ -66,16 +74,43 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
             .collect(Collectors.toList());
 
     when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=*)"))
+    when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferencesFiltered);
 
+    transformersCommand.setInputOption(true);
     transformersCommand.executeWithSubject();
     assertThat(
-        consoleOutput.getOutput(), containsString(TransformersCommand.NO_ACTIVE_TRANSFORMERS));
+        consoleOutput.getOutput(),
+        containsString(String.format("%s%n%n", "There are no active Input transformers")));
   }
 
   @Test
-  public void testNullAndNotNullIds() throws Exception {
+  public void testNullIdsForMetacardTransformers() throws Exception {
+
+    List<ServiceReference<MetacardTransformer>> serviceReferences = new ArrayList<>();
+    ServiceReference<MetacardTransformer> serviceReference = mock(ServiceReference.class);
+    serviceReferences.add(serviceReference);
+
+    List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
+        serviceReferences
+            .stream()
+            .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
+            .collect(Collectors.toList());
+
+    when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
+    when(bundleContext.getServiceReferences(MetacardTransformer.class, FILTER))
+        .thenReturn(serviceReferencesFiltered);
+
+    transformersCommand.setMetacardOption(true);
+    transformersCommand.setAllOption(true);
+    transformersCommand.executeWithSubject();
+    assertThat(
+        consoleOutput.getOutput(),
+        containsString(String.format("%s%n%n", "There are no active Metacard transformers")));
+  }
+
+  @Test
+  public void testNullAndNotNullIdsForInputTransformers() throws Exception {
 
     int nullIds = 5;
     int notNullIds = 7;
@@ -100,18 +135,95 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
             .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
             .collect(Collectors.toList());
 
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=*)"))
+    when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferencesFiltered);
 
+    transformersCommand.setInputOption(true);
     transformersCommand.executeWithSubject();
     assertThat(
         consoleOutput.getOutput(),
-        containsString(
-            String.format("%s%d", TransformersCommand.ACTIVE_TRANSFORMERS_HEADER, notNullIds)));
+        containsString(String.format(ACTIVE_INPUT_TRANSFORMERS, notNullIds)));
   }
 
   @Test
-  public void testActiveTransformerCount() throws Exception {
+  public void testNullAndNotNullIdsForMetacardTransformers() throws Exception {
+
+    int nullIds = 5;
+    int notNullIds = 7;
+
+    List<ServiceReference<MetacardTransformer>> serviceReferences = new ArrayList<>();
+
+    // mock service refs with null and not null ids
+    for (int i = 0; i < nullIds + notNullIds; i++) {
+      ServiceReference<MetacardTransformer> serviceReference = mock(ServiceReference.class);
+      serviceReferences.add(serviceReference);
+
+      if (i < nullIds) {
+        when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
+      } else {
+        when(serviceReference.getProperty(SERVICE_ID)).thenReturn("Test");
+      }
+    }
+
+    List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
+        serviceReferences
+            .stream()
+            .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
+            .collect(Collectors.toList());
+
+    when(bundleContext.getServiceReferences(MetacardTransformer.class, FILTER))
+        .thenReturn(serviceReferencesFiltered);
+
+    transformersCommand.setMetacardOption(true);
+    transformersCommand.executeWithSubject();
+    assertThat(
+        consoleOutput.getOutput(),
+        containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, notNullIds)));
+  }
+
+  @Test
+  public void testNullAndNotNullIdsWithAllOption() throws Exception {
+
+    int nullIds = 5;
+    int notNullIds = 7;
+
+    List<ServiceReference<MetacardTransformer>> serviceReferences = new ArrayList<>();
+
+    // mock service refs with null and not null ids
+    for (int i = 0; i < nullIds + notNullIds; i++) {
+      ServiceReference<MetacardTransformer> serviceReference = mock(ServiceReference.class);
+      serviceReferences.add(serviceReference);
+
+      // printAllTransformers() expects an array of property keys
+      when(serviceReference.getPropertyKeys()).thenReturn(new String[] {"Test"});
+      // when(serviceReference.getProperty("Test")).thenReturn("Test");
+
+      if (i < nullIds) {
+        when(serviceReference.getProperty(SERVICE_ID)).thenReturn(null);
+      } else {
+        when(serviceReference.getProperty(SERVICE_ID)).thenReturn("Test");
+      }
+    }
+
+    List<ServiceReference<MetacardTransformer>> serviceReferencesFiltered =
+        serviceReferences
+            .stream()
+            .filter(ref -> ref.getProperty(Constants.SERVICE_ID) != null)
+            .collect(Collectors.toList());
+
+    when(bundleContext.getServiceReferences(MetacardTransformer.class, FILTER))
+        .thenReturn(serviceReferencesFiltered);
+
+    transformersCommand.setMetacardOption(true);
+    transformersCommand.setAllOption(true);
+    transformersCommand.executeWithSubject();
+    assertThat(
+        consoleOutput.getOutput(),
+        containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, notNullIds)));
+  }
+
+  @Test
+  public void testActiveInputTransformerCount() throws Exception {
 
     List<ServiceReference<InputTransformer>> serviceReferences;
 
@@ -120,13 +232,32 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
     serviceReferences = ImmutableList.of(serviceReference, serviceReference, serviceReference);
 
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=*)"))
+    when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferences);
 
+    transformersCommand.setInputOption(true);
     transformersCommand.executeWithSubject();
     assertThat(
-        consoleOutput.getOutput(),
-        containsString(String.format("%s3", TransformersCommand.ACTIVE_TRANSFORMERS_HEADER)));
+        consoleOutput.getOutput(), containsString(String.format(ACTIVE_INPUT_TRANSFORMERS, 3)));
+  }
+
+  @Test
+  public void testActiveMetacardTransformerCount() throws Exception {
+
+    List<ServiceReference<MetacardTransformer>> serviceReferences;
+
+    ServiceReference<MetacardTransformer> serviceReference = mock(ServiceReference.class);
+    when(serviceReference.getProperty(SERVICE_ID)).thenReturn("Test");
+
+    serviceReferences = ImmutableList.of(serviceReference, serviceReference, serviceReference);
+
+    when(bundleContext.getServiceReferences(MetacardTransformer.class, FILTER))
+        .thenReturn(serviceReferences);
+
+    transformersCommand.setMetacardOption(true);
+    transformersCommand.executeWithSubject();
+    assertThat(
+        consoleOutput.getOutput(), containsString(String.format(ACTIVE_METACARD_TRANSFORMERS, 3)));
   }
 
   @Test
@@ -142,7 +273,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
     serviceReferences.add(serviceReference);
 
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=*)"))
+    when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferences);
 
     transformersCommand.executeWithSubject();
@@ -167,7 +298,7 @@ public class TransformersCommandTest extends ConsoleOutputCommon {
 
     serviceReferences.add(serviceReference);
 
-    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=*)"))
+    when(bundleContext.getServiceReferences(InputTransformer.class, FILTER))
         .thenReturn(serviceReferences);
 
     transformersCommand.executeWithSubject();

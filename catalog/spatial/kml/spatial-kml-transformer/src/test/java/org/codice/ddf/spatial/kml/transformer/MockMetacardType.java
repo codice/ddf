@@ -17,6 +17,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class MockMetacardType extends MetacardTypeImpl {
   public MockMetacardType() {
     super(NAME, (Set<AttributeDescriptor>) null);
 
-    descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
+    descriptors.addAll(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
 
     descriptors.add(
         new AttributeDescriptorImpl(

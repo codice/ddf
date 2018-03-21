@@ -19,18 +19,17 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.jayway.restassured.response.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.management.NotCompliantMBeanException;
@@ -48,8 +48,6 @@ import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
-import org.codice.ddf.admin.application.service.ApplicationService;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -80,11 +78,14 @@ public class ServiceManagerImpl implements ServiceManager {
           .put(Bundle.ACTIVE, "ACTIVE")
           .build();
 
-  public static final long MANAGED_SERVICE_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long MANAGED_SERVICE_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long FEATURES_AND_BUNDLES_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
+  public static final long HTTP_ENDPOINT_TIMEOUT =
+      AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServiceManagerImpl.class);
 
@@ -321,47 +322,24 @@ public class ServiceManagerImpl implements ServiceManager {
     return featuresService;
   }
 
-  // TODO - we should really make this a bundle and inject this.
-  private ApplicationService getApplicationService() {
-    BundleContext bundleContext = getBundleContext();
-
-    bundleContext = waitForBundleContext(bundleContext);
-    if (bundleContext == null) {
-      throw new RuntimeException("Unable to get bundle context for application service.");
-    }
-    ServiceReference<ApplicationService> applicationServiceRef =
-        bundleContext.getServiceReference(ApplicationService.class);
-    return bundleContext.getService(applicationServiceRef);
-  }
-
   @Override
   public void restartBundles(String... bundleSymbolicNames) throws BundleException {
     LOGGER.debug("Restarting bundles {}", bundleSymbolicNames);
 
-    Set<String> bundleSymbolicNameSet = new HashSet<>();
-    Collections.addAll(bundleSymbolicNameSet, bundleSymbolicNames);
+    Map<String, Bundle> bundleLookup =
+        Arrays.stream(getBundleContext().getBundles())
+            .collect(Collectors.toMap(Bundle::getSymbolicName, Function.identity(), (a, b) -> a));
 
-    Map<String, Bundle> bundlesToRestart = getBundlesToRestart(bundleSymbolicNameSet);
+    List<Bundle> bundles =
+        Arrays.stream(bundleSymbolicNames).map(bundleLookup::get).collect(Collectors.toList());
 
-    for (int i = 0; i < bundleSymbolicNames.length; i++) {
-      bundlesToRestart.get(bundleSymbolicNames[i]).stop();
+    for (Bundle bundle : bundles) {
+      bundle.stop();
     }
 
-    for (int i = bundleSymbolicNames.length - 1; i > 0; i--) {
-      bundlesToRestart.get(bundleSymbolicNames[i]).start();
+    for (Bundle bundle : Lists.reverse(bundles)) {
+      bundle.start();
     }
-  }
-
-  private Map<String, Bundle> getBundlesToRestart(Set<String> bundleSymbolicNames) {
-    Map<String, Bundle> bundlesToRestart = new HashMap<>();
-
-    for (Bundle bundle : getBundleContext().getBundles()) {
-      if (bundleSymbolicNames.contains(bundle.getSymbolicName())) {
-        bundlesToRestart.put(bundle.getSymbolicName(), bundle);
-      }
-    }
-
-    return bundlesToRestart;
   }
 
   @Override
@@ -383,18 +361,14 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
-  public void waitForRequiredApps(String... appNames) throws InterruptedException {
-    ApplicationService appService = getApplicationService();
-    if (appNames.length > 0) {
-      for (String appName : appNames) {
-        try {
-          appService.startApplication(appName);
-        } catch (ApplicationServiceException e) {
-          LOGGER.error("Failed to start application", e);
-          printInactiveBundles();
-          fail("Failed to start boot feature: " + e.getMessage());
-        }
-        waitForAllBundles();
+  public void uninstallBundle(String bundleSymbolicName) throws BundleException {
+    for (Bundle bundle : getBundleContext().getBundles()) {
+      if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
+        bundle.uninstall();
+        WaitCondition.expect(String.format("Bundle %s uninstalled", bundleSymbolicName))
+            .within(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
+            .until(() -> bundle.getState() == Bundle.UNINSTALLED);
+        break;
       }
     }
   }
@@ -522,7 +496,10 @@ public class ServiceManagerImpl implements ServiceManager {
 
     while (!available) {
       Response response = get(path);
-      available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
+      available = response.getStatusCode() == 200 && response.getBody().asString().length() > 0;
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Response body: {}", response.getBody().asString());
+      }
       if (!available) {
         if (System.currentTimeMillis() > timeoutLimit) {
           printInactiveBundles();
@@ -544,7 +521,8 @@ public class ServiceManagerImpl implements ServiceManager {
     String path = restPath + "sources";
     LOGGER.info("Waiting for sources at {}", path);
 
-    long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+    long timeoutLimit =
+        System.currentTimeMillis() + AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
     boolean available = false;
 
     while (!available) {
@@ -672,8 +650,12 @@ public class ServiceManagerImpl implements ServiceManager {
 
     for (Bundle bundle : getBundleContext().getBundles()) {
       if (bundle.getState() != Bundle.ACTIVE) {
-        StringBuilder headerString = new StringBuilder("[ ");
         Dictionary<String, String> headers = bundle.getHeaders();
+        if (headers.get("Fragment-Host") != null) {
+          continue;
+        }
+
+        StringBuilder headerString = new StringBuilder("[ ");
         Enumeration<String> keys = headers.keys();
 
         while (keys.hasMoreElements()) {
@@ -708,7 +690,7 @@ public class ServiceManagerImpl implements ServiceManager {
   @Override
   public <S> S getService(ServiceReference<S> serviceReference) {
     WaitCondition.expect("Service to be available: " + serviceReference)
-        .within(2, TimeUnit.MINUTES)
+        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .until(() -> getBundleContext().getService(serviceReference), notNullValue());
     return getBundleContext().getService(serviceReference);
   }

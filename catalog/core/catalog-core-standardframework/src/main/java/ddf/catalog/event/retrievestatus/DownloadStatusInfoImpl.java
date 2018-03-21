@@ -14,6 +14,7 @@
 package ddf.catalog.event.retrievestatus;
 
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.download.DownloadStatus;
 import ddf.catalog.resource.download.ReliableResourceDownloader;
 import ddf.security.SubjectUtils;
 import java.util.ArrayList;
@@ -90,16 +91,18 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
       Long downloadedBytes = downloader.getReliableResourceInputStreamBytesCached();
       try {
         Long totalBytes = Long.parseLong(downloader.getResourceSize());
-        statusMap.put("percent", Long.toString((downloadedBytes * 100) / totalBytes));
+        statusMap.put(
+            DownloadStatus.PERCENT_KEY, Long.toString((downloadedBytes * 100) / totalBytes));
 
       } catch (Exception e) {
-        statusMap.put("percent", UNKNOWN);
+        statusMap.put(DownloadStatus.PERCENT_KEY, UNKNOWN);
       }
-      statusMap.put("downloadId", downloadIdentifier);
-      statusMap.put("status", downloader.getReliableResourceInputStreamState());
-      statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
-      statusMap.put("fileName", downloader.getResourceResponse().getResource().getName());
-      statusMap.put("user", downloadUsers.get(downloadIdentifier));
+      statusMap.put(DownloadStatus.DOWNLOAD_ID_KEY, downloadIdentifier);
+      statusMap.put(DownloadStatus.STATUS_KEY, downloader.getReliableResourceInputStreamState());
+      statusMap.put(DownloadStatus.BYTES_DOWNLOADED_KEY, Long.toString(downloadedBytes));
+      statusMap.put(
+          DownloadStatus.FILE_NAME_KEY, downloader.getResourceResponse().getResource().getName());
+      statusMap.put(DownloadStatus.USER_KEY, downloadUsers.get(downloadIdentifier));
     }
     return statusMap;
   }

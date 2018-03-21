@@ -13,18 +13,28 @@
  */
 package ddf.catalog.resource.download;
 
-/**
- * The current status of a single product download. Since a product retrieval may go through several
- * retry attempts during the download process, it is possible for the download status to have
- * several of these values over the entire span of the download. For example, a product download
- * could be interrupted due to a brief network connection drop, and then the download could complete
- * successfully.
- */
-public enum DownloadStatus {
-  RESOURCE_DOWNLOAD_COMPLETE,
-  RESOURCE_DOWNLOAD_INTERRUPTED,
-  RESOURCE_DOWNLOAD_CANCELED,
-  CLIENT_OUTPUT_STREAM_EXCEPTION,
-  CACHED_FILE_OUTPUT_STREAM_EXCEPTION,
-  PRODUCT_INPUT_STREAM_EXCEPTION
-};
+public final class DownloadStatus {
+
+  /**
+   * map key that indicates the randomly generated downloadId assigned to each download at its
+   * beginning
+   */
+  public static final String DOWNLOAD_ID_KEY = "downloadId";
+
+  /** map key that indicates the name of the file being downloaded */
+  public static final String FILE_NAME_KEY = "fileName";
+
+  /** map key that indicates the count of bytes that have been downloaded to cache */
+  public static final String BYTES_DOWNLOADED_KEY = "bytesDownloaded";
+
+  /** map key that indicates the percent completed */
+  public static final String PERCENT_KEY = "percent";
+
+  /** map key that indicates the user performing the download */
+  public static final String USER_KEY = "user";
+
+  /** map key that indicates the status of download, e.g. "COMPLETED", "IN_PROGRESS" etc */
+  public static final String STATUS_KEY = "status";
+
+  private DownloadStatus() {}
+}

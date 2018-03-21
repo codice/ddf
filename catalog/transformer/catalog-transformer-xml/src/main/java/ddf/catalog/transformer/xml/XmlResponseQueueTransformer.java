@@ -25,6 +25,7 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.transformer.api.MetacardMarshaller;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
+import ddf.catalog.transformer.thread.ForkJoinPoolFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -193,17 +194,11 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
    * other tasks in the application, we should move the construction of the pool from its current
    * location. Conversely, if we move to Java 8 we can simply use the new {@code commonPool} static
    * method provided on {@code ForkJoinPool}.
-   *
-   * @param fjp the {@code ForkJoinPool} to inject
    */
   public XmlResponseQueueTransformer(
-      Parser parser,
-      ForkJoinPool fjp,
-      PrintWriterProvider pwp,
-      MetacardMarshaller mcm,
-      MimeType mimeType) {
+      Parser parser, PrintWriterProvider pwp, MetacardMarshaller mcm, MimeType mimeType) {
     super(parser);
-    this.fjp = fjp;
+    this.fjp = ForkJoinPoolFactory.getNewForkJoinPool(null, false);
     geometryTransformer = new GeometryTransformer(parser);
     this.printWriterProvider = pwp;
     this.metacardMarshaller = mcm;

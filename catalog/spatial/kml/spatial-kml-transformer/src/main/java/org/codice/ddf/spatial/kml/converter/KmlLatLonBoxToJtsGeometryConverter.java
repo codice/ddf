@@ -13,6 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import static java.lang.Math.abs;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -21,6 +23,8 @@ import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 public class KmlLatLonBoxToJtsGeometryConverter {
+  private static final double ERROR_THRESHOLD = .000001;
+
   private KmlLatLonBoxToJtsGeometryConverter() {}
 
   public static Geometry from(LatLonBox kmlLatLonBox) {
@@ -64,10 +68,10 @@ public class KmlLatLonBoxToJtsGeometryConverter {
       return false;
     }
 
-    // check for empty lat lon box
-    return (latLonBox.getNorth() != 0.0f)
-        || (latLonBox.getSouth() != 0.0f)
-        || (latLonBox.getEast() != 0.0f)
-        || (latLonBox.getWest() != 0.0f);
+    // check for empty lat lon box using .000001 as an error threshold
+    return ((abs(latLonBox.getNorth()) > ERROR_THRESHOLD)
+        || (abs(latLonBox.getSouth()) > ERROR_THRESHOLD)
+        || (abs(latLonBox.getEast()) > ERROR_THRESHOLD)
+        || (abs(latLonBox.getWest()) > ERROR_THRESHOLD));
   }
 }

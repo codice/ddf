@@ -111,6 +111,17 @@
                             ref="inputTransformers"/>
     </reference-list>
 
+    <reference-list id="cswActionTransformers"
+      interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer"
+      availability="optional">
+        <reference-listener bind-method="bind"
+          unbind-method="unbind"
+          ref="cswActionTransformerProvider"/>
+    </reference-list>
+
+    <bean id="cswActionTransformerProvider"
+      class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.impl.CswActionTransformerProviderImpl"/>
+
     <bean id="cswExceptionMapperProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
     <bean id="cswRecordCollectionWriter"
@@ -140,6 +151,7 @@
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
         <argument ref="inputTransformerManager"/>
+        <argument ref="cswActionTransformerProvider"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
     </bean>
@@ -174,13 +186,6 @@
 
     <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
 
-    <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <reference-list id="metacardTypeList"
-                    interface="ddf.catalog.data.MetacardType">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="metacardTypes"/>
-    </reference-list>
-
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
         <argument ref="metacardCswRecordMap"/>
@@ -199,8 +204,7 @@
     <bean id="cswQueryFilterTransformer"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer">
         <argument ref="metacardCswRecordMap"/>
-        <argument ref="cswMetacardType"/>
-        <argument ref="metacardTypes"/>
+        <argument ref="attributeRegistry"/>
     </bean>
     <service ref="cswQueryFilterTransformer" interface="ddf.catalog.transform.QueryFilterTransformer">
         <service-properties>

@@ -28,7 +28,7 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.internal.country.converter.local.LocalCountryCodeConverter"
                 update-strategy="container-managed"/>
-        <property name="countryCodeMappingsFile" value="${ddf.home}/etc/fipsToIso.properties"/>
+        <property name="countryCodeMappingsFile" value="${ddf.etc}/fipsToIso.properties"/>
     </bean>
 
     <service id="LocalCountryCodeConverter"

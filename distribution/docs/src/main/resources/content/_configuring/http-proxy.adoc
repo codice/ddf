@@ -11,7 +11,7 @@ The `platform-http-proxy` feature proxies https to http for clients that cannot 
 
 .Enabling the HTTP Proxy from the ${admin-console}
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-platform}* application tile.
+. Select the *System* tab.
 . Select the *Features* tab.
 . Select `platform-http-proxy`.
 . Select the *Play* button to the right of the word “Uninstalled”

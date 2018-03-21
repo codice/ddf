@@ -20,7 +20,6 @@ import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.violation.ValidationViolation;
@@ -94,7 +93,7 @@ public class ExperimentalEnumerationExtractor {
 
   public Map<String, Set<String>> getEnumerations(@Nullable String metacardType) {
     if (isBlank(metacardType)) {
-      metacardType = BasicTypes.BASIC_METACARD.getName();
+      metacardType = MetacardImpl.BASIC_METACARD.getName();
     }
     MetacardType type = getTypeFromName(metacardType);
 

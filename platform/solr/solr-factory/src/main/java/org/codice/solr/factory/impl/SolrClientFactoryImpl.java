@@ -15,6 +15,8 @@ package org.codice.solr.factory.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import org.apache.solr.client.solrj.SolrClient;
@@ -42,7 +44,9 @@ public class SolrClientFactoryImpl implements SolrClientFactory {
   public Future<SolrClient> newClient(String core) {
     notNull(core, "Solr core name cannot be null");
 
-    String clientType = System.getProperty("solr.client", "HttpSolrClient");
+    String clientType =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
     SolrClientFactory factory;
 
     if ("EmbeddedSolrServer".equals(clientType)) {

@@ -14,6 +14,7 @@
 -->
 
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
@@ -69,10 +70,13 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
+    </service>
+
     <bean id="workspacePreIngestPlugin"
           class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin">
-        <argument ref="workspaceSecurityConfiguration" />
-        <argument ref="eventAdmin"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <bean id="noteMetacardType" class="org.codice.ddf.catalog.ui.metacard.notes.NoteMetacardType"/>
@@ -107,11 +111,12 @@
                 update-strategy="container-managed"/>
     </bean>
 
-    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+    <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
     <bean id="workspacePolicyExtension"
           class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
         <argument ref="workspaceSecurityConfiguration" />
+        <argument ref="subjectIdentity" />
     </bean>
 
 
@@ -243,6 +248,42 @@
         <property name="endpointUtil" ref="endpointUtil" />
     </bean>
 
+    <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
+        <argument>
+            <map>
+                <entry key="query" value-ref="queryApplication" />
+            </map>
+        </argument>
+    </bean>
+
+    <reference id="manager" interface="ddf.security.service.SecurityManager" />
+
+    <bean id="socketThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="socketThreadFactory"/>
+    </bean>
+
+    <ext:property-placeholder/>
+
+    <bean id="socketThreadPool" class="java.util.concurrent.Executors"
+          factory-method="newFixedThreadPool">
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="socketThreadFactory"/>
+    </bean>
+
+    <bean id="socketServlet" destroy-method="destroy" class="org.codice.ddf.catalog.ui.ws.SecureWebSocketServlet">
+        <argument ref="socketThreadPool" />
+        <argument ref="jsonRpc" />
+        <argument ref="manager" />
+    </bean>
+
+    <service ref="socketServlet" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="urlPatterns" value="/search/catalog/ws" />
+        </service-properties>
+    </service>
+
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.config"
@@ -259,6 +300,7 @@
     <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
         <argument ref="persistentStore"/>
         <argument ref="endpointUtil"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>

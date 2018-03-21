@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
+
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Location;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -31,11 +34,7 @@ public class CatalogHelper {
   public CatalogHelper(FilterBuilder filterBuilder) {
     this.filterBuilder = filterBuilder;
     gazetteerFilter =
-        filterBuilder
-            .attribute(Core.METACARD_TAGS)
-            .is()
-            .like()
-            .text(GeoCodingConstants.DEFAULT_TAG);
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(GAZETTEER_METACARD_TAG);
     countryShapeFilter =
         filterBuilder
             .attribute(Core.METACARD_TAGS)
@@ -48,8 +47,9 @@ public class CatalogHelper {
     return new QueryImpl(filterBuilder.allOf(gazetteerFilter, countryShapeFilter));
   }
 
-  public Query getQueryForCountryCode(String countryCode) {
-    Filter countryCodeFilter = filterBuilder.attribute(Core.TITLE).is().equalTo().text(countryCode);
+  public Query getQueryForName(String countrycode) {
+    Filter countryCodeFilter =
+        filterBuilder.attribute(Location.COUNTRY_CODE).is().equalTo().text(countrycode);
     return new QueryImpl(
         filterBuilder.allOf(countryCodeFilter, gazetteerFilter, countryShapeFilter));
   }

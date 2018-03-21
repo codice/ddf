@@ -1,0 +1,23 @@
+:title: Persistence Store Commands
+:type: subMaintaining
+:status: published
+:parent: Available Console Commands
+:summary: Persistence Store commands available.
+:order: 04
+
+== {title}
+
+.[[store_command_descriptions]]Persistence Store Command Descriptions
+[cols="2m,6"]
+|===
+
+|Command
+|Description
+
+|store:delete
+|Delete entries from the persistence store that match a given CQL statement
+
+|store:list
+|Lists entries that are stored in the persistence store.
+
+|===

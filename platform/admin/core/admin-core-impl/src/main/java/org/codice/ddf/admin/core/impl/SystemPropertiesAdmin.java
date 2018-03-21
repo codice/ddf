@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,69 +46,44 @@ import org.slf4j.LoggerFactory;
 public class SystemPropertiesAdmin extends StandardMBean implements SystemPropertiesAdminMBean {
 
   public static final String HTTP_PROTOCOL = "http://";
-
+  public static final String HTTPS_PROTOCOL = "https://";
   private static final String DEFAULT_LOCALHOST_DN = "localhost.local";
-
-  private MBeanServer mbeanServer;
-
-  private ObjectName objectName;
-
-  private String oldHostName = SystemBaseUrl.getHost();
-
   private static final String KARAF_ETC = "karaf.etc";
-
   private static final String LOCAL_HOST = "localhost";
-
   private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
-
   private static final String USERS_PROPERTIES_FILE = "users.properties";
-
   private static final String USERS_ATTRIBUTES_FILE = "users.attributes";
-
   private static final String HOST_TITLE = "Host";
-
   private static final String HOST_DESCRIPTION =
       "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
-
   private static final ArrayList<String> PROTOCOL_OPTIONS = new ArrayList<>();
-
-  static {
-    PROTOCOL_OPTIONS.add("https://");
-    PROTOCOL_OPTIONS.add("http://");
-  }
-
   private static final String HTTP_PORT_TITLE = "HTTP Port";
-
   private static final String HTTP_PORT_DESCRIPTION =
       "The port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
-
   private static final String HTTPS_PORT_TITLE = "HTTPS Port";
-
   private static final String HTTPS_PORT_DESCRIPTION =
       "The secure port used to advertise the system. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
-
   private static final String ORGANIZATION_TITLE = "Organization";
-
   private static final String ORGANIZATION_DESCRIPTION =
       "The name of the organization that runs this instance.";
-
   private static final String SITE_CONTACT_TITLE = "Site Contact";
-
   private static final String SITE_CONTACT_DESCRIPTION = "The email address of the site contact.";
-
   private static final String SITE_NAME_TITLE = "Site Name";
-
   private static final String SITE_NAME_DESCRIPTION =
       "The unique name of this instance. This name will be provided via web services that ask for the name.";
-
   private static final String VERSION_TITLE = "Version";
-
   private static final String VERSION_DESCRIPTION = "The version of this instance.";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemPropertiesAdmin.class);
-
   private static final ObjectMapper MAPPER = JsonFactory.create();
 
+  static {
+    PROTOCOL_OPTIONS.add(HTTPS_PROTOCOL);
+    PROTOCOL_OPTIONS.add(HTTP_PROTOCOL);
+  }
+
+  private MBeanServer mbeanServer;
+  private ObjectName objectName;
+  private String oldHostName = SystemBaseUrl.getHost();
   private GuestClaimsHandlerExt guestClaimsHandlerExt;
 
   public SystemPropertiesAdmin(GuestClaimsHandlerExt guestClaimsHandlerExt)
@@ -216,27 +192,26 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     Map<String, Object> json = null;
     try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
       json = MAPPER.parser().parseMap(stream);
-
-      addGuestClaimsProfileAttributes(json);
-
-      if (json.containsKey(oldHostName)) {
-        json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
-      }
-
-      for (Map.Entry<String, Object> entry : json.entrySet()) {
-        json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
-      }
-
     } catch (IOException e) {
       LOGGER.warn("Unable to read system user attribute file for hostname update.", e);
+      return;
     }
 
-    if (json != null) {
-      try {
-        FileUtils.writeStringToFile(userAttributesFile, Boon.toPrettyJson(json));
-      } catch (IOException e) {
-        LOGGER.warn("Unable to write user attribute file for system update.", e);
-      }
+    addGuestClaimsProfileAttributes(json);
+
+    if (json.containsKey(oldHostName)) {
+      json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
+    }
+
+    for (Map.Entry<String, Object> entry : json.entrySet()) {
+      json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
+    }
+
+    try {
+      FileUtils.writeStringToFile(
+          userAttributesFile, Boon.toPrettyJson(json), Charset.defaultCharset());
+    } catch (IOException e) {
+      LOGGER.warn("Unable to write user attribute file for system update.", e);
     }
   }
 
@@ -320,16 +295,22 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
 
     try {
-      try {
-        mbeanServer.registerMBean(
-            new StandardMBean(this, SystemPropertiesAdminMBean.class), objectName);
-      } catch (InstanceAlreadyExistsException e) {
-        mbeanServer.unregisterMBean(objectName);
-        mbeanServer.registerMBean(
-            new StandardMBean(this, SystemPropertiesAdminMBean.class), objectName);
-      }
+      registerSystemPropertiesAdminMBean();
     } catch (Exception e) {
       LOGGER.info("Could not register mbean.", e);
+    }
+  }
+
+  private void registerSystemPropertiesAdminMBean()
+      throws MBeanRegistrationException, NotCompliantMBeanException, InstanceNotFoundException,
+          InstanceAlreadyExistsException {
+    try {
+      mbeanServer.registerMBean(
+          new StandardMBean(this, SystemPropertiesAdminMBean.class), objectName);
+    } catch (InstanceAlreadyExistsException e) {
+      mbeanServer.unregisterMBean(objectName);
+      mbeanServer.registerMBean(
+          new StandardMBean(this, SystemPropertiesAdminMBean.class), objectName);
     }
   }
 

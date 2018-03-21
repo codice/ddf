@@ -95,17 +95,17 @@ import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
 import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.json.simple.JSONObject;
@@ -1462,8 +1462,8 @@ public class TestCatalog extends AbstractIntegrationTest {
           configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
       Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
       config.update(configProps);
-      getServiceManager().stopFeature(true, "sample-filter");
       deleteMetacard(id1);
+      getServiceManager().stopFeature(true, "sample-filter");
     }
   }
 
@@ -1561,13 +1561,15 @@ public class TestCatalog extends AbstractIntegrationTest {
     networkRule2Properties.put("expectedValue", clientScheme);
     networkRule2Properties.put("newAttributes", attributeAdjustmentsForRule2);
 
+    Configuration managedService = null;
+    Configuration managedService1 = null;
     try {
 
       /* START SERVICES
       Add instances of the rules */
-      getServiceManager().startFeature(true, "catalog-metacardingest-network");
-      getServiceManager().createManagedService(factoryPid, networkRule1Properties);
-      getServiceManager().createManagedService(factoryPid, networkRule2Properties);
+      managedService = getServiceManager().createManagedService(factoryPid, networkRule1Properties);
+      managedService1 =
+          getServiceManager().createManagedService(factoryPid, networkRule2Properties);
       getServiceManager().waitForRequiredBundles(bundleSymbolicName);
 
       /* INGEST
@@ -1596,7 +1598,12 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       /* CLEAN UP
       Don't let the conditions spill-over and impact other tests */
-      getServiceManager().stopFeature(true, "catalog-metacardingest-network");
+      if (managedService != null) {
+        getServiceManager().stopManagedService(managedService.getFactoryPid());
+      }
+      if (managedService1 != null) {
+        getServiceManager().stopManagedService(managedService1.getFactoryPid());
+      }
     }
   }
 
@@ -2286,7 +2293,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   private void persistToWorkspace(int size) throws Exception {
-    getServiceManager().waitForRequiredApps("search-ui-app");
+    getServiceManager().startFeature(true, "search-ui-app");
     // Generate very large data block
     Map<String, String> map = Maps.newHashMap();
     for (int i = 0; i < size; i++) {

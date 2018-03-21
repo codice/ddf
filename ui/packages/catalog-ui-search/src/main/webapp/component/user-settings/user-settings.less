@@ -1,0 +1,71 @@
+@{customElementNamespace}user-settings {
+  .customElement;
+  overflow: hidden;
+  padding: 0rem 0rem;
+  white-space: nowrap;
+
+  > div {
+    vertical-align: top;
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+  }
+
+  > .user-settings-navigation .navigation-choice {
+    display: block;
+    padding: @largeSpacing;
+    height: auto;
+    width: 100%;
+    text-align: left;
+
+    > span + span {
+      margin-left: @minimumSpacing;
+    }
+  }
+
+  > .user-settings-navigation,
+  > .user-settings-content {
+    position: relative;
+    transition: transform @coreTransitionTime linear;
+  }
+
+  > .user-settings-content > .content-header {
+    text-align: left;
+    font-size: @largeFontSize;
+    > button {
+      height: auto;
+      text-align: center;
+      width: 100%;
+      padding: @largeSpacing;
+      span {
+        padding: 0px @minimumSpacing;
+      }
+    }
+    > div {
+      text-align: center;
+      line-height: @minimumButtonSize;
+      height: @minimumButtonSize;
+    }
+  }
+
+  > .user-settings-content > .content-settings {
+    max-height: ~'calc(100% - @{minimumButtonSize} - 2*@{largeSpacing})';
+    overflow: auto;
+  }
+
+  > .user-settings-navigation {
+    overflow: auto;
+  }
+
+  > .user-settings-navigation > .is-header {
+      padding-top: @minimumSpacing;
+    }
+}
+
+@{customElementNamespace}user-settings.is-navigated {
+
+  > .user-settings-navigation,
+  > .user-settings-content {
+    transform: translateX(-100%);
+  }
+}
