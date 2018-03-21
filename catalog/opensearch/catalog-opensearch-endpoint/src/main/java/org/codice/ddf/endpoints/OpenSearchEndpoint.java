@@ -44,6 +44,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.opensearch.OpenSearch;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
 import org.slf4j.Logger;
@@ -52,13 +54,9 @@ import org.slf4j.LoggerFactory;
 @Path("/")
 public class OpenSearchEndpoint implements OpenSearch {
 
-  private static final String UPDATE_QUERY_INTERVAL = "interval";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchEndpoint.class);
 
-  private static final String DEFAULT_SORT_FIELD = "relevance";
-
-  private static final String DEFAULT_SORT_ORDER = "desc";
+  private static final String UPDATE_QUERY_INTERVAL = "interval";
 
   private static final String DEFAULT_FORMAT = "atom";
 
@@ -69,8 +67,6 @@ public class OpenSearchEndpoint implements OpenSearch {
   private static final int DEFAULT_START_INDEX = 1;
 
   private static final String DEFAULT_RADIUS = "5000";
-
-  private static final String LOCAL = "local";
 
   private final CatalogFramework framework;
 
@@ -84,18 +80,18 @@ public class OpenSearchEndpoint implements OpenSearch {
   }
 
   /**
-   * @param searchTerms Space delimited list of search terms.
+   * @param searchTerms Space-delimited list of search terms.
    * @param maxResults Maximum # of results to return. If count is also specified, the count value
    *     will take precedence over the maxResults value
-   * @param sources Comma delimited list of data sources to query (default: default sources
+   * @param sources Comma-delimited list of data sources to query (default: default sources
    *     selected).
    * @param maxTimeout Maximum timeout (msec) for query to respond (default: mt=30000).
    * @param startIndex Index of first result to return. Integer >= 0 (default: start=1).
    * @param count Number of results to retrieve per page (default: count=10).
    * @param geometry WKT Geometries (Support POINT and POLYGON).
-   * @param bbox Comma delimited list of lat/lon (deg) bounding box coordinates (geo format:
+   * @param bbox Comma-delimited list of lat/lon (deg) bounding box coordinates (geo format:
    *     geo:bbox ~ West,South,East,North).
-   * @param polygon Comma delimited list of lat/lon (deg) pairs, in clockwise order around the
+   * @param polygon Comma-delimited list of lat/lon (deg) pairs, in clockwise order around the
    *     polygon, with the last point being the same as the first in order to close the polygon.
    * @param lat Latitude in decimal degrees (typical GPS receiver WGS84 coordinates).
    * @param lon Longitude in decimal degrees (typical GPS receiver WGS84 coordinates).
@@ -114,33 +110,33 @@ public class OpenSearchEndpoint implements OpenSearch {
    *     has a value of 'asc' or 'desc' (default is 'desc'). When <sbfield> is 'relevance',
    *     <sborder> must be 'desc'.
    * @param format Defines the format that the return type should be in. (example:atom, html)
-   * @param selector Defines a comma delimited list of XPath selectors to narrow the query.
+   * @param selectors Defines a comma-delimited list of XPath selectors to narrow the query.
    * @param type Specifies the type of data to search for. (example: nitf)
-   * @param versions Specifies the versions in a comma delimited list.
+   * @param versions Specifies the versions in a comma-delimited list.
    */
   @GET
   public Response processQuery(
-      @QueryParam(PHRASE) String searchTerms,
-      @QueryParam(MAX_RESULTS) String maxResults,
-      @QueryParam(SOURCES) String sources,
-      @QueryParam(MAX_TIMEOUT) String maxTimeout,
-      @QueryParam(START_INDEX) String startIndex,
-      @QueryParam(COUNT) String count,
-      @QueryParam(GEOMETRY) String geometry,
-      @QueryParam(BBOX) String bbox,
-      @QueryParam(POLYGON) String polygon,
-      @QueryParam(LAT) String lat,
-      @QueryParam(LON) String lon,
-      @QueryParam(RADIUS) String radius,
-      @QueryParam(DATE_START) String dateStart,
-      @QueryParam(DATE_END) String dateEnd,
-      @QueryParam(DATE_OFFSET) String dateOffset,
-      @QueryParam(SORT) String sort,
-      @QueryParam(FORMAT) String format,
-      @QueryParam(SELECTOR) String selector,
+      @QueryParam(OpenSearchConstants.SEARCH_TERMS) String searchTerms,
+      @QueryParam(OpenSearchConstants.MAX_RESULTS) String maxResults,
+      @QueryParam(OpenSearchConstants.SOURCES) String sources,
+      @QueryParam(OpenSearchConstants.MAX_TIMEOUT) String maxTimeout,
+      @QueryParam(OpenSearchConstants.START_INDEX) String startIndex,
+      @QueryParam(OpenSearchConstants.COUNT) String count,
+      @QueryParam(OpenSearchConstants.GEOMETRY) String geometry,
+      @QueryParam(OpenSearchConstants.BBOX) String bbox,
+      @QueryParam(OpenSearchConstants.POLYGON) String polygon,
+      @QueryParam(OpenSearchConstants.LAT) String lat,
+      @QueryParam(OpenSearchConstants.LON) String lon,
+      @QueryParam(OpenSearchConstants.RADIUS) String radius,
+      @QueryParam(OpenSearchConstants.DATE_START) String dateStart,
+      @QueryParam(OpenSearchConstants.DATE_END) String dateEnd,
+      @QueryParam(OpenSearchConstants.DATE_OFFSET) String dateOffset,
+      @QueryParam(OpenSearchConstants.SORT) String sort,
+      @QueryParam(OpenSearchConstants.FORMAT) String format,
+      @QueryParam(OpenSearchConstants.SELECTORS) String selectors,
       @Context UriInfo ui,
-      @QueryParam(TYPE) String type,
-      @QueryParam(VERSION) String versions,
+      @QueryParam(OpenSearchConstants.TYPE) String type,
+      @QueryParam(OpenSearchConstants.VERSIONS) String versions,
       @Context HttpServletRequest request) {
     final String methodName = "processQuery";
     LOGGER.trace("ENTERING: {}", methodName);
@@ -161,12 +157,14 @@ public class OpenSearchEndpoint implements OpenSearch {
       if (StringUtils.isNotEmpty(sources)) {
         LOGGER.debug("Received site names from client.");
         Set<String> siteSet =
-            new HashSet<>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
+            new HashSet<>(
+                Arrays.asList(
+                    StringUtils.stripAll(sources.split(OpenSearchConstants.SOURCES_DELIMITER))));
 
         // This code block is for backward compatibility to support src=local.
         // Since local is a magic word, not in any specification, we need to
         // eventually remove support for it.
-        if (siteSet.remove(LOCAL)) {
+        if (siteSet.remove(OpenSearchConstants.LOCAL_SOURCE)) {
           LOGGER.debug("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());
           siteSet.add(SystemInfo.getSiteName());
         }
@@ -190,7 +188,7 @@ public class OpenSearchEndpoint implements OpenSearch {
       // contextual
       if (StringUtils.isNotBlank(searchTerms)) {
         try {
-          query.addContextualFilter(searchTerms.trim(), selector);
+          query.addContextualFilter(searchTerms.trim(), selectors);
         } catch (ParsingException e) {
           throw new IllegalArgumentException(e.getMessage());
         }
@@ -402,8 +400,8 @@ public class OpenSearchEndpoint implements OpenSearch {
   private OpenSearchQuery createNewQuery(
       String startIndexStr, String countStr, String sortStr, String maxTimeoutStr) {
     // default values
-    String sortField = DEFAULT_SORT_FIELD;
-    String sortOrder = DEFAULT_SORT_ORDER;
+    String sortField = OpenSearchConstants.SORT_RELEVANCE;
+    String sortOrder = OpenSearchConstants.ORDER_DESCENDING;
     Integer startIndex = DEFAULT_START_INDEX;
     Integer count = DEFAULT_COUNT;
     long maxTimeout = DEFAULT_TIMEOUT;
@@ -418,7 +416,7 @@ public class OpenSearchEndpoint implements OpenSearch {
       count = Integer.parseInt(countStr);
     }
     if (StringUtils.isNotEmpty(sortStr)) {
-      String[] sortAry = sortStr.split(":");
+      String[] sortAry = sortStr.split(OpenSearchConstants.SORT_DELIMITER);
       if (sortAry.length > 1) {
         sortField = sortAry[0];
         sortOrder = sortAry[1];

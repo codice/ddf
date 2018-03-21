@@ -17,6 +17,7 @@ import ddf.catalog.impl.filter.SpatialDistanceFilter
 import ddf.catalog.impl.filter.SpatialFilter
 import ddf.catalog.source.opensearch.OpenSearchParser
 import org.apache.cxf.jaxrs.client.WebClient
+import org.codice.ddf.opensearch.OpenSearchConstants
 import spock.lang.Specification
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresentAndIs
@@ -77,7 +78,7 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
 
         then: 'URL should contain bbox parameter with the expected west,south,east,north value'
         final String urlStr = webClient.getCurrentURI().toString()
-        urlStr containsString(OpenSearchParserImpl.GEO_BBOX)
+        urlStr containsString(OpenSearchConstants.BBOX)
         urlStr containsString(expectedBboxParameterString)
 
         where:
@@ -103,7 +104,7 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
 
         then:
         final String urlStr = webClient.getCurrentURI().toString()
-        urlStr not(containsString(OpenSearchParserImpl.GEO_BBOX))
+        urlStr not(containsString(OpenSearchConstants.BBOX))
 
         where:
         spatialFilter << [

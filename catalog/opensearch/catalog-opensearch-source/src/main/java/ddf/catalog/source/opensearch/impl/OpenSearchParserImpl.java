@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.opensearch.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.opengis.filter.expression.PropertyName;
@@ -43,8 +45,6 @@ import org.slf4j.LoggerFactory;
 public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImpl.class);
-
-  private static final String START_INDEX = "start";
 
   // constants for Vincenty's formula
   // length of semi-major axis of the Earth (radius at equator) = 6378137.0 metres in WGS-84
@@ -70,53 +70,11 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final double FULL_LON_ROTATION = MAX_LON - MIN_LON;
 
-  private static final String ORDER_ASCENDING = "asc";
+  @VisibleForTesting static final String USER_DN = "dn";
 
-  private static final String ORDER_DESCENDING = "desc";
+  @VisibleForTesting static final String FILTER = "filter";
 
-  private static final String SORT_DELIMITER = ":";
-
-  private static final String SORT_RELEVANCE = "relevance";
-
-  private static final String SORT_TEMPORAL = "date";
-
-  // OpenSearch defined parameters
-  public static final String SEARCH_TERMS = "q";
-
-  // temporal
-  static final String TIME_START = "dtstart";
-
-  static final String TIME_END = "dtend";
-
-  static final String TIME_NAME = "dateName";
-
-  // geospatial
-  static final String GEO_LAT = "lat";
-
-  static final String GEO_LON = "lon";
-
-  static final String GEO_RADIUS = "radius";
-
-  static final String GEO_POLY = "polygon";
-
-  static final String GEO_BBOX = "bbox";
-
-  // general options
-  static final String SRC = "src";
-
-  static final String MAX_RESULTS = "mr";
-
-  static final String COUNT = "count";
-
-  static final String MAX_TIMEOUT = "mt";
-
-  static final String USER_DN = "dn";
-
-  static final String SORT = "sort";
-
-  static final String FILTER = "filter";
-
-  static final Integer DEFAULT_TOTAL_MAX = 1000;
+  @VisibleForTesting static final Integer DEFAULT_TOTAL_MAX = 1000;
 
   @Override
   public void populateSearchOptions(
@@ -164,21 +122,21 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       }
     }
 
-    checkAndReplace(client, start, START_INDEX, parameters);
-    checkAndReplace(client, maxPerPage, COUNT, parameters);
-    checkAndReplace(client, maxTotalSize, MAX_RESULTS, parameters);
-    checkAndReplace(client, routeTo, SRC, parameters);
-    checkAndReplace(client, timeout, MAX_TIMEOUT, parameters);
+    checkAndReplace(client, start, OpenSearchConstants.START_INDEX, parameters);
+    checkAndReplace(client, maxPerPage, OpenSearchConstants.COUNT, parameters);
+    checkAndReplace(client, maxTotalSize, OpenSearchConstants.MAX_RESULTS, parameters);
+    checkAndReplace(client, routeTo, OpenSearchConstants.SOURCES, parameters);
+    checkAndReplace(client, timeout, OpenSearchConstants.MAX_TIMEOUT, parameters);
     checkAndReplace(client, dn, USER_DN, parameters);
     checkAndReplace(client, filterStr, FILTER, parameters);
-    checkAndReplace(client, sortStr, SORT, parameters);
+    checkAndReplace(client, sortStr, OpenSearchConstants.SORT, parameters);
   }
 
   @Override
   public void populateContextual(
       WebClient client, Map<String, String> searchPhraseMap, List<String> parameters) {
     if (searchPhraseMap != null) {
-      String queryStr = searchPhraseMap.get(SEARCH_TERMS);
+      String queryStr = searchPhraseMap.get(OpenSearchConstants.SEARCH_TERMS);
       if (queryStr != null) {
         try {
           queryStr = URLEncoder.encode(queryStr, "UTF-8");
@@ -186,7 +144,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
           LOGGER.debug("Could not encode contextual string", uee);
         }
       }
-      checkAndReplace(client, queryStr, SEARCH_TERMS, parameters);
+      checkAndReplace(client, queryStr, OpenSearchConstants.SEARCH_TERMS, parameters);
     }
   }
 
@@ -195,7 +153,6 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
     String start = "";
     String end = "";
-    String name = "";
     if (temporal != null) {
       long startLng = (temporal.getStartDate() != null) ? temporal.getStartDate().getTime() : 0;
       start = fmt.print(startLng);
@@ -205,9 +162,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
               : System.currentTimeMillis();
       end = fmt.print(endLng);
     }
-    checkAndReplace(client, start, TIME_START, parameters);
-    checkAndReplace(client, end, TIME_END, parameters);
-    checkAndReplace(client, name, TIME_NAME, parameters);
+    checkAndReplace(client, start, OpenSearchConstants.DATE_START, parameters);
+    checkAndReplace(client, end, OpenSearchConstants.DATE_END, parameters);
   }
 
   @Override
@@ -242,7 +198,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
                 lon,
                 lat,
                 radius,
-                GEO_BBOX);
+                OpenSearchConstants.BBOX);
           }
 
           lon = "";
@@ -254,11 +210,11 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       }
     }
 
-    checkAndReplace(client, lat, GEO_LAT, parameters);
-    checkAndReplace(client, lon, GEO_LON, parameters);
-    checkAndReplace(client, radiusStr, GEO_RADIUS, parameters);
-    checkAndReplace(client, "", GEO_POLY, parameters);
-    checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
+    checkAndReplace(client, lat, OpenSearchConstants.LAT, parameters);
+    checkAndReplace(client, lon, OpenSearchConstants.LON, parameters);
+    checkAndReplace(client, radiusStr, OpenSearchConstants.RADIUS, parameters);
+    checkAndReplace(client, "", OpenSearchConstants.POLYGON, parameters);
+    checkAndReplace(client, bbox.toString(), OpenSearchConstants.BBOX, parameters);
   }
 
   @Override
@@ -294,11 +250,11 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       }
     }
 
-    checkAndReplace(client, lat, GEO_LAT, parameters);
-    checkAndReplace(client, lon, GEO_LON, parameters);
-    checkAndReplace(client, radiusStr, GEO_RADIUS, parameters);
-    checkAndReplace(client, poly.toString(), GEO_POLY, parameters);
-    checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
+    checkAndReplace(client, lat, OpenSearchConstants.LAT, parameters);
+    checkAndReplace(client, lon, OpenSearchConstants.LON, parameters);
+    checkAndReplace(client, radiusStr, OpenSearchConstants.RADIUS, parameters);
+    checkAndReplace(client, poly.toString(), OpenSearchConstants.POLYGON, parameters);
+    checkAndReplace(client, bbox.toString(), OpenSearchConstants.BBOX, parameters);
   }
 
   /**
@@ -501,7 +457,9 @@ public class OpenSearchParserImpl implements OpenSearchParser {
   }
 
   private static String createBboxParamString(double[] bboxCoords) {
-    return Arrays.stream(bboxCoords).mapToObj(Double::toString).collect(Collectors.joining(","));
+    return Arrays.stream(bboxCoords)
+        .mapToObj(Double::toString)
+        .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER));
   }
 
   private static String translateToOpenSearchSort(SortBy ddfSort) {
@@ -513,9 +471,9 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     }
 
     if (ddfSort.getSortOrder().equals(SortOrder.ASCENDING)) {
-      orderType = ORDER_ASCENDING;
+      orderType = OpenSearchConstants.ORDER_ASCENDING;
     } else {
-      orderType = ORDER_DESCENDING;
+      orderType = OpenSearchConstants.ORDER_DESCENDING;
     }
 
     PropertyName sortByField = ddfSort.getPropertyName();
@@ -523,10 +481,14 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     switch (sortByField.getPropertyName()) {
       case Result.RELEVANCE:
         // asc relevance not supported by spec
-        openSearchSortStr = SORT_RELEVANCE + SORT_DELIMITER + ORDER_DESCENDING;
+        openSearchSortStr =
+            OpenSearchConstants.SORT_RELEVANCE
+                + OpenSearchConstants.SORT_DELIMITER
+                + OpenSearchConstants.ORDER_DESCENDING;
         break;
       case Result.TEMPORAL:
-        openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
+        openSearchSortStr =
+            OpenSearchConstants.SORT_TEMPORAL + OpenSearchConstants.SORT_DELIMITER + orderType;
         break;
       default:
         LOGGER.debug(

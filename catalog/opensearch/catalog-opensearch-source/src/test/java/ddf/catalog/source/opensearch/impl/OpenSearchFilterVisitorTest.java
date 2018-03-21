@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.exparity.hamcrest.date.DateMatchers;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
@@ -575,7 +576,7 @@ public class OpenSearchFilterVisitorTest {
         allOf(
             is(notNullValue()),
             hasProperty(
-                "searchPhraseMap", hasEntry(OpenSearchParserImpl.SEARCH_TERMS, TEST_STRING))));
+                "searchPhraseMap", hasEntry(OpenSearchConstants.SEARCH_TERMS, TEST_STRING))));
   }
 
   @Test
@@ -592,7 +593,7 @@ public class OpenSearchFilterVisitorTest {
         result.getContextualSearch(),
         allOf(
             is(notNullValue()),
-            hasProperty("searchPhraseMap", hasEntry(OpenSearchParserImpl.SEARCH_TERMS, WILDCARD))));
+            hasProperty("searchPhraseMap", hasEntry(OpenSearchConstants.SEARCH_TERMS, WILDCARD))));
   }
 
   @Test
@@ -612,7 +613,7 @@ public class OpenSearchFilterVisitorTest {
         allOf(
             is(notNullValue()),
             hasProperty(
-                "searchPhraseMap", hasEntry(OpenSearchParserImpl.SEARCH_TERMS, "test AND test"))));
+                "searchPhraseMap", hasEntry(OpenSearchConstants.SEARCH_TERMS, "test AND test"))));
   }
 
   @Test
@@ -634,7 +635,7 @@ public class OpenSearchFilterVisitorTest {
         allOf(
             is(notNullValue()),
             hasProperty(
-                "searchPhraseMap", hasEntry(OpenSearchParserImpl.SEARCH_TERMS, TEST_STRING))));
+                "searchPhraseMap", hasEntry(OpenSearchConstants.SEARCH_TERMS, TEST_STRING))));
   }
 
   @Test

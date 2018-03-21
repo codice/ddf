@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.opensearch.query.filter.BBoxSpatialFilter;
 import org.codice.ddf.opensearch.query.filter.PolygonSpatialFilter;
 import org.geotools.filter.FilterFactoryImpl;
@@ -105,25 +106,32 @@ public class OpenSearchQuery implements Query {
 
     // Query must specify a valid sort order if a sort field was specified, i.e., query
     // cannot specify just "date:", must specify "date:asc"
-    if ("asc".equalsIgnoreCase(sortOrderIn)) {
+    if (OpenSearchConstants.ORDER_ASCENDING.equalsIgnoreCase(sortOrderIn)) {
       sortOrder = SortOrder.ASCENDING;
-    } else if ("desc".equalsIgnoreCase(sortOrderIn)) {
+    } else if (OpenSearchConstants.ORDER_DESCENDING.equalsIgnoreCase(sortOrderIn)) {
       sortOrder = SortOrder.DESCENDING;
     } else {
-      throw new IllegalArgumentException("Incorrect sort order received, must be 'asc' or 'desc'");
+      throw new IllegalArgumentException(
+          "Incorrect sort order received, must be "
+              + OpenSearchConstants.ORDER_ASCENDING
+              + " or "
+              + OpenSearchConstants.ORDER_DESCENDING);
     }
 
-    if (sortField.equalsIgnoreCase("relevance")) {
+    if (sortField.equalsIgnoreCase(OpenSearchConstants.SORT_RELEVANCE)) {
       // this.sortPolicy = new SortPolicyImpl( true, Constants.DDF_SORT_QUALIFIER,
       // Constants.SORT_POLICY_VALUE_FULLTEXT, this.sortOrder );
       this.sortBy = FILTER_FACTORY.sort(sortField.toUpperCase(), sortOrder);
-    } else if (sortField.equalsIgnoreCase("date")) {
+    } else if (sortField.equalsIgnoreCase(OpenSearchConstants.SORT_TEMPORAL)) {
       // this.sortPolicy = new SortPolicyImpl( true, Constants.DDF_SORT_QUALIFIER,
       // Constants.SORT_POLICY_VALUE_TEMPORAL, this.sortOrder );
       this.sortBy = FILTER_FACTORY.sort(Result.TEMPORAL, sortOrder);
     } else {
       throw new IllegalArgumentException(
-          "Incorrect sort field received, must be 'relevance' or 'date'");
+          "Incorrect sort field received, must be "
+              + OpenSearchConstants.SORT_RELEVANCE
+              + " or "
+              + OpenSearchConstants.SORT_TEMPORAL);
     }
 
     this.maxTimeout = maxTimeout;
@@ -131,14 +139,15 @@ public class OpenSearchQuery implements Query {
     this.siteIds = new HashSet<>();
   }
 
-  public void addContextualFilter(String searchTerm, String selectors) throws ParsingException {
+  public void addContextualFilter(String searchTerms, String selectors) throws ParsingException {
     Filter filter = null;
     KeywordFilterGenerator keywordFilterGenerator = new KeywordFilterGenerator(filterBuilder);
 
     KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
     // translate the search terms into an abstract syntax tree
-    ParsingResult<ASTNode> result = new RecoveringParseRunner(parser.inputPhrase()).run(searchTerm);
+    ParsingResult<ASTNode> result =
+        new RecoveringParseRunner(parser.inputPhrase()).run(searchTerms);
 
     // make sure it's a good result before using it
     if (result.matched && !result.hasErrors()) {
@@ -215,7 +224,7 @@ public class OpenSearchQuery implements Query {
     try {
       if (selectors != null) {
         // generate a filter for each selector
-        for (String selector : selectors.split(",")) {
+        for (String selector : selectors.split(OpenSearchConstants.SELECTORS_DELIMITER)) {
           if (filter == null) {
             filter = keywordFilterGenerator.getFilterFromASTNode(result.resultValue, selector);
           } else {
@@ -327,7 +336,7 @@ public class OpenSearchQuery implements Query {
 
     if (StringUtils.isNotEmpty(versions)) {
       LOGGER.debug("Received versions from client.");
-      String[] typeVersions = versions.split(",");
+      String[] typeVersions = versions.split(OpenSearchConstants.VERSIONS_DELIMITER);
       List<Filter> typeVersionPairsFilters = new ArrayList<>();
 
       for (String version : typeVersions) {

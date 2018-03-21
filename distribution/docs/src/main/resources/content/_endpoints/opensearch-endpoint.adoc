@@ -52,37 +52,33 @@ This request performs a full-text search for the phrase 'Predator' on the ${bra
 
 |`searchTerms`
 |`q`
-|URL-encoded string
+|URL-encoded, space-delimited list of search terms
 |Complex contextual search string.
 
 |`count`
 |`count`
-|integer >= 0
-|Maximum # of results to retrieve
+|Integer >= 0
+|Maximum # of results to retrieve.
 
-default: 10
+default: `10`
 
 |`startIndex`
 |`start`
-|integer >= 1
+|integer > 0
 |Index of first result to return.
 
-default: 1
+This value uses a one-based index for the results.
 
-This value uses a one based index for the results.
+default: `1`
 
 |`format`
 |`format`
-|requires a transformer shortname as a string, possible values include, when available
+|Requires a transformer shortname as a string, possible values include, when available, `atom`, `html`, and `kml`.
 
-	`atom`
+See <<_query_response_transformers,Query Response transformers>> for more possible values.
+|Defines the format that the return type should be in.
 
-	`html`
-
-	`kml`
-
-see Included Query Response Transformers for more possible values.
-|default: `atom`
+default: `atom`
 |===
 
 .Temporal Extension
@@ -95,13 +91,17 @@ see Included Query Response Transformers for more possible values.
 
 |`start`
 |`dtstart`
-|RFC-3399-defined value
-|`yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
+|RFC-3399-defined value (e.g. `YYYY-MM-DDTHH:mm:ssZ`, `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`)
+|Specifies the beginning of the time slice of the search.
+
+Default value of "1970-01-01T00:00:00Z" is used when `dtend` is specified but `dtstart` is not specified.
 
 |`end`
 |`dtend`
-|RFC-3399-defined value
-|`yyyy-MM-dd'T'HH:mm:ss.SSSZZ`
+|RFC-3399-defined value (e.g. `YYYY-MM-DDTHH:mm:ssZ`, `yyyy-MM-dd'T'HH:mm:ss.SSSZZ`)
+|Specifies the ending of the time slice of the search
+
+Current GMT date/time is used when `dtstart` is specified but `dtend` is not specified.
 |===
 
 [NOTE]
@@ -116,7 +116,7 @@ The start and end temporal criteria must be of the format specified above. Other
 .Geospatial Extension
 These geospatial query parameters are used to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` of the given geospatial parameter. 
 
-[cols="4*", options="header"]
+[cols="4", options="header"]
 |===
 |OS Element
 |HTTP Parameter
@@ -125,41 +125,44 @@ These geospatial query parameters are used to create a geospatial `INTERSECTS` 
 
 |`lat`
 |`lat`
-|`EPSG:4326` decimal degrees
-|Expects a latitude and a radius to be specified.
+|`EPSG:4326 (WGS84)` decimal degrees
+|Used in conjunction with the `lon` and `radius` parameters.
 
 |`lon`
 |`lon`
-|`EPSG:4326` decimal degrees
-|Expects a longitude and a radius to be specified.
+|`EPSG:4326 (WGS84)` decimal degrees
+|Used in conjunction with the `lat` and `radius` parameters.
 
 |`radius`
 |`radius`
-|Meters along the Earth's surface > 0
-|Used in conjunction with lat and lon query parameters.
+|`EPSG:4326 (WGS84)` meters along the Earth's surface > 0
+|Specifies the search distance in meters from the `lon`,`lat` point.
+
+Used in conjunction with the `lat` and `lon` parameters.
+
+default: `5000`
 
 |`polygon`
 |`polygon`
-|clockwise `lat lon` pairs ending at the first one
-|example: `-80, -170, 0, -170, 80, -170, 80, 170, 0, 170, -80, 170, -80, -170`
-
-According to the OpenSearch Geo Specification this is *deprecated*. 
-Use geometry instead.
+|Comma-delimited list of lat/lon (`EPSG:4326 (WGS84)` decimal degrees) pairs, in clockwise order around the polygon, where the last point is the same as the first in order to close the polygon.
+(e.g. `-80,-170,0,-170,80,-170,80,170,0,170,-80,170,-80,-170`)
+|According to the OpenSearch Geo Specification this is *deprecated*. Use the `geometry` parameter instead.
 
 |`box`
 |`bbox`
-|4 comma-separated `EPSG:4326` decimal degrees
-|west, south, east, north
+|4 comma-delimited `EPSG:4326 (WGS84)` decimal degrees coordinates in the format West,South,East,North
+|
 
 |`geometry`
 |`geometry` 
-|WKT Geometries: `POINT`, `POLYGON`, `MULTIPOINT`, `MULTIPOLYGON`
-|Examples:
+|WKT Geometries
+
+Examples:
 
 `POINT(10 20)` where 10 is the longitude and 20 is the latitude.
 
 `POLYGON ( ( 30 10, 10 20, 20 40, 40 40, 30 10 ) )`. 30 is longitude and 10 is latitude for the first point.
-Make sure to repeat the starting point as the last point to close the polygon.
+|Make sure to repeat the starting point as the last point to close the polygon. Only `POINT` and `POLYGON` are supported.
 
 |===
 
@@ -173,25 +176,33 @@ Make sure to repeat the starting point as the last point to close the polygon.
 
 |`sort`
 |`sort`
-|`sbfield`: 'date' or 'relevance'
-`sborder`: 'asc' or 'desc'
-|`sort=<sbfield>:<sborder>` default: `relevance:desc`
+|`<sbfield>:<sborder>` where
 
-Sorting by date will sort the effective date.
+`<sbfield>` is `date` or `relevance`
+
+`<sborder>` is `asc` or `desc`
+|`<sborder>` is optional but has a value of `asc` or `desc` (default is `desc`).
+However, when `<sbfield>` is `relevance`, `<sborder>` must be `desc`.
+
+Sorting by `date` will sort the results by the <<effective,`effective`>> date.
+
+default: `relevance:desc`
 
 |`maxResults`
 |`mr`
 |Integer >= 0
 |Maximum # of results to return.
 
-If count is also specified, the count value will take precedence over the `maxResults` value
+If `count` is also specified, the `count` value will take precedence over the `maxResults` value.
+
+default: `1000`
 
 |`maxTimeout`
 |`mt`
 |Integer > 0
-|Maximum timeout (milliseconds) for query to respond
+|Maximum timeout (milliseconds) for query to respond.
 
-default: 300000 (5 minutes)
+default: `300000` (5 minutes)
 |===
 
 .Federated Search
@@ -204,12 +215,8 @@ default: 300000 (5 minutes)
 
 |`routeTo`
 |`src`
-|(varies depending on the names of the sites in the federation)
-|comma delimited list of site names to query.
-
-Also can specify `src=local` to query the local site.
-
-If src is not provided, the default behavior is to execute an enterprise search to the entire federation.
+|Comma-delimited list of site names to query. Varies depending on the names of the sites in the federation. `local` specifies to query the local site.
+|If `src` is not provided, the default behavior is to execute an enterprise search to the entire federation.
 
 |===
 
@@ -223,23 +230,23 @@ If src is not provided, the default behavior is to execute an enterprise search 
 
 |`dateOffset`
 |`dtoffset`
-|integer > 0
-|Specifies an offset, backwards from the current time, to search on the modified time field for entries. Defined in milliseconds.
+|Integer > 0
+|Specifies an offset (milliseconds), backwards from the current time, to search on the <<modified, modified>> time field for entries.
 
 |`type`
 |`type`
-|Any valid datatype
+|Any valid datatype (e.g. `Text`)
 |Specifies the type of data to search for.
 
 |`version`
 |`version`
-|20,30
-|Comma-delimited list of version values to search for.
+|Comma-delimited list of strings (e.g. 20,30)
+|Version values for which to search.
 
 |`selector`
 |`selector`
-|`//namespace:example`,`//example`
-|Comma-delimited list of XPath string selectors that narrow down the search.
+|Comma-delimited list of XPath string selectors (e.g. `//namespace:example`, //example`)
+|Selectors to narrow the query.
 
 |===
 

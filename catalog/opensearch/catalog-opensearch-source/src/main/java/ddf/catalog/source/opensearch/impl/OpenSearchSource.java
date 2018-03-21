@@ -82,7 +82,8 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.codice.ddf.endpoints.OpenSearch;
+import org.codice.ddf.opensearch.OpenSearch;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
@@ -112,10 +113,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       "Queries DDF using the synchronous federated OpenSearch query";
 
   private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
-
-  private static final String URL_SRC_PARAMETER = "src";
-
-  private static final String LOCAL_SEARCH_PARAMETER = "local";
 
   private static final String USERNAME_PROPERTY = "username";
 
@@ -341,7 +338,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       }
 
       // All queries must have at least a search phrase to be valid
-      searchPhraseMap.putIfAbsent(OpenSearchParserImpl.SEARCH_TERMS, "*");
+      searchPhraseMap.putIfAbsent(OpenSearchConstants.SEARCH_TERMS, "*");
 
       openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
 
@@ -365,9 +362,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       }
 
       if (localQueryOnly) {
-        restWebClient.replaceQueryParam(URL_SRC_PARAMETER, LOCAL_SEARCH_PARAMETER);
+        restWebClient.replaceQueryParam(
+            OpenSearchConstants.SOURCES, OpenSearchConstants.LOCAL_SOURCE);
       } else {
-        restWebClient.replaceQueryParam(URL_SRC_PARAMETER, "");
+        restWebClient.replaceQueryParam(OpenSearchConstants.SOURCES, "");
       }
 
       InputStream responseStream = performRequest(restWebClient);

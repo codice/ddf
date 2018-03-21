@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -86,7 +87,7 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,BBOX,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_BBOX));
+    assertThat(urlStr, containsString(OpenSearchConstants.BBOX));
   }
 
   @Test
@@ -94,7 +95,7 @@ public class OpenSearchParserImplTest {
     SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
     openSearchParser.populateGeospatial(webClient, spatialFilter, true, new ArrayList<>());
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.BBOX)));
   }
 
   @Test
@@ -110,7 +111,7 @@ public class OpenSearchParserImplTest {
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, containsString(searchPhraseMap.get("q")));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SEARCH_TERMS));
+    assertThat(urlStr, containsString(OpenSearchConstants.SEARCH_TERMS));
     try {
       new URL(urlStr);
     } catch (MalformedURLException mue) {
@@ -188,7 +189,7 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString("?" + OpenSearchParserImpl.SEARCH_TERMS)));
+    assertThat(urlStr, not(containsString("?" + OpenSearchConstants.SEARCH_TERMS)));
   }
 
   @Test
@@ -217,9 +218,8 @@ public class OpenSearchParserImplTest {
     } catch (UnsupportedEncodingException e) {
       fail(e.getMessage());
     }
-    assertThat(urlStr, containsString(OpenSearchParserImpl.TIME_START));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.TIME_END));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_NAME)));
+    assertThat(urlStr, containsString(OpenSearchConstants.DATE_START));
+    assertThat(urlStr, containsString(OpenSearchConstants.DATE_END));
     try {
       new URL(urlStr);
     } catch (MalformedURLException mue) {
@@ -241,9 +241,8 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.TIME_START));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.TIME_END));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_NAME)));
+    assertThat(urlStr, containsString(OpenSearchConstants.DATE_START));
+    assertThat(urlStr, containsString(OpenSearchConstants.DATE_END));
   }
 
   /** Verify that passing in null will still remove the parameters from the URL. */
@@ -256,9 +255,8 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_START)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_END)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.TIME_NAME)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.DATE_START)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.DATE_END)));
   }
 
   @Test
@@ -279,10 +277,10 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   @Test
@@ -304,10 +302,10 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(sort));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   @Test
@@ -329,10 +327,10 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(sort));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   @Test
@@ -353,10 +351,10 @@ public class OpenSearchParserImplTest {
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.SORT)));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
     assertThat(urlStr, not(containsString(sort)));
   }
 
@@ -376,11 +374,11 @@ public class OpenSearchParserImplTest {
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
     assertThat(urlStr, not(containsString(DESCENDING_TEMPORAL_SORT)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.SORT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
   }
 
   @Test
@@ -401,10 +399,10 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(OpenSearchParserImpl.DEFAULT_TOTAL_MAX.toString()));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   @Test
@@ -429,11 +427,11 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   @Test
@@ -458,11 +456,11 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(MAX_RESULTS));
     assertThat(urlStr, containsString(TIMEOUT));
     assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.COUNT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
+    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
   }
 
   /** Verify that passing in null will still remove the parameters from the URL. */
@@ -476,13 +474,13 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.COUNT)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.MAX_RESULTS)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.SRC)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.COUNT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.MAX_RESULTS)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.SOURCES)));
     assertThat(urlStr, not(containsString(OpenSearchParserImpl.USER_DN)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.MAX_TIMEOUT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.MAX_TIMEOUT)));
     assertThat(urlStr, not(containsString(OpenSearchParserImpl.FILTER)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.SORT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
   }
 
   @Test
@@ -500,7 +498,7 @@ public class OpenSearchParserImplTest {
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, containsString(expectedStr));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_POLY));
+    assertThat(urlStr, containsString(OpenSearchConstants.POLYGON));
   }
 
   @Test
@@ -522,9 +520,9 @@ public class OpenSearchParserImplTest {
     assertThat(urlStr, containsString(lat));
     assertThat(urlStr, containsString(lon));
     assertThat(urlStr, containsString(radius));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_LAT));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_LON));
-    assertThat(urlStr, containsString(OpenSearchParserImpl.GEO_RADIUS));
+    assertThat(urlStr, containsString(OpenSearchConstants.LAT));
+    assertThat(urlStr, containsString(OpenSearchConstants.LON));
+    assertThat(urlStr, containsString(OpenSearchConstants.RADIUS));
 
     try {
       new URL(urlStr);
@@ -545,9 +543,9 @@ public class OpenSearchParserImplTest {
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
     String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_LAT)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_LON)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_RADIUS)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.LAT)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.LON)));
+    assertThat(urlStr, not(containsString(OpenSearchConstants.RADIUS)));
   }
 
   private Subject getMockSubject(String principalName) {

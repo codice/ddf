@@ -65,7 +65,7 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 |
 
-|effective *[deprecated]*
+|[[effective]]effective *[deprecated]*
 |The `effective` time of the event or resource  represented by the metacard. Deprecated in favor of <<created,created>> and <<modified,modified>>.
 |Date
 | 

@@ -39,62 +39,78 @@ See <<OpenSearchSource,OpenSearch Source configurations>> for all possible confi
 .Using OpenSearch Source
 Use the OpenSearch source if querying a CDR-compliant search service is desired.
 
-
-.OpenSearch Parameter to ${branding} Query Mapping
-[cols="1m,2" options="header"]
+.Query to OpenSearch Parameter Mapping
+[cols="1,1m,2" options="header"]
 |===
-|OpenSearch/CDR Parameter
+|Element
+|OpenSearch HTTP Parameter
 |${branding} Data Location
 
-|q={searchTerms}
-|Pulled verbatim from ${branding} query.
+|searchTerms
+|q
+|Pulled from the query and encoded in UTF-8.
 
-|src={fs:routeTo?}
-|Unused
+|routeTo
+|src
+|Pulled from the query.
 
-|mr={fs:maxResults?}
-|Pulled verbatim from ${branding} query.
+|maxResults
+|mr
+|Pulled from the query.
 
-|count={count?}
-|Pulled verbatim from ${branding} query.
+|count
+|count
+|Pulled from the query.
 
-|mt={fs:maxTimeout?}
-|Pulled verbatim from ${branding} query.
+|startIndex
+|start
+|Pulled from the query.
 
-|dn={idn:userDN?}
-|${branding} Subject
+|maxTimeout
+|mt
+|Pulled from the query.
 
-|lat={geo:lat?}
-|Pulled verbatim from ${branding} query.
+|userDN
+|dn
+|${branding} subject
 
-|lon={geo:lon?}
-|Pulled verbatim from ${branding} query.
+|lat
+|lat
+.3+|Pulled from the query if it is a point-radius query.
 
-|radius={geo:radius?}
-|Pulled verbatim from ${branding} query.
+|lon
+|lon
 
-|bbox={geo:box?}
-|Converted from Point-Radius ${branding} query.
+|radius
+|radius
 
-|polygon={geo:polygon?}
-|Pulled verbatim from ${branding} query.
+|box
+|bbox
+|Pulled from the query if it is a bounding-box query.
+Or else, calculated from the query if it is a polygon query and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
+Or else, calculated from query if it is a point-radius query and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
 
-|dtstart={time:start?}
-|Pulled verbatim from ${branding} query.
+|polygon
+|polygon
+|Pulled from the ${branding} query.
 
-|dtend={time:end?}
-|Pulled verbatim from ${branding} query.
+|start
+|dtstart
+|Pulled from the query.
 
-|dateName={cat:dateName?}
-|Unused
+|end
+|dtend
+|Pulled from the query.
 
-|filter={fsa:filter?}
-|Unused
+|filter
+|filter
+|Pulled from the query.
 
-|sort={fsa:sort?}
-|Translated from ${branding} query.
-Format: "relevance" or "date"
-Supports "asc" and "desc" using colon as delimiter.
+|sort
+|sort
+|Calculated from the query.
+Format: `relevance` or `date`.
+Supports `asc` and `desc` using `:` as delimiter.
 
 |===
 

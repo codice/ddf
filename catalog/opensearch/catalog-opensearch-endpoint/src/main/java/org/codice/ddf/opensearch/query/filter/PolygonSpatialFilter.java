@@ -14,6 +14,7 @@
 package org.codice.ddf.opensearch.query.filter;
 
 import ddf.catalog.impl.filter.SpatialFilter;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 
 public class PolygonSpatialFilter extends SpatialFilter {
   private final String[] latLonAry;
@@ -21,7 +22,7 @@ public class PolygonSpatialFilter extends SpatialFilter {
   public PolygonSpatialFilter(String lonLatStr) {
     super();
 
-    latLonAry = lonLatStr.split(" |,\\p{Space}?");
+    latLonAry = lonLatStr.split(OpenSearchConstants.POLYGON_LON_LAT_DELIMITER);
     this.geometryWkt = createWKT();
   }
 

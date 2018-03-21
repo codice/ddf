@@ -14,10 +14,9 @@
 package org.codice.ddf.opensearch.query.filter;
 
 import ddf.catalog.impl.filter.SpatialFilter;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 
 public class BBoxSpatialFilter extends SpatialFilter {
-  private static final int MAX_Y_COORDINATE_INDEX = 3;
-
   private final double minX;
 
   private final double minY;
@@ -30,15 +29,31 @@ public class BBoxSpatialFilter extends SpatialFilter {
    * @param bbox comma-delimited list of lat/lon (deg) bounding box coordinates
    *     (West,South,East,North)
    */
-  public BBoxSpatialFilter(String bbox) {
+  public BBoxSpatialFilter(final String bbox) {
     super();
 
-    String[] bboxArY = bbox.split(" |,\\p{Space}?");
+    String[] bboxArY = bbox.split(OpenSearchConstants.BBOX_DELIMITER);
 
-    this.minX = Double.parseDouble(bboxArY[0]);
-    this.minY = Double.parseDouble(bboxArY[1]);
-    this.maxX = Double.parseDouble(bboxArY[2]);
-    this.maxY = Double.parseDouble(bboxArY[MAX_Y_COORDINATE_INDEX]);
+    if (bboxArY.length != OpenSearchConstants.BBOX_LIST_SIZE) {
+      throw new IllegalArgumentException(
+          OpenSearchConstants.BBOX
+              + " value must have exactly "
+              + OpenSearchConstants.BBOX_LIST_SIZE
+              + " values in the format West,South,East,North (or minX,minY,maxX,maxY)");
+    }
+
+    try {
+      this.minX = Double.parseDouble(bboxArY[0]);
+      this.minY = Double.parseDouble(bboxArY[1]);
+      this.maxX = Double.parseDouble(bboxArY[2]);
+      this.maxY = Double.parseDouble(bboxArY[OpenSearchConstants.BBOX_LIST_SIZE - 1]);
+    } catch (NumberFormatException e) {
+      final String message =
+          String.format(
+              "The %s OpenSearch Endpoint parameter must have four %s-delimited double values but is \"%s\".",
+              OpenSearchConstants.BBOX, OpenSearchConstants.BBOX_DELIMITER, bbox);
+      throw new IllegalArgumentException(message, e);
+    }
 
     this.geometryWkt = createWKT();
   }

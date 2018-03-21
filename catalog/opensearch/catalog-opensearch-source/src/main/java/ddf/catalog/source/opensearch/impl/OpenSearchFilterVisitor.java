@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
@@ -306,20 +307,20 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
       if (contextualSearch != null) {
         Map<String, String> searchPhraseMap = contextualSearch.getSearchPhraseMap();
-        if (searchPhraseMap.containsKey(OpenSearchParserImpl.SEARCH_TERMS)) {
+        if (searchPhraseMap.containsKey(OpenSearchConstants.SEARCH_TERMS)) {
           searchPhraseMap.put(
-              OpenSearchParserImpl.SEARCH_TERMS,
-              searchPhraseMap.get(OpenSearchParserImpl.SEARCH_TERMS)
-                  + " "
+              OpenSearchConstants.SEARCH_TERMS,
+              searchPhraseMap.get(OpenSearchConstants.SEARCH_TERMS)
+                  + OpenSearchConstants.SEARCH_TERMS_DELIMITER
                   + openSearchFilterVisitorObject.getCurrentNest()
-                  + " "
+                  + OpenSearchConstants.SEARCH_TERMS_DELIMITER
                   + searchPhrase);
         } else {
-          searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, searchPhrase);
+          searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, searchPhrase);
         }
       } else {
         Map<String, String> searchPhraseMap = new HashMap<>();
-        searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, searchPhrase);
+        searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, searchPhrase);
         openSearchFilterVisitorObject.setContextualSearch(
             new ContextualSearch(selectors, searchPhraseMap, likeFilter.isMatchingCase()));
       }
