@@ -521,11 +521,11 @@
         <notes>False positive. This CVE is for a Perl library</notes>
         <cve>CVE-2015-7686</cve>
     </suppress>
-    <supress>
+    <suppress>
         <notes>
             Remove this supression when this PR is merged
             https://github.com/codice/ddf/pull/3077
         </notes>
         <cve>CVE-2015-1820</cve>
-    </supress>
+    </suppress>
 </suppressions>
