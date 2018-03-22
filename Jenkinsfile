@@ -88,7 +88,7 @@ pipeline {
                         timeout(time: 3, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                                sh 'mvn clean install -B -T 1C -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh 'mvn clean install -B -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                             }
                         }
@@ -102,7 +102,7 @@ pipeline {
                         }
                         timeout(time: 3, unit: 'HOURS') {
                             withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
-                                bat 'mvn clean install -B -T 1C -pl !%ITESTS% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                                bat 'mvn clean install -B -pl !%ITESTS% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                                 bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                             }
                         }
