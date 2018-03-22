@@ -86,8 +86,12 @@ Use the OpenSearch source if querying a CDR-compliant search service is desired.
 
 |box
 |bbox
-|Pulled from the query if it is a bounding-box query.
+|Pulled from the query if it is a bounding-box query. +
+ +
 Or else, calculated from the query if it is a polygon query and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
+NOTE: Converting a polygon that crosses the antimeridian to a bounding box will produce an incorrect bounding box. +
+//TODO DDF-3742
+ +
 Or else, calculated from query if it is a point-radius query and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
 
 |polygon

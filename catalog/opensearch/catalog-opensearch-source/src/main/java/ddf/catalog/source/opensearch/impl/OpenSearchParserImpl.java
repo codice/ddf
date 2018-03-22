@@ -355,8 +355,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
   /**
    * Takes in a {@link Polygon} and converts it to a (rough approximation) bounding box.
    *
-   * <p>Note: Searches being performed where the polygon goes through the international date line
-   * may return a bad bounding box.
+   * <p>Note: Searches being performed where the polygon goes through the antimeridian will return
+   * an incorrect bounding box. TODO DDF-3742
    *
    * @param polygon A polygon search area
    * @return {@link String} of the bounding box coordinates in the format "west,south,east,north".
