@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
@@ -126,8 +128,8 @@ public class OpenSearchQuery implements Query {
     }
 
     this.maxTimeout = maxTimeout;
-    this.filters = new ArrayList<Filter>();
-    this.siteIds = new HashSet<String>();
+    this.filters = new ArrayList<>();
+    this.siteIds = new HashSet<>();
   }
 
   public void addContextualFilter(String searchTerm, String selectors) throws ParsingException {
@@ -189,13 +191,13 @@ public class OpenSearchQuery implements Query {
     if (invalidInputLineBuilder != null) {
       // if the first and last occurrence of CARET aren't the same, there are more than one in
       // the string
-      parsingErrorBuilder.append(
-          "\nInvalid character"
-              + ((invalidInputLineBuilder.indexOf(CARET)
-                      != invalidInputLineBuilder.lastIndexOf(CARET))
+      parsingErrorBuilder
+          .append("\nInvalid character")
+          .append(
+              (invalidInputLineBuilder.indexOf(CARET) != invalidInputLineBuilder.lastIndexOf(CARET))
                   ? "s"
                   : "")
-              + " found in: \n");
+          .append(" found in: \n");
       parsingErrorBuilder.append("\n\t");
       parsingErrorBuilder.append(parsedLine);
       parsingErrorBuilder.append("\n\t");
@@ -249,24 +251,16 @@ public class OpenSearchQuery implements Query {
     return caratLineBuilder;
   }
 
-  public void addTemporalFilter(String dateStart, String dateEnd, String dateOffset) {
-
-    TemporalFilter temporalFilter = null;
-
-    // If either start date OR end date is specified and non-empty, then
-    // a temporal filter can be created
-    if ((dateStart != null && !dateStart.trim().isEmpty())
-        || (dateEnd != null && !dateEnd.trim().isEmpty())) {
-      temporalFilter = new TemporalFilter(dateStart, dateEnd);
-    } else if (dateOffset != null && !dateOffset.trim().isEmpty()) {
-      temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
-    }
-
-    addTemporalFilter(temporalFilter);
+  public void addStartEndTemporalFilter(String dateStart, String dateEnd) {
+    addTemporalFilter(
+        new TemporalFilter(StringUtils.trimToNull(dateStart), StringUtils.trimToNull(dateEnd)));
   }
 
-  public void addTemporalFilter(TemporalFilter temporalFilter) {
+  public void addOffsetTemporalFilter(String dateOffset) {
+    addTemporalFilter(new TemporalFilter(Long.parseLong(StringUtils.trimToNull(dateOffset))));
+  }
 
+  private void addTemporalFilter(TemporalFilter temporalFilter) {
     if (temporalFilter != null) {
       // t1.start < timeType instance < t1.end
       Instant startInstant = new DefaultInstant(new DefaultPosition(temporalFilter.getStartDate()));
@@ -323,7 +317,7 @@ public class OpenSearchQuery implements Query {
   public void addTypeFilter(String type, String versions) {
     Filter filter;
 
-    Filter typeFilter = null;
+    Filter typeFilter;
     if (type.contains("*")) {
       typeFilter = FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE), type);
     } else {
@@ -332,13 +326,13 @@ public class OpenSearchQuery implements Query {
               FILTER_FACTORY.property(Metacard.CONTENT_TYPE), FILTER_FACTORY.literal(type));
     }
 
-    if (versions != null && !versions.isEmpty()) {
+    if (StringUtils.isNotEmpty(versions)) {
       LOGGER.debug("Received versions from client.");
       String[] typeVersions = versions.split(",");
-      List<Filter> typeVersionPairsFilters = new ArrayList<Filter>();
+      List<Filter> typeVersionPairsFilters = new ArrayList<>();
 
       for (String version : typeVersions) {
-        Filter versionFilter = null;
+        Filter versionFilter;
         if (version.contains("*")) {
           versionFilter =
               FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION), version);
@@ -351,7 +345,7 @@ public class OpenSearchQuery implements Query {
         typeVersionPairsFilters.add(FILTER_FACTORY.and(typeFilter, versionFilter));
       }
 
-      if (!typeVersionPairsFilters.isEmpty()) {
+      if (CollectionUtils.isNotEmpty(typeVersionPairsFilters)) {
         filter = FILTER_FACTORY.or(typeVersionPairsFilters);
       } else {
         filter = typeFilter;
@@ -388,11 +382,7 @@ public class OpenSearchQuery implements Query {
       LOGGER.debug("filter being evaluated: {}", filter);
     }
 
-    if (filter != null) {
-      return filter.evaluate(object);
-    }
-
-    return false;
+    return filter != null && filter.evaluate(object);
   }
 
   @Override

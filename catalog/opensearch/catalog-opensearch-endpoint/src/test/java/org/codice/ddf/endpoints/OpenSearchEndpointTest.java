@@ -37,25 +37,21 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 
 public class OpenSearchEndpointTest {
 
   /**
-   * Test method for {@link
-   * org.codice.ddf.endpoints.OpenSearchEndpoint#processQuery(java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String,
-   * java.lang.String, javax.ws.rs.core.UriInfo, java.lang.String, java.lang.String)} .
+   * Test method for {@link org.codice.ddf.endpoints.OpenSearchEndpoint#processQuery(String, String,
+   * String, String, String, String, String, String, String, String, String, String, String, String,
+   * String, String, String, String, UriInfo, String, String, HttpServletRequest)} .
    *
    * <p>This test will verify that the string "local" in the sources passed to
    * OpenSearchEndpoint.processQuery is replaced with the local site name (in this case the mocked
@@ -114,19 +110,15 @@ public class OpenSearchEndpointTest {
     // Check on the sites passed in to framework.query
     when(mockFramework.query(any(QueryRequest.class)))
         .thenAnswer(
-            new Answer<Object>() {
-              public Object answer(InvocationOnMock invocation) {
-                QueryRequest queryRequest = (QueryRequest) invocation.getArguments()[0];
+            invocation -> {
+              QueryRequest queryRequest = (QueryRequest) invocation.getArguments()[0];
 
-                // ***Test verification***
-                // This assert is the whole point of this unit test
-                Assert.assertTrue(
-                    ((OpenSearchQuery) queryRequest.getQuery())
-                        .getSiteIds()
-                        .contains(testSiteName));
+              // ***Test verification***
+              // This assert is the whole point of this unit test
+              Assert.assertTrue(
+                  ((OpenSearchQuery) queryRequest.getQuery()).getSiteIds().contains(testSiteName));
 
-                return new QueryResponseImpl(queryRequest);
-              }
+              return new QueryResponseImpl(queryRequest);
             });
 
     // setup the BinaryContent for the call to Response.ok(...)

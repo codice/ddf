@@ -19,7 +19,6 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.opensearch.OpenSearchParser;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -216,13 +215,11 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       WebClient client,
       SpatialDistanceFilter spatial,
       boolean shouldConvertToBBox,
-      List<String> parameters)
-      throws UnsupportedQueryException {
+      List<String> parameters) {
     String lat = "";
     String lon = "";
     String radiusStr = "";
     StringBuilder bbox = new StringBuilder();
-    StringBuilder poly = new StringBuilder();
 
     if (spatial != null) {
       String wktStr = spatial.getGeometryWkt();
@@ -260,14 +257,16 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     checkAndReplace(client, lat, GEO_LAT, parameters);
     checkAndReplace(client, lon, GEO_LON, parameters);
     checkAndReplace(client, radiusStr, GEO_RADIUS, parameters);
-    checkAndReplace(client, poly.toString(), GEO_POLY, parameters);
+    checkAndReplace(client, "", GEO_POLY, parameters);
     checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
   }
 
   @Override
   public void populateGeospatial(
-      WebClient client, SpatialFilter spatial, boolean shouldConvertToBBox, List<String> parameters)
-      throws UnsupportedQueryException {
+      WebClient client,
+      SpatialFilter spatial,
+      boolean shouldConvertToBBox,
+      List<String> parameters) {
     String lat = "";
     String lon = "";
     String radiusStr = "";
@@ -308,7 +307,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    * @param wkt WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
    * @return Lon on even # and Lat on odd #
    */
-  private String[] createPolyAryFromWKT(String wkt) {
+  private static String[] createPolyAryFromWKT(String wkt) {
     String lonLat = wkt.substring(wkt.indexOf("((") + 2, wkt.indexOf("))"));
     return lonLat.split(" |,\\p{Space}?");
   }
@@ -319,7 +318,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    * @param wkt WKT String in the form of POINT( Lon Lat)
    * @return Lon at position 0, Lat at position 1
    */
-  private String[] createLatLonAryFromWKT(String wkt) {
+  private static String[] createLatLonAryFromWKT(String wkt) {
     String lonLat = wkt.substring(wkt.indexOf('(') + 1, wkt.indexOf(')'));
     return lonLat.split(" ");
   }
@@ -332,14 +331,14 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    * @param inputStr Item to put into the URL.
    * @param definition Area inside of the URL to be replaced by.
    */
-  private void checkAndReplace(
+  private static void checkAndReplace(
       WebClient client, String inputStr, String definition, List<String> parameters) {
     if (hasParameter(definition, parameters) && StringUtils.isNotEmpty(inputStr)) {
       client.replaceQueryParam(definition, inputStr);
     }
   }
 
-  private boolean hasParameter(String parameter, List<String> parameters) {
+  private static boolean hasParameter(String parameter, List<String> parameters) {
     for (String param : parameters) {
       if (param != null && param.equalsIgnoreCase(parameter)) {
         return true;
@@ -505,7 +504,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     return Arrays.stream(bboxCoords).mapToObj(Double::toString).collect(Collectors.joining(","));
   }
 
-  private String translateToOpenSearchSort(SortBy ddfSort) {
+  private static String translateToOpenSearchSort(SortBy ddfSort) {
     String openSearchSortStr = null;
     String orderType;
 
@@ -521,14 +520,18 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
     PropertyName sortByField = ddfSort.getPropertyName();
 
-    if (Result.RELEVANCE.equals(sortByField.getPropertyName())) {
-      // asc relevance not supported by spec
-      openSearchSortStr = SORT_RELEVANCE + SORT_DELIMITER + ORDER_DESCENDING;
-    } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
-      openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
-    } else {
-      LOGGER.debug(
-          "Couldn't determine sort policy, not adding sorting in request to federated site.");
+    switch (sortByField.getPropertyName()) {
+      case Result.RELEVANCE:
+        // asc relevance not supported by spec
+        openSearchSortStr = SORT_RELEVANCE + SORT_DELIMITER + ORDER_DESCENDING;
+        break;
+      case Result.TEMPORAL:
+        openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
+        break;
+      default:
+        LOGGER.debug(
+            "Couldn't determine sort policy, not adding sorting in request to federated site.");
+        break;
     }
 
     return openSearchSortStr;

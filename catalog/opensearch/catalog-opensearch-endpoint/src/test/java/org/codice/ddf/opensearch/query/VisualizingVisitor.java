@@ -35,10 +35,10 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
   private int indent = 0;
 
-  private Map<String, FilterStatus> map = new HashMap<String, FilterStatus>();
+  private Map<String, FilterStatus> map = new HashMap<>();
 
   public static String indent(int count) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
 
     for (int i = 0; i < count; i++) {
       buffer.append("  ");

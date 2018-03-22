@@ -77,8 +77,7 @@ public interface OpenSearchParser {
       WebClient client,
       SpatialDistanceFilter spatial,
       boolean shouldConvertToBBox,
-      List<String> parameters)
-      throws UnsupportedQueryException;
+      List<String> parameters);
 
   /**
    * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
@@ -90,6 +89,8 @@ public interface OpenSearchParser {
    * @throws UnsupportedQueryException
    */
   void populateGeospatial(
-      WebClient client, SpatialFilter spatial, boolean shouldConvertToBBox, List<String> parameters)
-      throws UnsupportedQueryException;
+      WebClient client,
+      SpatialFilter spatial,
+      boolean shouldConvertToBBox,
+      List<String> parameters);
 }

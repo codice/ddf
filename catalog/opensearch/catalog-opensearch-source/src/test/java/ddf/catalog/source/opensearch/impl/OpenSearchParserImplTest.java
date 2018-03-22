@@ -29,6 +29,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.opensearch.OpenSearchParser;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import java.io.UnsupportedEncodingException;
@@ -64,20 +65,20 @@ public class OpenSearchParserImplTest {
 
   private static final String DESCENDING_TEMPORAL_SORT = "date%3Adesc";
 
-  private OpenSearchParserImpl openSearchParserImpl;
+  private OpenSearchParser openSearchParser;
 
   private WebClient webClient;
 
   @Before
   public void setUp() {
-    openSearchParserImpl = new OpenSearchParserImpl();
+    openSearchParser = new OpenSearchParserImpl();
     webClient = WebClient.create("http://www.example.com");
   }
 
   @Test
-  public void populateSpatialFilterCaseInsensitiveParameters() throws Exception {
+  public void populateSpatialFilterCaseInsensitiveParameters() {
     SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
-    openSearchParserImpl.populateGeospatial(
+    openSearchParser.populateGeospatial(
         webClient,
         spatialFilter,
         true,
@@ -89,9 +90,9 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSpatialFilterEmptyParameters() throws Exception {
+  public void populateSpatialFilterEmptyParameters() {
     SpatialFilter spatialFilter = new SpatialFilter("POLYGON ((1 1, 2 2, 3 3, 4 4, 1 1))");
-    openSearchParserImpl.populateGeospatial(webClient, spatialFilter, true, new ArrayList<>());
+    openSearchParser.populateGeospatial(webClient, spatialFilter, true, new ArrayList<>());
     String urlStr = webClient.getCurrentURI().toString();
     assertThat(urlStr, not(containsString(OpenSearchParserImpl.GEO_BBOX)));
   }
@@ -101,7 +102,7 @@ public class OpenSearchParserImplTest {
     Map<String, String> searchPhraseMap = new HashMap<>();
     searchPhraseMap.put("q", "TestQuery123");
 
-    openSearchParserImpl.populateContextual(
+    openSearchParser.populateContextual(
         webClient,
         searchPhraseMap,
         Arrays.asList(
@@ -123,7 +124,7 @@ public class OpenSearchParserImplTest {
     Map<String, String> searchPhraseMap = new HashMap<>();
     searchPhraseMap.put("z", "TestQuery123");
 
-    openSearchParserImpl.populateContextual(
+    openSearchParser.populateContextual(
         webClient,
         searchPhraseMap,
         Arrays.asList(
@@ -143,7 +144,7 @@ public class OpenSearchParserImplTest {
   public void populateContextualEmptyMap() {
     Map<String, String> searchPhraseMap = new HashMap<>();
 
-    openSearchParserImpl.populateContextual(
+    openSearchParser.populateContextual(
         webClient,
         searchPhraseMap,
         Arrays.asList(
@@ -161,7 +162,7 @@ public class OpenSearchParserImplTest {
 
   @Test
   public void populateContextualNullMap() {
-    openSearchParserImpl.populateContextual(
+    openSearchParser.populateContextual(
         webClient,
         null,
         Arrays.asList(
@@ -180,7 +181,7 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullContextual() {
-    openSearchParserImpl.populateContextual(
+    openSearchParser.populateContextual(
         webClient,
         null,
         Arrays.asList(
@@ -197,7 +198,7 @@ public class OpenSearchParserImplTest {
     Date end = new Date(System.currentTimeMillis());
     TemporalFilter temporal = new TemporalFilter(start, end);
 
-    openSearchParserImpl.populateTemporal(
+    openSearchParser.populateTemporal(
         webClient,
         temporal,
         Arrays.asList(
@@ -233,7 +234,7 @@ public class OpenSearchParserImplTest {
     temporalFilter.setEndDate(null);
     temporalFilter.setStartDate(null);
 
-    openSearchParserImpl.populateTemporal(
+    openSearchParser.populateTemporal(
         webClient,
         temporalFilter,
         Arrays.asList(
@@ -248,8 +249,7 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullTemporal() {
-
-    openSearchParserImpl.populateTemporal(
+    openSearchParser.populateTemporal(
         webClient,
         null,
         Arrays.asList(
@@ -262,13 +262,13 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptions() throws UnsupportedEncodingException {
+  public void populateSearchOptions() {
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -286,14 +286,14 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsSortAscending() throws UnsupportedEncodingException {
+  public void populateSearchOptionsSortAscending() {
     String sort = "date%3Aasc";
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -311,14 +311,14 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsSortRelevance() throws UnsupportedEncodingException {
+  public void populateSearchOptionsSortRelevance() {
     String sort = "sort=relevance%3Adesc";
     SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -336,14 +336,14 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsSortRelevanceUnsupported() throws UnsupportedEncodingException {
+  public void populateSearchOptionsSortRelevanceUnsupported() {
     String sort = "sort=relevance%3Adesc";
     SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -361,12 +361,12 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsNullSort() throws UnsupportedEncodingException {
+  public void populateSearchOptionsNullSort() {
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, null, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -384,13 +384,13 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsNegativePageSize() throws UnsupportedEncodingException {
+  public void populateSearchOptionsNegativePageSize() {
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, -1000, sortBy, true, 30000);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         null,
@@ -408,7 +408,7 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsWithSubject() throws UnsupportedEncodingException {
+  public void populateSearchOptionsWithSubject() {
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
@@ -417,7 +417,7 @@ public class OpenSearchParserImplTest {
     String principalName = "principalName";
     Subject subject = getMockSubject(principalName);
 
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         subject,
@@ -437,7 +437,7 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateSearchOptionsWithNullPrincipalSubject() throws UnsupportedEncodingException {
+  public void populateSearchOptionsWithNullPrincipalSubject() {
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
@@ -446,7 +446,7 @@ public class OpenSearchParserImplTest {
     String principalName = "principalName";
     Subject subject = getMockSubject(principalName);
     when(subject.getPrincipals()).thenReturn(null);
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         queryRequest,
         subject,
@@ -468,7 +468,7 @@ public class OpenSearchParserImplTest {
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullSearchOptions() {
-    openSearchParserImpl.populateSearchOptions(
+    openSearchParser.populateSearchOptions(
         webClient,
         null,
         null,
@@ -486,12 +486,12 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populatePolyGeospatial() throws Exception {
+  public void populatePolyGeospatial() {
     String wktPolygon = "POLYGON((1 1,5 1,5 5,1 5,1 1))";
     String expectedStr = "1,1,1,5,5,5,5,1,1,1";
 
     SpatialFilter spatial = new SpatialFilter(wktPolygon);
-    openSearchParserImpl.populateGeospatial(
+    openSearchParser.populateGeospatial(
         webClient,
         spatial,
         false,
@@ -504,14 +504,14 @@ public class OpenSearchParserImplTest {
   }
 
   @Test
-  public void populateLatLonRadGeospatial() throws Exception {
+  public void populateLatLonRadGeospatial() {
     String lat = "43.25";
     String lon = "-123.45";
     String radius = "10000";
     String wktPoint = "POINT (" + lon + " " + lat + ")";
 
     SpatialDistanceFilter spatial = new SpatialDistanceFilter(wktPoint, radius);
-    openSearchParserImpl.populateGeospatial(
+    openSearchParser.populateGeospatial(
         webClient,
         spatial,
         false,
@@ -536,8 +536,8 @@ public class OpenSearchParserImplTest {
 
   /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
-  public void populateNullGeospatial() throws Exception {
-    openSearchParserImpl.populateGeospatial(
+  public void populateNullGeospatial() {
+    openSearchParser.populateGeospatial(
         webClient,
         null,
         true,

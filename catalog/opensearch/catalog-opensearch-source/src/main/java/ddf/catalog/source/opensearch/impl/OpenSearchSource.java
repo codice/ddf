@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.opensearch.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -73,10 +74,10 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -415,7 +416,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       String error = "";
       try {
         if (stream != null) {
-          error = IOUtils.toString(stream);
+          error = IOUtils.toString(stream, StandardCharsets.UTF_8);
         }
       } catch (IOException ioe) {
         LOGGER.debug("Could not convert error message to a string for output.", ioe);
@@ -432,13 +433,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   /** Package-private so that tests may set the foreign markup consumer. */
+  @VisibleForTesting
   void setForeignMarkupBiConsumer(
       BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
   }
 
-  // Refactored from query() and made protected so JUnit tests could be written for this logic
-  protected boolean setOpenSearchParameters(
+  private boolean setOpenSearchParameters(
       QueryRequest queryRequest, Subject subject, WebClient client) {
     Query query = queryRequest.getQuery();
     if (LOGGER.isDebugEnabled()) {
@@ -494,14 +495,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return false;
   }
 
-  /**
-   * @param is
-   * @param queryRequest
-   * @return
-   * @throws ddf.catalog.source.UnsupportedQueryException
-   */
-  private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest)
-      throws UnsupportedQueryException {
+  private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) {
     List<Result> resultQueue = new ArrayList<>();
 
     SyndFeedInput syndFeedInput = new SyndFeedInput();
@@ -552,9 +546,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * @return single response
    * @throws ddf.catalog.source.UnsupportedQueryException
    */
-  private List<Result> createResponseFromEntry(SyndEntry entry) throws UnsupportedQueryException {
+  private List<Result> createResponseFromEntry(SyndEntry entry) {
     String id = entry.getUri();
-    if (id != null && !id.isEmpty()) {
+    if (StringUtils.isNotEmpty(id)) {
       id = id.substring(id.lastIndexOf(':') + 1);
     }
 
@@ -594,7 +588,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     List<Result> results = new ArrayList<>();
     for (Metacard metacard : metacards) {
       ResultImpl result = new ResultImpl(metacard);
-      if (relevance == null || relevance.isEmpty()) {
+      if (StringUtils.isEmpty(relevance)) {
         LOGGER.debug("couldn't find valid relevance. Setting relevance to 0");
         relevance = "0";
       }
@@ -606,10 +600,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   private Metacard parseContent(String content, String id) {
-    if (content != null) {
+    if (StringUtils.isNotEmpty(content)) {
       InputTransformer inputTransformer =
           getInputTransformer(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
-      if (inputTransformer != null && !content.isEmpty()) {
+      if (inputTransformer != null) {
         try {
           return inputTransformer.transform(
               new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), id);
@@ -717,11 +711,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     Bundle bundle = FrameworkUtil.getBundle(this.getClass());
     if (bundle != null) {
       BundleContext bundleContext = bundle.getBundleContext();
-      Collection<ServiceReference<InputTransformer>> transformerReference =
+      Collection<ServiceReference<InputTransformer>> transformerReferences =
           bundleContext.getServiceReferences(
               InputTransformer.class, "(schema=" + namespaceUri + ")");
-      if (!transformerReference.isEmpty()) {
-        ServiceReference<InputTransformer> transformer = transformerReference.iterator().next();
+      if (CollectionUtils.isNotEmpty(transformerReferences)) {
+        ServiceReference<InputTransformer> transformer = transformerReferences.iterator().next();
         LOGGER.trace(
             "Found Input Transformer {} by schema {}",
             transformer.getBundle().getSymbolicName(),
@@ -979,19 +973,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     SpatialFilter spatialFilter = visitor.getSpatialSearch();
     if (spatialFilter != null) {
       if (spatialFilter instanceof SpatialDistanceFilter) {
-        try {
-          openSearchParser.populateGeospatial(
-              client, (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox, parameters);
-        } catch (UnsupportedQueryException e) {
-          LOGGER.debug("Problem with populating geospatial criteria. ", e);
-        }
+        openSearchParser.populateGeospatial(
+            client, (SpatialDistanceFilter) spatialFilter, shouldConvertToBBox, parameters);
       } else {
-        try {
-          openSearchParser.populateGeospatial(
-              client, spatialFilter, shouldConvertToBBox, parameters);
-        } catch (UnsupportedQueryException e) {
-          LOGGER.debug("Problem with populating geospatial criteria. ", e);
-        }
+        openSearchParser.populateGeospatial(client, spatialFilter, shouldConvertToBBox, parameters);
       }
     }
 

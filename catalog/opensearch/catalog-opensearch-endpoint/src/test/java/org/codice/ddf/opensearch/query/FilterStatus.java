@@ -15,11 +15,11 @@ package org.codice.ddf.opensearch.query;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.opengis.filter.Filter;
 
 public class FilterStatus {
-  private List<Filter> filters = new ArrayList<Filter>();
+  private List<Filter> filters = new ArrayList<>();
 
   private int count = 0;
 

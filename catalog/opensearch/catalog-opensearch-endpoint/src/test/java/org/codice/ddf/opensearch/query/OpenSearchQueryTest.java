@@ -48,16 +48,8 @@ import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFacto
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.geometry.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
@@ -73,35 +65,6 @@ public class OpenSearchQueryTest {
   private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
   private static final double DOUBLE_DELTA = 0.00001;
-
-  // private static PrefixResolver resolver = new NamespaceResolver();
-
-  @Rule
-  public MethodRule watchman =
-      new TestWatchman() {
-        public void starting(FrameworkMethod method) {
-          LOGGER.debug(
-              "***************************  STARTING: {}  **************************",
-              method.getName());
-        }
-
-        public void finished(FrameworkMethod method) {
-          LOGGER.debug(
-              "***************************  END: {}  **************************", method.getName());
-        }
-      };
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {}
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
-  @Before
-  public void setUp() throws Exception {}
-
-  @After
-  public void tearDown() throws Exception {}
 
   private Filter getKeywordAttributeFilter(String keyword) {
     return FILTER_BUILDER.attribute(Metacard.ANY_TEXT).is().like().text(keyword);
@@ -345,7 +308,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testContextualFilterPhraseOnly() throws Exception {
+  public void testContextualFilterPhraseOnly() {
     String searchTerm = "cat";
     String selector = null;
 
@@ -372,7 +335,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testContextualFilterPhraseAndSelector() throws Exception {
+  public void testContextualFilterPhraseAndSelector() {
     String searchTerm = "cat";
     String selector = "//fileTitle";
 
@@ -399,7 +362,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testContextualFilterMultipleSelectors() throws Exception {
+  public void testContextualFilterMultipleSelectors() {
     String searchTerm = "cat";
     String selectors = "//fileTitle,//nitf";
 
@@ -426,14 +389,15 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTemporalFilterModifiedSearch() throws Exception {
+  public void testTemporalFilterModifiedSearch() {
     String dateOffset = "1800000"; // 30 minutes
 
+    // create a filter here so we can grab the start/end dates to validate the filter added to the
+    // query
     TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
-    LOGGER.debug(temporalFilter.toString());
 
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
-    query.addTemporalFilter(temporalFilter);
+    query.addOffsetTemporalFilter(dateOffset);
     Filter filter = query.getFilter();
 
     // String filterXml = getFilterAsXml( filter );
@@ -456,47 +420,12 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTemporalFilterModifiedSearchStringDates() throws Exception {
-    String startDate = null;
-    String endDate = null;
-    String dateOffset = "1800000"; // 30 minutes
-
-    TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
-    LOGGER.debug(temporalFilter.toString());
-
-    OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
-    query.addTemporalFilter(startDate, endDate, dateOffset);
-    Filter filter = query.getFilter();
-
-    // String filterXml = getFilterAsXml( filter );
-
-    VerificationVisitor verificationVisitor = new VerificationVisitor();
-    filter.accept(verificationVisitor, null);
-    HashMap<String, FilterStatus> map =
-        (HashMap<String, FilterStatus>) verificationVisitor.getMap();
-
-    printFilterStatusMap(map);
-
-    List<Filter> filters = getFilters(map, DuringImpl.class.getName());
-    assertEquals(1, filters.size());
-
-    verifyTemporalFilter(
-        filters.get(0),
-        temporalFilter.getStartDate().toString(),
-        temporalFilter.getEndDate().toString(),
-        false);
-  }
-
-  @Test
-  public void testTemporalFilterAbsoluteSearch() throws Exception {
+  public void testTemporalFilterAbsoluteSearch() {
     String startDate = "2011-10-4T05:48:27.891-07:00";
     String endDate = "2011-10-4T06:18:27.581-07:00";
 
-    TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
-    LOGGER.debug(temporalFilter.toString());
-
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
-    query.addTemporalFilter(temporalFilter);
+    query.addStartEndTemporalFilter(startDate, endDate);
     Filter filter = query.getFilter();
 
     // String filterXml = getFilterAsXml( filter );
@@ -515,16 +444,15 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTemporalFilterAbsoluteSearchStringDates() throws Exception {
+  public void testTemporalFilterAbsoluteSearchStringDates() {
     String startDate = "2011-10-4T05:48:27.891-07:00";
     String endDate = "2011-10-4T06:18:27.581-07:00";
-    String dateOffset = null;
 
     TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
     LOGGER.debug(temporalFilter.toString());
 
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
-    query.addTemporalFilter(startDate, endDate, dateOffset);
+    query.addStartEndTemporalFilter(startDate, endDate);
     Filter filter = query.getFilter();
 
     // String filterXml = getFilterAsXml( filter );
@@ -543,7 +471,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testContextualTemporalFilter() throws Exception {
+  public void testContextualTemporalFilter() {
     String searchTerm = "cat";
     String selector = null;
 
@@ -552,12 +480,8 @@ public class OpenSearchQueryTest {
 
     String startDate = "2011-10-4T05:48:27.891-07:00";
     String endDate = "2011-10-4T06:18:27.581-07:00";
-    String dateOffset = null;
 
-    TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
-    LOGGER.debug(temporalFilter.toString());
-
-    query.addTemporalFilter(startDate, endDate, dateOffset);
+    query.addStartEndTemporalFilter(startDate, endDate);
     Filter filter = query.getFilter();
 
     // String filterXml = getFilterAsXml( filter );
@@ -579,7 +503,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testPolygonSpatialFilterWktConversion() throws Exception {
+  public void testPolygonSpatialFilterWktConversion() {
     // WKT is lon/lat, polygon is lat/lon
     String expectedGeometryWkt = "POLYGON((10 0,30 0,30 20,10 20,10 0))";
 
@@ -592,7 +516,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testBboxSpatialFilterWktConversion() throws Exception {
+  public void testBboxSpatialFilterWktConversion() {
     // NOTE: BBoxSpatialFilter converts bbox corners to doubles, hence the double values
     // in this expected WKT string
     String expectedGeometryWkt = "POLYGON((0.0 10.0,0.0 30.0,20.0 30.0,20.0 10.0,0.0 10.0))";
@@ -606,7 +530,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testBboxSpatialFilter() throws Exception {
+  public void testBboxSpatialFilter() {
     String bboxCorners = "0,10,20,30";
 
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
@@ -656,7 +580,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testSpatialDistanceFilter() throws Exception {
+  public void testSpatialDistanceFilter() {
     String lon = "10";
     String lat = "20";
     String radius = "5000";
@@ -696,7 +620,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testPolygonSpatialFilter() throws Exception {
+  public void testPolygonSpatialFilter() {
     String latLon = "0,10,0,30,20,30,20,10,0,10";
     String lonLat = "10,0,30,0,30,20,10,20,10,0";
 
@@ -745,7 +669,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTypeFilterTypeOnly() throws Exception {
+  public void testTypeFilterTypeOnly() {
     String type = "nitf";
     String versions = "";
 
@@ -769,7 +693,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTypeFilterWildcardTypeAndVersion() throws Exception {
+  public void testTypeFilterWildcardTypeAndVersion() {
     String type = "*";
     String versions = "collectorPosition";
 
@@ -807,7 +731,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testTypeFilterWildcardTypeAndMultipleVersions() throws Exception {
+  public void testTypeFilterWildcardTypeAndMultipleVersions() {
     String type = "*";
     String versions = "v20,invalid_version,*";
 
@@ -1007,7 +931,7 @@ public class OpenSearchQueryTest {
   }
 
   @Test
-  public void testCompoundFilter() throws Exception {
+  public void testCompoundFilter() {
     String searchTerm = "cat";
     String selectors = "//fileTitle,//nitf";
     OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
@@ -1015,10 +939,8 @@ public class OpenSearchQueryTest {
 
     String startDate = "2011-10-4T05:48:27.891-07:00";
     String endDate = "2011-10-4T06:18:27.581-07:00";
-    String dateOffset = null;
-    TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
-    LOGGER.debug(temporalFilter.toString());
-    query.addTemporalFilter(startDate, endDate, dateOffset);
+
+    query.addStartEndTemporalFilter(startDate, endDate);
 
     String type = "nitf";
     String versions = "v20,invalid_version,*";
@@ -1100,7 +1022,7 @@ public class OpenSearchQueryTest {
   // }
 
   private void verifyContextualFilter(
-      Filter filter, String expectedPropertyName, String expectedSearchTerm) throws Exception {
+      Filter filter, String expectedPropertyName, String expectedSearchTerm) {
     LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
     AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
@@ -1112,14 +1034,13 @@ public class OpenSearchQueryTest {
     assertEquals(expectedSearchTerm, extractedSearchTerm);
   }
 
-  private void verifyTemporalFilter(Filter filter, String expectedStartDate, String expectedEndDate)
-      throws Exception {
+  private void verifyTemporalFilter(
+      Filter filter, String expectedStartDate, String expectedEndDate) {
     verifyTemporalFilter(filter, expectedStartDate, expectedEndDate, true);
   }
 
   private void verifyTemporalFilter(
-      Filter filter, String expectedStartDate, String expectedEndDate, boolean reformatDates)
-      throws Exception {
+      Filter filter, String expectedStartDate, String expectedEndDate, boolean reformatDates) {
     DuringImpl duringFilter = (DuringImpl) filter;
 
     // The TOverlaps temporal range is wrapped in a <Literal> element, so have to
@@ -1222,7 +1143,7 @@ public class OpenSearchQueryTest {
     String formattedDate = dateFormatter.format(date);
 
     // Add colon in GMT offset, e.g., -07:00 vs. -0700
-    StringBuffer sb = new StringBuffer(formattedDate);
+    StringBuilder sb = new StringBuilder(formattedDate);
     sb.insert(formattedDate.length() - 2, ":");
     formattedDate = sb.toString();
 
@@ -1234,7 +1155,7 @@ public class OpenSearchQueryTest {
   private void printFilterStatusMap(HashMap<String, FilterStatus> map) {
     for (String key : map.keySet()) {
       LOGGER.debug("key = {}", key);
-      FilterStatus fs = (FilterStatus) map.get(key);
+      FilterStatus fs = map.get(key);
       LOGGER.debug(fs.toString());
     }
   }

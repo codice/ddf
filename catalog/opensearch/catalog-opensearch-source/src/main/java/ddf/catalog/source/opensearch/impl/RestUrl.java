@@ -43,7 +43,7 @@ public class RestUrl {
    *  http://localhost:8181/services/catalog/query?q={searchTerms}&src={fs:routeTo?}&count={count?}
    * </code> .
    *
-   * @param urlTemplate - endpoint url tempate
+   * @param urlTemplate - endpoint url template
    * @return
    * @throws URISyntaxException
    * @throws MalformedURLException

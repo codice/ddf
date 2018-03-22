@@ -27,13 +27,8 @@ public class BBoxSpatialFilter extends SpatialFilter {
   private double maxY;
 
   /**
-   * Comma delimited list of lat/lon (deg) bounding box coordinates (geo format: geo:bbox ~
-   * West,South,East,North).
-   *
-   * @param minX
-   * @param minY
-   * @param maxX
-   * @param maxY
+   * @param bbox comma-delimited list of lat/lon (deg) bounding box coordinates
+   *     (West,South,East,North)
    */
   public BBoxSpatialFilter(String bbox) {
     super();
@@ -54,14 +49,7 @@ public class BBoxSpatialFilter extends SpatialFilter {
    * @return the wkt String
    */
   private String createWKT() {
-    StringBuilder wktBuilder = new StringBuilder("POLYGON((");
-    wktBuilder.append(minX + " " + minY);
-    wktBuilder.append("," + minX + " " + maxY);
-    wktBuilder.append("," + maxX + " " + maxY);
-    wktBuilder.append("," + maxX + " " + minY);
-    wktBuilder.append("," + minX + " " + minY);
-    wktBuilder.append("))");
-
-    return wktBuilder.toString();
+    return String.format(
+        "POLYGON((%1$s %2$s,%1$s %4$s,%3$s %4$s,%3$s %2$s,%1$s %2$s))", minX, minY, maxX, maxY);
   }
 }

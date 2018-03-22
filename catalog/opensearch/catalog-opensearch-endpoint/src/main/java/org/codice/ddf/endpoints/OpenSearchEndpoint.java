@@ -16,7 +16,6 @@ package org.codice.ddf.endpoints;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
@@ -42,7 +41,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
@@ -150,7 +150,7 @@ public class OpenSearchEndpoint implements OpenSearch {
     LOGGER.debug("request url: {}", ui.getRequestUri());
 
     // honor maxResults if count is not specified
-    if ((StringUtils.isEmpty(localCount)) && (!(StringUtils.isEmpty(maxResults)))) {
+    if (StringUtils.isEmpty(localCount) && StringUtils.isNotEmpty(maxResults)) {
       LOGGER.debug("setting count to: {}", maxResults);
       localCount = maxResults;
     }
@@ -159,10 +159,10 @@ public class OpenSearchEndpoint implements OpenSearch {
       String queryFormat = format;
       OpenSearchQuery query = createNewQuery(startIndex, localCount, sort, maxTimeout);
 
-      if (!(StringUtils.isEmpty(sources))) {
+      if (StringUtils.isNotEmpty(sources)) {
         LOGGER.debug("Received site names from client.");
         Set<String> siteSet =
-            new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
+            new HashSet<>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
 
         // This code block is for backward compatibility to support src=local.
         // Since local is a magic word, not in any specification, we need to
@@ -189,31 +189,31 @@ public class OpenSearchEndpoint implements OpenSearch {
       }
 
       // contextual
-      if (searchTerms != null && !searchTerms.trim().isEmpty()) {
+      if (StringUtils.isNotBlank(searchTerms)) {
         try {
-          query.addContextualFilter(searchTerms, selector);
+          query.addContextualFilter(searchTerms.trim(), selector);
         } catch (ParsingException e) {
           throw new IllegalArgumentException(e.getMessage());
         }
       }
 
-      // temporal
-      // single temporal criterion per query
-      if ((dateStart != null && !dateStart.trim().isEmpty())
-          || (dateEnd != null && !dateEnd.trim().isEmpty())
-          || (dateOffset != null && !dateOffset.trim().isEmpty())) {
-        query.addTemporalFilter(dateStart, dateEnd, dateOffset);
+      if (StringUtils.isNotBlank(dateStart) || StringUtils.isNotBlank(dateEnd)) {
+        // If either start date OR end date is specified and non-empty, then a temporal filter can
+        // be created
+        query.addStartEndTemporalFilter(dateStart, dateEnd);
+      } else if (StringUtils.isNotBlank(dateOffset)) {
+        query.addOffsetTemporalFilter(dateOffset);
       }
 
       // spatial
       // single spatial criterion per query
       addSpatialFilter(query, geometry, polygon, bbox, radius, lat, lon);
 
-      if (type != null && !type.trim().isEmpty()) {
-        query.addTypeFilter(type, versions);
+      if (StringUtils.isNotBlank(type)) {
+        query.addTypeFilter(type.trim(), versions);
       }
 
-      Map<String, Serializable> properties = new HashMap<String, Serializable>();
+      Map<String, Serializable> properties = new HashMap<>();
       for (Object key : request.getParameterMap().keySet()) {
         if (key instanceof String) {
           Object value = request.getParameterMap().get(key);
@@ -261,22 +261,22 @@ public class OpenSearchEndpoint implements OpenSearch {
       String radius,
       String lat,
       String lon) {
-    if (geometry != null && !geometry.trim().isEmpty()) {
+    if (StringUtils.isNotBlank(geometry)) {
       LOGGER.debug("Adding SpatialCriterion geometry: {}", geometry);
-      query.addGeometrySpatialFilter(geometry);
-    } else if (bbox != null && !bbox.trim().isEmpty()) {
+      query.addGeometrySpatialFilter(geometry.trim());
+    } else if (StringUtils.isNotBlank(bbox)) {
       LOGGER.debug("Adding SpatialCriterion bbox: {}", bbox);
-      query.addBBoxSpatialFilter(bbox);
-    } else if (polygon != null && !polygon.trim().isEmpty()) {
+      query.addBBoxSpatialFilter(bbox.trim());
+    } else if (StringUtils.isNotBlank(polygon)) {
       LOGGER.debug("Adding SpatialCriterion polygon: {}", polygon);
-      query.addPolygonSpatialFilter(polygon);
-    } else if (lat != null && !lat.trim().isEmpty() && lon != null && !lon.trim().isEmpty()) {
-      if (radius == null || radius.trim().isEmpty()) {
-        LOGGER.debug("Adding default radius");
-        query.addSpatialDistanceFilter(lon, lat, DEFAULT_RADIUS);
+      query.addPolygonSpatialFilter(polygon.trim());
+    } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
+      if (StringUtils.isBlank(radius)) {
+        LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
+        query.addSpatialDistanceFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);
       } else {
         LOGGER.debug("Using radius: {}", radius);
-        query.addSpatialDistanceFilter(lon, lat, radius);
+        query.addSpatialDistanceFilter(lon.trim(), lat.trim(), radius.trim());
       }
     }
   }
@@ -300,7 +300,7 @@ public class OpenSearchEndpoint implements OpenSearch {
 
     LOGGER.debug("Attempting to execute query: {}", query);
     try {
-      Map<String, Serializable> arguments = new HashMap<String, Serializable>();
+      Map<String, Serializable> arguments = new HashMap<>();
       String organization = framework.getOrganization();
       String url = ui.getRequestUri().toString();
       if (LOGGER.isDebugEnabled()) {
@@ -313,12 +313,12 @@ public class OpenSearchEndpoint implements OpenSearch {
 
       // if subscription is specified, add to arguments as well as update
       // interval
-      if (subscriptionList != null && !subscriptionList.isEmpty()) {
+      if (CollectionUtils.isNotEmpty(subscriptionList)) {
         String subscription = subscriptionList.get(0);
         LOGGER.debug("Subscription: {}", subscription);
         arguments.put(Constants.SUBSCRIPTION_KEY, subscription);
         List<String> intervalList = queryParams.get(UPDATE_QUERY_INTERVAL);
-        if (intervalList != null && !intervalList.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(intervalList)) {
           arguments.put(UPDATE_QUERY_INTERVAL, intervalList.get(0));
         }
       }
@@ -345,7 +345,7 @@ public class OpenSearchEndpoint implements OpenSearch {
 
         // Create a dummy QueryResponse with zero results
         QueryResponseImpl queryResponseQueue =
-            new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
+            new QueryResponseImpl(queryRequest, new ArrayList<>(), 0);
 
         // pass in the format for the transform
         BinaryContent content = framework.transform(queryResponseQueue, queryFormat, arguments);
@@ -413,20 +413,20 @@ public class OpenSearchEndpoint implements OpenSearch {
     // Updated to use the passed in index if valid (=> 1)
     // and to use the default if no value, or an invalid value (< 1)
     // is specified
-    if (!(StringUtils.isEmpty(startIndexStr)) && (Integer.parseInt(startIndexStr) > 0)) {
+    if (StringUtils.isNotEmpty(startIndexStr) && (Integer.parseInt(startIndexStr) > 0)) {
       startIndex = Integer.parseInt(startIndexStr);
     }
-    if (!(StringUtils.isEmpty(countStr))) {
+    if (StringUtils.isNotEmpty(countStr)) {
       count = Integer.parseInt(countStr);
     }
-    if (!(StringUtils.isEmpty(sortStr))) {
+    if (StringUtils.isNotEmpty(sortStr)) {
       String[] sortAry = sortStr.split(":");
       if (sortAry.length > 1) {
         sortField = sortAry[0];
         sortOrder = sortAry[1];
       }
     }
-    if (!(StringUtils.isEmpty(maxTimeoutStr))) {
+    if (StringUtils.isNotEmpty(maxTimeoutStr)) {
       maxTimeout = Long.parseLong(maxTimeoutStr);
     }
     LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}", sortField, sortOrder);

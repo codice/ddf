@@ -188,7 +188,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return super.visit(filter, data);
   }
 
-  private void buildSpatialSearch(BinarySpatialOperator filter, Object data) {
+  private static void buildSpatialSearch(BinarySpatialOperator filter, Object data) {
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         getOpenSearchFilterVisitorObjectFromData(data);
     if (openSearchFilterVisitorObject == null) {
@@ -415,7 +415,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return sb.toString();
   }
 
-  private OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(Object data) {
+  private static OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(
+      Object data) {
     if (data instanceof OpenSearchFilterVisitorObject) {
       return (OpenSearchFilterVisitorObject) data;
     }

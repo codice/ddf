@@ -27,7 +27,7 @@ public class OsNamespaceContext implements NamespaceContext {
 
   /** Sets the default namespaces. */
   public OsNamespaceContext() {
-    namespaces = new HashMap<String, String>();
+    namespaces = new HashMap<>();
     namespaces.put("ogc", "http://www.opengis.net/ogc");
     namespaces.put("gml", "http://www.opengis.net/gml");
   }
@@ -41,9 +41,7 @@ public class OsNamespaceContext implements NamespaceContext {
   public String getPrefix(String namespaceURI) {
     String prefix = null;
     if (namespaces.containsValue(namespaceURI)) {
-      Iterator<Entry<String, String>> curIter = namespaces.entrySet().iterator();
-      while (curIter.hasNext()) {
-        Entry<String, String> curEntry = curIter.next();
+      for (Entry<String, String> curEntry : namespaces.entrySet()) {
         if (curEntry.getValue().equals(namespaceURI)) {
           prefix = curEntry.getKey();
         }
@@ -54,7 +52,7 @@ public class OsNamespaceContext implements NamespaceContext {
 
   @Override
   public Iterator<String> getPrefixes(String namespaceURI) {
-    ArrayList<String> prefixList = new ArrayList<String>(1);
+    ArrayList<String> prefixList = new ArrayList<>(1);
     prefixList.add(getPrefix(namespaceURI));
     return prefixList.iterator();
   }

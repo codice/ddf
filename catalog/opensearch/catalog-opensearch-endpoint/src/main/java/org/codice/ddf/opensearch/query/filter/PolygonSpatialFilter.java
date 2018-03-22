@@ -32,7 +32,7 @@ public class PolygonSpatialFilter extends SpatialFilter {
         wktBuilder.append(",");
       }
       // WKT is lon/lat, polygon is lat/lon
-      wktBuilder.append(latLonAry[i + 1] + " " + latLonAry[i]);
+      wktBuilder.append(latLonAry[i + 1]).append(" ").append(latLonAry[i]);
     }
     wktBuilder.append("))");
     return wktBuilder.toString();

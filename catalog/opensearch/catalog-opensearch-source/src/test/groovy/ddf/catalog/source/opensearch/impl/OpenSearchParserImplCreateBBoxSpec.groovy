@@ -15,6 +15,7 @@ package ddf.catalog.source.opensearch.impl
 
 import ddf.catalog.impl.filter.SpatialDistanceFilter
 import ddf.catalog.impl.filter.SpatialFilter
+import ddf.catalog.source.opensearch.OpenSearchParser
 import org.apache.cxf.jaxrs.client.WebClient
 import spock.lang.Specification
 
@@ -62,11 +63,11 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
 
     def 'populate spatial distance filter box'() {
         given:
-        final OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl()
+        final OpenSearchParser openSearchParser = new OpenSearchParserImpl()
         final WebClient webClient = WebClient.create("http://www.example.com")
 
         when:
-        openSearchParserImpl.populateGeospatial(
+        openSearchParser.populateGeospatial(
                 webClient,
                 spatialFilter,
                 true,
@@ -88,11 +89,11 @@ class OpenSearchParserImplCreateBBoxSpec extends Specification {
 
     def 'populate spatial distance filter box invalid SpatialFilter'() {
         given:
-        final OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl()
+        final OpenSearchParser openSearchParser = new OpenSearchParserImpl()
         final WebClient webClient = WebClient.create("http://www.example.com")
 
         when:
-        openSearchParserImpl.populateGeospatial(
+        openSearchParser.populateGeospatial(
                 webClient,
                 spatialFilter,
                 true,

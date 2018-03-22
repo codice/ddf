@@ -25,48 +25,48 @@ import javax.ws.rs.core.UriInfo;
 @Path("/")
 public interface OpenSearch {
 
-  public static final String PHRASE = "q";
+  String PHRASE = "q";
 
-  public static final String MAX_RESULTS = "mr";
+  String MAX_RESULTS = "mr";
 
-  public static final String SOURCES = "src";
+  String SOURCES = "src";
 
-  public static final String MAX_TIMEOUT = "mt";
+  String MAX_TIMEOUT = "mt";
 
-  public static final String START_INDEX = "start";
+  String START_INDEX = "start";
 
-  public static final String COUNT = "count";
+  String COUNT = "count";
 
-  public static final String BBOX = "bbox";
+  String BBOX = "bbox";
 
-  public static final String POLYGON = "polygon";
+  String POLYGON = "polygon";
 
-  public static final String GEOMETRY = "geometry";
+  String GEOMETRY = "geometry";
 
-  public static final String LAT = "lat";
+  String LAT = "lat";
 
-  public static final String LON = "lon";
+  String LON = "lon";
 
-  public static final String RADIUS = "radius";
+  String RADIUS = "radius";
 
-  public static final String DATE_START = "dtstart";
+  String DATE_START = "dtstart";
 
-  public static final String DATE_END = "dtend";
+  String DATE_END = "dtend";
 
-  public static final String DATE_OFFSET = "dtoffset";
+  String DATE_OFFSET = "dtoffset";
 
-  public static final String TYPE = "type";
+  String TYPE = "type";
 
-  public static final String VERSION = "version";
+  String VERSION = "version";
 
-  public static final String SELECTOR = "selector";
+  String SELECTOR = "selector";
 
-  public static final String SORT = "sort";
+  String SORT = "sort";
 
-  public static final String FORMAT = "format";
+  String FORMAT = "format";
 
   @GET
-  public Response processQuery(
+  Response processQuery(
       @QueryParam(PHRASE) String searchTerms,
       @QueryParam(MAX_RESULTS) String maxResults,
       @QueryParam(SOURCES) String sources,

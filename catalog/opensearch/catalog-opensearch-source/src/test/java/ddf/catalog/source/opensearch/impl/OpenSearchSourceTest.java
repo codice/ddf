@@ -46,6 +46,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.opensearch.OpenSearchParser;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
@@ -56,7 +57,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,6 +73,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
@@ -123,7 +125,7 @@ public class OpenSearchSourceTest {
           "sort");
   private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
   private EncryptionService encryptionService = mock(EncryptionService.class);
-  private OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl();
+  private OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
   private Response response;
   private OverriddenOpenSearchSource source;
@@ -375,7 +377,7 @@ public class OpenSearchSourceTest {
             + "                </ns3:string>\r\n"
             + "            </ns3:metacard>\r\n";
 
-    return IOUtils.toInputStream(response);
+    return IOUtils.toInputStream(response, StandardCharsets.UTF_8);
   }
 
   @Before
@@ -406,10 +408,9 @@ public class OpenSearchSourceTest {
    * Tests the proper query is sent to the remote source for query by id.
    *
    * @throws UnsupportedQueryException
-   * @throws IOException
    */
   @Test
-  public void testQueryById() throws UnsupportedQueryException, IOException {
+  public void testQueryById() throws UnsupportedQueryException {
     Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
 
     // when
@@ -420,8 +421,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test
-  public void testQueryBySearchPhrase()
-      throws UnsupportedQueryException, URISyntaxException, IOException {
+  public void testQueryBySearchPhrase() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
 
     Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
@@ -443,8 +443,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test
-  public void testQueryBySearchPhraseRss()
-      throws UnsupportedQueryException, URISyntaxException, IOException {
+  public void testQueryBySearchPhraseRss() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleRssStream());
 
     Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
@@ -467,8 +466,8 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryBySearchPhraseContentTypeSet()
-      throws UnsupportedQueryException, URISyntaxException, IOException,
-          CatalogTransformerException, InvalidSyntaxException {
+      throws UnsupportedQueryException, IOException, CatalogTransformerException,
+          InvalidSyntaxException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
     InputTransformer inputTransformer = mock(InputTransformer.class);
 
@@ -497,8 +496,8 @@ public class OpenSearchSourceTest {
 
   @Test
   public void testQueryBySearchPhraseContentTypeSetRss()
-      throws UnsupportedQueryException, URISyntaxException, IOException,
-          CatalogTransformerException, InvalidSyntaxException {
+      throws UnsupportedQueryException, IOException, CatalogTransformerException,
+          InvalidSyntaxException {
     when(response.getEntity()).thenReturn(getSampleRssStream());
 
     InputTransformer inputTransformer = mock(InputTransformer.class);
@@ -527,7 +526,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test
-  public void testQueryAnyText() throws UnsupportedQueryException, URISyntaxException, IOException {
+  public void testQueryAnyText() throws UnsupportedQueryException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
@@ -553,7 +552,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test(expected = UnsupportedQueryException.class)
-  public void testQueryBadResponse() throws UnsupportedQueryException, IOException {
+  public void testQueryBadResponse() throws UnsupportedQueryException {
     doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response).getStatus();
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
@@ -562,7 +561,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test
-  public void testQueryResponseWithForeignMarkup() throws UnsupportedQueryException, IOException {
+  public void testQueryResponseWithForeignMarkup() throws UnsupportedQueryException {
     source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
     when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
 
@@ -593,7 +592,7 @@ public class OpenSearchSourceTest {
     when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.put(HttpHeaders.CONTENT_TYPE, Arrays.asList("application/octet-stream"));
+    headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
     when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
@@ -627,7 +626,7 @@ public class OpenSearchSourceTest {
         .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
     when(encryptionService.decryptValue("secret")).thenReturn("secret");
     MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-    headers.put(HttpHeaders.CONTENT_TYPE, Arrays.asList("application/octet-stream"));
+    headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/octet-stream"));
     when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
@@ -774,7 +773,7 @@ public class OpenSearchSourceTest {
 
   /** Test to make sure the foreign markup consumer is called as expected. */
   @Test
-  public void testForeignMarkupConsumer() throws UnsupportedQueryException, IOException {
+  public void testForeignMarkupConsumer() throws UnsupportedQueryException {
 
     BiConsumer<List<Element>, SourceResponse> foreignMarkupConsumer = mock(BiConsumer.class);
 
@@ -805,7 +804,7 @@ public class OpenSearchSourceTest {
   }
 
   @Test
-  public void testSourceId() throws UnsupportedQueryException, IOException {
+  public void testSourceId() throws UnsupportedQueryException {
 
     BiConsumer<List<Element>, SourceResponse> foreignMarkupConsumer = mock(BiConsumer.class);
 
@@ -877,11 +876,10 @@ public class OpenSearchSourceTest {
      * overwritten using the setter methods.
      *
      * @param filterAdapter
-     * @throws UnsupportedQueryException
      */
     public OverriddenOpenSearchSource(
         FilterAdapter filterAdapter, EncryptionService encryptionService) {
-      super(filterAdapter, openSearchParserImpl, openSearchFilterVisitor, encryptionService);
+      super(filterAdapter, openSearchParser, openSearchFilterVisitor, encryptionService);
     }
 
     protected void setBundle(Bundle bundle) {
@@ -893,11 +891,11 @@ public class OpenSearchSourceTest {
         throws InvalidSyntaxException {
       if (bundle != null) {
         BundleContext bundleContext = bundle.getBundleContext();
-        Collection<ServiceReference<InputTransformer>> transformerReference =
+        Collection<ServiceReference<InputTransformer>> transformerReferences =
             bundleContext.getServiceReferences(
                 InputTransformer.class, "(schema=" + namespaceUri + ")");
-        if (!transformerReference.isEmpty()) {
-          return bundleContext.getService(transformerReference.iterator().next());
+        if (CollectionUtils.isNotEmpty(transformerReferences)) {
+          return bundleContext.getService(transformerReferences.iterator().next());
         }
       }
       return null;

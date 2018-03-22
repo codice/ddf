@@ -26,16 +26,8 @@ import java.util.Map;
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
 import org.opengis.filter.Filter;
 import org.parboiled.Parboiled;
 import org.parboiled.errors.ErrorUtils;
@@ -47,42 +39,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KeywordTextParserTest {
-  // private static final Logger LOGGER = Logger.getLogger(KeywordTextParserTest.class);
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQueryTest.class);
-
-  @Rule
-  public MethodRule watchman =
-      new TestWatchman() {
-        public void starting(FrameworkMethod method) {
-          LOGGER.debug(
-              "***************************  STARTING: {}  **************************",
-              method.getName());
-        }
-
-        public void finished(FrameworkMethod method) {
-          LOGGER.debug(
-              "***************************  END: {}  **************************", method.getName());
-        }
-      };
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {}
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
-  @Before
-  public void setUp() throws Exception {}
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testPositives() {
 
     // TODO add more expressions to test
 
-    List<String> inputs = new ArrayList<String>();
+    List<String> inputs = new ArrayList<>();
     inputs.add("נּ€");
     inputs.add("A AND B");
     inputs.add("A AND   B AND C");
@@ -151,7 +115,7 @@ public class KeywordTextParserTest {
   public void testNegatives() {
     // TODO add more expressions to test
 
-    List<String> inputs = new ArrayList<String>();
+    List<String> inputs = new ArrayList<>();
 
     // these should fail even with loose parsing
     inputs.add("");
@@ -194,7 +158,7 @@ public class KeywordTextParserTest {
   @Test
   public void testSpacing() {
     // TODO add more expressions to test
-    List<String> inputs = new ArrayList<String>();
+    List<String> inputs = new ArrayList<>();
     inputs.add(" A B OR C");
     inputs.add(" A B OR C ");
     inputs.add(" A B  OR C ");
@@ -223,11 +187,11 @@ public class KeywordTextParserTest {
   @Ignore
   @Test
   public void trace() {
-    Map<String, String> inputToOutput = new LinkedHashMap<String, String>();
+    Map<String, String> inputToOutput = new LinkedHashMap<>();
 
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
-    List<String> inputs = new ArrayList<String>();
+    List<String> inputs = new ArrayList<>();
     // inputs.add("A \"(test test2)\" OR test2");
     inputs.add("A B  C D");
 
