@@ -42,17 +42,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
-public class VisitableFilterNodeTest {
+public class VisitableXmlElementImplTest {
 
   @Mock private JAXBElement mockElement;
 
   @Mock private FilterVisitor2 mockVisitor;
 
-  private VisitableFilterNode node;
+  private VisitableXmlElementImpl node;
 
   @Before
   public void setup() {
-    node = new VisitableFilterNode(mockElement);
+    node = new VisitableXmlElementImpl(mockElement);
   }
 
   @Test(expected = FilterProcessingException.class)

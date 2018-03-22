@@ -47,7 +47,7 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.data.FormAttributes;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacardImpl;
 import org.codice.ddf.catalog.ui.forms.data.ResultTemplateMetacardImpl;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableFilterNode;
+import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.JsonModel.FieldFilter;
@@ -65,6 +65,15 @@ public class SearchFormsApplication implements SparkApplication {
 
   private static final Security SECURITY = Security.getInstance();
 
+  // Named collections of attributes
+  // Result attributes should move toward "attribute collection" wording
+
+  // MetacardTypeImpl supports a ctor for bulk adding attributes
+  // FormAttributes --> TemplateAttributes (rename occurrences)
+  // The term "form" does not abstract away what templates do, form is just one case of templates
+
+  // Revisit what the SHARING attribute (XML) is for (WorkspaceAttributes)
+  // Law of demeter - accessing inner classes as public classes
   private static final ObjectMapper MAPPER =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -107,18 +116,21 @@ public class SearchFormsApplication implements SparkApplication {
       return;
     }
 
-    Stream<Metacard> dedupedTemplateMetacardStream =
+    List<Metacard> dedupedTemplateMetacards =
         Stream.concat(
-            systemTemplates
-                .stream()
-                .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
-                .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
-            systemTemplates
-                .stream()
-                .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
-                .filter(metacard -> !resultTitles.contains(metacard.getTitle())));
+                systemTemplates
+                    .stream()
+                    .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
+                    .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
+                systemTemplates
+                    .stream()
+                    .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
+                    .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
+            .collect(Collectors.toList());
 
-    saveMetacards(dedupedTemplateMetacardStream.collect(Collectors.toList()));
+    if (!dedupedTemplateMetacards.isEmpty()) {
+      saveMetacards(dedupedTemplateMetacards);
+    }
   }
 
   /** Spark's API-mandated init (not OSGi related) for registering REST functions. */
@@ -221,7 +233,7 @@ public class SearchFormsApplication implements SparkApplication {
   }
 
   private VisitableXmlElement makeVisitable(JAXBElement element) {
-    return new VisitableFilterNode(element);
+    return new VisitableXmlElementImpl(element);
   }
 
   private static class FilterReader {

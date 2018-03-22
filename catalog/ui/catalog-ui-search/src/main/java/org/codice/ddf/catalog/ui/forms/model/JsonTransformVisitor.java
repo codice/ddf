@@ -58,7 +58,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   private static final Function<Serializable, Boolean> BOOL_FUNC =
       s -> Boolean.parseBoolean((String) s);
 
-  private static final String FORMS_FUNCTION_V1 = "forms.function.1";
+  private static final String TEMPLATE_SUBSTITUTIONS_V1 = "template.substitutions.1";
 
   private static final Integer DEFAULT_VALUE_INDEX = 0;
 
@@ -121,7 +121,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
     FunctionType functionType = element.getValue();
     String functionName = functionType.getName();
 
-    if (FORMS_FUNCTION_V1.equals(functionName)) {
+    if (TEMPLATE_SUBSTITUTIONS_V1.equals(functionName)) {
       List<Optional<Serializable>> args =
           functionType
               .getExpression()

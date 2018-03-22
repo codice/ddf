@@ -5,7 +5,7 @@
             http://schemas.opengis.net/filter/2.0/filterAll.xsd">
     <fes:PropertyIsEqualTo>
         <fes:ValueReference>title</fes:ValueReference>
-        <fes:Function name="forms.function.1">
+        <fes:Function name="template.substitutions.1">
             <!--default value-->
             <fes:Literal/>
             <!--node id-->

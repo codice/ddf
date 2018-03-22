@@ -39,7 +39,7 @@ import net.opengis.filter.v_2_0.UnaryLogicOpType;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class VisitableFilterNode implements VisitableXmlElement {
+public class VisitableXmlElementImpl implements VisitableXmlElement {
   private static final Map<Class, BiConsumer<FilterVisitor2, VisitableXmlElement>> CONSUMER_MAP =
       ImmutableMap.<Class, BiConsumer<FilterVisitor2, VisitableXmlElement>>builder()
           .put(FilterType.class, FilterVisitor2::visitFilter)
@@ -61,7 +61,7 @@ public class VisitableFilterNode implements VisitableXmlElement {
 
   private final JAXBElement element;
 
-  public VisitableFilterNode(final JAXBElement element) {
+  public VisitableXmlElementImpl(final JAXBElement element) {
     this.element = element;
   }
 

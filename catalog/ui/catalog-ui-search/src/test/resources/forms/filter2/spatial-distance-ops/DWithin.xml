@@ -4,26 +4,13 @@
             xsi:schemaLocation="http://www.opengis.net/fes/2.0
             http://schemas.opengis.net/filter/2.0/filterAll.xsd
             http://www.opengis.net/gml/3.2 http://schemas.opengis.net/gml/3.2.1/gml.xsd">
-    <fes:Function name="forms.operatoroverload.1">
-        <fes:Literal>DWITHIN</fes:Literal>
-        <!--Always in Meters-->
-        <fes:Literal>100</fes:Literal>
-        <fes:Function name="forms.function.1">
-            <fes:Literal/>
-            <fes:Literal>id</fes:Literal>
-            <fes:Literal>true</fes:Literal>
-            <fes:Literal>false</fes:Literal>
-        </fes:Function>
-    </fes:Function>
-    <!--<fes:DWithin>-->
-        <!--&lt;!&ndash;<fes:ValueReference>location</fes:ValueReference>&ndash;&gt;-->
-        <!--<fes:Function name="test">-->
-            <!--<fes:Literal/>-->
-        <!--</fes:Function>-->
-        <!--<gml:Envelope srsName="urn:ogc:def:crs:EPSG::4326">-->
-            <!--<gml:lowerCorner>13.0983 31.5899</gml:lowerCorner>-->
-            <!--<gml:upperCorner>35.5472 42.8143</gml:upperCorner>-->
-        <!--</gml:Envelope>-->
-        <!--<fes:Distance uom="km">100</fes:Distance>-->
-    <!--</fes:DWithin>-->
+    <fes:DWithin>
+        <fes:ValueReference>location</fes:ValueReference>
+        <gml:Envelope srsName="urn:ogc:def:crs:EPSG::4326">
+            <gml:lowerCorner>13.0983 31.5899</gml:lowerCorner>
+            <gml:upperCorner>35.5472 42.8143</gml:upperCorner>
+        </gml:Envelope>
+        <!--  Intrigue always normalizes to METERS when working with a DWithin  -->
+        <fes:Distance uom="km">100</fes:Distance>
+    </fes:DWithin>
 </fes:Filter>

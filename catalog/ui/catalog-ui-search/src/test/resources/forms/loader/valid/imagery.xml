@@ -9,7 +9,7 @@
         </fes:PropertyIsEqualTo>
         <fes:PropertyIsEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>title</fes:ValueReference>
-            <fes:Function name="forms.function.1">
+            <fes:Function name="template.substitutions.1">
                 <fes:Literal/>
                 <fes:Literal>my-id-1</fes:Literal>
                 <fes:Literal>true</fes:Literal>
@@ -19,7 +19,7 @@
         <!-- Maximum bitrate to show up on search results -->
         <fes:PropertyIsLessThanOrEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>media.bit-rate</fes:ValueReference>
-            <fes:Function name="forms.function.1">
+            <fes:Function name="template.substitutions.1">
                 <fes:Literal/>
                 <fes:Literal>my-id-2</fes:Literal>
                 <fes:Literal>true</fes:Literal>

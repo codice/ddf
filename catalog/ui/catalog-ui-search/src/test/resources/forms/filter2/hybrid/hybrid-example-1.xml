@@ -5,34 +5,33 @@
     <fes:Or>
         <fes:PropertyIsEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>address</fes:ValueReference>
-            <fes:Function name="forms.function.1">
+            <fes:Function name="template.substitutions.1">
                 <fes:Literal/>
                 <fes:Literal>my-id-1</fes:Literal>
                 <fes:Literal>true</fes:Literal>
                 <fes:Literal>false</fes:Literal>
             </fes:Function>
         </fes:PropertyIsEqualTo>
+
         <fes:PropertyIsEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>name</fes:ValueReference>
-            <fes:Function name="forms.function.1">
+            <fes:Function name="template.substitutions.1">
                 <fes:Literal>russian-news-story</fes:Literal>
                 <fes:Literal>my-id-2</fes:Literal>
                 <fes:Literal>true</fes:Literal>
                 <fes:Literal>false</fes:Literal>
             </fes:Function>
         </fes:PropertyIsEqualTo>
+
         <fes:And>
             <fes:PropertyIsGreaterThanOrEqualTo matchAction="ANY" matchCase="false">
                 <fes:ValueReference>attName</fes:ValueReference>
                 <fes:Literal>5</fes:Literal>
             </fes:PropertyIsGreaterThanOrEqualTo>
-            <!--<fes:PropertyIsLike escapeChar="\" matchCase="false" singleChar="?" wildCard="*">-->
-            <!--<fes:ValueReference>title</fes:ValueReference>-->
-            <!--<fes:Literal>greetings</fes:Literal>-->
-            <!--</fes:PropertyIsLike>-->
+
             <fes:PropertyIsLessThanOrEqualTo matchAction="ANY" matchCase="false">
                 <fes:ValueReference>benumber</fes:ValueReference>
-                <fes:Function name="forms.function.1">
+                <fes:Function name="template.substitutions.1">
                     <fes:Literal>83.5653</fes:Literal>
                     <fes:Literal>my-id-3</fes:Literal>
                     <fes:Literal>true</fes:Literal>

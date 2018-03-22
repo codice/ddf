@@ -25,7 +25,7 @@
 
         <fes:PropertyIsLessThanOrEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>popularity</fes:ValueReference>
-            <fes:Function name="forms.function.1">
+            <fes:Function name="template.substitutions.1">
                 <fes:Literal>0.78</fes:Literal>
                 <fes:Literal>my-id-1</fes:Literal>
                 <fes:Literal>true</fes:Literal>

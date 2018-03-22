@@ -1,8 +1,0 @@
-<Intersects> - Tests whether two geometries intersect
-<Disjoint> - Tests whether two geometries are disjoint
-<Contains> - Tests whether a geometry contains another one
-<Within> - Tests whether a geometry is within another one
-<Touches> - Tests whether two geometries touch
-<Crosses> - Tests whether two geometries cross
-<Overlaps> - Tests whether two geometries overlap
-<Equals> - Tests whether two geometries are topologically equal

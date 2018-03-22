@@ -31,7 +31,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableFilterNode;
+import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,7 +116,7 @@ public class JsonTransformVisitorTest {
       fail("File was not found " + xmlFile.getAbsolutePath());
     }
 
-    return new VisitableFilterNode(
+    return new VisitableXmlElementImpl(
         new FilterReader().unmarshal(new FileInputStream(xmlFile), FilterType.class));
   }
 

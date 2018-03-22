@@ -211,6 +211,6 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   }
 
   protected VisitableXmlElement makeVisitable(JAXBElement element) {
-    return new VisitableFilterNode(element);
+    return new VisitableXmlElementImpl(element);
   }
 }
