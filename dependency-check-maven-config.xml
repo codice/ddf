@@ -348,9 +348,7 @@
     <suppress>
         <notes>
             This CVE applies to the Jolokia API provided by ActiveMQ which is secured by DDF
-            security,
-            so the vulnerability is mitigated.
-            artemis-core-client-2.1.0.jar
+            security, so the vulnerability is mitigated.
         </notes>
         <cve>CVE-2015-5182</cve>
     </suppress>
