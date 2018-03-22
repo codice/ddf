@@ -307,7 +307,7 @@
                             <goal>yarn</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --mutex network --no-optional</arguments>
+                            <arguments>install --mutex network --ignore-optional</arguments>
                         </configuration>
                     </execution>
                     <execution>
