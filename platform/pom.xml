@@ -391,6 +391,5 @@
         <module>email</module>
         <module>platform-app</module>
         <module>osgi</module>
-        <module>ddf-theme</module>
     </modules>
 </project>
