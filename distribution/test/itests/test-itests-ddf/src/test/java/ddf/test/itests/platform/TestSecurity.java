@@ -1362,7 +1362,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     String getConfigurationsNotPermitted =
         sendNotPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getConfigurations/(service.pid=ddf.security.pdp.realm.AuthzRealm)");
-    assertEquals(JsonPath.given(getConfigurationsNotPermitted).getString("value"), "[]");
+    assertEquals("[]", JsonPath.given(getConfigurationsNotPermitted).getString("value"));
   }
 
   // ApplicationService tests

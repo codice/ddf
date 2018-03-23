@@ -115,7 +115,7 @@
         <junit.version>4.12</junit.version>
         <awaitility.version>3.0.0</awaitility.version>
         <xmlunit.version>2.5.1</xmlunit.version>
-        <restito.version>0.8.2</restito.version>
+        <restito.version>0.9.3</restito.version>
         <pax.exam.version>4.11.0</pax.exam.version>
         <!-- Use this version of failsafe when running with Pax Exam tests, otherwise
              for versionAsInProject() doesn't work and failsafe has problems connecting to the

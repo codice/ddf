@@ -14,24 +14,25 @@
 package org.codice.ddf.itests.common.restito;
 
 import com.xebialabs.restito.semantics.Call;
-import com.xebialabs.restito.semantics.Predicate;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Class used to capture record the headers from the incoming request to the StubServer. Restito
- * does not pass the incoming request from inside of the response function, so this class is needed
- * to extract any headers needed for the response.
+ * does incoming request available from inside of the response function, so this class is needed to
+ * extract any headers needed for the response.
  */
 public class HeaderCapture implements Predicate<Call> {
 
-  private Map<String, String> headers;
+  private Map<String, List<String>> headers;
 
-  public Map<String, String> getHeaders() {
+  public Map<String, List<String>> getHeaders() {
     return headers;
   }
 
   @Override
-  public boolean apply(Call call) {
+  public boolean test(Call call) {
     headers = call.getHeaders();
     return true;
   }
