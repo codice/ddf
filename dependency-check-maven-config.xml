@@ -114,12 +114,12 @@
             file name: proxy-camel-servlet-2.11.0-SNAPSHOT.jar
         </notes>
         <filePath regex="true">.*proxy-camel-servlet.*.jar</filePath>
-        <cve>CVE-2015-5344</cve>
         <cve>CVE-2014-0002</cve>
         <cve>CVE-2014-0003</cve>
+        <cve>CVE-2015-5344</cve>
         <cve>CVE-2017-3159</cve>
-        <cve>CVE-2017-12634</cve>
         <cve>CVE-2017-12633</cve>
+        <cve>CVE-2017-12634</cve>
     </suppress>
 
     <!-- tika -->
