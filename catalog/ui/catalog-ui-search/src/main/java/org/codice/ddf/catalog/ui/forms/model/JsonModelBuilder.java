@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterTemplatedLeafNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterLeafNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterTemplatedLeafNode;
 
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
@@ -37,6 +37,9 @@ import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterTemplatedLeafNode;
  * subsequent nodes specified in the middle as appropriate per a Filter's structure. Proper use of
  * this builder implies that all open nodes must be closed at some point before {@link #getResult()}
  * is called.
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
  */
 public class JsonModelBuilder {
   private static final Set<String> BINARY_COMPARE_OPS =
@@ -61,7 +64,10 @@ public class JsonModelBuilder {
   /**
    * Retrieve the root of the filter tree that this builder was creating, and prevent subsequent
    * builder operations upon this object. Can reliably be called multiple times to retrieve the same
-   * result.
+   * result. The result will not be null.
+   *
+   * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+   * in a future version of the library.</i>
    *
    * @return the root of the filter tree that this builder was creating.
    * @throws IllegalStateException if begun/open nodes are not properly ended/closed or if no data

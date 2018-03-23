@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.catalog.ui.forms.data;
 
+import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_FILTER;
+import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.Collections;
@@ -20,7 +23,8 @@ import java.util.List;
 
 /**
  * Metacard used for storing query templates in the catalog. Should not be used as a resource.
- * Identifiable by the presence of {@link FormAttributes.Query#TAG} in {@link Metacard#TAGS}.
+ * Identifiable by the presence of {@link QueryTemplateType#QUERY_TEMPLATE_TAG} in {@link
+ * Metacard#TAGS}.
  *
  * <p>Relevant attributes:
  *
@@ -29,25 +33,28 @@ import java.util.List;
  *       for templates it should be present and it should be unique
  *   <li>{@link Metacard#DESCRIPTION} - additional information about a template, should be present
  *       but not necessarily unique
- *   <li>{@link FormAttributes.Query#FORMS_FILTER} - contains validated Filter XML 2.0 that
+ *   <li>{@link QueryTemplateType#QUERY_TEMPLATE_FILTER} - contains validated Filter XML 2.0 that
  *       represents the query structure to execute, with filter functions denoting information that
  *       is needed before execution can occur.
  * </ul>
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
  */
-public class QueryTemplateMetacardImpl extends ShareableMetacardImpl {
-  public QueryTemplateMetacardImpl(String title, String description) {
-    super(new FormTypes.Query());
+public class QueryTemplateMetacard extends ShareableMetacard {
+  public QueryTemplateMetacard(String title, String description) {
+    super(new QueryTemplateType());
     setAttribute(Core.TITLE, title);
     setAttribute(Core.DESCRIPTION, description);
-    setTags(Collections.singleton(FormAttributes.Query.TAG));
+    setTags(Collections.singleton(QUERY_TEMPLATE_TAG));
   }
 
-  public QueryTemplateMetacardImpl(String title, String description, String id) {
+  public QueryTemplateMetacard(String title, String description, String id) {
     this(title, description);
     setId(id);
   }
 
-  public QueryTemplateMetacardImpl(Metacard metacard) {
+  public QueryTemplateMetacard(Metacard metacard) {
     super(metacard);
   }
 
@@ -58,20 +65,18 @@ public class QueryTemplateMetacardImpl extends ShareableMetacardImpl {
    * @return true if the provided metacard is a query template metacard, false otherwise.
    */
   public static boolean isQueryTemplateMetacard(Metacard metacard) {
-    return metacard != null
-        && metacard.getTags().stream().anyMatch(FormAttributes.Query.TAG::equals);
+    return metacard != null && metacard.getTags().stream().anyMatch(QUERY_TEMPLATE_TAG::equals);
   }
 
   public String getFormsFilter() {
-    List<String> values = getValues(FormAttributes.Query.FORMS_FILTER);
+    List<String> values = getValues(QUERY_TEMPLATE_FILTER);
     if (!values.isEmpty()) {
       return values.get(0);
     }
     return null;
   }
 
-  public QueryTemplateMetacardImpl setFormsFilter(String filterXml) {
-    setAttribute(FormAttributes.Query.FORMS_FILTER, filterXml);
-    return this;
+  public void setFormsFilter(String filterXml) {
+    setAttribute(QUERY_TEMPLATE_FILTER, filterXml);
   }
 }

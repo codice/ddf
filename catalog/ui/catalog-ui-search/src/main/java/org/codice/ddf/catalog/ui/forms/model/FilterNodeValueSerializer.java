@@ -24,15 +24,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode} requires polymorphic
- * behavior which causes issues with JSON serialization. To avoid values of the following complex
- * form:
+ * {@link org.codice.ddf.catalog.ui.forms.model.pojo.FilterLeafNode} requires polymorphic behavior
+ * which causes issues with JSON serialization. To avoid values of the following complex form:
  *
  * <p>{@code
  * "value":{"class":"java.lang.String","value":[r,u,s,s,i,a,n,-,n,e,w,s,-,s,t,o,r,y],"hash":0}}
  *
  * <p>all values are treated as Strings and the following {@link CustomFieldSerializer} writes them
  * out to their proper type.
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
  */
 public class FilterNodeValueSerializer implements CustomFieldSerializer {
   private static final Logger LOGGER = LoggerFactory.getLogger(FilterNodeValueSerializer.class);

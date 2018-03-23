@@ -76,7 +76,7 @@ public class VisitableXmlElementImpl implements VisitableXmlElement {
     BiConsumer<FilterVisitor2, VisitableXmlElement> biConsumer = CONSUMER_MAP.get(clazz);
     if (biConsumer == null) {
       throw new FilterProcessingException(
-          "Could not find mapping to visit method for class " + clazz.getName());
+          "Encountered an unexpected or unsupported type: " + clazz.getName());
     }
     // Actually invoking one of the "visits" on local variable "visitor"
     biConsumer.accept(visitor, this);

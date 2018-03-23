@@ -19,9 +19,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterTemplatedLeafNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterLeafNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterTemplatedLeafNode;
 
 /** As more test cases are added, more support functions will be needed. */
 class FilterNodeAssertionSupport {
@@ -35,17 +35,20 @@ class FilterNodeAssertionSupport {
   static void assertParentNode(FilterNode node, String expectedType) {
     assertThat(node.getType(), is(expectedType));
     assertThat(node.getNodes(), notNullValue());
+    assertThat(node.isLeaf(), is(false));
   }
 
   static void assertLeafNode(
       FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
     assertThat(node.getType(), is(expectedType));
     assertThat(node.getNodes(), is(nullValue()));
+    assertThat(node.isLeaf(), is(true));
     assertThat(FilterLeafNode.class.isInstance(node), is(true));
 
     FilterLeafNode leaf = (FilterLeafNode) node;
     assertThat(leaf.getProperty(), is(expectedProperty));
     assertThat(leaf.getValue(), is(expectedValue));
+    assertThat(leaf.isTemplated(), is(false));
   }
 
   static void assertTemplatedNode(
@@ -54,12 +57,18 @@ class FilterNodeAssertionSupport {
       String expectedProperty,
       String defaultValue,
       String nodeId) {
-    assertLeafNode(node, expectedType, expectedProperty, null);
+    assertThat(node.getType(), is(expectedType));
+    assertThat(node.getNodes(), is(nullValue()));
+    assertThat(node.isLeaf(), is(true));
+    assertThat(FilterLeafNode.class.isInstance(node), is(true));
+
     FilterLeafNode leaf = (FilterLeafNode) node;
-
+    assertThat(leaf.getProperty(), is(expectedProperty));
+    assertThat(leaf.getValue(), is(nullValue()));
     assertThat(leaf.isTemplated(), is(true));
-    FilterTemplatedLeafNode template = (FilterTemplatedLeafNode) leaf;
+    assertThat(FilterTemplatedLeafNode.class.isInstance(leaf), is(true));
 
+    FilterTemplatedLeafNode template = (FilterTemplatedLeafNode) leaf;
     assertThat(template.getDefaultValue(), is(defaultValue));
     assertThat(template.getNodeId(), is(nodeId));
   }

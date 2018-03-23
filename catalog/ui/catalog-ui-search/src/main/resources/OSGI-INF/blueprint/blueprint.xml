@@ -18,21 +18,21 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="queryFormMetacardType"
-          class="org.codice.ddf.catalog.ui.forms.data.FormTypes.Query"/>
+    <bean id="queryTemplateMetacardType"
+          class="org.codice.ddf.catalog.ui.forms.data.QueryTemplateType"/>
 
-    <bean id="resultFormMetacardType"
-          class="org.codice.ddf.catalog.ui.forms.data.FormTypes.Result"/>
+    <bean id="attributeGroupMetacardType"
+          class="org.codice.ddf.catalog.ui.forms.data.AttributeGroupType"/>
 
-    <service ref="queryFormMetacardType" interface="ddf.catalog.data.MetacardType">
+    <service ref="queryTemplateMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
-            <entry key="name" value="form-query"/>
+            <entry key="name" value="query-template"/>
         </service-properties>
     </service>
 
-    <service ref="resultFormMetacardType" interface="ddf.catalog.data.MetacardType">
+    <service ref="attributeGroupMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
-            <entry key="name" value="form-result"/>
+            <entry key="name" value="attribute-group"/>
         </service-properties>
     </service>
 
@@ -272,12 +272,12 @@
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
         <argument>
             <map>
-                <entry key="query" value-ref="queryApplication" />
+                <entry key="query" value-ref="queryApplication"/>
             </map>
         </argument>
     </bean>
 
-    <reference id="manager" interface="ddf.security.service.SecurityManager" />
+    <reference id="manager" interface="ddf.security.service.SecurityManager"/>
 
     <bean id="socketThreadFactory"
           class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
@@ -293,15 +293,16 @@
         <argument ref="socketThreadFactory"/>
     </bean>
 
-    <bean id="socketServlet" destroy-method="destroy" class="org.codice.ddf.catalog.ui.ws.SecureWebSocketServlet">
-        <argument ref="socketThreadPool" />
-        <argument ref="jsonRpc" />
-        <argument ref="manager" />
+    <bean id="socketServlet" destroy-method="destroy"
+          class="org.codice.ddf.catalog.ui.ws.SecureWebSocketServlet">
+        <argument ref="socketThreadPool"/>
+        <argument ref="jsonRpc"/>
+        <argument ref="manager"/>
     </bean>
 
     <service ref="socketServlet" interface="javax.servlet.Servlet">
         <service-properties>
-            <entry key="urlPatterns" value="/search/catalog/ws" />
+            <entry key="urlPatterns" value="/search/catalog/ws"/>
         </service-properties>
     </service>
 
@@ -324,9 +325,13 @@
         <argument ref="subjectIdentity"/>
     </bean>
 
+    <bean id="templateTransformer"
+          class="org.codice.ddf.catalog.ui.forms.model.TemplateTransformer"/>
+
     <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication"
           init-method="setup">
         <argument ref="catalogFramework"/>
+        <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
 

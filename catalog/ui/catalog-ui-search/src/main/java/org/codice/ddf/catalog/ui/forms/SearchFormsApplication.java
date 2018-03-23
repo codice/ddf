@@ -13,8 +13,9 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static java.lang.String.format;
 import static org.codice.ddf.catalog.ui.forms.SearchFormsLoader.config;
+import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
+import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static spark.Spark.get;
 
 import ddf.catalog.CatalogFramework;
@@ -22,9 +23,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.security.service.SecurityServiceException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
@@ -34,46 +32,31 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import net.opengis.filter.v_2_0.FilterType;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
-import org.codice.ddf.catalog.ui.forms.data.FormAttributes;
-import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacardImpl;
-import org.codice.ddf.catalog.ui.forms.data.ResultTemplateMetacardImpl;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
+import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
+import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FieldFilter;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FormTemplate;
-import org.codice.ddf.catalog.ui.forms.model.JsonTransformVisitor;
+import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
-/** Provides an internal REST interface for working with custom form data for Intrigue. */
+/**
+ * Provides an internal REST interface for working with custom form data for Intrigue.
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
+ */
 public class SearchFormsApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   private static final Security SECURITY = Security.getInstance();
 
-  // Named collections of attributes
-  // Result attributes should move toward "attribute collection" wording
-
-  // MetacardTypeImpl supports a ctor for bulk adding attributes
-  // FormAttributes --> TemplateAttributes (rename occurrences)
-  // The term "form" does not abstract away what templates do, form is just one case of templates
-
-  // Revisit what the SHARING attribute (XML) is for (WorkspaceAttributes)
-  // Law of demeter - accessing inner classes as public classes
   private static final ObjectMapper MAPPER =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -86,10 +69,14 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final CatalogFramework catalogFramework;
 
+  private final TemplateTransformer transformer;
+
   private final EndpointUtil util;
 
-  public SearchFormsApplication(CatalogFramework catalogFramework, EndpointUtil util) {
+  public SearchFormsApplication(
+      CatalogFramework catalogFramework, TemplateTransformer transformer, EndpointUtil util) {
     this.catalogFramework = catalogFramework;
+    this.transformer = transformer;
     this.util = util;
   }
 
@@ -108,8 +95,8 @@ public class SearchFormsApplication implements SparkApplication {
                 .map(Metacard::getTitle)
                 .collect(Collectors.toSet());
 
-    Set<String> queryTitles = queryAsAdmin(FormAttributes.Query.TAG, titles);
-    Set<String> resultTitles = queryAsAdmin(FormAttributes.Result.TAG, titles);
+    Set<String> queryTitles = queryAsAdmin(QUERY_TEMPLATE_TAG, titles);
+    Set<String> resultTitles = queryAsAdmin(ATTRIBUTE_GROUP_TAG, titles);
 
     List<Metacard> systemTemplates = config().get();
     if (systemTemplates.isEmpty()) {
@@ -120,11 +107,11 @@ public class SearchFormsApplication implements SparkApplication {
         Stream.concat(
                 systemTemplates
                     .stream()
-                    .filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard)
+                    .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
                     .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
                 systemTemplates
                     .stream()
-                    .filter(ResultTemplateMetacardImpl::isResultTemplateMetacard)
+                    .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
                     .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
             .collect(Collectors.toList());
 
@@ -140,12 +127,12 @@ public class SearchFormsApplication implements SparkApplication {
         "/forms/query",
         (req, res) ->
             MAPPER.toJson(
-                util.getMetacardsByFilter(FormAttributes.Query.TAG)
+                util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
                     .entrySet()
                     .stream()
                     .map(Map.Entry::getValue)
                     .map(Result::getMetacard)
-                    .map(this::toFormTemplate)
+                    .map(transformer::toFormTemplate)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList())));
 
@@ -153,48 +140,14 @@ public class SearchFormsApplication implements SparkApplication {
         "/forms/result",
         (req, res) ->
             MAPPER.toJson(
-                util.getMetacardsByFilter(FormAttributes.Result.TAG)
+                util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
                     .entrySet()
                     .stream()
                     .map(Map.Entry::getValue)
                     .map(Result::getMetacard)
-                    .map(this::toFieldFilter)
+                    .map(transformer::toFieldFilter)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList())));
-  }
-
-  /** Convert a query template metacard into the JSON representation of FormTemplate. */
-  @Nullable
-  private FormTemplate toFormTemplate(Metacard metacard) {
-    if (!QueryTemplateMetacardImpl.isQueryTemplateMetacard(metacard)) {
-      LOGGER.debug("Metacard {} was not a query template metacard", metacard);
-      return null;
-    }
-    QueryTemplateMetacardImpl wrapped = new QueryTemplateMetacardImpl(metacard);
-    JsonTransformVisitor visitor = new JsonTransformVisitor();
-    try {
-      FilterReader reader = new FilterReader();
-      JAXBElement<FilterType> root =
-          reader.unmarshal(
-              new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")),
-              FilterType.class);
-      makeVisitable(root).accept(visitor);
-      return new FormTemplate(wrapped, visitor.getResult());
-    } catch (JAXBException | UnsupportedEncodingException e) {
-      LOGGER.error("Parsing failed for query template metacard's filter xml", e);
-    }
-    return null;
-  }
-
-  /** Convert a result template metacard into the JSON representation of FieldFilter. */
-  @Nullable
-  private FieldFilter toFieldFilter(Metacard metacard) {
-    if (!ResultTemplateMetacardImpl.isResultTemplateMetacard(metacard)) {
-      LOGGER.debug("Metacard {} was not a result template metacard", metacard);
-      return null;
-    }
-    ResultTemplateMetacardImpl wrapped = new ResultTemplateMetacardImpl(metacard);
-    return new FieldFilter(wrapped, wrapped.getResultDescriptors());
   }
 
   private Set<String> queryAsAdmin(
@@ -230,32 +183,5 @@ public class SearchFormsApplication implements SparkApplication {
           }
           return null;
         });
-  }
-
-  private VisitableXmlElement makeVisitable(JAXBElement element) {
-    return new VisitableXmlElementImpl(element);
-  }
-
-  private static class FilterReader {
-    private final JAXBContext context;
-
-    public FilterReader() throws JAXBException {
-      String pkgName = FilterType.class.getPackage().getName();
-      this.context = JAXBContext.newInstance(format("%s:%s", pkgName, pkgName));
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> JAXBElement<T> unmarshal(InputStream inputStream, Class<T> tClass)
-        throws JAXBException {
-      Unmarshaller unmarshaller = context.createUnmarshaller();
-      Object result = unmarshaller.unmarshal(inputStream);
-      if (result instanceof JAXBElement) {
-        JAXBElement element = (JAXBElement) result;
-        if (tClass.isInstance(element.getValue())) {
-          return (JAXBElement<T>) element;
-        }
-      }
-      return null;
-    }
   }
 }

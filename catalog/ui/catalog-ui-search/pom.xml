@@ -323,14 +323,6 @@
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            <!--
-                            Exclude exported package here because the FormTypes
-                            static inner classes cause Karaf confusion otherwise.
-                            Alternatively, those static classes could be extracted
-                            but at their small size that would be a lot of file clutter
-                            for little gain.
-                            -->
-                            !org.codice.ddf.catalog.ui.forms.data.*,
                             org.eclipse.jetty.server,
                             org.eclipse.jetty.server.handler,
                             javax.servlet.http;version="[3,4)",
@@ -373,22 +365,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.28</minimum>
+                                            <minimum>0.33</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.19</minimum>
+                                            <minimum>0.28</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.25</minimum>
+                                            <minimum>0.29</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.27</minimum>
+                                            <minimum>0.33</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

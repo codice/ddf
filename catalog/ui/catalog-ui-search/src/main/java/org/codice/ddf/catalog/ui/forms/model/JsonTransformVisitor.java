@@ -31,7 +31,7 @@ import net.opengis.filter.v_2_0.LiteralType;
 import org.codice.ddf.catalog.ui.forms.filter.AbstractFilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +51,9 @@ import org.slf4j.LoggerFactory;
  *
  * <p>While trying to wrap one's head around visitors, it would be helpful to set a breakpoint on
  * {@link #visitLiteralType(VisitableXmlElement)} and take some time analyzing the stack.
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
  */
 public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonTransformVisitor.class);
@@ -146,7 +149,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
           get(args, IS_READONLY_INDEX, BOOL_FUNC));
 
     } else {
-      throw new FilterProcessingException("Could not find a valid function name");
+      throw new FilterProcessingException("Unrecognized function:  " + functionName);
     }
   }
 
@@ -222,10 +225,6 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
     }
 
     expression.forEach(jax -> makeVisitable(jax).accept(this));
-
-    // TODO: Will these be necessary?
-    element.getValue().getDistance().getUom();
-    element.getValue().getDistance().getValue();
   }
 
   private static <T> T get(List<Optional<Serializable>> args, int i, Class<T> expectedType) {

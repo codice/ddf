@@ -23,8 +23,8 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
-import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacardImpl;
-import org.codice.ddf.catalog.ui.forms.data.ResultTemplateMetacardImpl;
+import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
+import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -70,11 +70,11 @@ public class SearchFormsLoaderTest {
         "Expected total number of generated metacards to be " + total, metacards, hasSize(total));
     assertThat(
         "Expected number of generated query template metacards to be " + queryTemplates,
-        metacards.stream().filter(QueryTemplateMetacardImpl::isQueryTemplateMetacard).count(),
+        metacards.stream().filter(QueryTemplateMetacard::isQueryTemplateMetacard).count(),
         is((long) queryTemplates));
     assertThat(
         "Expected number of generated result template metacards to be " + resultTemplates,
-        metacards.stream().filter(ResultTemplateMetacardImpl::isResultTemplateMetacard).count(),
+        metacards.stream().filter(AttributeGroupMetacard::isAttributeGroupMetacard).count(),
         is((long) resultTemplates));
   }
 

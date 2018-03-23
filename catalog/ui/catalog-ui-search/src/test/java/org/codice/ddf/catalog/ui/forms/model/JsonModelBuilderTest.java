@@ -13,14 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
+import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertParentNode;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
 
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterLeafNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterNode;
-import org.codice.ddf.catalog.ui.forms.model.JsonModel.FilterTemplatedLeafNode;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -155,15 +152,7 @@ public class JsonModelBuilderTest {
               .endTerminalType()
               .getResult();
 
-      assertThat(node.getType(), is("="));
-      assertThat(node.getNodes(), is(nullValue()));
-      assertThat(node.isLeaf(), is(true));
-      assertThat(FilterLeafNode.class.isInstance(node), is(true));
-
-      FilterLeafNode leaf = (FilterLeafNode) node;
-      assertThat(leaf.getProperty(), is("name"));
-      assertThat(leaf.getValue(), is("value"));
-      assertThat(leaf.isTemplated(), is(false));
+      assertLeafNode(node, "=", "name", "value");
     }
 
     @Test
@@ -176,22 +165,7 @@ public class JsonModelBuilderTest {
               .endTerminalType()
               .getResult();
 
-      assertThat(node.getType(), is("="));
-      assertThat(node.getNodes(), is(nullValue()));
-      assertThat(node.isLeaf(), is(true));
-      assertThat(FilterLeafNode.class.isInstance(node), is(true));
-
-      FilterLeafNode leaf = (FilterLeafNode) node;
-      assertThat(leaf.getProperty(), is("name"));
-      assertThat(leaf.getValue(), is(nullValue()));
-      assertThat(leaf.isTemplated(), is(true));
-      assertThat(FilterTemplatedLeafNode.class.isInstance(leaf), is(true));
-
-      FilterTemplatedLeafNode template = (FilterTemplatedLeafNode) leaf;
-      assertThat(template.getDefaultValue(), is("5"));
-      assertThat(template.getNodeId(), is("id"));
-      assertThat(template.isVisible(), is(true));
-      assertThat(template.isReadOnly(), is(false));
+      assertTemplatedNode(node, "=", "name", "5", "id");
     }
 
     @Test

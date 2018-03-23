@@ -32,8 +32,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.boon.Boon;
-import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacardImpl;
-import org.codice.ddf.catalog.ui.forms.data.ResultTemplateMetacardImpl;
+import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
+import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
+import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Loads initial system template configuration from the file system so template defaults in
  * distributions can vary independently.
+ *
+ * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
+ * in a future version of the library.</i>
  */
 public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsLoader.class);
@@ -52,7 +56,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
               LOGGER.warn(
                   "Unexpected configuration in {}, values should be maps not {}",
                   file.getName(),
-                  obj);
+                  obj.getClass().getName());
             }
           };
 
@@ -108,7 +112,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
    *     template metacard, as appropriate
    * @return a stream of the converted metacards.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked" /* Actually is checked, see early return if not a List */)
   private Stream<Metacard> loadFile(File file, Function<? super Map, Metacard> mapper) {
     if (!file.exists()) {
       LOGGER.debug("Could not locate {}", file.getName());
@@ -147,24 +151,29 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
 
     if (anyNull(title, description, filterTemplateFile)) {
-      LOGGER.debug("Invalid entry in forms.json");
       return null;
     }
 
     File xmlFile = configDirectory.toPath().resolve(filterTemplateFile).toFile();
     if (!xmlFile.exists()) {
-      LOGGER.debug("Filter XML file does not exist: {}", filterTemplateFile);
+      LOGGER.warn("Filter XML file does not exist: {}", filterTemplateFile);
       return null;
     }
 
     String filterXml = getFileContent(xmlFile);
     if (filterXml == null) {
-      LOGGER.debug("Error while reading filter XML file: {}", filterTemplateFile);
       return null;
     }
 
-    QueryTemplateMetacardImpl metacard = new QueryTemplateMetacardImpl(title, description);
+    QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
     metacard.setFormsFilter(filterXml);
+
+    // Validation so the catalog is not contaminated on startup, which would impact every request
+    if (new TemplateTransformer().toFormTemplate(metacard) == null) {
+      LOGGER.warn("System forms configuration for template '{}' had invalid XML", title);
+      return null;
+    }
+
     return metacard;
   }
 
@@ -176,12 +185,11 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     List<String> descriptors = safeGetList(map, "descriptors", String.class);
 
     if (anyNull(title, description, descriptors)) {
-      LOGGER.debug("Invalid entry in results.json");
       return null;
     }
 
-    ResultTemplateMetacardImpl metacard = new ResultTemplateMetacardImpl(title, description);
-    metacard.setResultDescriptors(new HashSet<>(descriptors));
+    AttributeGroupMetacard metacard = new AttributeGroupMetacard(title, description);
+    metacard.setGroupDescriptors(new HashSet<>(descriptors));
     return metacard;
   }
 
