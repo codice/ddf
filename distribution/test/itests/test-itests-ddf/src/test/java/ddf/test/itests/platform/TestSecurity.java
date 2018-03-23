@@ -13,10 +13,6 @@
  */
 package ddf.test.itests.platform;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -41,12 +37,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
-import com.google.common.collect.ImmutableList;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
-import ddf.catalog.data.Metacard;
-import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,9 +60,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -95,18 +92,19 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
 
+import com.google.common.collect.ImmutableList;
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
+
+import ddf.catalog.data.Metacard;
+import ddf.security.SecurityConstants;
+
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
 
-  /** ************** USERS *************** */
-  private static final String USER_PASSWORD = "password1";
-
-  private static final String A_USER = "slang";
-
-  private static final String B_USER = "tchalla";
-
-  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
+  public static final String SAMPLE_SOAP =
+      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
   protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
 
@@ -174,6 +172,15 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "</soap:Envelope>";
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
+
+  /** ************** USERS *************** */
+  private static final String USER_PASSWORD = "password1";
+
+  private static final String A_USER = "slang";
+
+  private static final String B_USER = "tchalla";
+
+  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
   private static final String BAD_X509_TOKEN =
       "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
@@ -359,9 +366,6 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "      </wst:RequestSecurityToken>\n"
           + "   </soap:Body>\n"
           + "</soap:Envelope>";
-
-  public static final String SAMPLE_SOAP =
-      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
   @BeforeExam
   public void beforeTest() throws Exception {
@@ -1283,9 +1287,10 @@ public class TestSecurity extends AbstractIntegrationTest {
                         .basic("admin", "admin")
                         .when()
                         .get(certGenPath + "/configureDemoCert/" + commonName);
-                String actualValue =
-                    JsonPath.from(response.getBody().asString()).getString("value");
-                return actualValue.equals(expectedValue);
+                String text = response.getBody().asString();
+                JsonPath snippet = JsonPath.from(text);
+                String actualValue = snippet.getString("value");
+                return expectedValue.equals(actualValue);
               });
 
       // Test second operation
