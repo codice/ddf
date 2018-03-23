@@ -61,10 +61,6 @@ public class Configuration {
     jsonMimeType = mime;
   }
 
-  private String header = "";
-
-  private String footer = "";
-
   private String style = "";
 
   private String textColor = "";
@@ -82,8 +78,6 @@ public class Configuration {
   private Optional<BrandingRegistry> branding = Optional.empty();
 
   private Configuration() {
-    header = "";
-    footer = "";
     style = "";
     textColor = "";
     disabledInstallerApps = "";
@@ -111,8 +105,6 @@ public class Configuration {
       configObj.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
     }
 
-    configObj.put("text", header);
-    configObj.put("footer", footer);
     configObj.put("style", style);
     configObj.put("textColor", textColor);
     configObj.put("disabledInstallerApps", disabledInstallerApps);
@@ -126,22 +118,6 @@ public class Configuration {
             .build();
 
     return response;
-  }
-
-  public String getHeader() {
-    return header;
-  }
-
-  public void setHeader(String header) {
-    this.header = header;
-  }
-
-  public String getFooter() {
-    return footer;
-  }
-
-  public void setFooter(String footer) {
-    this.footer = footer;
   }
 
   public String getStyle() {
