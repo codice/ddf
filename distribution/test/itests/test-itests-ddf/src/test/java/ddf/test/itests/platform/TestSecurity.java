@@ -13,6 +13,10 @@
  */
 package ddf.test.itests.platform;
 
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -37,11 +41,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 
+import com.google.common.collect.ImmutableList;
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
+import ddf.catalog.data.Metacard;
+import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,11 +65,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -91,13 +94,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.service.cm.Configuration;
-
-import com.google.common.collect.ImmutableList;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
-
-import ddf.catalog.data.Metacard;
-import ddf.security.SecurityConstants;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -173,9 +169,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
-  /**
-   * ************ USERS ***************
-   */
+  /** ************ USERS *************** */
   private static final String USER_PASSWORD = "password1";
 
   private static final String A_USER = "slang";
