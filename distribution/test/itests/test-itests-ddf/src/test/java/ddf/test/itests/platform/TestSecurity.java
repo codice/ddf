@@ -173,7 +173,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
-  /** ************** USERS *************** */
+  /**
+   * ************ USERS ***************
+   */
   private static final String USER_PASSWORD = "password1";
 
   private static final String A_USER = "slang";
