@@ -126,28 +126,28 @@ public class SearchFormsApplication implements SparkApplication {
     get(
         "/forms/query",
         (req, res) ->
-            MAPPER.toJson(
-                util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
-                    .entrySet()
-                    .stream()
-                    .map(Map.Entry::getValue)
-                    .map(Result::getMetacard)
-                    .map(transformer::toFormTemplate)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())));
+            util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(Result::getMetacard)
+                .map(transformer::toFormTemplate)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()),
+        MAPPER::toJson);
 
     get(
         "/forms/result",
         (req, res) ->
-            MAPPER.toJson(
-                util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
-                    .entrySet()
-                    .stream()
-                    .map(Map.Entry::getValue)
-                    .map(Result::getMetacard)
-                    .map(transformer::toFieldFilter)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList())));
+            util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(Result::getMetacard)
+                .map(transformer::toFieldFilter)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()),
+        MAPPER::toJson);
   }
 
   private Set<String> queryAsAdmin(

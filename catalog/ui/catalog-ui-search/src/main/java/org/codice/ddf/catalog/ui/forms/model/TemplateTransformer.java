@@ -13,21 +13,17 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
-import static java.lang.String.format;
-
 import ddf.catalog.data.Metacard;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
+import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
@@ -56,9 +52,8 @@ public class TemplateTransformer {
     try {
       FilterReader reader = new FilterReader();
       JAXBElement<FilterType> root =
-          reader.unmarshal(
-              new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")),
-              FilterType.class);
+          reader.unmarshalFilter(
+              new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
       makeVisitable(root).accept(visitor);
       return new FormTemplate(wrapped, visitor.getResult());
     } catch (JAXBException | UnsupportedEncodingException e) {
@@ -93,27 +88,5 @@ public class TemplateTransformer {
 
   private VisitableXmlElement makeVisitable(JAXBElement element) {
     return new VisitableXmlElementImpl(element);
-  }
-
-  private static class FilterReader {
-    private final JAXBContext context;
-
-    FilterReader() throws JAXBException {
-      String pkgName = FilterType.class.getPackage().getName();
-      this.context = JAXBContext.newInstance(format("%s:%s", pkgName, pkgName));
-    }
-
-    @SuppressWarnings("unchecked")
-    <T> JAXBElement<T> unmarshal(InputStream inputStream, Class<T> tClass) throws JAXBException {
-      Unmarshaller unmarshaller = context.createUnmarshaller();
-      Object result = unmarshaller.unmarshal(inputStream);
-      if (result instanceof JAXBElement) {
-        JAXBElement element = (JAXBElement) result;
-        if (tClass.isInstance(element.getValue())) {
-          return (JAXBElement<T>) element;
-        }
-      }
-      return null;
-    }
   }
 }
