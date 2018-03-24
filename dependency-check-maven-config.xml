@@ -110,10 +110,7 @@
             This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
             internal proxy-camel-servlet version with the overall Camel version - marking as false
             positive.
-
-            file name: proxy-camel-servlet-2.11.0-SNAPSHOT.jar
         </notes>
-        <filePath regex="true">.*proxy-camel-servlet.*.jar</filePath>
         <cve>CVE-2014-0002</cve>
         <cve>CVE-2014-0003</cve>
         <cve>CVE-2015-5344</cve>
@@ -527,5 +524,10 @@
             https://github.com/codice/ddf/pull/3077
         </notes>
         <cve>CVE-2015-1820</cve>
+    </suppress>
+
+    <suppress>
+        <notes>This CVE is related to a PHP script. There are no PHP scripts in the DDF.</notes>
+        <cve>CVE-2006-6460</cve>
     </suppress>
 </suppressions>
