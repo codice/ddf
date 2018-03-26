@@ -451,7 +451,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getServiceProvidersMap(),
             getPresignPlugins(),
             spMetadata,
-            SUPPORTED_BINDINGS);
+            SUPPORTED_BINDINGS,
+            ecpMessage);
     try {
       String bodyStr = IOUtils.toString(body, StandardCharsets.UTF_8);
       AuthnRequest authnRequest = soapBinding.decoder().decodeRequest(bodyStr);
@@ -474,9 +475,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
               authnRequest.getSignature() != null);
 
       Response samlpResponse =
-          soapBinding
-              .creator()
-              .getSamlpResponse(relayState, authnRequest, response, null, ecpMessage);
+          soapBinding.creator().getSamlpResponse(relayState, authnRequest, response, null);
       samlpResponse
           .getHeaders()
           .put(
@@ -621,7 +620,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getServiceProvidersMap(),
             getPresignPlugins(),
             spMetadata,
-            SUPPORTED_BINDINGS),
+            SUPPORTED_BINDINGS,
+            submitForm),
         SamlProtocol.POST_BINDING);
   }
 
@@ -704,8 +704,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
                     getServiceProvidersMap(),
                     getPresignPlugins(),
                     spMetadata,
-                    SUPPORTED_BINDINGS);
-            template = submitForm;
+                    SUPPORTED_BINDINGS,
+                    submitForm);
           } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
             binding =
                 new RedirectBinding(
@@ -714,7 +714,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
                     getPresignPlugins(),
                     spMetadata,
                     SUPPORTED_BINDINGS);
-            template = redirectPage;
           } else {
             throw new IdpException(
                 new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
@@ -759,9 +758,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         }
         logAddedSp(authnRequest);
 
-        return binding
-            .creator()
-            .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie, template);
+        return binding.creator().getSamlpResponse(relayState, authnRequest, samlpResponse, cookie);
       } else {
         LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
         responseMap.put(PKI, hasCerts);
@@ -835,17 +832,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
             authnRequest.getID(),
             null);
     LOGGER.debug("Encoding error SAML Response for post or redirect.");
-    String template = "";
-    if (binding instanceof PostBinding) {
-      template = submitForm;
-    } else if (binding instanceof RedirectBinding) {
-      template = redirectPage;
-    } else if (binding instanceof SoapBinding) {
-      template = ecpMessage;
-    }
-    return binding
-        .creator()
-        .getSamlpResponse(relayState, authnRequest, samlResponse, null, template);
+    return binding.creator().getSamlpResponse(relayState, authnRequest, samlResponse, null);
   }
 
   @GET
@@ -866,7 +853,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
         relayState);
     try {
       Binding binding;
-      String template;
       if (!request.isSecure()) {
         throw new IllegalArgumentException(AUTHN_REQUEST_MUST_USE_TLS);
       }
@@ -877,8 +863,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getServiceProvidersMap(),
                 getPresignPlugins(),
                 spMetadata,
-                SUPPORTED_BINDINGS);
-        template = submitForm;
+                SUPPORTED_BINDINGS,
+                submitForm);
       } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
         binding =
             new RedirectBinding(
@@ -887,7 +873,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
-        template = redirectPage;
       } else {
         throw new IdpException(
             new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
@@ -915,8 +900,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getServiceProvidersMap(),
                 getPresignPlugins(),
                 spMetadata,
-                SUPPORTED_BINDINGS);
-        template = submitForm;
+                SUPPORTED_BINDINGS,
+                submitForm);
       } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)
           && !(binding instanceof RedirectBinding)) {
         binding =
@@ -926,7 +911,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
-        template = redirectPage;
       }
       org.opensaml.saml.saml2.core.Response encodedSaml =
           handleLogin(
@@ -941,9 +925,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug("Returning SAML Response for relayState: {}", relayState);
       NewCookie newCookie = createCookie(request, encodedSaml);
       Response response =
-          binding
-              .creator()
-              .getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie, template);
+          binding.creator().getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie);
       if (newCookie != null) {
         cookieCache.addActiveSp(newCookie.getValue(), authnRequest.getIssuer().getValue());
         logAddedSp(authnRequest);

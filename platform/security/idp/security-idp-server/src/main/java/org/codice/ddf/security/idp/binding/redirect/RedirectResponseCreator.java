@@ -59,8 +59,7 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.debug("Configuring SAML Response for Redirect.");
 
@@ -71,8 +70,7 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
         processPresignPlugins(authnRequest, samlResponse);
 
     URI location = signSamlGetResponse(processingResponse, authnRequest, relayState);
-    String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
-    Response.ResponseBuilder ok = Response.ok(redirectUpdated);
+    Response.ResponseBuilder ok = Response.temporaryRedirect(location).status(302);
     if (cookie != null) {
       ok = ok.cookie(cookie);
     }

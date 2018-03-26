@@ -103,6 +103,8 @@ public class AssertionConsumerService {
 
   private SessionFactory sessionFactory;
 
+  private String redirectPage;
+
   static {
     OpenSAMLUtil.initSamlEngine();
   }
@@ -116,6 +118,12 @@ public class AssertionConsumerService {
     idpMetadata = metadata;
     systemCrypto = crypto;
     this.relayStates = relayStates;
+    try (InputStream redirectStream =
+        LogoutRequestService.class.getResourceAsStream("/templates/redirectSSO.handlebars")) {
+      redirectPage = IOUtils.toString(redirectStream, StandardCharsets.UTF_8);
+    } catch (IOException | RuntimeException e) {
+      LOGGER.debug("Unable to load index page for SP.", e);
+    }
   }
 
   @POST
@@ -293,7 +301,9 @@ public class AssertionConsumerService {
     }
 
     LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri);
-    return Response.temporaryRedirect(relayUri).build();
+    String redirectUpdated = redirectPage.replace("{{redirect}}", relayUri.toString());
+
+    return Response.ok(redirectUpdated).build();
   }
 
   public Response processSamlResponse(

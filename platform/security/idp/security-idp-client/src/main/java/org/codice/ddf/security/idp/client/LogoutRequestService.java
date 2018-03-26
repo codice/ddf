@@ -153,7 +153,7 @@ public class LogoutRequestService {
     try (InputStream submitStream =
             LogoutRequestService.class.getResourceAsStream("/templates/submitForm.handlebars");
         InputStream redirectStream =
-            LogoutRequestService.class.getResourceAsStream("/templates/redirect.handlebars")) {
+            LogoutRequestService.class.getResourceAsStream("/templates/redirectSLO.handlebars")) {
       submitForm = IOUtils.toString(submitStream, StandardCharsets.UTF_8);
       redirectPage = IOUtils.toString(redirectStream, StandardCharsets.UTF_8);
     } catch (IOException | RuntimeException e) {

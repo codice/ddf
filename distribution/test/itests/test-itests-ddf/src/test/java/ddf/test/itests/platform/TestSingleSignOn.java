@@ -21,7 +21,6 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasXPath;
@@ -177,8 +176,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       getServiceManager().startFeature(true, "security-idp");
       getServiceManager().waitForAllBundles();
 
-      ingest(
-          getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
+      String id =
+          ingest(
+              getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+              "application/json");
 
       getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
       getServiceManager().waitForAllBundles();
@@ -265,7 +266,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // @formatter:on
     // Because we get back a 302, we know the redirect location is in the header
     ResponseHelper searchHelper = new ResponseHelper(searchResponse);
-    searchHelper.parseHeader();
+    searchHelper.parseRedirectLogin();
 
     // We get bounced to a login page which has the parameters we need to pass to the IdP
     // embedded on the page in a JSON Object
@@ -282,7 +283,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // The body has the parameters we passed it plus some extra, so we need to parse again
     ResponseHelper redirectHelper = new ResponseHelper(redirectResponse);
-    redirectHelper.parseBody();
+    redirectHelper.parseBodyLoginPage();
 
     // Make sure the authn request is valid before proceeding
     String inflated = RestSecurity.inflateBase64(redirectHelper.get("SAMLRequest"));
@@ -358,12 +359,22 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 Binding.POST == binding
                     ? SamlProtocol.Binding.HTTP_POST.getUri()
                     : SamlProtocol.Binding.HTTP_REDIRECT.getUri())
+            .redirects()
+            .follow(false)
             .expect()
-            .statusCode(200)
+            .statusCode(Binding.POST == binding ? 200 : 302)
             .when()
             .get(IDP_URL.getUrl() + "/sso");
     // @formatter:on
-    return new ResponseHelper(idpResponse);
+    ResponseHelper idpResponseHelper = new ResponseHelper(idpResponse);
+
+    if (Binding.POST == binding) {
+      idpResponseHelper.parsePostLogin();
+    } else {
+      idpResponseHelper.parseRedirectLogin();
+    }
+
+    return idpResponseHelper;
   }
 
   @Test
@@ -374,7 +385,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper helper =
         performHttpRequestUsingBinding(Binding.REDIRECT, relayState, encodedRequest);
 
-    assertThat(helper.parseBody(), is(Binding.REDIRECT));
+    assertThat(helper.binding, is(Binding.REDIRECT));
     assertThat(helper.get("RelayState"), is(relayState));
 
     String inflatedSamlResponse = RestSecurity.inflateBase64(helper.get("SAMLResponse"));
@@ -391,7 +402,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         Base64.getEncoder()
             .encodeToString(mockAuthnRequest.getBytes(StandardCharsets.UTF_8.name()));
     ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test", encodedRequest);
-    assertThat(helper.parseBody(), is(Binding.POST));
+    assertThat(helper.binding, is(Binding.POST));
   }
 
   @Test
@@ -462,7 +473,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper searchHelper = getSearchResponse(false, null);
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
-    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response idpResponse =
         given()
@@ -471,16 +481,19 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .basic("admin", "admin")
             .param("AuthMethod", "up")
             .params(searchHelper.params)
+            .redirects()
+            .follow(false)
             .expect()
-            .statusCode(200)
+            .statusCode(302)
             .when()
             .get(searchHelper.redirectUrl);
     // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
+    idpHelper.parseRedirectLogin();
 
     // Perform a bunch of checks to make sure we're valid against both the spec and schema
-    assertThat(idpHelper.parseBody(), is(Binding.REDIRECT));
+    assertThat(idpHelper.binding, is(Binding.REDIRECT));
     String inflatedSamlResponse = RestSecurity.inflateBase64(idpHelper.get("SAMLResponse"));
     validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
     assertThat(
@@ -496,6 +509,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
+    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response acsResponse =
         given()
@@ -503,13 +517,13 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(anyOf(is(307), is(303)))
+            .statusCode(200)
             .when()
             .get(idpHelper.redirectUrl);
     // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
-    acsHelper.parseHeader();
+    acsHelper.parseBodyACSRedirect();
 
     // Access search again, but now as an authenticated user.
     given()
@@ -542,7 +556,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // @formatter:on
 
     ResponseHelper createLogoutHelper = new ResponseHelper(createLogoutRequest);
-    createLogoutHelper.parseBody();
+    createLogoutHelper.parseBodyLogout();
 
     // Logout via url returned in logout request
     // @formatter:off
@@ -566,7 +580,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper searchHelper = getSearchResponse(false, null);
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
-    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response idpResponse =
         given()
@@ -575,16 +588,19 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .basic(username, password)
             .param("AuthMethod", "up")
             .params(searchHelper.params)
+            .redirects()
+            .follow(false)
             .expect()
-            .statusCode(200)
+            .statusCode(302)
             .when()
             .get(searchHelper.redirectUrl);
     // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
-    idpHelper.parseBody();
+    idpHelper.parseRedirectLogin();
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
+    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response acsResponse =
         given()
@@ -592,13 +608,13 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(anyOf(is(307), is(303)))
+            .statusCode(200)
             .when()
             .get(idpHelper.redirectUrl);
     // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
-    acsHelper.parseHeader();
+    acsHelper.parseBodyACSRedirect();
 
     // Access search again, but now as an authenticated user.
     given()
@@ -623,7 +639,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper searchHelper = getSearchResponse(false, queryUrl);
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
-    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response idpResponse =
         given()
@@ -632,16 +647,19 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .basic("admin", "admin")
             .param("AuthMethod", "up")
             .params(searchHelper.params)
+            .redirects()
+            .follow(false)
             .expect()
-            .statusCode(200)
+            .statusCode(302)
             .when()
             .get(searchHelper.redirectUrl);
     // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
+    idpHelper.parseRedirectLogin();
 
     // Perform a bunch of checks to make sure we're valid against both the spec and schema
-    assertThat(idpHelper.parseBody(), is(Binding.REDIRECT));
+    assertThat(idpHelper.binding, is(Binding.REDIRECT));
     String inflatedSamlResponse = RestSecurity.inflateBase64(idpHelper.get("SAMLResponse"));
     validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
     assertThat(
@@ -657,6 +675,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
+    // The redirect is currently done via javascript and not an HTTP redirect.
     // @formatter:off
     Response acsResponse =
         given()
@@ -664,13 +683,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(anyOf(is(307), is(303)))
+            .statusCode(200)
             .when()
             .get(idpHelper.redirectUrl);
     // @formatter:on
-
-    ResponseHelper acsHelper = new ResponseHelper(acsResponse);
-    acsHelper.parseHeader();
 
     Response response =
         given().cookies(acsResponse.getCookies()).expect().statusCode(200).when().get(queryUrl);
@@ -739,9 +755,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private String redirectUrl;
 
+    private Binding binding;
+
     private final Map<String, String> params = new HashMap<>();
 
-    private ResponseHelper(Response response) throws IOException {
+    private ResponseHelper(Response response) throws URISyntaxException {
       this.response = response;
     }
 
@@ -758,35 +776,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       }
     }
 
-    private void parseHeader() throws URISyntaxException {
-      if (response.headers().hasHeaderWithName("Location")) {
-        parseParamsFromUrl(response.header("Location"));
-      } else {
-        fail("Response does not have a header \"Location\"");
-      }
-    }
-
-    private Binding parseBody() throws URISyntaxException {
-
-      // Because a POST form only has the stuff we put into it, we don't care
-      // about any parsing beyond recognizing it as a form
-      String body = response.body().asString();
-      Binding binding = null;
-      if (body.contains("<form")) {
-        binding = Binding.POST;
-      } else if (body.contains("<title>Redirect</title>")) {
-        parseBodyRedirect();
-        binding = Binding.REDIRECT;
-      } else if (body.contains("<title>Login</title>")) {
-        parseBodyLogin();
-      } else if (body.contains("Identity Provider Logout")) {
-        parseBodyLogout();
-      } else {
-        fail("Failed to parse body as redirect or post\n" + body);
-      }
-      return binding;
-    }
-
     private void parseJson(String json) {
       String[] keyValuePairs = json.split("[,]");
       for (String pair : keyValuePairs) {
@@ -796,7 +785,9 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       }
     }
 
-    private void parseBodyLogin() throws URISyntaxException {
+    private void parseBodyLoginPage() throws URISyntaxException {
+      assertThat(response.body().asString(), containsString("<title>Login</title>"));
+
       // We're trying to parse a javascript variable that is embedded in an HTML form
       Pattern pattern = Pattern.compile("window.idpState *= *\\{(.*)\\}", Pattern.CASE_INSENSITIVE);
       Matcher matcher = pattern.matcher(response.body().asString());
@@ -813,7 +804,25 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       }
     }
 
-    private void parseBodyRedirect() throws URISyntaxException {
+    private void parseRedirectLogin() throws URISyntaxException {
+      assertThat(response.statusCode(), is(302));
+      assertThat(response.headers().hasHeaderWithName("Location"), is(true));
+
+      parseParamsFromUrl(response.header("Location"));
+      binding = Binding.REDIRECT;
+    }
+
+    private void parsePostLogin() {
+      assertThat(response.body().asString(), containsString("<form"));
+
+      // Do nothing (it's already in the HTML form element).
+      binding = Binding.POST;
+    }
+
+    private void parseBodyACSRedirect() throws URISyntaxException {
+      assertThat(
+          response.body().asString(),
+          containsString("<title>AssertionConsumerService Redirect</title>"));
 
       // We're trying to parse a javascript variable that is embedded in an HTML form
       Pattern pattern = Pattern.compile("encoded *= *\"(.*)\"", Pattern.CASE_INSENSITIVE);
@@ -832,6 +841,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     }
 
     private void parseBodyLogout() {
+      assertThat(response.body().asString(), containsString("Identity Provider Logout"));
+
       parseJson(response.body().asString());
     }
   }

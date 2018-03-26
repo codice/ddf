@@ -48,14 +48,17 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
 
   public static final String HTTP_SCHEMAS_XMLSOAP_ORG_SOAP_ACTOR_NEXT =
       "http://schemas.xmlsoap.org/soap/actor/next";
+  private final String responseTemplate;
 
   public SoapResponseCreator(
       SystemCrypto systemCrypto,
       Map<String, EntityInformation> serviceProviders,
       Set<SamlPresignPlugin> presignPlugins,
       List<String> spMetadata,
-      Set<Binding> supportedBindings) {
+      Set<Binding> supportedBindings,
+      String responseTemplate) {
     super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+    this.responseTemplate = responseTemplate;
   }
 
   @Override
@@ -63,8 +66,7 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.trace("Configuring SAML Response for POST.");
 

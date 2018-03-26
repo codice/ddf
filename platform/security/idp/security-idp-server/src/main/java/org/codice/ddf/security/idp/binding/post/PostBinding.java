@@ -38,11 +38,17 @@ public class PostBinding implements Binding {
       Map<String, EntityInformation> serviceProviders,
       Set<SamlPresignPlugin> presignPlugins,
       List<String> spMetadata,
-      Set<SamlProtocol.Binding> supportedBindings) {
+      Set<SamlProtocol.Binding> supportedBindings,
+      String submitFormTemplate) {
     decoder = new PostRequestDecoder();
     creator =
         new PostResponseCreator(
-            systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+            systemCrypto,
+            serviceProviders,
+            presignPlugins,
+            spMetadata,
+            supportedBindings,
+            submitFormTemplate);
     validator = new PostValidator(systemCrypto, serviceProviders);
   }
 
