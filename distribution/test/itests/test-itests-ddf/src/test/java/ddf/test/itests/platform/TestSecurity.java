@@ -18,6 +18,8 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
@@ -32,6 +34,8 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -40,6 +44,7 @@ import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 import ddf.catalog.data.Metacard;
 import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
@@ -94,14 +99,8 @@ import org.osgi.service.cm.Configuration;
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
 
-  /** *************** USERS *************** */
-  private static final String USER_PASSWORD = "password1";
-
-  private static final String A_USER = "slang";
-
-  private static final String B_USER = "tchalla";
-
-  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
+  public static final String SAMPLE_SOAP =
+      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
   protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
 
@@ -169,6 +168,17 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "</soap:Envelope>";
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
+
+  /**
+   * *********** USERS ***************
+   */
+  private static final String USER_PASSWORD = "password1";
+
+  private static final String A_USER = "slang";
+
+  private static final String B_USER = "tchalla";
+
+  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
   private static final String BAD_X509_TOKEN =
       "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
@@ -355,9 +365,6 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "   </soap:Body>\n"
           + "</soap:Envelope>";
 
-  public static final String SAMPLE_SOAP =
-      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
-
   @BeforeExam
   public void beforeTest() throws Exception {
     try {
@@ -537,11 +544,11 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test
   public void testAllowedCipherSuites() throws Exception {
     String[] supportedCipherSuites = {
-      "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-      "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-      "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
     };
 
     List<String> systemCipherSuites =
@@ -560,7 +567,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
     for (String cipher : supportedCipherSuites) {
       if (cipher.contains("_" + keyAlgorithm + "_")) {
-        HttpClient client = createHttpClient("TLSv1.2", new String[] {cipher}, credentialsProvider);
+        HttpClient client = createHttpClient("TLSv1.2", new String[]{cipher}, credentialsProvider);
         assertBasicAuth(client, url, 200);
       }
     }
@@ -569,42 +576,42 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test(expected = SSLHandshakeException.class)
   public void testDisallowedCipherSuites() throws Exception {
     String[] disallowedCipherSuites =
-        new String[] {
-          // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited
-          // strength policy to be installed
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
-          // "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
-          // "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-          // "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
-          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-          "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
-          "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
-          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-          "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-          "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-          "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-          "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-          "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256",
-          "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
-          "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-          "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-          "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-          "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-          "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
+        new String[]{
+            // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited
+            // strength policy to be installed
+            //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+            // "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+            //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+            // "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+            //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+            // "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_RSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+            "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+            "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+            "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
         };
 
     List<String> systemCipherSuites =
@@ -1248,6 +1255,61 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   void restoreKeystoreFile() throws IOException {
     Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
+  }
+
+  //Purpose is to make sure operations of the security certificate generator are accessible
+  //at runtime. The actual functionality of these operations is proved in unit tests.
+  @Test
+  public void testCertificateGeneratorService() throws Exception {
+    String commonName = "myCn";
+    String expectedValue = "CN=" + commonName;
+    String featureName = "security-certificate";
+    String certGenPath =
+        SECURE_ROOT_AND_PORT
+            + "/admin/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
+    getBackupKeystoreFile();
+    try {
+
+      getServiceManager().startFeature(true, featureName);
+
+      //Test first operation
+      expect("Wait for MBeanServer to register object")
+          .within(30, SECONDS)
+          .checkEvery(5, SECONDS)
+          .until(
+              () -> {
+                Response response =
+                    given()
+                        .auth()
+                        .preemptive()
+                        .basic("admin", "admin")
+                        .when()
+                        .get(certGenPath + "/configureDemoCert/" + commonName);
+                String text = response.getBody().asString();
+                JsonPath snippet = JsonPath.from(text);
+                String actualValue = snippet.getString("value");
+                return expectedValue.equals(actualValue);
+              });
+
+      //Test second operation
+      Response response =
+          given()
+              .auth()
+              .preemptive()
+              .basic("admin", "admin")
+              .when()
+              .get(certGenPath + "/configureDemoCertWithDefaultHostname");
+
+      String jsonString = response.getBody().asString();
+      JsonPath jsonPath = JsonPath.from(jsonString);
+      // If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
+      assertThat(jsonPath.getString("value"), notNullValue());
+
+      // Make sure an invalid key would return null
+      assertThat(jsonPath.getString("someinvalidkey"), nullValue());
+    } finally {
+      restoreKeystoreFile();
+    }
   }
 
   @Test
