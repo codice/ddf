@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
@@ -248,7 +248,7 @@
         <spark.version>2.5.5</spark.version>
         <sardine.version>5.7</sardine.version>
         <xerces.version>2.11.0</xerces.version>
-
+        <dependency-check-maven.version>3.1.1</dependency-check-maven.version>
         <jsr305.version>3.0.2_1</jsr305.version>
 
         <!-- gitflow-incremental-builder -->
@@ -328,6 +328,45 @@
         </extensions>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${dependency-check-maven.version}</version>
+                    <configuration>
+                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <skipTestScope>true</skipTestScope>
+                        <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
+                        <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
+                        <!--Disable because we have a separate NSP analysis step and this plugin has no way to suppress NSP issues as of 3.0.2-->
+                        <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
+                        <!--Disable .NET analyzers-->
+                        <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
+                        <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                        <!--Analyzes Ruby Gemfile.lock files, not OSGi bundles-->
+                        <bundleAuditAnalyzerEnabled>false</bundleAuditAnalyzerEnabled>
+                        <!--We don't use CMake, CocoaPods, AutoConf, or Ruby-->
+                        <cmakeAnalyzerEnabled>false</cmakeAnalyzerEnabled>
+                        <cocoapodsAnalyzerEnabled>false</cocoapodsAnalyzerEnabled>
+                        <autoconfAnalyzerEnabled>false</autoconfAnalyzerEnabled>
+                        <rubygemsAnalyzerEnabled>false</rubygemsAnalyzerEnabled>
+                        <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+                        <!--Always include root-level suppression file-->
+                        <suppressionFiles>
+                            <suppressionFile>
+                                <!--IDE can show variable as undefined because a plugin dynamically creates the property-->
+                                ${highest-basedir}/dependency-check-maven-config.xml
+                            </suppressionFile>
+                        </suppressionFiles>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -536,6 +575,25 @@
             </plugins>
         </pluginManagement>
         <plugins>
+
+            <plugin>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>directory-maven-plugin</artifactId>
+                <version>0.3.1</version>
+                <executions>
+                    <execution>
+                        <id>directories</id>
+                        <goals>
+                            <goal>highest-basedir</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <property>highest-basedir</property>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>com.coveo</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
@@ -575,6 +633,23 @@
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
         </plugins>
     </reporting>
@@ -807,28 +882,6 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>1.4.5</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>ddf.support</groupId>
-                                <artifactId>support-owasp</artifactId>
-                                <version>${ddf.support.version}</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <failBuildOnCVSS>7</failBuildOnCVSS>
-                            <format>ALL</format>
-                            <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
-                            <skipTestScope>true</skipTestScope>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -843,14 +896,6 @@
                     <plugin>
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
-                        <version>1.2.9</version>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                    <report>aggregate</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
                     </plugin>
                 </plugins>
             </reporting>

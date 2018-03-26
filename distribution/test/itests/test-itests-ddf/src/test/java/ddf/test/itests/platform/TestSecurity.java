@@ -94,14 +94,8 @@ import org.osgi.service.cm.Configuration;
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurity extends AbstractIntegrationTest {
 
-  /** *************** USERS *************** */
-  private static final String USER_PASSWORD = "password1";
-
-  private static final String A_USER = "slang";
-
-  private static final String B_USER = "tchalla";
-
-  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
+  public static final String SAMPLE_SOAP =
+      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
   protected static final String TRUST_STORE_PATH = System.getProperty("javax.net.ssl.trustStore");
 
@@ -169,6 +163,15 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "</soap:Envelope>";
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
+
+  /** ************** USERS *************** */
+  private static final String USER_PASSWORD = "password1";
+
+  private static final String A_USER = "slang";
+
+  private static final String B_USER = "tchalla";
+
+  private static final String ACCESS_GROUP_REPLACE_TOKEN = "ACCESS_GROUP_REPLACE_TOKEN";
 
   private static final String BAD_X509_TOKEN =
       "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
@@ -354,9 +357,6 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "      </wst:RequestSecurityToken>\n"
           + "   </soap:Body>\n"
           + "</soap:Envelope>";
-
-  public static final String SAMPLE_SOAP =
-      "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
   @BeforeExam
   public void beforeTest() throws Exception {
