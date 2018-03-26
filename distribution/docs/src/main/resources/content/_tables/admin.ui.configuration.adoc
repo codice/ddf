@@ -44,20 +44,6 @@
 |true
 |true
 
-|Header
-|header
-|String
-|Specifies the header text to be rendered on the Administrator Console.
-|
-|true
-
-|Footer
-|footer
-|String
-|Specifies the footer text to be rendered on the Administrator Console.
-|
-|true
-
 |Style
 |style
 |String
