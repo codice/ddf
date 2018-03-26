@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -81,7 +82,10 @@ public class SearchFormsLoaderTest {
   private static File getConfigDirectory() throws Exception {
     File dir = Paths.get(LOADER_RESOURCES_DIR.toURI()).toFile();
     if (!dir.exists()) {
-      fail("Invalid setup parameter 'target', the directory does not exist");
+      fail(
+          format(
+              "Invalid setup parameter 'target', the directory [%s] does not exist",
+              dir.getAbsolutePath()));
     }
     return dir;
   }
@@ -89,7 +93,10 @@ public class SearchFormsLoaderTest {
   private static File getConfigDirectory(String target) throws Exception {
     File dir = Paths.get(LOADER_RESOURCES_DIR.toURI()).resolve(target).toFile();
     if (!dir.exists()) {
-      fail("Invalid setup parameter 'target', the directory does not exist");
+      fail(
+          format(
+              "Invalid setup parameter 'target', the directory [%s] does not exist",
+              dir.getAbsolutePath()));
     }
     return dir;
   }

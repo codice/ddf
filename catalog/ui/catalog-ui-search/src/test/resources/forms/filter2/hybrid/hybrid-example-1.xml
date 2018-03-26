@@ -5,7 +5,7 @@
     <fes:Or>
         <fes:PropertyIsEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>address</fes:ValueReference>
-            <fes:Function name="template.substitutions.1">
+            <fes:Function name="template.value.v1">
                 <fes:Literal/>
                 <fes:Literal>my-id-1</fes:Literal>
                 <fes:Literal>true</fes:Literal>
@@ -15,7 +15,7 @@
 
         <fes:PropertyIsEqualTo matchAction="ANY" matchCase="false">
             <fes:ValueReference>name</fes:ValueReference>
-            <fes:Function name="template.substitutions.1">
+            <fes:Function name="template.value.v1">
                 <fes:Literal>russian-news-story</fes:Literal>
                 <fes:Literal>my-id-2</fes:Literal>
                 <fes:Literal>true</fes:Literal>
@@ -31,7 +31,7 @@
 
             <fes:PropertyIsLessThanOrEqualTo matchAction="ANY" matchCase="false">
                 <fes:ValueReference>benumber</fes:ValueReference>
-                <fes:Function name="template.substitutions.1">
+                <fes:Function name="template.value.v1">
                     <fes:Literal>83.5653</fes:Literal>
                     <fes:Literal>my-id-3</fes:Literal>
                     <fes:Literal>true</fes:Literal>

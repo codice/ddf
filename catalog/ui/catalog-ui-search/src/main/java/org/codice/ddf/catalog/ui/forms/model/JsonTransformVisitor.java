@@ -61,7 +61,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   private static final Function<Serializable, Boolean> BOOL_FUNC =
       s -> Boolean.parseBoolean((String) s);
 
-  private static final String TEMPLATE_SUBSTITUTIONS_V1 = "template.substitutions.1";
+  private static final String TEMPLATE_SUBSTITUTIONS_V1 = "template.value.v1";
 
   private static final Integer DEFAULT_VALUE_INDEX = 0;
 

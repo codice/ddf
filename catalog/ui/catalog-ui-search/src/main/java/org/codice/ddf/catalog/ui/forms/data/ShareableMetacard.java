@@ -58,7 +58,7 @@ public class ShareableMetacard extends MetacardImpl {
    * @return true if the provided metacard is a shareable metacard, false otherwise.
    */
   public static boolean isShareableMetacard(Metacard metacard) {
-    return metacard != null && metacard.getTags().stream().anyMatch(SHAREABLE_TAG::equals);
+    return metacard != null && metacard.getTags().contains(SHAREABLE_TAG);
   }
 
   /** Wrap any metacard as a ShareableMetacardImpl. */

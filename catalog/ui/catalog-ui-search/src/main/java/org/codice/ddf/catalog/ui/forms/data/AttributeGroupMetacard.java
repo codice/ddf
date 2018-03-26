@@ -31,10 +31,10 @@ import java.util.Set;
  * <p>Relevant attributes:
  *
  * <ul>
- *   <li>{@link Metacard#TITLE} - display name for an attribute group, in general not necessary, but
- *       for groups it should be present and it should be unique.
- *   <li>{@link Metacard#DESCRIPTION} - additional information about a group, should be present but
- *       not necessarily unique.
+ *   <li>{@link Core#TITLE} - display name for an attribute group, in general not necessary, but for
+ *       groups it should be present and it should be unique.
+ *   <li>{@link Core#DESCRIPTION} - additional information about a group, should be present but not
+ *       necessarily unique.
  *   <li>{@link AttributeGroupType#ATTRIBUTE_GROUP_DESCRIPTORS} - contains a list of attribute
  *       descriptor names that denote the fields that are part of the group.
  * </ul>
@@ -67,7 +67,7 @@ public class AttributeGroupMetacard extends ShareableMetacard {
    * @return true if the provided metacard is a result template metacard, false otherwise.
    */
   public static boolean isAttributeGroupMetacard(Metacard metacard) {
-    return metacard != null && metacard.getTags().stream().anyMatch(ATTRIBUTE_GROUP_TAG::equals);
+    return metacard != null && metacard.getTags().contains(ATTRIBUTE_GROUP_TAG);
   }
 
   public Set<String> getGroupDescriptors() {

@@ -31,13 +31,14 @@ import java.util.Set;
  * in a future version of the library.</i>
  *
  * @see <a href="http://schemas.opengis.net/filter/2.0/">schemas.opengis.net/filter/2.0/</a>
- * @see org.codice.ddf.catalog.ui.forms.model.JsonModel
+ * @see org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate
+ * @see org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode
  * @see org.codice.ddf.catalog.ui.forms.model.JsonTransformVisitor
  */
 public class QueryTemplateType extends MetacardTypeImpl {
   public static final String QUERY_TEMPLATE_TAG = "query-template";
 
-  public static final String QUERY_TEMPLATE_FILTER = "template.query.filter";
+  public static final String QUERY_TEMPLATE_FILTER = "ui.template-filter";
 
   // @formatter:off
   private static final Set<AttributeDescriptor> QUERY_TEMPLATE_ATTRIBUTES =

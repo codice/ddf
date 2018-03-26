@@ -40,11 +40,15 @@ import org.slf4j.LoggerFactory;
 public class TemplateTransformer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateTransformer.class);
 
+  public static boolean invalidFormTemplate(Metacard metacard) {
+    return new TemplateTransformer().toFormTemplate(metacard) == null;
+  }
+
   /** Convert a query template metacard into the JSON representation of FormTemplate. */
   @Nullable
   public FormTemplate toFormTemplate(Metacard metacard) {
     if (!QueryTemplateMetacard.isQueryTemplateMetacard(metacard)) {
-      LOGGER.debug("Metacard {} was not a query template metacard", metacard);
+      LOGGER.debug("Metacard {} was not a query template metacard", metacard.getId());
       return null;
     }
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);

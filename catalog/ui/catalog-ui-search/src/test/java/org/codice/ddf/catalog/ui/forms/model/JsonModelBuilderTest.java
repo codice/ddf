@@ -38,6 +38,13 @@ public class JsonModelBuilderTest {
         .getResult();
   }
 
+  /**
+   * The below test names follow a simple convention: (builder method) + (validation method)
+   *
+   * <p>This way the test names clearly define a mapping between builder function and the
+   * verification that occurs behind the scenes. Refer to the state checks in {@link
+   * JsonModelBuilder}, their exception messages should also document their purpose.
+   */
   public static class ValidateCorrectUse {
     private JsonModelBuilder builder;
 

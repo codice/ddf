@@ -31,7 +31,7 @@ import java.util.Set;
 public class AttributeGroupType extends MetacardTypeImpl {
   public static final String ATTRIBUTE_GROUP_TAG = "attribute-group";
 
-  public static final String ATTRIBUTE_GROUP_LIST = "groups.attribute.list";
+  public static final String ATTRIBUTE_GROUP_LIST = "ui.attribute-group";
 
   // @formatter:off
   private static final Set<AttributeDescriptor> ATTRIBUTE_GROUP_DESCRIPTORS =

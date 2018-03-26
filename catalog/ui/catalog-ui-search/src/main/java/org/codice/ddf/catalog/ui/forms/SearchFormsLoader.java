@@ -13,17 +13,27 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
+import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.security.service.SecurityServiceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,7 +45,9 @@ import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
+import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +61,7 @@ import org.slf4j.LoggerFactory;
 public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsLoader.class);
 
-  private static final Function<File, Consumer<? super Object>> UNEXPECTED_CONFIG_CONSUMER_FACTORY =
-      file ->
-          obj -> {
-            if (!Map.class.isInstance(obj)) {
-              LOGGER.warn(
-                  "Unexpected configuration in {}, values should be maps not {}",
-                  file.getName(),
-                  obj.getClass().getName());
-            }
-          };
+  private static final Security SECURITY = Security.getInstance();
 
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
@@ -69,10 +72,6 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   private final File configDirectory;
 
-  public static Supplier<List<Metacard>> config() {
-    return new SearchFormsLoader();
-  }
-
   public SearchFormsLoader() {
     this(DEFAULT_FORMS_DIRECTORY);
   }
@@ -81,18 +80,41 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     this.configDirectory = configDirectory;
   }
 
+  public static Supplier<List<Metacard>> config() {
+    return new SearchFormsLoader();
+  }
+
+  public static void bootstrap(
+      CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
+
+    // Note: Results from querying as admin are never returned to the client or cached
+    // This means there is no risk of data leak
+    Set<String> queryTitles =
+        queryAsAdmin(util, QUERY_TEMPLATE_TAG, SearchFormsLoader::titlesTransform);
+    Set<String> resultTitles =
+        queryAsAdmin(util, ATTRIBUTE_GROUP_TAG, SearchFormsLoader::titlesTransform);
+
+    List<Metacard> dedupedTemplateMetacards =
+        Stream.concat(
+                systemTemplates
+                    .stream()
+                    .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
+                    .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
+                systemTemplates
+                    .stream()
+                    .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
+                    .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
+            .collect(Collectors.toList());
+
+    if (!dedupedTemplateMetacards.isEmpty()) {
+      saveMetacards(framework, dedupedTemplateMetacards);
+    }
+  }
+
   @Override
   public List<Metacard> get() {
     if (!configDirectory.exists()) {
       LOGGER.warn("Could not locate forms directory [{}]", configDirectory.getAbsolutePath());
-      return Collections.emptyList();
-    }
-
-    // What's our policy here? Do we want the system to blowup / make noise if this isn't possible?
-    // Especially due to the security manager?
-    if (!configDirectory.canRead()) {
-      LOGGER.warn(
-          "Forms directory [{}] exists but could not be read", configDirectory.getAbsolutePath());
       return Collections.emptyList();
     }
 
@@ -136,7 +158,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     List<Object> configs = (List) configObject;
     return configs
         .stream()
-        .peek(UNEXPECTED_CONFIG_CONSUMER_FACTORY.apply(file))
+        .peek(obj -> loggingConsumerFactory(file).accept(obj))
         .filter(Map.class::isInstance)
         .map(Map.class::cast)
         .map(mapper)
@@ -146,8 +168,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /** Parse the JSON map for initializing system form templates. */
   @Nullable
   private Metacard formMapper(Map map) {
-    String title = safeGet(map, "title", String.class);
-    String description = safeGet(map, "description", String.class);
+    String title = safeGet(map, Core.TITLE, String.class);
+    String description = safeGet(map, Core.DESCRIPTION, String.class);
     String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
 
     if (anyNull(title, description, filterTemplateFile)) {
@@ -169,8 +191,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     metacard.setFormsFilter(filterXml);
 
     // Validation so the catalog is not contaminated on startup, which would impact every request
-    if (new TemplateTransformer().toFormTemplate(metacard) == null) {
-      LOGGER.warn("System forms configuration for template '{}' had invalid XML", title);
+    if (TemplateTransformer.invalidFormTemplate(metacard)) {
+      LOGGER.warn("System forms configuration for template '{}' had one or more problems", title);
       return null;
     }
 
@@ -180,8 +202,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /** Parse the JSON map for initializing system result templates. */
   @Nullable
   private Metacard resultsMapper(Map map) {
-    String title = safeGet(map, "title", String.class);
-    String description = safeGet(map, "description", String.class);
+    String title = safeGet(map, Core.TITLE, String.class);
+    String description = safeGet(map, Core.DESCRIPTION, String.class);
     List<String> descriptors = safeGetList(map, "descriptors", String.class);
 
     if (anyNull(title, description, descriptors)) {
@@ -243,5 +265,61 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   private static boolean anyNull(Object... args) {
     return args == null || Arrays.stream(args).anyMatch(Objects::isNull);
+  }
+
+  private static Set<String> titlesTransform(Map<String, Result> resultMap) {
+    return resultMap
+        .values()
+        .stream()
+        .map(Result::getMetacard)
+        .map(Metacard::getTitle)
+        .collect(Collectors.toSet());
+  }
+
+  private static Consumer<? super Object> loggingConsumerFactory(File file) {
+    return obj -> {
+      if (!Map.class.isInstance(obj)) {
+        LOGGER.warn(
+            "Unexpected configuration in {}, values should be maps not {}",
+            file.getName(),
+            obj.getClass().getName());
+      }
+    };
+  }
+
+  /**
+   * Results from this method call should not be directly returned to clients or cached in some
+   * intermediate block of memory.
+   */
+  private static Set<String> queryAsAdmin(
+      EndpointUtil util, String tag, Function<Map<String, Result>, Set<String>> transform) {
+    return SECURITY.runAsAdmin(
+        () -> {
+          try {
+            return SECURITY.runWithSubjectOrElevate(
+                () -> transform.apply(util.getMetacardsByFilter(tag)));
+          } catch (SecurityServiceException | InvocationTargetException e) {
+            LOGGER.warn(
+                "Can't query the catalog while trying to initialize system search templates, was "
+                    + "unable to elevate privileges",
+                e);
+          }
+          return Collections.emptySet();
+        });
+  }
+
+  private static void saveMetacards(CatalogFramework framework, List<Metacard> metacards) {
+    SECURITY.runAsAdmin(
+        () -> {
+          try {
+            return SECURITY.runWithSubjectOrElevate(
+                () -> framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards());
+          } catch (SecurityServiceException | InvocationTargetException e) {
+            LOGGER.warn(
+                "Can't create metacard for system search template, was unable to elevate privileges",
+                e);
+          }
+          return null;
+        });
   }
 }

@@ -29,10 +29,10 @@ import java.util.List;
  * <p>Relevant attributes:
  *
  * <ul>
- *   <li>{@link Metacard#TITLE} - display name for a query template, in general not necessary, but
- *       for templates it should be present and it should be unique
- *   <li>{@link Metacard#DESCRIPTION} - additional information about a template, should be present
- *       but not necessarily unique
+ *   <li>{@link Core#TITLE} - display name for a query template, in general not necessary, but for
+ *       templates it should be present and it should be unique
+ *   <li>{@link Core#DESCRIPTION} - additional information about a template, should be present but
+ *       not necessarily unique
  *   <li>{@link QueryTemplateType#QUERY_TEMPLATE_FILTER} - contains validated Filter XML 2.0 that
  *       represents the query structure to execute, with filter functions denoting information that
  *       is needed before execution can occur.
@@ -65,7 +65,7 @@ public class QueryTemplateMetacard extends ShareableMetacard {
    * @return true if the provided metacard is a query template metacard, false otherwise.
    */
   public static boolean isQueryTemplateMetacard(Metacard metacard) {
-    return metacard != null && metacard.getTags().stream().anyMatch(QUERY_TEMPLATE_TAG::equals);
+    return metacard != null && metacard.getTags().contains(QUERY_TEMPLATE_TAG);
   }
 
   public String getFormsFilter() {
