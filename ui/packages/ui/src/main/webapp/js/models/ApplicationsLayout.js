@@ -172,46 +172,10 @@ define([
                 applicationsResponseCache = $.ajax({
                     type: 'GET',
                     url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
-                    dataType: 'JSON'}).then(function(appsResp) {
-                        var apps = appsResp.value;
-    
-                        //Only display apps that have either configurations or plugins
-                        var appPluginReqs = apps.map(function (app) {
-                            return {
-                                type: "EXEC",
-                                mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-                                operation: "getPluginsForApplication",
-                                arguments: [app.name]
-                            };
-                        });
-    
-                        var appConfigsReqs = apps.map(function (app) {
-                            return {
-                                type: "EXEC",
-                                mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-                                operation: "getServices",
-                                arguments: [app.name]
-                            };
-                        });
-    
-                        return $.ajax({
-                            type: 'POST',
-                            url: '/admin/jolokia',
-                            dataType: 'JSON',
-                            data: JSON.stringify(appPluginReqs.concat(appConfigsReqs))
-                        }).then(function (batchedResponses) {
-                            var appsToShow = batchedResponses
-                                .filter(function (resp) {
-                                    return resp.value && resp.value.length !== 0;
-                                })
-                                .map(function (resp) {
-                                    return resp.request.arguments[0];
-                                });
-                            return apps.filter(function (app) {
-                                return appsToShow.indexOf(app.name) !== -1;
-                            });
-                        });
-                    });
+                    dataType: 'JSON'
+                }).then(function (appsResp) {
+                    return appsResp.value;
+                });
             }
             return applicationsResponseCache;
         }

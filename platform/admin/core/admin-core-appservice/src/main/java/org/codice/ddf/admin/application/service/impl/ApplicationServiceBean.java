@@ -195,6 +195,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     return appService
         .getApplications()
         .stream()
+        .filter(
+            app ->
+                !getPluginsForApplication(app.getName()).isEmpty()
+                    || !getServices(app.getName()).isEmpty())
         .map(this::convertApplicationEntries)
         .collect(Collectors.toList());
   }
