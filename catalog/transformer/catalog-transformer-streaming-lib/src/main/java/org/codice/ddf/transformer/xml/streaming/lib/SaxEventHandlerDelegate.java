@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.input.TeeInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.XMLUtils;
@@ -167,7 +166,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
          */
         if (metacard.getAttribute(attribute.getName()) == null) {
           metacard.setAttribute(attribute);
-        } else if (MapUtils.getBoolean(multiValuedMap, attribute.getName(), false)) {
+        } else if (multiValuedMap.getOrDefault(attribute.getName(), false)) {
+          metacard.getAttribute(attribute.getName()).getValues().removeAll(attribute.getValues());
           metacard.getAttribute(attribute.getName()).getValues().addAll(attribute.getValues());
         }
       }
