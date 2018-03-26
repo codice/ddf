@@ -169,7 +169,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
-  /** ************ USERS *************** */
+  /**
+   * *********** USERS ***************
+   */
   private static final String USER_PASSWORD = "password1";
 
   private static final String A_USER = "slang";
@@ -542,11 +544,11 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test
   public void testAllowedCipherSuites() throws Exception {
     String[] supportedCipherSuites = {
-      "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
-      "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-      "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-      "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
     };
 
     List<String> systemCipherSuites =
@@ -565,7 +567,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     CredentialsProvider credentialsProvider = createBasicAuth("admin", "admin");
     for (String cipher : supportedCipherSuites) {
       if (cipher.contains("_" + keyAlgorithm + "_")) {
-        HttpClient client = createHttpClient("TLSv1.2", new String[] {cipher}, credentialsProvider);
+        HttpClient client = createHttpClient("TLSv1.2", new String[]{cipher}, credentialsProvider);
         assertBasicAuth(client, url, 200);
       }
     }
@@ -574,42 +576,42 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test(expected = SSLHandshakeException.class)
   public void testDisallowedCipherSuites() throws Exception {
     String[] disallowedCipherSuites =
-        new String[] {
-          // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited
-          // strength policy to be installed
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
-          // "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
-          // "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-          // "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
-          // "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
-          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-          "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
-          "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
-          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-          "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-          "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-          "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-          "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-          "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256",
-          "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
-          "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-          "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-          "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-          "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-          "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
+        new String[]{
+            // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited
+            // strength policy to be installed
+            //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+            // "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+            //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+            // "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+            //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+            //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+            // "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_RSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+            //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+            // "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+            "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+            "TLS_ECDH_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256",
+            "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+            "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA", "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+            "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+            "SSL_RSA_WITH_RC4_128_MD5", "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
         };
 
     List<String> systemCipherSuites =
@@ -1255,8 +1257,8 @@ public class TestSecurity extends AbstractIntegrationTest {
     Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
   }
 
-  // Purpose is to make sure operations of the security certificate generator are accessible
-  // at runtime. The actual functionality of these operations is proved in unit tests.
+  //Purpose is to make sure operations of the security certificate generator are accessible
+  //at runtime. The actual functionality of these operations is proved in unit tests.
   @Test
   public void testCertificateGeneratorService() throws Exception {
     String commonName = "myCn";
@@ -1270,7 +1272,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
       getServiceManager().startFeature(true, featureName);
 
-      // Test first operation
+      //Test first operation
       expect("Wait for MBeanServer to register object")
           .within(30, SECONDS)
           .checkEvery(5, SECONDS)
@@ -1289,7 +1291,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 return expectedValue.equals(actualValue);
               });
 
-      // Test second operation
+      //Test second operation
       Response response =
           given()
               .auth()
@@ -1307,7 +1309,6 @@ public class TestSecurity extends AbstractIntegrationTest {
       assertThat(jsonPath.getString("someinvalidkey"), nullValue());
     } finally {
       restoreKeystoreFile();
-      getServiceManager().stopFeature(false, featureName);
     }
   }
 
