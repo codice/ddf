@@ -93,16 +93,7 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
    * @return
    */
   public static boolean isWorkspaceMetacard(Metacard metacard) {
-    if (metacard != null) {
-      return metacard
-          .getTags()
-          .stream()
-          .filter(WorkspaceAttributes.WORKSPACE_TAG::equals)
-          .findFirst()
-          .isPresent();
-    }
-
-    return false;
+    return metacard != null && metacard.getTags().contains(WorkspaceAttributes.WORKSPACE_TAG);
   }
 
   /**

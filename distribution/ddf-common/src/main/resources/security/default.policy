@@ -332,6 +332,11 @@ grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-cor
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
+grant codeBase "file:/catalog-ui-search" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}forms", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}forms${/}-", "read";
+}
+
 grant codeBase "file:/security-certificate-generator" {
     permission java.security.SecurityPermission "insertProvider";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read,write";
