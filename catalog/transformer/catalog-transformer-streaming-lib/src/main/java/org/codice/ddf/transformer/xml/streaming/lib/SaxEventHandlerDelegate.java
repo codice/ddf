@@ -167,7 +167,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         if (metacard.getAttribute(attribute.getName()) == null) {
           metacard.setAttribute(attribute);
         } else if (multiValuedMap.getOrDefault(attribute.getName(), false)) {
-          metacard.getAttribute(attribute.getName()).getValues().removeAll(attribute.getValues());
           metacard.getAttribute(attribute.getName()).getValues().addAll(attribute.getValues());
         }
       }
