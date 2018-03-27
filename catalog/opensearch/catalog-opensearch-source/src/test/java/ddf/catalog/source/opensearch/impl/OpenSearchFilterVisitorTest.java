@@ -25,6 +25,7 @@ import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -57,6 +59,10 @@ public class OpenSearchFilterVisitorTest {
   private static final String CQL_INTERSECTS = "(INTERSECTS(anyGeo, " + WKT_POLYGON + "))";
 
   private static final String TEST_STRING = "test";
+
+  private static final String UI_WILDCARD = "%";
+
+  private static final String WILDCARD = "*";
 
   private static final Date START_DATE = new Date(10000);
 
@@ -432,6 +438,27 @@ public class OpenSearchFilterVisitorTest {
     assertThat(searchPhraseMap.containsKey(OpenSearchParserImpl.SEARCH_TERMS), is(true));
     String contextualSearchTerm = searchPhraseMap.get(OpenSearchParserImpl.SEARCH_TERMS);
     assertThat(contextualSearchTerm, is(TEST_STRING));
+  }
+
+  @Test
+  public void testPropertyLikeWildcard() {
+    FilterFactory2 factory = new FilterFactoryImpl();
+
+    PropertyIsLike textLikeFilter =
+        factory.like(factory.property(Core.TITLE), UI_WILDCARD, UI_WILDCARD, "'", "_", false);
+
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(textLikeFilter, openSearchFilterVisitorObject);
+
+    ContextualSearch contextualSearch = result.getContextualSearch();
+    Map<String, String> searchPhraseMap = contextualSearch.getSearchPhraseMap();
+    assertThat(searchPhraseMap.containsKey(OpenSearchParserImpl.SEARCH_TERMS), is(true));
+    String contextualSearchTerm = searchPhraseMap.get(OpenSearchParserImpl.SEARCH_TERMS);
+    assertThat(contextualSearchTerm, is(WILDCARD));
   }
 
   @Test
