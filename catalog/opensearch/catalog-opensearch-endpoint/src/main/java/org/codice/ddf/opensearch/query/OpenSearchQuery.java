@@ -307,7 +307,10 @@ public class OpenSearchQuery implements Query {
     if (geometry != null) {
       Filter filter =
           FILTER_FACTORY.dwithin(
-              Metacard.ANY_GEO, geometry, Double.parseDouble(radius), UomOgcMapping.METRE.name());
+              OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
+              geometry,
+              Double.parseDouble(radius),
+              UomOgcMapping.METRE.name());
       LOGGER.debug("Adding spatial filter");
       filters.add(filter);
     }
@@ -317,7 +320,8 @@ public class OpenSearchQuery implements Query {
     Geometry geometry = spatialFilter.getGeometry();
 
     if (geometry != null) {
-      Filter filter = FILTER_FACTORY.intersects(Metacard.ANY_GEO, geometry);
+      Filter filter =
+          FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
       LOGGER.debug("Adding spatial filter");
       filters.add(filter);
     }

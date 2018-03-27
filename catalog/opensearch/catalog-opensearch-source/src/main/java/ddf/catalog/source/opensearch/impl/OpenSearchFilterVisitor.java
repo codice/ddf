@@ -401,6 +401,16 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       return;
     }
 
+    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final String expectedSpatialSearchTerm = OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM;
+    if (!expectedSpatialSearchTerm.equals(expression1.toString())) {
+      LOGGER.debug(
+          "The OpenSearch Source only supports spatial criteria on the term \"{}\", but expression1 is \"{}\". Ignoring filter.",
+          expectedSpatialSearchTerm,
+          expression1);
+      return;
+    }
+
     // The geometry is wrapped in a <Literal> element, so have to get the geometry expression as a
     // literal and then evaluate it to get the geometry.
     // Example:
@@ -429,7 +439,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       openSearchFilterVisitorObject.setPointRadiusSearch(
           new PointRadiusSearch(coords.x, coords.y, distance));
     } else {
-      LOGGER.debug("Only POINT geometry WKT for DWithin filter is supported");
+      LOGGER.debug(
+          "The OpenSearch Source only supports POINT geometry WKT for DWithin filter, but the geometry is {}.",
+          geometryExpression);
     }
   }
 
@@ -443,6 +455,16 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     if (openSearchFilterVisitorObject.getCurrentNest() != null
         && !NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
       LOGGER.debug(ONLY_AND_MSG);
+      return;
+    }
+
+    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final String expectedSpatialSearchTerm = OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM;
+    if (!expectedSpatialSearchTerm.equals(expression1.toString())) {
+      LOGGER.debug(
+          "Opensearch only supports spatial criteria on the term \"{}\", but expression1 is \"{}\". Ignoring filter.",
+          expectedSpatialSearchTerm,
+          expression1);
       return;
     }
 

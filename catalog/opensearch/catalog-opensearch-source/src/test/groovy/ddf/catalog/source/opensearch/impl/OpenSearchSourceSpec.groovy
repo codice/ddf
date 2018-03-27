@@ -123,7 +123,7 @@ class OpenSearchSourceSpec extends Specification {
         where:
         filter << [
                 (PropertyIsLike) filterBuilder.attribute("this attribute name is ignored").is().like().text("someSearchPhrase"),
-                (DWithin) filterBuilder.attribute(Metacard.ANY_GEO).is().withinBuffer().wkt("POINT(1.0 2.0)", 5),
+                (DWithin) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 5),
                 (During) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM).during().dates(new Date(10000), new Date(10005))
         ]
         coorespondingQueryParameters << [

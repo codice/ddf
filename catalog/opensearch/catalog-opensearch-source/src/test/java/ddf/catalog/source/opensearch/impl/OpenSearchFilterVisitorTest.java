@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import com.vividsolutions.jts.geom.Polygon;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.TemporalFilter;
@@ -64,10 +65,6 @@ public class OpenSearchFilterVisitorTest {
   private static final String WKT_POLYGON =
       "POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))";
 
-  private static final String CQL_CONTAINS = "(CONTAINS(anyGeo, " + WKT_POLYGON + "))";
-
-  private static final String CQL_INTERSECTS = "(INTERSECTS(anyGeo, " + WKT_POLYGON + "))";
-
   private static final String TEST_STRING = "test";
 
   private static final String UI_WILDCARD = "%";
@@ -95,6 +92,12 @@ public class OpenSearchFilterVisitorTest {
    * records.
    */
   private static final String TEMPORAL_ATTRIBUTE_NAME = Core.MODIFIED;
+
+  /**
+   * The OpenSearch temporal parameters are based on {@value Metacard#ANY_GEO} values of the
+   * records.
+   */
+  private static final String SPATIAL_ATTRIBUTE_NAME = Metacard.ANY_GEO;
 
   @Before
   public void setUp() {
@@ -146,7 +149,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(SOME_ATTRIBUTE_NAME)
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, radius);
@@ -171,7 +174,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(SOME_ATTRIBUTE_NAME)
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, radius);
@@ -194,7 +197,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(SOME_ATTRIBUTE_NAME)
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, 5);
@@ -212,7 +215,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(SOME_ATTRIBUTE_NAME)
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, 0);
@@ -229,11 +232,16 @@ public class OpenSearchFilterVisitorTest {
     final double lon = 1.0;
     final double lat = 2.0;
     final double radius = 1;
-    final String CQL_DWITHIN =
-        "(DWITHIN(anyGeo, POINT(" + lon + " " + lat + "), " + radius + ", meters))";
-
-    DWithin dWithinFilter = (DWithin) ECQL.toFilter(CQL_DWITHIN);
-
+    DWithin dWithinFilter =
+        (DWithin)
+            ECQL.toFilter(
+                "(DWITHIN("
+                    + SPATIAL_ATTRIBUTE_NAME
+                    + ", "
+                    + WKT_POINT
+                    + ", "
+                    + radius
+                    + ", meters))");
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -253,7 +261,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContains() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -269,7 +277,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContainsNullNest() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     OpenSearchFilterVisitorObject result =
@@ -284,7 +292,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContainsOrNest() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
@@ -296,7 +304,8 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testContainsCqlFilter() throws CQLException {
-    Contains containsFilter = (Contains) ECQL.toFilter(CQL_CONTAINS);
+    Contains containsFilter =
+        (Contains) ECQL.toFilter("(CONTAINS(" + SPATIAL_ATTRIBUTE_NAME + ", " + WKT_POLYGON + "))");
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -311,7 +320,8 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testContainsWithPoint() {
     Contains containsFilter =
-        (Contains) geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POINT);
+        (Contains)
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -325,7 +335,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersects() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -341,7 +351,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsWithPoint() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -355,7 +365,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsNullNest() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     OpenSearchFilterVisitorObject result =
@@ -370,7 +380,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsOrNest() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
@@ -382,7 +392,9 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testIntersectsCqlFilter() throws CQLException {
-    Intersects intersectsFilter = (Intersects) ECQL.toFilter(CQL_INTERSECTS);
+    Intersects intersectsFilter =
+        (Intersects)
+            ECQL.toFilter("(INTERSECTS(" + SPATIAL_ATTRIBUTE_NAME + ", " + WKT_POLYGON + "))");
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -747,6 +759,25 @@ public class OpenSearchFilterVisitorTest {
   }
 
   /**
+   * Spatial {@link Filter}s for attributes other than {@value SPATIAL_ATTRIBUTE_NAME} should be
+   * ignored.
+   */
+  @Test
+  public void testNotLocationSpatialFilter() {
+    Contains containsFilter =
+        (Contains)
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
+
+    assertThat(result.getPolygonSearch(), is(nullValue()));
+  }
+
+  /**
    * Test that the {@link OpenSearchFilterVisitorObject} is populated with multiple filters.
    * Combines the {@link Filter}s from {@link #testDuringDates} and {@link #testContains()}.
    */
@@ -761,7 +792,7 @@ public class OpenSearchFilterVisitorTest {
 
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
 
     And andFilter = geotoolsFilterBuilder.allOf(duringFilter, containsFilter);
 
@@ -800,7 +831,7 @@ public class OpenSearchFilterVisitorTest {
 
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
 
     And andFilter = geotoolsFilterBuilder.allOf(duringFilter, containsFilter);
 

@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.opensearch;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 
 public final class OpenSearchConstants {
@@ -31,6 +32,8 @@ public final class OpenSearchConstants {
   public static final String DATE_OFFSET = "dtoffset";
 
   // geospatial parameters
+  public static final String SUPPORTED_SPATIAL_SEARCH_TERM = Metacard.ANY_GEO;
+
   public static final String BBOX = "bbox";
   public static final int BBOX_LIST_SIZE = 4;
   public static final String BBOX_DELIMITER = ",";
