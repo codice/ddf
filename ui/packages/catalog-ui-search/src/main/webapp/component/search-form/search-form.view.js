@@ -64,6 +64,5 @@
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-        this.options.queryModel.trigger('closeDropDown');
     }
 });

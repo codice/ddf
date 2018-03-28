@@ -30,9 +30,11 @@
             model: this.model
         }));
         this.$el.find('.loading').show();
-        this.listenTo(this.collection.currentView.collection, 'doneLoading', this.showCollection);
+        this.listenTo(this.collection.currentView.searchFormCollection, "change:doneLoading", this.showCollection);
     },
     showCollection: function() {
-        this.$el.find('.loading').hide();
+        if(this.collection.currentView.searchFormCollection.getDoneLoading()) {
+            this.$el.find('.loading').hide();
+        }
     }
  });

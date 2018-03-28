@@ -28,26 +28,51 @@
     success: function (data) {
         systemTemplates = data;
     }
-});;
+ });
 
- module.exports = Backbone.Collection.extend({
-   model: SearchForm,
-   initialize: function() {
-       this.add(new SearchForm({type: 'basic'}));
-       this.add(new SearchForm({type: 'text'}));
-       this.addCustomForms();
-   },
-   addCustomForms: function() {
-       templatePromise.then(() => {
-            if (!this.isDestroyed){
+module.exports = Backbone.AssociatedModel.extend({
+    defaults: {
+        doneLoading: false,
+        searchForms: []
+    },
+    initialize: function () {
+        this.addSearchForm(new SearchForm({type: 'basic'}));
+        this.addSearchForm(new SearchForm({type: 'text'}));
+        this.addCustomForms();
+    },
+    relations: [{
+        type: Backbone.Many,
+        key: 'searchForms',
+        collectionType: Backbone.Collection.extend({
+            model: SearchForm,
+            initialize: function() {
+
+            }
+        })
+    }],
+    addCustomForms: function() {
+        templatePromise.then(() => {
+            if (!this.isDestroyed) {
                 $.each(systemTemplates, (index, value) => {
                     var utcSeconds = value.created / 1000;
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
-                    this.add(new SearchForm({createdOn: Common.getHumanReadableDate(d), id: value.id, name: value.title, type: 'custom', filterTemplate: value.filterTemplate}));
+                    this.addSearchForm(new SearchForm({createdOn: Common.getHumanReadableDate(d), id: value.id, name: value.title, type: 'custom', filterTemplate: value.filterTemplate}));
                 });
-                this.trigger("doneLoading");
+                this.doneLoading();
             }
-       });
-   }
+        });
+    },
+    getCollection: function() {
+        return this.get('searchForms');
+    },
+    addSearchForm: function(searchForm) {
+        this.get('searchForms').add(searchForm);
+    },
+    getDoneLoading: function() {
+        return this.get('doneLoading');
+    },
+    doneLoading: function() {
+        this.set('doneLoading', true);
+    }
  });

@@ -25,7 +25,9 @@
      tagName: CustomElements.register('my-search-forms'),
      className: 'is-list is-inline has-list-highlighting',
      initialize: function(options) {
-        this.collection = new SearchFormCollection();
+        var searchFormCollection = new SearchFormCollection();
+        this.collection = searchFormCollection.getCollection();
+        this.searchFormCollection = searchFormCollection;
         this.options = options;
      },
      childViewOptions: function() {
