@@ -277,6 +277,13 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                     }, map)
                 });
             });
+
+            $(map.scene.canvas).on('mouseleave', function() {
+              parentView.updateMouseCoordinates(
+                  OFF_MAP_LABEL, 
+                  { lat: 0, lon: 0 }
+                );
+            });
         },
         onCameraMoveStart: function(callback) {
             map.scene.camera.moveStart.addEventListener(callback);
