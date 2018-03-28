@@ -17,6 +17,7 @@ define([
     'backbone',
     'marionette',
     'icanhaz',
+    'handlebars',
     'jquery',
     'poller',
     'js/wreqr',
@@ -29,18 +30,26 @@ define([
     'js/controllers/SystemUsage.controller',
     'text!templates/moduleTab.handlebars',
     'properties'
-], function (_, Backbone, Marionette, ich, $, poller, wreqr, Module, tabs, appHeader, header, footer, ModalController, SystemUsageController, moduleTab, Properties) {
+], function (_, Backbone, Marionette, ich, hbs, $, poller, wreqr, Module, tabs, appHeader, header, footer, ModalController, SystemUsageController, moduleTab, Properties) {
     'use strict';
 
     var Application = {};
 
+    var cachedTemplates = {}; // as good as ich with less work
     // This was moved from the main.js file into here.
     // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
     Marionette.Renderer.render = function (template, data) {
         if (!template) {
             return '';
         }
-        return ich[template](data);
+        if (typeof ich[template] === 'function') {
+            return ich[template](data);
+        } else if (typeof cachedTemplates[template] === 'function') {
+            return cachedTemplates[template](data);
+        } else {
+            cachedTemplates[template] = hbs.compile(template);
+            return cachedTemplates[template](data);
+        }
     };
 
     // Setup initial templates that we know we'll need

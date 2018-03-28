@@ -36,7 +36,7 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js'],
+            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js', 'src/main/webapp/component/**/*.js'],
             options: {
                 bitwise: true,        // Prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
                 forin: true,          // Requires all for in loops to filter object's items.
@@ -75,7 +75,8 @@ module.exports = function (grunt) {
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less',
+                        'src/main/webapp/components/*.less', 'src/main/webapp/components/**/*.less', 'src/main/webapp/components/***/*.less'],
                 tasks: ['less']
             },
             cssFiles: {

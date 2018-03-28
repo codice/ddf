@@ -19,8 +19,8 @@ define([
     'js/views/module/ModuleDetail.layout',
     'js/models/module/ModulePlugin',
     'js/models/AppConfigPlugin',
-    'js/views/application/application-detail/PluginTabContent.view',
-    'js/views/application/application-detail/PluginTab.view',
+    'components/tab-content/tab-content.collection.view',
+    'components/tab-item/tab-item.collection.view',
     'q'
 ],function (Backbone, Marionette, ModuleDetailLayout, ModulePlugin, AppConfigPlugin, PluginTabContentView, PluginTabView, Q) {
 
@@ -38,17 +38,17 @@ define([
                      new Backbone.Model({
                         'id': 'systemInformationModuleTabID',
                         'displayName': 'Information',
-                        'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
+                        'javascriptLocation': 'components/system-information/system-information.view.js'
                     }),
                     new Backbone.Model({
                         'id': 'featureModuleTabID',
                         'displayName': 'Features',
-                        'javascriptLocation': 'js/views/module/plugins/feature/Plugin.view.js'
+                        'javascriptLocation': 'components/features/features.view.js'
                     }),
                     new Backbone.Model({
                         'id': 'configurationModuleTabID',
                         'displayName': 'Configuration',
-                        'javascriptLocation': 'js/views/module/plugins/configuration/Plugin.view.js'
+                        'javascriptLocation': 'components/application-services/application-services.view'
                      })
                 ];
 

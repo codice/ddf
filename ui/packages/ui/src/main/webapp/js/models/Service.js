@@ -221,13 +221,20 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             var properties = this.get('properties');
             if (isServiceFactory(properties)) {
                 displayName = properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
+            } else if (displayName === undefined && properties !== undefined) {
+                displayName = properties.get('service.pid');
+            } else if (displayName === undefined) {
+                displayName = JSON.stringify(this.toJSON());
             }
             return displayName;
         }
     });
 
     Service.ConfigurationList = Backbone.Collection.extend({
-        model: Service.Configuration
+        model: Service.Configuration,
+        comparator: function(model) {
+            return model.getConfigurationDisplayName().toLowerCase();
+        }
     });
 
     Service.Model = Backbone.AssociatedModel.extend({
@@ -273,16 +280,34 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
 
 
     Service.Response = Backbone.AssociatedModel.extend({
+        defaults: function() {
+            return {
+                request: undefined,
+                status: undefined,
+                timestamp: undefined,
+                value: [],
+                fetched: false
+            };
+        },
         relations: [
             {
                 type: Backbone.Many,
                 key: 'value',
                 relatedModel: Service.Model,
+                collectionType: Backbone.Collection.extend({
+                    model: Service.Model,
+                    comparator: function(model) {
+                        return model.get('name');
+                    }
+                }),
                 includeInJSON: false
             }
         ],
 
         initialize: function(options) {
+            this.listenTo(this, 'sync', function() {
+                this.set('fetched', true);
+            }.bind(this));
             if (options && options.url) {
                 this.url = options.url;
             } else {

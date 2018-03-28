@@ -24,11 +24,10 @@ define([
     'text!templates/installer/configurationItem.handlebars',
     './Certificate.view.js',
     '../../models/installer/CertsModel.js',
-    '../../models/installer/Configuration.js',
     'modelbinder',
     'perfectscrollbar',
     'multiselect'
-    ], function (Marionette, ich, _, Backbone, $, configurationTemplate, configurationItemTemplate, CertificateView, CertificateModel, ConfigurationModel) {
+    ], function (Marionette, ich, _, Backbone, $, configurationTemplate, configurationItemTemplate, CertificateView, CertificateModel) {
 
     ich.addTemplate('configurationTemplate', configurationTemplate);
     ich.addTemplate('configurationItemTemplate', configurationItemTemplate);
@@ -47,7 +46,9 @@ define([
             var tooltipOptions = {
                 content: this.model.get('description'),
                 placement: 'bottom',
-                trigger: 'hover'
+                trigger: 'hover',
+                container: 'body',
+                delay: 250
             };
 
             var tooltipSelector = '[data-toggle="' + this.model.get('key') + '-popover"]';
@@ -71,15 +72,12 @@ define([
         itemView: SystemPropertyView
     });
 
-    var systemProperties = new ConfigurationModel.SystemProperties();
-    systemProperties.fetch({});
 /*
 * Layout
 */
     var ConfigurationView = Marionette.Layout.extend({
         template: 'configurationTemplate',
         className: 'full-height',
-        model: systemProperties,
         regions: {
             configurationItems: '#config-form',
             certificates: '#certificate-configuration'
