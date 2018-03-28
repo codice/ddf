@@ -1,31 +1,25 @@
 @{customElementNamespace}visualization-selector {
 
-    > div {
-        padding: @minimumSpacing;
-    }
+  .visualization-choice {
+    white-space: nowrap;
+    padding: @largeSpacing;
+    .grab-cursor;
+  }
+  .visualization-icon {
+      text-align: center;
+      width: @minimumButtonSize;
+  }
 
-    .visualization-choice {
-        display: block;
-        padding: @largeSpacing;
-        height: auto;
-        width: 100%;
-        text-align: left;
-        cursor: move; /* fallback if grab cursor is unsupported */
-        cursor: grab;
-        cursor: -moz-grab;
-        cursor: -webkit-grab;
+  .visualization-icon,
+  .visualization-text {
+    display: inline-block;
+    vertical-align: middle;
+  }
 
-        > span + span {
-        margin-left: @minimumSpacing;
-        }
-
-        span {
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        > span:nth-of-type(2) {
-            max-width: ~'calc(100% - @{minimumButtonSize})';
-        }
-    }
+  .visualization-text {
+    width: ~'calc(100% - @{minimumButtonSize})';
+    font-size: @mediumFontSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
