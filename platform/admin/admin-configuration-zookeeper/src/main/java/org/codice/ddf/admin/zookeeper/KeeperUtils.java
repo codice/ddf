@@ -134,6 +134,25 @@ public final class KeeperUtils {
     }
 
     @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      ZPath path = (ZPath) o;
+
+      return components.equals(path.components);
+    }
+
+    @Override
+    public int hashCode() {
+      return components.hashCode();
+    }
+
+    @Override
     public String toString() {
       return components.stream().collect(Collectors.joining(FWRD_SLASH, FWRD_SLASH, BLANK));
     }
@@ -159,6 +178,9 @@ public final class KeeperUtils {
      * @return a {@link ZPath} that traverses the route components.
      */
     public static ZPath from(String... routeComponents) {
+      if (routeComponents == null || routeComponents.length == 0) {
+        throw new IllegalArgumentException("Path components cannot be null or empty");
+      }
       if (Arrays.stream(routeComponents).anyMatch(str -> str.contains(FWRD_SLASH))) {
         throw new IllegalArgumentException(
             "Invalid path components: " + Arrays.toString(routeComponents));

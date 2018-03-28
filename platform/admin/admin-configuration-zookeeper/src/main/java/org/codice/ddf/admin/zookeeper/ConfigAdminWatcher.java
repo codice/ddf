@@ -16,6 +16,9 @@ package org.codice.ddf.admin.zookeeper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.felix.utils.properties.ConfigurationHandler;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -43,6 +46,8 @@ public class ConfigAdminWatcher implements Watcher {
 
   private WrappedKeeper keeper;
 
+  private Set<ZPath> eventCache = Collections.synchronizedSet(new HashSet<>());
+
   public ConfigAdminWatcher(ConfigurationAdmin configurationAdmin) {
     this.configurationAdmin = configurationAdmin;
   }
@@ -55,6 +60,20 @@ public class ConfigAdminWatcher implements Watcher {
     this.keeper = keeper;
   }
 
+  /**
+   * Informs this node that a redundant callback is coming.
+   *
+   * @param path the path that the callback is referring to.
+   */
+  public void notify(ZPath path) {
+    eventCache.add(path);
+  }
+
+  /**
+   * Process a Zookeeper callback.
+   *
+   * @param watchedEvent data about the operation this callback is about.
+   */
   @Override
   public void process(WatchedEvent watchedEvent) {
     if (keeper == null) {
@@ -62,6 +81,14 @@ public class ConfigAdminWatcher implements Watcher {
     }
 
     String path = watchedEvent.getPath();
+    ZPath zPath = ZPath.parse(path);
+
+    if (eventCache.contains(zPath)) {
+      LOGGER.info("Skipping configuration event handler, this node initiated the event");
+      eventCache.remove(zPath);
+      return;
+    }
+
     Event.EventType type = watchedEvent.getType();
     Event.KeeperState state = watchedEvent.getState();
     String stateName = state.name();
@@ -76,23 +103,23 @@ public class ConfigAdminWatcher implements Watcher {
 
         case NodeDataChanged:
           LOGGER.info("Responding to znode update: {}", path);
-          processCreateOrUpdate(ZPath.parse(path));
+          processCreateOrUpdate(zPath);
           break;
 
         case NodeCreated:
           LOGGER.info("Responding to znode creation: {}", path);
-          processCreateOrUpdate(ZPath.parse(path));
+          processCreateOrUpdate(zPath);
           break;
 
         case NodeDeleted:
           LOGGER.info("Responding to znode deletion: {}", path);
-          processDelete(ZPath.parse(path));
+          processDelete(zPath);
           break;
 
         case NodeChildrenChanged:
           LOGGER.info(
               "Configuration collection [{}] changed in size, attempting to reset watch.", path);
-          keeper.getChildren(ZPath.parse(watchedEvent.getPath()), true);
+          keeper.getChildren(zPath, true);
           break;
 
         default:

@@ -222,6 +222,7 @@ public class ZookeeperStoragePlugin implements ConfigurationStoragePlugin {
         return;
       }
       LOGGER.info("Updating znode for pid {}", pid);
+      watcher.notify(nodePath);
       keeper.setData(nodePath, encodedProperties, stat.getVersion());
     } catch (UncheckedIOException e) {
       throw e.getCause();
@@ -239,6 +240,7 @@ public class ZookeeperStoragePlugin implements ConfigurationStoragePlugin {
         return;
       }
       LOGGER.info("Deleting znode for pid {}", pid);
+      watcher.notify(nodePath);
       keeper.delete(nodePath, stat.getVersion());
     } catch (UncheckedIOException e) {
       throw e.getCause();
@@ -255,13 +257,22 @@ public class ZookeeperStoragePlugin implements ConfigurationStoragePlugin {
    */
   private void createNewNode(String pid, @Nullable String factoryPid, Dictionary props) {
     if (factoryPid == null) {
-      keeper.create(pathForPid(pid), encodeData(props));
+      ZPath pidPath = pathForPid(pid);
+      watcher.notify(pidPath);
+      keeper.create(pidPath, encodeData(props));
     } else {
-      String factoryInstance = parseFactoryInstance(pid);
       // Zookeeper requires the creation of parent nodes before attempting to create child
       // nodes
-      keeper.createIfNecessary(pathForPid(factoryPid));
-      keeper.create(pathForFactoryInstance(factoryPid, factoryInstance), encodeData(props));
+      ZPath factoryPidPath = pathForPid(factoryPid);
+      if (keeper.exists(factoryPidPath, true) == null) {
+        watcher.notify(factoryPidPath);
+      }
+      keeper.createIfNecessary(factoryPidPath);
+
+      String factoryInstance = parseFactoryInstance(pid);
+      ZPath factoryInstancePath = pathForFactoryInstance(factoryPid, factoryInstance);
+      watcher.notify(factoryInstancePath);
+      keeper.create(factoryInstancePath, encodeData(props));
     }
   }
 
