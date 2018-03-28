@@ -1,11 +1,11 @@
 {
   "private": true,
   "scripts": {
-    "copy-bootswatch-fonts": "yarn cpr node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap -o",
-    "copy-google-fonts": "yarn cpr src/main/webapp/google-fonts/ src/main/resources/webapp/fonts -o",
+    "copy-bootswatch-fonts": "cpr node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap -o",
+    "copy-google-fonts": "cpr src/main/webapp/google-fonts/ src/main/resources/webapp/fonts -o",
     "copy-fonts": "yarn run copy-bootswatch-fonts && yarn run copy-google-fonts",
-    "make-folders": "yarn mkdirp src/main/resources/webapp/fonts/bootstrap && yarn mkdirp src/main/resources/webapp/css/",
-    "clean-fonts": "yarn rimraf src/main/resources/webapp && yarn run make-folders",
+    "make-folders": "mkdirp src/main/resources/webapp/fonts/bootstrap && mkdirp src/main/resources/webapp/css/",
+    "clean-fonts": "rimraf src/main/resources/webapp && yarn run make-folders",
     "test": "ace pom && lerna run test",
     "bootstrap": "lerna bootstrap",
     "clean": "ace clean",
