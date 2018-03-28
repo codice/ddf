@@ -51,10 +51,6 @@
             <artifactId>platform-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>

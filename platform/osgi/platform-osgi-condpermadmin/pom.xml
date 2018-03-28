@@ -61,6 +61,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <!--Felix styles don't match ours, even after running the formatter-->
                     <excludes>src/main/java/org/apache/</excludes>

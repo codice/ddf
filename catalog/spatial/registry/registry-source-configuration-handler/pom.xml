@@ -33,10 +33,6 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-federation-admin-service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-ebrim-transformer</artifactId>
         </dependency>
         <dependency>
