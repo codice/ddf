@@ -105,26 +105,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly/*',
-                        dest: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly'
-                    }
-                ]
-            }
-        },
         less: {
             css: {
                 options: {
@@ -138,12 +118,11 @@ module.exports = function (grunt) {
     });
 
 
-    //grunt.loadNpmTasks('grunt-replace');
     //grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('test', ['simplemocha:test']);
 
-    grunt.registerTask('build', ['replace', 'less',
+    grunt.registerTask('build', ['less',
         'cssmin', 'jshint']);
 
     grunt.registerTask('default', ['build', 'express:server', 'watch']);

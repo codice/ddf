@@ -1,14 +1,29 @@
 {
   "private": true,
   "scripts": {
+    "copy-bootswatch-fonts": "cpr node_modules/bootswatch/fonts/ src/main/resources/webapp/fonts/bootstrap -o",
+    "copy-google-fonts": "cpr src/main/webapp/google-fonts/ src/main/resources/webapp/fonts -o",
+    "copy-fonts": "yarn run copy-bootswatch-fonts && yarn run copy-google-fonts",
+    "make-folders": "mkdirp src/main/resources/webapp/fonts/bootstrap && mkdirp src/main/resources/webapp/css/",
+    "clean-fonts": "rimraf src/main/resources/webapp && yarn run make-folders",
     "test": "ace pom && lerna run test",
     "bootstrap": "lerna bootstrap",
     "clean": "ace clean",
-    "build": "ace set-env lerna run build && ace gen-feature"
+    "build": "ace set-env lerna run build && ace gen-feature && yarn run build-fonts",
+    "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && yarn run build-sass",
+    "build-sass": "node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/"
   },
   "devDependencies": {
     "ace": "*",
-    "lerna": "2.8.0"
+    "lerna": "2.8.0",
+    "bootstrap-sass": "3.3.6",
+    "bootswatch": "3.3.7",
+    "compass-mixins": "0.12.10",
+    "cpr": "3.0.1",
+    "mkdirp": "0.5.1",
+    "node-sass": "4.7.2",
+    "rimraf": "2.6.2",
+    "sass-lint": "1.12.1"
   },
   "workspaces": [
     "packages/*"

@@ -15,7 +15,7 @@
 define(['backbone',
         'marionette',
         'icanhaz',
-        'text!templates/error.handlebars'
+        'text!../error/templates/error.handlebars'
     ], function (Backbone, Marionette, ich, errorTemplate) {
     'use strict';
 

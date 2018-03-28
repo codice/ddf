@@ -126,16 +126,6 @@
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.2.0</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.3.7</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
                             <artifactId>cesiumjs</artifactId>
                             <version>1.22.0</version>
                         </artifactItem>
@@ -368,7 +358,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/webjars</Web-ContextPath>
-                        <_wab>${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>${project.build.directory}/META-INF/resources/webjars,${project.build.directory}/classes/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.eclipse.jetty.servlets;version="[9.2.19, 9.2.19]"

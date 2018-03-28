@@ -80,26 +80,6 @@ module.exports = function (grunt) {
                 tasks: ['less']
             },
         },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly/*',
-                        dest: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly'
-                    }
-                ]
-            }
-        },
         express: {
             options: {
                 port: 8282,
@@ -115,6 +95,6 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('build', ['clean', 'replace', 'less', 'jshint']);
+    grunt.registerTask('build', ['clean', 'less', 'jshint']);
     grunt.registerTask('default', ['build', 'express', 'watch']);
 };
