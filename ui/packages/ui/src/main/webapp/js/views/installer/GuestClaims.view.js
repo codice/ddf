@@ -307,8 +307,8 @@ define([
         },
         initialize: function (options) {
             this.navigationModel = options.navigationModel;
+            this.navigationModel.set('hidePrevious', true);
             this.listenTo(this.navigationModel, 'next', this.next);
-            this.listenTo(this.navigationModel, 'previous', this.previous);
             this.listenTo(wreqr.vent, 'showWarnings', this.verifyContinue);
             this.listenTo(wreqr.vent, 'saveClaimData', this.saveData);
 
@@ -382,10 +382,6 @@ define([
             }
             this.writeClaims(claims);
             this.saveData();
-        },
-        previous: function () {
-            //this is your hook to perform any teardown that must be done before going to the previous step
-            this.navigationModel.previousStep();
         },
         submitData: function () {
             wreqr.vent.trigger('beforesave');
