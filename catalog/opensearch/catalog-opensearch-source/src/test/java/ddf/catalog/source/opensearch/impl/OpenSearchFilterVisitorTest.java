@@ -202,6 +202,23 @@ public class OpenSearchFilterVisitorTest {
   }
 
   @Test
+  public void testDWithinInvalidRadius() {
+    DWithin dWithinFilter =
+        (DWithin)
+            geotoolsFilterBuilder
+                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .is()
+                .withinBuffer()
+                .wkt(WKT_POINT, 0);
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
+    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+  }
+
+  @Test
   public void testDWithinCqlFilter() throws CQLException {
     final double lon = 1.0;
     final double lat = 2.0;

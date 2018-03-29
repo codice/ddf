@@ -410,7 +410,11 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     double distance = filter.getDistance();
 
-    if (geometryExpression instanceof PointImpl) {
+    final double radiusRangeLowerBound = 0;
+    if (distance <= radiusRangeLowerBound) {
+      LOGGER.debug(
+          "Radius must be greater than {}. Ignoring DWithin filter.", radiusRangeLowerBound);
+    } else if (geometryExpression instanceof PointImpl) {
       PointImpl point = (PointImpl) literalWrapper.evaluate(null);
       double[] coords = point.getCentroid().getCoordinate();
       LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);

@@ -76,7 +76,7 @@ Use the OpenSearch source if querying a CDR-compliant search service is desired.
 
 |lat
 |lat
-.3+|Pulled from the query if it is a point-radius query.
+.3+|Pulled from the query if it is a point-radius query and the radius is > 0.
 
 |lon
 |lon
@@ -92,7 +92,7 @@ Or else, calculated from the query if it is a polygon query and the <<shouldConv
 NOTE: Converting a polygon that crosses the antimeridian to a bounding box will produce an incorrect bounding box. +
 //TODO DDF-3742
  +
-Or else, calculated from query if it is a point-radius query and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
+Or else, calculated from query if it is a point-radius query, the radius of point-radius query is > 0, and the <<shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
 
 |polygon
 |polygon
