@@ -698,7 +698,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       throws InvalidSyntaxException {
     LOGGER.trace("Looking up Input Transformer by schema : {}", namespaceUri);
 
-    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+    Bundle bundle = getBundle();
     if (bundle != null) {
       BundleContext bundleContext = bundle.getBundleContext();
       Collection<ServiceReference<InputTransformer>> transformerReferences =
@@ -715,6 +715,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       LOGGER.trace("Failed to find Input Transformer by schema : {}", namespaceUri);
     }
     return null;
+  }
+
+  @VisibleForTesting
+  Bundle getBundle() {
+    return FrameworkUtil.getBundle(this.getClass());
   }
 
   /**
