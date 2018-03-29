@@ -214,9 +214,8 @@ module.exports = Marionette.LayoutView.extend({
         this.updateTarget(metacard);
         this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== ('userDrawing')));
     },
-    updateMouseCoordinates: function(viewType, coordinates){
+    updateMouseCoordinates: function(coordinates){
         this.mapModel.set({
-            currentCoordView: viewType,
             mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
             mouseLon: Number(wrapNum(coordinates.lon, [-180, 180]).toFixed(6))
         });

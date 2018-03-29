@@ -33,9 +33,6 @@ var mtgeo = require('mt-geo');
 
 var defaultColor = '#3c6dd5';
 
-var POINTER_LOCATION_LABEL = "Pointer Location";
-var OFF_MAP_LABEL = "Cursor Off Map";
-
 var OpenLayerCollectionController = LayerCollectionController.extend({
     initialize: function() {
         // there is no automatic chaining of initialize.
@@ -94,7 +91,6 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         map.on('pointermove', function(e){
             var point = unconvertPointCoordinate(e.coordinate);
             parentView.updateMouseCoordinates(
-                POINTER_LOCATION_LABEL,
                 {
                     lat: point[1],
                     lon: point[0]
@@ -178,11 +174,11 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             });
 
             $(map.getTargetElement()).on('mouseleave', function() {
-                var centerCoords = map.getView().getCenter();
-                parentView.updateMouseCoordinates(
-                    OFF_MAP_LABEL,
-                    { lat: 0, lon: 0 }
-                );
+                $( ".mapInfo" ).hide();
+            });
+
+            $(map.getTargetElement()).on('mouseenter', function() {
+                $( ".mapInfo" ).show();
             });
         },
         onCameraMoveStart: function(callback) {
