@@ -302,13 +302,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     Query query = queryRequest.getQuery();
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("Received query: {}", query);
-
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Received query: {}", query);
       FilterTransformer transform = new FilterTransformer();
       transform.setIndentation(2);
       try {
-        LOGGER.debug(transform.transform(query));
+        LOGGER.trace(transform.transform(query));
       } catch (TransformerException e) {
         LOGGER.debug("Error transforming query to XML", e);
       }
@@ -323,6 +322,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         openSearchFilterVisitorObject.getPointRadiusSearch();
     final Polygon polygonSearch = openSearchFilterVisitorObject.getPolygonSearch();
     final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
+    final String idSearch =
+        StringUtils.defaultIfEmpty(
+            (String) queryRequest.getPropertyValue(Metacard.ID),
+            openSearchFilterVisitorObject.getId());
 
     final Map<String, String> searchPhraseMap;
     if (contextualSearch != null) {
@@ -331,10 +334,19 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       searchPhraseMap = new HashMap<>();
     }
 
+    // OpenSearch endpoints only support certain keyword, temporal, and spatial searches. The
+    // OpenSearchSource additionally supports an id search when no other search criteria is
+    // specified.
     if (MapUtils.isNotEmpty(searchPhraseMap)
         || pointRadiusSearch != null
         || polygonSearch != null
         || temporalSearch != null) {
+      if (StringUtils.isNotEmpty(idSearch)) {
+        LOGGER.debug(
+            "Ignoring the id search {}. Querying the source with the keyword, temporal, and/or spatial OpenSearch parameters",
+            idSearch);
+      }
+
       final WebClient restWebClient = factory.getWebClientForSubject(subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
@@ -376,15 +388,17 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         response = processResponse(responseStream, queryRequest);
       }
     } else {
-      String metacardId = (String) queryRequest.getPropertyValue(Metacard.ID);
-      if (StringUtils.isEmpty(metacardId)) {
-        final String idSearch = openSearchFilterVisitorObject.getId();
-        if (idSearch != null) {
-          metacardId = idSearch;
-        }
+      if (StringUtils.isEmpty(idSearch)) {
+        LOGGER.debug(
+            "The OpenSearch Source only supports id searches or searches with certain keyword, \"{}\" temporal, or \"{}\" spatial criteria, but the query was {}. See the documentation for more details about supported searches.",
+            OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM,
+            OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
+            query);
+        throw new UnsupportedQueryException(
+            "OpenSearch query parameters could not be created from the query criteria.");
       }
 
-      final WebClient restWebClient = newRestClient(query, metacardId, false, subject);
+      final WebClient restWebClient = newRestClient(query, idSearch, false, subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
@@ -682,7 +696,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           xmlStreamReader.close();
         }
       } catch (XMLStreamException e) {
-        LOGGER.debug("failed to close namespace reader", e);
+        LOGGER.debug("Failed to close namespace reader", e);
       }
     }
     LOGGER.debug("Unable to find applicable InputTransformer for metacard content from Atom feed.");

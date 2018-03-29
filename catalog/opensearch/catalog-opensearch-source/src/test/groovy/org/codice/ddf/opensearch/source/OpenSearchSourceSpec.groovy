@@ -44,21 +44,24 @@ class OpenSearchSourceSpec extends Specification {
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
 
-    def testQueries() throws UnsupportedQueryException {
-        given:
+    private OpenSearchSource source
+
+    private WebClient webClient = Mock(WebClient)
+
+    private Map<String, Serializable> queryRequestProperties
+
+    def setup() {
         final Bundle bundle = Mock(Bundle) {
             getBundleContext() >> Mock(BundleContext) {
 
                 final ServiceReference<InputTransformer> inputTransformerServiceReference = Mock(ServiceReference) {
                     getBundle() >> Mock(Bundle)
                 }
-
                 getServiceReferences(InputTransformer.class, "(schema=urn:catalog:metacard)") >> Mock(Collection) {
                     iterator() >> Mock(Iterator) {
                         next() >> inputTransformerServiceReference
                     }
                 }
-
                 getService(inputTransformerServiceReference) >> Mock(InputTransformer) {
                     transform(_ as InputStream, _ as String) >> Mock(Metacard)
                 }
@@ -68,28 +71,11 @@ class OpenSearchSourceSpec extends Specification {
         final Subject subject = Mock(Subject)
 
         final SecureCxfClientFactory factory = Mock(SecureCxfClientFactory) {
-            getWebClientForSubject(subject) >> Mock(WebClient) {
-
-                final Map<String, Object> queryParameters = [:]
-
-                get() >> {
-                    if (queryParameters == coorespondingQueryParameters) {
-                        return Mock(Response) {
-                            getStatus() >> Response.Status.OK.getStatusCode()
-                            getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                            getHeaderString(OpenSearchSource.HEADER_ACCEPT_RANGES) >> OpenSearchSource.BYTES
-                        }
-                    }
-                }
-
-                replaceQueryParam(_ as String, _ as Object) >> {
-                    String parameter, Object value -> queryParameters.put(parameter, value)
-                }
-            }
+            getWebClientForSubject(subject) >> webClient
         }
 
-        final OpenSearchSource source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService)) {
-            
+        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService)) {
+
             @Override
             protected Bundle getBundle() {
                 return bundle
@@ -106,9 +92,27 @@ class OpenSearchSourceSpec extends Specification {
         source.init()
         source.setParameters(["q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox", "polygon", "dtstart", "dtend", "dateName", "filter", "sort"])
 
-        final Map<String, Serializable> properties = new HashMap<>()
-        properties.put(SecurityConstants.SECURITY_SUBJECT, subject)
-        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), properties)
+        queryRequestProperties = [:]
+        queryRequestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject)
+    }
+
+    def testQueries() throws UnsupportedQueryException {
+        given:
+        final Map<String, Object> webClientQueryParameters = [:]
+        webClient.get() >> {
+            if (webClientQueryParameters == coorespondingQueryParameters) {
+                return Mock(Response) {
+                    getStatus() >> Response.Status.OK.getStatusCode()
+                    getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
+                    getHeaderString(OpenSearchSource.HEADER_ACCEPT_RANGES) >> OpenSearchSource.BYTES
+                }
+            }
+        }
+        webClient.replaceQueryParam(_ as String, _ as Object) >> {
+            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
+        }
+
+        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
 
         when:
         final SourceResponse response = source.query(queryRequest)
@@ -131,5 +135,19 @@ class OpenSearchSourceSpec extends Specification {
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
         ]
+    }
+
+    def testUnsupportedQuery() {
+        given:
+        final During duringFilter = (During) filterBuilder.attribute("this attribute name is not supported for temporal filters").during().dates(new Date(10000), new Date(10005))
+
+        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(duringFilter), queryRequestProperties)
+
+        when:
+        source.query(queryRequest)
+
+        then:
+        0 * webClient.get()
+        thrown(UnsupportedQueryException)
     }
 }
