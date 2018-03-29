@@ -30,16 +30,16 @@
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="openSearchFilterVisitor"
-          class="ddf.catalog.source.opensearch.impl.OpenSearchFilterVisitor"/>
+          class="org.codice.ddf.opensearch.source.OpenSearchFilterVisitor"/>
 
     <bean id="openSearchParserImpl"
-          class="ddf.catalog.source.opensearch.impl.OpenSearchParserImpl"/>
+          class="org.codice.ddf.opensearch.source.OpenSearchParserImpl"/>
 
     <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
                                 factory-pid="OpenSearchSource"
                                 interface="ddf.catalog.source.FederatedSource">
 
-        <cm:managed-component class="ddf.catalog.source.opensearch.impl.OpenSearchSource"
+        <cm:managed-component class="org.codice.ddf.opensearch.source.OpenSearchSource"
                               init-method="init">
             <!-- Defines the methods to be invoked when the OpenSearch Source 
                 instance is created and when it is deleted. The init method is called after 
