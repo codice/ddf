@@ -117,6 +117,7 @@ module.exports = Marionette.LayoutView.extend({
     setupClipboards: function () {
         this.attachListenersToClipboard(new Clipboard(this.el.querySelector('.interaction-copy-coordinates')));
         this.attachListenersToClipboard(new Clipboard(this.el.querySelector('.interaction-copy-wkt')));
+        this.attachListenersToClipboard(new Clipboard(this.el.querySelector('.interaction-copy-dms')));
     },
     attachListenersToClipboard: function (clipboard) {
         clipboard.on('success', function (e) {
