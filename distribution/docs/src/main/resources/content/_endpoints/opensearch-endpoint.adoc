@@ -110,7 +110,7 @@ The start and end temporal criteria must be of the format specified above. Other
 
 `2011-01-01T12:00:00.111-04:00`.
 
-*The start and end temporal elements are based on modified timestamps for a metacard.*
+*The start and end temporal elements are based on <<modified,modified>> timestamps for a metacard.*
 ====
 
 .Geospatial Extension

@@ -277,7 +277,8 @@ public class OpenSearchQuery implements Query {
 
       Filter filter =
           FILTER_FACTORY.during(
-              FILTER_FACTORY.property(Metacard.MODIFIED), FILTER_FACTORY.literal(period));
+              FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM),
+              FILTER_FACTORY.literal(period));
       LOGGER.debug("Adding temporal filter");
       filters.add(filter);
     }

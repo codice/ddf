@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.opensearch;
 
+import ddf.catalog.data.types.Core;
+
 public final class OpenSearchConstants {
 
   // contextual parameter
@@ -20,6 +22,8 @@ public final class OpenSearchConstants {
   public static final String SEARCH_TERMS_DELIMITER = " ";
 
   // temporal parameters
+  public static final String SUPPORTED_TEMPORAL_SEARCH_TERM = Core.MODIFIED;
+
   public static final String DATE_START = "dtstart";
 
   public static final String DATE_END = "dtend";

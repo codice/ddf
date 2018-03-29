@@ -100,11 +100,10 @@ Or else, calculated from query if it is a point-radius query, the radius of poin
 
 |start
 |dtstart
-|Pulled from the query.
+.2+|Pulled from the query if the query has temporal criteria for <<modified,modified>>.
 
 |end
 |dtend
-|Pulled from the query.
 
 |filter
 |filter

@@ -86,9 +86,15 @@ public class OpenSearchFilterVisitorTest {
 
   private final GeotoolsFilterBuilder geotoolsFilterBuilder = new GeotoolsFilterBuilder();
 
-  private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
+  private static final String SOME_ATTRIBUTE_NAME = "this attribute name is ignored";
 
   private static final String ID_ATTRIBUTE_NAME = Core.ID;
+
+  /**
+   * The OpenSearch temporal parameters are based on {@value Core#MODIFIED} timestamps of the
+   * records.
+   */
+  private static final String TEMPORAL_ATTRIBUTE_NAME = Core.MODIFIED;
 
   @Before
   public void setUp() {
@@ -98,7 +104,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testNotFilter() {
     Filter textLikeFilter =
-        geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+        geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     Not notFilter = geotoolsFilterBuilder.not(textLikeFilter);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
@@ -111,7 +117,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testOrFilter() {
     Filter textLikeFilter =
-        geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+        geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     Or orFilter = geotoolsFilterBuilder.anyOf(textLikeFilter, textLikeFilter);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
@@ -124,7 +130,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testAndFilter() {
     Filter textLikeFilter =
-        geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+        geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     And andFilter = geotoolsFilterBuilder.allOf(textLikeFilter, textLikeFilter);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
@@ -140,7 +146,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(SOME_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, radius);
@@ -165,7 +171,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(SOME_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, radius);
@@ -188,7 +194,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(SOME_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, 5);
@@ -206,7 +212,7 @@ public class OpenSearchFilterVisitorTest {
     DWithin dWithinFilter =
         (DWithin)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(SOME_ATTRIBUTE_NAME)
                 .is()
                 .withinBuffer()
                 .wkt(WKT_POINT, 0);
@@ -247,7 +253,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContains() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -263,7 +269,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContainsNullNest() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     OpenSearchFilterVisitorObject result =
@@ -278,7 +284,7 @@ public class OpenSearchFilterVisitorTest {
   public void testContainsOrNest() {
     Contains containsFilter =
         (Contains)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
@@ -305,8 +311,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testContainsWithPoint() {
     Contains containsFilter =
-        (Contains)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).containing().wkt(WKT_POINT);
+        (Contains) geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -320,7 +325,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersects() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -336,7 +341,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsWithPoint() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -350,7 +355,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsNullNest() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     OpenSearchFilterVisitorObject result =
@@ -365,7 +370,7 @@ public class OpenSearchFilterVisitorTest {
   public void testIntersectsOrNest() {
     Intersects intersectsFilter =
         (Intersects)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).intersecting().wkt(WKT_POINT);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
@@ -394,7 +399,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     TOverlaps overlapsFilter =
@@ -416,7 +421,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testOverlapsInstant() {
     After afterFilter =
-        (After) geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).after().date(START_DATE);
+        (After) geotoolsFilterBuilder.attribute(TEMPORAL_ATTRIBUTE_NAME).after().date(START_DATE);
     TOverlaps overlapsFilter =
         new TOverlapsImpl(afterFilter.getExpression1(), afterFilter.getExpression2());
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
@@ -438,7 +443,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     TOverlaps overlapsFilter =
@@ -461,7 +466,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     TOverlaps overlapsFilter =
@@ -480,7 +485,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
@@ -502,7 +507,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
@@ -523,7 +528,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .dates(START_DATE, END_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
@@ -541,7 +546,7 @@ public class OpenSearchFilterVisitorTest {
     During duringFilter =
         (During)
             geotoolsFilterBuilder
-                .attribute(NOT_ID_ATTRIBUTE_NAME)
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
                 .during()
                 .last(durationInMilliSeconds);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
@@ -567,7 +572,7 @@ public class OpenSearchFilterVisitorTest {
   @Test
   public void testAfter() {
     After afterFilter =
-        (After) geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).after().date(START_DATE);
+        (After) geotoolsFilterBuilder.attribute(TEMPORAL_ATTRIBUTE_NAME).after().date(START_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -586,7 +591,7 @@ public class OpenSearchFilterVisitorTest {
   public void testBefore() {
     org.opengis.filter.temporal.Before beforeFilter =
         (org.opengis.filter.temporal.Before)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).before().date(END_DATE);
+            geotoolsFilterBuilder.attribute(TEMPORAL_ATTRIBUTE_NAME).before().date(END_DATE);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
@@ -605,7 +610,7 @@ public class OpenSearchFilterVisitorTest {
   public void testPropertyIsLike() {
     PropertyIsLike textLikeFilter =
         (PropertyIsLike)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     OpenSearchFilterVisitorObject result =
@@ -640,7 +645,7 @@ public class OpenSearchFilterVisitorTest {
   public void testPropertyIsLikeAnd() {
     PropertyIsLike textLikeFilter =
         (PropertyIsLike)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     openSearchFilterVisitor.visit(textLikeFilter, openSearchFilterVisitorObject);
@@ -660,13 +665,13 @@ public class OpenSearchFilterVisitorTest {
   public void testPropertyIsLikeNonSearchTerm() {
     PropertyIsLike textLikeFilter =
         (PropertyIsLike)
-            geotoolsFilterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).is().like().text(TEST_STRING);
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         new OpenSearchFilterVisitorObject();
     Map<String, String> searchPhraseMap = new HashMap<>();
     searchPhraseMap.put("anotherTerm", TEST_STRING);
     openSearchFilterVisitorObject.setContextualSearch(
-        new ContextualSearch(NOT_ID_ATTRIBUTE_NAME, searchPhraseMap, true));
+        new ContextualSearch(SOME_ATTRIBUTE_NAME, searchPhraseMap, true));
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(textLikeFilter, openSearchFilterVisitorObject);
@@ -716,5 +721,100 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(propertyIsEqualToFilter, openSearchFilterVisitorObject);
     assertThat(result.getId(), is(nullValue()));
+  }
+
+  /**
+   * Temporal {@link Filter}s for attributes other than {@value TEMPORAL_ATTRIBUTE_NAME} should be
+   * ignored.
+   */
+  @Test
+  public void testNotModifiedTemporalFilter() {
+    During duringFilter =
+        (During)
+            geotoolsFilterBuilder
+                .attribute(SOME_ATTRIBUTE_NAME)
+                .during()
+                .dates(START_DATE, END_DATE);
+
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(duringFilter, openSearchFilterVisitorObject);
+
+    assertThat(result.getTemporalSearch(), is(nullValue()));
+  }
+
+  /**
+   * Test that the {@link OpenSearchFilterVisitorObject} is populated with multiple filters.
+   * Combines the {@link Filter}s from {@link #testDuringDates} and {@link #testContains()}.
+   */
+  @Test
+  public void testMultipleFilters() {
+    During duringFilter =
+        (During)
+            geotoolsFilterBuilder
+                .attribute(TEMPORAL_ATTRIBUTE_NAME)
+                .during()
+                .dates(START_DATE, END_DATE);
+
+    Contains containsFilter =
+        (Contains)
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+
+    And andFilter = geotoolsFilterBuilder.allOf(duringFilter, containsFilter);
+
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(andFilter, openSearchFilterVisitorObject);
+
+    assertThat(
+        result.getTemporalSearch(),
+        allOf(
+            is(notNullValue()),
+            hasProperty("startDate", is(START_DATE)),
+            hasProperty("endDate", is(END_DATE))));
+
+    final Polygon polygon = result.getPolygonSearch();
+    assertThat(polygon, is(notNullValue()));
+    assertThat(polygon.toString(), is(WKT_POLYGON));
+  }
+
+  /**
+   * Test that other {@link Filter}s are still visited when a {@link Filter} is ignored. The {@link
+   * Filter}s in this test are the same as {@link #testMultipleFilters} except that the temporal
+   * criteria is from {@link #testNotModifiedTemporalFilter()}.
+   */
+  @Test
+  public void testMultipleFiltersWhereOneFilterIsIgnored() {
+    During duringFilter =
+        (During)
+            geotoolsFilterBuilder
+                .attribute(SOME_ATTRIBUTE_NAME)
+                .during()
+                .dates(START_DATE, END_DATE);
+
+    Contains containsFilter =
+        (Contains)
+            geotoolsFilterBuilder.attribute(SOME_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+
+    And andFilter = geotoolsFilterBuilder.allOf(duringFilter, containsFilter);
+
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(andFilter, openSearchFilterVisitorObject);
+
+    assertThat(result.getTemporalSearch(), is(nullValue()));
+
+    final Polygon polygon = result.getPolygonSearch();
+    assertThat(polygon, is(notNullValue()));
+    assertThat(polygon.toString(), is(WKT_POLYGON));
   }
 }

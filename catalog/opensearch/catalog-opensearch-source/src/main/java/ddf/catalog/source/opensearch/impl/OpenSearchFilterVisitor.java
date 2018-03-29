@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 
 public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   private static final String ONLY_AND_MSG =
-      "Opensearch only supports AND operations for non-contextual criteria.";
+      "The OpenSearch Source only supports AND operations for non-contextual criteria.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchFilterVisitor.class);
 
@@ -478,6 +478,16 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     if (openSearchFilterVisitorObject.getCurrentNest() != null
         && !NestedTypes.AND.equals(openSearchFilterVisitorObject.getCurrentNest())) {
       LOGGER.debug(ONLY_AND_MSG);
+      return;
+    }
+
+    final org.opengis.filter.expression.Expression expression1 = filter.getExpression1();
+    final String expectedTemporalSearchTerm = OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM;
+    if (!expectedTemporalSearchTerm.equals(expression1.toString())) {
+      LOGGER.debug(
+          "The OpenSearch Source only supports temporal criteria on the term \"{}\", but expression1 is \"{}\". Ignoring filter.",
+          expectedTemporalSearchTerm,
+          expression1);
       return;
     }
 

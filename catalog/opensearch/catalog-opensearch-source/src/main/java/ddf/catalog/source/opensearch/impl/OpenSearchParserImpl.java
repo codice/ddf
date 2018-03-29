@@ -37,7 +37,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -408,9 +407,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       orderType = OpenSearchConstants.ORDER_DESCENDING;
     }
 
-    PropertyName sortByField = ddfSort.getPropertyName();
-
-    switch (sortByField.getPropertyName()) {
+    final String sortByField = ddfSort.getPropertyName().getPropertyName();
+    switch (sortByField) {
       case Result.RELEVANCE:
         // asc relevance not supported by spec
         openSearchSortStr =
@@ -424,7 +422,10 @@ public class OpenSearchParserImpl implements OpenSearchParser {
         break;
       default:
         LOGGER.debug(
-            "Couldn't determine sort policy, not adding sorting in request to federated site.");
+            "The OpenSearch Source only supports a sort policy of \"{}\" or \"{}\", but the sort policy is \"{}\". Not adding the sort query parameter in the request to the federated site.",
+            Result.RELEVANCE,
+            Result.TEMPORAL,
+            sortByField);
         break;
     }
 
