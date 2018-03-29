@@ -4,7 +4,7 @@
 :link: _configuring_guest_claims_attribute_page
 :summary: Configuring Guest Claims Attributes.
 :project: ${branding}
-:order: 04
+:order: 05
 
 
 .[[_configuring_guest_claims_attribute_page]]Configure Guest Claim Attributes Page

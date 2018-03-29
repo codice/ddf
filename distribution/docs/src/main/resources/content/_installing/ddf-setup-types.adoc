@@ -3,7 +3,7 @@
 :status: published
 :summary: Installation profiles available.
 :project: ${ddf-branding}
-:order: 05
+:order: 04
 
 .[[_setup_types]]Setup Types
 ****
