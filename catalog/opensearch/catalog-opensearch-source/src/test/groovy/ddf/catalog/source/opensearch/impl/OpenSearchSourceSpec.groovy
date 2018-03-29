@@ -88,7 +88,7 @@ class OpenSearchSourceSpec extends Specification {
         }
 
         final OpenSearchSource source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService)) {
-
+            
             @Override
             protected Bundle getBundle() {
                 return bundle
@@ -128,7 +128,7 @@ class OpenSearchSourceSpec extends Specification {
         coorespondingQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
         ]
     }
 }

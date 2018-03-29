@@ -451,43 +451,30 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         (OpenSearchFilterVisitorObject)
             query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
 
-    ContextualSearch contextualFilter = openSearchFilterVisitorObject.getContextualSearch();
+    final ContextualSearch contextualFilter = openSearchFilterVisitorObject.getContextualSearch();
+    final SpatialFilter spatialFilter = openSearchFilterVisitorObject.getSpatialSearch();
+    final TemporalFilter temporalFilter = openSearchFilterVisitorObject.getTemporalSearch();
 
-    // TODO fix this so we aren't just triggering off of a contextual query
-    if (contextualFilter != null && MapUtils.isNotEmpty(contextualFilter.getSearchPhraseMap())) {
-      // All queries must have at least a search phrase to be valid, hence this check
-      // for a contextual filter with a non-empty search phrase
-      openSearchParser.populateSearchOptions(client, queryRequest, subject, parameters);
-      openSearchParser.populateContextual(
-          client, contextualFilter.getSearchPhraseMap(), parameters);
-
-      applyFilters(openSearchFilterVisitorObject, client);
-      return true;
-
-      // ensure that there is no search phrase - we will add our own
-    } else if ((openSearchFilterVisitorObject.getSpatialSearch() != null
-            && contextualFilter != null
-            && MapUtils.isEmpty(contextualFilter.getSearchPhraseMap()))
-        || (openSearchFilterVisitorObject.getSpatialSearch() != null && contextualFilter == null)) {
-
-      openSearchParser.populateSearchOptions(client, queryRequest, subject, parameters);
-
-      Map<String, String> searchPhraseMap;
-      if (contextualFilter == null) {
-        searchPhraseMap = new HashMap<>();
-      } else {
-        searchPhraseMap = contextualFilter.getSearchPhraseMap();
-      }
-      searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, "*");
-
-      // add a wildcard search term - this query came in with no search phrase and a search phrase
-      // is necessary
-      openSearchParser.populateContextual(client, searchPhraseMap, parameters);
-
-      applyFilters(openSearchFilterVisitorObject, client);
-      return true;
+    Map<String, String> searchPhraseMap = new HashMap<>();
+    if (contextualFilter != null) {
+      searchPhraseMap = contextualFilter.getSearchPhraseMap();
     }
-    return false;
+
+    if (MapUtils.isNotEmpty(searchPhraseMap) || spatialFilter != null || temporalFilter != null) {
+      // All queries must have at least a search phrase to be valid
+      if (searchPhraseMap == null) {
+        searchPhraseMap = new HashMap<>();
+      }
+      searchPhraseMap.putIfAbsent(OpenSearchParserImpl.SEARCH_TERMS, "*");
+
+      openSearchParser.populateSearchOptions(client, queryRequest, subject, parameters);
+      openSearchParser.populateContextual(client, searchPhraseMap, parameters);
+      applyFilters(openSearchFilterVisitorObject, client);
+
+      return true;
+    } else {
+      return false;
+    }
   }
 
   private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) {
