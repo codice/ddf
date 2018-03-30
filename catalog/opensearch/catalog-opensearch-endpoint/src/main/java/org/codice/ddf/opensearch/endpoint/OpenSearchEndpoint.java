@@ -27,12 +27,12 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -66,7 +66,31 @@ public class OpenSearchEndpoint implements OpenSearch {
 
   private static final int DEFAULT_START_INDEX = 1;
 
+  private static final String DEFAULT_SORT_FIELD = OpenSearchConstants.SORT_RELEVANCE;
+
+  private static final String DEFAULT_SORT_ORDER = OpenSearchConstants.ORDER_DESCENDING;
+
   private static final String DEFAULT_RADIUS = "5000";
+
+  private static final Pattern SOURCES_PATTERN =
+      Pattern.compile(OpenSearchConstants.SOURCES_DELIMITER);
+
+  private static final Pattern SORT_PATTERN = Pattern.compile(OpenSearchConstants.SORT_DELIMITER);
+
+  /**
+   * sort=<sbfield>:<sborder>, where <sbfield> may be 'date' or 'relevance' (default is
+   * 'relevance'). The conditional param <sborder> is optional but has a value of 'asc' or 'desc'
+   * (default is 'desc'). When <sbfield> is 'relevance', <sborder> must be 'desc'.
+   */
+  private static final Pattern EXPECTED_SORT_FORMAT =
+      Pattern.compile(
+          String.format(
+              "(%1$s(%5$s(%3$s|%4$s))?)|(%2$s(%5$s%4$s)?)",
+              OpenSearchConstants.SORT_TEMPORAL,
+              OpenSearchConstants.SORT_RELEVANCE,
+              OpenSearchConstants.ORDER_ASCENDING,
+              OpenSearchConstants.ORDER_DESCENDING,
+              OpenSearchConstants.SORT_DELIMITER));
 
   private final CatalogFramework framework;
 
@@ -141,25 +165,16 @@ public class OpenSearchEndpoint implements OpenSearch {
     final String methodName = "processQuery";
     LOGGER.trace("ENTERING: {}", methodName);
     Response response;
-    String localCount = count;
     LOGGER.debug("request url: {}", ui.getRequestUri());
-
-    // honor maxResults if count is not specified
-    if (StringUtils.isEmpty(localCount) && StringUtils.isNotEmpty(maxResults)) {
-      LOGGER.debug("setting count to: {}", maxResults);
-      localCount = maxResults;
-    }
 
     try {
       String queryFormat = format;
-      OpenSearchQuery query = createNewQuery(startIndex, localCount, sort, maxTimeout);
+      OpenSearchQuery query = createNewQuery(startIndex, count, maxResults, sort, maxTimeout);
 
       if (StringUtils.isNotEmpty(sources)) {
         LOGGER.debug("Received site names from client.");
-        Set<String> siteSet =
-            new HashSet<>(
-                Arrays.asList(
-                    StringUtils.stripAll(sources.split(OpenSearchConstants.SOURCES_DELIMITER))));
+        final Set<String> siteSet =
+            SOURCES_PATTERN.splitAsStream(sources).collect(Collectors.toSet());
 
         // This code block is for backward compatibility to support src=local.
         // Since local is a magic word, not in any specification, we need to
@@ -391,41 +406,104 @@ public class OpenSearchEndpoint implements OpenSearch {
   /**
    * Creates a new query from the incoming parameters
    *
-   * @param startIndexStr - Start index for the query
+   * @param startIndexStr - start index for the query
    * @param countStr - number of results for the query
-   * @param sortStr - How to sort the query results
+   * @param maxResultsStr - maximum # of results to return
+   * @param sortStr - how to sort the query results
    * @param maxTimeoutStr - timeout value on the query execution
    * @return - the new query
    */
   private OpenSearchQuery createNewQuery(
-      String startIndexStr, String countStr, String sortStr, String maxTimeoutStr) {
-    // default values
-    String sortField = OpenSearchConstants.SORT_RELEVANCE;
-    String sortOrder = OpenSearchConstants.ORDER_DESCENDING;
-    Integer startIndex = DEFAULT_START_INDEX;
-    Integer count = DEFAULT_COUNT;
-    long maxTimeout = DEFAULT_TIMEOUT;
+      final String startIndexStr,
+      final String countStr,
+      final String maxResultsStr,
+      final String sortStr,
+      final String maxTimeoutStr) {
+    final int startIndex;
+    if (StringUtils.isEmpty(startIndexStr)) {
+      LOGGER.trace(
+          "Empty {} query parameter. Using default {} instead.",
+          OpenSearchConstants.START_INDEX,
+          DEFAULT_START_INDEX);
+      startIndex = DEFAULT_START_INDEX;
+    } else {
+      final int parsedInt = Integer.parseInt(startIndexStr);
 
-    // Updated to use the passed in index if valid (=> 1)
-    // and to use the default if no value, or an invalid value (< 1)
-    // is specified
-    if (StringUtils.isNotEmpty(startIndexStr) && (Integer.parseInt(startIndexStr) > 0)) {
-      startIndex = Integer.parseInt(startIndexStr);
-    }
-    if (StringUtils.isNotEmpty(countStr)) {
-      count = Integer.parseInt(countStr);
-    }
-    if (StringUtils.isNotEmpty(sortStr)) {
-      String[] sortAry = sortStr.split(OpenSearchConstants.SORT_DELIMITER);
-      if (sortAry.length > 1) {
-        sortField = sortAry[0];
-        sortOrder = sortAry[1];
+      if (parsedInt > 0) {
+        startIndex = parsedInt;
+      } else {
+        LOGGER.debug(
+            "{} query parameter must be greater than 0 but is \"{}\". Using default {} instead.",
+            OpenSearchConstants.START_INDEX,
+            startIndexStr,
+            DEFAULT_START_INDEX);
+        startIndex = DEFAULT_START_INDEX;
       }
     }
-    if (StringUtils.isNotEmpty(maxTimeoutStr)) {
+
+    final int count;
+    if (StringUtils.isEmpty(countStr)) {
+      LOGGER.trace("Empty {} query parameter", OpenSearchConstants.COUNT);
+
+      if (StringUtils.isEmpty(maxResultsStr)) {
+        LOGGER.trace("Empty {} query parameter", OpenSearchConstants.MAX_RESULTS);
+        LOGGER.trace("Using default {} instead", DEFAULT_COUNT);
+        count = DEFAULT_COUNT;
+      } else {
+        // honor maxResults if count is not specified
+        count = Integer.parseInt(maxResultsStr);
+      }
+    } else {
+      count = Integer.parseInt(countStr);
+    }
+
+    final String sortField;
+    final String sortOrder;
+    if (StringUtils.isEmpty(sortStr)) {
+      LOGGER.trace(
+          "Empty {} query parameter. Using defaults (field={}, order={}) instead.",
+          OpenSearchConstants.SORT,
+          DEFAULT_SORT_FIELD,
+          DEFAULT_SORT_ORDER);
+      sortField = DEFAULT_SORT_FIELD;
+      sortOrder = DEFAULT_SORT_ORDER;
+    } else {
+      if (EXPECTED_SORT_FORMAT.matcher(sortStr).matches()) {
+        String[] sortAry = SORT_PATTERN.split(sortStr, 2);
+        sortField = sortAry[0];
+
+        if (sortAry.length == 2) {
+          sortOrder = sortAry[1];
+        } else {
+          LOGGER.trace(
+              "Empty {} order query parameter. Using default {} instead.",
+              OpenSearchConstants.SORT,
+              DEFAULT_SORT_ORDER);
+          sortOrder = DEFAULT_SORT_ORDER;
+        }
+      } else {
+        LOGGER.debug(
+            "Invalid {} query parameter \"{}\". See the OpenSearch Endpoint documentation for details the parameter format. Using defaults (field={}, order={}) instead.",
+            OpenSearchConstants.SORT,
+            sortStr,
+            DEFAULT_SORT_FIELD,
+            DEFAULT_SORT_ORDER);
+        sortField = DEFAULT_SORT_FIELD;
+        sortOrder = DEFAULT_SORT_ORDER;
+      }
+    }
+
+    final long maxTimeout;
+    if (StringUtils.isEmpty(maxTimeoutStr)) {
+      LOGGER.trace(
+          "Empty {} query parameter. Using default {} instead.",
+          OpenSearchConstants.MAX_TIMEOUT,
+          DEFAULT_TIMEOUT);
+      maxTimeout = DEFAULT_TIMEOUT;
+    } else {
       maxTimeout = Long.parseLong(maxTimeoutStr);
     }
-    LOGGER.debug("Retrieved query settings:   sortField: {}   sortOrder: {}", sortField, sortOrder);
+
     return new OpenSearchQuery(startIndex, count, sortField, sortOrder, maxTimeout, filterBuilder);
   }
 

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.opensearch.OpenSearchConstants;
@@ -56,12 +57,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OpenSearchQuery implements Query {
-  private static final String CARET = "^";
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQuery.class);
+
+  public static final String CARET = "^";
 
   // TODO remove this and only use filterbuilder
   private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQuery.class);
+  private static final Pattern SELECTOR_PATTERN =
+      Pattern.compile(OpenSearchConstants.SELECTORS_DELIMITER);
+
+  private static final Pattern VERSION_PATTERN =
+      Pattern.compile(OpenSearchConstants.VERSIONS_DELIMITER);
 
   private final FilterBuilder filterBuilder;
 
@@ -224,7 +231,7 @@ public class OpenSearchQuery implements Query {
     try {
       if (selectors != null) {
         // generate a filter for each selector
-        for (String selector : selectors.split(OpenSearchConstants.SELECTORS_DELIMITER)) {
+        for (String selector : SELECTOR_PATTERN.split(selectors)) {
           if (filter == null) {
             filter = keywordFilterGenerator.getFilterFromASTNode(result.resultValue, selector);
           } else {
@@ -341,10 +348,9 @@ public class OpenSearchQuery implements Query {
 
     if (StringUtils.isNotEmpty(versions)) {
       LOGGER.debug("Received versions from client.");
-      String[] typeVersions = versions.split(OpenSearchConstants.VERSIONS_DELIMITER);
       List<Filter> typeVersionPairsFilters = new ArrayList<>();
 
-      for (String version : typeVersions) {
+      for (String version : VERSION_PATTERN.split(versions)) {
         Filter versionFilter;
         if (version.contains("*")) {
           versionFilter =

@@ -14,15 +14,19 @@
 package org.codice.ddf.opensearch.endpoint.query.filter;
 
 import ddf.catalog.impl.filter.SpatialFilter;
+import java.util.regex.Pattern;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 
 public class PolygonSpatialFilter extends SpatialFilter {
+  private static final Pattern POLYGON_PATTERN =
+      Pattern.compile(OpenSearchConstants.POLYGON_LON_LAT_DELIMITER);
+
   private final String[] latLonAry;
 
   public PolygonSpatialFilter(String lonLatStr) {
     super();
 
-    latLonAry = lonLatStr.split(OpenSearchConstants.POLYGON_LON_LAT_DELIMITER);
+    latLonAry = POLYGON_PATTERN.split(lonLatStr);
     this.geometryWkt = createWKT();
   }
 

@@ -14,9 +14,21 @@
 package org.codice.ddf.opensearch.endpoint.query.filter;
 
 import ddf.catalog.impl.filter.SpatialFilter;
+import java.util.Collections;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 
 public class BBoxSpatialFilter extends SpatialFilter {
+  /** A {@link Pattern} of 4 {@value OpenSearchConstants#BBOX_DELIMITER}-delimited doubles */
+  private static final Pattern EXPECTED_BBOX_FORMAT =
+      Pattern.compile(
+          Collections.nCopies(4, "(-?\\d+(\\.\\d+)?)")
+              .stream()
+              .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER)));
+
+  private static final Pattern BBOX_PATTERN = Pattern.compile(OpenSearchConstants.BBOX_DELIMITER);
+
   private final double minX;
 
   private final double minY;
@@ -32,27 +44,19 @@ public class BBoxSpatialFilter extends SpatialFilter {
   public BBoxSpatialFilter(final String bbox) {
     super();
 
-    String[] bboxArY = bbox.split(OpenSearchConstants.BBOX_DELIMITER);
+    if (EXPECTED_BBOX_FORMAT.matcher(bbox).matches()) {
+      String[] bboxArY = BBOX_PATTERN.split(bbox);
 
-    if (bboxArY.length != OpenSearchConstants.BBOX_LIST_SIZE) {
-      throw new IllegalArgumentException(
-          OpenSearchConstants.BBOX
-              + " value must have exactly "
-              + OpenSearchConstants.BBOX_LIST_SIZE
-              + " values in the format West,South,East,North (or minX,minY,maxX,maxY)");
-    }
-
-    try {
       this.minX = Double.parseDouble(bboxArY[0]);
       this.minY = Double.parseDouble(bboxArY[1]);
       this.maxX = Double.parseDouble(bboxArY[2]);
-      this.maxY = Double.parseDouble(bboxArY[OpenSearchConstants.BBOX_LIST_SIZE - 1]);
-    } catch (NumberFormatException e) {
+      this.maxY = Double.parseDouble(bboxArY[3]);
+    } else {
       final String message =
           String.format(
               "The %s OpenSearch Endpoint parameter must have four %s-delimited double values but is \"%s\".",
               OpenSearchConstants.BBOX, OpenSearchConstants.BBOX_DELIMITER, bbox);
-      throw new IllegalArgumentException(message, e);
+      throw new IllegalArgumentException(message);
     }
 
     this.geometryWkt = createWKT();
