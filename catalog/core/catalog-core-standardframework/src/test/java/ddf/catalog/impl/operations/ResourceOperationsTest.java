@@ -23,10 +23,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -334,18 +337,6 @@ public class ResourceOperationsTest {
     verifyGetResourceMocks();
   }
 
-  @Test(expected = ResourceNotSupportedException.class)
-  public void testGetResourceInfoThrowsResourceNotSupportedException() throws Exception {
-
-    when(resourceRequestMock.getAttributeValue()).thenReturn("bob");
-    when(resourceRequestMock.getAttributeName()).thenReturn("bob");
-
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
-
-    verify(resourceRequestMock).getAttributeValue();
-    verify(resourceRequestMock).getAttributeName();
-  }
-
   @Test(expected = ResourceNotFoundException.class)
   public void testGetResourceInfoUriNotBlank() throws Exception {
 
@@ -372,10 +363,10 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
-    resourceOperationsSpy.getResourceInfo(
-        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
-    verify(resourceOperationsSpy)
-        .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
+    ResourceOperations.ResourceInfo resourceInfo =
+        resourceOperationsSpy.getResourceInfo(
+            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+    assertThat(resourceInfo.getResourceUri(), equalTo(testUri));
   }
 
   @Test
@@ -401,14 +392,10 @@ public class ResourceOperationsTest {
     ResourceOperations.ResourceInfo resourceInfo =
         resourceOperationsSpy.getResourceInfo(
             resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
-    verify(resourceOperationsSpy)
-        .createPropertyStartsWithQuery(
-            Metacard.RESOURCE_URI,
-            "scheme:///" + URLEncoder.encode("part1?file://some/pathto/file"));
     assertThat(resourceInfo.getResourceUri(), equalTo(uri));
   }
 
-  @Test
+  @Test(expected = ResourceNotFoundException.class)
   public void testGetResourceInfoWithFragmentAndMultipleResults() throws Exception {
     when(resourceRequestMock.getAttributeValue()).thenReturn(testUri);
     when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
@@ -431,12 +418,84 @@ public class ResourceOperationsTest {
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
-    ResourceOperations.ResourceInfo resourceInfo =
-        resourceOperationsSpy.getResourceInfo(
-            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
-    verify(resourceOperationsSpy)
-        .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
-    assertThat(resourceInfo.getResourceUri(), equalTo(testUri));
+    resourceOperationsSpy.getResourceInfo(
+        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void testGetResourceInfoWithIdAndMultipleResults() throws Exception {
+    when(resourceRequestMock.getAttributeValue()).thenReturn("bobbert");
+    when(resourceRequestMock.getAttributeName()).thenReturn("id");
+    StringBuilder federatedSite = new StringBuilder();
+    Map<String, Serializable> requestProperties = new HashMap<>();
+    Result mockResult1 = mock(Result.class);
+    Result mockResult2 = mock(Result.class);
+    ArrayList<Result> mockResultList = new ArrayList<>();
+    mockResultList.add(mockResult1);
+    mockResultList.add(mockResult2);
+    MetacardImpl wrongMetacard = new MetacardImpl();
+    wrongMetacard.setId("bobbert");
+    when(mockResult1.getMetacard()).thenReturn(wrongMetacard);
+    when(mockResult2.getMetacard()).thenReturn(metacard);
+    when(queryOperationsMock.query(
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+        .thenReturn(queryResponseMock);
+    when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+    ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+    resourceOperationsSpy.getResourceInfo(
+        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void testGetResourceInfoWithMultipleDerivedUrisMatchingQualifier() throws Exception {
+    when(resourceRequestMock.getAttributeValue()).thenReturn(testUri);
+    when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
+    StringBuilder federatedSite = new StringBuilder();
+    Map<String, Serializable> requestProperties = new HashMap<>();
+    requestProperties.put(ContentItem.QUALIFIER_KEYWORD, "qualifier");
+    List<Serializable> derivedUris = new ArrayList<>();
+    derivedUris.add("content:45sgfds867fsdg9876#qualifier");
+    derivedUris.add("content:45sgfds867fsdg9876#qualifier");
+    Attribute derivedUrisAttribute = new AttributeImpl(Core.DERIVED_RESOURCE_URI, derivedUris);
+    metacard.setAttribute(derivedUrisAttribute);
+    Result mockResult = mock(Result.class);
+    ArrayList<Result> mockResultList = new ArrayList<>();
+    mockResultList.add(mockResult);
+    when(mockResult.getMetacard()).thenReturn(metacard);
+    when(queryOperationsMock.query(
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+        .thenReturn(queryResponseMock);
+    when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+    ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+    resourceOperationsSpy.getResourceInfo(
+        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+  }
+
+  @Test(expected = ResourceNotFoundException.class)
+  public void testGetResourceInfoWithNoDerivedUrisMatchingQualifier() throws Exception {
+    when(resourceRequestMock.getAttributeValue()).thenReturn(testUri);
+    when(resourceRequestMock.getAttributeName()).thenReturn("resource-uri");
+    StringBuilder federatedSite = new StringBuilder();
+    Map<String, Serializable> requestProperties = new HashMap<>();
+    requestProperties.put(ContentItem.QUALIFIER_KEYWORD, "qualifiero");
+    List<Serializable> derivedUris = new ArrayList<>();
+    derivedUris.add("content:45sgfds867fsdg9876#qualifier");
+    Attribute derivedUrisAttribute = new AttributeImpl(Core.DERIVED_RESOURCE_URI, derivedUris);
+    metacard.setAttribute(derivedUrisAttribute);
+    Result mockResult = mock(Result.class);
+    ArrayList<Result> mockResultList = new ArrayList<>();
+    mockResultList.add(mockResult);
+    when(mockResult.getMetacard()).thenReturn(metacard);
+    when(queryOperationsMock.query(
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+        .thenReturn(queryResponseMock);
+    when(queryResponseMock.getResults()).thenReturn(mockResultList);
+
+    ResourceOperations resourceOperationsSpy = spy(resourceOperations);
+    resourceOperationsSpy.getResourceInfo(
+        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
   }
 
   @Test(expected = ResourceNotFoundException.class)

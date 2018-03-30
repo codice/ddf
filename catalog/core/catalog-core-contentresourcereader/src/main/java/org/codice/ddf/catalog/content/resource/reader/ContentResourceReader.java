@@ -156,20 +156,6 @@ public class ContentResourceReader implements ResourceReader {
       LOGGER.debug("Resource URI is content scheme");
       String contentId = resourceUri.getSchemeSpecificPart();
       if (contentId != null && !contentId.isEmpty()) {
-        if (arguments != null
-            && arguments.get(ContentItem.QUALIFIER_KEYWORD) instanceof String
-            && StringUtils.isNotBlank((String) arguments.get(ContentItem.QUALIFIER_KEYWORD))) {
-          try {
-            resourceUri =
-                new URI(
-                    resourceUri.getScheme(),
-                    resourceUri.getSchemeSpecificPart(),
-                    (String) arguments.get(ContentItem.QUALIFIER_KEYWORD));
-          } catch (URISyntaxException e) {
-            throw new ResourceNotFoundException("Unable to create with qualifier", e);
-          }
-        }
-
         ReadStorageRequest readRequest = new ReadStorageRequestImpl(resourceUri, arguments);
         try {
           ReadStorageResponse readResponse = storage.read(readRequest);
@@ -184,6 +170,9 @@ public class ContentResourceReader implements ResourceReader {
         } catch (StorageException e) {
           throw new ResourceNotFoundException(e);
         }
+      } else {
+        throw new ResourceNotSupportedException(
+            String.format("Invalid URI %s received", resourceUri));
       }
     }
 

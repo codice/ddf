@@ -33,7 +33,7 @@ public class ResourceRequestById extends OperationImpl implements ResourceReques
   }
 
   /**
-   * Implements a ResourceRequestById and specifies the id and a ${@link Map} of properties
+   * Implements a ResourceRequestById and specifies the id and a {@link Map} of properties
    *
    * @param properties the properties
    */
