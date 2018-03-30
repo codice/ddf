@@ -47,6 +47,8 @@ module.exports = Marionette.CollectionView.extend(Decorators.decorate({
         event.stopPropagation();
     },
     handleMouseDown: function(event) {
-        event.preventDefault();
+        if (event.shiftKey) {
+            event.preventDefault();
+        }
     }
 }, ResultSelectionDecorator));
