@@ -17,7 +17,9 @@
  var $ = require('jquery');
  var template = require('./search-form.hbs');
  var CustomElements = require('js/CustomElements');
- var user = require('component/singletons/user-instance');
+ var user = require('../singletons/user-instance');
+ var DropdownModel = require('../dropdown/dropdown');
+ var SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
 
  module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -26,9 +28,21 @@
     events: {
         'click': 'changeView'
     },
+    regions: {
+        workspaceActions: '.choice-actions'
+    },
     onRender: function() {
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text') {
             this.$el.addClass('is-static');
+        }
+        else{
+        this.workspaceActions.show(new SearchFormInteractionsDropdownView({
+            model: new DropdownModel(),
+            modelForComponent: this.model,
+            dropdownCompanionBehaviors: {
+                navigation: {}
+            }
+        }));
         }
     },
     changeView: function() {
@@ -52,6 +66,7 @@
                     type: 'custom',
                     template: this.model.toJSON()
                 });
+
                 if (oldType  === 'custom') {
                     this.options.queryModel.trigger('change:type');
                 }
@@ -64,5 +79,6 @@
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        this.options.queryModel.trigger('closeDropDown');
     }
 });

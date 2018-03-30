@@ -1,0 +1,51 @@
+@{customElementNamespace}search-form-interactions {
+  display: block;
+
+  .search-form-interaction,
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  .search-form-interaction {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+  }
+
+  .interaction-unsubscribe {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}search-form-interactions.is-subscribed {
+  .interaction-unsubscribe {
+    display: block;
+  }
+
+  .interaction-subscribe {
+    display: none;
+  }
+}
+
+@{customElementNamespace}search-form-interactions.is-local {
+  .interaction-subscribe,
+  .interaction-unsubscribe,
+  .interaction-details,
+  .interaction-share {
+    display: none !important;
+  }
+}

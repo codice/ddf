@@ -13,13 +13,17 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static spark.Spark.delete;
 import static spark.Spark.get;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -98,5 +102,14 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()),
         MAPPER::toJson);
+    delete(
+        "/forms/:id",
+        APPLICATION_JSON,
+        (req, res) -> {
+          String id = req.params(":id");
+          catalogFramework.delete(new DeleteRequestImpl(id));
+          return ImmutableMap.of("message", "Successfully deleted.");
+        },
+        util::getJson);
   }
 }
