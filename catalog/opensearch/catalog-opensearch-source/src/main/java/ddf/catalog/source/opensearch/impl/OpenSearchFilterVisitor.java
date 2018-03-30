@@ -309,7 +309,12 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       String selectors = expression.getPropertyName();
       LOGGER.debug("selectors = {}", selectors);
 
-      String searchPhrase = likeFilter.getLiteral();
+      String searchPhrase =
+          normalizePattern(
+              likeFilter.getLiteral(),
+              filter.getWildCard(),
+              filter.getSingleChar(),
+              filter.getEscape());
       LOGGER.debug("searchPhrase = [{}]", searchPhrase);
       if (openSearchFilterVisitorObject.getContextualSearch() != null) {
         Map<String, String> searchPhraseMap =
@@ -378,6 +383,36 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Literal expression, Object data) {
     LOGGER.trace("Visiting Literal expression");
     return data;
+  }
+
+  protected String normalizePattern(
+      String pattern, String wildcard, String singleChar, String escapeChar) {
+    StringBuilder sb = new StringBuilder(pattern.length());
+    for (int i = 0; i < pattern.length(); i++) {
+      char c = pattern.charAt(i);
+      if (c == escapeChar.charAt(0)) {
+        if (i + 1 < pattern.length()) {
+          i++;
+          char next = pattern.charAt(i);
+          if ('*' == next || '?' == next || '\\' == next) {
+            // target normalized character needs to be escaped
+            sb.append("\\");
+            sb.append(next);
+          } else {
+            // escaped character is not a normalized character
+            // and does not need to be escaped anymore
+            sb.append(next);
+          }
+        }
+      } else if (c == singleChar.charAt(0)) {
+        sb.append("?");
+      } else if (c == wildcard.charAt(0)) {
+        sb.append("*");
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   private OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(Object data) {
