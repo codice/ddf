@@ -26,11 +26,10 @@ define([
     'js/CQLUtils',
     'component/property/property',
     'component/announcement',
-    'js/DistanceUtils',
     'js/ShapeUtils'
 ], function (require, $, Backbone, Marionette, _, properties, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils, Property, Announcement, 
-             DistanceUtils, ShapeUtils) {
+             ShapeUtils) {
     var minimumDifference = 0.0001;
     var minimumBuffer = 0.000001;
     var deltaThreshold = 0.0000001;
@@ -58,11 +57,8 @@ define([
             'click #locationLine': 'drawLine',
             'click #locationKeyword': 'searchByKeyword',
             'click #latlon': 'swapLocationTypeLatLon',
-            'click #latlon': 'swapLocationTypeLatLon',
             'click #usng': 'swapLocationTypeUsng',
             'click #utm': 'swapLocationTypeUtm',
-            'change #radiusUnits': 'onRadiusUnitsChanged',
-            'change #lineUnits': 'onLineUnitsChanged',
             'click > .location-draw button': 'triggerDraw'
         },
         regions: {
@@ -358,39 +354,7 @@ define([
         },
         onRender: function () {
             var view = this;
-            var radiusConverter = function (direction, value) {
-                var radiusUnitVal = view.model.get('radiusUnits');
-                switch (direction) {
-                    case 'ViewToModel':
-                        var distanceInMeters = DistanceUtils.getDistanceInMeters(value, radiusUnitVal);
-                        //radius value is bound to radius since radiusValue is converted, so we just need to set
-                        //the value so that it shows up in the view
-                        view.model.set('radius', distanceInMeters);
-                        return distanceInMeters;
-                    case 'ModelToView':
-                        var distanceFromMeters = DistanceUtils.getDistanceFromMeters(view.model.get('radius'), radiusUnitVal);
-                        var currentValue = this.boundEls[0].value;
-                        // same used in cesium.bbox.js
-                        // only update the view's value if it's significantly different from the model's value or is <= minimumBuffer (min for cql)
-                        return (Math.abs((currentValue - distanceFromMeters)) > deltaThreshold) || currentValue <= minimumBuffer ? distanceFromMeters : currentValue;
-                }
-            }, lineWidthConverter = function (direction, value) {
-                var lineUnitVal = view.model.get('lineUnits');
-                switch (direction) {
-                    case 'ViewToModel':
-                        var distanceInMeters = DistanceUtils.getDistanceInMeters(value, lineUnitVal);
-                        //radius value is bound to radius since radiusValue is converted, so we just need to set
-                        //the value so that it shows up in the view
-                        view.model.set('lineWidth', distanceInMeters);
-                        return distanceInMeters;
-                    case 'ModelToView':
-                        var distanceFromMeters = DistanceUtils.getDistanceFromMeters(view.model.get('lineWidth'), lineUnitVal);
-                        var currentValue = this.boundEls[0].value;
-                        // same used in cesium.bbox.js
-                        // only update the view's value if it's significantly different from the model's value or is <= minimumBuffer (min for cql)
-                        return (Math.abs((currentValue - distanceFromMeters)) > deltaThreshold) || currentValue <= minimumBuffer ? distanceFromMeters : currentValue;
-                }
-            }, polygonConverter = function (direction, value) {
+            var polygonConverter = function (direction, value) {
                 if (value !== undefined && direction === 'ViewToModel') {
                     return JSON.parse(value);
                 } else if (value !== undefined && direction === 'ModelToView') {
@@ -430,9 +394,7 @@ define([
 
             var queryModelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
             queryModelBindings.lineWidth.selector = '#lineWidthValue';
-            queryModelBindings.lineWidth.converter = lineWidthConverter;
             queryModelBindings.radius.selector = '#radiusValue';
-            queryModelBindings.radius.converter = radiusConverter;
             queryModelBindings.polygon.converter = polygonConverter;
             queryModelBindings.line.converter = polygonConverter;
             queryModelBindings.utmZone.converter = utmZoneConverter;
@@ -579,12 +541,6 @@ define([
                 this.model.set({hasKeyword: true});
                 this.changeMode("keyword");
             }
-        },
-        onLineUnitsChanged: function () {
-            this.$('#lineWidthValue').val(DistanceUtils.getDistanceFromMeters(this.model.get('lineWidth'), this.$('#lineUnits').val()));
-        },
-        onRadiusUnitsChanged: function () {
-            this.$('#radiusValue').val(DistanceUtils.getDistanceFromMeters(this.model.get('radius'), this.$('#radiusUnits').val()));
         },
         serializeData: function () {
             return this.model.toJSON({
