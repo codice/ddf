@@ -21,7 +21,7 @@ var CustomElements = require('js/CustomElements');
 var lightboxInstance = require('component/lightbox/lightbox.view.instance');
 var SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
 var DropdownModel = require('component/dropdown/dropdown');
-var SearchTypeDropdownView = require('component/dropdown/search-type/dropdown.search-type.view');
+var SearchFormSelectorDropdownView = require('component/dropdown/search-form-selector/dropdown.search-form-selector.view');
 var _merge = require('lodash/merge');
 var ConfirmationView = require('component/confirmation/confirmation.view');
 var user = require('component/singletons/user-instance');
@@ -32,39 +32,21 @@ module.exports = Marionette.LayoutView.extend({
     className: 'composed-menu',
     regions: {
         searchType: '.interaction-type',
+        searchAdvanced: '.interaction-type-advanced',
         searchSettings: '.interaction-settings'
     },
     events: {
         'click > .interaction-reset': 'triggerReset',
-        'click > .interaction-type-text': 'triggerTypeText',
-        'click > .interaction-type-basic': 'triggerTypeBasic',
         'click > .interaction-type-advanced': 'triggerTypeAdvanced',
         'click > .interaction-form': 'triggerCloseDropdown'
     },
-    initialize: function() {
-        this.handleType();
-        this.listenTo(this.model, 'change:type', this.handleType);
-    },
-    handleType: function() {
-        this.$el.removeClass('is-text').removeClass('is-basic').removeClass('is-advanced');
-        switch(this.model.get('type')) {
-            case 'text':
-                this.$el.addClass('is-text');
-            break;
-            case 'basic':
-                this.$el.addClass('is-basic');
-            break;
-            case 'advanced':
-                this.$el.addClass('is-advanced');
-            break;
-        }
-    },
     onRender: function(){
-        this.generateSearchType();
+        this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
+        this.generateSearchFormSelector();
         this.generateSearchSettings();
     },
-    generateSearchType: function() {
-        this.searchType.show(new SearchTypeDropdownView({
+    generateSearchFormSelector: function() {
+        this.searchType.show(new SearchFormSelectorDropdownView({
             model: new DropdownModel(),
             modelForComponent: this.model,
             selectionInterface: this.options.selectionInterface
@@ -99,18 +81,9 @@ module.exports = Marionette.LayoutView.extend({
             }
         }.bind(this));
     },
-    triggerType: function(type) {
-        this.model.set('type', type);
-        user.getQuerySettings().set('type', type);
-        user.savePreferences();
-    },
-    triggerTypeText: function() {
-        this.triggerType('text');
-    },
-    triggerTypeBasic: function() {
-        this.triggerType('basic');
-    },
     triggerTypeAdvanced: function() {
-        this.triggerType('advanced');
+        this.model.set('type', 'advanced');
+        user.getQuerySettings().set('type', 'advanced');
+        user.savePreferences();
     }
 });

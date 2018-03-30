@@ -9,18 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-var Backbone = require('backbone');
+ /*global require*/
+ var Tabs = require('component/tabs/tabs');
+ var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
 
-module.exports = Backbone.Model.extend({
-    defaults: function() {
-        return {
-            type: 'text',
-            src: undefined,
-            federation: 'enterprise',
-            sortField: 'modified',
-            sortOrder: 'descending',
-            template: undefined
-        };
+ module.exports = Tabs.extend({
+    defaults: {
+        tabs: {
+            'My Search Forms': MySearchFormCollectionView
+         }
     }
-});
+ });

@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,18 +10,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-var Backbone = require('backbone');
+ --}}
 
-module.exports = Backbone.Model.extend({
-    defaults: function() {
-        return {
-            type: 'text',
-            src: undefined,
-            federation: 'enterprise',
-            sortField: 'modified',
-            sortOrder: 'descending',
-            template: undefined
-        };
-    }
-});
+{{#is type 'basic'}}
+    <div>
+        <h3>Basic</h3>
+    </div>
+{{/is}}
+{{#is type 'text'}}
+    <div>
+        <h3>Text</h3>
+    </div>
+{{/is}}
+{{#is type 'custom'}}
+    <div>
+        <h3 class="search-form-title" data-help="{{name}}">{{name}}</h3>
+        <span class="search-form-contents">
+            <span class="search-form-label">Created On: </span>
+            {{createdOn}}
+        </span>
+        <span class="search-form-contents">
+            <span class="search-form-label">Created By: </span>
+            {{createdBy}}
+        </span>
+    </div>
+{{/is}}

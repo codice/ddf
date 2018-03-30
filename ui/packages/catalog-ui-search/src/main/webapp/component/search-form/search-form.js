@@ -9,18 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-var Backbone = require('backbone');
+ /*global require*/
+ var _ = require('underscore');
+ var Backbone = require('backbone');
 
-module.exports = Backbone.Model.extend({
-    defaults: function() {
-        return {
-            type: 'text',
-            src: undefined,
-            federation: 'enterprise',
-            sortField: 'modified',
-            sortOrder: 'descending',
-            template: undefined
-        };
+ module.exports = Backbone.Model.extend({
+    defaults: {
+        name: "A Search Form",
+        createdBy: "admin",
+        type: "custom",
+        filterTemplate: "{}"
     }
-});
+ });

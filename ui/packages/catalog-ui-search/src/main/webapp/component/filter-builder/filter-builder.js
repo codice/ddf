@@ -10,16 +10,13 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone',
-], function (_, Backbone) {
+ var Backbone = require('backbone');
+ var _ = require('underscore');
 
-    return Backbone.Model.extend({
-        defaults: {
-            value: '',
-            operator: 'AND'
-        },
-        type: 'filter-builder'
-    });
-});
+ module.exports =  Backbone.Model.extend({
+    defaults: {
+        value: '',
+        operator: 'AND'
+    },
+    type: 'filter-builder'
+ });

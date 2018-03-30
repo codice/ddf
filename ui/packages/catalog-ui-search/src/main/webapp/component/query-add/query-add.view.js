@@ -17,6 +17,7 @@ var Marionette = require('marionette');
 var template = require('./query-add.hbs');
 var CustomElements = require('js/CustomElements');
 var QueryBasic = require('component/query-basic/query-basic.view');
+var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
 var QueryAdvanced = require('component/query-advanced/query-advanced.view');
 var QueryTitle = require('component/query-title/query-title.view');
 var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
@@ -25,6 +26,8 @@ var store = require('js/store');
 var QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
 var LoadingView = require('component/loading/loading.view');
 var wreqr = require('wreqr');
+const cql = require('js/cql');
+const user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -48,21 +51,18 @@ module.exports = Marionette.LayoutView.extend({
         this.listenForSave();
     },
     reshow: function() {
-        this.$el.toggleClass('is-text', false);
-        this.$el.toggleClass('is-basic', false);
-        this.$el.toggleClass('is-advanced', false);
         switch (this.model.get('type')) {
             case 'text':
-                this.$el.toggleClass('is-text', true);
                 this.showText();
                 break;
             case 'basic':
-                this.$el.toggleClass('is-basic', true);
                 this.showBasic();
                 break;
             case 'advanced':
-                this.$el.toggleClass('is-advanced', true);
                 this.showAdvanced();
+                break;
+            case 'custom':
+                this.showCustom();
                 break;
         }
     },
@@ -84,7 +84,6 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryBasic({
             model: this.model
         }));
-        this.$el.toggleClass('is-advanced', false);
     },
     handleEditOnShow: function () {
         if (this.$el.hasClass('is-editing')) {
@@ -95,7 +94,15 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryAdvanced({
             model: this.model
         }));
-        this.$el.toggleClass('is-advanced', true);
+    },
+    showCustom: function () {
+        this.model.set({
+            title: user.getQuerySettings().get('template').name
+        });
+        this.queryContent.show(new QueryCustom({
+            model: this.model,
+            filterTemplate: user.getQuerySettings().get('template').filterTemplate
+        }));
     },
     focus: function () {
         this.queryContent.currentView.focus();
