@@ -1,6 +1,6 @@
 {
   "name": "ace",
-  "version": "1.3.3",
+  "version": "1.0.0",
   "description": "A node cli for interoperating with the maven eco-system.",
   "main": "index.js",
   "license": "MIT",
