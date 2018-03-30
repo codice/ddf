@@ -300,6 +300,8 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pa
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
     permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}*", "read";
 }
 
 grant codeBase "file:/org.apache.commons.io" {
@@ -315,7 +317,7 @@ grant codeBase "file:/admin-configuration-configupdater" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
 }
 
-grant codeBase "file:/catalog-core-standardframework" {
+grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standalone" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -344,6 +346,24 @@ grant codeBase "file:/security-certificate-generator" {
 
 grant codeBase "file:/platform-parser-xml" {
     permission java.lang.RuntimePermission "setContextClassLoader";
+}
+
+grant codeBase "file:/catalog-core-localstorageprovider" {
+    permission java.io.FilePermission "${ddf.home.perm}content", "write";
+    permission java.io.FilePermission "${ddf.home.perm}content${/}-", "read, write";
+}
+
+grant codeBase "file:/platform-country-converter-local" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
+}
+
+grant codeBase "file:/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/security-servlet-session-expiry" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
+}
+
+grant codeBase "file:/security-sts-attributequeryclaimshandler/security-sts-ldapclaimshandler" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
 }
 
 //
