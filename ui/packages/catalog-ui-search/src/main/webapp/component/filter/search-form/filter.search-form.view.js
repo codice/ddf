@@ -45,7 +45,7 @@ define([
             FilterView.prototype.onBeforeShow.call(this);
             this.filterAttribute.currentView.turnOffEditing();
         },
-        transformValue: function (value, comparator) {
+        transformValue: function (value, defaultValue, comparator) {
             switch (comparator) {
                 case 'NEAR':
                     if (value[0].constructor !== Object) {
@@ -59,14 +59,42 @@ define([
                 case 'DWITHIN':
                     break;
                 default:
-                   if (value[0] == null) {
-                        value[0] = "";
-                   } else if (value[0].constructor === Object) {
-                        value[0] = value[0].value;
-                   }
-                   break;
+					if (value[0] != null && value[0].constructor === Object) {
+						value[0] = value[0].value;
+					} else if(defaultValue != "") {
+						value[0] = defaultValue;
+					} else if (value == null) {
+						value[0] = "";     
+					} 
+					break;
             }
             return value;
+        },
+        determineInput: function(){
+            this.updateValueFromInput();
+            let value = Common.duplicate(this.model.get('value'));
+            var defaultValue;
+            if(typeof this.model.get('defaultValue') !== 'undefined'){
+                defaultValue = Common.duplicate(this.model.get('defaultValue'));
+            }
+            else{
+                defaultValue = "";
+            }
+            const currentComparator = this.model.get('comparator');
+            value = this.transformValue(value, defaultValue, currentComparator);
+            FilterView.propertyJSON = FilterView.generatePropertyJSON(value, this.model.get('type'), currentComparator);
+
+            this.filterInput.show(new MultivalueView({
+                model: new PropertyModel(FilterView.propertyJSON)
+            }));
+
+            var isEditing = this.$el.hasClass('is-editing');
+            if (isEditing){
+                this.turnOnEditing();
+            } else {
+                this.turnOffEditing();
+            }
+            this.setDefaultComparator(FilterView.propertyJSON);
         },
         turnOnEditing: function(){
             this.$el.addClass('is-editing');

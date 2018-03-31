@@ -126,6 +126,9 @@ define([
             }
             return value;
         },
+        transformValue: function (value, defaultValue, comparator) {
+            return value;
+        },
         comparatorToCQL: function() {
             return {
                 BEFORE: 'BEFORE',
