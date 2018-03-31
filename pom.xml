@@ -337,6 +337,12 @@
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
                     <configuration>
+                        <!-- The following properties enable using a mirror for nist NVD data -->
+                        <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
+                        <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
+                        <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
+                        <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
+                        <!-- End NVD mirror configuration -->
                         <failBuildOnCVSS>7</failBuildOnCVSS>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
