@@ -172,7 +172,6 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                     ], map)
                 });
             });
-
             $(map.getTargetElement()).on('mouseleave', function() {
                 $( ".mapInfo" ).hide();
             });

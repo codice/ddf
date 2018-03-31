@@ -271,7 +271,6 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                     }, map)
                 });
             });
-
             $(map.scene.canvas).on('mouseleave', function() {
                 $(".mapInfo" ).hide();
             });
