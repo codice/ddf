@@ -18,9 +18,10 @@ define([
         'underscore',
         'wreqr',
         'maptype',
-        './notification.view'
+        './notification.view',
+        './drawing.controller'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, DrawingController) {
         "use strict";
         var Draw = {};
 
@@ -334,52 +335,9 @@ define([
 
         });
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: true,
-            initialize: function() {
-                this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model) {
-                    this.showBox(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawbbox', function(model) {
-                    this.draw(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    this.stop(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    this.destroy(model);
-                });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    this.destroyAll(model);
-                });
-            },
-            views: [],
-            isVisible: function() {
-                return this.options.map.scene.canvas.width !== 0;
-            },
-            destroyAll: function() {
-                for (var i = this.views.length - 1; i >= 0; i -= 1) {
-                    this.destroyView(this.views[i]);
-                }
-            },
-            getViewForModel: function(model) {
-                return this.views.filter(function(view) {
-                    return view.model === model && view.options.map === this.options.map;
-                }.bind(this))[0];
-            },
-            removeViewForModel: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    this.views.splice(this.views.indexOf(view), 1);
-                }
-            },
-            removeView: function(view) {
-                this.views.splice(this.views.indexOf(view), 1);
-            },
-            addView: function(view) {
-                this.views.push(view);
-            },
-            showBox: function(model) {
+        Draw.Controller = DrawingController.extend({
+            drawingType: 'bbox',
+            show: function(model) {
                 if (this.enabled) {
                     var bboxModel = model || new Draw.BboxModel();
 
@@ -425,32 +383,6 @@ define([
                     });
 
                     return bboxModel;
-                }
-            },
-            stop: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                }
-                if (this.notificationView) {
-                    this.notificationView.destroy();
-                }
-            },
-            destroyView: function(view) {
-                view.stop();
-                view.destroyPrimitive();
-                this.removeView(view);
-            },
-            destroy: function(model) {
-                this.stop(model);
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                    view.destroyPrimitive();
-                    this.removeView(view);
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
                 }
             }
         });

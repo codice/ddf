@@ -239,6 +239,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         drawPolygon: function(model){
             drawingTools.polygon.draw(model);
         },
+        destroyDrawingTools: function() {
+            drawingTools.line.destroy();
+            drawingTools.polygon.destroy();
+            drawingTools.circle.destroy();
+            drawingTools.bbox.destroy();
+        },
         onLeftClick: function(callback) {
             $(map.scene.canvas).on('click', function(e) {
                 var boundingRect = map.scene.canvas.getBoundingClientRect();
@@ -672,6 +678,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             shapes = [];
         },
         destroy: function() {
+            this.destroyDrawingTools();
             map.destroy();
         }
     });
