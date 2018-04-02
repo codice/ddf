@@ -15,6 +15,7 @@
 /*global require*/
 var Backbone = require('backbone');
 var MetacardModel = require('js/model/Metacard');
+var ol = require('openlayers');
 
 module.exports = Backbone.AssociatedModel.extend({
     relations: [{
@@ -28,13 +29,19 @@ module.exports = Backbone.AssociatedModel.extend({
         mouseLon: undefined,
         clickLat: undefined,
         clickLon: undefined,
+        clickDms: undefined,
         target: undefined,
         targetMetacard: undefined
     },
     updateClickCoordinates: function () {
+        const lat = this.get('mouseLat');
+        const lon = this.get('mouseLon');
+        const dms = ol.coordinate.toStringHDMS([lon, lat]);
+
         this.set({
-            clickLat: this.get('mouseLat'),
-            clickLon: this.get('mouseLon')
+            clickLat: lat,
+            clickLon: lon,
+            clickDms: dms
         });
     }
 });
