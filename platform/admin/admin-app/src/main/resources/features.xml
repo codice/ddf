@@ -101,6 +101,12 @@
         <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
     </feature>
 
+    <!--  NOTE:  Do not start or stop as a feature - meant for use as a boot feature  -->
+    <feature name="admin-config-zookeeper" version="${project.version}"
+             description="Synchronizes configurations using Zookeeper">
+        <bundle>mvn:ddf.admin/admin-configuration-zookeeper/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-app" version="${project.version}"
              description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.">
         <feature prerequisite="true">security-services-app</feature>

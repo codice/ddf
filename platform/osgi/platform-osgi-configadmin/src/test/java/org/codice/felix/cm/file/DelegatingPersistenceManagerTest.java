@@ -17,6 +17,7 @@ import static java.util.Collections.enumeration;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -26,10 +27,13 @@ import static org.osgi.framework.Constants.SERVICE_PID;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 import org.apache.felix.cm.PersistenceManager;
+import org.codice.felix.cm.internal.ConfigurationInitializable;
 import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
+import org.codice.felix.cm.internal.ConfigurationStoragePlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,9 +69,11 @@ public class DelegatingPersistenceManagerTest {
   @Mock private ConfigurationPersistencePlugin plugin2;
 
   // Used for verifying passed config set on service initialization
-  @Mock private ConfigurationPersistencePlugin mockPlugin;
+  @Mock private ConfigurationPersistencePlugin mockPersistencePlugin;
 
-  @Mock private ServiceReference<ConfigurationPersistencePlugin> mockReference;
+  @Mock private ConfigurationStoragePlugin mockStoragePlugin;
+
+  @Mock private ServiceReference<ConfigurationInitializable> mockReference;
 
   private final Dictionary<String, Object> testProps = new Hashtable<>();
 
@@ -98,14 +104,40 @@ public class DelegatingPersistenceManagerTest {
           }
 
           @Override
-          ConfigurationPersistencePlugin retrieveServiceObject(
-              ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
-            return mockPlugin;
+          ConfigurationInitializable retrieveServiceObject(
+              ServiceReference<ConfigurationInitializable> serviceReference) {
+            return mockPersistencePlugin;
           }
         };
     pluginTrackerCustomizer = delegatingPersistenceManager.new PluginTrackerCustomizer();
 
     verify(mockTracker).open();
+  }
+
+  @Test
+  public void testStoragePluginLoads() throws IOException {
+    Enumeration mockEnum = mock(Enumeration.class);
+    when(mockManager.getDictionaries()).thenReturn(mockEnum);
+    when(mockEnum.hasMoreElements()).thenReturn(false);
+    delegatingPersistenceManager =
+        new DelegatingPersistenceManager(mockManager, mockTracker) {
+          @Override
+          ConfigurationContextImpl createContext(String pid, Dictionary props) {
+            return mockContext;
+          }
+
+          @Override
+          ConfigurationInitializable retrieveServiceObject(
+              ServiceReference<ConfigurationInitializable> serviceReference) {
+            return mockStoragePlugin;
+          }
+        };
+
+    pluginTrackerCustomizer = delegatingPersistenceManager.new PluginTrackerCustomizer();
+    pluginTrackerCustomizer.addingService(mockReference);
+
+    delegatingPersistenceManager.delete(TEST_PID);
+    verify(mockStoragePlugin).delete(eq(TEST_PID));
   }
 
   @Test
@@ -142,7 +174,7 @@ public class DelegatingPersistenceManagerTest {
     when(mockManager.getDictionaries()).thenReturn(enumeration(singletonList(testProps)));
     pluginTrackerCustomizer.addingService(mockReference);
     ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
-    verify(mockPlugin).initialize(captor.capture());
+    verify(mockPersistencePlugin).initialize(captor.capture());
     assertThat(captor.getValue().size(), is(1));
   }
 
@@ -151,7 +183,7 @@ public class DelegatingPersistenceManagerTest {
     when(mockManager.getDictionaries()).thenReturn(enumeration(singletonList(new Hashtable<>())));
     pluginTrackerCustomizer.addingService(mockReference);
     ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
-    verify(mockPlugin).initialize(captor.capture());
+    verify(mockPersistencePlugin).initialize(captor.capture());
     assertThat(captor.getValue().size(), is(0));
   }
 
@@ -160,7 +192,7 @@ public class DelegatingPersistenceManagerTest {
     when(mockManager.getDictionaries()).thenThrow(IOException.class);
     pluginTrackerCustomizer.addingService(mockReference);
     ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
-    verify(mockPlugin).initialize(captor.capture());
+    verify(mockPersistencePlugin).initialize(captor.capture());
     assertThat(captor.getValue().size(), is(0));
   }
 

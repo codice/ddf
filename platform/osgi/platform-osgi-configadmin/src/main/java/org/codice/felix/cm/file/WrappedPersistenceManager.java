@@ -17,10 +17,12 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import org.apache.felix.cm.PersistenceManager;
+import org.codice.felix.cm.internal.ConfigurationStoragePlugin;
 
 /**
  * Basic wrapper class for enhancing functionality of any persistence manager with additional layers
- * of processing.
+ * of processing. Now supports a one-time registration of a {@link ConfigurationStoragePlugin} to
+ * replace the default {@link org.apache.felix.cm.file.FilePersistenceManager}.
  *
  * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
  * maven bundle plugin 2.3.7</b>
@@ -29,15 +31,22 @@ public class WrappedPersistenceManager implements PersistenceManager, AutoClosea
 
   private final PersistenceManager persistenceManager;
 
+  private ConfigurationStoragePlugin storagePlugin;
+
   WrappedPersistenceManager(PersistenceManager persistenceManager) {
     if (persistenceManager == null) {
       throw new IllegalArgumentException("PersistenceManager cannot be null");
     }
     this.persistenceManager = persistenceManager;
+    this.storagePlugin = null;
   }
 
   protected PersistenceManager getInnerPersistenceManager() {
     return persistenceManager;
+  }
+
+  protected void setStoragePlugin(ConfigurationStoragePlugin storagePlugin) {
+    this.storagePlugin = storagePlugin;
   }
 
   @Override
@@ -49,26 +58,43 @@ public class WrappedPersistenceManager implements PersistenceManager, AutoClosea
 
   @Override
   public boolean exists(String pid) {
+    if (storagePlugin != null) {
+      return storagePlugin.exists(pid);
+    }
     return persistenceManager.exists(pid);
   }
 
   @Override
   public Dictionary load(String pid) throws IOException {
+    if (storagePlugin != null) {
+      return storagePlugin.load(pid);
+    }
     return persistenceManager.load(pid);
   }
 
   @Override
   public Enumeration getDictionaries() throws IOException {
+    if (storagePlugin != null) {
+      return storagePlugin.getDictionaries();
+    }
     return persistenceManager.getDictionaries();
   }
 
   @Override
   public void store(String pid, Dictionary properties) throws IOException {
+    if (storagePlugin != null) {
+      storagePlugin.store(pid, properties);
+      return;
+    }
     persistenceManager.store(pid, properties);
   }
 
   @Override
   public void delete(String pid) throws IOException {
+    if (storagePlugin != null) {
+      storagePlugin.delete(pid);
+      return;
+    }
     persistenceManager.delete(pid);
   }
 }

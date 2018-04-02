@@ -26,7 +26,9 @@ import java.util.Set;
 import java.util.concurrent.locks.StampedLock;
 import org.apache.felix.cm.PersistenceManager;
 import org.codice.felix.cm.internal.ConfigurationContext;
+import org.codice.felix.cm.internal.ConfigurationInitializable;
 import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
+import org.codice.felix.cm.internal.ConfigurationStoragePlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -66,32 +68,30 @@ import org.slf4j.LoggerFactory;
 public class DelegatingPersistenceManager extends WrappedPersistenceManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(DelegatingPersistenceManager.class);
 
-  private final ServiceTracker<ConfigurationPersistencePlugin, ConfigurationPersistencePlugin>
-      configPersistenceTracker;
+  private final ServiceTracker<ConfigurationInitializable, ConfigurationInitializable>
+      configPluginTracker;
 
   private final StampedLock serviceStartingLock = new StampedLock();
 
   public DelegatingPersistenceManager(PersistenceManager persistenceManager) {
     super(persistenceManager);
-    this.configPersistenceTracker =
+    this.configPluginTracker =
         new ServiceTracker<>(
-            getBundleContext(),
-            ConfigurationPersistencePlugin.class,
-            new PluginTrackerCustomizer());
-    configPersistenceTracker.open();
+            getBundleContext(), ConfigurationInitializable.class, new PluginTrackerCustomizer());
+    configPluginTracker.open();
   }
 
   DelegatingPersistenceManager(
       PersistenceManager persistenceManager,
-      ServiceTracker<ConfigurationPersistencePlugin, ConfigurationPersistencePlugin> tracker) {
+      ServiceTracker<ConfigurationInitializable, ConfigurationInitializable> tracker) {
     super(persistenceManager);
-    this.configPersistenceTracker = tracker;
-    configPersistenceTracker.open();
+    this.configPluginTracker = tracker;
+    configPluginTracker.open();
   }
 
   @Override
   public void close() throws Exception {
-    configPersistenceTracker.close();
+    configPluginTracker.close();
     super.close();
   }
 
@@ -103,7 +103,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
       ConfigurationContextImpl context = createContext(pid, properties);
       if (context.shouldBeVisibleToPlugins()) {
         List<ConfigurationPersistencePlugin> plugins =
-            asPlugins(configPersistenceTracker.getServices());
+            asPersistencePlugins(configPluginTracker.getServices());
         for (ConfigurationPersistencePlugin plugin : plugins) {
           plugin.handleStore(context);
         }
@@ -120,7 +120,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
     long stamp = serviceStartingLock.readLock();
     try {
       List<ConfigurationPersistencePlugin> plugins =
-          asPlugins(configPersistenceTracker.getServices());
+          asPersistencePlugins(configPluginTracker.getServices());
       for (ConfigurationPersistencePlugin plugin : plugins) {
         plugin.handleDelete(pid);
       }
@@ -136,8 +136,8 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
   }
 
   /* Factory method visible for testing purposes - to inject a mock for the plugin */
-  ConfigurationPersistencePlugin retrieveServiceObject(
-      ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
+  ConfigurationInitializable retrieveServiceObject(
+      ServiceReference<ConfigurationInitializable> serviceReference) {
     return FrameworkUtil.getBundle(DelegatingPersistenceManager.class)
         .getBundleContext()
         .getService(serviceReference);
@@ -145,9 +145,9 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
 
   @SuppressWarnings(
       "squid:S3398" /* maintain proper lock encapsulation - inner class should call us */)
-  private ConfigurationPersistencePlugin handleServiceAdded(
-      ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
-    ConfigurationPersistencePlugin plugin = retrieveServiceObject(serviceReference);
+  private ConfigurationInitializable handleServiceAdded(
+      ServiceReference<ConfigurationInitializable> serviceReference) {
+    ConfigurationInitializable plugin = retrieveServiceObject(serviceReference);
     // Write lock because no configs should be getting saved or deleted while we initialize
     long stamp = serviceStartingLock.writeLock();
     try {
@@ -174,12 +174,16 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
       LOGGER.debug("Problem reading bundle cache.", e);
       plugin.initialize(Collections.emptySet());
     } finally {
+      if (plugin instanceof ConfigurationStoragePlugin) {
+        setStoragePlugin((ConfigurationStoragePlugin) plugin);
+      }
       serviceStartingLock.unlockWrite(stamp);
     }
     return plugin;
   }
 
-  private static List<ConfigurationPersistencePlugin> asPlugins(Object[] serviceObjects) {
+  private static List<ConfigurationPersistencePlugin> asPersistencePlugins(
+      Object[] serviceObjects) {
     if (serviceObjects == null) {
       return Collections.emptyList();
     }
@@ -204,26 +208,25 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
    * {@link ServiceTrackerCustomizer}.
    */
   class PluginTrackerCustomizer
-      implements ServiceTrackerCustomizer<
-          ConfigurationPersistencePlugin, ConfigurationPersistencePlugin> {
+      implements ServiceTrackerCustomizer<ConfigurationInitializable, ConfigurationInitializable> {
 
     @Override
-    public ConfigurationPersistencePlugin addingService(
-        ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
+    public ConfigurationInitializable addingService(
+        ServiceReference<ConfigurationInitializable> serviceReference) {
       return handleServiceAdded(serviceReference);
     }
 
     @Override
     public void modifiedService(
-        ServiceReference<ConfigurationPersistencePlugin> serviceReference,
-        ConfigurationPersistencePlugin configurationPersistencePlugin) {
+        ServiceReference<ConfigurationInitializable> serviceReference,
+        ConfigurationInitializable configurationPersistencePlugin) {
       // Listener for modified service properties. Does not apply to us. No customization required.
     }
 
     @Override
     public void removedService(
-        ServiceReference<ConfigurationPersistencePlugin> serviceReference,
-        ConfigurationPersistencePlugin configurationPersistencePlugin) {
+        ServiceReference<ConfigurationInitializable> serviceReference,
+        ConfigurationInitializable configurationPersistencePlugin) {
       // Listener for service removal. Does not apply to us. No customization required.
     }
   }

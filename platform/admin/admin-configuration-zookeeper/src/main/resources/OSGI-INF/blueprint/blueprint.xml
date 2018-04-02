@@ -12,29 +12,14 @@
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="strategiesBean" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <reference-list id="strategiesRefList"
-                    interface="org.codice.ddf.platform.io.internal.PersistenceStrategy"
-                    availability="optional">
-        <reference-listener ref="strategiesBean" bind-method="bindPlugin"
-                            unbind-method="unbindPlugin"/>
-    </reference-list>
-
-    <reference id="configAdmin"
-               interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"
+    <reference id="configAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"
                availability="mandatory"/>
-
-    <reference id="encryptionService"
-               interface="ddf.security.encryption.EncryptionService"
-               availability="mandatory"/>
-
-    <bean id="configUpdater" class="org.codice.ddf.admin.configuration.ConfigurationUpdater">
+    <bean id="zookeeperPlugin" class="org.codice.ddf.admin.zookeeper.ZookeeperStoragePlugin"
+          destroy-method="destroy">
         <argument ref="configAdmin"/>
-        <argument ref="strategiesBean"/>
-        <argument ref="encryptionService"/>
     </bean>
 
-    <service ref="configUpdater"
+    <service ref="zookeeperPlugin"
              interface="org.codice.felix.cm.internal.ConfigurationInitializable"/>
 
 </blueprint>

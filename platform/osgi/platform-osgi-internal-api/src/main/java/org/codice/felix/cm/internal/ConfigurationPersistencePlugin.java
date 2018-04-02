@@ -14,7 +14,6 @@
 package org.codice.felix.cm.internal;
 
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * Provides synchronous interceptors for working with configuration data prior to writing or
@@ -32,16 +31,7 @@ import java.util.Set;
  * org.osgi.service.cm.ConfigurationAdmin} but instead should utilize an API-provided {@link
  * ConfigurationContext} to perform allowed configuration operations.
  */
-public interface ConfigurationPersistencePlugin {
-
-  /**
-   * Provide an initialization hook for synchronous resource allocation <b>after</b> a plugin is
-   * available to be called, unlike an OSGi life-cycle {@code init()} method, which is called prior
-   * to the service becoming available.
-   *
-   * @param state the current configuration state of the system.
-   */
-  void initialize(Set<ConfigurationContext> state);
+public interface ConfigurationPersistencePlugin extends ConfigurationInitializable {
 
   /**
    * Given the {@link ConfigurationContext} of a configuration about to be written, perform

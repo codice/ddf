@@ -44,6 +44,12 @@ public interface ConfigurationContext {
   File getConfigFile();
 
   /**
+   * @return a dictionary of properties with all internal control values present. Useful for the
+   *     initialization of {@link ConfigurationStoragePlugin}s.
+   */
+  Dictionary<String, Object> getRawProperties();
+
+  /**
    * @return a dictionary of properties only relevant to the configuration itself, completely free
    *     of Felix internal control values.
    */
