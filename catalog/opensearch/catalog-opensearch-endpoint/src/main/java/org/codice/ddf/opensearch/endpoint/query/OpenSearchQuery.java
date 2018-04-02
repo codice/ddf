@@ -286,7 +286,7 @@ public class OpenSearchQuery implements Query {
           FILTER_FACTORY.during(
               FILTER_FACTORY.property(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM),
               FILTER_FACTORY.literal(period));
-      LOGGER.debug("Adding temporal filter");
+      LOGGER.trace("Adding temporal filter");
       filters.add(filter);
     }
   }
@@ -318,7 +318,7 @@ public class OpenSearchQuery implements Query {
               geometry,
               Double.parseDouble(radius),
               UomOgcMapping.METRE.name());
-      LOGGER.debug("Adding spatial filter");
+      LOGGER.trace("Adding spatial filter");
       filters.add(filter);
     }
   }
@@ -329,7 +329,7 @@ public class OpenSearchQuery implements Query {
     if (geometry != null) {
       Filter filter =
           FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
-      LOGGER.debug("Adding spatial filter");
+      LOGGER.trace("Adding spatial filter");
       filters.add(filter);
     }
   }
@@ -347,7 +347,7 @@ public class OpenSearchQuery implements Query {
     }
 
     if (StringUtils.isNotEmpty(versions)) {
-      LOGGER.debug("Received versions from client.");
+      LOGGER.trace("Received versions from client.");
       List<Filter> typeVersionPairsFilters = new ArrayList<>();
 
       for (String version : VERSION_PATTERN.split(versions)) {
@@ -374,7 +374,7 @@ public class OpenSearchQuery implements Query {
     }
 
     if (filter != null) {
-      LOGGER.debug("Adding type filter");
+      LOGGER.trace("Adding type filter");
       filters.add(filter);
     }
   }
@@ -384,7 +384,7 @@ public class OpenSearchQuery implements Query {
     Filter filter = getFilter();
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("filter being visited: {}", filter);
+      LOGGER.trace("filter being visited: {}", filter);
     }
 
     if (filter != null) {
@@ -398,7 +398,7 @@ public class OpenSearchQuery implements Query {
   public boolean evaluate(Object object) {
     Filter filter = getFilter();
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("filter being evaluated: {}", filter);
+      LOGGER.trace("filter being evaluated: {}", filter);
     }
 
     return filter != null && filter.evaluate(object);

@@ -165,14 +165,14 @@ public class OpenSearchEndpoint implements OpenSearch {
     final String methodName = "processQuery";
     LOGGER.trace("ENTERING: {}", methodName);
     Response response;
-    LOGGER.debug("request url: {}", ui.getRequestUri());
+    LOGGER.trace("request url: {}", ui.getRequestUri());
 
     try {
       String queryFormat = format;
       OpenSearchQuery query = createNewQuery(startIndex, count, maxResults, sort, maxTimeout);
 
       if (StringUtils.isNotEmpty(sources)) {
-        LOGGER.debug("Received site names from client.");
+        LOGGER.trace("Received site names from client.");
         final Set<String> siteSet =
             SOURCES_PATTERN.splitAsStream(sources).collect(Collectors.toSet());
 
@@ -180,17 +180,17 @@ public class OpenSearchEndpoint implements OpenSearch {
         // Since local is a magic word, not in any specification, we need to
         // eventually remove support for it.
         if (siteSet.remove(OpenSearchConstants.LOCAL_SOURCE)) {
-          LOGGER.debug("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());
+          LOGGER.trace("Found 'local' alias, replacing with {}.", SystemInfo.getSiteName());
           siteSet.add(SystemInfo.getSiteName());
         }
 
         if (siteSet.contains(framework.getId()) && siteSet.size() == 1) {
-          LOGGER.debug(
+          LOGGER.trace(
               "Only local site specified, saving overhead and just performing a local query on "
                   + framework.getId()
                   + ".");
         } else {
-          LOGGER.debug("Querying site set: {}", siteSet);
+          LOGGER.trace("Querying site set: {}", siteSet);
           query.setSiteIds(siteSet);
         }
 
@@ -274,20 +274,20 @@ public class OpenSearchEndpoint implements OpenSearch {
       String lat,
       String lon) {
     if (StringUtils.isNotBlank(geometry)) {
-      LOGGER.debug("Adding SpatialCriterion geometry: {}", geometry);
+      LOGGER.trace("Adding SpatialCriterion geometry: {}", geometry);
       query.addGeometrySpatialFilter(geometry.trim());
     } else if (StringUtils.isNotBlank(bbox)) {
-      LOGGER.debug("Adding SpatialCriterion bbox: {}", bbox);
+      LOGGER.trace("Adding SpatialCriterion bbox: {}", bbox);
       query.addBBoxSpatialFilter(bbox.trim());
     } else if (StringUtils.isNotBlank(polygon)) {
-      LOGGER.debug("Adding SpatialCriterion polygon: {}", polygon);
+      LOGGER.trace("Adding SpatialCriterion polygon: {}", polygon);
       query.addPolygonSpatialFilter(polygon.trim());
     } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
       if (StringUtils.isBlank(radius)) {
         LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
         query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);
       } else {
-        LOGGER.debug("Using radius: {}", radius);
+        LOGGER.trace("Using radius: {}", radius);
         query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), radius.trim());
       }
     }
@@ -309,14 +309,14 @@ public class OpenSearchEndpoint implements OpenSearch {
     MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
     List<String> subscriptionList = queryParams.get(Constants.SUBSCRIPTION_KEY);
 
-    LOGGER.debug("Attempting to execute query: {}", query);
+    LOGGER.trace("Attempting to execute query: {}", query);
     try {
       Map<String, Serializable> arguments = new HashMap<>();
       String organization = framework.getOrganization();
       String url = ui.getRequestUri().toString();
       if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("organization: {}", organization);
-        LOGGER.debug("url: {}", url);
+        LOGGER.trace("organization: {}", organization);
+        LOGGER.trace("url: {}", url);
       }
 
       arguments.put("organization", organization);
@@ -326,7 +326,7 @@ public class OpenSearchEndpoint implements OpenSearch {
       // interval
       if (CollectionUtils.isNotEmpty(subscriptionList)) {
         String subscription = subscriptionList.get(0);
-        LOGGER.debug("Subscription: {}", subscription);
+        LOGGER.trace("Subscription: {}", subscription);
         arguments.put(Constants.SUBSCRIPTION_KEY, subscription);
         List<String> intervalList = queryParams.get(UPDATE_QUERY_INTERVAL);
         if (CollectionUtils.isNotEmpty(intervalList)) {
@@ -343,7 +343,7 @@ public class OpenSearchEndpoint implements OpenSearch {
             new QueryRequestImpl(query, query.isEnterprise(), query.getSiteIds(), properties);
         QueryResponse queryResponse;
 
-        LOGGER.debug("Sending query");
+        LOGGER.trace("Sending query");
         queryResponse = framework.query(queryRequest);
 
         // pass in the format for the transform

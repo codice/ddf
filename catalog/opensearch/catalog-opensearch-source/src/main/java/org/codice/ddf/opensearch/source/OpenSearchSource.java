@@ -592,7 +592,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     for (Metacard metacard : metacards) {
       ResultImpl result = new ResultImpl(metacard);
       if (StringUtils.isEmpty(relevance)) {
-        LOGGER.debug("couldn't find valid relevance. Setting relevance to 0");
+        LOGGER.debug("Couldn't find valid relevance. Setting relevance to 0");
         relevance = "0";
       }
       result.setRelevanceScore(new Double(relevance));

@@ -222,7 +222,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
       AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
       String selectors = expression.getPropertyName();
-      LOGGER.debug("selectors = {}", selectors);
+      LOGGER.trace("selectors = {}", selectors);
 
       String searchPhrase =
           normalizePattern(
@@ -230,7 +230,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
               filter.getWildCard(),
               filter.getSingleChar(),
               filter.getEscape());
-      LOGGER.debug("searchPhrase = [{}]", searchPhrase);
+      LOGGER.trace("searchPhrase = [{}]", searchPhrase);
 
       final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
       if (contextualSearch != null) {
