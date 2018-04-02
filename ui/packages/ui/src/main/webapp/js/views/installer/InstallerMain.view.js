@@ -48,7 +48,7 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            var welcomeStep = 0, guestClaimsStep = 1, profileStep = 2, configStep = 3,  finishStep = 4;
+            var welcomeStep = 0, guestClaimsStep = 2, profileStep = 1, configStep = 3,  finishStep = 4;
 
             if(this.welcome.currentView && this.model.get('stepNumber') !== welcomeStep) {
                 this.hideWelcome();

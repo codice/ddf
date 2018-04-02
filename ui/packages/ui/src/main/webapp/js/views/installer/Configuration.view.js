@@ -88,11 +88,12 @@ define([
         initialize: function (options) {
 
             this.navigationModel = options.navigationModel;
-            this.navigationModel.set('hidePrevious', true);
+            this.navigationModel.set('hidePrevious', false);
 
             this.certificateModel = new CertificateModel();
 
             this.listenTo(this.navigationModel,'next', this.next);
+            this.listenTo(this.navigationModel, 'previous', this.previous);
         },
         modelEvents: {
             'change': function() {
@@ -167,6 +168,10 @@ define([
                 layout.navigationModel.nextStep('System property validation failed. Check inputs.', 0);
             }
 
+        },
+        previous: function () {
+            //this is your hook to perform any teardown that must be done before going to the previous step
+            this.navigationModel.previousStep();
         },
         onRender: function () {
             var view = this;
