@@ -17,12 +17,14 @@ define([
     'backbone',
     'marionette',
     'js/wreqr.js',
-    'js/views/application/application-detail/ApplicationDetail.layout',
+    'components/application/application.view',
     'js/models/AppConfigPlugin',
-    'js/views/application/application-detail/PluginTabContent.view',
-    'js/views/application/application-detail/PluginTab.view',
+    'components/tab-content/tab-content.collection.view',
+    'components/tab-item/tab-item.collection.view',
     'q'
     ],function (Backbone, Marionette, wreqr, ApplicationDetailLayout, AppConfigPlugin,PluginTabContentView,PluginTabView,  Q) {
+
+    var appConfigPluginsCache = {};
 
     var AppDetailController = Marionette.Controller.extend({
 
@@ -34,13 +36,17 @@ define([
             var layoutView = new ApplicationDetailLayout({model: applicationModel});
             this.regions.applications.show(layoutView);
 
-            this.fetchAppConfigPlugins(applicationModel.get('name')).then(function(appConfigPlugins){
+            if (appConfigPluginsCache[applicationModel.get('name')] === undefined) {
+                appConfigPluginsCache[applicationModel.get('name')] = this.fetchAppConfigPlugins(applicationModel.get('name'));
+            }
+
+            appConfigPluginsCache[applicationModel.get('name')].then(function(appConfigPlugins){
                 //load the static ones
                 var staticApplicationPlugins = [
                     new Backbone.Model({
                         'id': 'configurationApplicationTabID',
                         'displayName': 'Configuration',
-                        'javascriptLocation': 'js/views/application/plugins/config/Plugin.view.js'
+                        'javascriptLocation': 'components/application-services/application-services.view'
                     })
                 ];
 

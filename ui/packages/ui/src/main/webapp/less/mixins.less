@@ -57,43 +57,6 @@
   opacity: .3;
 }
 
-.fa-stack-inverse(@mainColor, @altColor) {
-  .fa-stack(@mainColor, @altColor, @altColor, @mainColor);
-}
-
-.fa-stack(@mainColor, @altColor, @hoverMainColor, @hoverAltColor) {
-
-  i {
-    transition: color 400ms ease;
-  }
-
-  i.fa-stack-2x {
-    color: @mainColor; // bottom
-  }
-  i.fa-stack-1x {
-    color: @altColor; // top
-  }
-
-  &:hover {
-    i.fa-stack-2x {
-      color: @hoverMainColor;
-    }
-    i.fa-stack-1x {
-      color: @hoverAltColor;
-    }
-  }
-
-  i.fa-play {
-    margin-left: .1em;
-  }
-
-  i.fa-upload {
-    margin-left: .03em;
-    margin-top: -.1em;
-  }
-
-}
-
 .fa-button(@mainColor, @hoverColor) {
   cursor: pointer;
   color: @mainColor;

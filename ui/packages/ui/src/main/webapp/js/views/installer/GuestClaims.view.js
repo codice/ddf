@@ -287,15 +287,9 @@ define([
     ich.addTemplate('guestWarningModal', guestWarningModal);
     ich.addTemplate('guestClaimsTable', guestClaimsHanlderTable);
 
-    var serviceModelResponse = new Service.Response();
-    serviceModelResponse.fetch({
-        url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
-    });
-
     var GuestClaimsView = Marionette.Layout.extend({
         template: 'guestClaimsTemplate',
         className: 'full-height',
-        model: serviceModelResponse,
         regions: {
             guestClaimProfiles: '#claims-profiles',
             guestClaimsItems: '#config-div',

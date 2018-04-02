@@ -13,10 +13,10 @@
 /*global define, console */
 define([
     'js/application',
-    'js/views/installer/InstallerMain.view',
+    'components/installer/installer.view',
     'js/models/Installer',
     'js/controllers/InstallerMain.controller'
-    ], function(Application, InstallerMainView, InstallerModel, InstallerMainController) {
+    ], function(Application, InstallerView, InstallerModel, InstallerMainController) {
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
 
@@ -27,7 +27,7 @@ define([
         // Define a view to show
         // ---------------------
 
-        var installerPage = new InstallerMainView({model: installerModel});
+        var installerPage = new InstallerView({model: installerModel});
 
         // Define a controller to run this module
         // --------------------------------------
