@@ -73,17 +73,13 @@ define([
         determineInput: function(){
             this.updateValueFromInput();
             let value = Common.duplicate(this.model.get('value'));
-            var defaultValue;
+            var defaultValue = "";
             if(typeof this.model.get('defaultValue') !== 'undefined'){
                 defaultValue = Common.duplicate(this.model.get('defaultValue'));
             }
-            else{
-                defaultValue = "";
-            }
             const currentComparator = this.model.get('comparator');
             value = this.transformValue(value, defaultValue, currentComparator);
-            FilterView.propertyJSON = FilterView.generatePropertyJSON(value, this.model.get('type'), currentComparator);
-
+            FilterView.propertyJSON = FilterView.prototype.generatePropertyJSON(value, this.model.get('type'), currentComparator);
             this.filterInput.show(new MultivalueView({
                 model: new PropertyModel(FilterView.propertyJSON)
             }));
