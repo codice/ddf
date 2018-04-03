@@ -21,13 +21,15 @@
     }
 
     .search-form-label {
-        font-weight: bold;
+        .is-bold();
     }
 
     .choice-actions {
         position: absolute;
-        right: 10px;
-        bottom: 0px;
+        text-align: center;
+        right: @minimumSpacing;
+        bottom:  @minimumSpacing;
+        width: @minimumButtonSize;
       }
 }
 
@@ -36,5 +38,5 @@
 }
 
 @{customElementNamespace}search-form-loading {
-    padding: 2*@minimumSpacing;
+    padding: 2 * @minimumSpacing;
 }

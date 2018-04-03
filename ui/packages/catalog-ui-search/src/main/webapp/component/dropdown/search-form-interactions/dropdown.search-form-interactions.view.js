@@ -13,19 +13,18 @@
  *
  **/
 /*global define*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.search-form-interactions.hbs',
-    'component/search-form-interactions/search-form-interactions.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
 
-    return DropdownView.extend({
+
+var  Marionette = require('marionette');
+var  DropdownView = require('../dropdown.view');
+var  template = require('./dropdown.search-form-interactions.hbs');
+var  SearchFormInteractionsView = require('component/search-form-interactions/search-form-interactions.view');
+
+
+module.exports = DropdownView.extend({
         template: template,
-        className: 'is-searchFormInteractions',
-        componentToShow: ComponentView,
+        className: 'is-search-form-interactions',
+        componentToShow: SearchFormInteractionsView,
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = this.options.modelForComponent;
@@ -39,4 +38,4 @@ define([
         },
         hasTail: true
     });
-});
+

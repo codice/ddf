@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +35,8 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
@@ -53,6 +56,8 @@ public class SearchFormsApplication implements SparkApplication {
   private final TemplateTransformer transformer;
 
   private final EndpointUtil util;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
       CatalogFramework catalogFramework, TemplateTransformer transformer, EndpointUtil util) {
@@ -107,7 +112,12 @@ public class SearchFormsApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-          catalogFramework.delete(new DeleteRequestImpl(id));
+          DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
+          if (!deleteResponse.getProcessingErrors().isEmpty()) {
+            res.status(500);
+            LOGGER.debug("Failed to delete Form " + id);
+            return ImmutableMap.of("message", "Failed to delete.");
+          }
           return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);

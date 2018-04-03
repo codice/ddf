@@ -15,24 +15,17 @@
 /*global define, window*/
 
 
+var  wreqr = require('wreqr');
+var  Marionette = require('marionette');
+var  template = require('./search-form-interactions.hbs');
+var  CustomElements = require('js/CustomElements');
+var  user = require('component/singletons/user-instance');
+var  LoadingView = require('component/loading/loading.view');
+var  lightboxInstance = require('component/lightbox/lightbox.view.instance');
+var  announcement = require('component/announcement');
+var  ConfirmationView = require('component/confirmation/confirmation.view');
 
-define([
-    'wreqr',
-    'marionette',
-    'underscore',
-    'jquery',
-    './search-form-interactions.hbs',
-    'js/CustomElements',
-    'js/store',
-    'component/router/router',
-    'component/singletons/user-instance',
-    'component/loading/loading.view',
-    'component/lightbox/lightbox.view.instance',
-    'component/announcement',
-    'component/confirmation/confirmation.view'
-], function(wreqr, Marionette, _, $, template, CustomElements, store, router, user,
-    LoadingView, lightboxInstance, announcement, ConfirmationView) {
-    return Marionette.ItemView.extend({
+module.exports =  Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('search-form-interactions'),
         className: 'composed-menu',
@@ -53,7 +46,7 @@ define([
         },
         handleTrash: function() {
             var loginUser = user.get('user');
-            if(loginUser.attributes.username === this.model.attributes.createdBy)
+            if(loginUser.get('username') === this.model.get('createdBy'))
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'This will permanently delete the template. Are you sure? ',
@@ -64,8 +57,19 @@ define([
                 function(confirmation) {
                     if (confirmation.get('choice')) {
                         var loadingview = new LoadingView();
-                        this.model.url = '/search/catalog/internal/forms/' + this.model.id;
-                        this.model.destroy();
+                            this.model.url = '/search/catalog/internal/forms/' + this.model.id;
+                            this.model.destroy({
+                                wait: true,
+                                error: function(model, xhr, options){
+                                    announcement.announce({
+                                        title: 'Error!',
+                                        message: "Unable to delete the forms: " + xhr.responseText,
+                                        type: 'error'
+                                    });
+                                    throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
+                                }
+                            }); 
+                        this.removeCachedTemplate(this.model.id);
                         loadingview.remove();
                     }
                 }.bind(this));                        
@@ -76,12 +80,15 @@ define([
                     message: "Unable to delete the form: You are not the author",
                     type: 'error'
                 });
+                throw new Error('Unable to delete the form: You are not the author ');                
                 
             }
             this.trigger("doneLoading");
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+        },
+        removeCachedTemplate: function(id){
+            wreqr.vent.trigger("deleteTemplateById", id);
         }
     });
-});
