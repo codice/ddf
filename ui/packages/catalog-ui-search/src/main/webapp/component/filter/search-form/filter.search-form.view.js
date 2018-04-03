@@ -105,6 +105,27 @@ define([
                 : this.filterInput.currentView.model;
             property.set('isEditing', true);
         },
+        setFilter: function(filter){
+            setTimeout(function(){
+                if (CQLUtils.isGeoFilter(filter.type)){
+                    filter.value = _.clone(filter);
+                }
+                if (_.isObject(filter.property)) {
+                    // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'),
+                    // there is an enclosing filter that creates the necessary '= TRUE' predicate, and the 'property'
+                    // attribute is what actually contains that proximity() call.
+                    this.setFilterFromFilterFunction(filter.property);
+                } else {
+                    this.model.set({
+                        value: [filter.value],
+                        type: filter.property.split('"').join(''),
+                        comparator: this.CQLtoComparator()[filter.type],
+                        defaultValue: [filter.defaultValue]
+                    });
+                }
+
+            }.bind(this),0);
+        },
         turnOffEditing: function(){
             this.$el.removeClass('is-editing');
             this.filterComparator.currentView.turnOffEditing();
