@@ -58,6 +58,7 @@ import org.spockframework.runtime.Sputnik;
  * required.
  */
 public class DeFinalizeSputnik extends Sputnik {
+
   private static final List<Class<?>> SUPPORTED_INTERFACES =
       Arrays.asList(Describable.class, Filterable.class, Sortable.class);
 
@@ -89,17 +90,14 @@ public class DeFinalizeSputnik extends Sputnik {
       this.filterable =
           new Filterable() {
             @Override
-            public void filter(Filter filter) throws NoTestsRemainException {}
+            public void filter(Filter filter) throws NoTestsRemainException { // nothing to filter
+            }
           };
     }
     if (sputnik instanceof Sortable) {
       this.sortable = (Sortable) sputnik;
     } else {
-      this.sortable =
-          new Sortable() {
-            @Override
-            public void sort(Sorter sorter) {}
-          };
+      this.sortable = sorter -> {};
     }
   }
 

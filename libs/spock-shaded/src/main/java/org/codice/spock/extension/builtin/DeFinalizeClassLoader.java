@@ -32,11 +32,11 @@ import org.codice.spock.extension.DeFinalize;
  * requested except for all classes in the following packages:
  *
  * <ul>
- * <li>java
- * <li>javax
- * <li>sun
- * <li>org.xml
- * <li>org.junit
+ *   <li>java
+ *   <li>javax
+ *   <li>sun
+ *   <li>org.xml
+ *   <li>org.junit
  * </ul>
  *
  * These packages are not being reloaded as they are required by the {@link DeFinalizeSputnik} test
@@ -67,13 +67,13 @@ public class DeFinalizeClassLoader extends ClassLoader {
     this.pool.appendSystemPath();
     this.filters =
         Stream.concat(
-            Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
-                .map(DeFinalize::value)
-                .flatMap(Stream::of)
-                .map(Class::getName),
-            Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
-                .map(DeFinalize::packages)
-                .flatMap(Stream::of))
+                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                    .map(DeFinalize::value)
+                    .flatMap(Stream::of)
+                    .map(Class::getName),
+                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                    .map(DeFinalize::packages)
+                    .flatMap(Stream::of))
             .collect(Collectors.toSet());
   }
 
@@ -101,26 +101,9 @@ public class DeFinalizeClassLoader extends ClassLoader {
 
       if (clazz == null) {
         clazz = super.loadClass(name, resolve); // always load it from our parent first
-        if (!name.startsWith("java.")
-            && !name.startsWith("javax.")
-            && !name.startsWith("sun.")
-            && !name.startsWith("org.xml.")
-            && !name.startsWith("org.junit.")) {
+        if (DeFinalizeClassLoader.isNotFromAReservedPackage(name)) {
           try {
-            boolean definalize = filters.contains(name);
-
-            if (!definalize) {
-              // the following loop will check all parent packages and classes all the way to but
-              // excluding the class itself (e.g. for foo.util.SomeList, the loop would be for foo
-              // and foo.util)
-              for (int i = name.indexOf('.'); i > 0; i = name.indexOf('.', ++i)) {
-                if (filters.contains(name.substring(0, i))) {
-                  definalize = true;
-                  break;
-                }
-              }
-            }
-            clazz = reloadClass(clazz, definalize);
+            clazz = reloadClass(clazz, shouldDefinalize(name));
           } catch (NotFoundException e) {
             throw new ClassNotFoundException(e.getMessage(), e);
           } catch (CannotCompileException e) {
@@ -133,6 +116,21 @@ public class DeFinalizeClassLoader extends ClassLoader {
       }
       return clazz;
     }
+  }
+
+  private boolean shouldDefinalize(String name) {
+    if (filters.contains(name)) {
+      return true;
+    }
+    // the following loop will check all parent packages and classes all the way to but
+    // excluding the class itself (e.g. for foo.util.SomeList, the loop would be for foo
+    // and foo.util)
+    for (int i = name.indexOf('.'); i > 0; i = name.indexOf('.', ++i)) {
+      if (filters.contains(name.substring(0, i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private Class<?> reloadClass(Class<?> clazz, boolean definalize)
@@ -168,5 +166,13 @@ public class DeFinalizeClassLoader extends ClassLoader {
     if (Modifier.isFinal(modifiers) && !Modifier.isPrivate(modifiers)) {
       ctMethod.setModifiers(Modifier.clear(modifiers, Modifier.FINAL));
     }
+  }
+
+  private static boolean isNotFromAReservedPackage(String name) {
+    return !name.startsWith("java.")
+        && !name.startsWith("javax.")
+        && !name.startsWith("sun.")
+        && !name.startsWith("org.xml.")
+        && !name.startsWith("org.junit.");
   }
 }
