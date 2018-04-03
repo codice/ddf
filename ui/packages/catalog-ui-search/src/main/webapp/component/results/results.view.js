@@ -35,12 +35,6 @@ define([
         },
         template: resultsTemplate,
         tagName: CustomElements.register('results'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
         regions: {
             resultsEmpty: '.results-empty',
             resultsSelect: '.results-select',
@@ -89,7 +83,8 @@ define([
             if (queryId){
                 selectedQueryId = queryId;
                 this.resultsList.show(new ResultSelectorView({
-                    model: store.getCurrentQueries().get(queryId)
+                    model: store.getCurrentQueries().get(queryId),
+                    selectionInterface: this.options.selectionInterface
                 }));
             } else {
                 this.resultsList.empty();
