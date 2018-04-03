@@ -16,7 +16,7 @@ package org.codice.ddf.opensearch.query.filter;
 import ddf.catalog.impl.filter.SpatialFilter;
 
 public class PolygonSpatialFilter extends SpatialFilter {
-  private String[] latLonAry;
+  private final String[] latLonAry;
 
   public PolygonSpatialFilter(String lonLatStr) {
     super();

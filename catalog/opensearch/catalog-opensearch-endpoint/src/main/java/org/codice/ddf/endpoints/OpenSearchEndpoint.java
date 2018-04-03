@@ -117,7 +117,6 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param selector Defines a comma delimited list of XPath selectors to narrow the query.
    * @param type Specifies the type of data to search for. (example: nitf)
    * @param versions Specifies the versions in a comma delimited list.
-   * @return
    */
   @GET
   public Response processQuery(
@@ -287,7 +286,6 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param format - of the results in the response
    * @param query - the query to execute
    * @param ui -the ui information to use to format the results
-   * @param properties
    * @return the response on the query
    */
   private Response executeQuery(

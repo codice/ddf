@@ -214,11 +214,7 @@ public class KeywordTextParserTest {
     }
   }
 
-  /**
-   * Use this method when you want the tree to be printed to System.out for debugging purposes
-   *
-   * @param result
-   */
+  /** Use this method when you want the tree to be printed to System.out for debugging purposes */
   protected void visualize(ParsingResult<?> result) {
 
     String output = ParseTreeUtils.printNodeTree(result);
@@ -232,7 +228,7 @@ public class KeywordTextParserTest {
                 : "NOTHING"));
   }
 
-  protected String getErrorOutput(ParsingResult<?> result) {
+  private static String getErrorOutput(ParsingResult<?> result) {
 
     if (!result.parseErrors.isEmpty()) {
       return ErrorUtils.printParseError(result.parseErrors.get(0));

@@ -25,13 +25,8 @@ import java.util.List;
  */
 public class RestFilterDelegate extends SimpleFilterDelegate<RestUrl> {
 
-  private RestUrl restUrl;
+  private final RestUrl restUrl;
 
-  /**
-   * Constructs instance
-   *
-   * @param restUrl
-   */
   public RestFilterDelegate(RestUrl restUrl) {
     this.restUrl = restUrl;
   }

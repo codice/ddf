@@ -19,7 +19,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.opengis.filter.Filter;
 
 public class FilterStatus {
-  private List<Filter> filters = new ArrayList<>();
+  private final List<Filter> filters = new ArrayList<>();
 
   private int count = 0;
 

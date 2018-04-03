@@ -26,15 +26,15 @@ import java.net.URL;
  */
 public class RestUrl {
 
-  static final String RESOURCE_QUERY_PARAM = "transform=resource";
+  private static final String RESOURCE_QUERY_PARAM = "transform=resource";
 
-  private String baseUrl;
+  private final String baseUrl;
 
   private String id;
 
   private boolean retrieveResource;
 
-  public RestUrl(String protocol, String host, String port, String contextPath) {
+  private RestUrl(String protocol, String host, String port, String contextPath) {
     baseUrl = protocol + "://" + host + ":" + port + contextPath;
   }
 
@@ -44,9 +44,6 @@ public class RestUrl {
    * </code> .
    *
    * @param urlTemplate - endpoint url template
-   * @return
-   * @throws URISyntaxException
-   * @throws MalformedURLException
    */
   public static RestUrl newInstance(String urlTemplate)
       throws URISyntaxException, MalformedURLException {

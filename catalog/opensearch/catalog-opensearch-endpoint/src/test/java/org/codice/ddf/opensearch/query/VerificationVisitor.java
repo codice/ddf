@@ -37,15 +37,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VerificationVisitor extends DefaultFilterVisitor {
-  public static final String SEPARATOR = " - ";
+  private static final String SEPARATOR = " - ";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(VerificationVisitor.class);
 
   private int indent = 0;
 
-  private Map<String, FilterStatus> map = new HashMap<>();
+  private final Map<String, FilterStatus> map = new HashMap<>();
 
-  public static String indent(int count) {
+  private static String indent(int count) {
     StringBuilder buffer = new StringBuilder();
 
     for (int i = 0; i < count; i++) {

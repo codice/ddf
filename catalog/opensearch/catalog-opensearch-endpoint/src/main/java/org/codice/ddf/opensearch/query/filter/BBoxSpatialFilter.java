@@ -18,13 +18,13 @@ import ddf.catalog.impl.filter.SpatialFilter;
 public class BBoxSpatialFilter extends SpatialFilter {
   private static final int MAX_Y_COORDINATE_INDEX = 3;
 
-  private double minX;
+  private final double minX;
 
-  private double minY;
+  private final double minY;
 
-  private double maxX;
+  private final double maxX;
 
-  private double maxY;
+  private final double maxY;
 
   /**
    * @param bbox comma-delimited list of lat/lon (deg) bounding box coordinates

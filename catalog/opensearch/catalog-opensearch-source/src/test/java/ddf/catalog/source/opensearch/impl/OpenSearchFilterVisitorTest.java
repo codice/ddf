@@ -70,7 +70,7 @@ public class OpenSearchFilterVisitorTest {
 
   private OpenSearchFilterVisitor openSearchFilterVisitor;
 
-  private GeotoolsFilterBuilder geotoolsFilterBuilder = new GeotoolsFilterBuilder();
+  private final GeotoolsFilterBuilder geotoolsFilterBuilder = new GeotoolsFilterBuilder();
 
   @Before
   public void setUp() {

@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -123,10 +122,10 @@ public class OpenSearchSourceTest {
           "dateName",
           "filter",
           "sort");
-  private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-  private EncryptionService encryptionService = mock(EncryptionService.class);
-  private OpenSearchParser openSearchParser = new OpenSearchParserImpl();
-  private OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
+  private static final FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+  private final EncryptionService encryptionService = mock(EncryptionService.class);
+  private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
+  private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
   private Response response;
   private OverriddenOpenSearchSource source;
 
@@ -395,7 +394,7 @@ public class OpenSearchSourceTest {
 
     SecureCxfClientFactory factory = getMockFactory(webClient);
 
-    source = new OverriddenOpenSearchSource(FILTER_ADAPTER, encryptionService);
+    source = new OverriddenOpenSearchSource(encryptionService);
     source.setShortname(SOURCE_ID);
     source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -404,11 +403,7 @@ public class OpenSearchSourceTest {
     source.factory = factory;
   }
 
-  /**
-   * Tests the proper query is sent to the remote source for query by id.
-   *
-   * @throws UnsupportedQueryException
-   */
+  /** Tests the proper query is sent to the remote source for query by id. */
   @Test
   public void testQueryById() throws UnsupportedQueryException {
     Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
@@ -576,13 +571,7 @@ public class OpenSearchSourceTest {
     assertThat(metacard.getContentTypeName(), is(RESOURCE_TAG));
   }
 
-  /**
-   * Basic retrieve product case. Tests the url sent to the connection is correct.
-   *
-   * @throws ResourceNotSupportedException
-   * @throws IOException
-   * @throws ResourceNotFoundException
-   */
+  /** Basic retrieve product case. Tests the url sent to the connection is correct. */
   @Test
   public void testRetrieveResource() throws Exception {
 
@@ -609,8 +598,6 @@ public class OpenSearchSourceTest {
   /**
    * Retrieve Product case using Basic Authentication. Test that the properties map passed to the
    * resource reader includes a username and password.
-   *
-   * @throws Exception
    */
   @Test
   public void testRetrieveResourceBasicAuth() throws Exception {
@@ -641,11 +628,7 @@ public class OpenSearchSourceTest {
     assertThat(response.getResource().getByteArray().length, is(3));
   }
 
-  /**
-   * Given all null params, nothing will be returned, expect an exception.
-   *
-   * @throws ResourceNotSupportedException
-   */
+  /** Given all null params, nothing will be returned, expect an exception. */
   @Test(expected = ResourceNotFoundException.class)
   public void testRetrieveNullProduct()
       throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
@@ -700,7 +683,7 @@ public class OpenSearchSourceTest {
     assertThat(response2.getResults().size(), is(1));
   }
 
-  protected InputTransformer getMockInputTransformer() throws Exception {
+  private InputTransformer getMockInputTransformer() throws Exception {
     InputTransformer inputTransformer = mock(InputTransformer.class);
 
     Metacard generatedMetacard = getSimpleMetacard();
@@ -712,7 +695,7 @@ public class OpenSearchSourceTest {
     return inputTransformer;
   }
 
-  protected Metacard getSimpleMetacard() {
+  private Metacard getSimpleMetacard() {
     MetacardImpl generatedMetacard = new MetacardImpl();
     generatedMetacard.setMetadata(getSample());
     generatedMetacard.setId(SAMPLE_ID);
@@ -766,7 +749,7 @@ public class OpenSearchSourceTest {
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertThat(foreignMarkupConsumer.getTotalResults(), is(1L));
   }
@@ -784,7 +767,7 @@ public class OpenSearchSourceTest {
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     ArgumentCaptor<List> elementListCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -831,7 +814,7 @@ public class OpenSearchSourceTest {
     }
   }
 
-  protected SecureCxfClientFactory getMockFactory(WebClient client) {
+  private SecureCxfClientFactory getMockFactory(WebClient client) {
     SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
 
     doReturn(client).when(factory).getClient();
@@ -862,7 +845,7 @@ public class OpenSearchSourceTest {
       }
     }
 
-    public Long getTotalResults() {
+    Long getTotalResults() {
       return totalResults;
     }
   }
@@ -874,15 +857,16 @@ public class OpenSearchSourceTest {
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
      * overwritten using the setter methods.
-     *
-     * @param filterAdapter
      */
-    public OverriddenOpenSearchSource(
-        FilterAdapter filterAdapter, EncryptionService encryptionService) {
-      super(filterAdapter, openSearchParser, openSearchFilterVisitor, encryptionService);
+    OverriddenOpenSearchSource(EncryptionService encryptionService) {
+      super(
+          OpenSearchSourceTest.FILTER_ADAPTER,
+          openSearchParser,
+          openSearchFilterVisitor,
+          encryptionService);
     }
 
-    protected void setBundle(Bundle bundle) {
+    void setBundle(Bundle bundle) {
       this.bundle = bundle;
     }
 

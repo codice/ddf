@@ -15,7 +15,6 @@ package org.codice.ddf.opensearch.query;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
@@ -56,18 +55,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OpenSearchQuery implements Query {
-  public static final String CARET = "^";
+  private static final String CARET = "^";
 
   // TODO remove this and only use filterbuilder
-  public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
+  private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchQuery.class);
 
   private final FilterBuilder filterBuilder;
 
-  private Integer startIndex;
+  private final Integer startIndex;
 
-  private Integer count;
+  private final Integer count;
 
   private long maxTimeout;
 
@@ -420,10 +419,6 @@ public class OpenSearchQuery implements Query {
 
   public void setIsEnterprise(boolean isEnterprise) {
     this.isEnterprise = isEnterprise;
-  }
-
-  public FederationStrategy getStrategy() {
-    return null;
   }
 
   @Override

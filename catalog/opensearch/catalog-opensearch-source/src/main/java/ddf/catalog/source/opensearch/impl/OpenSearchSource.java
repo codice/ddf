@@ -143,7 +143,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private PropertyResolver endpointUrl;
 
-  private FilterAdapter filterAdapter;
+  private final FilterAdapter filterAdapter;
 
   private String configurationPid;
 
@@ -159,9 +159,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private ResourceReader resourceReader;
 
-  private OpenSearchParser openSearchParser;
+  private final OpenSearchParser openSearchParser;
 
-  private OpenSearchFilterVisitor openSearchFilterVisitor;
+  private final OpenSearchFilterVisitor openSearchFilterVisitor;
 
   private Integer connectionTimeout;
 
@@ -251,10 +251,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     xmlInputFactory.setProperty(
         XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
     xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-  }
-
-  public void destroy(int code) {
-    LOGGER.debug("Nothing to destroy.");
   }
 
   @Override
@@ -402,7 +398,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    *
    * @param client Client to perform the GET request on.
    * @return The entity of the response as an InputStream.
-   * @throws UnsupportedQueryException
    */
   private InputStream performRequest(WebClient client) throws UnsupportedQueryException {
     Response clientResponse = client.get();
@@ -544,7 +539,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    *
    * @param entry a single Atom entry
    * @return single response
-   * @throws ddf.catalog.source.UnsupportedQueryException
    */
   private List<Result> createResponseFromEntry(SyndEntry entry) {
     String id = entry.getUri();
@@ -618,11 +612,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return null;
   }
 
-  /**
-   * Get the URL of the endpoint.
-   *
-   * @return
-   */
+  /** Get the URL of the endpoint. */
   public String getEndpointUrl() {
     LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
     return endpointUrl.toString();
@@ -751,8 +741,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   /**
    * Get the boolean flag that determines if point-radius and polygon geometries should be
    * converting to bounding boxes before sending.
-   *
-   * @return
    */
   public boolean getShouldConvertToBBox() {
     return shouldConvertToBBox;
@@ -761,8 +749,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   /**
    * Sets the boolean flag that tells the code to convert point-radius and polygon geometries to a
    * bounding box before sending them.
-   *
-   * @param shouldConvertToBBox
    */
   public void setShouldConvertToBBox(boolean shouldConvertToBBox) {
     this.shouldConvertToBBox = shouldConvertToBBox;
@@ -933,7 +919,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   /**
    * Creates a new RestUrl object based on an OpenSearch URL
    *
-   * @param url
    * @return RestUrl object for a DDF REST endpoint
    */
   private RestUrl newRestUrl(String url) {

@@ -990,9 +990,6 @@ public class OpenSearchQueryTest {
     FilterTransformer transform = new FilterTransformer();
     transform.setIndentation(2);
     LOGGER.debug(transform.transform(filter));
-    // VisualizingVisitor vv = new VisualizingVisitor() ;
-    // filter.accept(vv, null) ;
-    // vv.getMap();
     boolean result = filter.evaluate(input);
     LOGGER.debug("result = {}", result);
     // filters.add( filter );

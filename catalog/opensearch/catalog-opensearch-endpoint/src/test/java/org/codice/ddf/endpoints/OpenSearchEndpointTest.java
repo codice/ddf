@@ -58,13 +58,6 @@ public class OpenSearchEndpointTest {
    * name "TestSiteName"). The QueryRequest object is checked when the framework.query is called to
    * retrieve the OpenSearchQuery, which contains the Set of sites. An assertion within the Answer
    * object for the call framework.query checks that the sites Set is contains the TEST_SITE_NAME.
-   *
-   * @throws URISyntaxException
-   * @throws FederationException
-   * @throws SourceUnavailableException
-   * @throws UnsupportedQueryException
-   * @throws UnsupportedEncodingException
-   * @throws CatalogTransformerException
    */
   @SuppressWarnings("unchecked")
   @Test

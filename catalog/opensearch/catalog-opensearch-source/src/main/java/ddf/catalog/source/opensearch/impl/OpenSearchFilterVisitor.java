@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.Expression;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
@@ -39,6 +38,7 @@ import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BinarySpatialOperator;
@@ -385,7 +385,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return data;
   }
 
-  protected String normalizePattern(
+  private String normalizePattern(
       String pattern, String wildcard, String singleChar, String escapeChar) {
     StringBuilder sb = new StringBuilder(pattern.length());
     for (int i = 0; i < pattern.length(); i++) {

@@ -17,7 +17,6 @@ import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,6 @@ public interface OpenSearchParser {
    * @param spatial - SpatialDistanceFilter that contains the spatial data
    * @param shouldConvertToBBox - true if the SpatialFilter should be converted to a Bounding Box
    * @param parameters - the given OpenSearch parameters
-   * @throws UnsupportedQueryException
    */
   void populateGeospatial(
       WebClient client,
@@ -86,7 +84,6 @@ public interface OpenSearchParser {
    * @param spatial - SpatialFilter that contains the spatial data
    * @param shouldConvertToBBox - true if the SpatialFilter should be converted to a Bounding Box
    * @param parameters - the given OpenSearch parameters
-   * @throws UnsupportedQueryException
    */
   void populateGeospatial(
       WebClient client,
