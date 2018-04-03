@@ -87,7 +87,7 @@ To set multi-valued attributes, use a separate override for each value. For exam
 
 Attributes will only be overridden if they are part of the <<_metacard_type, metacard type>> or are <<_attribute_injection_definition,injected>>.
 
-All attributes in the <<_catalog_taxonomy, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
+All attributes in the <<_catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 
 [IMPORTANT]
 ====

@@ -41,7 +41,7 @@ The Catalog Framework wires all Catalog components together.
 It is responsible for routing Catalog requests and responses to the appropriate target. 
 
 <<_endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
-The Catalog Framework then invokes <<_catalog_plugins,Catalog Plugins>>, <<_transformers,Transformers>>, and <<_resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<_sources,Sources>>. 
+The Catalog Framework then invokes <<_catalog_plugins,Catalog Plugins>>, <<_transformers,Transformers>>, and <<_resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<_connecting_to_sources,Sources>>. 
 
 The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
 
@@ -155,7 +155,7 @@ log:set
   |           +--------------------------------------------------------------------------------------------------------------------+         |
 ....
 
-The <<_query_service_endpoint,Query Service Endpoint>>, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well.
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well.
 The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`.
 The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
 The `CatalogFramework` relies on the `CatalogProvider` to execute the actual query.

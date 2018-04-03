@@ -12,7 +12,7 @@
 == {title}
 
 The OpenSearch source provides a <<_federated_source,Federated Source>> that has the capability to do http://www.opensearch.org/Home[OpenSearch] queries for metadata from Content Discovery and Retrieval (CDR) Search V1.1 compliant sources.
-The OpenSearch source does not provide a <<_connected_source,Connected Source>> interface.
+The OpenSearch source does not provide a <<_connected_sources,Connected Source>> interface.
 
 .Installing an OpenSearch Source
 The OpenSearch Source is installed by default with a standard installation in the ${ddf-catalog} application.
@@ -118,4 +118,4 @@ Supports `asc` and `desc` using `:` as delimiter.
 |===
 
 .Usage Limitations of the OpenSearch Source
-The OpenSearch source does not provide a <<_connected_source,Connected Source>> interface.
+The OpenSearch source does not provide a <<_connected_sources,Connected Source>> interface.

@@ -14,7 +14,7 @@ Query Response Transformers can be used through the Catalog transform convenienc
 `public BinaryContent transform(SourceResponse upstreamResponse, Map<String, Serializable> arguments) throws CatalogTransformerException`
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog, ddf.catalog.transform`
-. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in <<_working_with_osgi,Working with OSGi>>). Export the service to the OSGi registry and declare service properties.
+. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in <<_osgi_basics,Working with OSGi>>). Export the service to the OSGi registry and declare service properties.
 +
 . Deploy OSGi Bundle to OSGi runtime.
 +
