@@ -3,4 +3,14 @@
 :status: published
 :summary: Introduction to Integrating sections.
 
-Integrators will use the existing applications to support their external frameworks. This section will provide details for finding, accessing and using the components of ${branding}.
+${branding} is structured to enable flexible integration with external clients and into larger component systems.
+
+Federation with ${branding} is primarily accomplished through <<_endpoints,Endpoints>> accessible through http(s) requests and responses.
+
+If integrating with an existing installation of ${branding}, continue to the following sections on endpoints and data/metadata management.
+
+If a new installation of ${branding} is required, first see the <<_managing,Managing>> section for installation and configuration instructions, then return to this section for guidance on connecting external clients.
+
+If you would like to set up a test or demo installation to use while developing an external client, see the <<_quick_start_tutorial,Quick Start Tutorial>> for demo instructions.
+
+For troubleshooting and known issues, see the {release-notes-url}[Release Notes].
