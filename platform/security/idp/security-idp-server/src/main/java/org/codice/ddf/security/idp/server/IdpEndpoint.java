@@ -358,6 +358,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     URI uri = URI.create(entityServiceInfoUrl);
     cookie.setPath(uri.getPath());
     cookie.setDomain(uri.getHost());
+    cookie.setHttpOnly(true);
     cookie.setSecure(true);
 
     try {

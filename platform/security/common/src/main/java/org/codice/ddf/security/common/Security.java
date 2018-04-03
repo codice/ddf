@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>IMPORTANT: New methods added to this class should be non-static.
  */
-public class Security {
+public final class Security {
 
   private static final Security INSTANCE = new Security();
 

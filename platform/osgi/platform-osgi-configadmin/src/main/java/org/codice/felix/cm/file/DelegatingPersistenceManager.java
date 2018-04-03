@@ -97,7 +97,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
 
   @Override
   public void store(String pid, Dictionary properties) throws IOException {
-    // Read lock to ensure plugin initialization is not currently occuring
+    // Read lock to ensure plugin initialization is not currently occurring
     long stamp = serviceStartingLock.readLock();
     try {
       ConfigurationContextImpl context = createContext(pid, properties);
@@ -116,7 +116,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
 
   @Override
   public void delete(String pid) throws IOException {
-    // Read lock to ensure plugin initialization is not currently occuring
+    // Read lock to ensure plugin initialization is not currently occurring
     long stamp = serviceStartingLock.readLock();
     try {
       List<ConfigurationPersistencePlugin> plugins =

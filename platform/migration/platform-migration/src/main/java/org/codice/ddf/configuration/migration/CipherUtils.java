@@ -174,9 +174,10 @@ public class CipherUtils {
    * @return a {@link SecretKey}
    */
   private SecretKey createSecretKey(Path keyPath) throws NoSuchAlgorithmException {
-    KeyGenerator keyGenerator = null;
+    KeyGenerator keyGenerator;
     try {
       keyGenerator = KeyGenerator.getInstance(MigrationZipConstants.KEY_ALGORITHM);
+      keyGenerator.init(128);
       secretKey = keyGenerator.generateKey();
       char[] hexKey = encodeHex(secretKey.getEncoded());
       writeStringToFile(keyPath.toFile(), String.valueOf(hexKey), Charsets.UTF_8);
