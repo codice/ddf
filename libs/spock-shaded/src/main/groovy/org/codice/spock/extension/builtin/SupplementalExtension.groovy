@@ -133,7 +133,8 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    * @throws NoSuchMethodException if a matching method is not found
    */
   private def getMethodBySimplePrototype(Class<?> type, String prototype) {
-    def methods = type.methods.findAll { getSimplePrototype(it) == prototype }
+    def p = protoype?.replaceAll("\\s", "")
+    def methods = type.methods.findAll { getSimplePrototype(it) == p }
 
     if (methods) {
       return methods[0]

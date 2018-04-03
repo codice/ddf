@@ -32,11 +32,11 @@ import org.codice.spock.extension.DeFinalize;
  * requested except for all classes in the following packages:
  *
  * <ul>
- *   <li>java
- *   <li>javax
- *   <li>sun
- *   <li>org.xml
- *   <li>org.junit
+ * <li>java
+ * <li>javax
+ * <li>sun
+ * <li>org.xml
+ * <li>org.junit
  * </ul>
  *
  * These packages are not being reloaded as they are required by the {@link DeFinalizeSputnik} test
@@ -46,6 +46,7 @@ import org.codice.spock.extension.DeFinalize;
  * loaded by the parent classloader.
  */
 public class DeFinalizeClassLoader extends ClassLoader {
+
   private final ClassPool pool;
   private final Set<String> filters;
 
@@ -66,13 +67,13 @@ public class DeFinalizeClassLoader extends ClassLoader {
     this.pool.appendSystemPath();
     this.filters =
         Stream.concat(
-                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
-                    .map(DeFinalize::value)
-                    .flatMap(Stream::of)
-                    .map(Class::getName),
-                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
-                    .map(DeFinalize::packages)
-                    .flatMap(Stream::of))
+            Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                .map(DeFinalize::value)
+                .flatMap(Stream::of)
+                .map(Class::getName),
+            Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                .map(DeFinalize::packages)
+                .flatMap(Stream::of))
             .collect(Collectors.toSet());
   }
 
@@ -109,6 +110,9 @@ public class DeFinalizeClassLoader extends ClassLoader {
             boolean definalize = filters.contains(name);
 
             if (!definalize) {
+              // the following loop will check all parent packages and classes all the way to but
+              // excluding the class itself (e.g. for foo.util.SomeList, the loop would be for foo
+              // and foo.util)
               for (int i = name.indexOf('.'); i > 0; i = name.indexOf('.', ++i)) {
                 if (filters.contains(name.substring(0, i))) {
                   definalize = true;
