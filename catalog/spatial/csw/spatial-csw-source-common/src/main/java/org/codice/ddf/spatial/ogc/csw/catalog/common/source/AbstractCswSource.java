@@ -320,11 +320,11 @@ public abstract class AbstractCswSource extends MaskableImpl
     configureEventService();
   }
 
-  private void initClientFactory() {
+  protected void initClientFactory() {
     if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -338,7 +338,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -352,7 +352,7 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getSslProtocol());
     } else {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -368,7 +368,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getEventServiceAddress(),
               CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -382,9 +382,9 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
-              Csw.class,
+              CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
               null,
               cswSourceConfiguration.getDisableCnCheck(),
@@ -396,7 +396,7 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getSslProtocol());
     } else {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getEventServiceAddress(),
               CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
