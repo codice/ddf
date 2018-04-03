@@ -26,69 +26,69 @@ var  announcement = require('component/announcement');
 var  ConfirmationView = require('component/confirmation/confirmation.view');
 
 module.exports =  Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('search-form-interactions'),
-        className: 'composed-menu',
-        modelEvents: {
-            'change': 'render'
-        },
-        events: {
-            'click .interaction-trash': 'handleTrash',
-            'click .search-form-interaction': 'handleClick'
-        },
-        ui: {},
-        initialize: function() {},
-        onRender: function() {
-            this.checkIfSubscribed();
-        },
-        checkIfSubscribed: function() {
-            this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
-        },
-        handleTrash: function() {
-            var loginUser = user.get('user');
-            if(loginUser.get('username') === this.model.get('createdBy'))
-            {
-                this.listenTo(ConfirmationView.generateConfirmation({
-                    prompt: 'This will permanently delete the template. Are you sure? ',
-                    no: 'Cancel',
-                    yes: 'Delete'
-                }),
-                'change:choice',
-                function(confirmation) {
-                    if (confirmation.get('choice')) {
-                        var loadingview = new LoadingView();
-                            this.model.url = '/search/catalog/internal/forms/' + this.model.id;
-                            this.model.destroy({
-                                wait: true,
-                                error: function(model, xhr, options){
-                                    announcement.announce({
-                                        title: 'Error!',
-                                        message: "Unable to delete the forms: " + xhr.responseText,
-                                        type: 'error'
-                                    });
-                                    throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
-                                }
-                            }); 
-                        this.removeCachedTemplate(this.model.id);
-                        loadingview.remove();
-                    }
-                }.bind(this));                        
-            }
-            else{
-                announcement.announce({
-                    title: 'Error!',
-                    message: "Unable to delete the form: You are not the author",
-                    type: 'error'
-                });
-                throw new Error('Unable to delete the form: You are not the author ');                
-                
-            }
-            this.trigger("doneLoading");
-        },
-        handleClick: function() {
-            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        },
-        removeCachedTemplate: function(id){
-            wreqr.vent.trigger("deleteTemplateById", id);
+    template: template,
+    tagName: CustomElements.register('search-form-interactions'),
+    className: 'composed-menu',
+    modelEvents: {
+        'change': 'render'
+    },
+    events: {
+        'click .interaction-trash': 'handleTrash',
+        'click .search-form-interaction': 'handleClick'
+    },
+    ui: {},
+    initialize: function() {},
+    onRender: function() {
+        this.checkIfSubscribed();
+    },
+    checkIfSubscribed: function() {
+        this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
+    },
+    handleTrash: function() {
+        var loginUser = user.get('user');
+        if(loginUser.get('username') === this.model.get('createdBy'))
+        {
+            this.listenTo(ConfirmationView.generateConfirmation({
+                prompt: 'This will permanently delete the template. Are you sure? ',
+                no: 'Cancel',
+                yes: 'Delete'
+            }),
+            'change:choice',
+            function(confirmation) {
+                if (confirmation.get('choice')) {
+                    var loadingview = new LoadingView();
+                        this.model.url = '/search/catalog/internal/forms/' + this.model.id;
+                        this.model.destroy({
+                            wait: true,
+                            error: function(model, xhr, options){
+                                announcement.announce({
+                                    title: 'Error!',
+                                    message: "Unable to delete the forms: " + xhr.responseText,
+                                    type: 'error'
+                                });
+                                throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
+                            }
+                        }); 
+                    this.removeCachedTemplate(this.model.id);
+                    loadingview.remove();
+                }
+            }.bind(this));                        
         }
-    });
+        else{
+            announcement.announce({
+                title: 'Error!',
+                message: "Unable to delete the form: You are not the author",
+                type: 'error'
+            });
+            throw new Error('Unable to delete the form: You are not the author ');                
+            
+        }
+        this.trigger("doneLoading");
+    },
+    handleClick: function() {
+        this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+    },
+    removeCachedTemplate: function(id){
+        wreqr.vent.trigger("deleteTemplateById", id);
+    }
+});

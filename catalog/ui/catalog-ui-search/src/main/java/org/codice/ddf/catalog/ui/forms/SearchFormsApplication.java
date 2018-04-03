@@ -115,7 +115,7 @@ public class SearchFormsApplication implements SparkApplication {
           DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
           if (!deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
-            LOGGER.debug("Failed to delete Form " + id);
+            LOGGER.debug("Failed to Delete Form {}", id);
             return ImmutableMap.of("message", "Failed to delete.");
           }
           return ImmutableMap.of("message", "Successfully deleted.");
