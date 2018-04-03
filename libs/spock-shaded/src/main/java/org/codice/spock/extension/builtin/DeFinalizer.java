@@ -16,6 +16,7 @@ package org.codice.spock.extension.builtin;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import org.codice.spock.extension.DeFinalizeWith;
 import org.junit.runner.Describable;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -25,16 +26,19 @@ import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.manipulation.Sortable;
 import org.junit.runner.manipulation.Sorter;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
 import org.spockframework.runtime.Sputnik;
+import spock.lang.Specification;
 
 /**
- * The <code>DefinalizeSputnik</code> test runner is designed to extend the {@link Sputnik} test
- * runner indirectly in order to add support for de-finalizing (i.e. removing the final constraint)
- * 3rd party Java classes that needs to be mocked or stubbed during testing. It does so by creating
- * a classloader designed with an aggressive strategy where it will load all classes first before
- * delegating to its parent. This classloader will therefore reload all classes while definalizing
- * those that are requested except for all classes in the following packages:
+ * The <code>Definalizer</code> test runner is designed as a generic proxy test runner for another
+ * JUnit test runner by indirectly instantiating that runner in order to add support for
+ * de-finalizing (i.e. removing the final constraint) 3rd party Java classes that needs to be mocked
+ * or stubbed during testing. It does so by creating a classloader designed with an aggressive
+ * strategy where it will load all classes first before delegating to its parent. This classloader
+ * will therefore reload all classes while definalizing those that are requested except for all
+ * classes in the following packages:
  *
  * <ul>
  *   <li>java
@@ -45,47 +49,50 @@ import org.spockframework.runtime.Sputnik;
  * </ul>
  *
  * These packages are not being reloaded as they are required for this test runner to delegate to
- * the real {@link Sputnik} test runner. Even the Spock test specification class will be reloaded in
- * this internal classloader.
+ * the real test runner. Even the actual test class will be reloaded in this internal classloader.
  *
- * <p>The indirect extension is done by means of delegation as the real Sputnik test runner is
- * instantiated from within the classloader that is created internally. This is to ensure that
- * everything Groovy and Spock and everything they indirectly reference are loaded from within the
+ * <p>The indirect extension is done by means of delegation as the real test runner is instantiated
+ * from within the classloader that is created internally. This is to ensure that everything the
+ * test class, the test runner, and everything they indirectly reference are loaded from within the
  * classloader.
+ *
+ * <p>This runner is especially useful with Spock where it is not possible to mock final methods as
+ * can be done with Mockito.
  *
  * <p>See <a href="https://github.com/spockframework/spock/issues/735"/>for a Spock enhancement
  * request to support mocking final classes/methods at which point, this class will no longer be
  * required.
  */
-public class DeFinalizeSputnik extends Sputnik {
+public class DeFinalizer extends Runner implements Describable, Filterable, Sortable {
 
   private static final List<Class<?>> SUPPORTED_INTERFACES =
       Arrays.asList(Describable.class, Filterable.class, Sortable.class);
 
   private final DeFinalizeClassLoader classloader;
-  private final Class<?> specClass;
-  private final Runner sputnik;
+  private final Class<?> testClass;
+  private final Class<?> reloadedTestClass;
+  private final Runner runner;
   private final Filterable filterable;
   private final Sortable sortable;
 
   /**
    * Creates an instance of this test runner for the specified Spock test specification class.
    *
-   * @param specClass the Spock test specification class
+   * @param testClass the test class
    * @throws InitializationError if unable to initialize the test runner
    */
-  public DeFinalizeSputnik(Class<?> specClass) throws InitializationError {
-    super(specClass);
-    this.classloader = new DeFinalizeClassLoader(specClass);
+  public DeFinalizer(Class<?> testClass) throws InitializationError {
+    this.testClass = testClass;
+    this.classloader = new DeFinalizeClassLoader(testClass);
     try {
-      // reload the specification class using the new classloader
-      this.specClass = classloader.loadClass(specClass.getName());
+      // reload the test class using the new classloader
+      this.reloadedTestClass = classloader.loadClass(testClass.getName());
     } catch (ClassNotFoundException e) {
       throw new InitializationError(e);
     }
-    this.sputnik = newSputnik();
-    if (sputnik instanceof Filterable) {
-      this.filterable = (Filterable) sputnik;
+    this.runner = newTestRunner();
+    if (runner instanceof Filterable) {
+      this.filterable = (Filterable) runner;
     } else {
       this.filterable =
           new Filterable() {
@@ -94,8 +101,8 @@ public class DeFinalizeSputnik extends Sputnik {
             }
           };
     }
-    if (sputnik instanceof Sortable) {
-      this.sortable = (Sortable) sputnik;
+    if (runner instanceof Sortable) {
+      this.sortable = (Sortable) runner;
     } else {
       this.sortable = sorter -> {};
     }
@@ -103,17 +110,17 @@ public class DeFinalizeSputnik extends Sputnik {
 
   @Override
   public int testCount() {
-    return sputnik.testCount();
+    return runner.testCount();
   }
 
   @Override
   public Description getDescription() {
-    return sputnik.getDescription();
+    return runner.getDescription();
   }
 
   @Override
   public void run(RunNotifier notifier) {
-    sputnik.run(notifier);
+    runner.run(notifier);
   }
 
   @Override
@@ -126,18 +133,30 @@ public class DeFinalizeSputnik extends Sputnik {
     sortable.sort(sorter);
   }
 
-  private Runner newSputnik() throws InitializationError {
-    // verify Sputnik only implements the same interfaces as us
+  @SuppressWarnings("squid:S2259" /* runnerClass cannot be null */)
+  private Runner newTestRunner() throws InitializationError {
+    final DeFinalizeWith a = testClass.getAnnotation(DeFinalizeWith.class);
+    Class<? extends Runner> runnerClass;
+
+    if (a != null) {
+      runnerClass = a.value();
+    } else if (Specification.class.isAssignableFrom(testClass)) {
+      runnerClass = Sputnik.class;
+    } else {
+      runnerClass = JUnit4.class;
+    }
+    // verify the test runner only implements the same interfaces as us
     // this is so we can catch new interfaces for which we would have to introduce delegate methods
-    Class<?> clazz = Sputnik.class;
+    Class<?> clazz = runnerClass;
 
     while (clazz != null) {
       for (final Class<?> i : clazz.getInterfaces()) {
-        if (!DeFinalizeSputnik.SUPPORTED_INTERFACES.contains(i)) {
+        if (!DeFinalizer.SUPPORTED_INTERFACES.contains(i)) {
           throw new InitializationError(
-              "Sputnik implements new interface: "
+              runnerClass.getSimpleName()
+                  + " implements new interface: "
                   + i.getName()
-                  + "; DeFinalizeSputnik needs to be updated");
+                  + "; DeFinalizer needs to be updated");
         }
       }
       clazz = clazz.getSuperclass();
@@ -145,9 +164,9 @@ public class DeFinalizeSputnik extends Sputnik {
     try {
       return Runner.class.cast(
           classloader
-              .loadClass(Sputnik.class.getName())
+              .loadClass(runnerClass.getName())
               .getDeclaredConstructor(Class.class)
-              .newInstance(specClass));
+              .newInstance(reloadedTestClass));
     } catch (InstantiationException
         | IllegalAccessException
         | NoSuchMethodException
@@ -161,6 +180,8 @@ public class DeFinalizeSputnik extends Sputnik {
         throw (Error) t;
       } else if (t instanceof RuntimeException) {
         throw (RuntimeException) t;
+      } else if (t instanceof InitializationError) {
+        throw (InitializationError) t;
       }
       throw new InitializationError(t);
     }

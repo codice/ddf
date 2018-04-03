@@ -18,27 +18,21 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.junit.runner.Runner;
 
 /**
- * This annotation is used to indicate to the {@link org.codice.spock.extension.builtin.DeFinalizer}
- * test runner, which classes or packages should be definalized.
+ * This annotation is used to indicate the actual test runner that should be used to run the tests
+ * whenever a class uses the {@link org.codice.spock.extension.builtin.DeFinalizer} test runner.
+ *
+ * <p>The standard JUnit's {@link org.junit.runners.JUnit4} test runner or Spock's {@link
+ * org.spockframework.runtime.Sputnik} test runner will be used if the class or the Spock's
+ * specification is not annotated with this annotation.
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface DeFinalize {
+public @interface DeFinalizeWith {
 
-  /**
-   * Specifies the classes to de-finalize.
-   *
-   * @return the classes to de-finalize
-   */
-  public Class<?>[] value() default {};
-
-  /**
-   * Specifies the packages to de-finalize.
-   *
-   * @return the fully qualified names for the packages to de-finalize
-   */
-  public String[] packages() default {};
+  /** @return a runner class (must have a constructor that takes a single class to run) */
+  public Class<? extends Runner> value();
 }

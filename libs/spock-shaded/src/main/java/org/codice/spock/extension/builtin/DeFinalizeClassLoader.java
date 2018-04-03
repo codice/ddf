@@ -26,10 +26,10 @@ import javassist.NotFoundException;
 import org.codice.spock.extension.DeFinalize;
 
 /**
- * Defines the classloader used by the {@link DeFinalizeSputnik} test runner. This classloader is
- * designed with an aggressive strategy where it will load all classes first before delegating to
- * its parent. This classloader will therefore reload all classes while definalizing those that are
- * requested except for all classes in the following packages:
+ * Defines the classloader used by the {@link DeFinalizer} test runner. This classloader is designed
+ * with an aggressive strategy where it will load all classes first before delegating to its parent.
+ * This classloader will therefore reload all classes while definalizing those that are requested
+ * except for all classes in the following packages:
  *
  * <ul>
  *   <li>java
@@ -39,8 +39,8 @@ import org.codice.spock.extension.DeFinalize;
  *   <li>org.junit
  * </ul>
  *
- * These packages are not being reloaded as they are required by the {@link DeFinalizeSputnik} test
- * runner to delegate to the real {@link org.spockframework.runtime.Sputnik} test runner.
+ * These packages are not being reloaded as they are required by the {@link DeFinalizer} test runner
+ * to delegate to the real test runner.
  *
  * <p>All loaded classes will be done so with the same protection domain used if they had been
  * loaded by the parent classloader.
@@ -58,20 +58,20 @@ public class DeFinalizeClassLoader extends ClassLoader {
    * <p>The classloader used to load this classloader class will be defined as its parent
    * classloader.
    *
-   * @param specClass the Spock test specification class
+   * @param testClass the test class
    */
-  public DeFinalizeClassLoader(Class<?> specClass) {
+  public DeFinalizeClassLoader(Class<?> testClass) {
     super(DeFinalizeClassLoader.class.getClassLoader());
     this.pool = new ClassPool(false);
     this.pool.appendClassPath(new LoaderClassPath(getParent()));
     this.pool.appendSystemPath();
     this.filters =
         Stream.concat(
-                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                Stream.of(testClass.getAnnotationsByType(DeFinalize.class))
                     .map(DeFinalize::value)
                     .flatMap(Stream::of)
                     .map(Class::getName),
-                Stream.of(specClass.getAnnotationsByType(DeFinalize.class))
+                Stream.of(testClass.getAnnotationsByType(DeFinalize.class))
                     .map(DeFinalize::packages)
                     .flatMap(Stream::of))
             .collect(Collectors.toSet());
