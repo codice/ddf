@@ -39,3 +39,12 @@
         Duplicate
     </div>
 </div>
+{{#each actions}}
+<div class="interaction interaction-action" title="{{title}}" data-help="{{description}}" data-url="{{{url}}}&listId={{../id}}">
+    <div class="interaction-icon fa fa-list">
+    </div>
+    <div class="interaction-text">
+        {{title}}
+    </div>
+</div>
+{{/each}}

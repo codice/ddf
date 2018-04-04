@@ -243,6 +243,7 @@
             <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
                             availability="optional"/>
         </argument>
+        <argument ref="metacardActionRegistry"/>
     </bean>
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
