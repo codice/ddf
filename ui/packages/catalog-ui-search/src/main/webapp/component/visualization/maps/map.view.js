@@ -32,6 +32,7 @@ var MapModel = require('./map.model');
 var MapInfoView = require('component/map-info/map-info.view');
 var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-settings.view');
 var properties = require('properties');
+var Common = require('js/Common');
 
 function wrapNum(x, range) {
     var max = range[1],
@@ -179,7 +180,7 @@ module.exports = Marionette.LayoutView.extend({
         if (this.options.selectionInterface.getSelectedResults().length > 0) {
             this.map.zoomToSelected(this.options.selectionInterface.getSelectedResults());
         } else {
-            this.zoomToHome();
+            Common.queueExecution(this.zoomToHome.bind(this));
         }
         this.map.onMouseMove(this.onMapHover.bind(this));
         this.map.onRightClick(this.onRightClick.bind(this));

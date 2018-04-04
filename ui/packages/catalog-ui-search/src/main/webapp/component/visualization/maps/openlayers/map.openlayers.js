@@ -190,14 +190,6 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         },
         panToExtent: function(coords) {
             if (coords.constructor === Array && coords.length > 0) {
-                var zoom = Openlayers.animation.zoom({
-                    duration: 250,
-                    resolution: map.getView().getResolution()
-                });
-                var pan1 = Openlayers.animation.pan({
-                    duration: 250,
-                    source: map.getView().getCenter()
-                });
 
                 var lineObject = coords.map(function(coordinate) {
                     return convertPointCoordinate(coordinate);
@@ -205,40 +197,14 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
                 var extent = Openlayers.extent.boundingExtent(lineObject)
 
-                map.beforeRender(pan1, zoom);
-                map.getView().fit(extent, map.getSize(), {
-                    maxZoom: map.getView().getZoom()
+                map.getView().fit(extent, {
+                    size: map.getSize(),
+                    maxZoom: map.getView().getZoom(),
+                    duration: 500
                 });
             }
         },
-        panToRectangle: function(rectangle) {
-            var zoom = Openlayers.animation.zoom({
-                duration: 250,
-                resolution: map.getView().getResolution()
-            });
-            var northWest = Openlayers.proj.transform([rectangle.west, rectangle.north], 'EPSG:4326', properties.projection);
-            var southEast = Openlayers.proj.transform([rectangle.east, rectangle.south], 'EPSG:4326', properties.projection);
-            var coords = [];
-            coords.push(northWest[0]);
-            coords.push(southEast[1]);
-            coords.push(southEast[0]);
-            coords.push(northWest[1]);
-            var pan1 = Openlayers.animation.pan({
-                duration: 250,
-                source: map.getView().getCenter()
-            });
-            map.beforeRender(pan1);
-            map.getView().setCenter(coords);
-        },
         zoomToExtent: function(coords) {
-            var zoom = Openlayers.animation.zoom({
-                duration: 250,
-                resolution: map.getView().getResolution()
-            });
-            var pan1 = Openlayers.animation.pan({
-                duration: 250,
-                source: map.getView().getCenter()
-            });
 
             var lineObject = coords.map(function(coordinate) {
                 return convertPointCoordinate(coordinate);
@@ -246,8 +212,10 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
             var extent = Openlayers.extent.boundingExtent(lineObject)
 
-            map.beforeRender(pan1, zoom);
-            map.getView().fit(extent, map.getSize());
+            map.getView().fit(extent, {
+                size: map.getSize(),
+                duration: 500
+            });
         },
         zoomToBoundingBox: function({north, east, south, west}) {
             this.zoomToExtent([[west, south], [east, north]]);

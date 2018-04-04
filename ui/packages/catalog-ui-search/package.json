@@ -98,7 +98,7 @@
     "lodash.get": "4.4.2",
     "moment": "2.20.1",
     "mt-geo": "1.0.1",
-    "openlayers": "3.20.1",
+    "openlayers": "4.6.5",
     "plotly.js": "1.10.5",
     "q": "1.5.0",
     "raw-loader": "0.5.1",
