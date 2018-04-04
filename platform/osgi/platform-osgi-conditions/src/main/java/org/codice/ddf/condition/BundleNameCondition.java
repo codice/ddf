@@ -29,7 +29,7 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  *
  * <p>Selects bundles based on the name. @ThreadSafe
  */
-public class BundleNameCondition extends AbstractCondition implements Condition {
+public final class BundleNameCondition extends AbstractCondition implements Condition {
 
   private static final ConcurrentHashMap<String, Boolean> DECISION_MAP =
       new ConcurrentHashMap<>(100000);

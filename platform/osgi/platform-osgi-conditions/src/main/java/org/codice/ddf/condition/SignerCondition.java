@@ -47,7 +47,7 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  *
  * <p>Selects bundles based on the identity of the signer. @ThreadSafe
  */
-public class SignerCondition extends AbstractCondition implements Condition {
+public final class SignerCondition extends AbstractCondition implements Condition {
 
   private Bundle bundle;
   private String[] args;
