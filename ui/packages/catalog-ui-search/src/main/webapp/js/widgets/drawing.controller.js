@@ -18,8 +18,11 @@ var wreqr = require('wreqr');
 
 module.exports = Marionette.Controller.extend({
     enabled: true,
-    drawingType: 'extendme!',
+    drawingType: undefined,
     initialize: function() {
+        if (typeof this.drawingType === "undefined"){
+            throw "drawingType needs to be overwritten";
+        }
         this.listenTo(wreqr.vent, `search:${this.drawingType}display`, function(model) {
             this.show(model);
         });
@@ -59,53 +62,11 @@ module.exports = Marionette.Controller.extend({
     addView: function(view) {
         this.views.push(view);
     },
-    show: function(model) {
-        if (this.enabled) {
-            var bboxModel = model || new Draw.BboxModel();
-
-            var existingView = this.getViewForModel(model);
-            if (existingView) {
-                existingView.drawStop();
-                existingView.destroyPrimitive();
-                existingView.updatePrimitive(model);
-            } else {
-                var view = new Draw.BboxView({
-                    map: this.options.map,
-                    model: bboxModel
-                });
-                view.updatePrimitive(model);
-                this.addView(view);
-            }
-
-            return bboxModel;
-        }
+    show: function() {
+        throw "show needs to be overwritten";
     },
-    draw: function(model) {
-        if (this.enabled) {
-            var bboxModel = model || new Draw.BboxModel();
-            var view = new Draw.BboxView({
-                map: this.options.map,
-                model: bboxModel
-            });
-
-            var existingView = this.getViewForModel(model);
-            if (existingView) {
-                existingView.stop();
-                existingView.destroyPrimitive();
-                this.removeView(existingView);
-            }
-            view.start();
-            this.addView(view);
-            this.notificationView = new NotificationView({
-                el: this.options.notificationEl
-            }).render();
-            bboxModel.trigger('BeginExtent');
-            this.listenToOnce(bboxModel, 'EndExtent', function() {
-                this.notificationView.destroy();
-            });
-
-            return bboxModel;
-        }
+    draw: function() {
+        throw "draw needs to be overwritten";
     },
     stop: function(model) {
         var view = this.getViewForModel(model);
