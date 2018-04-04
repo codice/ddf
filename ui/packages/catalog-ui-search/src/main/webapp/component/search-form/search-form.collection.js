@@ -13,6 +13,7 @@
  *
  **/
  /*global require*/
+ var wreqr = require('wreqr');
  var _ = require('underscore');
  var $ = require('jquery');
  var Backbone = require('backbone');
@@ -39,6 +40,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.addSearchForm(new SearchForm({type: 'basic'}));
         this.addSearchForm(new SearchForm({type: 'text'}));
         this.addCustomForms();
+        wreqr.vent.on("deleteTemplateById", this.deleteTemplateById);
     },
     relations: [{
         type: Backbone.Many,
@@ -74,5 +76,10 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     doneLoading: function() {
         this.set('doneLoading', true);
+    },
+    deleteTemplateById: function(id) {
+        systemTemplates = _.filter(systemTemplates, function(template) {
+            return template.id !== id
+       });
     }
  });
