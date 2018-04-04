@@ -30,7 +30,7 @@ import java.lang.annotation.*
  * <ul>
  *   <li><code>Method[] Class.getApiMethods()</code>
  *       <p>Gets all API methods (inherited or not) for the given class filtering away all non public
- *          methods and all all methods defined by the {@link Object} class (e.g.
+ *          methods and all methods defined by the {@link Object} class (e.g.
  * {@link Object#equals}, {@link Object#toString}, {@link Object#clone} ...).</li>
  *
  *   <li><code>Method[] Class.getProxyableMethods()</code>

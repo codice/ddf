@@ -112,7 +112,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
 
   /**
    * Gets all API methods (inherited or not) for the given class filtering away all non public
-   * methods and all all methods defined by the {@link Object} class (e.g. {@link Object#equals},
+   * methods and all methods defined by the {@link Object} class (e.g. {@link Object#equals},
    * {@link Object#toString}, {@link Object#clone} ...).
    *
    * @param type the type for which to retrieve all api methods
@@ -126,7 +126,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
 
   /**
    * Gets all proxy-able public methods (inherited or not) for the given class filtering away all
-   * final methods and all all methods defined by the {@link Object} class (e.g. {@link Object#equals},
+   * final methods and all methods defined by the {@link Object} class (e.g. {@link Object#equals},
    * {@link Object#toString}, {@link Object#clone} ...).
    *
    * @param type the type for which to retrieve all proxy-able methods
