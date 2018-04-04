@@ -19,19 +19,14 @@ const Marionette = require('marionette');
 function getMaxIndex(selectionInterface) {
     const selectedResults = selectionInterface.getSelectedResults();
     const completeResults = selectionInterface.getCompleteActiveSearchResults();
-    let maxIndex = -1;
-    selectedResults.forEach(function (result) {
-        maxIndex = Math.max(maxIndex, completeResults.indexOf(result));
-    });
-    return maxIndex;
+    return selectedResults.reduce(function (maxIndex, result) {
+        return Math.max(maxIndex, completeResults.indexOf(result));
+    }, -1);
 }
 
 function getMinIndex(selectionInterface) {
     const selectedResults = selectionInterface.getSelectedResults();
     const completeResults = selectionInterface.getCompleteActiveSearchResults();
-    if (selectedResults.length === 0) {
-        return -1;
-    }
     return selectedResults.reduce(function (minIndex, result) {
         return Math.min(minIndex, completeResults.indexOf(result));
     }, completeResults.length);
@@ -82,8 +77,7 @@ Behaviors.addBehavior('selection', Marionette.Behavior.extend({
         const indexClicked = this.options.selectionInterface.getCompleteActiveSearchResults().indexOfId(resultid);
         const firstIndex = getMinIndex(this.options.selectionInterface);
         const lastIndex = getMaxIndex(this.options.selectionInterface);
-        if (firstIndex === -1 && lastIndex === -1) {
-            // this.options.selectionInterface.clearSelectedResults();
+        if (selectedResults.length === 0) {
             this.handleControlClick(resultid, alreadySelected);
         } else if (indexClicked <= firstIndex) {
             this.selectBetween(indexClicked, firstIndex);
