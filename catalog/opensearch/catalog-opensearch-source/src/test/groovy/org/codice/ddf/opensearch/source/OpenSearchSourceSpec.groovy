@@ -104,7 +104,7 @@ class OpenSearchSourceSpec extends Specification {
                 return Mock(Response) {
                     getStatus() >> Response.Status.OK.getStatusCode()
                     getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                    getHeaderString(OpenSearchSource.HEADER_ACCEPT_RANGES) >> OpenSearchSource.BYTES
+                    getHeaderString("Accept-Ranges") >> "bytes"
                 }
             }
         }

@@ -158,12 +158,12 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.82</minimum>
+                                            <minimum>0.81</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
+                                            <minimum>0.68</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>

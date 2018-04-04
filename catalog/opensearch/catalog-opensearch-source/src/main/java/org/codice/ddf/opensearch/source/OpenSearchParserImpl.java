@@ -15,6 +15,7 @@ package org.codice.ddf.opensearch.source;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.TemporalFilter;
@@ -180,11 +181,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     final double radius = pointRadiusSearch.getRadius();
 
     if (shouldConvertToBBox) {
-      checkAndReplace(
-          client,
-          createBBoxStringFromPointRadius(longitude, latitude, radius),
-          OpenSearchConstants.BBOX,
-          parameters);
+      final BoundingBox boundingBox = createBoundingBoxFromPointRadius(longitude, latitude, radius);
+      checkAndReplace(client, boundingBox.toBboxString(), OpenSearchConstants.BBOX, parameters);
     } else {
       checkAndReplace(client, String.valueOf(latitude), OpenSearchConstants.LAT, parameters);
       checkAndReplace(client, String.valueOf(longitude), OpenSearchConstants.LON, parameters);
@@ -200,8 +198,8 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     }
 
     if (shouldConvertToBBox) {
-      checkAndReplace(
-          client, createBBoxStringFromPolygon(polygon), OpenSearchConstants.BBOX, parameters);
+      final BoundingBox boundingBox = createBoundingBoxFromPolygon(polygon);
+      checkAndReplace(client, boundingBox.toBboxString(), OpenSearchConstants.BBOX, parameters);
     } else {
       checkAndReplace(
           client,
@@ -222,14 +220,14 @@ public class OpenSearchParserImpl implements OpenSearchParser {
    * @param inputStr Item to put into the URL.
    * @param definition Area inside of the URL to be replaced by.
    */
-  private static void checkAndReplace(
+  protected static void checkAndReplace(
       WebClient client, String inputStr, String definition, List<String> parameters) {
     if (hasParameter(definition, parameters) && StringUtils.isNotEmpty(inputStr)) {
       client.replaceQueryParam(definition, inputStr);
     }
   }
 
-  private static boolean hasParameter(String parameter, List<String> parameters) {
+  protected static boolean hasParameter(String parameter, List<String> parameters) {
     for (String param : parameters) {
       if (param != null && param.equalsIgnoreCase(parameter)) {
         return true;
@@ -238,17 +236,53 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     return false;
   }
 
+  protected static String translateToOpenSearchSort(SortBy ddfSort) {
+    String openSearchSortStr = null;
+    String orderType;
+
+    if (ddfSort == null || ddfSort.getSortOrder() == null) {
+      return null;
+    }
+
+    if (ddfSort.getSortOrder().equals(SortOrder.ASCENDING)) {
+      orderType = OpenSearchConstants.ORDER_ASCENDING;
+    } else {
+      orderType = OpenSearchConstants.ORDER_DESCENDING;
+    }
+
+    final String sortByField = ddfSort.getPropertyName().getPropertyName();
+    switch (sortByField) {
+      case Result.RELEVANCE:
+        // asc relevance not supported by spec
+        openSearchSortStr =
+            OpenSearchConstants.SORT_RELEVANCE
+                + OpenSearchConstants.SORT_DELIMITER
+                + OpenSearchConstants.ORDER_DESCENDING;
+        break;
+      case Result.TEMPORAL:
+        openSearchSortStr =
+            OpenSearchConstants.SORT_TEMPORAL + OpenSearchConstants.SORT_DELIMITER + orderType;
+        break;
+      default:
+        LOGGER.debug(
+            "The OpenSearch Source only supports a sort policy of \"{}\" or \"{}\", but the sort policy is \"{}\". Not adding the sort query parameter in the request to the federated site.",
+            Result.RELEVANCE,
+            Result.TEMPORAL,
+            sortByField);
+        break;
+    }
+
+    return openSearchSortStr;
+  }
+
   /**
    * Takes in a point radius search and converts it to a (rough approximation) bounding box using
    * Vincenty's formula (direct) and the WGS-84 approximation of the Earth.
    *
    * @param lonInDegrees longitude in decimal degrees (WGS-84)
    * @param latInDegrees longitude in decimal degrees (WGS-84)
-   * @param searchRadiusInMeters
-   * @return {@link String} of the bounding box coordinates in the format "west,south,east,north".
-   *     Returns an empty {@link String} if unable to calculate a bounding box.
    */
-  private static String createBBoxStringFromPointRadius(
+  protected BoundingBox createBoundingBoxFromPointRadius(
       final double lonInDegrees, final double latInDegrees, final double searchRadiusInMeters) {
     final double latDifferenceInDegrees =
         Math.toDegrees(searchRadiusInMeters / LENGTH_OF_SEMI_MINOR_AXIS_IN_METERS);
@@ -346,19 +380,16 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       north = Math.min(north, MAX_LAT);
     }
 
-    return createBboxString(west, south, east, north);
+    return new BoundingBox(west, south, east, north);
   }
 
   /**
-   * Takes in a {@link Polygon} and converts it to a (rough approximation) bounding box.
+   * Takes in a {@link Polygon} and converts it to a (rough approximation) {@link BoundingBox}.
    *
    * <p>Note: Searches being performed where the polygon goes through the antimeridian will return
    * an incorrect bounding box. TODO DDF-3742
-   *
-   * @param polygon A polygon search area
-   * @return {@link String} of the bounding box coordinates in the format "west,south,east,north".
    */
-  private static String createBBoxStringFromPolygon(final Polygon polygon) {
+  protected BoundingBox createBoundingBoxFromPolygon(Polygon polygon) {
     double west = Double.POSITIVE_INFINITY;
     double south = Double.POSITIVE_INFINITY;
     double east = Double.NEGATIVE_INFINITY;
@@ -382,51 +413,30 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       }
     }
 
-    return createBboxString(west, south, east, north);
+    return new BoundingBox(west, south, east, north);
   }
 
-  private static String createBboxString(double west, double south, double east, double north) {
-    return Stream.of(west, south, east, north)
-        .map(String::valueOf)
-        .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER));
-  }
+  /**
+   * Using a custom class here instead of {@link Envelope} because {@link #west} may be greater than
+   * {@link #east} in a bounding box but not in an {@link Envelope}.
+   */
+  protected class BoundingBox {
+    private final double west;
+    private final double south;
+    private final double east;
+    private final double north;
 
-  private static String translateToOpenSearchSort(SortBy ddfSort) {
-    String openSearchSortStr = null;
-    String orderType;
-
-    if (ddfSort == null || ddfSort.getSortOrder() == null) {
-      return null;
+    public BoundingBox(double west, double south, double east, double north) {
+      this.west = west;
+      this.south = south;
+      this.east = east;
+      this.north = north;
     }
 
-    if (ddfSort.getSortOrder().equals(SortOrder.ASCENDING)) {
-      orderType = OpenSearchConstants.ORDER_ASCENDING;
-    } else {
-      orderType = OpenSearchConstants.ORDER_DESCENDING;
+    public String toBboxString() {
+      return Stream.of(west, south, east, north)
+          .map(String::valueOf)
+          .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER));
     }
-
-    final String sortByField = ddfSort.getPropertyName().getPropertyName();
-    switch (sortByField) {
-      case Result.RELEVANCE:
-        // asc relevance not supported by spec
-        openSearchSortStr =
-            OpenSearchConstants.SORT_RELEVANCE
-                + OpenSearchConstants.SORT_DELIMITER
-                + OpenSearchConstants.ORDER_DESCENDING;
-        break;
-      case Result.TEMPORAL:
-        openSearchSortStr =
-            OpenSearchConstants.SORT_TEMPORAL + OpenSearchConstants.SORT_DELIMITER + orderType;
-        break;
-      default:
-        LOGGER.debug(
-            "The OpenSearch Source only supports a sort policy of \"{}\" or \"{}\", but the sort policy is \"{}\". Not adding the sort query parameter in the request to the federated site.",
-            Result.RELEVANCE,
-            Result.TEMPORAL,
-            sortByField);
-        break;
-    }
-
-    return openSearchSortStr;
   }
 }

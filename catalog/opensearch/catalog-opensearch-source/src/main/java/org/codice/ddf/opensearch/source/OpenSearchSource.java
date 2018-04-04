@@ -100,9 +100,8 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
-  static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
-  static final String BYTES = "bytes";
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
+
   private static final String ORGANIZATION = "DDF";
 
   private static final String TITLE = "OpenSearch DDF Federated Source";
@@ -112,61 +111,61 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
 
-  private static final String USERNAME_PROPERTY = "username";
+  protected static final String USERNAME_PROPERTY = "username";
 
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
-  private static final String PASSWORD_PROPERTY = "password";
+  protected static final String PASSWORD_PROPERTY = "password";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
-  private final EncryptionService encryptionService;
+  protected final EncryptionService encryptionService;
 
   protected SecureCxfClientFactory<OpenSearch> factory;
 
-  private boolean isInitialized = false;
+  protected boolean isInitialized = false;
 
   // service properties
-  private String shortname;
+  protected String shortname;
 
   private boolean lastAvailable;
 
   private Date lastAvailableDate = null;
 
-  private boolean localQueryOnly;
+  protected boolean localQueryOnly;
 
-  private boolean shouldConvertToBBox;
+  protected boolean shouldConvertToBBox;
 
-  private PropertyResolver endpointUrl;
+  protected PropertyResolver endpointUrl;
 
-  private final FilterAdapter filterAdapter;
+  protected final FilterAdapter filterAdapter;
 
-  private String configurationPid;
+  protected String configurationPid;
 
-  private List<String> parameters;
+  protected List<String> parameters;
 
-  private Set<String> markUpSet;
+  protected Set<String> markUpSet;
 
-  private String username;
+  protected String username;
 
-  private String password;
+  protected String password;
 
   private XMLInputFactory xmlInputFactory;
 
-  private ResourceReader resourceReader;
+  protected ResourceReader resourceReader;
 
-  private final OpenSearchParser openSearchParser;
+  protected final OpenSearchParser openSearchParser;
 
-  private final OpenSearchFilterVisitor openSearchFilterVisitor;
+  protected final OpenSearchFilterVisitor openSearchFilterVisitor;
 
-  private Integer connectionTimeout;
+  protected Integer connectionTimeout;
 
-  private Integer receiveTimeout;
+  protected Integer receiveTimeout;
 
-  private boolean disableCnCheck = false;
+  protected boolean disableCnCheck = false;
 
-  private boolean allowRedirects = false;
+  protected boolean allowRedirects = false;
 
-  private BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
+  protected BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
 
   /**
    * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be

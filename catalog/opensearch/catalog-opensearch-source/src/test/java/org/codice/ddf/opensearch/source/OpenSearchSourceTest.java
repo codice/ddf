@@ -33,6 +33,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -395,13 +396,14 @@ public class OpenSearchSourceTest {
     doReturn(Response.Status.OK.getStatusCode()).when(response).getStatus();
 
     doReturn(getSampleXmlStream()).when(response).getEntity();
-    when(response.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
-        .thenReturn(OpenSearchSource.BYTES);
+    when(response.getHeaderString(eq("Accept-Ranges"))).thenReturn("bytes");
     when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
 
     SecureCxfClientFactory factory = getMockFactory(webClient);
 
-    source = new OverriddenOpenSearchSource(encryptionService);
+    source =
+        new OverriddenOpenSearchSource(
+            FILTER_ADAPTER, openSearchParser, openSearchFilterVisitor, encryptionService);
     source.setShortname(SOURCE_ID);
     source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -876,12 +878,12 @@ public class OpenSearchSourceTest {
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
      * overwritten using the setter methods.
      */
-    OverriddenOpenSearchSource(EncryptionService encryptionService) {
-      super(
-          OpenSearchSourceTest.FILTER_ADAPTER,
-          openSearchParser,
-          openSearchFilterVisitor,
-          encryptionService);
+    OverriddenOpenSearchSource(
+        FilterAdapter filterAdapter,
+        OpenSearchParser openSearchParser,
+        OpenSearchFilterVisitor openSearchFilterVisitor,
+        EncryptionService encryptionService) {
+      super(filterAdapter, openSearchParser, openSearchFilterVisitor, encryptionService);
     }
 
     void setBundle(Bundle bundle) {

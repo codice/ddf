@@ -349,7 +349,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return data;
   }
 
-  private String normalizePattern(
+  protected String normalizePattern(
       String pattern, String wildcard, String singleChar, String escapeChar) {
     StringBuilder sb = new StringBuilder(pattern.length());
     for (int i = 0; i < pattern.length(); i++) {
@@ -379,7 +379,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return sb.toString();
   }
 
-  private static OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(
+  protected static OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(
       Object data) {
     if (data instanceof OpenSearchFilterVisitorObject) {
       return (OpenSearchFilterVisitorObject) data;
@@ -387,7 +387,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     return null;
   }
 
-  private static void buildPointRadiusSearch(DWithin filter, Object data) {
+  protected static void buildPointRadiusSearch(DWithin filter, Object data) {
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         getOpenSearchFilterVisitorObjectFromData(data);
     if (openSearchFilterVisitorObject == null) {
@@ -444,7 +444,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  private static void buildPolygonSearch(BinarySpatialOperator filter, Object data) {
+  protected static void buildPolygonSearch(BinarySpatialOperator filter, Object data) {
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         getOpenSearchFilterVisitorObjectFromData(data);
     if (openSearchFilterVisitorObject == null) {
@@ -486,7 +486,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  private static void buildTemporalSearch(
+  protected static void buildTemporalSearch(
       final BinaryTemporalOperator filter,
       final Object data,
       final Function<Object, DateRange> literalToDatesFunction) {
@@ -527,7 +527,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  private static Date extractDate(Object literal) {
+  protected static Date extractDate(Object literal) {
     if (literal instanceof DefaultInstant) {
       final DefaultInstant defaultInstant = (DefaultInstant) literal;
 
@@ -540,7 +540,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  private static DateRange extractDateRange(Object literal) {
+  protected static DateRange extractDateRange(Object literal) {
     if (literal instanceof Period) {
       final Period period = (Period) literal;
 
@@ -560,7 +560,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  private static class DateRange {
+  protected static class DateRange {
 
     private final Date start;
 
