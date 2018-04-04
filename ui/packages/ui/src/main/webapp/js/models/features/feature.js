@@ -18,10 +18,8 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
     var Feature = {};
 
     var featureUrl = '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/AllFeatures';
-    var installUrl = '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/';
+    var installUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installProfile(java.lang.String,boolean)/';
     var uninstallUrl = '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/';
-
-
 
     Feature.Model = Backbone.Model.extend({
         initialize: function(options) {

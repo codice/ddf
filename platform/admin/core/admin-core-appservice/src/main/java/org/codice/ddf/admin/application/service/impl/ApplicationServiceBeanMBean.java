@@ -24,6 +24,14 @@ import java.util.Map;
 public interface ApplicationServiceBeanMBean {
 
   /**
+   * Starts the installation process for the selected profile.
+   *
+   * @param profileName name or key of the profile to install.
+   * @param noRefresh ensures bundles already installed do not refresh.
+   */
+  void installProfile(String profileName, boolean noRefresh);
+
+  /**
    * Creates an application list that has two attributes that describes relationships between
    * applications (parent and children dependencies).
    *
