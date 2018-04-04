@@ -208,7 +208,8 @@ module.exports = Marionette.LayoutView.extend({
                 value: [currentBefore],
                 id: 'Before',
                 placeholder: 'Limit search to before this time.',
-                type: 'DATE'
+                type: 'DATE',
+                label: 'To'
             })
         }));
         this.basicTimeBetweenAfter.show(new PropertyView({
@@ -216,7 +217,8 @@ module.exports = Marionette.LayoutView.extend({
                 value: [currentAfter],
                 id: 'After',
                 placeholder: 'Limit search to after this time.',
-                type: 'DATE'
+                type: 'DATE',
+                label: 'From'
             })
         }));
     },
