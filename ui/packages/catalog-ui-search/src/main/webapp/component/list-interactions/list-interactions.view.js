@@ -28,6 +28,12 @@ module.exports = Marionette.ItemView.extend({
         'click .interaction-duplicate': 'triggerDuplicate',
         'click': 'triggerClick'
     },
+    modelEvents: {
+      'change:actions': 'render'
+    },
+    onRender: function() {
+      this.handleResult();
+    },
     initialize: function(){
         if (!this.model.get('query').get('result')) {
             this.startListeningToSearch();
