@@ -88,6 +88,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
 
         // supplement the Class class
         Class.metaClass {
+          getApiMethods { ext.getApiMethods(delegate) }
           getProxyableMethods { ext.getProxyableMethods(delegate) }
           getMethodBySimplePrototype { String p -> ext.getMethodBySimplePrototype(delegate, p) }
           getNoSpockSimpleName { ext.getNoSpockSimpleName(delegate) }
@@ -110,6 +111,20 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
   }
 
   /**
+   * Gets all API methods (inherited or not) for the given class filtering away all non public
+   * methods and all all methods defined by the {@link Object} class (e.g. {@link Object#equals},
+   * {@link Object#toString}, {@link Object#clone} ...).
+   *
+   * @param type the type for which to retrieve all api methods
+   * @return a list of all api methods for the given class
+   */
+  private def getApiMethods(Class<?> type) {
+    type.methods.findAll {
+      Modifier.isPublic(it.modifiers) && (it.declaringClass != Object.class)
+    }
+  }
+
+  /**
    * Gets all proxy-able public methods (inherited or not) for the given class filtering away all
    * final methods and all all methods defined by the {@link Object} class (e.g. {@link Object#equals},
    * {@link Object#toString}, {@link Object#clone} ...).
@@ -118,9 +133,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    * @return a list of all proxy-able methods for the given class
    */
   private def getProxyableMethods(Class<?> type) {
-    type.methods.findAll {
-      Modifier.isPublic(it.modifiers) && !Modifier.isFinal(it.modifiers) && (it.declaringClass != Object.class)
-    }
+    getApiMethods(type).findAll { !Modifier.isFinal(it.modifiers) }
   }
 
   /**
@@ -133,7 +146,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    * @throws NoSuchMethodException if a matching method is not found
    */
   private def getMethodBySimplePrototype(Class<?> type, String prototype) {
-    def p = protoype?.replaceAll("\\s", "")
+    def p = prototype?.replaceAll("\\s", "")
     def methods = type.methods.findAll { getSimplePrototype(it) == p }
 
     if (methods) {
