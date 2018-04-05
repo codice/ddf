@@ -13,19 +13,34 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
+import static java.lang.String.format;
+
 import java.io.InputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import net.opengis.filter.v_2_0.FilterType;
+import org.codice.ddf.platform.util.XMLUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /** Provide functions for hydrating Filter XML into Filter JAXB objects. */
 public class FilterReader {
   private final JAXBContext context;
 
+  private final SAXParserFactory factory;
+
   public FilterReader() throws JAXBException {
     this.context = JAXBContext.newInstance(FilterType.class);
+    this.factory = XMLUtils.getInstance().getSecureSAXParserFactory();
+    this.factory.setNamespaceAware(true);
   }
 
   public JAXBElement<FilterType> unmarshalFilter(InputStream inputStream) throws JAXBException {
@@ -35,14 +50,38 @@ public class FilterReader {
   @SuppressWarnings("unchecked")
   private <T> JAXBElement<T> unmarshal(InputStream inputStream, Class<T> tClass)
       throws JAXBException {
-    Unmarshaller unmarshaller = context.createUnmarshaller();
-    Object result = unmarshaller.unmarshal(inputStream);
-    if (result instanceof JAXBElement) {
-      JAXBElement element = (JAXBElement) result;
-      if (tClass.isInstance(element.getValue())) {
-        return (JAXBElement<T>) element;
-      }
+    SAXParser parser;
+    try {
+      parser = factory.newSAXParser();
+    } catch (SAXException | ParserConfigurationException e) {
+      throw new JAXBException("Could not create SAX parser", e);
     }
-    return null;
+
+    XMLReader reader;
+    try {
+      reader = parser.getXMLReader();
+    } catch (SAXException e) {
+      throw new JAXBException("Could not get XML reader", e);
+    }
+
+    Source xmlSource = new SAXSource(reader, new InputSource(inputStream));
+    Unmarshaller unmarshaller = context.createUnmarshaller();
+    Object result = unmarshaller.unmarshal(xmlSource);
+
+    if (!(result instanceof JAXBElement)) {
+      throw new JAXBException("Unmarshaller did not return a JAXB object");
+    }
+
+    JAXBElement element = (JAXBElement) result;
+    Object data = element.getValue();
+
+    if (!tClass.isInstance(data)) {
+      throw new JAXBException(
+          format(
+              "Unexpected data binding, expected %s but got %s",
+              tClass.getName(), data.getClass().getName()));
+    }
+
+    return (JAXBElement<T>) element;
   }
 }
