@@ -5,21 +5,32 @@
     height: auto;
     font-size: @minimumFontSize;
     position: absolute;
-    left: 0px;
-    bottom: 0px;
+    left: @minimumSpacing;
+    bottom: @minimumSpacing;
     text-align: left;
     padding: @minimumSpacing;
     max-width: 50%;
+    border: 1px solid transparent;
+    border-top: none;
+    border-bottom: 1px solid #000;
+    font-family: monospace;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.39), 0 0px 1px #FFF, -1px -1px 3px #000;
+    opacity: .7;
    
     .info-coordinates {
         display: inline-block;
     }
+
     .info-feature {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         display: none;
     }
+}
+
+.coordinate-view-label {
+    font-weight: 400;
 }
 
 @{customElementNamespace}map-info.has-feature {

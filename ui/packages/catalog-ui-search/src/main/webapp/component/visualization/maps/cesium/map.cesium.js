@@ -164,11 +164,16 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         if (map.scene.pickPositionSupported) {
             var cartesian = map.scene.pickPosition(position);
             if (Cesium.defined(cartesian)){
+                $(".mapInfo" ).show();
                 let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                parentView.updateMouseCoordinates({
-                    lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
-                    lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
-                });
+                parentView.updateMouseCoordinates(
+                    {
+                        lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+                        lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
+                    }
+                );
+            } else {
+                $(".mapInfo" ).hide();
             }
         }
     }
@@ -265,6 +270,13 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                         y: e.clientY - boundingRect.top
                     }, map)
                 });
+            });
+            $(map.scene.canvas).on('mouseleave', function() {
+                $(".mapInfo" ).hide();
+            });
+
+            $(map.scene.canvas).on('mouseenter', function() {
+                $(".mapInfo" ).show();
             });
         },
         onCameraMoveStart: function(callback) {

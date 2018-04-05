@@ -90,10 +90,12 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
     function setupTooltip(map) {        
         map.on('pointermove', function(e){
             var point = unconvertPointCoordinate(e.coordinate);
-            parentView.updateMouseCoordinates({
-                lat: point[1],
-                lon: point[0]
-            });
+            parentView.updateMouseCoordinates(
+                {
+                    lat: point[1],
+                    lon: point[0]
+                }
+            );
         });
     }
 
@@ -169,6 +171,13 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                         e.clientY - boundingRect.top
                     ], map)
                 });
+            });
+            $(map.getTargetElement()).on('mouseleave', function() {
+                $( ".mapInfo" ).hide();
+            });
+
+            $(map.getTargetElement()).on('mouseenter', function() {
+                $( ".mapInfo" ).show();
             });
         },
         onCameraMoveStart: function(callback) {

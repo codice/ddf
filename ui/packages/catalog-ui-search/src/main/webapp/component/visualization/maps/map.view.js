@@ -65,7 +65,7 @@ function getHomeCoordinates() {
                 let lat = parseFloat(coordinateObj.lat);
                 if (isNaN(lon) || isNaN(lat)) {
                     return undefined;
-                } 
+                }
                 lon = wrapNum(lon, [-180, 180]);
                 lat = wrapNum(lat, [-90, 90]);
                 return {
@@ -73,7 +73,7 @@ function getHomeCoordinates() {
                     lat: lat
                 };
             }).filter((coordinateObj) => {
-                return coordinateObj !== undefined;  
+                return coordinateObj !== undefined;
             });
         }
     } else {

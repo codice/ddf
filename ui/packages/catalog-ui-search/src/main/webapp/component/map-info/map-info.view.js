@@ -50,7 +50,8 @@ module.exports = Marionette.LayoutView.extend({
         let viewData = {
             target: modelJSON.target,
             lat: modelJSON.mouseLat,
-            lon: modelJSON.mouseLon
+            lon: modelJSON.mouseLon,
+            currentCoordView: modelJSON.currentCoordView
         };
         switch(getCoordinateFormat()){
             case 'degrees':
