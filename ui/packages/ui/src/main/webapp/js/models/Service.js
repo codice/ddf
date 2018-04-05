@@ -14,7 +14,7 @@
  **/
 /*global define*/
 /* jshint -W024*/
-define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
+define(['backbone', 'jquery', 'js/ServiceFactoryNameRegistry', 'backboneassociations'],function (Backbone, $, ServiceFactoryNameRegistry) {
 
     function isServiceFactory(properties){
         return properties.get('service.factoryPid');
@@ -220,7 +220,7 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             var displayName = this.get('id');
             var properties = this.get('properties');
             if (isServiceFactory(properties)) {
-                displayName = properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
+                displayName = ServiceFactoryNameRegistry.getName(properties) || properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
             } else if (displayName === undefined && properties !== undefined) {
                 displayName = properties.get('service.pid');
             } else if (displayName === undefined) {
