@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>IMPORTANT: New methods added to this class should be non-static.
  */
-public final class Security {
+public class Security {
 
   private static final Security INSTANCE = new Security();
 
@@ -119,7 +119,7 @@ public final class Security {
    * @return {@code true} if the Java {@link Subject} exists and has the admin role, {@code false}
    *     otherwise
    */
-  public boolean javaSubjectHasAdminRole() {
+  public final boolean javaSubjectHasAdminRole() {
     javax.security.auth.Subject subject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
     if (subject != null) {
