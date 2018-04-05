@@ -69,8 +69,8 @@ define([
             });
         },
         serializeData: function() {
-            var templateTitle = this.options.model.get('title') != null
-                                 ? this.options.model.get('title')
+            var templateTitle = this.model.get('name') != null
+                                 ? this.model.get('name')
                                  : "Standard Search";
             return {
                 templateTitle: templateTitle
