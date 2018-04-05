@@ -410,6 +410,9 @@ function compareValues(aVal, bVal, sorting) {
 function checkSortValue(a, b, sorting) {
     var aVal = parseMultiValue(a.get('metacard>properties>' + sorting.attribute));
     var bVal = parseMultiValue(b.get('metacard>properties>' + sorting.attribute));
+    if (isEmpty(aVal) && isEmpty(bVal)) {
+        return 0;
+    }
     if (isEmpty(aVal)) {
         return 1;
     }
