@@ -44,20 +44,6 @@
 |true
 |true
 
-|Style
-|style
-|String
-|Specifies the style of the Header and Footer.
-|green
-|true
-
-|Text Color
-|textColor
-|String
-|Specifies the text color of the Header and Footer.
-|banner-text-white
-|true
-
 |Ignored Installer Applications
 |disabledInstallerApps
 |String
