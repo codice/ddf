@@ -31,7 +31,7 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  *
  * <p>Selects bundles based on the identity of the principal executing the call. @ThreadSafe
  */
-public class PrincipalCondition extends AbstractCondition implements Condition {
+public final class PrincipalCondition extends AbstractCondition implements Condition {
 
   private String[] args;
   private List<String> argsAsList;
