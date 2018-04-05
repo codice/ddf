@@ -8,6 +8,7 @@ const merge = require('webpack-merge')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin')
 
 const resolve = (place) => path.resolve(place)
 const nodeResolve = (place) => require.resolve(place)
@@ -56,6 +57,9 @@ const base = ({ alias = {}, env }) => ({
       title: 'My App',
       filename: 'index.html',
       template: resolve('src/main/webapp/index.html')
+    }),
+    new SimpleProgressWebpackPlugin({
+      format: 'compact'
     }),
     new webpack.ProvidePlugin({
       ReactDOM: 'react-dom',
@@ -200,7 +204,7 @@ const dev = (base, { main }) => merge.smart(base, {
     resolve(main)
   ],
   devServer: {
-    hot: true,
+    hotOnly: true,
     inline: true,
     host: 'localhost',
     historyApiFallback: true,
