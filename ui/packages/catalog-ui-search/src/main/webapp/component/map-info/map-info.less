@@ -1,4 +1,5 @@
 @{customElementNamespace}map-info {
+    .is-monospaced-font;
     background: inherit;
     display: block;
     width: auto;
@@ -13,6 +14,7 @@
    
     .info-coordinates {
         display: inline-block;
+        white-space: pre;
     }
     .info-feature {
         white-space: nowrap;
@@ -20,6 +22,10 @@
         text-overflow: ellipsis;
         display: none;
     }
+}
+
+@{customElementNamespace}map-info.is-off-map {
+    display: none;
 }
 
 @{customElementNamespace}map-info.has-feature {

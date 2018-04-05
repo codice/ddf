@@ -23,6 +23,11 @@ function getCoordinateFormat(){
     return user.get('user').get('preferences').get('coordinateFormat');
 }
 
+function leftPad(numToPad, size) {
+    var sign = Math.sign(numToPad) === -1 ? '-' : '';
+    return new Array(sign === '-' ? size - 1 : size).concat([numToPad]).join(' ').slice(-size);
+}
+
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('map-info'),
@@ -54,12 +59,19 @@ module.exports = Marionette.LayoutView.extend({
         };
         switch(getCoordinateFormat()){
             case 'degrees':
-                viewData.lat = mtgeo.toLat(viewData.lat);
-                viewData.lon = mtgeo.toLon(viewData.lon);
+                viewData.lat = typeof viewData.lat === 'undefined' ? viewData.lat : mtgeo.toLat(viewData.lat);
+                viewData.lon = typeof viewData.lon === 'undefined' ? viewData.lon : mtgeo.toLon(viewData.lon);
             break;
             case 'decimal':
+                viewData.lat = typeof viewData.lat === 'undefined' ? viewData.lat :
+                    `${leftPad(Math.floor(viewData.lat),3,' ')}.${Math.abs(viewData.lat%1).toFixed(6).toString().slice(2)}`;
+                viewData.lon = typeof viewData.lon === 'undefined' ? viewData.lon :
+                    `${leftPad(Math.floor(viewData.lon),4,' ')}.${Math.abs(viewData.lon%1).toFixed(6).toString().slice(2)}`;
             break;
         }
         return viewData;
+    },
+    onRender: function() {
+        this.$el.toggleClass('is-off-map', typeof this.model.get('mouseLat') === 'undefined');
     }
 });

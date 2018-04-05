@@ -223,6 +223,10 @@ define([
                     callback.apply(this, arguments);
                 }
             };
+        },
+        wrapMapCoordinates: function(x, [min, max]) {
+            const d = max - min;
+            return ((x - min) % d + d) % d + min;
         }
     };
 });
