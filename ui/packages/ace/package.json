@@ -12,7 +12,7 @@
     "format": "standard --fix"
   },
   "peerDependencies": {
-    "handlebars": "*"
+    "handlebars": "4.0.5"
   },
   "dependencies": {
     "archiver": "2.1.1",
