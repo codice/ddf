@@ -9,7 +9,7 @@
     "build": "ace package"
   },
   "dependencies": {
-    "cesium": "1.34",
+    "cesium": "1.44",
     "mkdirp": "0.5.1"
   },
   "files": [
