@@ -155,6 +155,10 @@
     float: none;
     width: 100%;
   }
+
+  .geo-types {
+    display: none;
+  }
 }
 
 @{customElementNamespace}location-old.is-editing {
@@ -173,11 +177,10 @@
   }
 }
 
-@{customElementNamespace}location-old.is-line,
-@{customElementNamespace}location-old.is-polygon,
-@{customElementNamespace}location-old.is-keyword {
+@{customElementNamespace}location-old.is-bbox,
+@{customElementNamespace}location-old.is-circle {
   .geo-types {
-    display: none !important;
+    display: block;
   }
 }
 
