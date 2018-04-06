@@ -5,14 +5,6 @@ include::${ii.file}[]
 </#if>
 </#list>
 
-== Federation
-<#list federationIntros as federationIntro>
-<#if (federationIntro.status == "published")>
-
-include::${federationIntro.file}[]
-</#if>
-</#list>
-
 == Data and Metadata
 
 <#list datas?sort_by("order") as data>
@@ -22,7 +14,7 @@ include::${data.file}[]
 </#if>
 </#list>
 
-=== Data Validation 
+=== Data Validation
 <#list dataValidationIntros?sort_by("order") as dvi>
 <#if (dvi.status == "published")>
 include::${dvi.file}[]

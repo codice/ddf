@@ -61,14 +61,6 @@ public class Configuration {
     jsonMimeType = mime;
   }
 
-  private String header = "";
-
-  private String footer = "";
-
-  private String style = "";
-
-  private String textColor = "";
-
   private boolean systemUsageEnabled;
 
   private String systemUsageTitle;
@@ -82,10 +74,6 @@ public class Configuration {
   private Optional<BrandingRegistry> branding = Optional.empty();
 
   private Configuration() {
-    header = "";
-    footer = "";
-    style = "";
-    textColor = "";
     disabledInstallerApps = "";
   }
 
@@ -111,10 +99,6 @@ public class Configuration {
       configObj.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
     }
 
-    configObj.put("text", header);
-    configObj.put("footer", footer);
-    configObj.put("style", style);
-    configObj.put("textColor", textColor);
     configObj.put("disabledInstallerApps", disabledInstallerApps);
     configObj.put("branding", getProductName());
 
@@ -126,38 +110,6 @@ public class Configuration {
             .build();
 
     return response;
-  }
-
-  public String getHeader() {
-    return header;
-  }
-
-  public void setHeader(String header) {
-    this.header = header;
-  }
-
-  public String getFooter() {
-    return footer;
-  }
-
-  public void setFooter(String footer) {
-    this.footer = footer;
-  }
-
-  public String getStyle() {
-    return style;
-  }
-
-  public void setStyle(String style) {
-    this.style = style;
-  }
-
-  public String getTextColor() {
-    return textColor;
-  }
-
-  public void setTextColor(String textColor) {
-    this.textColor = textColor;
   }
 
   public String getDisabledInstallerApps() {

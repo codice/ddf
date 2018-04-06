@@ -27,7 +27,6 @@
     "grunt-contrib-watch": "1.0.0",
     "grunt-express-server": "0.5.3",
     "grunt-port-allocator": "*",
-    "grunt-replace": "1.0.1",
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "3.5.2",
     "which": "1.0.5",

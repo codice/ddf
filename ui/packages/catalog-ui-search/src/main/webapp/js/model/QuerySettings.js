@@ -19,7 +19,8 @@ module.exports = Backbone.Model.extend({
             src: undefined,
             federation: 'enterprise',
             sortField: 'modified',
-            sortOrder: 'descending'
+            sortOrder: 'descending',
+            template: undefined
         };
     }
 });

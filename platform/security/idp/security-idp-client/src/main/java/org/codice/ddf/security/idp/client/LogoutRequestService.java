@@ -359,7 +359,7 @@ public class LogoutRequestService {
   @Produces(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postLogoutRequest(
       @FormParam(SAML_REQUEST) String encodedSamlRequest,
-      @FormParam(SAML_REQUEST) String encodedSamlResponse,
+      @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
     if (encodedSamlRequest != null) {
@@ -623,7 +623,7 @@ public class LogoutRequestService {
   }
 
   private String decodeBase64(String encoded) {
-    return Base64.getMimeEncoder().encodeToString(encoded.getBytes(StandardCharsets.UTF_8));
+    return new String(RestSecurity.base64Decode(encoded));
   }
 
   private Response buildLogoutResponse(String message) {

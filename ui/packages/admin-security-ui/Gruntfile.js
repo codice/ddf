@@ -25,26 +25,6 @@ module.exports = function (grunt) {
         clean: {
             build: ['target/webapp']
         },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly/*',
-                        dest: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly'
-                    }
-                ]
-            }
-        },
         cssmin: {
             compress: {
                 files: {
@@ -185,6 +165,6 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
+    grunt.registerTask('build', ['less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
 };

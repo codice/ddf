@@ -26,7 +26,7 @@ import org.codice.solr.factory.SolrClientFactory;
  * Factory class used to create the proper {@link SolrClient} based on the current {@code
  * solr.client} system property.
  */
-public class SolrClientFactoryImpl implements SolrClientFactory {
+public final class SolrClientFactoryImpl implements SolrClientFactory {
 
   private BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction;
 

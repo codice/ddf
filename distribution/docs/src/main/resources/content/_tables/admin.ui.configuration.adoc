@@ -44,34 +44,6 @@
 |true
 |true
 
-|Header
-|header
-|String
-|Specifies the header text to be rendered on the Administrator Console.
-|
-|true
-
-|Footer
-|footer
-|String
-|Specifies the footer text to be rendered on the Administrator Console.
-|
-|true
-
-|Style
-|style
-|String
-|Specifies the style of the Header and Footer.
-|green
-|true
-
-|Text Color
-|textColor
-|String
-|Specifies the text color of the Header and Footer.
-|banner-text-white
-|true
-
 |Ignored Installer Applications
 |disabledInstallerApps
 |String

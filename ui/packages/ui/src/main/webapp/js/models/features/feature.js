@@ -18,7 +18,6 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
     var Feature = {};
 
     var featureUrl = '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/AllFeatures';
-    var featureByAppUrl = '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/findApplicationFeatures/';
     var installUrl = '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/';
     var uninstallUrl = '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/';
 
@@ -51,23 +50,15 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
 
     Feature.Collection = Backbone.Collection.extend({
         model: Feature.Model,
-        comparator: function(item) {
-          return item.get('name');
-        },
-        initialize: function(options){
-            this.type = options.type;
-            this.appName = options.appName;
-        },
+        comparator: 'name',
         url: function() {
-            if(this.type !== 'all'){
-                return featureByAppUrl + this.appName;
-            }else{
-                return featureUrl;
-            }
-
+            return featureUrl;
         },
         parse: function(resp){
-            return resp.value;
+            return resp.value.map(function(blob) {
+                blob.id = blob.name;
+                return blob;
+            });
         }
     });
 

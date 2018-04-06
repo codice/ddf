@@ -1,17 +1,7 @@
 {
   "exceptions": [
-    "https://nodesecurity.io/advisories/57",
-    "https://nodesecurity.io/advisories/106",
-    "https://nodesecurity.io/advisories/120",
-    "https://nodesecurity.io/advisories/127",
     "https://nodesecurity.io/advisories/165",
-    "https://nodesecurity.io/advisories/309",
-    "https://nodesecurity.io/advisories/328",
-    "https://nodesecurity.io/advisories/526",
-    "https://nodesecurity.io/advisories/528",
-    "https://nodesecurity.io/advisories/531",
-    "https://nodesecurity.io/advisories/534",
-    "https://nodesecurity.io/advisories/535",
-    "https://nodesecurity.io/advisories/548"
+    "https://nodesecurity.io/advisories/548",
+    "https://nodesecurity.io/advisories/566"
   ]
 }

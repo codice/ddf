@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Contact Name",
+    "description": "A convenient single-field form for searching across all types of contact names.",
+    "filterTemplateFile": "contact-name.xml"
+  },
+  {
+    "title": "Imagery Only",
+    "description": "Search across all image datatypes.",
+    "filterTemplateFile": "imagery.xml"
+  }
+]

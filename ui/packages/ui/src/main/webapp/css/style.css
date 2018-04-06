@@ -109,23 +109,6 @@ iframe {
     display: table-cell;
 }
 
-@media screen and (min-width: 1500px) {
-    #tabs {
-        position:absolute;
-        left:-200px;
-        width: 150px;
-        float: left;
-    }
-    .nav-stacked li {
-        display: block;
-    }
-    .tab-pane {
-        padding-top: 0px;
-        padding-left: 20px;
-        height: 100%;
-    }
-}
-
 main.container {
     margin-top: 30px;
 }
@@ -144,11 +127,6 @@ table.alert-details-table td {
     padding-bottom: 8px;
     padding-left: 18px;
     word-wrap: break-word;
-}
-
-.main-content-wrapper > .container > .alerts {
-    padding-left: 20px;
-    padding-right: 0px;
 }
 
 .alerts {
@@ -190,4 +168,8 @@ h4.panel-title > i {
 
 .fa-chevron-circle-right {
     font-size: 0.8em;
+}
+
+.panel {
+    margin: 0px;
 }

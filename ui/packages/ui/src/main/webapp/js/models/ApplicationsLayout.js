@@ -103,14 +103,10 @@ define([
 
             if (this.has('description')) {
                 var desc = this.get('description');
-                var values = desc.match(/(.*)::(.*)/);
-                if (values !== null) {
-                    if (values.length >= 3) {   // 0=whole string, 1=description, 2=display name
-                        changeObj.description = values[1];
-                        if (values[2].length > 0) { // handle empty title - use default below
-                            changeObj.displayName = values[2];
-                        }
-                    }
+                var values = desc.split('::');
+                if (values.length > 1) {
+                    changeObj.description = values[0];
+                    changeObj.displayName = values[1];
                 }
             }
 
@@ -169,54 +165,55 @@ define([
 
     // Represents the response from the application-service when obtaining the list of all applications
     // on the system.
+    var applicationsResponseCache;
     Applications.Response = Backbone.Model.extend({
-        fetch: function (model) {
-            return $.ajax({
-                type: 'GET',
-                url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
-                dataType: 'JSON',
-                success: function (appsResp) {
-                    var apps = appsResp.value;
-
-                    //Only display apps that have either configurations or plugins
-                    var appPluginReqs = apps.map(function (app) {
-                        return {
-                            type: "EXEC",
-                            mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-                            operation: "getPluginsForApplication",
-                            arguments: [app.name]
-                        };
-                    });
-
-                    var appConfigsReqs = apps.map(function (app) {
-                        return {
-                            type: "EXEC",
-                            mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-                            operation: "getServices",
-                            arguments: [app.name]
-                        };
-                    });
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '/admin/jolokia',
-                        dataType: 'JSON',
-                        data: JSON.stringify(appPluginReqs.concat(appConfigsReqs))
-                    }).done(function (batchedResponses) {
-                        var appsToShow = batchedResponses
-                            .filter(function (resp) {
-                                return resp.value && resp.value.length !== 0;
-                            })
-                            .map(function (resp) {
-                                return resp.request.arguments[0];
+        fetch: function () {
+            if (applicationsResponseCache === undefined) {
+                applicationsResponseCache = $.ajax({
+                    type: 'GET',
+                    url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+                    dataType: 'JSON'}).then(function(appsResp) {
+                        var apps = appsResp.value;
+    
+                        //Only display apps that have either configurations or plugins
+                        var appPluginReqs = apps.map(function (app) {
+                            return {
+                                type: "EXEC",
+                                mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+                                operation: "getPluginsForApplication",
+                                arguments: [app.name]
+                            };
+                        });
+    
+                        var appConfigsReqs = apps.map(function (app) {
+                            return {
+                                type: "EXEC",
+                                mbean: "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
+                                operation: "getServices",
+                                arguments: [app.name]
+                            };
+                        });
+    
+                        return $.ajax({
+                            type: 'POST',
+                            url: '/admin/jolokia',
+                            dataType: 'JSON',
+                            data: JSON.stringify(appPluginReqs.concat(appConfigsReqs))
+                        }).then(function (batchedResponses) {
+                            var appsToShow = batchedResponses
+                                .filter(function (resp) {
+                                    return resp.value && resp.value.length !== 0;
+                                })
+                                .map(function (resp) {
+                                    return resp.request.arguments[0];
+                                });
+                            return apps.filter(function (app) {
+                                return appsToShow.indexOf(app.name) !== -1;
                             });
-
-                        model.reset(apps.filter(function (app) {
-                            return appsToShow.indexOf(app.name) !== -1;
-                        }));
+                        });
                     });
-                }
-            });
+            }
+            return applicationsResponseCache;
         }
     });
 

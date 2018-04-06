@@ -16,7 +16,7 @@
 define([
     'marionette',
     'js/wreqr',
-    'js/views/application/ApplicationGrid.view',
+    'components/applications/applications.view',
     'js/models/ApplicationsLayout'
     ],function (Marionette,wreqr,ApplicationGrid,ApplicationsLayout) {
 

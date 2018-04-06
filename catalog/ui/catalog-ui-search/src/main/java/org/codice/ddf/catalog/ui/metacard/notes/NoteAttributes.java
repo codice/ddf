@@ -17,6 +17,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,14 +30,7 @@ public class NoteAttributes implements MetacardType {
 
   static {
     Set<AttributeDescriptor> descriptors = new HashSet<>();
-    descriptors.add(
-        new AttributeDescriptorImpl(
-            NoteConstants.PARENT_ID,
-            true /* indexed */,
-            true /* stored */,
-            true /* tokenized */,
-            false /* multivalued */,
-            BasicTypes.STRING_TYPE));
+    descriptors.add(new AssociationsAttributes().getAttributeDescriptor(NoteConstants.PARENT_ID));
     descriptors.add(
         new AttributeDescriptorImpl(
             NoteConstants.COMMENT,

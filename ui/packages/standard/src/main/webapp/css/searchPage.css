@@ -136,14 +136,6 @@ div.btn-group label.active input[type=radio] ~ .fa-circle-o {
     display: block;
 }
 
-#nogeo.active + .geo-types {
-    display: none;
-}
-
-#nogeo + .geo-types {
-    display: block;
-}
-
 #content {
     position: relative;
 }

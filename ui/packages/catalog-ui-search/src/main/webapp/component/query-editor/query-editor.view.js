@@ -17,12 +17,14 @@ var Marionette = require('marionette');
 var template = require('./query-editor.hbs');
 var CustomElements = require('js/CustomElements');
 var QueryBasic = require('component/query-basic/query-basic.view');
+var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
 var QueryAdvanced = require('component/query-advanced/query-advanced.view');
 var QueryTitle = require('component/query-title/query-title.view');
 var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 var cql = require('js/cql');
 var CQLUtils = require('js/CQLUtils');
 var store = require('js/store');
+const user = require('component/singletons/user-instance');
 
 function isNested(filter) {
     var nested = false;
@@ -126,22 +128,18 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     reshow: function() {
-        this.translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
-        this.$el.toggleClass('is-text', false);
-        this.$el.toggleClass('is-basic', false);
-        this.$el.toggleClass('is-advanced', false);
         switch (this.model.get('type')) {
             case 'text':
-                this.$el.toggleClass('is-text', true);
                 this.showText();
                 break;
             case 'basic':
-                this.$el.toggleClass('is-basic', true);
                 this.showBasic();
                 break;
             case 'advanced':
-                this.$el.toggleClass('is-advanced', true);
                 this.showAdvanced();
+                break;
+            case 'custom':
+                this.showCustom();
                 break;
         }
         this.edit();
@@ -157,13 +155,21 @@ module.exports = Marionette.LayoutView.extend({
     },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
-            model: this.model,
-            text: this.translationToBasicMap.propertyValueMap.anyText ? this.translationToBasicMap.propertyValueMap.anyText[0].value : ''
+            model: this.model
         }));
     },
     showBasic: function () {
         this.queryContent.show(new QueryBasic({
             model: this.model
+        }));
+    },
+    showCustom: function () {
+        this.model.set({
+            title: user.getQuerySettings().get('template').name
+        });
+        this.queryContent.show(new QueryCustom({
+            model: this.model,
+            filterTemplate: user.getQuerySettings().get('template').filterTemplate
         }));
     },
     handleEditOnShow: function(){
@@ -175,7 +181,6 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryAdvanced({
             model: this.model
         }));
-        this.$el.toggleClass('is-advanced', true);
     },
     edit: function(){
         this.$el.addClass('is-editing');

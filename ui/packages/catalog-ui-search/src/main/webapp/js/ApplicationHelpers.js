@@ -17,7 +17,7 @@ define([
     'backbone',
     'q',
     'underscore',
-    'backboneassociations'
+    'backbone-associations'
 ],function (Backbone, Q, _) {
 
     // Backbone associations uses "." as its standard sub-object selecting within their framework.

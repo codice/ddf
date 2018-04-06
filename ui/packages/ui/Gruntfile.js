@@ -36,7 +36,7 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js'],
+            files: ['Gruntfile.js', 'src/main/webapp/js/**/*.js', 'src/main/webapp/main.js', 'src/main/webapp/properties.js', 'src/main/webapp/component/**/*.js'],
             options: {
                 bitwise: true,        // Prohibits the use of bitwise operators such as ^ (XOR), | (OR) and others.
                 forin: true,          // Requires all for in loops to filter object's items.
@@ -75,7 +75,8 @@ module.exports = function (grunt) {
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/less/*.less', 'src/main/webapp/less/**/*.less', 'src/main/webapp/less/***/*.less',
+                        'src/main/webapp/components/*.less', 'src/main/webapp/components/**/*.less', 'src/main/webapp/components/***/*.less'],
                 tasks: ['less']
             },
             cssFiles: {
@@ -105,26 +106,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        replace: {
-            dist: {
-                options: {
-                    patterns: [
-                        {
-                            match: /@import url\("\/\/fonts\.googleapis\.com\/css\?family=Lato:400,700,400italic"\);/g,
-                            replace: ''
-                        }
-                    ]
-                },
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly/*',
-                        dest: 'target/META-INF/resources/webjars/bootswatch/3.2.0/flatly'
-                    }
-                ]
-            }
-        },
         less: {
             css: {
                 options: {
@@ -138,12 +119,11 @@ module.exports = function (grunt) {
     });
 
 
-    //grunt.loadNpmTasks('grunt-replace');
     //grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('test', ['simplemocha:test']);
 
-    grunt.registerTask('build', ['replace', 'less',
+    grunt.registerTask('build', ['less',
         'cssmin', 'jshint']);
 
     grunt.registerTask('default', ['build', 'express:server', 'watch']);

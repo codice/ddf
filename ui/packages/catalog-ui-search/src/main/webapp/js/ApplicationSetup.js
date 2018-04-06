@@ -11,14 +11,6 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
-
-// for webpack dev server hot reloading
-if (module.hot){
-    module.hot.accept(function() {
-        // we don't want to refresh the page when using the webpack dev server
-    });
-}
-
 require('styles/styles.less');
 var $ = require('jquery')
 $.ajaxSetup({
@@ -32,7 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
 }
 
-window.CESIUM_BASE_URL = './cesium/';
+window.CESIUM_BASE_URL = '/search/catalog/cesium/assets';
 require([
     'underscore',
     'backbone',

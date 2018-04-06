@@ -16,7 +16,7 @@ var Sources = require('component/singletons/sources-instance');
 var CQLUtils = require('js/CQLUtils');
 var Common = require('js/Common');
 var filter = require('js/filter');
-require('backboneassociations');
+require('backbone-associations');
 
 var Metacard = require('js/model/Metacard');
 var MetacardActionModel = require('js/model/MetacardAction');

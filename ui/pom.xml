@@ -126,16 +126,6 @@
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.2.0</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
-                            <artifactId>bootswatch</artifactId>
-                            <version>3.3.7</version>
-                        </artifactItem>
-                        <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
                             <artifactId>cesiumjs</artifactId>
                             <version>1.22.0</version>
                         </artifactItem>
@@ -284,41 +274,26 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>packages</finalName>
+                    <descriptor>packages.xml</descriptor>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-archive</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>install-node-and-yarn</id>
-                        <phase>pre-clean</phase>
-                        <goals>
-                            <goal>install-node-and-yarn</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>${node.version}</nodeVersion>
-                            <yarnVersion>${yarn.version}</yarnVersion>
-                            <nodeDownloadRoot>${node.download.root}</nodeDownloadRoot>
-                            <yarnDownloadRoot>${yarn.download.root}</yarnDownloadRoot>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>yarn-install</id>
-                        <phase>pre-clean</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install --mutex network --no-optional</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>bootstrap</id>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run bootstrap</arguments>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>build</id>
                         <goals>
@@ -342,16 +317,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>clean</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run clean</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>grunt build</id>
                         <goals>
                             <goal>grunt</goal>
@@ -368,7 +333,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/webjars</Web-ContextPath>
-                        <_wab>${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>${project.build.directory}/META-INF/resources/webjars,${project.build.directory}/classes/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.eclipse.jetty.servlets;version="[9.2.19, 9.2.19]"
@@ -441,6 +406,11 @@
                                     <file>packages/catalog-ui-search/target/catalog-ui-search.jar</file>
                                     <type>jar</type>
                                     <classifier>catalog-ui-search</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/cesium-assets/target/cesium-assets.jar</file>
+                                    <type>jar</type>
+                                    <classifier>cesium-assets</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/geowebcache-admin-plugin/target/geowebcache-admin-plugin.jar</file>

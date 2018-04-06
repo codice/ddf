@@ -27,7 +27,7 @@ define([
     'js/model/Theme',
     'js/ThemeUtils',
     'js/model/QuerySettings',
-    'backboneassociations'
+    'backbone-associations'
 ], function (_, _get, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme, ThemeUtils,
     QuerySettings) {
     'use strict';

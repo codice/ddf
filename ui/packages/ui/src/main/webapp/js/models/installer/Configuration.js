@@ -16,7 +16,8 @@
 /** Main view page for add. */
 define([
     'backbone',
-    'jquery'
+    'jquery',
+    'backboneassociations'
     ], function (Backbone, $) {
 
     var Configuration = {};
@@ -57,7 +58,6 @@ define([
         model: Configuration.SystemProperty,
         url:'/admin/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/readSystemProperties',
         saveUrl:'/admin/jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/writeSystemProperties',
-
         parse: function (response){
             // Return the value which will be the list of system property objects
             return response.value;
@@ -89,6 +89,30 @@ define([
                 data: data,
                 url: this.saveUrl
             });
+        }
+    });
+
+    Configuration.SystemPropertiesWrapped = Backbone.AssociatedModel.extend({
+        defaults: function() {
+            return {
+                systemProperties: [],
+                fetched: false
+            };
+        },
+        initialize: function() {
+            this.listenTo(this, 'sync:systemProperties', function() {
+                this.set('fetched', true);
+            }.bind(this));
+        },  
+        relations: [
+            {
+                type: Backbone.Many,
+                key: 'systemProperties',
+                collectionType: Configuration.SystemProperties
+            }
+        ],
+        fetch: function() {
+            this.get('systemProperties').fetch();
         }
     });
 

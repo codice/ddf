@@ -287,15 +287,9 @@ define([
     ich.addTemplate('guestWarningModal', guestWarningModal);
     ich.addTemplate('guestClaimsTable', guestClaimsHanlderTable);
 
-    var serviceModelResponse = new Service.Response();
-    serviceModelResponse.fetch({
-        url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
-    });
-
     var GuestClaimsView = Marionette.Layout.extend({
         template: 'guestClaimsTemplate',
         className: 'full-height',
-        model: serviceModelResponse,
         regions: {
             guestClaimProfiles: '#claims-profiles',
             guestClaimsItems: '#config-div',
@@ -307,8 +301,8 @@ define([
         },
         initialize: function (options) {
             this.navigationModel = options.navigationModel;
+            this.navigationModel.set('hidePrevious', true);
             this.listenTo(this.navigationModel, 'next', this.next);
-            this.listenTo(this.navigationModel, 'previous', this.previous);
             this.listenTo(wreqr.vent, 'showWarnings', this.verifyContinue);
             this.listenTo(wreqr.vent, 'saveClaimData', this.saveData);
 
@@ -382,10 +376,6 @@ define([
             }
             this.writeClaims(claims);
             this.saveData();
-        },
-        previous: function () {
-            //this is your hook to perform any teardown that must be done before going to the previous step
-            this.navigationModel.previousStep();
         },
         submitData: function () {
             wreqr.vent.trigger('beforesave');

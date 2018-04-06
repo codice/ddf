@@ -15,6 +15,7 @@
 
 var React = require('react');
 var utils = require('react-addons-test-utils');
+var expect = require('chai').expect;
 
 var configureStore = require('./configureStore');
 var Announcements = require('./announcements.jsx');

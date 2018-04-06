@@ -16,22 +16,8 @@
     requirejs.config({
 
         paths: {
-            // application module template
-            applicationGrid: 'templates/application/applicationGrid.handlebars',
-            applicationInfo: 'templates/application/applicationInfo.handlebars',
-            applicationDetailLayout:'templates/application/application-detail/ApplicationDetail.layout.handlebars',
-            pluginTabItemView:'templates/application/application-detail/PluginTab.item.view.handlebars',
-            pluginTabCollectionView:'templates/application/application-detail/PluginTab.collection.view.handlebars',
-            pluginTabContentItemView:'templates/application/application-detail/PluginTabContent.item.view.handlebars',
-            pluginTabContentCollectionView:'templates/application/application-detail/PluginTabContent.collection.view.handlebars',
-            iframeView:'templates/application/iframeView.handlebars',
-            featureTemplate: 'templates/application/features/features.handlebars',
-            featureRowTemplate: 'templates/application/features/featureRow.handlebars',
-
             //module
-            moduleDetailLayout: 'templates/module/ModuleDetail.layout.handlebars',
-            systemInformationTemplate: 'templates/module/systeminformation.template.handlebars',
-            systemInformationItemTemplate: 'templates/module/systeminformation.item.template.handlebars'
+            moduleDetailLayout: 'templates/module/ModuleDetail.layout.handlebars'
         }
     });
 }());

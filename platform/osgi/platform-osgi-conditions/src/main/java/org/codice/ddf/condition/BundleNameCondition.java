@@ -13,9 +13,11 @@
  */
 package org.codice.ddf.condition;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.Condition;
 import org.osgi.service.condpermadmin.ConditionInfo;
@@ -27,38 +29,17 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  *
  * <p>Selects bundles based on the name. @ThreadSafe
  */
-public class BundleNameCondition implements Condition {
+public final class BundleNameCondition extends AbstractCondition implements Condition {
 
   private static final ConcurrentHashMap<String, Boolean> DECISION_MAP =
       new ConcurrentHashMap<>(100000);
 
-  private static final Pattern REGEX = Pattern.compile("/");
-
   private Bundle bundle;
   private String[] args;
-  private String[] bundles;
 
   public BundleNameCondition(Bundle bundle, ConditionInfo conditionInfo) {
     this.bundle = bundle;
     args = conditionInfo.getArgs();
-    bundles = REGEX.split(args[0]);
-  }
-
-  /**
-   * Returns whether the evaluation must be postponed until the end of the permission check. If this
-   * method returns {@code false} (or this Condition is immutable), then this Condition must be able
-   * to directly answer the {@link #isSatisfied()} method. In other words, isSatisfied() will return
-   * very quickly since no external sources, such as for example users or networks, need to be
-   * consulted. <br>
-   * This method must always return the same value whenever it is called so that the Conditional
-   * Permission Admin can cache its result.
-   *
-   * @return {@code true} to indicate the evaluation must be postponed. Otherwise, {@code false} if
-   *     the evaluation can be performed immediately.
-   */
-  @Override
-  public boolean isPostponed() {
-    return false;
   }
 
   /**
@@ -75,13 +56,15 @@ public class BundleNameCondition implements Condition {
     if (args.length == 0) {
       return false;
     }
-    String bundleName = bundle.getHeaders().get("Bundle-SymbolicName");
-    String key = bundleName + args[0];
+    String bundleName =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> bundle.getHeaders().get("Bundle-SymbolicName"));
+    String key = bundleName + Arrays.toString(args);
     Boolean storedResult = DECISION_MAP.get(key);
     if (storedResult != null) {
       return storedResult;
     }
-    for (String bundleStr : bundles) {
+    for (String bundleStr : args) {
       if (bundleName.contains(bundleStr)) {
         DECISION_MAP.put(key, true);
         return true;
@@ -89,44 +72,5 @@ public class BundleNameCondition implements Condition {
     }
     DECISION_MAP.put(key, false);
     return false;
-  }
-
-  /**
-   * Returns whether the Condition is mutable. A Condition can go from mutable ({@code true}) to
-   * immutable ({@code false}) over time but never from immutable ({@code false}) to mutable ({@code
-   * true}).
-   *
-   * @return {@code true} {@link #isSatisfied()} can change. Otherwise, {@code false} if the value
-   *     returned by {@link #isSatisfied()} will not change for this condition.
-   */
-  @Override
-  public boolean isMutable() {
-    return false;
-  }
-
-  /**
-   * Returns whether the specified set of Condition objects are satisfied. Although this method is
-   * not static, it must be implemented as if it were static. All of the passed Condition objects
-   * will be of the same type and will correspond to the class type of the object on which this
-   * method is invoked. This method must be called inside a permission check only.
-   *
-   * @param conditions The array of Condition objects, which must all be of the same class and
-   *     mutable. The receiver must be one of those Condition objects.
-   * @param context A Dictionary object that implementors can use to track state. If this method is
-   *     invoked multiple times in the same permission check, the same Dictionary will be passed
-   *     multiple times. The SecurityManager treats this Dictionary as an opaque object and simply
-   *     creates an empty dictionary and passes it to subsequent invocations if multiple invocations
-   *     are needed.
-   * @return {@code true} if all the Condition objects are satisfied. Otherwise, {@code false} if
-   *     one of the Condition objects is not satisfied.
-   */
-  @Override
-  public boolean isSatisfied(Condition[] conditions, Dictionary<Object, Object> context) {
-    for (Condition condition : conditions) {
-      if (!condition.isSatisfied()) {
-        return false;
-      }
-    }
-    return true;
   }
 }

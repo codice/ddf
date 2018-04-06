@@ -17,7 +17,7 @@
 
     require.config({
 
-        baseUrl: "/error",
+        baseUrl: "/webjars",
 
         paths: {
             q: 'q/1.4.1/q',
@@ -32,13 +32,14 @@
 
             // handlebars
             handlebars: 'handlebars/2.0.0/handlebars.min',
-            icanhaz: 'js/ich',
+            icanhaz: '../error/js/ich',
+            handlebarsHelpers: '../error/js/HandlebarsHelpers',
 
             // require plugins
             text: 'requirejs-plugins/1.0.3/lib/text',
 
             // default login ui
-            app: 'js/application'
+            app: '../error/js/application'
         },
 
 
@@ -76,8 +77,8 @@
         'backbone',
         'marionette',
         'icanhaz',
-        'js/application',
-        'js/HandlebarsHelpers'
+        'app',
+        'handlebarsHelpers'
 
     ], function (Backbone, Marionette, ich, Application) {
 

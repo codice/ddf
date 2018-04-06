@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  */
-public class HttpSolrClientFactory implements SolrClientFactory {
+public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static final String HTTPS_PROTOCOLS = "https.protocols";
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";

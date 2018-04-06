@@ -14,6 +14,8 @@
 package org.codice.ddf.condition;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ import org.osgi.service.condpermadmin.ConditionInfo;
  *
  * <p>Selects bundles based on the identity of the signer. @ThreadSafe
  */
-public class SignerCondition implements Condition {
+public final class SignerCondition extends AbstractCondition implements Condition {
 
   private Bundle bundle;
   private String[] args;
@@ -53,23 +55,6 @@ public class SignerCondition implements Condition {
   public SignerCondition(Bundle bundle, ConditionInfo conditionInfo) {
     this.bundle = bundle;
     args = conditionInfo.getArgs();
-  }
-
-  /**
-   * Returns whether the evaluation must be postponed until the end of the permission check. If this
-   * method returns {@code false} (or this Condition is immutable), then this Condition must be able
-   * to directly answer the {@link #isSatisfied()} method. In other words, isSatisfied() will return
-   * very quickly since no external sources, such as for example users or networks, need to be
-   * consulted. <br>
-   * This method must always return the same value whenever it is called so that the Conditional
-   * Permission Admin can cache its result.
-   *
-   * @return {@code true} to indicate the evaluation must be postponed. Otherwise, {@code false} if
-   *     the evaluation can be performed immediately.
-   */
-  @Override
-  public boolean isPostponed() {
-    return false;
   }
 
   /**
@@ -84,7 +69,9 @@ public class SignerCondition implements Condition {
   @Override
   public boolean isSatisfied() {
     Map<X509Certificate, List<X509Certificate>> signerCertificates =
-        bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED);
+        AccessController.doPrivileged(
+            (PrivilegedAction<Map<X509Certificate, List<X509Certificate>>>)
+                () -> bundle.getSignerCertificates(Bundle.SIGNERS_TRUSTED));
     Set<X509Certificate> x509Certificates = signerCertificates.keySet();
     for (String arg : args) {
       boolean satisfied = false;
@@ -96,45 +83,6 @@ public class SignerCondition implements Condition {
         }
       }
       if (!satisfied) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Returns whether the Condition is mutable. A Condition can go from mutable ({@code true}) to
-   * immutable ({@code false}) over time but never from immutable ({@code false}) to mutable ({@code
-   * true}).
-   *
-   * @return {@code true} {@link #isSatisfied()} can change. Otherwise, {@code false} if the value
-   *     returned by {@link #isSatisfied()} will not change for this condition.
-   */
-  @Override
-  public boolean isMutable() {
-    return false;
-  }
-
-  /**
-   * Returns whether the specified set of Condition objects are satisfied. Although this method is
-   * not static, it must be implemented as if it were static. All of the passed Condition objects
-   * will be of the same type and will correspond to the class type of the object on which this
-   * method is invoked. This method must be called inside a permission check only.
-   *
-   * @param conditions The array of Condition objects, which must all be of the same class and
-   *     mutable. The receiver must be one of those Condition objects.
-   * @param context A Dictionary object that implementors can use to track state. If this method is
-   *     invoked multiple times in the same permission check, the same Dictionary will be passed
-   *     multiple times. The SecurityManager treats this Dictionary as an opaque object and simply
-   *     creates an empty dictionary and passes it to subsequent invocations if multiple invocations
-   *     are needed.
-   * @return {@code true} if all the Condition objects are satisfied. Otherwise, {@code false} if
-   *     one of the Condition objects is not satisfied.
-   */
-  @Override
-  public boolean isSatisfied(Condition[] conditions, Dictionary<Object, Object> context) {
-    for (Condition condition : conditions) {
-      if (!condition.isSatisfied()) {
         return false;
       }
     }
@@ -178,13 +126,15 @@ public class SignerCondition implements Condition {
           } else if (objects[1] instanceof String) {
             identities.add((String) objects[1]);
           }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
           return;
         }
       }
     }
   }
 
+  // this code was grabbed online and should be correct
+  // we don't have any tests for this so be wary of changing this code
   private String getIdentifyFromBytes(byte[] itemBytes) {
     try (ASN1InputStream decoder = new ASN1InputStream(itemBytes)) {
       ASN1Encodable encoded = decoder.readObject();

@@ -706,6 +706,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         LOGGER.debug("failed to close namespace reader", e);
       }
     }
+    LOGGER.debug("Unable to find applicable InputTransformer for metacard content from Atom feed.");
     return null;
   }
 
@@ -719,7 +720,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       Collection<ServiceReference<InputTransformer>> transformerReference =
           bundleContext.getServiceReferences(
               InputTransformer.class, "(schema=" + namespaceUri + ")");
-      return bundleContext.getService(transformerReference.iterator().next());
+      if (!transformerReference.isEmpty()) {
+        ServiceReference<InputTransformer> transformer = transformerReference.iterator().next();
+        LOGGER.trace(
+            "Found Input Transformer {} by schema {}",
+            transformer.getBundle().getSymbolicName(),
+            namespaceUri);
+        return bundleContext.getService(transformer);
+      }
+      LOGGER.trace("Failed to find Input Transformer by schema : {}", namespaceUri);
     }
     return null;
   }

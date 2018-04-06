@@ -27,9 +27,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of the {@link MetacardType}, used by {@link MetacardImpl} to create the
@@ -45,6 +48,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 public class MetacardTypeImpl implements MetacardType {
 
   private static final long serialVersionUID = 1L;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeImpl.class);
 
   /** Set of {@link AttributeDescriptor}s */
   protected transient Set<AttributeDescriptor> descriptors = new HashSet<>();
@@ -74,6 +79,7 @@ public class MetacardTypeImpl implements MetacardType {
     if (descriptors != null) {
       this.descriptors.addAll(descriptors);
     }
+    validateDescriptors();
   }
 
   /**
@@ -101,6 +107,7 @@ public class MetacardTypeImpl implements MetacardType {
     this.name = name;
     descriptors.addAll(metacardType.getAttributeDescriptors());
     descriptors.addAll(additionalDescriptors);
+    validateDescriptors();
   }
 
   /**
@@ -120,6 +127,7 @@ public class MetacardTypeImpl implements MetacardType {
           metacardType ->
               addAttributeDescriptors(attributeNames, metacardType.getAttributeDescriptors()));
     }
+    validateDescriptors();
   }
 
   private List<String> addAttributeDescriptors(
@@ -200,7 +208,7 @@ public class MetacardTypeImpl implements MetacardType {
 
     int numElements = stream.readInt();
 
-    descriptors = new HashSet<AttributeDescriptor>();
+    descriptors = new HashSet<>();
 
     for (int i = 0; i < numElements; i++) {
       descriptors.add((AttributeDescriptor) stream.readObject());
@@ -227,5 +235,23 @@ public class MetacardTypeImpl implements MetacardType {
         .append(name, other.getName())
         .append(descriptors, other.getAttributeDescriptors())
         .isEquals();
+  }
+
+  private void validateDescriptors() {
+    Set<String> names = new HashSet<>();
+    descriptors
+        .stream()
+        .filter(Objects::nonNull)
+        .forEach(
+            attributeDescriptor -> {
+              if (!names.contains(attributeDescriptor.getName())) {
+                names.add(attributeDescriptor.getName());
+              } else {
+                LOGGER.warn(
+                    "Conflicting attribute definitions on {} for {}.",
+                    name,
+                    attributeDescriptor.getName());
+              }
+            });
   }
 }

@@ -119,7 +119,7 @@ public class Security {
    * @return {@code true} if the Java {@link Subject} exists and has the admin role, {@code false}
    *     otherwise
    */
-  public boolean javaSubjectHasAdminRole() {
+  public final boolean javaSubjectHasAdminRole() {
     javax.security.auth.Subject subject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
     if (subject != null) {

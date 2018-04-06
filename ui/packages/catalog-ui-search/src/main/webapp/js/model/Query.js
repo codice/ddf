@@ -24,7 +24,7 @@ define([
         'js/CQLUtils',
         'component/singletons/user-instance',
         'lodash/merge',
-        'backboneassociations',
+        'backbone-associations',
     ],
     function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
         CQLUtils, user, _merge) {

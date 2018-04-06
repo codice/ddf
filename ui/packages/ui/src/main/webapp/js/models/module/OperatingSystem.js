@@ -21,8 +21,12 @@ define([
     var OperatingSystem = {};
 
     OperatingSystem.Model = Backbone.Model.extend({
+        defaults: {
+            fetched: false
+        },
         url: '/admin/jolokia/read/java.lang:type=OperatingSystem/',
         parse: function(resp){
+            resp.value.fetched = true;
             return resp.value;
         }
     });

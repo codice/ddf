@@ -25,7 +25,7 @@ var DrawLine = require('js/widgets/cesium.line');
 
 var properties = require('properties');
 var Cesium = require('cesium');
-var DrawHelper = require('imports?Cesium=cesium!exports?DrawHelper!drawHelper');
+var DrawHelper = require('cesium-drawhelper/DrawHelper');
 var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');

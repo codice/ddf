@@ -34,47 +34,6 @@ define([
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
             InputWithParam, ValueModel, CQLUtils, properties, Common) {
 
-    var comparatorToCQL = {
-        BEFORE: 'BEFORE',
-        AFTER: 'AFTER',
-        INTERSECTS: 'INTERSECTS',
-        CONTAINS: 'ILIKE',
-        MATCHCASE: 'LIKE',
-        EQUALS: '=',
-        '>': '>',
-        '<': '<',
-        '=': '=',
-        '<=': '<=',
-        '>=': '>='
-    };
-
-    var CQLtoComparator = {};
-    for (var key in comparatorToCQL){
-        CQLtoComparator[comparatorToCQL[key]] = key;
-    }
-
-    const transformValue = (value, comparator) => {
-        switch (comparator) {
-            case 'NEAR':
-                if (value[0].constructor !== Object) {
-                    value[0] = {
-                        value: value[0],
-                        distance: 2
-                    };
-                }
-                break;
-            case 'INTERSECTS':
-            case 'DWITHIN':
-                break;
-            default:
-                if (value[0].constructor === Object) {
-                    value[0] = value[0].value;
-                }
-                break;
-        }
-        return value;
-    };
-
     const generatePropertyJSON = (value, type, comparator) => {
         const propertyJSON = _.extend({},
             metacardDefinitions.metacardTypes[type],
@@ -146,6 +105,49 @@ define([
             }));
             this.determineInput();
         },
+        transformValue: function (value, comparator) {
+            switch (comparator) {
+                case 'NEAR':
+                    if (value[0].constructor !== Object) {
+                        value[0] = {
+                            value: value[0],
+                            distance: 2
+                        };
+                    }
+                    break;
+                case 'INTERSECTS':
+                case 'DWITHIN':
+                    break;
+                default:
+                   if (value[0].constructor === Object) {
+                        value[0] = value[0].value;
+                   }
+                   break;
+            }
+            return value;
+        },
+        comparatorToCQL: function() {
+            return {
+                BEFORE: 'BEFORE',
+                AFTER: 'AFTER',
+                INTERSECTS: 'INTERSECTS',
+                CONTAINS: 'ILIKE',
+                MATCHCASE: 'LIKE',
+                EQUALS: '=',
+                '>': '>',
+                '<': '<',
+                '=': '=',
+                '<=': '<=',
+                '>=': '>='
+            };
+        },
+        CQLtoComparator: function() {
+            var comparator = {};
+            for (var key in this.comparatorToCQL()){
+                comparator[this.comparatorToCQL()[key]] = key;
+            }
+            return comparator;
+        },
         updateTypeDropdown: function(){
             this.filterAttribute.currentView.model.set('value', [this.model.get('type')]);
         },
@@ -203,7 +205,7 @@ define([
             this.updateValueFromInput();
             let value = Common.duplicate(this.model.get('value'));
             const currentComparator = this.model.get('comparator');
-            value = transformValue(value, currentComparator);
+            value = this.transformValue(value, currentComparator);
             const propertyJSON = generatePropertyJSON(value, this.model.get('type'), currentComparator);
 
             this.filterInput.show(new MultivalueView({
@@ -221,7 +223,7 @@ define([
         getValue: function(){
             var text = '(';
             text+=this.model.get('type') + ' ';
-            text+=comparatorToCQL[this.model.get('comparator')] + ' ';
+            text+=this.comparatorToCQL()[this.model.get('comparator')] + ' ';
             text+=this.filterInput.currentView.model.getValue();
             text+=')';
             return text;
@@ -238,7 +240,7 @@ define([
                 );
             }
 
-            var type = comparatorToCQL[comparator];
+            var type = this.comparatorToCQL()[comparator];
             if (metacardDefinitions.metacardTypes[this.model.get('type')].multivalued){
                 return {
                     type: 'AND',
@@ -270,7 +272,7 @@ define([
                     this.model.set({
                         value: [filter.value],
                         type: filter.property.split('"').join(''),
-                        comparator: CQLtoComparator[filter.type]
+                        comparator: this.CQLtoComparator()[filter.type]
                     });
                 }
 

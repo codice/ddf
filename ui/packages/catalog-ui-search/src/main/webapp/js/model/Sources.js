@@ -16,7 +16,7 @@ var user = require('component/singletons/user-instance');
 define([
     'underscore',
     'backbone',
-    'poller',
+    'backbone-poller',
     'properties',
     'jquery'
 ], function (_, Backbone, poller, properties, $) {

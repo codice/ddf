@@ -15,7 +15,7 @@ define([
         'jquery',
         'underscore',
         'webglcheck',
-        'twodcheck',
+        '2dmapcheck',
         'querystring',
         'component/singletons/user-instance'
     ],

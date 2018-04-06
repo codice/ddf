@@ -12,23 +12,34 @@
  **/
  --}}
 <div class="metacard-interaction interaction-copy-coordinates" data-help="Copies the coordinates to your clipboard."
-    data-clipboard-text="{{this.clickLat}} {{this.clickLon}}">
+     data-clipboard-text="{{this.clickLat}} {{this.clickLon}}">
     <div class="interaction-icon fa fa-clipboard">
     </div>
     <div class="interaction-text">
-        Copy Coordinates to Clipboard
+        Copy Coordinates as Decimal Degrees (DD)
         <div>
             <span>{{this.clickLat}}</span>
             <span>{{this.clickLon}}</span>
         </div>
     </div>
 </div>
-<div class="metacard-interaction interaction-copy-wkt" data-help="Copies the WKT of the coordinates to your clipboard."
-    data-clipboard-text="POINT ({{this.clickLon}} {{this.clickLat}})">
+<div class="metacard-interaction interaction-copy-dms" data-help="Copies the DMS coordinates to your clipboard."
+     data-clipboard-text="{{this.clickDms}}">
     <div class="interaction-icon fa fa-clipboard">
     </div>
     <div class="interaction-text">
-        Copy WKT Coordinates to Clipboard
+        Copy Coordinates as Degrees Minutes Seconds (DMS)
+        <div>
+            <span>{{this.clickDms}}</span>
+        </div>
+    </div>
+</div>
+<div class="metacard-interaction interaction-copy-wkt" data-help="Copies the WKT of the coordinates to your clipboard."
+     data-clipboard-text="POINT ({{this.clickLon}} {{this.clickLat}})">
+    <div class="interaction-icon fa fa-clipboard">
+    </div>
+    <div class="interaction-text">
+        Copy Coordinates as Well Known Text (WKT)
         <div>
             <span>POINT ({{this.clickLon}} {{this.clickLat}})</span>
         </div>

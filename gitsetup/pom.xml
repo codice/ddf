@@ -152,6 +152,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>checkstyle-check</id>
@@ -166,6 +167,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
+                <version>${dependency-check-maven.version}</version>
                 <configuration>
                   <skip>true</skip>
                 </configuration>

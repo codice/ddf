@@ -8,6 +8,9 @@ module.exports = ({ args, pkg }) => {
     bin,
     args,
     'spec',
-    JSON.stringify(pkg.mocha || {})
+    JSON.stringify({
+      hooks: require.resolve('mocha-phantomjs-istanbul'),
+      coverageFile: 'target/coverage.json'
+    })
   ], { stdio: 'inherit' })
 }

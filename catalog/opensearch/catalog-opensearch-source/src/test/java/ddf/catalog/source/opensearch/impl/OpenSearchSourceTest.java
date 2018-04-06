@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -57,13 +58,16 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -76,7 +80,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -388,7 +395,7 @@ public class OpenSearchSourceTest {
 
     source = new OverriddenOpenSearchSource(FILTER_ADAPTER, encryptionService);
     source.setShortname(SOURCE_ID);
-    source.setInputTransformer(getMockInputTransformer());
+    source.setBundle(getMockBundleContext(getMockInputTransformer()));
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
     source.init();
     source.setParameters(DEFAULT_PARAMETERS);
@@ -461,7 +468,7 @@ public class OpenSearchSourceTest {
   @Test
   public void testQueryBySearchPhraseContentTypeSet()
       throws UnsupportedQueryException, URISyntaxException, IOException,
-          CatalogTransformerException {
+          CatalogTransformerException, InvalidSyntaxException {
     when(response.getEntity()).thenReturn(getSampleAtomStream());
     InputTransformer inputTransformer = mock(InputTransformer.class);
 
@@ -474,7 +481,7 @@ public class OpenSearchSourceTest {
     when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
         .thenReturn(generatedMetacard);
 
-    source.setInputTransformer(inputTransformer);
+    source.setBundle(getMockBundleContext(inputTransformer));
 
     Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -491,7 +498,7 @@ public class OpenSearchSourceTest {
   @Test
   public void testQueryBySearchPhraseContentTypeSetRss()
       throws UnsupportedQueryException, URISyntaxException, IOException,
-          CatalogTransformerException {
+          CatalogTransformerException, InvalidSyntaxException {
     when(response.getEntity()).thenReturn(getSampleRssStream());
 
     InputTransformer inputTransformer = mock(InputTransformer.class);
@@ -505,7 +512,7 @@ public class OpenSearchSourceTest {
     when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
         .thenReturn(generatedMetacard);
 
-    source.setInputTransformer(inputTransformer);
+    source.setBundle(getMockBundleContext(inputTransformer));
 
     Filter filter = filterBuilder.attribute(Metacard.METADATA).like().text(SAMPLE_SEARCH_PHRASE);
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -528,6 +535,21 @@ public class OpenSearchSourceTest {
     // when
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertThat(response.getHits(), is(1L));
+  }
+
+  @Test
+  public void testResponseWithNoCorrespondingTransformer()
+      throws InvalidSyntaxException, UnsupportedQueryException {
+    source.setBundle(getMockBundleContext(null));
+    when(response.getEntity()).thenReturn(getSampleAtomStream());
+
+    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+
+    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    // TODO: Is this actually the desired functionality? The existing source doesn't actually look
+    // at the resultQueue size when determining hit count. We parse it from the response.
+    assertThat(response.getHits(), is(1L));
+    assertThat(response.getResults().size(), is(0));
   }
 
   @Test(expected = UnsupportedQueryException.class)
@@ -575,7 +597,6 @@ public class OpenSearchSourceTest {
     when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
-    source.setInputTransformer(getMockInputTransformer());
     source.setResourceReader(mockReader);
 
     Map<String, Serializable> requestProperties = new HashMap<>();
@@ -610,7 +631,6 @@ public class OpenSearchSourceTest {
     when(response.getHeaders()).thenReturn(headers);
 
     source.setLocalQueryOnly(true);
-    source.setInputTransformer(getMockInputTransformer());
     source.setResourceReader(mockReader);
     source.setUsername("user");
     source.setPassword("secret");
@@ -703,6 +723,36 @@ public class OpenSearchSourceTest {
 
   private String getSample() {
     return "<xml></xml>";
+  }
+
+  /**
+   * Allows for mocking of the OSGi BundleContext that corresponds to OpenSearchSource so that we
+   * can mock OSGi ServiceReference results that are used in parsing responses
+   *
+   * @param inputTransformer An optional InputTransformer to be returned as a service reference for
+   *     any arbitrary namespace URI If it is null, then the mock Collection of service references
+   *     is empty
+   */
+  private Bundle getMockBundleContext(@Nullable InputTransformer inputTransformer)
+      throws InvalidSyntaxException {
+    Bundle bundle = mock(Bundle.class);
+    BundleContext bundleContext = mock(BundleContext.class);
+    Collection<ServiceReference<InputTransformer>> collection = mock(Collection.class);
+
+    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    when(bundleContext.getServiceReferences(eq(InputTransformer.class), anyString()))
+        .thenReturn(collection);
+    if (inputTransformer == null) {
+      when(collection.isEmpty()).thenReturn(true);
+    } else {
+      ServiceReference<InputTransformer> serviceReference = mock(ServiceReference.class);
+      Iterator<ServiceReference<InputTransformer>> iterator = mock(Iterator.class);
+      when(collection.isEmpty()).thenReturn(false);
+      when(collection.iterator()).thenReturn(iterator);
+      when(iterator.next()).thenReturn(serviceReference);
+      when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
+    }
+    return bundle;
   }
 
   /** This test is to demonstrate a real-world example of using a foreign markup consumer. */
@@ -820,7 +870,7 @@ public class OpenSearchSourceTest {
 
   private class OverriddenOpenSearchSource extends OpenSearchSource {
 
-    private InputTransformer transformer;
+    private Bundle bundle;
 
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -834,14 +884,23 @@ public class OpenSearchSourceTest {
       super(filterAdapter, openSearchParserImpl, openSearchFilterVisitor, encryptionService);
     }
 
-    protected void setInputTransformer(InputTransformer inputTransformer) {
-      transformer = inputTransformer;
+    protected void setBundle(Bundle bundle) {
+      this.bundle = bundle;
     }
 
     @Override
     protected InputTransformer lookupTransformerReference(String namespaceUri)
         throws InvalidSyntaxException {
-      return transformer;
+      if (bundle != null) {
+        BundleContext bundleContext = bundle.getBundleContext();
+        Collection<ServiceReference<InputTransformer>> transformerReference =
+            bundleContext.getServiceReferences(
+                InputTransformer.class, "(schema=" + namespaceUri + ")");
+        if (!transformerReference.isEmpty()) {
+          return bundleContext.getService(transformerReference.iterator().next());
+        }
+      }
+      return null;
     }
 
     @Override

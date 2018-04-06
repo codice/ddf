@@ -1,0 +1,24 @@
+@{customElementNamespace}configuration-item {
+    display: block;
+    white-space: nowrap;
+    padding: @minimumSpacing;
+    margin-left: @largeSpacing;
+    > div {
+        display: inline-block;
+        width: 33%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    > div:last-of-type {
+        text-align: right;
+    }
+}
+
+@{customElementNamespace}configuration-item:last-of-type {
+    padding-bottom: 0px;
+}
+
+@{customElementNamespace}configuration-item-collection {
+    display: block;
+}
