@@ -83,7 +83,7 @@ Web-ContextPath: ${pkg['context-path']}`, { name: 'META-INF/MANIFEST.MF' })
       if (!d.startsWith('node_modules')) {
         return path.resolve(d)
       }
-      const [pkg, ...rest] = d.split(path.sep).slice(1)
+      const [pkg, ...rest] = d.split('/').slice(1)
       const resolved = require.resolve(pkg + '/package.json')
       return path.join(resolved, '../', ...rest)
     })
