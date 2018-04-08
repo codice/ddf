@@ -73,6 +73,7 @@ import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.api.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
@@ -215,6 +216,8 @@ public class WfsSourceTest {
 
   private EncryptionService encryptionService = mock(EncryptionService.class);
 
+  private WfsMetacardTypeRegistry mockWfsMetacardTypeRegistry = mock(WfsMetacardTypeRegistry.class);
+
   public void setUp(
       final String schema,
       final List<String> supportedGeos,
@@ -324,6 +327,7 @@ public class WfsSourceTest {
             mockAvailabilityTask,
             mockFactory,
             encryptionService,
+            mockWfsMetacardTypeRegistry,
             Collections.emptyList());
   }
 
