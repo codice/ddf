@@ -1,0 +1,95 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
+
+    <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
+
+    <feature name="metrics-reporting" version="${project.version}"
+             description="Metrics reporting for the platform.">
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.9_2</bundle>
+        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
+        <feature>guava</feature>
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
+        </bundle>
+        <feature>platform-configuration</feature>
+        <feature>spring</feature>
+        <feature>cxf-jaxrs</feature>
+        <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-services" version="${project.version}"
+             description="cxf interceptors to capture metrics.">
+        <feature>guava</feature>
+        <feature>cxf-core</feature>
+        <feature>platform-configuration</feature>
+        <feature>spring</feature>
+        <feature>apache-commons</feature>
+        <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-alerts" version="${project.version}"
+             description="Basic alert framework. Includes basic Decanter features and persistence-core">
+        <feature>decanter-sla</feature>
+        <feature>decanter-simple-scheduler</feature>
+        <feature>persistence-core</feature>
+        <configfile override="true"
+                    finalname="${ddf.etc}/org.apache.karaf.decanter.sla.checker.cfg">
+            mvn:ddf.platform/platform-app/${project.version}/config/sla
+        </configfile>
+        <configfile override="true"
+                    finalname="${ddf.etc}/org.apache.karaf.decanter.scheduler.simple.cfg">
+            mvn:ddf.platform/platform-app/${project.version}/config/scheduler
+        </configfile>
+    </feature>
+
+    <feature name="landing-page" version="${project.version}"
+             description="Landing page and branding support.">
+        <feature>branding-registry</feature>
+        <feature>cxf-frontend-javascript</feature>
+        <feature>pax-http-whiteboard</feature>
+        <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-scheduler" version="${project.version}" description="Schedules tasks">
+        <feature>apache-commons</feature>
+        <feature>security-core</feature>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+        <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
+    </feature>
+
+
+    <feature name="platform-configuration" version="${project.version}"
+             description="Shared platform configuration">
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0</bundle>
+        <feature>camel-blueprint</feature>
+        <feature>camel-http</feature>
+        <feature>branding-registry</feature>
+        <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-commands" version="${project.version}"
+             description="Platform Command line tools">
+        <feature>platform-configuration</feature>
+        <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
+    </feature>
+</features>

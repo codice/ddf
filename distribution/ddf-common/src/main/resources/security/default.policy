@@ -381,6 +381,13 @@ grant codeBase "file:/PAXEXAM-PROBE/ddf.thirdparty.restito/ddf.lib.test-common/d
 }
 
 grant {
+    permission java.io.FilePermission "${test.resources.dir}", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}${/}-", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}*", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}${/}*", "read, write, delete";
+}
+
+grant {
     permission java.io.FilePermission "/jenkins/-", "read";
 }
 
