@@ -130,7 +130,6 @@ define([
                 dropdownCompanionBehaviors: {
                     navigation: {}
                 },
-                modelForComponent: this.model,
                 label: 'Actions',
                 rightIcon: 'fa fa-ellipsis-v',
                 selectionInterface: this.selectionInterface,
