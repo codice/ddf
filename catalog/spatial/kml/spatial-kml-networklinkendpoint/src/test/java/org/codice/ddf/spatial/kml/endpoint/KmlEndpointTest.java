@@ -38,6 +38,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
@@ -110,8 +111,10 @@ public class KmlEndpointTest {
 
     when(mockFramework.getSourceInfo(any(SourceInfoRequest.class)))
         .thenReturn(mockSourceInfoResponse);
-    SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SITE_NAME, null);
-    SourceDescriptorImpl remoteDescriptor = new SourceDescriptorImpl(REMOTE_SITE_NAME, null);
+    SourceDescriptorImpl localDescriptor =
+        new SourceDescriptorImpl(LOCAL_SITE_NAME, null, Collections.emptyList());
+    SourceDescriptorImpl remoteDescriptor =
+        new SourceDescriptorImpl(REMOTE_SITE_NAME, null, Collections.emptyList());
     descriptors.add(localDescriptor);
     descriptors.add(remoteDescriptor);
     when(mockSourceInfoResponse.getSourceInfo()).thenReturn(descriptors);

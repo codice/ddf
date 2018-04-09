@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
+import ddf.action.ActionRegistry;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -105,6 +106,8 @@ public class FanoutCatalogFrameworkTest {
 
   private FrameworkProperties frameworkProperties;
 
+  private ActionRegistry sourceActionRegistry;
+
   private UuidGenerator uuidGenerator;
 
   @Before
@@ -122,6 +125,9 @@ public class FanoutCatalogFrameworkTest {
     uuidGenerator = mock(UuidGenerator.class);
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
 
+    sourceActionRegistry = mock(ActionRegistry.class);
+    when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
     framework = createCatalogFramework(frameworkProperties);
   }
 
@@ -131,7 +137,8 @@ public class FanoutCatalogFrameworkTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, sourceActionRegistry);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
@@ -431,7 +438,8 @@ public class FanoutCatalogFrameworkTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, sourceActionRegistry);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 
@@ -495,7 +503,8 @@ public class FanoutCatalogFrameworkTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, sourceActionRegistry);
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 

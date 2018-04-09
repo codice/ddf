@@ -340,6 +340,7 @@
             <artifactId>awaitility</artifactId>
             <version>3.0.0</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -376,6 +377,7 @@
                             ddf.catalog.impl,
                             ddf.catalog.history,
                             ddf.catalog.impl.operations,
+                            ddf.catalog.impl.action,
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.actions,
                             ddf.catalog.resource.download,

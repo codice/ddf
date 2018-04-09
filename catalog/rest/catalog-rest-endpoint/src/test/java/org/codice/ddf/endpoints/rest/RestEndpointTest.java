@@ -594,13 +594,16 @@ public class RestEndpointTest {
     }
 
     Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
-    SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(localSourceId, contentTypes);
+    SourceDescriptorImpl localDescriptor =
+        new SourceDescriptorImpl(localSourceId, contentTypes, Collections.emptyList());
     localDescriptor.setVersion(version);
     localDescriptor.setAvailable(true);
-    SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(fed1SourceId, contentTypes);
+    SourceDescriptorImpl fed1Descriptor =
+        new SourceDescriptorImpl(fed1SourceId, contentTypes, Collections.emptyList());
     fed1Descriptor.setVersion(version);
     fed1Descriptor.setAvailable(true);
-    SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(fed2SourceId, null);
+    SourceDescriptorImpl fed2Descriptor =
+        new SourceDescriptorImpl(fed2SourceId, null, Collections.emptyList());
     fed2Descriptor.setAvailable(true);
 
     sourceDescriptors.add(localDescriptor);

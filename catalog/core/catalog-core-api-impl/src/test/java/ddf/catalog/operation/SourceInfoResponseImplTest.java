@@ -20,6 +20,7 @@ import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Before;
@@ -37,9 +38,9 @@ public class SourceInfoResponseImplTest {
 
   @Before
   public void setup() {
-    firstSource = new SourceDescriptorImpl("aSource", null);
-    nextSource = new SourceDescriptorImpl("BSource", null);
-    lastSource = new SourceDescriptorImpl("cSource", null);
+    firstSource = new SourceDescriptorImpl("aSource", null, Collections.emptyList());
+    nextSource = new SourceDescriptorImpl("BSource", null, Collections.emptyList());
+    lastSource = new SourceDescriptorImpl("cSource", null, Collections.emptyList());
 
     sourceDescriptors = new TreeSet<SourceDescriptor>(new SourceDescriptorComparator());
     sourceDescriptors.add(lastSource);
@@ -61,7 +62,7 @@ public class SourceInfoResponseImplTest {
 
   @Test
   public void testSourceInfoResponseNullSourceId() {
-    SourceDescriptor desc = new SourceDescriptorImpl(null, null);
+    SourceDescriptor desc = new SourceDescriptorImpl(null, null, Collections.emptyList());
     sourceDescriptors.add(desc);
 
     SourceDescriptor[] expectedDescriptorArr =
