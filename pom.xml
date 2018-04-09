@@ -64,6 +64,7 @@
         <!-- Properties for the frontend-maven-plugin -->
         <node.version>v8.9.4</node.version>
         <yarn.version>v1.5.1</yarn.version>
+        <countryconverter.version>0.1.0</countryconverter.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.1</commons-collections4.version>
         <commons-io.version>2.5</commons-io.version>

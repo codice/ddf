@@ -27,6 +27,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Location;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -34,6 +35,7 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -41,7 +43,9 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.util.impl.ResultIterable;
+import ddf.catalog.source.UnsupportedQueryException;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +55,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
@@ -74,6 +81,8 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private static final String TITLE_FORMAT = "%s, %s(%s)";
 
+  private static final String PROCESSED = ".processed";
+
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
@@ -89,6 +98,8 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private List<CatalogProvider> catalogProviders;
 
+  private FilterBuilder filterBuilder;
+
   public GeoNamesCatalogIndexer(
       CatalogFramework catalogFramework,
       UuidGenerator uuidGenerator,
@@ -99,6 +110,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     this.uuidGenerator = uuidGenerator;
     this.geoNamesMetacardType = metacardType;
     this.catalogProviders = catalogProviders;
+    this.filterBuilder = filterBuilder;
     filter =
         filterBuilder.allOf(
             filterBuilder
@@ -133,6 +145,10 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
     metacard.setAttribute(
         new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
+    if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
+      metacard.setAttribute(
+          new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
+    }
 
     Double latitude = geoEntry.getLatitude();
     Double longitude = geoEntry.getLongitude();
@@ -164,6 +180,11 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
       return;
     }
 
+    if (resourceProcessed(resource)) {
+      LOGGER.trace("{} has already been processed", resource);
+      return;
+    }
+
     List<Metacard> metacardList = new ArrayList<>();
 
     final GeoEntryExtractor.ExtractionCallback extractionCallback =
@@ -185,7 +206,14 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
         };
 
     if (create) {
-      removeGeoNamesMetacardsFromCatalog(extractionCallback);
+      RetryPolicy retryPolicy =
+          new RetryPolicy()
+              .withDelay(10, TimeUnit.SECONDS)
+              .withMaxDuration(5, TimeUnit.MINUTES)
+              .retryOn(Exception.class);
+
+      Failsafe.with(retryPolicy)
+          .run(() -> removeGeoNamesMetacardsFromCatalog(resource, extractionCallback));
     }
 
     geoEntryExtractor.pushGeoEntriesToExtractionCallback(resource, extractionCallback);
@@ -196,69 +224,93 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     }
 
     executeCreateMetacardRequest(metacardList);
+
+    LOGGER.trace("All data created for: {}", resource);
+    fileProcessingComplete(resource);
   }
 
-  private void removeGeoNamesMetacardsFromCatalog(ProgressCallback extractionCallback) {
+  private void removeGeoNamesMetacardsFromCatalog(
+      String resource, ProgressCallback extractionCallback)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          IngestException {
     extractionCallback.updateProgress(0);
 
     Optional<CatalogProvider> catalogProviderOptional = catalogProviders.stream().findFirst();
     if (catalogProviderOptional.isPresent()) {
       CatalogProvider catalogProvider = catalogProviderOptional.get();
 
-      Query query =
-          new QueryImpl(
-              filter, 1, BATCH_SIZE, SortBy.NATURAL_ORDER, false, TimeUnit.SECONDS.toMillis(10));
-      QueryRequest queryRequest = new QueryRequestImpl(query);
+      if (StringUtils.isNotBlank(resource)) {
+        filter =
+            filterBuilder.allOf(
+                filterBuilder
+                    .attribute(GeoEntryAttributes.IMPORT_LOCATION)
+                    .is()
+                    .equalTo()
+                    .text(resource),
+                filter);
+      }
 
-      List<Serializable> metacardsToDelete;
-      try {
-        metacardsToDelete =
-            ResultIterable.resultIterable(catalogFramework::query, queryRequest)
+      while (true) {
+        Query query =
+            new QueryImpl(
+                filter, 1, BATCH_SIZE, SortBy.NATURAL_ORDER, false, TimeUnit.SECONDS.toMillis(90));
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+        LOGGER.trace("Removing existing geonames data with filter: {}", filter);
+
+        QueryResponse response = catalogFramework.query(queryRequest);
+        List<Serializable> metacardsToDelete =
+            response
+                .getResults()
                 .stream()
                 .map(Result::getMetacard)
                 .map(Metacard::getId)
                 .collect(Collectors.toList());
-      } catch (Exception e) {
-        LOGGER.debug("Unable to query for metacards.", e);
-        return;
-      }
 
-      if (CollectionUtils.isEmpty(metacardsToDelete)) {
-        LOGGER.debug("No metacards to delete.");
-        return;
-      }
-
-      for (int i = 0; i < metacardsToDelete.size(); i += BATCH_SIZE) {
-
-        int lastIndex = i + BATCH_SIZE;
-        if (lastIndex > metacardsToDelete.size()) {
-          lastIndex = metacardsToDelete.size();
+        if (CollectionUtils.isEmpty(metacardsToDelete)) {
+          break;
         }
 
-        List<Serializable> sublist = metacardsToDelete.subList(i, lastIndex);
-
-        DeleteRequest deleteRequest = new DeleteRequestImpl(sublist, Core.ID, new HashMap<>());
-        try {
-          DeleteResponse deleteResponse = catalogProvider.delete(deleteRequest);
-          List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
-          LOGGER.debug(
-              "{} metacards deleted.", deletedMetacards == null ? 0 : deletedMetacards.size());
-          extractionCallback.updateProgress(
-              (int) (((double) (i + 1) / metacardsToDelete.size()) * 50));
-        } catch (IngestException e) {
-          LOGGER.debug("Unable to delete metacards.", e);
-        }
+        LOGGER.trace("Deleting {} GeoNames metacards", metacardsToDelete.size());
+        removeMetacards(catalogProvider, extractionCallback, metacardsToDelete);
       }
     }
     extractionCallback.updateProgress(50);
   }
 
+  private void removeMetacards(
+      CatalogProvider catalogProvider,
+      ProgressCallback extractionCallback,
+      List<Serializable> metacards)
+      throws IngestException {
+    for (int i = 0; i < metacards.size(); i += BATCH_SIZE) {
+      int lastIndex = i + BATCH_SIZE;
+      if (lastIndex > metacards.size()) {
+        lastIndex = metacards.size();
+      }
+
+      List<Serializable> sublist = metacards.subList(i, lastIndex);
+
+      DeleteRequest deleteRequest = new DeleteRequestImpl(sublist, Core.ID, new HashMap<>());
+      DeleteResponse deleteResponse = catalogProvider.delete(deleteRequest);
+      List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
+      LOGGER.debug("{} metacards deleted.", deletedMetacards == null ? 0 : deletedMetacards.size());
+      extractionCallback.updateProgress((int) (((double) (i + 1) / metacards.size()) * 50));
+    }
+  }
+
   @Override
   public void updateIndex(
-      List<GeoEntry> newEntries, boolean create, ProgressCallback progressCallback)
+      List<GeoEntry> newEntries, boolean create, ProgressCallback progressCallback, String resource)
       throws GeoEntryIndexingException {
     if (create) {
-      removeGeoNamesMetacardsFromCatalog(progressCallback);
+      RetryPolicy retryPolicy =
+          new RetryPolicy()
+              .withDelay(10, TimeUnit.SECONDS)
+              .withMaxDuration(5, TimeUnit.MINUTES)
+              .retryOn(Exception.class);
+
+      Failsafe.with(retryPolicy)
+          .run(() -> removeGeoNamesMetacardsFromCatalog(resource, progressCallback));
     }
 
     List<Metacard> metacards = new ArrayList<>();
@@ -269,7 +321,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
   }
 
   private void executeCreateMetacardRequest(List<Metacard> metacards) {
-    double totalMetacards = metacards.size();
+    int totalMetacards = metacards.size();
 
     for (int i = 0; i < totalMetacards; i += BATCH_SIZE) {
 
@@ -289,6 +341,24 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
       } catch (IngestException | SourceUnavailableException e) {
         LOGGER.debug("Unable to create Metacards", e);
       }
+    }
+
+    LOGGER.trace("Created {} metacards.", totalMetacards);
+  }
+
+  private boolean resourceProcessed(String resource) {
+    String processedIndicator = resource + PROCESSED;
+    File processedFile = new File(processedIndicator);
+    return processedFile.exists();
+  }
+
+  private void fileProcessingComplete(String resource) {
+    String processedIndicator = resource + PROCESSED;
+    File processedFile = new File(processedIndicator);
+    try {
+      FileUtils.touch(processedFile);
+    } catch (IOException e) {
+      LOGGER.debug("Unable to create {} to indicate {} processed", processedIndicator, resource, e);
     }
   }
 }

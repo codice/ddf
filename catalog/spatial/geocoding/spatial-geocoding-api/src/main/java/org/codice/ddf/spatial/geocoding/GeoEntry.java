@@ -29,6 +29,8 @@ public class GeoEntry {
 
   private final String countryCode;
 
+  private final String importLocation;
+
   private GeoEntry(final Builder builder) {
     name = builder.name;
     latitude = builder.latitude;
@@ -37,6 +39,7 @@ public class GeoEntry {
     population = builder.population;
     alternateNames = builder.alternateNames;
     countryCode = builder.countryCode;
+    importLocation = builder.importLocation;
   }
 
   public static class Builder {
@@ -53,6 +56,8 @@ public class GeoEntry {
     private String alternateNames;
 
     private String countryCode;
+
+    private String importLocation;
 
     public Builder name(final String name) {
       this.name = name;
@@ -89,6 +94,11 @@ public class GeoEntry {
       return this;
     }
 
+    public Builder importLocation(final String importLocation) {
+      this.importLocation = importLocation;
+      return this;
+    }
+
     public GeoEntry build() {
       return new GeoEntry(this);
     }
@@ -120,5 +130,9 @@ public class GeoEntry {
 
   public String getCountryCode() {
     return countryCode;
+  }
+
+  public String getImportLocation() {
+    return importLocation;
   }
 }

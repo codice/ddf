@@ -22,7 +22,8 @@ public interface GeoEntryCreator {
    * Creates a {@link GeoEntry} from a {@link String} representing a GeoNames entry.
    *
    * @param line a {@code String} that represents one GeoNames entry
+   * @param entryResource resource name that represents the source of the geonames entry (e.g. file)
    * @return a {@code GeoEntry} object that represents the GeoNames entry in the {@code String}
    */
-  GeoEntry createGeoEntry(String line);
+  GeoEntry createGeoEntry(String line, String entryResource);
 }

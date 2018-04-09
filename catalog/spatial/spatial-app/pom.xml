@@ -240,5 +240,10 @@
             <artifactId>spatial-geocoding-feature</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
     </dependencies>
 </project>
