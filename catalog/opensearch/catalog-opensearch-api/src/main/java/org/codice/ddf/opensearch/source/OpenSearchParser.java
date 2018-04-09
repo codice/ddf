@@ -30,7 +30,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 public interface OpenSearchParser {
 
   /**
-   * Populates general site information.
+   * Populates general site information if the {@link QueryRequest} parameter is not null.
    *
    * @param client - OpenSearch URL to populate
    * @param queryRequest - The query request from which to populate the search options
@@ -41,9 +41,10 @@ public interface OpenSearchParser {
       WebClient client, QueryRequest queryRequest, Subject subject, List<String> parameters);
 
   /**
-   * Fills in the OpenSearch query URL with contextual information (Note: Section 2.2 - Query: The
-   * OpenSearch specification does not define a syntax for its primary query parameter, searchTerms,
-   * but it is generally used to support simple keyword queries.)
+   * Fills in the OpenSearch query URL with the contextual information is contained in the search
+   * phrase link Map<String, String>}. (Note: Section 2.2 - Query: The OpenSearch specification does
+   * not define a syntax for its primary query parameter, searchTerms, but it is generally used to
+   * support simple keyword queries.)
    *
    * @param client - OpenSearch URL to populate
    * @param searchPhraseMap - a map of search queries
@@ -53,8 +54,8 @@ public interface OpenSearchParser {
       WebClient client, Map<String, String> searchPhraseMap, List<String> parameters);
 
   /**
-   * Fills in the OpenSearch query URL with temporal information (Start, End, and Name). Currently
-   * name is empty due to incompatibility with endpoints.
+   * Fills in the OpenSearch query URL with temporal information (Start, End, and Name) if the
+   * {@link TemporalFilter} parameter is not null.
    *
    * @param client - OpenSearch URL to populate
    * @param temporal - the TemporalFilter that contains the temporal information
@@ -63,7 +64,8 @@ public interface OpenSearchParser {
   void populateTemporal(WebClient client, TemporalFilter temporal, List<String> parameters);
 
   /**
-   * Fills in the OpenSearch query URL with polygon geospatial information.
+   * Fills in the OpenSearch query URL with polygon geospatial information if the {@link
+   * PointRadiusSearch} parameter is not null.
    *
    * @param client - OpenSearch URL to populate
    * @param pointRadiusSearch - {@link PointRadiusSearch} that contains the spatial data
@@ -78,7 +80,8 @@ public interface OpenSearchParser {
       List<String> parameters);
 
   /**
-   * Fills in the OpenSearch query URL with point-radius geospatial information.
+   * Fills in the OpenSearch query URL with point-radius geospatial information if the {@link
+   * Polygon} parameter is not null.
    *
    * @param client - OpenSearch URL to populate
    * @param polygon - {@link Polygon} that contains the spatial data

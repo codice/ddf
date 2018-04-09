@@ -149,18 +149,19 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   @Override
   public void populateTemporal(WebClient client, TemporalFilter temporal, List<String> parameters) {
-    DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-    String start = "";
-    String end = "";
-    if (temporal != null) {
-      long startLng = (temporal.getStartDate() != null) ? temporal.getStartDate().getTime() : 0;
-      start = fmt.print(startLng);
-      long endLng =
-          (temporal.getEndDate() != null)
-              ? temporal.getEndDate().getTime()
-              : System.currentTimeMillis();
-      end = fmt.print(endLng);
+    if (temporal == null) {
+      return;
     }
+
+    DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+    long startLng = (temporal.getStartDate() != null) ? temporal.getStartDate().getTime() : 0;
+    final String start = fmt.print(startLng);
+    long endLng =
+        (temporal.getEndDate() != null)
+            ? temporal.getEndDate().getTime()
+            : System.currentTimeMillis();
+    final String end = fmt.print(endLng);
+
     checkAndReplace(client, start, OpenSearchConstants.DATE_START, parameters);
     checkAndReplace(client, end, OpenSearchConstants.DATE_END, parameters);
   }

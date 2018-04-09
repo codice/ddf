@@ -355,22 +355,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       searchPhraseMap.putIfAbsent(OpenSearchConstants.SEARCH_TERMS, "*");
 
       openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
-
       openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
-
-      if (temporalSearch != null) {
-        openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
-      }
-
-      if (pointRadiusSearch != null) {
-        openSearchParser.populatePointRadiusParameters(
-            restWebClient, pointRadiusSearch, shouldConvertToBBox, parameters);
-      }
-
-      if (polygonSearch != null) {
-        openSearchParser.populatePolygonParameter(
-            restWebClient, polygonSearch, shouldConvertToBBox, parameters);
-      }
+      openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
+      openSearchParser.populatePointRadiusParameters(
+          restWebClient, pointRadiusSearch, shouldConvertToBBox, parameters);
+      openSearchParser.populatePolygonParameter(
+          restWebClient, polygonSearch, shouldConvertToBBox, parameters);
 
       if (localQueryOnly) {
         restWebClient.replaceQueryParam(
