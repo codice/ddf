@@ -130,6 +130,7 @@ public class OpenSearchSourceTest {
 
   private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
 
+  private final WebClient webClient = mock(WebClient.class);
   private final EncryptionService encryptionService = mock(EncryptionService.class);
   private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
@@ -390,7 +391,6 @@ public class OpenSearchSourceTest {
   @Before
   public void setUp() throws Exception {
     response = mock(Response.class);
-    WebClient webClient = mock(WebClient.class);
 
     doReturn(response).when(webClient).get();
     doReturn(Response.Status.OK.getStatusCode()).when(response).getStatus();
@@ -399,7 +399,11 @@ public class OpenSearchSourceTest {
     when(response.getHeaderString(eq("Accept-Ranges"))).thenReturn("bytes");
     when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
 
-    SecureCxfClientFactory factory = getMockFactory(webClient);
+    final SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
+    doReturn(webClient)
+        .when(factory)
+        .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
+    doReturn(webClient).when(factory).getWebClient();
 
     source =
         new OverriddenOpenSearchSource(
@@ -431,13 +435,15 @@ public class OpenSearchSourceTest {
     Filter filter =
         filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    // when
     QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
     queryRequest.setProperties(properties);
+
+    // when
     SourceResponse response = source.query(queryRequest);
 
+    // then
     assertThat(response.getHits(), is(1L));
     List<Result> results = response.getResults();
     assertThat(results.size(), is(1));
@@ -454,13 +460,15 @@ public class OpenSearchSourceTest {
     Filter filter =
         filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    // when
     QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter));
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(SecurityConstants.SECURITY_SUBJECT, mock(Subject.class));
     queryRequest.setProperties(properties);
+
+    // when
     SourceResponse response = source.query(queryRequest);
 
+    // then
     assertThat(response.getHits(), is(1L));
     List<Result> results = response.getResults();
     assertThat(results.size(), is(1));
@@ -540,7 +548,6 @@ public class OpenSearchSourceTest {
     Filter filter =
         filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    // when
     SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
     assertThat(response.getHits(), is(1L));
   }
@@ -609,6 +616,8 @@ public class OpenSearchSourceTest {
 
     // when
     ResourceResponse response = source.retrieveResource(null, requestProperties);
+
+    // then
     assertThat(response.getResource().getByteArray().length, is(3));
   }
 
@@ -832,18 +841,6 @@ public class OpenSearchSourceTest {
           .filter(Objects::nonNull)
           .forEach(metacard -> assertThat(metacard.getSourceId(), is(SOURCE_ID)));
     }
-  }
-
-  private SecureCxfClientFactory getMockFactory(WebClient client) {
-    SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
-
-    doReturn(client).when(factory).getClient();
-    doReturn(client)
-        .when(factory)
-        .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
-    doReturn(client).when(factory).getWebClient();
-
-    return factory;
   }
 
   /** Example of a real-world foreign markup consumer. */

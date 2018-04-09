@@ -428,14 +428,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       double[] coords = point.getCentroid().getCoordinate();
       LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
       LOGGER.trace("radius = {}", distance);
-      openSearchFilterVisitorObject.setPointRadiusSearch(
+      openSearchFilterVisitorObject.addPointRadiusSearch(
           new PointRadiusSearch(coords[0], coords[1], distance));
     } else if (geometryExpression instanceof Point) {
       Point point = (Point) literalWrapper.evaluate(null);
       Coordinate coords = point.getCoordinate();
       LOGGER.trace("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
       LOGGER.trace("radius = {}", distance);
-      openSearchFilterVisitorObject.setPointRadiusSearch(
+      openSearchFilterVisitorObject.addPointRadiusSearch(
           new PointRadiusSearch(coords.x, coords.y, distance));
     } else {
       LOGGER.debug(
@@ -477,10 +477,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     if (geometryExpression instanceof SurfaceImpl) {
       SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
       Polygon polygon = (Polygon) surface.getJTSGeometry();
-      openSearchFilterVisitorObject.setPolygonSearch(polygon);
+      openSearchFilterVisitorObject.addPolygonSearch(polygon);
     } else if (geometryExpression instanceof Polygon) {
       Polygon polygon = (Polygon) literalWrapper.evaluate(null);
-      openSearchFilterVisitorObject.setPolygonSearch(polygon);
+      openSearchFilterVisitorObject.addPolygonSearch(polygon);
     } else {
       LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
     }

@@ -30,7 +30,9 @@ import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.cxf.SecureCxfClientFactory
 import org.codice.ddf.opensearch.OpenSearchConstants
 import org.opengis.filter.PropertyIsLike
+import org.opengis.filter.spatial.Contains
 import org.opengis.filter.spatial.DWithin
+import org.opengis.filter.spatial.Intersects
 import org.opengis.filter.temporal.During
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
@@ -42,7 +44,18 @@ import java.nio.charset.StandardCharsets
 
 class OpenSearchSourceSpec extends Specification {
 
-    private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
+    private static final FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
+
+    private static final PropertyIsLike PROPERTY_IS_LIKE_FILTER = (PropertyIsLike) filterBuilder.attribute("this attribute name is ignored").is().like().text("someSearchPhrase")
+    private static final DWithin D_WITHIN_FILTER = (DWithin) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 5)
+    private static final Contains CONTAINS_FILTER = (Contains) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).containing().wkt("POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))")
+    private static final Intersects INTERSECTS_FILTER = (Intersects) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).intersecting().wkt("POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))")
+    private static final During DURING_FILTER = (During) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM).during().dates(new Date(10000), new Date(10005))
+
+    private static final DWithin NOT_SUPPORTED_D_WITHIN_FILTER = (DWithin) filterBuilder.attribute("this attribute name is not supported for spatial filters").is().withinBuffer().wkt("POINT(1.0 2.0)", 5)
+    private static final Contains NOT_SUPPORTED_CONTAINS_FILTER = (Contains) filterBuilder.attribute("this attribute name is not supported for spatial filters").containing().wkt("POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))")
+    private static final Intersects NOT_SUPPORTED_INTERSECTS_FILTER = (Intersects) filterBuilder.attribute("this attribute name is not supported for spatial filters").intersecting().wkt("POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))")
+    private static final During NOT_SUPPORTED_DURING_FILTER = (During) filterBuilder.attribute("this attribute name is not supported for temporal filters").during().dates(new Date(10000), new Date(10005))
 
     private OpenSearchSource source
 
@@ -99,13 +112,13 @@ class OpenSearchSourceSpec extends Specification {
     def testQueries() throws UnsupportedQueryException {
         given:
         final Map<String, Object> webClientQueryParameters = [:]
+
         webClient.get() >> {
-            if (webClientQueryParameters == coorespondingQueryParameters) {
-                return Mock(Response) {
-                    getStatus() >> Response.Status.OK.getStatusCode()
-                    getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                    getHeaderString("Accept-Ranges") >> "bytes"
-                }
+            assert webClientQueryParameters == expectedQueryParameters
+            return Mock(Response) {
+                getStatus() >> Response.Status.OK.getStatusCode()
+                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
+                getHeaderString("Accept-Ranges") >> "bytes"
             }
         }
         webClient.replaceQueryParam(_ as String, _ as Object) >> {
@@ -126,22 +139,43 @@ class OpenSearchSourceSpec extends Specification {
 
         where:
         filter << [
-                (PropertyIsLike) filterBuilder.attribute("this attribute name is ignored").is().like().text("someSearchPhrase"),
-                (DWithin) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 5),
-                (During) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM).during().dates(new Date(10000), new Date(10005))
+                PROPERTY_IS_LIKE_FILTER,
+                D_WITHIN_FILTER,
+                CONTAINS_FILTER,
+                INTERSECTS_FILTER,
+                DURING_FILTER,
+                filterBuilder.allOf(D_WITHIN_FILTER, D_WITHIN_FILTER), // multiple of the same point-radius filter
+                filterBuilder.allOf(CONTAINS_FILTER, CONTAINS_FILTER), // multiple of the same polygon filter
+                /*not supported filters and supported filters*/
+                filterBuilder.allOf(NOT_SUPPORTED_DURING_FILTER, PROPERTY_IS_LIKE_FILTER),
+                filterBuilder.allOf(NOT_SUPPORTED_D_WITHIN_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
+                filterBuilder.allOf(NOT_SUPPORTED_CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
+                filterBuilder.allOf(NOT_SUPPORTED_INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
+                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 6), PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
+                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
+                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER)
         ]
-        coorespondingQueryParameters << [
+        expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
         ]
     }
 
     def testUnsupportedQuery() {
         given:
-        final During duringFilter = (During) filterBuilder.attribute("this attribute name is not supported for temporal filters").during().dates(new Date(10000), new Date(10005))
-
-        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(duringFilter), queryRequestProperties)
+        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
 
         when:
         source.query(queryRequest)
@@ -149,5 +183,16 @@ class OpenSearchSourceSpec extends Specification {
         then:
         0 * webClient.get()
         thrown(UnsupportedQueryException)
+
+        where:
+        filter << [
+                NOT_SUPPORTED_DURING_FILTER,
+                NOT_SUPPORTED_D_WITHIN_FILTER,
+                NOT_SUPPORTED_CONTAINS_FILTER,
+                NOT_SUPPORTED_INTERSECTS_FILTER,
+                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 6)), // different point-radius filters
+                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER), // point-radius and polygon filters
+                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER), // different polygon filters
+        ]
     }
 }

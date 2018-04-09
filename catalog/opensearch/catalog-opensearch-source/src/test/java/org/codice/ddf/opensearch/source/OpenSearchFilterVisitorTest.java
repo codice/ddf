@@ -15,11 +15,15 @@ package org.codice.ddf.opensearch.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasToString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Metacard;
@@ -31,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.exparity.hamcrest.date.DateMatchers;
@@ -160,12 +165,12 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
     assertThat(
-        result.getPointRadiusSearch(),
-        allOf(
-            is(notNullValue()),
-            hasProperty("lon", is(WKT_LON)),
-            hasProperty("lat", is(WKT_LAT)),
-            hasProperty("radius", is(radius))));
+        result.getPointRadiusSearches(),
+        contains(
+            allOf(
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
+                hasProperty("radius", is(radius)))));
   }
 
   @Test
@@ -184,12 +189,12 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
     assertThat(
-        result.getPointRadiusSearch(),
-        allOf(
-            is(notNullValue()),
-            hasProperty("lon", is(WKT_LON)),
-            hasProperty("lat", is(WKT_LAT)),
-            hasProperty("radius", is(radius))));
+        result.getPointRadiusSearches(),
+        contains(
+            allOf(
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
+                hasProperty("radius", is(radius)))));
   }
 
   @Test
@@ -207,7 +212,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -224,7 +229,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -249,12 +254,12 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(dWithinFilter, openSearchFilterVisitorObject);
     assertThat(
-        result.getPointRadiusSearch(),
-        allOf(
-            is(notNullValue()),
-            hasProperty("lon", is(lon)),
-            hasProperty("lat", is(lat)),
-            hasProperty("radius", is(radius))));
+        result.getPointRadiusSearches(),
+        contains(
+            allOf(
+                hasProperty("lon", is(lon)),
+                hasProperty("lat", is(lat)),
+                hasProperty("radius", is(radius)))));
   }
 
   @Test
@@ -268,9 +273,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -283,9 +286,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -299,7 +300,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -312,9 +313,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -328,7 +327,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -342,9 +341,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -358,7 +355,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -371,9 +368,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -387,7 +382,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
-    assertThat(result.getPointRadiusSearch(), is(nullValue()));
+    assertThat(result.getPointRadiusSearches(), is(empty()));
   }
 
   @Test
@@ -401,9 +396,7 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   @Test
@@ -774,7 +767,7 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
 
-    assertThat(result.getPolygonSearch(), is(nullValue()));
+    assertThat(result.getPolygonSearches(), is(empty()));
   }
 
   /**
@@ -810,9 +803,7 @@ public class OpenSearchFilterVisitorTest {
             hasProperty("startDate", is(START_DATE)),
             hasProperty("endDate", is(END_DATE))));
 
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
   }
 
   /**
@@ -844,8 +835,95 @@ public class OpenSearchFilterVisitorTest {
 
     assertThat(result.getTemporalSearch(), is(nullValue()));
 
-    final Polygon polygon = result.getPolygonSearch();
-    assertThat(polygon, is(notNullValue()));
-    assertThat(polygon.toString(), is(WKT_POLYGON));
+    assertThat(result.getPolygonSearches(), contains(hasToString(is(WKT_POLYGON))));
+  }
+
+  @Test
+  public void testMultipleSpatialFilters() {
+    final double pointRadiusFilter1Radius = 4;
+    final DWithin pointRadiusFilter1 =
+        (DWithin)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .is()
+                .withinBuffer()
+                .wkt(WKT_POINT, pointRadiusFilter1Radius);
+
+    final DWithin pointRadiusFilter1Duplicate =
+        (DWithin)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .is()
+                .withinBuffer()
+                .wkt(WKT_POINT, pointRadiusFilter1Radius);
+
+    final double pointRadiusFilter2Radius = pointRadiusFilter1Radius + 1;
+    final DWithin pointRadiusFilter2 =
+        (DWithin)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .is()
+                .withinBuffer()
+                .wkt(WKT_POINT, pointRadiusFilter2Radius);
+
+    final Contains polygonFilter1 =
+        (Contains)
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).containing().wkt(WKT_POLYGON);
+
+    final Intersects polygonFilter1Duplicate =
+        (Intersects)
+            geotoolsFilterBuilder.attribute(SPATIAL_ATTRIBUTE_NAME).intersecting().wkt(WKT_POLYGON);
+
+    final String anotherWktPolygon = "POLYGON ((1.2 1.2, 1.2 2.2, 2.2 2.2, 2.2 1.2, 1.2 1.2))";
+    final Intersects polygonFilter2 =
+        (Intersects)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .intersecting()
+                .wkt(anotherWktPolygon);
+
+    final And andFilter =
+        geotoolsFilterBuilder.allOf(
+            pointRadiusFilter1,
+            pointRadiusFilter1Duplicate,
+            pointRadiusFilter2,
+            polygonFilter1,
+            polygonFilter1Duplicate,
+            polygonFilter2);
+
+    final OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    final OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(andFilter, openSearchFilterVisitorObject);
+
+    final Queue<PointRadiusSearch> pointRadiusSearches = result.getPointRadiusSearches();
+    assertThat(
+        "The OpenSearchFilterVisitorObject should contain contain two point-radius searches from the two unique point-radius filters in the AND filter.",
+        pointRadiusSearches,
+        hasSize(2));
+    assertThat(
+        "The OpenSearchFilterVisitorObject should contain contain the point-radius searches in the order that they appear in the AND filter.",
+        pointRadiusSearches,
+        contains(
+            allOf(
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
+                hasProperty("radius", is(pointRadiusFilter1Radius))),
+            allOf(
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
+                hasProperty("radius", is(pointRadiusFilter2Radius)))));
+
+    final Queue<Polygon> polygonSearches = result.getPolygonSearches();
+    assertThat(
+        "The OpenSearchFilterVisitorObject should contain contain two polygon searches from the two unique polygon filters in the AND filter.",
+        polygonSearches,
+        hasSize(2));
+    assertThat(
+        "The OpenSearchFilterVisitorObject should contain contain the polygon searches in the order that they appear in the AND filter.",
+        polygonSearches,
+        contains(hasToString(is(WKT_POLYGON)), hasToString(is(anotherWktPolygon))));
   }
 }

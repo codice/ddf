@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.opensearch.source;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
@@ -64,8 +66,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -317,9 +322,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
 
     final ContextualSearch contextualSearch = openSearchFilterVisitorObject.getContextualSearch();
-    final PointRadiusSearch pointRadiusSearch =
-        openSearchFilterVisitorObject.getPointRadiusSearch();
-    final Polygon polygonSearch = openSearchFilterVisitorObject.getPolygonSearch();
+
+    final Queue<PointRadiusSearch> pointRadiusSearches =
+        openSearchFilterVisitorObject.getPointRadiusSearches();
+    final Queue<Polygon> polygonSearches = openSearchFilterVisitorObject.getPolygonSearches();
+    final Optional<SpatialSearch> spatialSearch =
+        createCombinedSpatialSearch(pointRadiusSearches, polygonSearches);
+
     final TemporalFilter temporalSearch = openSearchFilterVisitorObject.getTemporalSearch();
     final String idSearch =
         StringUtils.defaultIfEmpty(
@@ -337,8 +346,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     // OpenSearchSource additionally supports an id search when no other search criteria is
     // specified.
     if (MapUtils.isNotEmpty(searchPhraseMap)
-        || pointRadiusSearch != null
-        || polygonSearch != null
+        || spatialSearch.isPresent()
         || temporalSearch != null) {
       if (StringUtils.isNotEmpty(idSearch)) {
         LOGGER.debug(
@@ -357,10 +365,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
       openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
       openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
-      openSearchParser.populatePointRadiusParameters(
-          restWebClient, pointRadiusSearch, shouldConvertToBBox, parameters);
-      openSearchParser.populatePolygonParameter(
-          restWebClient, polygonSearch, shouldConvertToBBox, parameters);
+      spatialSearch.ifPresent(
+          search -> {
+            openSearchParser.populatePointRadiusParameters(
+                restWebClient, search.getPointRadiusSearch(), shouldConvertToBBox, parameters);
+            openSearchParser.populatePolygonParameter(
+                restWebClient, search.getPolygonSearch(), shouldConvertToBBox, parameters);
+          });
 
       if (localQueryOnly) {
         restWebClient.replaceQueryParam(
@@ -956,5 +967,79 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       metacards.add(metacard);
     }
     return metacards;
+  }
+
+  protected class SpatialSearch {
+    private final PointRadiusSearch pointRadiusSearch;
+    private final Polygon polygonSearch;
+
+    public SpatialSearch(PointRadiusSearch pointRadiusSearch) {
+      notNull(
+          pointRadiusSearch,
+          "Cannot construct a spatial search with just a null point-radius search");
+      this.pointRadiusSearch = pointRadiusSearch;
+      polygonSearch = null;
+    }
+
+    public SpatialSearch(Polygon polygonSearch) {
+      notNull(polygonSearch, "Cannot construct a spatial search with just a null polygon search");
+      pointRadiusSearch = null;
+      this.polygonSearch = polygonSearch;
+    }
+
+    @Nullable
+    public PointRadiusSearch getPointRadiusSearch() {
+      return pointRadiusSearch;
+    }
+
+    @Nullable
+    public Polygon getPolygonSearch() {
+      return polygonSearch;
+    }
+  }
+
+  /**
+   * Method to combine spatial searches into either a polygon or a point-radius search. OpenSearch
+   * endpoints will ignore multiple spatial query parameters. This method is protected so that
+   * downstream projects may try to implement another algorithm (e.g. best-effort) to combine
+   * searches.
+   *
+   * @return null if the searches cannot be combined, or a {@link SpatialSearch} with one {@link
+   *     PointRadiusSearch} or one {@link Polygon} that is the combination of all of the searches
+   */
+  protected Optional<SpatialSearch> createCombinedSpatialSearch(
+      final Queue<PointRadiusSearch> pointRadiusSearches, final Queue<Polygon> polygonSearches) {
+    final boolean filterContainedSomePointRadiusSearchCriteria =
+        CollectionUtils.isNotEmpty(pointRadiusSearches);
+    final boolean filterContainedSomePolygonSearchCriteria =
+        CollectionUtils.isNotEmpty(polygonSearches);
+
+    if (filterContainedSomePointRadiusSearchCriteria && filterContainedSomePolygonSearchCriteria) {
+      LOGGER.debug(
+          "Ignoring all spatial searches because combining spatial and point radius searches is not yet implemented.");
+      return Optional.empty();
+    }
+
+    if (!filterContainedSomePointRadiusSearchCriteria && filterContainedSomePolygonSearchCriteria) {
+      if (CollectionUtils.size(polygonSearches) > 1) {
+        LOGGER.debug(
+            "Ignoring all polygon searches because combining polygon searches is not yet implemented.");
+        return Optional.empty();
+      } else {
+        return Optional.of(new SpatialSearch(polygonSearches.remove()));
+      }
+    }
+
+    if (filterContainedSomePointRadiusSearchCriteria && !filterContainedSomePolygonSearchCriteria) {
+      if (CollectionUtils.size(pointRadiusSearches) > 1) {
+        LOGGER.debug(
+            "Ignoring all spatial searches because combining point radius-searches is not yet implemented.");
+        return Optional.empty();
+      } else {
+        return Optional.of(new SpatialSearch(pointRadiusSearches.remove()));
+      }
+    }
+
+    return Optional.empty();
   }
 }
