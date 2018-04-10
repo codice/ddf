@@ -82,7 +82,7 @@ public class GeoNamesFileExtractorTest extends TestBase {
         "PPLA2",
         28068,
         "IGM,Kingman,Kingmen,Kingmun",
-        "US");
+        "USA");
     verifyGeoEntry(
         geoEntryList.get(1),
         "Lake Havasu City",
@@ -91,8 +91,8 @@ public class GeoNamesFileExtractorTest extends TestBase {
         "PPL",
         52527,
         "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti",
-        "US");
-    verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ", "US");
+        "USA");
+    verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ", "USA");
   }
 
   private void testFileExtractionAllAtOnce(

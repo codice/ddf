@@ -37,6 +37,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -66,8 +68,13 @@ public class GeoNamesCatalogIndexerTest {
           .getResource("largeGeoNamesFile.txt")
           .getPath();
 
+  private static final String GEO_ENTRY_DATA_SOURCE = "AD.zip";
+
   private static final String ZIP_FILE_PATH =
-      GeoNamesCatalogIndexerTest.class.getClassLoader().getResource("AD.zip").getPath();
+      GeoNamesCatalogIndexerTest.class
+          .getClassLoader()
+          .getResource(GEO_ENTRY_DATA_SOURCE)
+          .getPath();
 
   private static final GeoEntry GEO_ENTRY =
       new GeoEntry.Builder().featureCode(GeoCodingConstants.POPULATED_PLACE).name("Test").build();
@@ -96,7 +103,7 @@ public class GeoNamesCatalogIndexerTest {
   public void setUp() throws Exception {
 
     geoEntryCreator = mock(GeoEntryCreator.class);
-    when(geoEntryCreator.createGeoEntry(anyString())).thenReturn(GEO_ENTRY);
+    when(geoEntryCreator.createGeoEntry(anyString(), anyString())).thenReturn(GEO_ENTRY);
     geoEntryExtractor = new GeoNamesFileExtractor();
     geoEntryExtractor.setGeoEntryCreator(geoEntryCreator);
 
@@ -127,6 +134,24 @@ public class GeoNamesCatalogIndexerTest {
             Collections.singletonList(catalogProvider));
   }
 
+  @After
+  public void tearDown() {
+    File goodFile = new File(GOOD_FILE_PATH + ".processed");
+    if (goodFile.exists()) {
+      goodFile.delete();
+    }
+
+    File largeFile = new File(LARGE_FILE_PATH + ".processed");
+    if (largeFile.exists()) {
+      largeFile.delete();
+    }
+
+    File zipFile = new File(ZIP_FILE_PATH + ".processed");
+    if (zipFile.exists()) {
+      zipFile.delete();
+    }
+  }
+
   @Test
   public void testUpdateIndexEmptyString() throws Exception {
     geoNamesCatalogIndexer.updateIndex(null, geoEntryExtractor, false, progressCallback);
@@ -141,19 +166,21 @@ public class GeoNamesCatalogIndexerTest {
 
   @Test
   public void testUpdateIndexWithCreate() throws Exception {
+    setupTestForCreate();
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, true, progressCallback);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(1)).delete(any(DeleteRequest.class));
-    verify(catalogFramework, times(1)).query(any(QueryRequest.class));
+    verify(catalogFramework, times(2)).query(any(QueryRequest.class));
   }
 
   @Test
   public void testUpdateIndexWithCreateIngestException() throws Exception {
     when(catalogProvider.delete(any(DeleteRequest.class))).thenThrow(IngestException.class);
+    setupTestForCreate();
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, true, progressCallback);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(1)).delete(any(DeleteRequest.class));
-    verify(catalogFramework, times(1)).query(any(QueryRequest.class));
+    verify(catalogFramework, times(2)).query(any(QueryRequest.class));
   }
 
   @Test
@@ -183,27 +210,29 @@ public class GeoNamesCatalogIndexerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testUpdateIndexWithFailedDeleteIngestException() throws Exception {
+    setupTestForCreate();
     when(catalogFramework.delete(any(DeleteRequest.class))).thenThrow(IngestException.class);
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, true, progressCallback);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(1)).delete(any(DeleteRequest.class));
-    verify(catalogFramework, times(1)).query(any(QueryRequest.class));
+    verify(catalogFramework, times(2)).query(any(QueryRequest.class));
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void testUpdateIndexWithFailedDeleteSourceUnavailableException() throws Exception {
+    setupTestForCreate();
     when(catalogFramework.delete(any(DeleteRequest.class)))
         .thenThrow(SourceUnavailableException.class);
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, true, progressCallback);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(1)).delete(any(DeleteRequest.class));
-    verify(catalogFramework, times(1)).query(any(QueryRequest.class));
+    verify(catalogFramework, times(2)).query(any(QueryRequest.class));
   }
 
   @Test
   public void testUpdateIndexBadGeoEntry() throws Exception {
-    when(geoEntryCreator.createGeoEntry(anyString()))
+    when(geoEntryCreator.createGeoEntry(anyString(), anyString()))
         .thenReturn(new GeoEntry.Builder().name("Test").build());
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, false, progressCallback);
     verify(catalogFramework, times(0)).create(any(CreateRequest.class));
@@ -272,7 +301,7 @@ public class GeoNamesCatalogIndexerTest {
   @Test
   public void testUpdateIndexWithGeoEntryList() throws Exception {
     List<GeoEntry> geoEntries = Collections.singletonList(GEO_ENTRY);
-    geoNamesCatalogIndexer.updateIndex(geoEntries, false, progressCallback);
+    geoNamesCatalogIndexer.updateIndex(geoEntries, false, progressCallback, GEO_ENTRY_DATA_SOURCE);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(0)).delete(any(DeleteRequest.class));
     verify(catalogFramework, times(0)).query(any(QueryRequest.class));
@@ -280,10 +309,21 @@ public class GeoNamesCatalogIndexerTest {
 
   @Test
   public void testUpdateIndexWithGeoEntryListWithCreate() throws Exception {
+    setupTestForCreate();
+
     List<GeoEntry> geoEntries = Collections.singletonList(GEO_ENTRY);
-    geoNamesCatalogIndexer.updateIndex(geoEntries, true, progressCallback);
+    geoNamesCatalogIndexer.updateIndex(geoEntries, true, progressCallback, GEO_ENTRY_DATA_SOURCE);
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));
     verify(catalogProvider, times(1)).delete(any(DeleteRequest.class));
-    verify(catalogFramework, times(1)).query(any(QueryRequest.class));
+    verify(catalogFramework, times(2)).query(any(QueryRequest.class));
+  }
+
+  private void setupTestForCreate() throws Exception {
+    queryResponse = mock(QueryResponse.class);
+    when(queryResponse.getResults()).thenReturn(Collections.emptyList());
+    when(queryResponse.getResults())
+        .thenReturn(Collections.singletonList(new ResultImpl(new MetacardImpl())))
+        .thenReturn(Collections.emptyList());
+    when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);
   }
 }

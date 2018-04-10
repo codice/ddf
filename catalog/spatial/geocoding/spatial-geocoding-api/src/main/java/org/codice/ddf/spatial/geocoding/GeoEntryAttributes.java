@@ -28,6 +28,8 @@ public class GeoEntryAttributes implements MetacardType {
 
   public static final String POPULATION_ATTRIBUTE_NAME = "ext.population";
 
+  public static final String IMPORT_LOCATION = "ext.import-location";
+
   private static final String METACARD_TYPENAME = "GeoEntryAttributes";
 
   private static final Set<AttributeDescriptor> DESCRIPTORS =
@@ -37,7 +39,9 @@ public class GeoEntryAttributes implements MetacardType {
           new AttributeDescriptorImpl(
               FEATURE_CODE_ATTRIBUTE_NAME, true, true, false, false, BasicTypes.STRING_TYPE),
           new AttributeDescriptorImpl(
-              POPULATION_ATTRIBUTE_NAME, true, true, false, false, BasicTypes.LONG_TYPE));
+              POPULATION_ATTRIBUTE_NAME, true, true, false, false, BasicTypes.LONG_TYPE),
+          new AttributeDescriptorImpl(
+              IMPORT_LOCATION, true, true, false, false, BasicTypes.STRING_TYPE));
 
   @Override
   public String getName() {

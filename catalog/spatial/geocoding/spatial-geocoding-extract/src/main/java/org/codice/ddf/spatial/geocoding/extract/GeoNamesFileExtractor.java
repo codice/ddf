@@ -109,7 +109,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
       double bytesRead = 0.0;
 
       for (String line; (line = reader.readLine()) != null; ) {
-        extractionCallback.extracted(extractGeoEntry(line));
+        extractionCallback.extracted(extractGeoEntry(line, resource));
         bytesRead += line.getBytes(StandardCharsets.UTF_8).length;
         extractionCallback.updateProgress((int) (50 + (bytesRead / fileSize) * 50));
       }
@@ -327,7 +327,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
     throw new GeoEntryExtractionException("Unable to unzip " + resource);
   }
 
-  private GeoEntry extractGeoEntry(final String line) {
-    return geoEntryCreator.createGeoEntry(line);
+  private GeoEntry extractGeoEntry(final String line, final String resource) {
+    return geoEntryCreator.createGeoEntry(line, resource);
   }
 }

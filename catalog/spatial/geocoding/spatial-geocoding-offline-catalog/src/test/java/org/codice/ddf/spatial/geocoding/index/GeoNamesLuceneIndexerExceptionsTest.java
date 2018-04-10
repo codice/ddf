@@ -131,7 +131,7 @@ public class GeoNamesLuceneIndexerExceptionsTest {
     geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "index");
 
     try {
-      geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null);
+      geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null, null);
       fail(
           "Should have thrown a GeoEntryIndexingException because addDocument() threw an "
               + "IOException.");
@@ -146,7 +146,7 @@ public class GeoNamesLuceneIndexerExceptionsTest {
     geoNamesLuceneIndexer = new GeoNamesLuceneIndexer();
     geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "missing_index");
     try {
-      geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null);
+      geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null, null);
     } catch (GeoEntryIndexingException e) {
       assertThat(e.getCause(), instanceOf(IOException.class));
     }

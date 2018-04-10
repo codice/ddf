@@ -20,13 +20,15 @@ import org.junit.Test;
 public class GeoNamesCreatorTest extends TestBase {
   private static final GeoNamesCreator GEONAMES_CREATOR = new GeoNamesCreator();
 
+  private static final String TEST_RESOURCE = "test";
+
   @Test
   public void testNoEmptyFields() {
     final String geoNamesEntryStr =
         "5289282\tChandler\tChandler\t"
             + "Candler,Candleris,Chandler,Chandlur\t33.30616\t-111.84125\tP\tPPL\tUS\tUS\tAZ\t"
             + "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
-    final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
+    final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr, TEST_RESOURCE);
     verifyGeoEntry(
         geoEntry,
         "Chandler",
@@ -35,7 +37,7 @@ public class GeoNamesCreatorTest extends TestBase {
         "PPL",
         236123,
         "Candler,Candleris,Chandler,Chandlur",
-        "US");
+        "USA");
   }
 
   @Test
@@ -44,14 +46,14 @@ public class GeoNamesCreatorTest extends TestBase {
         "5288858\tCave Creek\tCave Creek\t\t33.83333\t"
             + "-111.95083\tP\tPPL\tUS\t\tAZ\t013\t\t\t5015\t648\t649\tAmerica/Phoenix\t"
             + "2011-05-14";
-    final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
-    verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015, "", "US");
+    final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr, TEST_RESOURCE);
+    verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015, "", "USA");
   }
 
   @Test(expected = ArrayIndexOutOfBoundsException.class)
   public void testNotEnoughFields() {
     final String wrongFormat = "5288858\tCave Creek\tCave Creek\tAlternate names\t33.83333";
-    GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    GEONAMES_CREATOR.createGeoEntry(wrongFormat, TEST_RESOURCE);
   }
 
   @Test(expected = NumberFormatException.class)
@@ -64,7 +66,7 @@ public class GeoNamesCreatorTest extends TestBase {
         "5289282\t33.30616\t-111.84125\t"
             + "Candler,Candleris,Chandler,Chandlur\tChandler\tChandler\tP\tPPL\tUS\tUS\tAZ\t"
             + "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
-    GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    GEONAMES_CREATOR.createGeoEntry(wrongFormat, TEST_RESOURCE);
   }
 
   @Test(expected = ArrayIndexOutOfBoundsException.class)
@@ -73,11 +75,21 @@ public class GeoNamesCreatorTest extends TestBase {
         "5289282,Chandler,Chandler,"
             + "Candler,Candleris,Chandler,Chandlu,33.30616,-111.84125,P,PPL,US,US,AZ,"
             + "013,012,011,236123,370,368,America/Phoenix,2011-05-14";
-    GEONAMES_CREATOR.createGeoEntry(wrongFormat);
+    GEONAMES_CREATOR.createGeoEntry(wrongFormat, TEST_RESOURCE);
   }
 
   @Test(expected = ArrayIndexOutOfBoundsException.class)
   public void testEmptyLine() {
-    GEONAMES_CREATOR.createGeoEntry("");
+    GEONAMES_CREATOR.createGeoEntry("", TEST_RESOURCE);
+  }
+
+  @Test
+  public void testInvalidCountryCode() {
+    final String geoNamesEntryStr =
+        "5288858\tCave Creek\tCave Creek\t\t33.83333\t"
+            + "-111.95083\tP\tPPL\tZQ\t\tAZ\t013\t\t\t5015\t648\t649\tAmerica/Phoenix\t"
+            + "2011-05-14";
+    final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr, TEST_RESOURCE);
+    verifyGeoEntry(geoEntry, "Cave Creek", 33.83333, -111.95083, "PPL", 5015, "", "ZQ");
   }
 }
