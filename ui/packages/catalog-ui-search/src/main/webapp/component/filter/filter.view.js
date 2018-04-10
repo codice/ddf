@@ -179,7 +179,7 @@ define([
             let value = Common.duplicate(this.model.get('value'));
             const currentComparator = this.model.get('comparator');
             value = this.transformValue(value, currentComparator);
-            const propertyJSON = generatePropertyJSON(value, this.model.get('type'), currentComparator);
+            const propertyJSON = this.generatePropertyJSON(value, this.model.get('type'), currentComparator);
 
             this.filterInput.show(new MultivalueView({
                 model: new PropertyModel(propertyJSON)
