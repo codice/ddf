@@ -20,7 +20,6 @@ define([
     './result-selector.hbs',
     'js/CustomElements',
     'properties',
-    'js/store',
     'js/Common',
     'component/result-item/result-item.collection.view',
     'component/paging/paging.view',
@@ -31,12 +30,10 @@ define([
     'component/dropdown/result-sort/dropdown.result-sort.view',
     'component/singletons/user-instance',
     'component/result-status/result-status.view',
-    'decorator/result-selection.decorator',
-    'decorator/Decorators'
-], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
+    'behaviors/selection.behavior'
+], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
-             DropdownModel, cql, ResultSortDropdownView, user, ResultStatusView,
-             ResultSelectionDecorator, Decorators) {
+             DropdownModel, cql, ResultSortDropdownView, user, ResultStatusView) {
 
     function mixinBlackListCQL(originalCQL){
         var blackListCQL = {
@@ -60,22 +57,20 @@ define([
         return blackListCQL;
     }
 
-    var namespace = CustomElements.getNamespace();
-    var resultItemSelector = namespace+'result-item';
-    var eventsHash = {
-            'mousedown .resultSelector-list': 'stopTextSelection',
-            'click > .resultSelector-new .merge': 'mergeNewResults',
-            'click > .resultSelector-new .ignore': 'ignoreNewResults'
-    };
-    eventsHash['click .resultSelector-list '+resultItemSelector] = 'handleClick';
-
-    var ResultSelector = Marionette.LayoutView.extend(Decorators.decorate({
+    var ResultSelector = Marionette.LayoutView.extend({
         template: resultSelectorTemplate,
         tagName: CustomElements.register('result-selector'),
-        modelEvents: {
+        events: {
+            'click > .resultSelector-new .merge': 'mergeNewResults',
+            'click > .resultSelector-new .ignore': 'ignoreNewResults'
         },
-        events: eventsHash,
-        ui: {
+        behaviors: function() {
+            return {
+                selection: {
+                    selectionInterface: this.options.selectionInterface,
+                    selectionSelector: `${CustomElements.getNamespace()}result-item`
+                }
+            };   
         },
         regions: {
             resultStatus: '.resultSelector-status',
@@ -85,14 +80,12 @@ define([
             resultFilter: '.menu-resultFilter',
             resultSort: '.menu-resultSort'
         },
-        selectionInterface: store,
         initialize: function(options){
-            this.selectionInterface = options.selectionInterface || store;
             if (!this.model.get('result')) {
                 this.model.startSearch();
             }
             this.model.get('result').set('currentlyViewed', true);
-            this.selectionInterface.setCurrentQuery(this.model);
+            this.options.selectionInterface.setCurrentQuery(this.model);
             this.startListeningToFilter();
             this.startListeningToSort();
             this.startListeningToResult();
@@ -130,9 +123,6 @@ define([
         },
         startListeningToSort: function(){
             this.listenTo(user.get('user').get('preferences'), 'change:resultSort', this.onBeforeShow);
-        },
-        stopTextSelection: function(event){
-            event.preventDefault();
         },
         scrollIntoView: function(metacard){
             var result = this.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid="'+metacard.id + metacard.get('properties>source-id')+'"]');
@@ -174,13 +164,13 @@ define([
         showResultPaging: function(resultCollection){
             this.resultPaging.show(new PagingView({
                 model: resultCollection,
-                selectionInterface: this.selectionInterface
+                selectionInterface: this.options.selectionInterface
             }));
         },
         showResultList: function(resultCollection){
             this.resultList.show(new ResultItemCollectionView({
                 collection: resultCollection,
-                selectionInterface: this.selectionInterface
+                selectionInterface: this.options.selectionInterface
             }));
         },
         showResultFilterDropdown: function(){
@@ -221,7 +211,7 @@ define([
                 }
             }.bind(this));
         }
-    }, ResultSelectionDecorator));
+    });
 
     return ResultSelector;
 });
