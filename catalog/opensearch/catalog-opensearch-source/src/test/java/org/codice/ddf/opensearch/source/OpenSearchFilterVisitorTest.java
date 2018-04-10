@@ -28,6 +28,9 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.impl.LiteralImpl;
+import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
+import ddf.catalog.filter.impl.PropertyNameImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.time.temporal.ChronoUnit;
@@ -726,6 +729,20 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(propertyIsEqualToFilter, openSearchFilterVisitorObject);
     assertThat(result.getId(), is(nullValue()));
+  }
+
+  @Test
+  public void testPropertyIsEqualToLiteral() {
+    PropertyIsEqualTo propertyIsEqualToLiteralFilter =
+        new PropertyIsEqualToLiteral(
+            new PropertyNameImpl(ID_ATTRIBUTE_NAME), new LiteralImpl(TEST_STRING));
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(
+                propertyIsEqualToLiteralFilter, openSearchFilterVisitorObject);
+    assertThat(result.getId(), is(TEST_STRING));
   }
 
   /**

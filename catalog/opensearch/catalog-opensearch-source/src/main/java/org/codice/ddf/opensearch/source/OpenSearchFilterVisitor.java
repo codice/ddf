@@ -17,7 +17,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.function.Function;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
@@ -270,16 +268,20 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
 
     if (openSearchFilterVisitorObject.getCurrentNest() != NestedTypes.NOT) {
-      if (filter instanceof IsEqualsToImpl) {
-        IsEqualsToImpl isEqualsTo = (IsEqualsToImpl) filter;
-        Expression leftValue = isEqualsTo.getLeftValue();
-        if (Metacard.ID.equals(leftValue.toString())) {
-          openSearchFilterVisitorObject.setId(isEqualsTo.getExpression2().toString());
-        }
-      } else if (filter instanceof PropertyIsEqualToLiteral) {
-        PropertyIsEqualToLiteral isEqualsTo = (PropertyIsEqualToLiteral) filter;
-        if (Metacard.ID.equals(isEqualsTo.getExpression1().toString())) {
-          openSearchFilterVisitorObject.setId(isEqualsTo.getExpression2().toString());
+      final Expression expression1 = filter.getExpression1();
+      if (expression1 instanceof PropertyName) {
+        final String propertyName = ((PropertyName) expression1).getPropertyName();
+        final String expectedPropertyIsEqualToTerm = Metacard.ID;
+        if (expectedPropertyIsEqualToTerm.equals(propertyName)) {
+          final Expression expression2 = filter.getExpression2();
+          if (expression2 instanceof Literal) {
+            openSearchFilterVisitorObject.setId((String) ((Literal) expression2).getValue());
+          }
+        } else {
+          LOGGER.debug(
+              "The OpenSearch Source only supports PropertyIsEqualTo criteria on the term \"{}\", but the property name is \"{}\". Ignoring filter.",
+              expectedPropertyIsEqualToTerm,
+              propertyName);
         }
       }
     }
