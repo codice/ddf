@@ -67,14 +67,6 @@ define([
             this.model.set({
                 cql: filter
             });
-        },
-        serializeData: function() {
-            var templateTitle = this.model.get('name') != null
-                                 ? this.model.get('name')
-                                 : "Standard Search";
-            return {
-                templateTitle: templateTitle
-            };
         }
     });
 });
