@@ -11,22 +11,26 @@
  **/
 /*global define*/
 define([
-    'js/MetatypeRegistry'
-], function (MetatypeRegistry) {
+], function () {
+
+    var Metatypes = {};
 
     return {
-        getName: function(properties) {
-            switch(properties.get('service.factoryPid')) {
-                case 'org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor':
-                    var processingMechanism = MetatypeRegistry.getRelevantOptionLabel({
-                        metatypeId: properties.get('service.factoryPid'),
-                        property: 'processingMechanism',
-                        value: properties.get('processingMechanism')
-                    });
-                    return processingMechanism + ' | ' + properties.get('monitoredDirectoryPath');
-                default:
-                    return null;
+        add: function(id, metatypeModel) {
+            Metatypes[id] = Metatypes[id] || metatypeModel;
+        },
+        get: function(id) {
+            return Metatypes[id];
+        },
+        getRelevantOptionLabel: function(options) {
+            console.log(Metatypes);
+            if (options.metatypeId === undefined || options.property === undefined || options.value === undefined) {
+                throw "insufficient parameters to determine the relevant label";
             }
+            if (this.get(options.metatypeId) === undefined) {
+                return '';
+            }
+            return this.get(options.metatypeId).get(options.property).get('options')[options.value].label;
         }
     };
 });
