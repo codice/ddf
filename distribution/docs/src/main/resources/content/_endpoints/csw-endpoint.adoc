@@ -1476,7 +1476,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 |0-n
 
 |dct:abstract
-|
+|description
 |
 |0-n
 |0-n
