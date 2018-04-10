@@ -26,8 +26,11 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
+import org.boon.sort.Sort;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -58,7 +61,7 @@ public class CqlRequest {
 
   private String cql;
 
-  private String sort;
+  private List<Sort> sorts = Collections.emptyList();
 
   private boolean normalize = false;
 
@@ -104,12 +107,12 @@ public class CqlRequest {
     this.cql = cql;
   }
 
-  public String getSort() {
-    return sort;
+  public List<Sort> getSorts() {
+    return sorts;
   }
 
-  public void setSort(String sort) {
-    this.sort = sort;
+  public void setSorts(List<Sort> sorts) {
+    this.sorts = sorts;
   }
 
   public boolean isNormalize() {
@@ -121,8 +124,20 @@ public class CqlRequest {
   }
 
   public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
+    List<SortBy> sortBys =
+        sorts
+            .stream()
+            .filter(
+                s ->
+                    StringUtils.isNotEmpty(s.getAttribute())
+                        && StringUtils.isNotEmpty(s.getDirection()))
+            .map(s -> parseSort(s.getAttribute(), s.getDirection()))
+            .collect(Collectors.toList());
+    if (sortBys.isEmpty()) {
+      sortBys.add(new SortByImpl(Result.TEMPORAL, DEFAULT_SORT_ORDER));
+    }
     Query query =
-        new QueryImpl(createFilter(filterBuilder), start, count, parseSort(sort), true, timeout);
+        new QueryImpl(createFilter(filterBuilder), start, count, sortBys.get(0), true, timeout);
 
     String source = parseSrc(localSource);
 
@@ -139,6 +154,12 @@ public class CqlRequest {
       queryRequest
           .getProperties()
           .put("excludeAttributes", Sets.newHashSet(Metacard.METADATA, "lux"));
+    }
+
+    if (sortBys.size() > 1) {
+      queryRequest
+          .getProperties()
+          .put("additional.sorts.bys", sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
     }
 
     return queryRequest;
@@ -169,18 +190,7 @@ public class CqlRequest {
     return filter;
   }
 
-  private SortBy parseSort(String sortStr) {
-    String sortField = Result.TEMPORAL;
-    String sortOrder = DEFAULT_SORT_ORDER;
-
-    if (StringUtils.isNotBlank(sortStr)) {
-      String[] sortAry = StringUtils.split(sortStr, ":", 2);
-      if (sortAry.length == 2) {
-        sortField = sortAry[0];
-        sortOrder = sortAry[1];
-      }
-    }
-
+  private SortBy parseSort(String sortField, String sortOrder) {
     SortBy sort;
     switch (sortOrder.toLowerCase(Locale.getDefault())) {
       case "ascending":
@@ -217,5 +227,32 @@ public class CqlRequest {
 
   public void setExcludeUnnecessaryAttributes(boolean excludeUnnecessaryAttributes) {
     this.excludeUnnecessaryAttributes = excludeUnnecessaryAttributes;
+  }
+
+  /** POJO binding for BOON */
+  public static class Sort {
+    private String attribute;
+    private String direction;
+
+    public Sort(String attribute, String direction) {
+      this.attribute = attribute;
+      this.direction = direction;
+    }
+
+    public String getAttribute() {
+      return attribute;
+    }
+
+    public void setAttribute(String attribute) {
+      this.attribute = attribute;
+    }
+
+    public String getDirection() {
+      return direction;
+    }
+
+    public void setDirection(String direction) {
+      this.direction = direction;
+    }
   }
 }

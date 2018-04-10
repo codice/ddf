@@ -13,6 +13,8 @@
  */
 package ddf.catalog.cache.solr.impl;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -56,8 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class SortedQueryMonitor implements Runnable {
-  private static final String EXT_SORT_BY = "additional.sort.bys";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
 
   private final QueryRequest request;
@@ -100,7 +100,7 @@ class SortedQueryMonitor implements Runnable {
     if (sortBy != null && sortBy.getPropertyName() != null) {
       sortBys.add(sortBy);
     }
-    Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       if (extSortBys.length > 0) {

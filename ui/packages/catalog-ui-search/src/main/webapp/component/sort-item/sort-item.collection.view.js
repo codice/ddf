@@ -19,18 +19,28 @@ define([
     'jquery',
     'js/CustomElements',
     './sort-item.view',
+    './sort-item-collection.hbs',
     'js/store'
-], function (Marionette, _, $, CustomElements, queryItemView, store) {
+], function (Marionette, _, $, CustomElements, queryItemView, template, store) {
 
-    return Marionette.CollectionView.extend({
+    return Marionette.CompositeView.extend({
         tagName: CustomElements.register('sort-item-collection'),
         childView: queryItemView,
+        template: template,
+        childViewContainer: ".sorts",
         initialize: function (options) {
             if (this.collection.length === 0) {
                 this.collection.add({
                     attribute: 'title',
                     direction: 'ascending'
                 });
+            }
+        },
+        childViewOptions: function (model, index) {
+            return {
+                collection: this.collection,
+                childIndex: index,
+                parent: this
             }
         }
     });

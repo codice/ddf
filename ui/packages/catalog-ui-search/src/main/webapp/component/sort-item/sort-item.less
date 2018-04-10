@@ -2,6 +2,7 @@
   display: block;
   width: 100%;
   overflow-x: hidden;
+  overflow-y: hidden;
 
   @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
   }
@@ -12,10 +13,9 @@
     }
   }
 
-  @{customElementNamespace}sort-item {
-    .sort-attribute,
-    .sort-direction {
-      width: auto;
+  @{customElementNamespace}sort-item:first-of-type {
+    .sort-add {
+      display: inline-block;
     }
   }
 }
@@ -27,21 +27,23 @@
 
   .sort-attribute,
   .sort-direction {
-    width: ~'calc(50%)';
+    width: ~'calc(47%)';
   }
 
   .sort-attribute,
   .sort-direction,
-  .sort-remove {
-      display: inline-block;
-      vertical-align: middle;
+  .sort-remove,
+  .sort-add {
+    display: inline-block;
+    vertical-align: middle;
   }
 
   .sort-attribute {
-      transition: width @coreTransitionTime ease-in-out;
+    transition: width @coreTransitionTime ease-in-out;
   }
 
-  .sort-remove {
+  .sort-remove,
+  .sort-add {
     height: @minimumButtonSize;
     width: @minimumButtonSize;
     display: none;
@@ -50,10 +52,10 @@
 }
 
 @{customElementNamespace}sort-item.is-non-directional-sort {
-    .sort-attribute {
-      width: 100%;
-    }
-    .sort-direction {
-    }
+  .sort-attribute {
+    width: 100%;
+  }
+  .sort-direction {
+  }
 }
   

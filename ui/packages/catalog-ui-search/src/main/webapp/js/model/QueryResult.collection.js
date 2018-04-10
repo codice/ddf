@@ -21,6 +21,7 @@ var wkx = require('wkx');
 var moment = require('moment');
 var properties = require('properties');
 var Common = require('js/Common');
+var resultSort = require('js/model/ResultSort');
 require('backbone-associations');
 require('backbone.paginator');
 
@@ -367,61 +368,6 @@ function matchesFilters(metacard, resultFilter, metacardTypes) {
     }
 }
 
-function parseMultiValue(value) {
-    if (value && value.constructor === Array) {
-        return value[0];
-    }
-    return value;
-}
-
-function isEmpty(value) {
-    return value === undefined || value === null;
-}
-
-function parseValue(value, attribute) {
-    var attributeDefinition = metacardDefinitions.metacardTypes[attribute];
-    if (!attributeDefinition) {
-        return value.toString().toLowerCase();
-    }
-    switch (attributeDefinition.type) {
-        case 'DATE':
-        case 'BOOLEAN':
-            return value;
-        case 'STRING':
-            return value.toString().toLowerCase();
-        default:
-            return parseFloat(value);
-    }
-}
-
-function compareValues(aVal, bVal, sorting) {
-    var sortOrder = sorting.direction === 'descending' ? -1 : 1;
-    aVal = parseValue(aVal, sorting.attribute);
-    bVal = parseValue(bVal, sorting.attribute);
-    if (aVal < bVal) {
-        return sortOrder * -1;
-    }
-    if (aVal > bVal) {
-        return sortOrder;
-    }
-    return 0;
-}
-
-function checkSortValue(a, b, sorting) {
-    var aVal = parseMultiValue(a.get('metacard>properties>' + sorting.attribute));
-    var bVal = parseMultiValue(b.get('metacard>properties>' + sorting.attribute));
-    if (isEmpty(aVal) && isEmpty(bVal)) {
-        return 0;
-    }
-    if (isEmpty(aVal)) {
-        return 1;
-    }
-    if (isEmpty(bVal)) {
-        return -1;
-    }
-    return compareValues(aVal, bVal, sorting);
-}
-
 module.exports = Backbone.PageableCollection.extend({
     state: {
         pageSize: properties.getPageSize()
@@ -451,17 +397,7 @@ module.exports = Backbone.PageableCollection.extend({
     },
     updateSorting: function (sorting) {
         if (sorting) {
-            this.fullCollection.comparator = function (a, b) {
-                var sortValue = 0;
-                for (var i = 0; i <= sorting.length - 1; i++) {
-                    sortValue = checkSortValue(a, b, sorting[i]);
-                    if (sortValue !== 0) {
-                        break;
-                    }
-                }
-                return sortValue;
-            };
-            this.fullCollection.sort();
+            resultSort.sortResults(sorting, this.fullCollection);
         }
     },
     collapseDuplicates: function () {

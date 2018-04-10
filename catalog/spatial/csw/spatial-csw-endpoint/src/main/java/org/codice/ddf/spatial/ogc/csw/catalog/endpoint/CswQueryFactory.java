@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
@@ -80,8 +82,6 @@ public class CswQueryFactory {
 
   private static final Configuration PARSER_CONFIG =
       new org.geotools.filter.v1_1.OGCConfiguration();
-
-  private static final String EXT_SORT_BY = "additional.sort.bys";
 
   private static JAXBContext jaxBContext;
 
@@ -152,7 +152,7 @@ public class CswQueryFactory {
 
     Map<String, Serializable> properties = new HashMap<>();
     if (extSortBys != null && extSortBys.length > 0) {
-      properties.put(EXT_SORT_BY, extSortBys);
+      properties.put(ADDITIONAL_SORTS_BYS, extSortBys);
     }
 
     QueryRequest queryRequest = getQueryRequest(frameworkQuery, isEnterprise, properties);
@@ -241,7 +241,7 @@ public class CswQueryFactory {
     // Additional sort parameters
     Map<String, Serializable> newProperties = request.getProperties();
     if (newProperties != null) {
-      Serializable extraSortBys = request.getPropertyValue(EXT_SORT_BY);
+      Serializable extraSortBys = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
       if (extraSortBys instanceof SortBy[]) {
         List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
         extraSortBysList
@@ -250,14 +250,14 @@ public class CswQueryFactory {
             .filter(Objects::nonNull)
             .forEach(sortBys::add);
       } else {
-        LOGGER.debug("The \"{}\" query request property could not be read", EXT_SORT_BY);
+        LOGGER.debug("The \"{}\" query request property could not be read", ADDITIONAL_SORTS_BYS);
       }
 
       if (sortBys.size() > 1) {
         SortBy[] extraSortBysArray = sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]);
-        newProperties.put(EXT_SORT_BY, extraSortBysArray);
+        newProperties.put(ADDITIONAL_SORTS_BYS, extraSortBysArray);
       } else {
-        newProperties.remove(EXT_SORT_BY);
+        newProperties.remove(ADDITIONAL_SORTS_BYS);
       }
     }
 

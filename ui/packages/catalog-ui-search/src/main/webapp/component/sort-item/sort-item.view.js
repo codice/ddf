@@ -76,24 +76,58 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('sort-item'),
+        sortAttributes: [],
         regions: {
             sortAttribute: '.sort-attribute',
             sortDirection: '.sort-direction'
         },
         events: {
-            'click .sort-remove': 'removeModel'
+            'click .sort-remove': 'removeModel',
+            'click .sort-add': 'addModel'
         },
-        initialize: function (options) {},
+        initialize: function (options) {
+            this.index = options.childIndex;
+            this.collection = options.collection;
+            this.parent = options.parent;
+            this.listenTo(this.collection, "add", this.render);
+            this.listenTo(this.collection, "remove", this.render);
+            this.listenTo(this.model, "change", this.parent.render);
+        },
         removeModel: function () {
             this.model.destroy();
         },
+        getNextAttribute: function () {
+            let that = this;
+            let filtered = this.sortAttributes.filter(function (type) {
+                let sorts = that.collection.filter(function (sort) {
+                    return sort.get('attribute') === type.label;
+                });
+                return sorts.length !== 1;
+            });
+            return filtered[0].label;
+        },
+        addModel: function () {
+            this.collection.add({
+                attribute: this.getNextAttribute(),
+                direction: 'descending'
+            });
+        },
+        onDomRefresh: function () {
+            this.onBeforeShow();
+        },
         onBeforeShow: function () {
-            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
+            let that = this;
+            this.sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
                 return !properties.isHidden(type.id);
             }).filter(function (type) {
                 return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
             }).filter(function (type) {
                 return blacklist.indexOf(type.id) === -1;
+            }).filter(function (type) {
+                let sorts = that.collection.filter(function (sort) {
+                    return sort.get('attribute') === type.id;
+                });
+                return sorts.length !== 1 || type.id === that.model.get('attribute');
             }).map(function (metacardType) {
                 return {
                     label: metacardType.alias || metacardType.id,
@@ -102,7 +136,7 @@ define([
             });
 
             if (this.options.showBestTextOption) {
-                sortAttributes.unshift({
+                this.sortAttributes.unshift({
                     label: 'Best Text Match',
                     value: 'RELEVANCE'
                 });
@@ -110,11 +144,12 @@ define([
 
             this.sortAttribute.show(new PropertyView({
                 model: new Property({
-                    enum: sortAttributes,
+                    enum: this.sortAttributes,
 
                     value: [this.model.get('attribute')],
                     id: 'Sort Attribute',
-                    enumFiltering: true
+                    enumFiltering: true,
+                    showLabel: !(this.index > 0)
                 })
             }));
             this.handleAttribute();
@@ -154,7 +189,8 @@ define([
                     }],
 
                     value: [this.model.get('direction')],
-                    id: 'Sort Direction'
+                    id: 'Sort Direction',
+                    showLabel: !(this.index > 0)
                 })
             }));
 

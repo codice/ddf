@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -20,6 +21,9 @@ import static org.mockito.Mockito.mock;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.sort.SortBy;
@@ -38,9 +42,9 @@ public class CqlRequestTest {
 
   private static final String CACHE_SOURCE = "cache";
 
-  private static final String ASC_SORT_ORDER = ":asc";
+  private static final String ASC_SORT_ORDER = "asc";
 
-  private static final String DESC_SORT_ORDER = ":desc";
+  private static final String DESC_SORT_ORDER = "desc";
 
   private static final String SORT_PROPERTY = "DISTANCE";
 
@@ -49,6 +53,7 @@ public class CqlRequestTest {
   private static final String BAD_CQL = "unknownFunction(1,2)";
 
   private FilterBuilder filterBuilder;
+  private List<CqlRequest.Sort> sorts;
 
   @Before
   public void setUp() {
@@ -57,7 +62,8 @@ public class CqlRequestTest {
     cqlRequest.setCount(10);
     cqlRequest.setId("anId");
     cqlRequest.setNormalize(true);
-    cqlRequest.setSort(SORT_PROPERTY + ASC_SORT_ORDER);
+    sorts = Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
+    cqlRequest.setSorts(sorts);
     cqlRequest.setSrc("source");
     cqlRequest.setStart(1);
     cqlRequest.setTimeout(1000L);
@@ -70,10 +76,27 @@ public class CqlRequestTest {
     assertThat(cqlRequest.getCql(), is(CQL));
     assertThat(cqlRequest.getId(), is("anId"));
     assertThat(cqlRequest.isNormalize(), is(true));
-    assertThat(cqlRequest.getSort(), is(SORT_PROPERTY + ASC_SORT_ORDER));
+    assertThat(cqlRequest.getSorts(), is(sorts));
     assertThat(cqlRequest.getSource(), is("source"));
     assertThat(cqlRequest.getStart(), is(1));
     assertThat(cqlRequest.getTimeout(), is(1000L));
+  }
+
+  @Test
+  public void testMultipleSorts() {
+    List<CqlRequest.Sort> sorts = new ArrayList<>();
+    sorts.add(new CqlRequest.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
+    sorts.add(new CqlRequest.Sort("foobar", DESC_SORT_ORDER));
+    cqlRequest.setSorts(sorts);
+    QueryRequest queryRequest = cqlRequest.createQueryRequest("ddf.distribution", filterBuilder);
+    SortBy firstSort = queryRequest.getQuery().getSortBy();
+    assertThat(firstSort.getPropertyName().getPropertyName(), is(SORT_PROPERTY));
+    assertThat(firstSort.getSortOrder(), is(SortOrder.ASCENDING));
+    SortBy[] sortBys = (SortBy[]) queryRequest.getProperties().get(ADDITIONAL_SORTS_BYS);
+    assertThat(sortBys.length, is(1));
+    SortBy secondSort = sortBys[0];
+    assertThat(secondSort.getPropertyName().getPropertyName(), is("foobar"));
+    assertThat(secondSort.getSortOrder(), is(SortOrder.DESCENDING));
   }
 
   @Test
@@ -87,7 +110,8 @@ public class CqlRequestTest {
 
   @Test
   public void testCreateQueryWithCacheSource() {
-    cqlRequest.setSort(SORT_PROPERTY + DESC_SORT_ORDER);
+    cqlRequest.setSorts(
+        Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, DESC_SORT_ORDER)));
     cqlRequest.setSrc(CACHE_SOURCE);
     QueryRequest queryRequest = cqlRequest.createQueryRequest(CACHE_SOURCE, filterBuilder);
     SortBy sortBy = queryRequest.getQuery().getSortBy();
@@ -98,20 +122,20 @@ public class CqlRequestTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadSortOrder() {
-    cqlRequest.setSort(SORT_PROPERTY + ":bad");
+    cqlRequest.setSorts(Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, "bad")));
     cqlRequest.createQueryRequest(CACHE_SOURCE, filterBuilder);
   }
 
   @Test
   public void testBadSortOrderString() {
-    cqlRequest.setSort(SORT_PROPERTY);
+    cqlRequest.setSorts(Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, null)));
     QueryRequest queryRequest = cqlRequest.createQueryRequest(LOCAL_SOURCE, filterBuilder);
     assertDefaultSortBy(queryRequest);
   }
 
   @Test
   public void testBlankSortOrder() {
-    cqlRequest.setSort("");
+    cqlRequest.setSorts(Collections.emptyList());
     QueryRequest queryRequest = cqlRequest.createQueryRequest(LOCAL_SOURCE, filterBuilder);
     assertDefaultSortBy(queryRequest);
   }

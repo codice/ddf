@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.ui.searchui.query.solr;
 
+import static ddf.catalog.Constants.*;
+
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -37,8 +39,6 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
 
   public static final String SOURCE_ID = "source-id";
 
-  private static final String EXT_SORT_BY = "additional.sort.bys";
-
   private final Set<String> usedFields = new HashSet<>();
 
   public FilteringDynamicSchemaResolver(
@@ -60,7 +60,7 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
       }
     }
 
-    Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       if (extSortBys.length > 0) {

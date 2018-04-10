@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
@@ -188,7 +190,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   private static final String BYTES_SKIPPED = "bytes-skipped";
 
-  private static final String EXT_SORT_BY = "additional.sort.bys";
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
@@ -1184,7 +1185,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (query != null && query.getSortBy() != null && query.getSortBy().getPropertyName() != null) {
       List<SortBy> sortBys = new ArrayList<>();
       sortBys.add(query.getSortBy());
-      Serializable extSortBySer = queryRequest.getPropertyValue(EXT_SORT_BY);
+      Serializable extSortBySer = queryRequest.getPropertyValue(ADDITIONAL_SORTS_BYS);
       if (extSortBySer instanceof SortBy[]) {
         SortBy[] extSortBys = (SortBy[]) extSortBySer;
         if (extSortBys.length > 0) {

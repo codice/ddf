@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
@@ -91,8 +92,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String GEOMETRY_SORT_FIELD =
       Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
-
-  private static final String EXT_SORT_BY = "additional.sort.bys";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClientImpl.class);
 
@@ -378,7 +377,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
     }
 
-    Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       sortBys.addAll(Arrays.asList(extSortBys));
@@ -524,7 +523,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
     }
 
-    Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       if (extSortBys.length > 0) {
