@@ -118,12 +118,7 @@ const base = ({ alias = {}, env }) => ({
       {
         test: /\.(hbs|handlebars)$/,
         use: {
-          loader: nodeResolve('handlebars-loader'),
-          options: {
-            runtime: require.resolve('handlebars/runtime', {
-              paths: [path.join(process.cwd(), 'node_modules')]
-            })
-          }
+          loader: nodeResolve('handlebars-loader')
         }
       },
       {
