@@ -13,7 +13,7 @@
 define([
     'underscore',
     'moment',
-    'handlebars/runtime',
+    'ace/handlebars/runtime',
     'js/Common',
     'component/singletons/metacard-definitions',
     'lodash/get',
