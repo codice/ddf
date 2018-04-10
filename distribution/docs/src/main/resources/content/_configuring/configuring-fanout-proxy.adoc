@@ -7,7 +7,7 @@
 
 == {title}
 
-This scenario describes how to configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
+Optionally, configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
 All queries are enterprise queries and no catalog provider needs to be configured.
 
 . Navigate to the *${admin-console}*.
@@ -20,4 +20,4 @@ All queries are enterprise queries and no catalog provider needs to be configure
 ${branding} is now operating as a fanout proxy.
 Only queries and resource retrieval requests will be allowed.
 All queries will be federated.
-Create, update, and delete requests will throw an `UnsupportedOperationException`, even if a Catalog Provider was configured prior to the reconfiguration to fanout.
+Create, update, and delete requests will not be allowed, even if a Catalog Provider was configured prior to the reconfiguration as a fanout.
