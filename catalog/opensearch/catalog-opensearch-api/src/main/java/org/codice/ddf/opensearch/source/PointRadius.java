@@ -15,7 +15,7 @@ package org.codice.ddf.opensearch.source;
 
 import java.util.Objects;
 
-public class PointRadiusSearch {
+public class PointRadius {
 
   private double lon; // EPSG:4326 decimal degrees
 
@@ -23,7 +23,7 @@ public class PointRadiusSearch {
 
   private double radius; // meters
 
-  public PointRadiusSearch(double lon, double lat, double radius) {
+  public PointRadius(double lon, double lat, double radius) {
     this.lon = lon;
     this.lat = lat;
     this.radius = radius;
@@ -47,14 +47,14 @@ public class PointRadiusSearch {
       return true;
     }
 
-    if (!(object instanceof PointRadiusSearch)) {
+    if (!(object instanceof PointRadius)) {
       return false;
     }
 
-    final PointRadiusSearch pointRadiusSearch = (PointRadiusSearch) object;
-    return Double.compare(pointRadiusSearch.getLon(), getLon()) == 0
-        && Double.compare(pointRadiusSearch.getLat(), getLat()) == 0
-        && Double.compare(pointRadiusSearch.getRadius(), getRadius()) == 0;
+    final PointRadius pointRadius = (PointRadius) object;
+    return Double.compare(pointRadius.getLon(), getLon()) == 0
+        && Double.compare(pointRadius.getLat(), getLat()) == 0
+        && Double.compare(pointRadius.getRadius(), getRadius()) == 0;
   }
 
   @Override

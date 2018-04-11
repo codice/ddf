@@ -29,6 +29,7 @@ import ddf.security.encryption.EncryptionService
 import org.apache.cxf.jaxrs.client.WebClient
 import org.codice.ddf.cxf.SecureCxfClientFactory
 import org.codice.ddf.opensearch.OpenSearchConstants
+import org.opengis.filter.Filter
 import org.opengis.filter.PropertyIsLike
 import org.opengis.filter.spatial.Contains
 import org.opengis.filter.spatial.DWithin
@@ -109,7 +110,7 @@ class OpenSearchSourceSpec extends Specification {
         queryRequestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject)
     }
 
-    def testQueries() throws UnsupportedQueryException {
+    def testQueries(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
         given:
         final Map<String, Object> webClientQueryParameters = [:]
 
@@ -140,9 +141,6 @@ class OpenSearchSourceSpec extends Specification {
         where:
         filter << [
                 PROPERTY_IS_LIKE_FILTER,
-                D_WITHIN_FILTER,
-                CONTAINS_FILTER,
-                INTERSECTS_FILTER,
                 DURING_FILTER,
                 filterBuilder.allOf(D_WITHIN_FILTER, D_WITHIN_FILTER), // multiple of the same point-radius filter
                 filterBuilder.allOf(CONTAINS_FILTER, CONTAINS_FILTER), // multiple of the same polygon filter
@@ -157,9 +155,6 @@ class OpenSearchSourceSpec extends Specification {
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
@@ -173,7 +168,91 @@ class OpenSearchSourceSpec extends Specification {
         ]
     }
 
-    def testUnsupportedQuery() {
+    def testNotBboxSpatialQueries() throws UnsupportedQueryException {
+        given:
+        final Map<String, Object> webClientQueryParameters = [:]
+
+        webClient.get() >> {
+            assert webClientQueryParameters == expectedQueryParameters
+            return Mock(Response) {
+                getStatus() >> Response.Status.OK.getStatusCode()
+                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
+                getHeaderString("Accept-Ranges") >> "bytes"
+            }
+        }
+        webClient.replaceQueryParam(_ as String, _ as Object) >> {
+            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
+        }
+
+        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
+
+        when:
+        final SourceResponse response = source.query(queryRequest)
+
+        then:
+        response.getHits() == 1
+        final List<Result> results = response.getResults()
+        results.size() == 1
+        final Result result = results.get(0)
+        result.getMetacard() != null
+
+        where:
+        filter << [
+                D_WITHIN_FILTER,
+                CONTAINS_FILTER,
+                INTERSECTS_FILTER
+        ]
+        expectedQueryParameters << [
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]]
+        ]
+    }
+
+    def testBboxSpatialQueries(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
+        given:
+        final Map<String, Object> webClientQueryParameters = [:]
+
+        webClient.get() >> {
+            assert webClientQueryParameters == expectedQueryParameters
+            return Mock(Response) {
+                getStatus() >> Response.Status.OK.getStatusCode()
+                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
+                getHeaderString("Accept-Ranges") >> "bytes"
+            }
+        }
+        webClient.replaceQueryParam(_ as String, _ as Object) >> {
+            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
+        }
+
+        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
+
+        source.setShouldConvertToBBox(true)
+
+        when:
+        final SourceResponse response = source.query(queryRequest)
+
+        then:
+        response.getHits() == 1
+        final List<Result> results = response.getResults()
+        results.size() == 1
+        final Result result = results.get(0)
+        result.getMetacard() != null
+
+        where:
+        filter << [
+                D_WITHIN_FILTER,
+                CONTAINS_FILTER,
+                INTERSECTS_FILTER
+        ]
+        expectedQueryParameters << [
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["1.1,1.1,2.1,2.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["10.2,10.2,20.2,20.2"], src: [""]]
+        ]
+    }
+
+    def testUnsupportedQuery(Filter filter) {
         given:
         final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
 

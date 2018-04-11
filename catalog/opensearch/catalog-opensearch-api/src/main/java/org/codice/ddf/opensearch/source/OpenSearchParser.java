@@ -13,12 +13,14 @@
  */
 package org.codice.ddf.opensearch.source;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.security.Subject;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.cxf.jaxrs.client.WebClient;
 
 /**
@@ -64,30 +66,18 @@ public interface OpenSearchParser {
   void populateTemporal(WebClient client, TemporalFilter temporal, List<String> parameters);
 
   /**
-   * Fills in the OpenSearch query URL with polygon geospatial information if the {@link
-   * PointRadiusSearch} parameter is not null.
+   * Fills in the OpenSearch query URL with polygon geospatial information if one of the spatial
+   * search parameters is not null.
    *
    * @param client - OpenSearch URL to populate
-   * @param pointRadiusSearch - {@link PointRadiusSearch} that contains the spatial data
-   * @param shouldConvertToBBox - true if the {@link PointRadiusSearch} should be converted to a
-   *     Bounding Box
    * @param parameters - the given OpenSearch parameters
+   * @throws IllegalArgumentException if more than one of the search parameters is not null
    */
-  void populatePointRadiusParameters(
+  void populateSpatial(
       WebClient client,
-      PointRadiusSearch pointRadiusSearch,
-      boolean shouldConvertToBBox,
+      @Nullable Geometry geometry,
+      @Nullable BoundingBox boundingBox,
+      @Nullable Polygon polygon,
+      @Nullable PointRadius pointRadius,
       List<String> parameters);
-
-  /**
-   * Fills in the OpenSearch query URL with point-radius geospatial information if the {@link
-   * Polygon} parameter is not null.
-   *
-   * @param client - OpenSearch URL to populate
-   * @param polygon - {@link Polygon} that contains the spatial data
-   * @param shouldConvertToBBox - true if the SpatialFilter should be converted to a Bounding Box
-   * @param parameters - the given OpenSearch parameters
-   */
-  void populatePolygonParameter(
-      WebClient client, Polygon polygon, boolean shouldConvertToBBox, List<String> parameters);
 }

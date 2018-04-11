@@ -13,14 +13,17 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Result;
@@ -32,12 +35,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -53,12 +51,8 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenSearchParserImplTest {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImplTest.class);
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -66,7 +60,7 @@ public class OpenSearchParserImplTest {
 
   private static final String TIMEOUT = "30000";
 
-  private static final String DESCENDING_TEMPORAL_SORT = "date%3Adesc";
+  private static final String DESCENDING_TEMPORAL_SORT = "date:desc";
 
   private OpenSearchParser openSearchParser;
 
@@ -75,53 +69,10 @@ public class OpenSearchParserImplTest {
   @Before
   public void setUp() {
     openSearchParser = new OpenSearchParserImpl();
-    webClient = WebClient.create("http://www.example.com");
+    webClient = mock(WebClient.class);
   }
 
-  @Test
-  public void populateSpatialFilterCaseInsensitiveParameters() {
-    final Polygon polygon =
-        GEOMETRY_FACTORY.createPolygon(
-            GEOMETRY_FACTORY.createLinearRing(
-                new Coordinate[] {
-                  new Coordinate(1, 1),
-                  new Coordinate(2, 2),
-                  new Coordinate(3, 3),
-                  new Coordinate(4, 4),
-                  new Coordinate(1, 1)
-                }),
-            null);
-    openSearchParser.populatePolygonParameter(
-        webClient,
-        polygon,
-        true,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,BBOX,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-
-    final String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchConstants.BBOX));
-    assertThat(urlStr, containsString("1.0,1.0,4.0,4.0"));
-  }
-
-  @Test
-  public void populateSpatialFilterEmptyParameters() {
-    final Polygon polygon =
-        GEOMETRY_FACTORY.createPolygon(
-            GEOMETRY_FACTORY.createLinearRing(
-                new Coordinate[] {
-                  new Coordinate(1, 1),
-                  new Coordinate(2, 2),
-                  new Coordinate(3, 3),
-                  new Coordinate(4, 4),
-                  new Coordinate(1, 1)
-                }),
-            null);
-    openSearchParser.populatePolygonParameter(webClient, polygon, true, new ArrayList<>());
-
-    final String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchConstants.BBOX)));
-  }
+  // {@link OpenSearchParser#populateContextual(WebClient, Map, List)} tests
 
   @Test
   public void populateContextual() {
@@ -134,15 +85,8 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(searchPhraseMap.get("q")));
-    assertThat(urlStr, containsString(OpenSearchConstants.SEARCH_TERMS));
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after contextual population: {}", urlStr);
+
+    assertQueryParameterPopulated(OpenSearchConstants.SEARCH_TERMS, searchPhraseMap.get("q"));
   }
 
   @Test
@@ -156,18 +100,12 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(searchPhraseMap.get("z"))));
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after contextual population: {}", urlStr);
+
+    assertNoQueryParametersPopulated();
   }
 
   @Test
-  public void populateContextualEmptyMap() {
+  public void populateEmptyContextual() {
     Map<String, String> searchPhraseMap = new HashMap<>();
 
     openSearchParser.populateContextual(
@@ -176,35 +114,10 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString("q=")));
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after contextual population: {}", urlStr);
+
+    assertNoQueryParametersPopulated();
   }
 
-  @Test
-  public void populateContextualNullMap() {
-    openSearchParser.populateContextual(
-        webClient,
-        null,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString("q=")));
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after contextual population: {}", urlStr);
-  }
-
-  /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullContextual() {
     openSearchParser.populateContextual(
@@ -213,9 +126,11 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString("?" + OpenSearchConstants.SEARCH_TERMS)));
+
+    assertNoQueryParametersPopulated();
   }
+
+  // {@link OpenSearchParser#populateTemporal(WebClient, TemporalFilter, List)} tests
 
   @Test
   public void populateTemporal() {
@@ -230,27 +145,9 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    String startT = fmt.print(start.getTime());
-    try {
-      assertThat(urlStr, containsString(URLEncoder.encode(startT, "UTF-8")));
-    } catch (UnsupportedEncodingException e) {
-      fail(e.getMessage());
-    }
-    String endT = fmt.print(end.getTime());
-    try {
-      assertThat(urlStr, containsString(URLEncoder.encode(endT, "UTF-8")));
-    } catch (UnsupportedEncodingException e) {
-      fail(e.getMessage());
-    }
-    assertThat(urlStr, containsString(OpenSearchConstants.DATE_START));
-    assertThat(urlStr, containsString(OpenSearchConstants.DATE_END));
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after temporal population: {}", urlStr);
+
+    assertQueryParameterPopulated(OpenSearchConstants.DATE_START, fmt.print(start.getTime()));
+    assertQueryParameterPopulated(OpenSearchConstants.DATE_END, fmt.print(end.getTime()));
   }
 
   @Test
@@ -265,12 +162,11 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchConstants.DATE_START));
-    assertThat(urlStr, containsString(OpenSearchConstants.DATE_END));
+
+    assertQueryParameterPopulated(OpenSearchConstants.DATE_START);
+    assertQueryParameterPopulated(OpenSearchConstants.DATE_END);
   }
 
-  /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullTemporal() {
     openSearchParser.populateTemporal(
@@ -279,10 +175,11 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchConstants.DATE_START)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.DATE_END)));
+
+    assertNoQueryParametersPopulated();
   }
+
+  // {@link OpenSearchParser#populateSearchOptions(WebClient, QueryRequest, Subject, List)} tests
 
   @Test
   public void populateSearchOptions() {
@@ -298,19 +195,15 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
   }
 
   @Test
   public void populateSearchOptionsSortAscending() {
-    String sort = "date%3Aasc";
     SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
@@ -323,19 +216,15 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(sort));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, "date:asc");
   }
 
   @Test
   public void populateSearchOptionsSortRelevance() {
-    String sort = "sort=relevance%3Adesc";
     SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
@@ -348,19 +237,15 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(sort));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, "relevance:desc");
   }
 
   @Test
   public void populateSearchOptionsSortRelevanceUnsupported() {
-    String sort = "sort=relevance%3Adesc";
     SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.ASCENDING);
     Filter filter = mock(Filter.class);
     Query query = new QueryImpl(filter, 0, 2000, sortBy, true, 30000);
@@ -373,14 +258,11 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
-    assertThat(urlStr, not(containsString(sort)));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterNotPopulated(OpenSearchConstants.SORT);
   }
 
   @Test
@@ -396,14 +278,11 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, not(containsString(DESCENDING_TEMPORAL_SORT)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterNotPopulated(OpenSearchConstants.SORT);
   }
 
   @Test
@@ -420,14 +299,12 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(OpenSearchParserImpl.DEFAULT_TOTAL_MAX.toString()));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(
+        OpenSearchConstants.MAX_RESULTS, OpenSearchParserImpl.DEFAULT_TOTAL_MAX.toString());
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
   }
 
   @Test
@@ -447,16 +324,12 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(principalName));
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterPopulated(OpenSearchParserImpl.USER_DN, principalName);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
   }
 
   @Test
@@ -476,19 +349,14 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(principalName)));
-    assertThat(urlStr, containsString(MAX_RESULTS));
-    assertThat(urlStr, containsString(TIMEOUT));
-    assertThat(urlStr, containsString(DESCENDING_TEMPORAL_SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.COUNT));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_RESULTS));
-    assertThat(urlStr, containsString(OpenSearchConstants.MAX_TIMEOUT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
-    assertThat(urlStr, containsString(OpenSearchConstants.SORT));
+
+    assertQueryParameterPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_RESULTS, MAX_RESULTS);
+    assertQueryParameterPopulated(OpenSearchConstants.MAX_TIMEOUT, TIMEOUT);
+    assertQueryParameterNotPopulated(OpenSearchParserImpl.USER_DN);
+    assertQueryParameterPopulated(OpenSearchConstants.SORT, DESCENDING_TEMPORAL_SORT);
   }
 
-  /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
   public void populateNullSearchOptions() {
     openSearchParser.populateSearchOptions(
@@ -498,18 +366,50 @@ public class OpenSearchParserImplTest {
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchConstants.COUNT)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.MAX_RESULTS)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.SOURCES)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.USER_DN)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.MAX_TIMEOUT)));
-    assertThat(urlStr, not(containsString(OpenSearchParserImpl.FILTER)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.SORT)));
+
+    assertQueryParameterNotPopulated(OpenSearchConstants.COUNT);
+    assertQueryParameterNotPopulated(OpenSearchConstants.MAX_RESULTS);
+    assertQueryParameterNotPopulated(OpenSearchConstants.SOURCES);
+    assertQueryParameterNotPopulated(OpenSearchConstants.MAX_TIMEOUT);
+    assertQueryParameterNotPopulated(OpenSearchParserImpl.USER_DN);
+    assertQueryParameterNotPopulated(OpenSearchParserImpl.FILTER);
+    assertQueryParameterNotPopulated(OpenSearchConstants.SORT);
+  }
+
+  // {@link OpenSearchParser#populateSpatial(WebClient, SpatialSearch, List)} tests
+
+  @Test(expected = IllegalArgumentException.class)
+  public void populateSpatialGeometry() {
+    openSearchParser.populateSpatial(
+        webClient,
+        mock(Geometry.class),
+        null,
+        null,
+        null,
+        Arrays.asList(
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                .split(",")));
   }
 
   @Test
-  public void populatePolyGeospatial() {
+  public void populateSpatialBoundingBox() {
+    final BoundingBox boundingBox = new BoundingBox(170, 50, -150, 60);
+
+    openSearchParser.populateSpatial(
+        webClient,
+        null,
+        boundingBox,
+        null,
+        null,
+        Arrays.asList(
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                .split(",")));
+
+    assertQueryParameterPopulated(OpenSearchConstants.BBOX, "170.0,50.0,-150.0,60.0");
+  }
+
+  @Test
+  public void populateSpatialPolygon() {
     final Polygon polygon =
         GEOMETRY_FACTORY.createPolygon(
             GEOMETRY_FACTORY.createLinearRing(
@@ -522,80 +422,68 @@ public class OpenSearchParserImplTest {
                 }),
             null);
 
-    openSearchParser.populatePolygonParameter(
+    openSearchParser.populateSpatial(
         webClient,
+        null,
+        null,
         polygon,
-        false,
+        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString("1.0,1.0,1.0,5.0,5.0,5.0,5.0,1.0,1.0,1.0"));
-    assertThat(urlStr, containsString(OpenSearchConstants.POLYGON));
+
+    assertQueryParameterPopulated(
+        OpenSearchConstants.POLYGON, "1.0,1.0,1.0,5.0,5.0,5.0,5.0,1.0,1.0,1.0");
   }
 
   @Test
-  public void populateLatLonRadGeospatial() {
+  public void populateSpatialPointRadius() {
     double lat = 43.25;
     double lon = -123.45;
     double radius = 10000;
 
-    PointRadiusSearch spatial = new PointRadiusSearch(lon, lat, radius);
-    openSearchParser.populatePointRadiusParameters(
-        webClient,
-        spatial,
-        false,
-        Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, containsString(String.valueOf(lat)));
-    assertThat(urlStr, containsString(String.valueOf(lon)));
-    assertThat(urlStr, containsString(String.valueOf(radius)));
-    assertThat(urlStr, containsString(OpenSearchConstants.LAT));
-    assertThat(urlStr, containsString(OpenSearchConstants.LON));
-    assertThat(urlStr, containsString(OpenSearchConstants.RADIUS));
-
-    try {
-      new URL(urlStr);
-    } catch (MalformedURLException mue) {
-      fail("URL is not valid: " + mue.getMessage());
-    }
-    LOGGER.info("URL after lat lon geospatial population: {}", urlStr);
-  }
-
-  /** Verify that passing in null will still remove the parameters from the URL. */
-  @Test
-  public void populateNullPointRadius() {
-    openSearchParser.populatePointRadiusParameters(
+    PointRadius pointRadius = new PointRadius(lon, lat, radius);
+    openSearchParser.populateSpatial(
         webClient,
         null,
-        true,
+        null,
+        null,
+        pointRadius,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchConstants.LAT)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.LON)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.RADIUS)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.POLYGON)));
+
+    assertQueryParameterPopulated(OpenSearchConstants.LAT, String.valueOf(lat));
+    assertQueryParameterPopulated(OpenSearchConstants.LON, String.valueOf(lon));
+    assertQueryParameterPopulated(OpenSearchConstants.RADIUS, String.valueOf(radius));
   }
 
-  /** Verify that passing in null will still remove the parameters from the URL. */
   @Test
-  public void populateNullPolygon() {
-    openSearchParser.populatePolygonParameter(
+  public void populateNullSpatial() {
+    openSearchParser.populateSpatial(
         webClient,
         null,
-        true,
+        null,
+        null,
+        null,
         Arrays.asList(
             "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
-    String urlStr = webClient.getCurrentURI().toString();
-    assertThat(urlStr, not(containsString(OpenSearchConstants.LAT)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.LON)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.RADIUS)));
-    assertThat(urlStr, not(containsString(OpenSearchConstants.POLYGON)));
+
+    assertNoQueryParametersPopulated();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void populateMultipleSearchesSpatial() {
+    openSearchParser.populateSpatial(
+        webClient,
+        mock(Geometry.class),
+        mock(BoundingBox.class),
+        null,
+        null,
+        Arrays.asList(
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+                .split(",")));
   }
 
   private Subject getMockSubject(String principalName) {
@@ -608,5 +496,22 @@ public class OpenSearchParserImplTest {
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
     when(subject.getPrincipals()).thenReturn(principalCollection);
     return subject;
+  }
+
+  private void assertQueryParameterPopulated(final String queryParameterName) {
+    verify(webClient, times(1)).replaceQueryParam(eq(queryParameterName), anyObject());
+  }
+
+  private void assertQueryParameterPopulated(
+      final String queryParameterName, final String queryParameterValue) {
+    verify(webClient, times(1)).replaceQueryParam(queryParameterName, queryParameterValue);
+  }
+
+  private void assertQueryParameterNotPopulated(final String queryParameterName) {
+    verify(webClient, never()).replaceQueryParam(eq(queryParameterName), anyObject());
+  }
+
+  private void assertNoQueryParametersPopulated() {
+    verifyZeroInteractions(webClient);
   }
 }

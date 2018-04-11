@@ -132,7 +132,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Contains filter, Object data) {
     LOGGER.trace("ENTERING: Contains filter");
 
-    buildPolygonSearch(filter, data);
+    buildGeometrySearch(filter, data);
 
     LOGGER.trace("EXITING: Contains filter");
 
@@ -144,7 +144,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   public Object visit(Intersects filter, Object data) {
     LOGGER.trace("ENTERING: Intersects filter");
 
-    buildPolygonSearch(filter, data);
+    buildGeometrySearch(filter, data);
 
     LOGGER.trace("EXITING: Intersects filter");
 
@@ -431,14 +431,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
       LOGGER.trace("radius = {}", distance);
       openSearchFilterVisitorObject.addPointRadiusSearch(
-          new PointRadiusSearch(coords[0], coords[1], distance));
+          new PointRadius(coords[0], coords[1], distance));
     } else if (geometryExpression instanceof Point) {
       Point point = (Point) literalWrapper.evaluate(null);
       Coordinate coords = point.getCoordinate();
       LOGGER.trace("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
       LOGGER.trace("radius = {}", distance);
       openSearchFilterVisitorObject.addPointRadiusSearch(
-          new PointRadiusSearch(coords.x, coords.y, distance));
+          new PointRadius(coords.x, coords.y, distance));
     } else {
       LOGGER.debug(
           "The OpenSearch Source only supports POINT geometry WKT for DWithin filter, but the geometry is {}.",
@@ -446,7 +446,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
   }
 
-  protected static void buildPolygonSearch(BinarySpatialOperator filter, Object data) {
+  protected static void buildGeometrySearch(BinarySpatialOperator filter, Object data) {
     OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
         getOpenSearchFilterVisitorObjectFromData(data);
     if (openSearchFilterVisitorObject == null) {
@@ -479,10 +479,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     if (geometryExpression instanceof SurfaceImpl) {
       SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
       Polygon polygon = (Polygon) surface.getJTSGeometry();
-      openSearchFilterVisitorObject.addPolygonSearch(polygon);
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else if (geometryExpression instanceof Polygon) {
       Polygon polygon = (Polygon) literalWrapper.evaluate(null);
-      openSearchFilterVisitorObject.addPolygonSearch(polygon);
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else {
       LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
     }

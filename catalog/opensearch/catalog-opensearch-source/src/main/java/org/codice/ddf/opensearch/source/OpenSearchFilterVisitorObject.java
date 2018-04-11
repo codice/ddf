@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -24,9 +24,9 @@ public class OpenSearchFilterVisitorObject {
 
   private TemporalFilter temporalSearch;
 
-  private final Queue<PointRadiusSearch> pointRadiusSearches;
+  private final Queue<PointRadius> pointRadiusSearches;
 
-  private final Queue<Polygon> polygonSearches;
+  private final Queue<Geometry> geometrySearches;
 
   private String id;
 
@@ -34,7 +34,7 @@ public class OpenSearchFilterVisitorObject {
 
   public OpenSearchFilterVisitorObject() {
     pointRadiusSearches = new LinkedList<>();
-    polygonSearches = new LinkedList<>();
+    geometrySearches = new LinkedList<>();
   }
 
   public ContextualSearch getContextualSearch() {
@@ -54,24 +54,24 @@ public class OpenSearchFilterVisitorObject {
   }
 
   /** Ordered by first added. Does not contain duplicates. */
-  public Queue<PointRadiusSearch> getPointRadiusSearches() {
+  public Queue<PointRadius> getPointRadiusSearches() {
     return pointRadiusSearches;
   }
 
-  public void addPointRadiusSearch(PointRadiusSearch pointRadiusSearch) {
+  public void addPointRadiusSearch(PointRadius pointRadiusSearch) {
     if (!pointRadiusSearches.contains(pointRadiusSearch)) {
       pointRadiusSearches.add(pointRadiusSearch);
     }
   }
 
   /** Ordered by first added. Does not contain duplicates. */
-  public Queue<Polygon> getPolygonSearches() {
-    return polygonSearches;
+  public Queue<Geometry> getGeometrySearches() {
+    return geometrySearches;
   }
 
-  public void addPolygonSearch(Polygon polygonSearch) {
-    if (!polygonSearches.contains(polygonSearch)) {
-      polygonSearches.add(polygonSearch);
+  public void addGeometrySearch(Geometry geometrySearch) {
+    if (!geometrySearches.contains(geometrySearch)) {
+      geometrySearches.add(geometrySearch);
     }
   }
 
