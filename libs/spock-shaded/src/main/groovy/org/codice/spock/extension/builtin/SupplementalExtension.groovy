@@ -147,10 +147,10 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    */
   private def getMethodBySimplePrototype(Class<?> type, String prototype) {
     def p = prototype?.replaceAll("\\s", "")
-    def methods = type.methods.findAll { getSimplePrototype(it) == p }
+    def method = type.methods.find { getSimplePrototype(it) == p }
 
-    if (methods) {
-      return methods[0]
+    if (method) {
+      return method
     }
     throw new NoSuchMethodException(prototype)
   }
