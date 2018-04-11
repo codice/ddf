@@ -25,6 +25,7 @@ var ClusterCollection = require('./cluster.collection');
 var CQLUtils = require('js/CQLUtils');
 var LocationModel = require('component/location-old/location-old');
 var user = require('component/singletons/user-instance');
+var LayersDropdown = require('component/dropdown/layers/dropdown.layers.view');
 var DropdownModel = require('component/dropdown/dropdown');
 var MapContextMenuDropdown = require('component/dropdown/map-context-menu/dropdown.map-context-menu.view');
 var MapModel = require('./map.model');
@@ -262,7 +263,15 @@ module.exports = Marionette.LayoutView.extend({
         this.setupListeners();
         this.addHome();
         this.addClustering();
+        this.addLayers();
         this.endLoading();
+    },
+    addLayers: function(){
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-layers is-button"></div>');
+        this.addRegion('toolbarLayers', '.toolbar-layers');
+        this.toolbarLayers.show(new LayersDropdown({
+            model: new DropdownModel()
+        }));
     },
     initializeMap: function(){
         this.loadMap().then(function(Map) {

@@ -18,7 +18,6 @@ var template = require('./map-settings.hbs');
 var CustomElements = require('js/CustomElements');
 var Property = require('component/property/property');
 var PropertyView = require('component/property/property.view');
-var MapLayers = require('js/view/preferences/PreferencesModal.view');
 var user = require('component/singletons/user-instance');
 var mtgeo = require('mt-geo');
 var Common = require('js/Common');
@@ -35,8 +34,7 @@ module.exports = Marionette.LayoutView.extend({
     events: {},
     regions: {
         coordinateFormat: '> .property-coordinate-format',
-        coordinateFormatExample: '> .property-coordinate-example',
-        mapLayers: '> .map-layers'
+        coordinateFormatExample: '> .property-coordinate-example'
     },
     ui: {},
     initialize: function(){
@@ -45,10 +43,6 @@ module.exports = Marionette.LayoutView.extend({
     onBeforeShow: function () {
         this.setupResultCount();
         this.setupCoordinateExample();
-        this.setupMapLayers();
-    },
-    setupMapLayers: function() {
-        this.mapLayers.show(new MapLayers());
     },
     setupCoordinateExample: function(){
         var coordinateFormat = user.get('user').get('preferences').get('coordinateFormat');
