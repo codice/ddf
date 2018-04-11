@@ -143,6 +143,12 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         drawPolygon: function(model){
             drawingTools.polygon.draw(model);
         },
+        destroyDrawingTools: function() {
+            drawingTools.line.destroy();
+            drawingTools.polygon.destroy();
+            drawingTools.circle.destroy();
+            drawingTools.bbox.destroy();
+        },
         onLeftClick: function(callback) {
             $(map.getTargetElement()).on('click', function(e) {
                 var boundingRect = map.getTargetElement().getBoundingClientRect();
@@ -540,6 +546,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             shapes = [];
         },
         destroy: function() {
+            this.destroyDrawingTools();
             unlistenToResize();
         }
     });

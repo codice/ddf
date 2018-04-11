@@ -21,9 +21,10 @@ define([
         'maptype',
         './notification.view',
         '@turf/turf',
-        '@turf/circle'
+        '@turf/circle',
+        './drawing.controller'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle) {
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle, DrawingController) {
         "use strict";
         var DrawCircle = {};
 
@@ -199,59 +200,11 @@ define([
 
         });
 
-        DrawCircle.Controller = Marionette.Controller.extend({
-            enabled: true,
-            initialize: function() {
-                this.listenTo(wreqr.vent, 'search:circledisplay', function(model) {
-                    this.showCircle(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawcircle', function(model) {
-                    this.draw(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    this.stop(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    this.destroy(model);
-                });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    this.destroyAll(model);
-                });
-            },
-            views: [],
-            isVisible: function() {
-                return this.options.map.scene.canvas.width !== 0;
-            },
-            destroyAll: function() {
-                for (var i = this.views.length - 1; i >= 0; i -= 1) {
-                    this.destroyView(this.views[i]);
-                }
-            },
-            getViewForModel: function(model) {
-                return this.views.filter(function(view) {
-                    return view.model === model && view.options.map === this.options.map;
-                }.bind(this))[0];
-            },
-            removeViewForModel: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    this.views.splice(this.views.indexOf(view), 1);
-                }
-            },
-            removeView: function(view) {
-                this.views.splice(this.views.indexOf(view), 1);
-            },
-            addView: function(view) {
-                this.views.push(view);
-            },
-            showCircle: function(model) {
+        DrawCircle.Controller = DrawingController.extend({
+            drawingType: 'circle',
+            show: function(model) {
                 if (this.enabled) {
                     var circleModel = model || new DrawCircle.CircleModel();
-                    /*     view = new DrawCircle.CircleView({
-                             scene: this.scene,
-                             model: circleModel
-                         });*/
-
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -295,34 +248,7 @@ define([
 
                     return circleModel;
                 }
-            },
-            stop: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                }
-                if (this.notificationView) {
-                    this.notificationView.destroy();
-                }
-            },
-            destroyView: function(view) {
-                view.stop();
-                view.destroyPrimitive();
-                this.removeView(view);
-            },
-            destroy: function(model) {
-                this.stop(model);
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                    view.destroyPrimitive();
-                    this.removeView(view);
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
             }
-
         });
 
 
