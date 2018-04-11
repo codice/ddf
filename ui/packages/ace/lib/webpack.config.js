@@ -254,7 +254,9 @@ const test = (base, { main }) => merge.smart(base, {
 const prod = (base, { main }) => merge.smart(base, {
   mode: 'production',
   devtool: 'source-map',
-  entry: resolve(main),
+  entry: [
+    resolve(main)
+  ],
   module: {
     rules: [
       {
