@@ -34,8 +34,35 @@ define([
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
             InputWithParam, ValueModel, CQLUtils, properties, Common) {
 
+    const generatePropertyJSON = (value, type, comparator) => {
+        const propertyJSON = _.extend({},
+            metacardDefinitions.metacardTypes[type],
+            {
+                value: value,
+                multivalued: false,
+                enumFiltering: true,
+                enumCustom: true,
+                matchcase: ['MATCHCASE', '='].indexOf(comparator) !== -1 ? true : false,
+                enum: metacardDefinitions.enums[type],
+                showValidationIssues: false
+            });
+            
+        if (propertyJSON.type === 'GEOMETRY'){
+            propertyJSON.type = 'LOCATION';
+        }
 
-       return Marionette.LayoutView.extend({
+        propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
+
+        if (comparator === 'NEAR') {
+            propertyJSON.type = 'NEAR';
+            propertyJSON.param = 'within';
+            propertyJSON.help =  'The distance (number of words) within which search terms must be found in order to match';
+            delete propertyJSON.enum;
+        }
+        return propertyJSON;
+    }
+
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('filter'),
         events: {
@@ -179,7 +206,7 @@ define([
             let value = Common.duplicate(this.model.get('value'));
             const currentComparator = this.model.get('comparator');
             value = this.transformValue(value, currentComparator);
-            const propertyJSON = this.generatePropertyJSON(value, this.model.get('type'), currentComparator);
+            const propertyJSON = generatePropertyJSON(value, this.model.get('type'), currentComparator);
 
             this.filterInput.show(new MultivalueView({
                 model: new PropertyModel(propertyJSON)
@@ -292,33 +319,6 @@ define([
                 ? this.filterInput.currentView.model.get('property')
                 : this.filterInput.currentView.model;
             property.set('isEditing', false);
-        },
-        generatePropertyJSON: function(value, type, comparator) {
-            const propertyJSON = _.extend({},
-                metacardDefinitions.metacardTypes[type],
-                {
-                    value: value,
-                    multivalued: false,
-                    enumFiltering: true,
-                    enumCustom: true,
-                    matchcase: ['MATCHCASE', '='].indexOf(comparator) !== -1 ? true : false,
-                    enum: metacardDefinitions.enums[type],
-                    showValidationIssues: false
-                });
-                
-            if (propertyJSON.type === 'GEOMETRY'){
-                propertyJSON.type = 'LOCATION';
-            }
-    
-            propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
-    
-            if (comparator === 'NEAR') {
-                propertyJSON.type = 'NEAR';
-                propertyJSON.param = 'within';
-                propertyJSON.help =  'The distance (number of words) within which search terms must be found in order to match';
-                delete propertyJSON.enum;
-            }
-            return propertyJSON;
         }
     });
 });
