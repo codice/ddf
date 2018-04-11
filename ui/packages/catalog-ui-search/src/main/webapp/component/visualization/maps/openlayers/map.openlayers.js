@@ -79,7 +79,7 @@ function unconvertPointCoordinate(point) {
     return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
 }
 
-module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
+module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement, mapModel) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
@@ -90,7 +90,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
     function setupTooltip(map) {        
         map.on('pointermove', function(e){
             var point = unconvertPointCoordinate(e.coordinate);
-            parentView.updateMouseCoordinates({
+            mapModel.updateMouseCoordinates({
                 lat: point[1],
                 lon: point[0]
             });

@@ -151,7 +151,7 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
     return !occluder.isPointVisible(cartesian3CenterOfGeometry);
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
+module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, mapModel) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
@@ -165,10 +165,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             var cartesian = map.scene.pickPosition(position);
             if (Cesium.defined(cartesian)){
                 let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                parentView.updateMouseCoordinates({
+                mapModel.updateMouseCoordinates({
                     lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
                     lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
                 });
+            } else {
+                mapModel.clearMouseCoordinates();
             }
         }
     }
