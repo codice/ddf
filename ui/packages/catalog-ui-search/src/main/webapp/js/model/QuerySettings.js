@@ -22,5 +22,12 @@ module.exports = Backbone.Model.extend({
             sortOrder: 'descending',
             template: undefined
         };
+    },
+    isTemplate: function(template) {
+        if (this.get('template') !== undefined) {
+            return this.get('template').id === template.id;
+        } else {
+            return false;
+        }
     }
 });

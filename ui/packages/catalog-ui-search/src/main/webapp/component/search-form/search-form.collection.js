@@ -20,6 +20,21 @@
  var SearchForm = require('./search-form');
  var Common = require('js/Common');
 
+ const fixFilter = function(filter) {
+    if (filter.filters) {
+        filter.filters.forEach(fixFilter);
+    } else {
+        filter.defaultValue = filter.defaultValue || '';
+        filter.value = filter.value || filter.defaultValue;
+    }
+ }
+
+ const fixTemplates = function(templates) {
+    templates.forEach((template) => {
+        return fixFilter(template.filterTemplate);
+    });
+ };
+ 
  let systemTemplates = [];
  let templatePromise = $.ajax({
     type: 'GET',
@@ -27,6 +42,7 @@
     url: '/search/catalog/internal/forms/query',
     contentType: 'application/json',
     success: function (data) {
+        fixTemplates(data);
         systemTemplates = data;
     }
  });

@@ -21,7 +21,6 @@ var  template = require('./search-form-interactions.hbs');
 var  CustomElements = require('js/CustomElements');
 var  user = require('component/singletons/user-instance');
 var  LoadingView = require('component/loading/loading.view');
-var  lightboxInstance = require('component/lightbox/lightbox.view.instance');
 var  announcement = require('component/announcement');
 var  ConfirmationView = require('component/confirmation/confirmation.view');
 
@@ -41,6 +40,7 @@ module.exports =  Marionette.ItemView.extend({
         ui: {},
         initialize: function() {
             this.checkIfDefaultSearchForm();
+            this.listenTo(user.getQuerySettings(), 'change', this.checkIfDefaultSearchForm);
         },
         onRender: function() {
             this.checkIfSubscribed();
@@ -89,12 +89,10 @@ module.exports =  Marionette.ItemView.extend({
             this.trigger("doneLoading");
         },
         handleMakeDefault: function() {
-            var templateJSON = {
-                filterTemplate: this.model.get('filterTemplate'),
-                model: this.model
-            };
-
-            user.getQuerySettings().set('defaultTemplate', JSON.parse(JSON.stringify(templateJSON)));
+            user.getQuerySettings().set({
+                type: 'custom',
+                template: this.model.toJSON()
+            });
             user.savePreferences();
             this.messageNotifier(
                 'Success!', 
@@ -103,7 +101,10 @@ module.exports =  Marionette.ItemView.extend({
             );
         },
         handleClearDefault: function() {
-            user.getQuerySettings().set('defaultTemplate', null);
+            user.getQuerySettings().set({
+                template: undefined,
+                type: 'text'
+            });
             user.savePreferences();
             this.messageNotifier(
                 'Success!', 
@@ -112,11 +113,7 @@ module.exports =  Marionette.ItemView.extend({
             );
         },
         checkIfDefaultSearchForm: function() {
-            var storedTemplate = user.getQuerySettings().toJSON();
-            var currentTemplate = this.model;
-
-            this.$el.find('.interaction-default').toggleClass('is-hidden', storedTemplate['defaultTemplate'] != undefined &&
-                storedTemplate['defaultTemplate'].model.name == currentTemplate.get('name'));
+            this.$el.toggleClass('is-current-template', user.getQuerySettings().isTemplate(this.model));
         },
         messageNotifier: function(title, message, type) {
             announcement.announce({
@@ -124,7 +121,6 @@ module.exports =  Marionette.ItemView.extend({
                 message: message,
                 type: type
             });
-            this.checkIfDefaultSearchForm();
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
