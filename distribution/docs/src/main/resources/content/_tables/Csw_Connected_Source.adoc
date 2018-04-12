@@ -82,7 +82,7 @@
 |Metacard Mappings
 |metacardMappings
 |String
-|Mapping of the Metacad Attribute names to their CSW property names. The format should be `'title=dc:title'`.
+|Mapping of the Metacard Attribute names to their CSW property names. The format should be `'title=dc:title'`.
 |effective=created, created=dateSubmitted, modified=modified, thumbnail=references, content-type=type, id=identifier, resource-uri=source
 |false
 
