@@ -112,8 +112,20 @@
 
 }
 
+@{customElementNamespace}filter-builder.hide-field-button {
+  > .filter-header > .contents-buttons > .add-filter {
+    display: none;
+  }
+}
+
 @{customElementNamespace}filter-builder.hide-nesting {
   > .filter-header > .contents-buttons > .add-filterBuilder {
+    display: none;
+  }
+}
+
+@{customElementNamespace}filter-builder.hide-root-operator {
+  > .filter-header > .filter-operator {
     display: none;
   }
 }

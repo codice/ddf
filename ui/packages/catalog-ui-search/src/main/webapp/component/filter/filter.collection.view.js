@@ -32,6 +32,12 @@ define([
             }
         },
         tagName: CustomElements.register('filter-collection'),
+        childViewOptions: function() {
+            return {
+                isForm: this.options.isForm || false,
+                isFormBuilder: this.options.isFormBuilder || false
+            }
+        },
         initialize: function(){
             this.listenTo(this.collection, 'remove', this.handleMinusButton);
             this.listenTo(this.collection, 'add', this.handleMinusButton);

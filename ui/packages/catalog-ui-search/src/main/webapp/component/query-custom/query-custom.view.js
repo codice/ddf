@@ -12,11 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 const Marionette = require('marionette');
 const _ = require('underscore');
 const $ = require('jquery');
-const template = require('./query-advanced.hbs');
+const template = require('./query-custom.hbs');
 const CustomElements = require('js/CustomElements');
 const FilterBuilderView = require('component/filter-builder/filter-builder.view');
 const FilterBuilderModel = require('component/filter-builder/filter-builder');
@@ -26,7 +26,7 @@ const QuerySettingsView = require('component/query-settings/query-settings.view'
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
-    tagName: CustomElements.register('query-advanced'),
+    tagName: CustomElements.register('query-custom'),
     modelEvents: {
     },
     events: {
@@ -36,9 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     regions: {
         querySettings: '.query-settings',
-        queryAdvanced: '.query-advanced'
-    },
-    ui: {
+        queryCustom: '.query-custom'
     },
     initialize: function() {
         this.$el.toggleClass('is-form-builder', this.options.isFormBuilder === true);
@@ -46,13 +44,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     onBeforeShow: function(){
         this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
-        this.querySettings.show(new QuerySettingsView({
-            model: this.model
-        }));
-        this.queryAdvanced.show(new FilterBuilderView({
+        
+        this.queryCustom.show(new FilterBuilderView({
             model: new FilterBuilderModel(),
             isForm: this.options.isForm || false,
             isFormBuilder: this.options.isFormBuilder || false
+        }));
+        this.querySettings.show(new QuerySettingsView({
+            model: this.model
         }));
 
         if (this.options.isForm === true && this.model.get('filterTree') !== undefined) {
@@ -64,37 +63,28 @@ module.exports = Marionette.LayoutView.extend({
         this.queryAdvanced.currentView.turnOffEditing();
         this.edit();
     },
-    focus: function(){
-        var tabbable =  _.filter(this.$el.find('[tabindex], input, button'), function(element){
-            return element.offsetParent !== null;
-        });
-        if (tabbable.length > 0){
-            $(tabbable[0]).focus();
-        }
-    },
     edit: function(){
         this.$el.addClass('is-editing');
         this.querySettings.currentView.turnOnEditing();
-        this.queryAdvanced.currentView.turnOnEditing();
-        if (this.options.isForm === true && this.options.isFormBuilder !== true) {
-            this.queryAdvanced.currentView.turnOffEditing();
+        //if (this.options.isForm === true && this.options.isFormBuilder === true) {
+        if (this.options.isFormBuilder === true) {
+            this.queryCustom.currentView.turnOnEditing();
         }
     },
     cancel: function(){
         this.$el.removeClass('is-editing');
-        this.onBeforeShow();
     },
     save: function(){
         this.$el.removeClass('is-editing');
         this.querySettings.currentView.saveToModel();
 
         this.model.set({
-            cql: this.queryAdvanced.currentView.transformToCql(),
-            filterTree: this.queryAdvanced.currentView.getFilters()
+            cql: this.queryCustom.currentView.transformToCql(),
+            filterTree: this.queryCustom.currentView.getFilters()
         });
     },
     setDefaultTitle: function() {
-        this.model.set('title', this.model.get('cql'));
+        this.model.set('title', 'New Form');
     },
     getFilterTree: function() {
         return this.queryAdvanced.currentView.getFilters();

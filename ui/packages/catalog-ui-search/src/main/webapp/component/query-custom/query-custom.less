@@ -1,0 +1,73 @@
+@{customElementNamespace}query-advanced.is-search {
+    .customElement;
+    overflow: hidden;
+  
+    .query-advanced-label {
+      .is-bold();
+      padding: @minimumSpacing;
+      line-height: @minimumButtonSize;
+      vertical-align: middle;
+      display: inline-block;
+    }
+  
+    form {
+      height: 100%;
+      overflow: hidden;
+    }
+  
+    .editor-properties {
+      display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+      width: 100%;
+      overflow: auto;
+      max-height: ~"calc(100% - 2*@{minimumButtonSize})";
+      padding: @minimumSpacing @minimumSpacing 0px @minimumSpacing;
+    }
+  
+    .editor-footer {
+      margin-top: @largeSpacing;
+      height: @minimumButtonSize;
+      white-space: nowrap;
+  
+      > button {
+        height: 100%;
+        display: inline-block;
+      }
+      > .editor-edit {
+        width: 100%;
+      }
+      > .editor-cancel {
+        width: 50%;
+        display: none;
+      }
+      > .editor-save {
+        width: 50%;
+        display: none;
+      }
+    }
+  
+    &.is-editing {
+      .editor-footer {
+  
+        > .editor-edit {
+          display: none;
+        }
+        > .editor-cancel {
+          display: inline-block;
+        }
+        > .editor-save {
+          display: inline-block;
+        }
+      }
+    }
+  
+    @{customElementNamespace}query-settings {
+      .editor-properties {
+        padding: 0px;
+        max-height: none;
+      }
+      .editor-footer {
+        display: none;
+      }
+    }
+  }
+  

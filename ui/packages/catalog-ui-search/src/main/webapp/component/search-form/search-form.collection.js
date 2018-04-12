@@ -13,7 +13,6 @@
  *
  **/
  /*global require*/
- var wreqr = require('wreqr');
  var _ = require('underscore');
  var $ = require('jquery');
  var Backbone = require('backbone');
@@ -36,7 +35,7 @@
     });
  };
  
- let systemTemplates = [];
+ let customTemplates = [];
  let templatePromise = $.ajax({
     type: 'GET',
     context: this,
@@ -44,20 +43,21 @@
     contentType: 'application/json',
     success: function (data) {
         fixTemplates(data);
-        systemTemplates = data;
+        customTemplates = data;
     }
  });
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
         doneLoading: false,
-        searchForms: []
+        searchForms: [
+            new SearchForm({type: 'new-form'}), 
+            new SearchForm({type: 'basic'}), 
+            new SearchForm({type: 'text'})
+        ]
     },
     initialize: function () {
-        this.addSearchForm(new SearchForm({type: 'basic'}));
-        this.addSearchForm(new SearchForm({type: 'text'}));
         this.addCustomForms();
-        wreqr.vent.on('deleteTemplateById', this.deleteTemplateById);
     },
     relations: [{
         type: Backbone.Many,
@@ -70,28 +70,39 @@ module.exports = Backbone.AssociatedModel.extend({
         })
     }],
     addCustomForms: function() {
-        templatePromise.then(() => {
+        // let newForms = [];
+        // if () {
+        //     $.ajax({
+        //         type: 'GET',
+        //         context: this,
+        //         url: '/search/catalog/internal/forms/query',
+        //         contentType: 'application/json',
+        //         success: function(data) {
+        //             fixTemplates(data);
+        //             nonFetchedTemplates = data;
+        //         }
+        //     });
+        // }
+        templatePromise.then(function() {
             if (!this.isDestroyed) {
-                $.each(systemTemplates, (index, value) => {
-                    if (this.checkIfOwnerOrSystem(value)) {
-                        var utcSeconds = value.created / 1000;
-                        var d = new Date(0);
-                        d.setUTCSeconds(utcSeconds);
-                        this.addSearchForm(new SearchForm({
-                            createdOn: Common.getHumanReadableDate(d),
-                            id: value.id,
-                            name: value.title,
-                            type: 'custom',
-                            filterTemplate: value.filterTemplate,
-                            accessIndividuals: value.accessIndividuals,
-                            accessGroups: value.accessGroups,
-                            createdBy: value.creator
-                        }));
-                    }
+                $.each(customTemplates, function(index, value) {
+                    var utcSeconds = value.created / 1000;
+                    var d = new Date(0);
+                    d.setUTCSeconds(utcSeconds);
+                    this.addSearchForm(new SearchForm({
+                        createdOn: Common.getHumanReadableDate(d),
+                        id: value.id,
+                        name: value.title,
+                        type: 'custom',
+                        filterTemplate: value.filterTemplate,
+                        accessIndividuals: value.accessIndividuals,
+                        accessGroups: value.accessGroups,
+                        createdBy: value.creator
+                    }));
                 });
                 this.doneLoading();
             }
-        });
+        }.bind(this));
     },
     getCollection: function() {
         return this.get('searchForms');
@@ -110,9 +121,9 @@ module.exports = Backbone.AssociatedModel.extend({
     doneLoading: function() {
         this.set('doneLoading', true);
     },
-    deleteTemplateById: function(id) {
-        systemTemplates = _.filter(systemTemplates, function(template) {
+    deleteCachedTemplateById: function(id) {
+        customTemplates =  _.filter(customTemplates, function(template) {
             return template.id !== id
-       });
+        });
     }
  });

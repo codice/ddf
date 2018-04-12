@@ -119,10 +119,14 @@ define([
                 case 'DWITHIN':
                     break;
                 default:
-                   if (value[0].constructor === Object) {
+                    if (value === null || value[0] === null) {
+                        value = [""];
+                        break;
+                    }
+                    if (value[0].constructor === Object) {
                         value[0] = value[0].value;
-                   }
-                   break;
+                    }
+                    break;
             }
             return value;
         },
@@ -318,7 +322,7 @@ define([
             var property = this.filterInput.currentView.model instanceof ValueModel
                 ? this.filterInput.currentView.model.get('property')
                 : this.filterInput.currentView.model;
-            property.set('isEditing', false);
+            property.set('isEditing', this.options.isForm === true || this.options.isFormBuilder === true);
         }
     });
 });

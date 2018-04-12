@@ -74,6 +74,7 @@ define([
             defaults: function () {
                 return _merge({
                     cql: "anyText ILIKE ''",
+                    filterTree: undefined,
                     title: 'Search Name',
                     excludeUnnecessaryAttributes: true,
                     count: properties.resultCount,

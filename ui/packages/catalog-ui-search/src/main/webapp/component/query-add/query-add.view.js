@@ -13,33 +13,33 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./query-add.hbs');
-var CustomElements = require('js/CustomElements');
-var QueryBasic = require('component/query-basic/query-basic.view');
-var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
-var QueryAdvanced = require('component/query-advanced/query-advanced.view');
-var QueryTitle = require('component/query-title/query-title.view');
-var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
-var Query = require('js/model/Query');
-var store = require('js/store');
-var QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
-var LoadingView = require('component/loading/loading.view');
-var wreqr = require('wreqr');
+const $ = require('jquery');
+const Marionette = require('marionette');
+const template = require('./query-add.hbs');
+const CustomElements = require('js/CustomElements');
+const QueryBasic = require('component/query-basic/query-basic.view');
+const QueryAdvanced = require('component/query-advanced/query-advanced.view');
+const QueryCustom = require('component/query-custom/query-custom.view');
+const QueryTitle = require('component/query-title/query-title.view');
+const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
+const Query = require('js/model/Query');
+const store = require('js/store');
+const QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
+const LoadingView = require('component/loading/loading.view');
+const wreqr = require('wreqr');
 const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
+const announcement = require('component/announcement');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('query-add'),
     regions: {
         queryContent: '> form > .editor-content > .content-form',
-        queryTitle: '> form > .editor-content > .content-title'
+        queryTitle: '> form > .editor-content > .content-title',
+        queryFooter: '> form > .editor-content > .content-footer'
     },
     events: {
-        'click > form > .editor-content > .content-mode > .is-text': 'toText',
-        'click > form > .editor-content > .content-mode > .is-basic': 'toBasic',
-        'click > form > .editor-content > .content-mode > .is-advanced': 'toAdvanced',
         'click .editor-edit': 'edit',
         'click .editor-cancel': 'cancel',
         'click .editor-save': 'save',
@@ -51,7 +51,11 @@ module.exports = Marionette.LayoutView.extend({
         this.listenForSave();
     },
     reshow: function() {
+        this.$el.toggleClass('is-form-builder', this.model.get('type') === 'new-form');
         switch (this.model.get('type')) {
+            case 'new-form':
+                this.showFormBuilder();
+                break;
             case 'text':
                 this.showText();
                 break;
@@ -69,6 +73,13 @@ module.exports = Marionette.LayoutView.extend({
     onBeforeShow: function () {
         this.reshow();
         this.showTitle();
+    },
+    showFormBuilder: function () {
+        this.queryContent.show(new QueryAdvanced({
+            model: this.model,
+            isForm: true,
+            isFormBuilder: true
+        }));
     },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
@@ -96,12 +107,10 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
-        this.model.set({
-            title: user.getQuerySettings().get('template').name
-        });
         this.queryContent.show(new QueryCustom({
             model: this.model,
-            filterTemplate: user.getQuerySettings().get('template').filterTemplate
+            isForm: true,
+            isFormBuilder: false
         }));
     },
     focus: function () {
@@ -120,6 +129,9 @@ module.exports = Marionette.LayoutView.extend({
         this.queryTitle.currentView.save();
         if (store.getCurrentQueries().get(this.model) === undefined) {
             store.getCurrentQueries().add(this.model);
+        }
+        if (this.$el.hasClass('is-form-builder')) {
+            this.saveTemplateToBackend();
         }
         this.cancel();
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
@@ -161,6 +173,30 @@ module.exports = Marionette.LayoutView.extend({
                     }
                 }.bind(this));
         }
+    },
+    saveTemplateToBackend: function() {
+        $.ajax({
+            url: '/search/catalog/internal/forms/query',
+            data: JSON.stringify(this.queryContent.currentView.getFilterTree()),
+            method: 'POST',
+            contentType: 'application/json',
+            success: () => {
+                //TODO Seriously get rid of this wreqr
+                //wreqr.vent.trigger('search-form:create', this.queryContent.currentView.getFilterTree());
+                announcement.announce({
+                    title: 'Created!',
+                    message: 'New search form has been created.',
+                    type: 'success'
+                });
+            },
+            error: () => {
+                announcement.announce({
+                    title: 'Error!',
+                    message: 'New search form failed to be created.',
+                    type: 'error'
+                });
+            }
+        });
     },
     endSave: function () {
         this.model.startSearch();

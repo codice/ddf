@@ -13,16 +13,15 @@
  *
  **/
 /*global define, window*/
-const  wreqr = require('wreqr');
-const  Marionette = require('marionette');
-const  template = require('./search-form-interactions.hbs');
-const  CustomElements = require('js/CustomElements');
-const  user = require('component/singletons/user-instance');
-const  LoadingView = require('component/loading/loading.view');
-const  announcement = require('component/announcement');
-const  ConfirmationView = require('component/confirmation/confirmation.view');
-const  lightboxInstance = require('component/lightbox/lightbox.view.instance');
-const  QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
+const Marionette = require('marionette');
+const template = require('./search-form-interactions.hbs');
+const CustomElements = require('js/CustomElements');
+const user = require('component/singletons/user-instance');
+const LoadingView = require('component/loading/loading.view');
+const announcement = require('component/announcement');
+const ConfirmationView = require('component/confirmation/confirmation.view');
+const lightboxInstance = require('component/lightbox/lightbox.view.instance');
+const QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
 
 module.exports =  Marionette.ItemView.extend({
         template: template,
@@ -75,9 +74,11 @@ module.exports =  Marionette.ItemView.extend({
                                         type: 'error'
                                     });
                                     throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
-                                }
-                            }); 
-                        this.removeCachedTemplate(this.model.id);
+                                }.bind(this),
+                                success: function(model, xhr, options) {
+                                    this.options.collectionWrapperModel.deleteCachedTemplateById(this.model.id);
+                                }.bind(this)
+                            });
                         loadingview.remove();
                     }
                 }.bind(this));                        
@@ -144,6 +145,7 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         },
         removeCachedTemplate: function(id){
-            wreqr.vent.trigger("deleteTemplateById", id);
+            //wreqr.vent.trigger("deleteTemplateById", id);
+
         }
     });

@@ -3,14 +3,6 @@
 
   overflow: hidden;
 
-  .query-advanced-label {
-    .is-bold();
-    padding: @minimumSpacing;
-    line-height: @minimumButtonSize;
-    vertical-align: middle;
-    display: inline-block;
-  }
-
   form {
     height: 100%;
     overflow: hidden;
@@ -58,6 +50,12 @@
       > .editor-save {
         display: inline-block;
       }
+    }
+  }
+
+  &.is-form-builder {
+    .editor-properties .query-settings {
+      display: none;
     }
   }
 
