@@ -141,6 +141,15 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- setting the timezone here because the dtStart and dtEnd parameter values
+                include timezone information and are verified in the unit tests-->
+                <configuration>
+                    <argLine>${argLine} -Duser.timezone=UTC</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>

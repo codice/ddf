@@ -155,16 +155,16 @@ class OpenSearchSourceSpec extends Specification {
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1969-12-31T17:00:10.000-07:00"], dtend: ["1969-12-31T17:00:10.005-07:00"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]]
         ]
     }
 
