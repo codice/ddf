@@ -30,6 +30,7 @@ module.exports = Marionette.LayoutView.extend({
     onBeforeShow: function(){
     },
     toggleAddVisual: function(e){
+        SlideoutViewInstance.$el.addClass("top-toolbar");
         SlideoutViewInstance.updateContent(new VisualizationSelector(this.options));
         SlideoutViewInstance.open();
     }
