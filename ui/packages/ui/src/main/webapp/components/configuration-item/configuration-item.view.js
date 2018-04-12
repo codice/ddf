@@ -52,7 +52,10 @@ define([
             }
         },
         serializeData: function () {
-            return _.extend(this.model.toJSON(), {displayName: this.model.getConfigurationDisplayName()}, {hasFactory: this.model.get('fpid')});
+            return _.extend(this.model.toJSON(), {displayName: this.model.getConfigurationDisplayName()}, {
+            hasFactory: this.model.get('fpid'),
+            cid: this.cid
+            });
         }
     });
 
