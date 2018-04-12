@@ -35,7 +35,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 public abstract class AbstractComponentTest {
-  protected static final int TIMEOUT_IN_SECONDS = 10;
+  static final int TIMEOUT_IN_SECONDS = 30;
 
   @Inject private BundleContext bundleContext;
 

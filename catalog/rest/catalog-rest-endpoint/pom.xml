@@ -238,7 +238,6 @@
                             asm,
                             catalog-core-actions,
                             catalog-core-api-impl,
-                            commons-lang3,
                             json-smart,
                             platform-util,
                             owasp-java-html-sanitizer
