@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-public class WorkspaceSecurityConfiguration {
+public class ShareableMetacardSecurityConfiguration {
 
   private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
 

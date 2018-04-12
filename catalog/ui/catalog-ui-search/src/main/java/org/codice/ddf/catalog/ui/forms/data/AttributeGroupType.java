@@ -51,7 +51,6 @@ public class AttributeGroupType extends MetacardTypeImpl {
         ImmutableSet.<AttributeDescriptor>builder()
             .addAll(new CoreAttributes().getAttributeDescriptors())
             .addAll(new SecurityAttributes().getAttributeDescriptors())
-            .addAll(new ShareableAttributes().getAttributeDescriptors())
             .addAll(ATTRIBUTE_GROUP_DESCRIPTORS)
             .build());
   }

@@ -34,10 +34,7 @@ import org.apache.shiro.authz.Permission;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WorkspacePolicyExtensionTest {
-
-  private static final Permission WORKSPACE =
-      makePermission(Constants.IS_WORKSPACE, ImmutableSet.of());
+public class ShareableMetacardPolicyExtensionTest {
 
   private static final Permission ADMIN_ROLE =
       makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("admin"));
@@ -54,9 +51,9 @@ public class WorkspacePolicyExtensionTest {
   private static final Permission OWNER =
       makePermission(Core.METACARD_OWNER, ImmutableSet.of("owner"));
 
-  private WorkspacePolicyExtension extension;
+  private ShareableMetacardPolicyExtension extension;
 
-  private WorkspaceSecurityConfiguration config;
+  private ShareableMetacardSecurityConfiguration config;
 
   private SubjectIdentity subjectIdentity;
 
@@ -64,8 +61,8 @@ public class WorkspacePolicyExtensionTest {
   public void setUp() {
     subjectIdentity = mock(SubjectIdentity.class);
     when(subjectIdentity.getIdentityAttribute()).thenReturn(Constants.EMAIL_ADDRESS_CLAIM_URI);
-    config = new WorkspaceSecurityConfiguration();
-    extension = new WorkspacePolicyExtension(config, subjectIdentity);
+    config = new ShareableMetacardSecurityConfiguration();
+    extension = new ShareableMetacardPolicyExtension(config, subjectIdentity);
   }
 
   private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
@@ -110,8 +107,8 @@ public class WorkspacePolicyExtensionTest {
   }
 
   @Test
-  public void testWorkspaceTagShouldAlwaysBeImplied() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, RANDOM);
+  public void testSharedMetacardTagShouldAlwaysBeImplied() {
+    List<Permission> before = ImmutableList.of(RANDOM);
 
     CollectionPermission subject = makeSubject((p) -> false);
 
@@ -122,7 +119,7 @@ public class WorkspacePolicyExtensionTest {
   }
 
   @Test
-  public void testShouldIgnoreNonWorkspaceMetacards() {
+  public void testShouldIgnoreNonSharedMetacards() {
     List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject = subjectFrom(OWNER);
@@ -134,8 +131,8 @@ public class WorkspacePolicyExtensionTest {
   }
 
   @Test
-  public void testAccessGroupShouldImplyWorkspace() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+  public void testAccessGroupShouldImplySharable() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject = subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, VALUES));
 
@@ -147,7 +144,7 @@ public class WorkspacePolicyExtensionTest {
 
   @Test
   public void testAccessGroupShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of()));
@@ -159,8 +156,8 @@ public class WorkspacePolicyExtensionTest {
   }
 
   @Test
-  public void testAccessIndividualShouldImplyWorkspace() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+  public void testAccessIndividualShouldImplyShareable() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, VALUES));
@@ -173,7 +170,7 @@ public class WorkspacePolicyExtensionTest {
 
   @Test
   public void testAccessIndividualShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of()));
@@ -186,7 +183,7 @@ public class WorkspacePolicyExtensionTest {
 
   @Test
   public void testSystemShouldImplyAll() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject = subjectFrom(ADMIN_ROLE);
 
@@ -198,7 +195,7 @@ public class WorkspacePolicyExtensionTest {
 
   @Test
   public void testOwnerShouldImplAll() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
@@ -212,7 +209,7 @@ public class WorkspacePolicyExtensionTest {
   @Test
   public void testOverrideSystemUserShouldImplyAll() {
     String email = "admin@localhost";
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     config.setSystemUserAttribute(Constants.EMAIL_ADDRESS_CLAIM_URI);
     config.setSystemUserAttributeValue(email);
@@ -229,7 +226,7 @@ public class WorkspacePolicyExtensionTest {
   @Test
   public void testOverrideSystemRoleShouldImplyAll() {
     String role = "system";
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     config.setSystemUserAttribute(Constants.ROLES_CLAIM_URI);
     config.setSystemUserAttributeValue(role);
@@ -248,7 +245,7 @@ public class WorkspacePolicyExtensionTest {
     String attr = "another";
     when(subjectIdentity.getIdentityAttribute()).thenReturn(attr);
 
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject = subjectFrom(makePermission(attr, ImmutableSet.of("owner")));
 
@@ -260,7 +257,7 @@ public class WorkspacePolicyExtensionTest {
 
   @Test
   public void testOverrideOwnerShouldImplyNone() {
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
 

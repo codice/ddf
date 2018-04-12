@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.ui.security;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
@@ -38,56 +37,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 
-public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
-
-  private static Map<String, Set<String>> getWorkspaceSecurityTag() {
-    return ImmutableMap.of(Constants.IS_WORKSPACE, ImmutableSet.of(Constants.IS_WORKSPACE));
-  }
+public class ShareableMetacardSharingPolicyPlugin implements PolicyPlugin {
 
   private static Map<String, Set<String>> getOwnerPermission(String owner) {
     return ImmutableMap.of(Core.METACARD_OWNER, ImmutableSet.of(owner));
   }
 
-  private Map<String, Set<String>> getOwnerPermission(WorkspaceMetacardImpl workspace) {
-    return Optional.of(workspace)
-        .map(WorkspaceMetacardImpl::getOwner)
+  private Map<String, Set<String>> getOwnerPermission(ShareableMetacardImpl shareableMetacard) {
+    return Optional.of(shareableMetacard)
+        .map(ShareableMetacardImpl::getOwner)
         .filter(StringUtils::isNotEmpty)
-        .map(WorkspaceSharingPolicyPlugin::getOwnerPermission)
+        .map(ShareableMetacardSharingPolicyPlugin::getOwnerPermission)
         .orElseGet(ImmutableMap::of);
   }
 
-  private Map<String, Set<String>> getIndividualPermission(WorkspaceMetacardImpl workspace) {
-    return ImmutableMap.of(
-        Security.ACCESS_INDIVIDUALS,
-        Optional.of(workspace)
-            .map(w -> w.getAttribute(Security.ACCESS_INDIVIDUALS))
-            .map(Attribute::getValues)
-            .orElseGet(Collections::emptyList)
-            .stream()
-            .map(Object::toString)
-            .collect(Collectors.toSet()));
+  private Map<String, Set<String>> getIndividualPermission(
+      ShareableMetacardImpl shareableMetacard) {
+    return ImmutableMap.of(Security.ACCESS_INDIVIDUALS, shareableMetacard.getAccessIndividuals());
   }
 
-  private Map<String, Set<String>> getGroupPermission(WorkspaceMetacardImpl workspace) {
-    return ImmutableMap.of(
-        Security.ACCESS_GROUPS,
-        Optional.of(workspace)
-            .map(w -> w.getAttribute(Security.ACCESS_GROUPS))
-            .map(Attribute::getValues)
-            .orElseGet(Collections::emptyList)
-            .stream()
-            .map(Object::toString)
-            .collect(Collectors.toSet()));
+  private Map<String, Set<String>> getGroupPermission(ShareableMetacardImpl shareableMetacard) {
+    return ImmutableMap.of(Security.ACCESS_GROUPS, shareableMetacard.getAccessGroups());
   }
 
-  private Map<String, Set<String>> getPolicy(WorkspaceMetacardImpl workspace) {
+  private Map<String, Set<String>> getPolicy(ShareableMetacardImpl shareableMetacard) {
     return Stream.of(
-            getWorkspaceSecurityTag(),
-            getOwnerPermission(workspace),
-            getGroupPermission(workspace),
-            getIndividualPermission(workspace))
+            getOwnerPermission(shareableMetacard),
+            getGroupPermission(shareableMetacard),
+            getIndividualPermission(shareableMetacard))
         .map(Map::entrySet)
         .flatMap(Collection::stream)
         .filter(entry -> !entry.getValue().isEmpty())
@@ -96,8 +74,8 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
 
   private Map<String, Set<String>> getPolicy(Metacard metacard) {
     return Optional.of(metacard)
-        .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
-        .map(WorkspaceMetacardImpl::from)
+        .filter(ShareableMetacardImpl::canShare)
+        .map(ShareableMetacardImpl::createOrThrow)
         .map(this::getPolicy)
         .orElseGet(ImmutableMap::of);
   }
@@ -105,8 +83,8 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
   private Map<String, Set<String>> getPolicy(List<Metacard> metacards) {
     return metacards
         .stream()
-        .filter(WorkspaceMetacardImpl::isWorkspaceMetacard)
-        .map(WorkspaceMetacardImpl::from)
+        .filter(ShareableMetacardImpl::canShare)
+        .map(ShareableMetacardImpl::createOrThrow)
         .map(this::getPolicy)
         .map(Map::entrySet)
         .flatMap(Collection::stream)

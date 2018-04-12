@@ -15,8 +15,6 @@ package org.codice.ddf.catalog.ui.security;
 
 public class Constants {
 
-  public static final String IS_WORKSPACE = "security.tag.is-workspace";
-
   public static final String ROLES_CLAIM_URI =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
