@@ -10,7 +10,6 @@
     "pretest": "ace bundle --env=test",
     "test": "ace test ./target/test/index.html",
     "testplus": "ace start --env=test --open",
-    "install": "napa ehynds/jquery-ui-multiselect-widget#1.14:jquery-ui-multiselect-widget",
     "build": "ace bundle",
     "postbuild": "ace package"
   },
@@ -28,7 +27,6 @@
     "@types/openlayers": "4.3.11",
     "ace": "*",
     "chai": "4.1.1",
-    "napa": "2.3.0",
     "react-addons-test-utils": "15.2.1"
   },
   "dependencies": {
@@ -52,6 +50,7 @@
     "golden-layout": "1.5.8",
     "jquery": "3.2.1",
     "jquery-ui": "1.12.1",
+    "jquery-ui-multiselect-widget": "1.17.0",
     "less-vars-to-js": "1.1.2",
     "lodash": "4.17.4",
     "lodash.get": "4.4.2",
