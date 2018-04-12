@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.security.handler.saml;
 
+import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.servlet.FilterChain;
@@ -132,6 +135,13 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     }
 
     HttpSession session = httpRequest.getSession(false);
+    if (httpRequest.getRequestedSessionId() != null && !httpRequest.isRequestedSessionIdValid()) {
+      SecurityLogger.audit(
+          "Incoming HTTP Request contained possible unknown session ID [{}] for this server.",
+          Hashing.sha256()
+              .hashString(httpRequest.getRequestedSessionId(), StandardCharsets.UTF_8)
+              .toString());
+    }
     if (session == null && httpRequest.getRequestedSessionId() != null) {
       session = sessionFactory.getOrCreateSession(httpRequest);
     }
