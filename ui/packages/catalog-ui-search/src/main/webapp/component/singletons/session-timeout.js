@@ -22,7 +22,7 @@ var invalidateUrl = '/services/internal/session/invalidate?prevurl=';
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-var idleTimeoutThreshold = parseInt(properties.timeout) > 0 ? parseInt(properties.timeout) : 900000;
+var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : 900000;
 
 function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
