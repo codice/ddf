@@ -21,6 +21,8 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 /** Options for configuring the JVM test environment */
 public class VmOptions {
 
+  private VmOptions() {}
+
   public static Option defaultVmOptions() {
     return new DefaultCompositeOption(
         vmOption("-Xmx4096M"),

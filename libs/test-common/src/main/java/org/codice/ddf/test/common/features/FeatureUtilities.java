@@ -183,8 +183,7 @@ public class FeatureUtilities {
         "{} feature uninstalled in {} ms.", featureName, (System.currentTimeMillis() - startTime));
   }
 
-  // TODO: tbatie - 4/4/18 - Write follow up ticket to refactor this out of ServiceManager in
-  // test-itests-common
+  // DDF-3768 ServiceManager should be moved to test-common and this duplicate code removed.
   public static final long FEATURES_AND_BUNDLES_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
   private static final Map<Integer, String> BUNDLE_STATES =

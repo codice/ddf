@@ -19,6 +19,8 @@ import org.codice.ddf.test.common.DependencyVersionResolver;
 
 public class InstallProfilesFeatures {
 
+  private InstallProfilesFeatures() {}
+
   private static final FeatureRepo FEATURE_REPO_URL =
       new FeatureRepoImpl(
           maven()

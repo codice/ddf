@@ -19,6 +19,8 @@ import org.codice.ddf.test.common.DependencyVersionResolver;
 
 public class MigrationFeatures {
 
+  private MigrationFeatures() {}
+
   private static final FeatureRepo FEATURE_COORDINATES =
       new FeatureRepoImpl(
           maven()

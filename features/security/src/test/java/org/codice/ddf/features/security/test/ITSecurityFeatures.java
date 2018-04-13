@@ -45,18 +45,7 @@ public class ITSecurityFeatures {
 
   private static final String FEATURE_REPO_PATH = getTestResource("/features.xml");
 
-  // TODO: tbatie - 4/9/18 - Make follow up ticket for cas bundles not starting
-  //  // [caused by: Unable to resolve org.codice.thirdparty.cas-client-core/3.1.10.1: missing
-  //  // requirement [org.codice.thirdparty.cas-client-core/3.1.10.1] osgi.wiring.package;
-  //  // filter:="(osgi.wiring.package=org.opensaml)"]]]
-
-  //  // missing requirement [security-cas-tokenvalidator/2.12.0.SNAPSHOT] osgi.wiring.package;
-  //  // filter:="(&(osgi.wiring.package=javax.servlet)(version>=2.5.0)(!(version>=3.0.0)))"]]
-
-  //  // [caused by: Unable to resolve org.codice.thirdparty.cas-client-core/3.1.10.1: missing
-  //  // requirement [org.codice.thirdparty.cas-client-core/3.1.10.1] osgi.wiring.package;
-  //  // filter:="(osgi.wiring.package=org.opensaml)"]]]
-
+  // DDF-3767
   private static final List<String> IGNORED_FEATURES =
       Arrays.asList(
           "security-cas-client", "security-cas-tokenvalidator", "security-cas-cxfservletfilter");

@@ -18,6 +18,9 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 import org.codice.ddf.test.common.DependencyVersionResolver;
 
 public class KernelFeatures {
+
+  private KernelFeatures() {}
+
   private static final FeatureRepo FEATURE_COORDINATES =
       new FeatureRepoImpl(
           maven()

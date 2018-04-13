@@ -19,6 +19,8 @@ import org.codice.ddf.test.common.DependencyVersionResolver;
 
 public class TestUtilitiesFeatures {
 
+  private TestUtilitiesFeatures() {}
+
   public static final String TEST_COMMON_FEATURE = "test-common";
 
   public static final String HAMCREST_ALL_FEATURE = "hamcrest-all";

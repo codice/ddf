@@ -32,8 +32,7 @@ public class ITInstallProfilesFeatures {
 
   private static final String FEATURE_REPO_PATH = getTestResource("/features.xml");
 
-  // TODO: tbatie - 4/9/18 - Make follow up ticket for features in profile-development not starting
-  // up.
+  // DDF-3769
   private static final List<String> IGNORED_FEATURES = Arrays.asList("profile-development");
 
   @Configuration
