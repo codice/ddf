@@ -40,6 +40,12 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ShareableMetacardSharingPolicyPlugin implements PolicyPlugin {
 
+  private static Map<String, Set<String>> getShareablePermissions() {
+    ImmutableMap.Builder<String, Set<String>> builder = new ImmutableMap.Builder<>();
+    Constants.SHAREABLE_TAGS.stream().forEach(t -> builder.put(t, ImmutableSet.of(t)));
+    return builder.build();
+  }
+
   private static Map<String, Set<String>> getOwnerPermission(String owner) {
     return ImmutableMap.of(Core.METACARD_OWNER, ImmutableSet.of(owner));
   }
@@ -63,6 +69,7 @@ public class ShareableMetacardSharingPolicyPlugin implements PolicyPlugin {
 
   private Map<String, Set<String>> getPolicy(ShareableMetacardImpl shareableMetacard) {
     return Stream.of(
+            getShareablePermissions(),
             getOwnerPermission(shareableMetacard),
             getGroupPermission(shareableMetacard),
             getIndividualPermission(shareableMetacard))

@@ -34,10 +34,13 @@ import java.util.stream.Collectors;
 public class ShareableMetacardPolicyExtension implements PolicyExtension {
 
   private static final Set<String> SHARED_PERMISSIONS_IMPLIED =
-      ImmutableSet.of(
-          Core.METACARD_OWNER,
-          SecurityAttributes.ACCESS_INDIVIDUALS,
-          SecurityAttributes.ACCESS_GROUPS);
+      new ImmutableSet.Builder<String>()
+          .addAll(Constants.SHAREABLE_TAGS.iterator())
+          .add(
+              Core.METACARD_OWNER,
+              SecurityAttributes.ACCESS_INDIVIDUALS,
+              SecurityAttributes.ACCESS_GROUPS)
+          .build();
 
   private ShareableMetacardSecurityConfiguration config;
 
@@ -99,6 +102,9 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
       KeyValueCollectionPermission allPerms) {
     List<KeyValuePermission> permissions = getPermissions(allPerms);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
+    if (Collections.disjoint(grouped.keySet(), SHARED_PERMISSIONS_IMPLIED)) {
+      return match; // ignore all but shareable permissions
+    }
 
     Predicate<CollectionPermission> isSystem = system();
     Predicate<CollectionPermission> isOwner = owner(grouped);
@@ -113,7 +119,7 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
           } else if (hasAccessIndividuals.test(subject) || hasAccessGroups.test(subject)) {
             return SHARED_PERMISSIONS_IMPLIED;
           } else {
-            return Collections.emptySet();
+            return Constants.SHAREABLE_TAGS;
           }
         };
 
