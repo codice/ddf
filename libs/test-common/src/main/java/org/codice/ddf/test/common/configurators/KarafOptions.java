@@ -26,6 +26,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRunti
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
+import org.codice.ddf.test.common.DependencyVersionResolver;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 
@@ -151,7 +152,7 @@ public class KarafOptions implements ContainerOptions {
         maven()
             .groupId("org.apache.karaf.features")
             .artifactId("standard")
-            .versionAsInProject()
+            .version(DependencyVersionResolver.resolver())
             .classifier("features")
             .type("xml"),
         "standard");

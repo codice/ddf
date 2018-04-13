@@ -30,8 +30,8 @@ public interface BrandingRegistry {
 
   /**
    * This method takes in a {@link BrandingPlugin} method reference (a {@link
-   * BrandingRegistryImpl.BrandingMethod} and calls it on the highest priority {@link
-   * BrandingPlugin} in the system.
+   * BrandingRegistry.BrandingMethod} and calls it on the highest priority {@link BrandingPlugin} in
+   * the system.
    *
    * @return a String with the value of the {@link BrandingPlugin}'s method call or if the method
    *     call cannot be evaluated, an empty String ""

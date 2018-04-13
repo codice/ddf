@@ -47,13 +47,13 @@
     </feature>
 
     <feature name="resourcemanagement-querymonitor-commands" version="${project.version}">
-        <feature prerequisite="true">resourcemanagement-querymonitor-plugin</feature>
+        <feature>resourcemanagement-querymonitor-plugin</feature>
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-commands/${project.version}</bundle>
     </feature>
 
     <feature name="resourcemanagement-app" version="${project.version}"
              description="The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.">
-        <feature prerequisite="true">catalog-app</feature>
+        <feature>catalog-app</feature>
         <feature>resourcemanagement-usage-ui</feature>
         <feature>resourcemanagement-usage-plugin</feature>
         <feature>resourcemanagement-querymonitor-plugin</feature>

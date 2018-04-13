@@ -75,7 +75,9 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
   }
 
   public void removeUserExpansion(ServiceReference<Expansion> expansionServiceRef) {
-    userExpansionServices.remove(expansionServiceRef);
+    if (expansionServiceRef != null) {
+      userExpansionServices.remove(expansionServiceRef);
+    }
   }
 
   public void addMetacardExpansion(ServiceReference<Expansion> expansionServiceRef) {
@@ -94,7 +96,9 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
   }
 
   public void removeMetacardExpansion(ServiceReference<Expansion> expansionServiceRef) {
-    metacardExpansionServices.remove(expansionServiceRef);
+    if (expansionServiceRef != null) {
+      metacardExpansionServices.remove(expansionServiceRef);
+    }
   }
 
   public AbstractAuthorizingRealm() {

@@ -130,7 +130,7 @@
              description="Spatial WPS Endpoint">
         <feature>spatial-wps-api</feature>
         <feature>spatial-process-api</feature>
-        <feature>commons</feature>
+        <feature>apache-commons</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wps-endpoint/${project.version}</bundle>
     </feature>
 

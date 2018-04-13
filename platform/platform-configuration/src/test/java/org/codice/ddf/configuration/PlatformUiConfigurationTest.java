@@ -25,7 +25,7 @@ import java.util.Collections;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.branding.BrandingRegistryImpl;
+import org.codice.ddf.branding.impl.BrandingRegistryImpl;
 import org.junit.Test;
 
 public class PlatformUiConfigurationTest {
