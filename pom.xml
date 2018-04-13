@@ -235,7 +235,7 @@
         <asciidoctorj.pdf.version>1.5.0-alpha.16</asciidoctorj.pdf.version>
         <asciidoctor.source.highlighter>coderay</asciidoctor.source.highlighter>
         <jbake.maven.plugin.version>0.0.9</jbake.maven.plugin.version>
-        <jruby.version>1.7.26</jruby.version>
+        <jruby.version>9.0.4.0</jruby.version>
         <dependency-check-maven.version>3.1.1</dependency-check-maven.version>
         <maven-war-plugin.version>2.2</maven-war-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
