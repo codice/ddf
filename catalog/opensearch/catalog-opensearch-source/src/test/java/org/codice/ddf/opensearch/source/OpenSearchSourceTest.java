@@ -552,7 +552,7 @@ public class OpenSearchSourceTest {
     assertThat(response.getHits(), is(1L));
   }
 
-  @Test
+  @Test(expected = UnsupportedQueryException.class)
   public void testResponseWithNoCorrespondingTransformer()
       throws InvalidSyntaxException, UnsupportedQueryException {
     source.setBundle(getMockBundleContext(null));
@@ -561,11 +561,7 @@ public class OpenSearchSourceTest {
     Filter filter =
         filterBuilder.attribute(NOT_ID_ATTRIBUTE_NAME).like().text(SAMPLE_SEARCH_PHRASE);
 
-    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
-    // TODO: Is this actually the desired functionality? The existing source doesn't actually look
-    // at the resultQueue size when determining hit count. We parse it from the response.
-    assertThat(response.getHits(), is(1L));
-    assertThat(response.getResults().size(), is(0));
+    source.query(new QueryRequestImpl(new QueryImpl(filter)));
   }
 
   @Test(expected = UnsupportedQueryException.class)

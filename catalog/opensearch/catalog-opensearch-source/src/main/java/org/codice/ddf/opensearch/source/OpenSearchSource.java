@@ -295,7 +295,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     String methodName = "query";
     LOGGER.trace(methodName);
 
-    SourceResponseImpl response = null;
+    final SourceResponse response;
 
     Subject subject = null;
     if (queryRequest.hasProperties()) {
@@ -330,12 +330,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             (String) queryRequest.getPropertyValue(Metacard.ID),
             openSearchFilterVisitorObject.getId());
 
-    final Map<String, String> searchPhraseMap;
-    if (contextualSearch != null) {
-      searchPhraseMap = contextualSearch.getSearchPhraseMap();
-    } else {
-      searchPhraseMap = new HashMap<>();
-    }
+    final Map<String, String> searchPhraseMap =
+        contextualSearch == null ? new HashMap<>() : contextualSearch.getSearchPhraseMap();
 
     // OpenSearch endpoints only support certain keyword, temporal, and spatial searches. The
     // OpenSearchSource additionally supports an id search when no other search criteria is
@@ -351,85 +347,24 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
-
-      // All queries must have at least a search phrase to be valid
-      searchPhraseMap.putIfAbsent(OpenSearchConstants.SEARCH_TERMS, "*");
-
-      openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
-      openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
-      openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
-      if (spatialSearch != null) {
-        openSearchParser.populateSpatial(
-            restWebClient,
-            spatialSearch.getGeometry(),
-            spatialSearch.getBoundingBox(),
-            spatialSearch.getPolygon(),
-            spatialSearch.getPointRadius(),
-            parameters);
-      }
-
-      if (localQueryOnly) {
-        restWebClient.replaceQueryParam(
-            OpenSearchConstants.SOURCES, OpenSearchConstants.LOCAL_SOURCE);
-      } else {
-        restWebClient.replaceQueryParam(OpenSearchConstants.SOURCES, "");
-      }
-
-      InputStream responseStream = performRequest(restWebClient);
-
-      response = new SourceResponseImpl(queryRequest, new ArrayList<>());
-
-      if (responseStream != null) {
-        response = processResponse(responseStream, queryRequest);
-      }
-    } else {
-      if (StringUtils.isEmpty(idSearch)) {
-        LOGGER.debug(
-            "The OpenSearch Source only supports id searches or searches with certain keyword, \"{}\" temporal, or \"{}\" spatial criteria, but the query was {}. See the documentation for more details about supported searches.",
-            OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM,
-            OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
-            query);
-        throw new UnsupportedQueryException(
-            "OpenSearch query parameters could not be created from the query criteria.");
-      }
-
+      response =
+          doOpenSearchQuery(
+              queryRequest, subject, spatialSearch, temporalSearch, searchPhraseMap, restWebClient);
+    } else if (StringUtils.isNotEmpty(idSearch)) {
       final WebClient restWebClient = newRestClient(query, idSearch, false, subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
 
-      InputStream responseStream = performRequest(restWebClient);
-
-      Metacard metacard = null;
-      List<Result> resultQueue = new ArrayList<>();
-      try (TemporaryFileBackedOutputStream fileBackedOutputStream =
-          new TemporaryFileBackedOutputStream()) {
-        if (responseStream != null) {
-          IOUtils.copyLarge(responseStream, fileBackedOutputStream);
-          InputTransformer inputTransformer = null;
-          try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-            inputTransformer = getInputTransformer(inputStream);
-          } catch (IOException e) {
-            LOGGER.debug("Problem with transformation.", e);
-          }
-          if (inputTransformer != null) {
-            try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
-              metacard = inputTransformer.transform(inputStream);
-            } catch (IOException e) {
-              LOGGER.debug("Problem with transformation.", e);
-            }
-          }
-        }
-      } catch (IOException | CatalogTransformerException e) {
-        LOGGER.debug("Problem with transformation.", e);
-      }
-      if (metacard != null) {
-        metacard.setSourceId(getId());
-        ResultImpl result = new ResultImpl(metacard);
-        resultQueue.add(result);
-        response = new SourceResponseImpl(queryRequest, resultQueue);
-        response.setHits(resultQueue.size());
-      }
+      response = doQueryById(queryRequest, restWebClient);
+    } else {
+      LOGGER.debug(
+          "The OpenSearch Source only supports id searches or searches with certain keyword, \"{}\" temporal, or \"{}\" spatial criteria, but the query was {}. See the documentation for more details about supported searches.",
+          OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM,
+          OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM,
+          query);
+      throw new UnsupportedQueryException(
+          "OpenSearch query parameters could not be created from the query criteria.");
     }
 
     setSourceId(response);
@@ -437,6 +372,67 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     LOGGER.trace(methodName);
 
     return response;
+  }
+
+  private SourceResponse doOpenSearchQuery(
+      QueryRequest queryRequest,
+      Subject subject,
+      SpatialSearch spatialSearch,
+      TemporalFilter temporalSearch,
+      Map<String, String> searchPhraseMap,
+      WebClient restWebClient)
+      throws UnsupportedQueryException {
+    // All queries must have at least a search phrase to be valid
+    searchPhraseMap.putIfAbsent(OpenSearchConstants.SEARCH_TERMS, "*");
+
+    openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
+    openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
+    openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
+    if (spatialSearch != null) {
+      openSearchParser.populateSpatial(
+          restWebClient,
+          spatialSearch.getGeometry(),
+          spatialSearch.getBoundingBox(),
+          spatialSearch.getPolygon(),
+          spatialSearch.getPointRadius(),
+          parameters);
+    }
+
+    if (localQueryOnly) {
+      restWebClient.replaceQueryParam(
+          OpenSearchConstants.SOURCES, OpenSearchConstants.LOCAL_SOURCE);
+    } else {
+      restWebClient.replaceQueryParam(OpenSearchConstants.SOURCES, "");
+    }
+
+    InputStream responseStream = performRequest(restWebClient);
+
+    return processResponse(responseStream, queryRequest);
+  }
+
+  private SourceResponse doQueryById(QueryRequest queryRequest, WebClient restWebClient)
+      throws UnsupportedQueryException {
+    InputStream responseStream = performRequest(restWebClient);
+
+    try (TemporaryFileBackedOutputStream fileBackedOutputStream =
+        new TemporaryFileBackedOutputStream()) {
+      IOUtils.copyLarge(responseStream, fileBackedOutputStream);
+      InputTransformer inputTransformer;
+      try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
+        inputTransformer = getInputTransformer(inputStream);
+      }
+
+      try (InputStream inputStream = fileBackedOutputStream.asByteSource().openStream()) {
+        final Metacard metacard = inputTransformer.transform(inputStream);
+        metacard.setSourceId(getId());
+        ResultImpl result = new ResultImpl(metacard);
+        List<Result> resultQueue = new ArrayList<>();
+        resultQueue.add(result);
+        return new SourceResponseImpl(queryRequest, resultQueue);
+      }
+    } catch (IOException | CatalogTransformerException e) {
+      throw new UnsupportedQueryException("Problem with transformation.", e);
+    }
   }
 
   /** Set the source-id on every metacard this is missing a source-id. */
@@ -462,29 +458,29 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   private InputStream performRequest(WebClient client) throws UnsupportedQueryException {
     Response clientResponse = client.get();
 
-    InputStream stream = null;
     Object entityObj = clientResponse.getEntity();
-    if (entityObj != null) {
-      stream = (InputStream) entityObj;
-    }
-    if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
-      String error = "";
-      try {
-        if (stream != null) {
-          error = IOUtils.toString(stream, StandardCharsets.UTF_8);
-        }
-      } catch (IOException ioe) {
-        LOGGER.debug("Could not convert error message to a string for output.", ioe);
-      }
-      String errorMsg =
-          "Received error code from remote source (status "
-              + clientResponse.getStatus()
-              + "): "
-              + error;
-      throw new UnsupportedQueryException(errorMsg);
+    if (entityObj == null) {
+      throw new UnsupportedQueryException("The response message does not contain an entity body.");
     }
 
-    return stream;
+    final InputStream stream = (InputStream) entityObj;
+
+    if (Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
+      return stream;
+    }
+
+    String error = "";
+    try {
+      error = IOUtils.toString(stream, StandardCharsets.UTF_8);
+    } catch (IOException ioe) {
+      LOGGER.debug("Could not convert error message to a string for output.", ioe);
+    }
+    String errorMsg =
+        "Received error code from remote source (status "
+            + clientResponse.getStatus()
+            + "): "
+            + error;
+    throw new UnsupportedQueryException(errorMsg);
   }
 
   /** Package-private so that tests may set the foreign markup consumer. */
@@ -494,7 +490,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
   }
 
-  private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) {
+  private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest)
+      throws UnsupportedQueryException {
     List<Result> resultQueue = new ArrayList<>();
 
     SyndFeedInput syndFeedInput = new SyndFeedInput();
@@ -544,7 +541,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * @param entry a single Atom entry
    * @return single response
    */
-  private List<Result> createResponseFromEntry(SyndEntry entry) {
+  private List<Result> createResponseFromEntry(SyndEntry entry) throws UnsupportedQueryException {
     String id = entry.getUri();
     if (StringUtils.isNotEmpty(id)) {
       id = id.substring(id.lastIndexOf(':') + 1);
@@ -597,7 +594,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return results;
   }
 
-  private Metacard parseContent(String content, String id) {
+  private Metacard parseContent(String content, String id) throws UnsupportedQueryException {
     if (StringUtils.isNotEmpty(content)) {
       InputTransformer inputTransformer =
           getInputTransformer(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
@@ -669,7 +666,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return "2.0";
   }
 
-  private InputTransformer getInputTransformer(InputStream inputStream) {
+  private InputTransformer getInputTransformer(InputStream inputStream)
+      throws UnsupportedQueryException {
     XMLStreamReader xmlStreamReader = null;
     try {
       xmlStreamReader = xmlInputFactory.createXMLStreamReader(inputStream);
@@ -694,8 +692,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         LOGGER.debug("Failed to close namespace reader", e);
       }
     }
-    LOGGER.debug("Unable to find applicable InputTransformer for metacard content from Atom feed.");
-    return null;
+
+    throw new UnsupportedQueryException(
+        "Unable to find applicable InputTransformer for metacard content from Atom feed.");
   }
 
   protected InputTransformer lookupTransformerReference(String namespaceUri)
@@ -954,7 +953,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return clientFactory.getWebClientForSubject(subj);
   }
 
-  private List<Metacard> processAdditionalForeignMarkups(Element element, String id) {
+  private List<Metacard> processAdditionalForeignMarkups(Element element, String id)
+      throws UnsupportedQueryException {
     List<Metacard> metacards = new ArrayList<>();
     if (CollectionUtils.isNotEmpty(markUpSet) && markUpSet.contains(element.getName())) {
       XMLOutputter xmlOutputter = new XMLOutputter();
@@ -1026,7 +1026,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * best-effort) to combine searches.
    *
    * @return null if the searches cannot be combined, or a {@linkSpatialSearch} with one search that
-   *     is the combination of all of the searches
+   *     is the combination of all of the spatial criteria
    */
   @Nullable
   protected SpatialSearch createCombinedSpatialSearch(
@@ -1047,36 +1047,32 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         LOGGER.debug(
             "Ignoring all polygon searches because combining polygon searches is not yet implemented.");
         return null;
-      } else {
-        final Geometry geometry = geometrySearches.remove();
-        if (geometry instanceof Polygon) {
-          final Polygon polygon = (Polygon) geometry;
-          if (shouldConvertToBBox) {
-            return new SpatialSearch(BoundingBoxUtils.createBoundingBox(polygon));
-          } else {
-            return new SpatialSearch(polygon);
-          }
-        } else {
-          LOGGER.debug(
-              "Ignoring geometry search because only polygon searches are currently supported.");
-          return null;
-        }
       }
+
+      final Geometry geometry = geometrySearches.remove();
+      if (!(geometry instanceof Polygon)) {
+        LOGGER.debug(
+            "Ignoring geometry search because only polygon searches are currently supported.");
+        return null;
+      }
+
+      final Polygon polygon = (Polygon) geometry;
+      return shouldConvertToBBox
+          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(polygon))
+          : new SpatialSearch(polygon);
     }
 
-    if (filterContainedSomePointRadiusCriteria && !filterContainedSomePolygonSearchCriteria) {
+    if (filterContainedSomePointRadiusCriteria) {
       if (CollectionUtils.size(pointRadiusSearches) > 1) {
         LOGGER.debug(
             "Ignoring all spatial searches because combining point radius-searches is not yet implemented.");
         return null;
-      } else {
-        final PointRadius pointRadius = pointRadiusSearches.remove();
-        if (shouldConvertToBBox) {
-          return new SpatialSearch(BoundingBoxUtils.createBoundingBox(pointRadius));
-        } else {
-          return new SpatialSearch(pointRadius);
-        }
       }
+
+      final PointRadius pointRadius = pointRadiusSearches.remove();
+      return shouldConvertToBBox
+          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(pointRadius))
+          : new SpatialSearch(pointRadius);
     }
 
     return null;
