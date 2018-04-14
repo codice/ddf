@@ -17,13 +17,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>catalog-opensearch-pom</artifactId>
         <groupId>ddf.catalog.opensearch</groupId>
+        <artifactId>catalog-opensearch</artifactId>
         <version>2.12.0-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-opensearch-source</artifactId>
     <name>DDF :: Catalog :: OpenSearch :: Source</name>
     <packaging>bundle</packaging>
+    <properties>
+        <com.rometools.version>1.9.0</com.rometools.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -32,75 +35,23 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>filter-proxy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
-            <!-- There is a conflict between geotools (specifically gt-xsd-filter)
-                and jscience. Since there is no direct dependency on jscience, rather
-                it calls methods in commons-ddf that use jscience, we can add an exclusion
-                stanza here to omit the transitive jscience dependency from the commons-ddf
-                dependency and resolve its conflict with geotools. -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jscience</groupId>
-                    <artifactId>jscience</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.classic.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rometools</groupId>
             <artifactId>rome</artifactId>
-            <version>1.5.0</version>
+            <version>${com.rometools.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rometools</groupId>
             <artifactId>rome-utils</artifactId>
-            <version>1.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-cql</artifactId>
-            <version>${org.geotools.version}</version>
+            <version>${com.rometools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <artifactId>jdom2</artifactId>
+            <version>2.0.6</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.opensearch</groupId>
@@ -108,26 +59,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.opensearch</groupId>
-            <artifactId>catalog-opensearch-endpoint</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-xml</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
@@ -135,42 +69,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-endpoint</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -179,20 +85,27 @@
         </dependency>
         <!-- TEST DEPENDENCIES -->
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>spock-shaded</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.npathai</groupId>
-            <artifactId>hamcrest-optional</artifactId>
-            <version>2.0.0</version>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>${org.geotools.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.exparity</groupId>
+            <artifactId>hamcrest-date</artifactId>
+            <version>2.0.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -208,32 +121,32 @@
                         <Embed-Dependency>
                             rome,
                             rome-utils,
-                            jdom,
+                            jdom2,
+                            catalog-opensearch-api,
                             security-rest-cxfwrapper,
                             ddf-security-common,
                             catalog-core-api-impl,
                             security-core-impl,
-                            platform-util-unavailableurls,
                             platform-util
                         </Embed-Dependency>
-                        <Import-Package><!-- To avoid ClassNotFoundException for FOMFactory -->
-                            org.apache.axiom.om,
-                            org.apache.axiom.om.impl.llom.factory,
-                            org.apache.abdera.parser.stax;version="[${abdera.version}, 2.0)",
-                            org.apache.abdera.parser.stax.util;version="[${abdera.version}, 2.0)",
-                            org.apache.abdera.util,
-                            org.apache.abdera.writer,
-                            org.apache.abdera.factory,
-                            org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
-                            org.apache.abdera.i18n.iri, <!-- Element -->
-                            org.apache.abdera.i18n.rfc4646, <!-- Element -->
-                            com.ctc.wstx.stax, <!-- needed by FOMWriter -->
+                        <Import-Package>
+                            !com.rometools.utils,
+                            !ddf.security.liberty.paos.impl,
+                            !org.codice.ddf.security.common.jaxrs,
+                            !ddf.security.assertion.impl,
+                            !org.codice.ddf.platform.util.http,
                             *
                         </Import-Package>
-                        <Export-Package>
-                            ddf.catalog.source.opensearch.impl
-                        </Export-Package>
                     </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- setting the timezone here because the dtStart and dtEnd parameter values
+                include timezone information and are verified in the unit tests-->
+                <configuration>
+                    <argLine>${argLine} -Duser.timezone=UTC</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -254,17 +167,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.76</minimum>
+                                            <minimum>0.82</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.49</minimum>
+                                            <minimum>0.61</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

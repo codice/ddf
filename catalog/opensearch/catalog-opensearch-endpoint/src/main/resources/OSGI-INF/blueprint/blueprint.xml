@@ -36,12 +36,12 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-    <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
+    <bean id="OsSvc" class="org.codice.ddf.opensearch.endpoint.OpenSearchEndpoint">
         <argument ref="ddf"/>
         <argument ref="filterBuilder"/>
     </bean>
 
-    <bean id="ddf.catalog.endpoint.opensearch"
+    <bean id="org.codice.ddf.opensearch.endpoint"
           class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
                   value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/catalog/query"/>
@@ -52,7 +52,7 @@
         <property name="description" value="The endpoint used for open search."/>
         <property name="bindingType" value="OpenSearch_1.0.0"/>
     </bean>
-    <service ref="ddf.catalog.endpoint.opensearch"
+    <service ref="org.codice.ddf.opensearch.endpoint"
              interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
 </blueprint>

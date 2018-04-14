@@ -74,8 +74,6 @@
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
-
-        <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-api/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-plugins" version="${project.version}"
