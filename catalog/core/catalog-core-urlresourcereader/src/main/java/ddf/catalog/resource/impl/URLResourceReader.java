@@ -95,6 +95,8 @@ public class URLResourceReader implements ResourceReader {
   private static final Set<String> QUALIFIER_SET =
       ImmutableSet.of(URL_HTTP_SCHEME, URL_HTTPS_SCHEME, URL_FILE_SCHEME);
 
+  private static final String HTTP_REDIRECT_RELATIVE_URI = "http.redirect.relative.uri";
+
   /** Mapper for file extensions-to-mime types (and vice versa) */
   private MimeTypeMapper mimeTypeMapper;
 
@@ -594,6 +596,9 @@ public class URLResourceReader implements ResourceReader {
     }
 
     WebClient.getConfig(client).getHttpConduit().getClient().setAutoRedirect(getFollowRedirects());
+    WebClient.getConfig(client)
+        .getRequestContext()
+        .put(HTTP_REDIRECT_RELATIVE_URI, getFollowRedirects());
     return client;
   }
 

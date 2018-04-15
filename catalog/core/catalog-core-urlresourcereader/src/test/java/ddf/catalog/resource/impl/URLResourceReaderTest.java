@@ -110,6 +110,7 @@ public class URLResourceReaderTest {
       "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
 
   private static final String BYTES_TO_SKIP = "BytesToSkip";
+  public static final String HTTP_REDIRECT_RELATIVE_URI = "http.redirect.relative.uri";
 
   @Rule
   public MethodRule watchman =
@@ -715,18 +716,24 @@ public class URLResourceReaderTest {
         resourceReader.getWebClient(
             HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
     assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
+    assertFalse(
+        (Boolean) WebClient.getConfig(client).getRequestContext().get(HTTP_REDIRECT_RELATIVE_URI));
 
     resourceReader.setFollowRedirects(true);
     client =
         resourceReader.getWebClient(
             HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
     assertTrue(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
+    assertTrue(
+        (Boolean) WebClient.getConfig(client).getRequestContext().get(HTTP_REDIRECT_RELATIVE_URI));
 
     resourceReader.setFollowRedirects(false);
     client =
         resourceReader.getWebClient(
             HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
     assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
+    assertFalse(
+        (Boolean) WebClient.getConfig(client).getRequestContext().get(HTTP_REDIRECT_RELATIVE_URI));
   }
 
   private void verifyFile(
