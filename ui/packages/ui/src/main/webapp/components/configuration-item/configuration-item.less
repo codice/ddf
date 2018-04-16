@@ -1,17 +1,19 @@
 @{customElementNamespace}configuration-item {
-    display: block;
+    display: flex;
     white-space: nowrap;
     padding: @minimumSpacing;
     margin-left: @largeSpacing;
     > div {
+        padding-left: @minimumSpacing;
         display: inline-block;
-        width: 33%;
-        text-overflow: ellipsis;
-        overflow: hidden;
+        white-space: normal;
+        word-wrap: break-word;
+        width: 45%;
     }
 
     > div:last-of-type {
         text-align: right;
+        width: 10%;
     }
 }
 
