@@ -16,14 +16,9 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,24 +32,11 @@ public class WorkspaceMetacardImplTest {
   }
 
   @Test
-  public void testIsWorkspaceMetacard() {
-    assertThat(WorkspaceMetacardImpl.isWorkspaceMetacard(null), is(false));
-    assertThat(WorkspaceMetacardImpl.isWorkspaceMetacard(new MetacardImpl()), is(false));
-    assertThat(WorkspaceMetacardImpl.isWorkspaceMetacard(workspace), is(true));
-  }
-
-  @Test
   public void testWorkspaceMetacardFrom() {
     WorkspaceMetacardImpl wrapped = WorkspaceMetacardImpl.from(new MetacardImpl(workspace));
     wrapped.setId("0");
     assertThat(wrapped.getId(), is("0"));
     assertThat(workspace.getId(), is("0"));
-  }
-
-  @Test
-  public void testSharing() {
-    Set<String> sharing = ImmutableSet.of("<xml/>");
-    assertThat(workspace.setSharing(sharing).getSharing(), is(sharing));
   }
 
   @Test
@@ -67,27 +49,5 @@ public class WorkspaceMetacardImplTest {
   public void testQueries() {
     List<String> queries = Arrays.asList("Query 1", "Query 1");
     assertThat(workspace.setQueries(queries).getQueries(), is(queries));
-  }
-
-  @Test
-  public void testDiffSharingNoChanges() {
-    workspace.setSharing(ImmutableSet.of("<xml1/>", "<xml2/>"));
-    assertThat(workspace.diffSharing(workspace), is(Collections.emptySet()));
-  }
-
-  @Test
-  public void testDiffSharingWithChanges() {
-    workspace.setSharing(ImmutableSet.of("<xml1/>", "<xml2/>"));
-
-    WorkspaceMetacardImpl m =
-        WorkspaceMetacardImpl.from(
-            ImmutableMap.of(
-                WorkspaceAttributes.WORKSPACE_SHARING, ImmutableList.of("<xml2/>", "<xml3/>")));
-
-    Set<String> diff = ImmutableSet.of("<xml1/>", "<xml3/>");
-
-    // NOTE: the diff is symmetric
-    assertThat(workspace.diffSharing(m), is(diff));
-    assertThat(m.diffSharing(workspace), is(diff));
   }
 }

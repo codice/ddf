@@ -20,6 +20,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.Collections;
 import java.util.List;
+import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
 
 /**
  * Metacard used for storing query templates in the catalog. Should not be used as a resource.
@@ -41,7 +42,7 @@ import java.util.List;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class QueryTemplateMetacard extends ShareableMetacard {
+public class QueryTemplateMetacard extends ShareableMetacardImpl {
   public QueryTemplateMetacard(String title, String description) {
     super(new QueryTemplateType());
     setAttribute(Core.TITLE, title);
@@ -69,7 +70,7 @@ public class QueryTemplateMetacard extends ShareableMetacard {
   }
 
   public String getFormsFilter() {
-    List<String> values = getValues(QUERY_TEMPLATE_FILTER);
+    List<String> values = getValuesOrEmpty(QUERY_TEMPLATE_FILTER);
     if (!values.isEmpty()) {
       return values.get(0);
     }

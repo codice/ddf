@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -34,14 +33,14 @@ import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.security.SubjectIdentity;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
-import java.util.SortedSet;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WorkspacePreIngestPluginTest {
+public class ShareableMetacardPreIngestPluginTest {
 
   private static final String TEST_ID_ATTR =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
@@ -54,10 +53,10 @@ public class WorkspacePreIngestPluginTest {
     when(subjectIdentity.getUniqueIdentifier(any())).thenReturn("owner");
   }
 
-  private WorkspacePreIngestPlugin makePlugin(Map<String, SortedSet<String>> attrs) {
+  private ShareableMetacardPreIngestPlugin makePlugin() {
     Subject subject = mock(Subject.class);
 
-    return new WorkspacePreIngestPlugin(subjectIdentity) {
+    return new ShareableMetacardPreIngestPlugin(subjectIdentity) {
       @Override
       protected Subject getSubject() {
         return subject;
@@ -66,25 +65,24 @@ public class WorkspacePreIngestPluginTest {
   }
 
   @Test
-  public void testCreateShouldIgnoreNonWorkspaceMetacards() throws Exception {
-    WorkspacePreIngestPlugin wpip = makePlugin(ImmutableMap.of());
+  public void testCreateShouldIgnoreNonShareableMetacards() throws Exception {
+    ShareableMetacardPreIngestPlugin plugin = makePlugin();
     Metacard metacard = new MetacardImpl();
 
-    wpip.process(new CreateRequestImpl(metacard));
+    plugin.process(new CreateRequestImpl(metacard));
     assertThat(metacard.getAttribute(Core.METACARD_OWNER), nullValue());
   }
 
   @Test
-  public void testCreateWorkspaceSuccess() throws Exception {
+  public void testCreateShareableSuccess() throws Exception {
     when(subjectIdentity.getIdentityAttribute()).thenReturn(TEST_ID_ATTR);
-    Map<String, SortedSet<String>> attrs =
-        ImmutableMap.of(TEST_ID_ATTR, ImmutableSortedSet.of("owner"));
 
-    WorkspacePreIngestPlugin wpip = makePlugin(attrs);
-    WorkspaceMetacardImpl workspace = new WorkspaceMetacardImpl();
+    ShareableMetacardPreIngestPlugin plugin = makePlugin();
+    ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
+    shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
 
-    wpip.process(new CreateRequestImpl(workspace));
-    assertThat(workspace.getOwner(), is("owner"));
+    plugin.process(new CreateRequestImpl(shareableMetacard));
+    assertThat(shareableMetacard.getOwner(), is("owner"));
   }
 
   private UpdateRequest updateRequest(Metacard prev, Metacard next) {
@@ -102,8 +100,8 @@ public class WorkspacePreIngestPluginTest {
   }
 
   @Test
-  public void testUpdateIgnoreNonWorkspaceMetacards() throws Exception {
-    WorkspacePreIngestPlugin wpip = makePlugin(ImmutableMap.of());
+  public void testUpdateIgnoreNonShareableMetacards() throws Exception {
+    ShareableMetacardPreIngestPlugin plugin = makePlugin();
 
     MetacardImpl prev = new MetacardImpl();
     prev.setId("id");
@@ -111,35 +109,37 @@ public class WorkspacePreIngestPluginTest {
     MetacardImpl next = new MetacardImpl();
     next.setId("id");
 
-    wpip.process(updateRequest(prev, next));
+    plugin.process(updateRequest(prev, next));
     assertThat(next.getAttribute(Core.METACARD_OWNER), nullValue());
   }
 
   @Test
   public void testUpdatePreserveOwner() throws Exception {
-    WorkspacePreIngestPlugin wpip = makePlugin(ImmutableMap.of());
+    ShareableMetacardPreIngestPlugin plugin = makePlugin();
 
-    WorkspaceMetacardImpl prev = new WorkspaceMetacardImpl("id");
-    WorkspaceMetacardImpl next = WorkspaceMetacardImpl.clone(prev);
+    ShareableMetacardImpl prev = new ShareableMetacardImpl("id");
+    ShareableMetacardImpl next = ShareableMetacardImpl.clone(prev);
+    prev.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    next.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
 
     prev.setOwner("prev");
 
     assertThat(next.getOwner(), nullValue());
-    wpip.process(updateRequest(prev, next));
+    plugin.process(updateRequest(prev, next));
     assertThat(next.getOwner(), is(prev.getOwner()));
   }
 
   @Test
   public void testUpdateAllowOwnerChange() throws Exception {
-    WorkspacePreIngestPlugin wpip = makePlugin(ImmutableMap.of());
+    ShareableMetacardPreIngestPlugin plugin = makePlugin();
 
-    WorkspaceMetacardImpl prev = new WorkspaceMetacardImpl("id");
-    WorkspaceMetacardImpl next = WorkspaceMetacardImpl.clone(prev);
+    ShareableMetacardImpl prev = new ShareableMetacardImpl("id");
+    ShareableMetacardImpl next = ShareableMetacardImpl.clone(prev);
 
     prev.setOwner("prev");
     next.setOwner("next");
 
-    wpip.process(updateRequest(prev, next));
+    plugin.process(updateRequest(prev, next));
     assertThat(next.getOwner(), is("next"));
   }
 }

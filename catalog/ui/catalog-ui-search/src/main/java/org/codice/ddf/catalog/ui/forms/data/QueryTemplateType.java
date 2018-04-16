@@ -58,7 +58,6 @@ public class QueryTemplateType extends MetacardTypeImpl {
         ImmutableSet.<AttributeDescriptor>builder()
             .addAll(new CoreAttributes().getAttributeDescriptors())
             .addAll(new SecurityAttributes().getAttributeDescriptors())
-            .addAll(new ShareableAttributes().getAttributeDescriptors())
             .addAll(QUERY_TEMPLATE_ATTRIBUTES)
             .build());
   }

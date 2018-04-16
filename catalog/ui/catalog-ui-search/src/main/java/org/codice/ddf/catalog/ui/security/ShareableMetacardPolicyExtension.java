@@ -22,6 +22,7 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.policy.extension.PolicyExtension;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,24 +31,23 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class WorkspacePolicyExtension implements PolicyExtension {
-
-  private static final Set<String> METACARD_PERMISSION_IMPLIED =
-      ImmutableSet.of(Constants.IS_WORKSPACE);
+public class ShareableMetacardPolicyExtension implements PolicyExtension {
 
   private static final Set<String> SHARED_PERMISSIONS_IMPLIED =
-      ImmutableSet.of(
-          Constants.IS_WORKSPACE,
-          Core.METACARD_OWNER,
-          SecurityAttributes.ACCESS_INDIVIDUALS,
-          SecurityAttributes.ACCESS_GROUPS);
+      new ImmutableSet.Builder<String>()
+          .addAll(Constants.SHAREABLE_TAGS.iterator())
+          .add(
+              Core.METACARD_OWNER,
+              SecurityAttributes.ACCESS_INDIVIDUALS,
+              SecurityAttributes.ACCESS_GROUPS)
+          .build();
 
-  private WorkspaceSecurityConfiguration config;
+  private ShareableMetacardSecurityConfiguration config;
 
   private SubjectIdentity subjectIdentity;
 
-  public WorkspacePolicyExtension(
-      WorkspaceSecurityConfiguration config, SubjectIdentity subjectIdentity) {
+  public ShareableMetacardPolicyExtension(
+      ShareableMetacardSecurityConfiguration config, SubjectIdentity subjectIdentity) {
     this.config = config;
     this.subjectIdentity = subjectIdentity;
   }
@@ -102,9 +102,8 @@ public class WorkspacePolicyExtension implements PolicyExtension {
       KeyValueCollectionPermission allPerms) {
     List<KeyValuePermission> permissions = getPermissions(allPerms);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
-
-    if (!grouped.containsKey(Constants.IS_WORKSPACE)) {
-      return match; // ignore all but workspace permissions
+    if (Collections.disjoint(grouped.keySet(), SHARED_PERMISSIONS_IMPLIED)) {
+      return match; // ignore all but shareable permissions
     }
 
     Predicate<CollectionPermission> isSystem = system();
@@ -120,7 +119,7 @@ public class WorkspacePolicyExtension implements PolicyExtension {
           } else if (hasAccessIndividuals.test(subject) || hasAccessGroups.test(subject)) {
             return SHARED_PERMISSIONS_IMPLIED;
           } else {
-            return METACARD_PERMISSION_IMPLIED;
+            return Constants.SHAREABLE_TAGS;
           }
         };
 
