@@ -40,6 +40,6 @@ attach a new artifact, do:
 To hot deploy a single web app, instead of building the entire maven
 project, you can run `ace package` and `ace install` at the root of the
 package. This will package any changes and install the OSGI bundle into
-your local m2 using the maven coodrinate
+your local m2 using the maven coordinate
 `mvn:org.codice.ddf/ui/${project.version}/jar/${package.name}`.
 

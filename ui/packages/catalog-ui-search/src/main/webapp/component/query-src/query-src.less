@@ -1,16 +1,29 @@
 @{customElementNamespace}query-src {
-  display: block;
+  display: flex;
+  flex-direction: column;
 
   .choice {
-    padding: 0px 20px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0px 10px;
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
     cursor: pointer;
     position: relative;
   }
 
+  .source-icon {
+    position: relative;
+    padding: 0px 5px;
+  }
+
   .choice-text {
-    padding-right: 30px;
+    display: inline-block;
+    padding-right: @minimumButtonSize;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
   }
 
   .choice-selected {
@@ -31,7 +44,7 @@
     text-align: center;
   }
 
-  .choice.is-selected .choice-text{
+  .choice.is-selected .choice-text {
     .is-bold();
   }
 
