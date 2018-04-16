@@ -29,7 +29,6 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.history.Historian;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -103,9 +102,7 @@ public class CatalogFrameworkQueryTest {
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
 
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
-    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props);
     SourceOperations sourceOperations = new SourceOperations(props);
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);

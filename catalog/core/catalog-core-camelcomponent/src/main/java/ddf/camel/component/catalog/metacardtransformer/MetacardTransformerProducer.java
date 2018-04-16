@@ -15,19 +15,15 @@ package ddf.camel.component.catalog.metacardtransformer;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.transform.MetacardTransformer;
-import java.util.Collection;
+import ddf.catalog.transform.CatalogTransformerException;
 import java.util.Collections;
-import java.util.NoSuchElementException;
+import java.util.List;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultProducer;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
+import org.apache.commons.collections.CollectionUtils;
+import org.codice.ddf.catalog.transform.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +38,17 @@ public class MetacardTransformerProducer extends DefaultProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTransformerProducer.class);
 
-  public MetacardTransformerProducer(Endpoint endpoint) {
+  private Transform transform;
+
+  public MetacardTransformerProducer(Endpoint endpoint, Transform transform) {
     super(endpoint);
+    this.transform = transform;
   }
 
   @Override
   public void process(Exchange exchange) throws Exception {
     Message in = exchange.getIn();
-    BinaryContent transformedData = null;
+    List<BinaryContent> transformedData = null;
     Object incomingData = in.getBody();
     String transformerId = in.getHeader(TRANSFORMER_ID, String.class);
 
@@ -58,9 +57,13 @@ public class MetacardTransformerProducer extends DefaultProducer {
       exchange.getOut().setHeader(METACARD_HEADER, metacard);
       if (transformerId != null) {
         in.removeHeader(TRANSFORMER_ID);
-        MetacardTransformer transformer = lookupTransformerReference(transformerId);
-        if (transformer != null) {
-          transformedData = transformer.transform(metacard, Collections.emptyMap());
+
+        try {
+          transformedData =
+              transform.transform(
+                  Collections.singletonList(metacard), transformerId, Collections.emptyMap());
+        } catch (IllegalArgumentException | CatalogTransformerException e) {
+          LOGGER.debug("Unable to transform the metacard", e);
         }
       } else {
         LOGGER.debug("metacard transformer id not present in: {} parameter", TRANSFORMER_ID);
@@ -70,29 +73,10 @@ public class MetacardTransformerProducer extends DefaultProducer {
     // Set the response output to the Metacard from the transformation
     exchange.getOut().setHeaders(in.getHeaders());
 
-    if (transformedData != null) {
-      exchange.getOut().setBody(transformedData.getByteArray());
+    if (CollectionUtils.isNotEmpty(transformedData)) {
+      exchange.getOut().setBody(transformedData.get(0).getByteArray());
     } else {
       exchange.getOut().setBody(null);
     }
-  }
-
-  private MetacardTransformer lookupTransformerReference(String metacardTransformerId) {
-    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-    if (bundle != null) {
-      BundleContext bundleContext = bundle.getBundleContext();
-      try {
-        Collection<ServiceReference<MetacardTransformer>> transformerReference =
-            bundleContext.getServiceReferences(
-                MetacardTransformer.class, "(id=" + metacardTransformerId + ")");
-        return bundleContext.getService(transformerReference.iterator().next());
-      } catch (InvalidSyntaxException | NoSuchElementException e) {
-        LOGGER.warn(
-            "Unable to resolve MetacardTransformer {}.  Backup will not be performed.",
-            metacardTransformerId,
-            e);
-      }
-    }
-    return null;
   }
 }

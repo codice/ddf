@@ -15,31 +15,27 @@ package ddf.camel.component.catalog;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.notNull;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import ddf.camel.component.catalog.metacardtransformer.MetacardTransformerProducer;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.transform.MetacardTransformer;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.codice.ddf.catalog.transform.Transform;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
@@ -58,53 +54,48 @@ public class MetacardTransformerProducerTest {
 
   private Metacard mockMetacard = mock(Metacard.class);
 
-  private Bundle mockBundle = mock(Bundle.class);
-
-  private BundleContext mockBundleContext = mock(BundleContext.class);
-
   private MetacardTransformerProducer metacardTransformerProducer;
-
-  private MetacardTransformer mockTransformer = mock(MetacardTransformer.class);
-
-  private ServiceReference mockServiceReference = mock(ServiceReference.class);
 
   private BinaryContent mockBinaryContent = mock(BinaryContent.class);
 
-  private Collection transformerReferences = new ArrayList<>();
+  private Transform transform;
 
   @Before
   public void setUp() throws InvalidSyntaxException {
     initMocks(this);
-    mockStatic(FrameworkUtil.class);
-    transformerReferences.add(mockServiceReference);
 
-    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(mockBundle);
-    when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
-    when(mockBundleContext.getServiceReferences(any(Class.class), any(String.class)))
-        .thenReturn(transformerReferences);
-    when(mockBundleContext.getService(any())).thenReturn(mockTransformer);
     when(mockExchange.getIn()).thenReturn(mockMessage);
     when(mockExchange.getOut()).thenReturn(mockMessage);
     when(mockMessage.getBody()).thenReturn(mockMetacard);
     when(mockMessage.getHeader(any(String.class), any(Class.class)))
         .thenReturn(TEST_TRANSFORMER_ID);
-    metacardTransformerProducer = new MetacardTransformerProducer(mockEndpoint);
+
+    transform = mock(Transform.class);
+
+    metacardTransformerProducer = new MetacardTransformerProducer(mockEndpoint, transform);
   }
 
   @Test
   public void testProcess() throws Exception {
+
+    when(transform.transform(any(List.class), any(String.class), any(Map.class)))
+        .thenReturn(Collections.emptyList());
+
     metacardTransformerProducer.process(mockExchange);
-    verify(mockTransformer, atLeastOnce()).transform(any(Metacard.class), any());
     verify(mockMessage, times(1)).setBody(null);
     verify(mockMessage, times(0)).setBody(notNull());
   }
 
   @Test
   public void testNullTransform() throws Exception {
-    when(mockTransformer.transform(any(), any())).thenReturn(mockBinaryContent);
+
     when(mockBinaryContent.getByteArray()).thenReturn("TEST".getBytes());
+
+    when(transform.transform(any(List.class), any(String.class), any(Map.class)))
+        .thenReturn(Collections.singletonList(mockBinaryContent));
+
     metacardTransformerProducer.process(mockExchange);
-    verify(mockTransformer, atLeastOnce()).transform(any(Metacard.class), any());
+
     verify(mockMessage, times(1)).setBody(notNull());
     verify(mockMessage, times(0)).setBody(null);
   }

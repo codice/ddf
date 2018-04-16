@@ -34,7 +34,6 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.IOException;
@@ -105,8 +104,6 @@ public class ExportCommand extends CqlCommands {
 
   private static final int PAGE_SIZE = 64;
 
-  private MetacardTransformer transformer;
-
   private Filter revisionFilter;
 
   private JarSigner jarSigner = new JarSigner();
@@ -161,13 +158,11 @@ public class ExportCommand extends CqlCommands {
   @Override
   protected Object executeWithSubject() throws Exception {
     Filter filter = getFilter();
-    transformer =
-        getServiceByFilter(
-                MetacardTransformer.class, String.format("(%s=%s)", "id", DEFAULT_TRANSFORMER_ID))
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Could not get " + DEFAULT_TRANSFORMER_ID + " transformer"));
+    if (!getTransform().isMetacardTransformerIdValid(DEFAULT_TRANSFORMER_ID)) {
+      throw new IllegalArgumentException(
+          "Could not get " + DEFAULT_TRANSFORMER_ID + " transformer");
+    }
+
     revisionFilter = initRevisionFilter();
 
     final File outputFile = initOutputFile(output);
@@ -484,10 +479,16 @@ public class ExportCommand extends CqlCommands {
         Paths.get("metacards", id.substring(0, 3), id, "metacard", id + ".xml").toString());
 
     try {
-      BinaryContent binaryMetacard =
-          transformer.transform(result.getMetacard(), Collections.emptyMap());
-      try (InputStream metacard = binaryMetacard.getInputStream()) {
-        zipFile.addStream(metacard, parameters);
+      List<BinaryContent> binaryMetacards =
+          getTransform()
+              .transform(
+                  Collections.singletonList(result.getMetacard()),
+                  DEFAULT_TRANSFORMER_ID,
+                  Collections.emptyMap());
+      for (BinaryContent binaryMetacard : binaryMetacards) {
+        try (InputStream metacard = binaryMetacard.getInputStream()) {
+          zipFile.addStream(metacard, parameters);
+        }
       }
     } catch (ZipException e) {
       LOGGER.error("Error processing result and adding to ZIP", e);

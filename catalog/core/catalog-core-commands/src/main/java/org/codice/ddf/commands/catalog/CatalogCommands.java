@@ -30,6 +30,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.codice.ddf.catalog.transform.Transform;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.codice.ddf.commands.catalog.facade.Provider;
@@ -85,6 +86,8 @@ public abstract class CatalogCommands extends SubjectCommands {
 
   @Reference protected FilterBuilder filterBuilder;
 
+  @Reference protected Transform transform;
+
   protected SolrCacheMBean getCacheProxy()
       throws IOException, MalformedObjectNameException, InstanceNotFoundException {
     ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECT_NAME);
@@ -119,5 +122,9 @@ public abstract class CatalogCommands extends SubjectCommands {
 
   protected String getFormattedDuration(Duration duration) {
     return duration.toString().substring(2).replaceAll("(\\d[HMS])(?!$)", "$1 ").toLowerCase();
+  }
+
+  protected Transform getTransform() {
+    return transform;
   }
 }

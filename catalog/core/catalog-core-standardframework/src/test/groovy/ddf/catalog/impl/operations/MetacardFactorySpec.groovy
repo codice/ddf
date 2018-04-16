@@ -15,8 +15,6 @@ package ddf.catalog.impl.operations
 
 import ddf.catalog.data.Metacard
 import ddf.catalog.data.MetacardCreationException
-import ddf.catalog.transform.InputTransformer
-import ddf.mime.MimeTypeToTransformerMapper
 
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import org.junit.Rule
@@ -37,11 +35,6 @@ class MetacardFactorySpec extends Specification {
     private Metacard metacardPlain
     private Metacard metacardXml
     private Metacard metacardXml2
-    private InputTransformer itPlain
-    private InputTransformer itXml
-    private InputTransformer itXml2
-    private InputTransformer itBad
-    private MetacardFactory metacardFactory
     private UuidGenerator uuidGenerator
     private Path path
 
@@ -54,32 +47,23 @@ class MetacardFactorySpec extends Specification {
         metacardXml2 = Mock(Metacard)
         uuidGenerator = Mock(UuidGenerator)
 
-        itPlain = Mock(InputTransformer)
-        itXml = Mock(InputTransformer)
-        itXml2 = Mock(InputTransformer)
-        itBad = Mock(InputTransformer)
-
         itBad.transform(_ as InputStream) >> { throw new IOException() }
-        itPlain.transform(_ as InputStream) >> { metacardPlain }
-        itXml.transform(_ as InputStream) >> { metacardXml }
-        itXml2.transform(_ as InputStream) >> { metacardXml2 }
 
-        def mimeTypeToTransformerMapper = Mock(MimeTypeToTransformerMapper)
-        mimeTypeToTransformerMapper.findMatches(_ as Class<InputTransformer>, _ as MimeType) >> { x, MimeType m ->
-            if (m.baseType == 'application/xml') {
-                [itXml, itXml2, itBad]
-            } else if (m.baseType == 'application/xml2') {
-                [itXml2, itXml, itBad]
-            } else if (m.baseType == 'application/xml3') {
-                [itBad, itXml]
-            } else if (m.baseType == 'application/xml-bad') {
-                [itBad]
-            } else if (m.baseType == 'text/plain') {
-                [itPlain]
-            }
+        transform.transform(_ as MimeType, _ as String, _ as File, _ as String, _ as Map) >> {
+            MimeType m ->
+                if (m.baseType == 'application/xml') {
+                    throw new MetacardCreationException()
+                } else if (m.baseType == 'application/xml2') {
+                    throw new MetacardCreationException()
+                } else if (m.baseType == 'application/xml3') {
+                    throw new MetacardCreationException()
+                } else if (m.baseType == 'application/xml-bad') {
+                    throw new MetacardCreationException()
+                } else if (m.baseType == 'text/plain') {
+                    [metacardPlain]
+                }
         }
 
-        metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator)
     }
 
     def 'test metacard generation with bad xformer'() {

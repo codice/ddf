@@ -39,7 +39,6 @@ import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.impl.QueryResponsePostProcessor;
 import ddf.catalog.impl.operations.CreateOperations;
 import ddf.catalog.impl.operations.DeleteOperations;
-import ddf.catalog.impl.operations.MetacardFactory;
 import ddf.catalog.impl.operations.OperationsCatalogStoreSupport;
 import ddf.catalog.impl.operations.OperationsMetacardSupport;
 import ddf.catalog.impl.operations.OperationsSecuritySupport;
@@ -156,9 +155,7 @@ public class FederationStrategyTest {
     props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
-    MetacardFactory metacardFactory =
-        new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
-    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
+    OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props);
 
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
