@@ -40,7 +40,7 @@
     <reference-list id="attributeInjectors" interface="ddf.catalog.data.AttributeInjector"
                     availability="optional">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
-            <bean class="ddf.catalog.util.impl.SortedServiceList"/>
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
         </reference-listener>
     </reference-list>
 
