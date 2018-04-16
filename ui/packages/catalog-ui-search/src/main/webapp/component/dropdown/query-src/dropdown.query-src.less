@@ -69,7 +69,7 @@
 
 @{customElementNamespace}dropdown.is-querySrc.is-editing {
   cursor: pointer;
-  
+
   .dropdown-text,
   .dropdown-icon {
     vertical-align: top;
@@ -78,7 +78,7 @@
   .dropdown-text {
     padding: 0px 10px;
     width: ~'calc(100% - @{minimumButtonSize})';
-    min-height: @minimumButtonSize;
+    height: @minimumButtonSize;
   }
 
   .dropdown-icon {
@@ -86,9 +86,9 @@
     display: inline-block;
     background: @primary-color;
     width: @minimumButtonSize;
+    height: @minimumButtonSize;
     line-height: @minimumButtonSize;
     text-align: center;
     font-size: @largeFontSize;
-    margin-left: -4px;
   }
 }
