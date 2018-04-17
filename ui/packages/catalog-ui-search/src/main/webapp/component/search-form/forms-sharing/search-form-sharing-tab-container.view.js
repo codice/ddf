@@ -13,11 +13,11 @@
  *
  **/
  /*global require*/
- let Marionette = require('marionette');
- let $ = require('jquery');
- let template = require('../search-form.collection.hbs');
- let SearchFormCollectionView = require('./search-form-sharing.collection.view');
- let CustomElements = require('js/CustomElements');
+ const Marionette = require('marionette');
+ const $ = require('jquery');
+ const template = require('../search-form.collection.hbs');
+ const SearchFormCollectionView = require('./search-form-sharing.collection.view');
+ const CustomElements = require('js/CustomElements');
 
  module.exports = Marionette.LayoutView.extend({
     template: template,

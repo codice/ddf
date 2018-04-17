@@ -13,18 +13,18 @@
  *
  **/
  /*global require*/
- let Marionette = require('marionette');
- let _ = require('underscore');
- let $ = require('jquery');
- let SearchFormView = require('../search-form.view');
- let SearchFormSharingCollection = require('./search-form-sharing.collection');
- let CustomElements = require('js/CustomElements');
+ const Marionette = require('marionette');
+ const _ = require('underscore');
+ const $ = require('jquery');
+ const SearchFormView = require('../search-form.view');
+ const SearchFormSharingCollection = require('./search-form-sharing.collection');
+ const CustomElements = require('js/CustomElements');
 
  module.exports = Marionette.CollectionView.extend({
      childView: SearchFormView,
      className: 'is-list is-inline has-list-highlighting',
      initialize: function(options) {
-        var searchFormSharingCollection = new SearchFormSharingCollection();
+        let searchFormSharingCollection = new SearchFormSharingCollection();
         this.collection = searchFormSharingCollection.getCollection();
         this.searchFormSharingCollection = searchFormSharingCollection;
         this.options = options;

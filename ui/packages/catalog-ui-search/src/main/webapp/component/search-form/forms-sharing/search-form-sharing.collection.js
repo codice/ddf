@@ -13,15 +13,15 @@
  *
  **/
  /*global require*/
- let _ = require('underscore');
- let $ = require('jquery');
- let Backbone = require('backbone');
- let SearchForm = require('../search-form');
- let Common = require('js/Common');
- let user = require('component/singletons/user-instance');
+ const _ = require('underscore');
+ const $ = require('jquery');
+ const Backbone = require('backbone');
+ const SearchForm = require('../search-form');
+ const Common = require('js/Common');
+ const user = require('component/singletons/user-instance');
 
  let sharedTemplates = [];
- let templatePromise = $.ajax({
+ const templatePromise = $.ajax({
     type: 'GET',
     context: this,
     url: '/search/catalog/internal/forms/query',
@@ -63,7 +63,8 @@
                             type: 'custom',
                             filterTemplate: value.filterTemplate,
                             accessIndividuals: value.accessIndividuals,
-                            accessGroups: value.accessGroups
+                            accessGroups: value.accessGroups,
+                            createdBy: value.creator
                         }));
                     }
                 });

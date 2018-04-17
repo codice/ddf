@@ -50,8 +50,8 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
         },
         handleTrash: function() {
-            let loginUser = user.get('user');
-            if(loginUser.get('username') === this.model.get('createdBy'))
+            var loginUser = user.get('user');
+            if(loginUser.get('email') === this.model.get('createdBy'))
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'This will permanently delete the template. Are you sure?',
