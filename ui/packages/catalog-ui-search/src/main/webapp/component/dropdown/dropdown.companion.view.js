@@ -73,7 +73,12 @@ define([
         },
         updateWidth: function(){
             var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
-            this.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
+            if (this.options.linkedView.hasLimitedWidth) {
+                this.$el.css('width', Math.min(clientRect.width, window.innerWidth - 20));
+            }
+            else {
+                this.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
+            }
         },
         updateFilterMaxHeight: function(bottomRoom){
             var extraRoom = '0rem';
