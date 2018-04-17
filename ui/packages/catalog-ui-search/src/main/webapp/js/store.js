@@ -17,7 +17,7 @@ define([
     'backbone-poller',
     'underscore',
     'js/model/Workspace.collection',
-    'component/content/content'
+    'component/workspace/workspace'
 ], function ($, Backbone, poller, _, WorkspaceCollection, Content) {
 
     return new (Backbone.Model.extend({

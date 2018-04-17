@@ -20,25 +20,29 @@ define([
     'jquery',
     'js/CustomElements',
     '../content.view',
-    'js/store',
-    'js/Common',
-    'component/alert/alert',
-    'component/result-selector/result-selector.view'
-], function (wreqr, Marionette, _, $, CustomElements, ContentView, store,
-             Common, alertInstance, ResultSelectorView) {
+    'component/tabs/workspace-content/tabs-workspace-content',
+    'component/tabs/workspace-content/tabs-workspace-content.view',
+    'js/store'
+], function (wreqr, Marionette, _, $, CustomElements, ContentView,
+             WorkspaceContentTabs, WorkspaceContentTabsView, store) {
 
     return ContentView.extend({
-        className: 'is-alert',
+        className: 'is-workspace',
         setupListener: function () {
-            this.listenTo(alertInstance, 'change:currentAlert', this.updatePanelOne);
+            this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);
         },
-        updatePanelOne: function(){
-            this.panelOne.show(new ResultSelectorView({
-                model: alertInstance.get('currentQuery'),
-                selectionInterface: alertInstance
-            }));
+        updatePanelOne: function(workspace) {
+            if (workspace){
+                if (Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'){
+                    this.updatePanelOne();
+                    store.clearSelectedResults();
+                }
+            } else
+                this.panelOne.show(new WorkspaceContentTabsView({
+                    model: new WorkspaceContentTabs(),
+                    selectionInterface: store.get('content')
+                }));
         },
         _mapView: undefined
-
     });
 });
