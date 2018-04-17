@@ -16,6 +16,7 @@ package org.codice.ddf.security.idp.server;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
@@ -194,9 +195,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
       new AtomicReference<>();
   private List<String> spMetadata;
   private String indexHtml;
-  private String submitForm;
-  private String redirectPage;
   private String ecpMessage;
+  private Map<SamlProtocol.Binding, String> templateMap;
   private Boolean strictSignature = true;
   private SystemCrypto systemCrypto;
   private LogoutMessage logoutMessage;
@@ -225,20 +225,18 @@ public class IdpEndpoint implements Idp, SessionHandler {
   }
 
   public void init() {
-    try ( //
-    InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html");
+    try (InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html");
         InputStream submitFormStream =
             IdpEndpoint.class.getResourceAsStream("/templates/submitForm.handlebars");
-        InputStream redirectPageStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/redirect.handlebars");
         InputStream ecpMessageStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars");
-        //
-        ) {
+            IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars")) {
       indexHtml = IOUtils.toString(indexStream, StandardCharsets.UTF_8);
-      submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
-      redirectPage = IOUtils.toString(redirectPageStream, StandardCharsets.UTF_8);
+
+      String submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
       ecpMessage = IOUtils.toString(ecpMessageStream, StandardCharsets.UTF_8);
+      templateMap =
+          ImmutableMap.of(
+              SamlProtocol.Binding.HTTP_POST, submitForm, SamlProtocol.Binding.SOAP, ecpMessage);
     } catch (Exception e) {
       LOGGER.info("Unable to load index page for IDP.", e);
     }
@@ -694,32 +692,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
         try {
 
           // Find binding supported by SP and change template
-          String assertionConsumerServiceBinding =
-              ResponseCreator.getAssertionConsumerServiceBinding(
-                  authnRequest, getServiceProvidersMap());
-
-          if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
-            binding =
-                new PostBinding(
-                    systemCrypto,
-                    getServiceProvidersMap(),
-                    getPresignPlugins(),
-                    spMetadata,
-                    SUPPORTED_BINDINGS);
-            template = submitForm;
-          } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
-            binding =
-                new RedirectBinding(
-                    systemCrypto,
-                    getServiceProvidersMap(),
-                    getPresignPlugins(),
-                    spMetadata,
-                    SUPPORTED_BINDINGS);
-            template = redirectPage;
-          } else {
-            throw new IdpException(
-                new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
-          }
+          binding = getResponseBinding(authnRequest);
+          template = getTemplate(binding);
 
           samlpResponse =
               handleLogin(
@@ -836,13 +810,16 @@ public class IdpEndpoint implements Idp, SessionHandler {
             authnRequest.getID(),
             null);
     LOGGER.debug("Encoding error SAML Response for post or redirect.");
-    String template = "";
-    if (binding instanceof PostBinding) {
-      template = submitForm;
-    } else if (binding instanceof RedirectBinding) {
-      template = redirectPage;
-    } else if (binding instanceof SoapBinding) {
-      template = ecpMessage;
+    String template = getTemplate(binding);
+
+    if (binding instanceof RedirectBinding) {
+      binding =
+          new PostBinding(
+              systemCrypto,
+              getServiceProvidersMap(),
+              getPresignPlugins(),
+              spMetadata,
+              SUPPORTED_BINDINGS);
     }
     return binding
         .creator()
@@ -879,7 +856,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
-        template = submitForm;
       } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
         binding =
             new RedirectBinding(
@@ -888,7 +864,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
-        template = redirectPage;
       } else {
         throw new IdpException(
             new UnsupportedOperationException("Must use HTTP POST or Redirect bindings."));
@@ -905,30 +880,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
               signature,
               strictSignature);
 
-      String assertionConsumerServiceBinding =
-          ResponseCreator.getAssertionConsumerServiceBinding(
-              authnRequest, getServiceProvidersMap());
-      if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)
-          && !(binding instanceof PostBinding)) {
-        binding =
-            new PostBinding(
-                systemCrypto,
-                getServiceProvidersMap(),
-                getPresignPlugins(),
-                spMetadata,
-                SUPPORTED_BINDINGS);
-        template = submitForm;
-      } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)
-          && !(binding instanceof RedirectBinding)) {
-        binding =
-            new RedirectBinding(
-                systemCrypto,
-                getServiceProvidersMap(),
-                getPresignPlugins(),
-                spMetadata,
-                SUPPORTED_BINDINGS);
-        template = redirectPage;
-      }
+      // Find binding supported by SP and change template
+      binding = getResponseBinding(authnRequest);
+      template = getTemplate(binding);
+
       org.opensaml.saml.saml2.core.Response encodedSaml =
           handleLogin(
               authnRequest,
@@ -1322,8 +1277,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     try {
       if (samlRequest != null) {
         LogoutRequest logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(
-                new String(RestSecurity.base64Decode(samlRequest), StandardCharsets.UTF_8));
+            logoutMessage.extractSamlLogoutRequest(RestSecurity.base64Decode(samlRequest));
         validatePost(request, logoutRequest);
         return handleLogoutRequest(
             cookie, logoutState, logoutRequest, SamlProtocol.Binding.HTTP_POST, relayState);
@@ -1526,6 +1480,34 @@ public class IdpEndpoint implements Idp, SessionHandler {
     return Response.ok(
             HtmlResponseTemplate.getPostPage(targetUrl, samlType, encodedSamlResponse, relayState))
         .build();
+  }
+
+  private Binding getResponseBinding(AuthnRequest authnRequest) throws IdpException {
+    String assertionConsumerServiceBinding =
+        ResponseCreator.getAssertionConsumerServiceBinding(authnRequest, getServiceProvidersMap());
+
+    if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
+      return new PostBinding(
+          systemCrypto,
+          getServiceProvidersMap(),
+          getPresignPlugins(),
+          spMetadata,
+          SUPPORTED_BINDINGS);
+    } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
+      throw new IdpException(
+          new UnsupportedOperationException(
+              "HTTP Redirect binding is not supported for single sign on responses."));
+    } else {
+      throw new IdpException(new UnsupportedOperationException("Must use HTTP POST binding."));
+    }
+  }
+
+  private String getTemplate(Binding binding) {
+    String template = templateMap.get(SamlProtocol.Binding.HTTP_POST);
+    if (binding instanceof SoapBinding) {
+      template = templateMap.get(SamlProtocol.Binding.SOAP);
+    }
+    return template;
   }
 
   public void setSecurityManager(SecurityManager securityManager) {

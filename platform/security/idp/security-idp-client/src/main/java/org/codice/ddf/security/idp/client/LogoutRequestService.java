@@ -365,7 +365,7 @@ public class LogoutRequestService {
     if (encodedSamlRequest != null) {
       try {
         LogoutRequest logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(decodeBase64(encodedSamlRequest));
+            logoutMessage.extractSamlLogoutRequest(RestSecurity.base64Decode(encodedSamlRequest));
         if (logoutRequest == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_REQUEST);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
@@ -390,7 +390,7 @@ public class LogoutRequestService {
     } else {
       try {
         LogoutResponse logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(decodeBase64(encodedSamlResponse));
+            logoutMessage.extractSamlLogoutResponse(RestSecurity.base64Decode(encodedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -620,10 +620,6 @@ public class LogoutRequestService {
             samlResponse, new URI(idpMetadata.getSingleLogoutLocation()), relayState);
 
     return Response.ok(HtmlResponseTemplate.getRedirectPage(location.toString())).build();
-  }
-
-  private String decodeBase64(String encoded) {
-    return new String(RestSecurity.base64Decode(encoded));
   }
 
   private Response buildLogoutResponse(String message) {

@@ -55,7 +55,7 @@ public class EntityInformation {
 
   private final Set<Binding> supportedBindings;
 
-  protected static final Binding PREFERRED_BINDING = Binding.HTTP_REDIRECT;
+  protected static final Binding PREFERRED_BINDING = Binding.HTTP_POST;
 
   private EntityInformation(Builder builder) {
     signingCertificate = builder.signingCertificate;
@@ -102,7 +102,10 @@ public class EntityInformation {
       AuthnRequest request, Binding preferred, Integer index) {
     ServiceInfo si = null;
     if (request != null && request.getAssertionConsumerServiceURL() != null) {
-      return getAssertionConsumerServiceInfoByUrl(request);
+      si = getAssertionConsumerServiceInfoByUrl(request);
+      if (si.getBinding().getUri().equals(SamlProtocol.POST_BINDING)) {
+        return si;
+      }
     }
     if (index != null) {
       si =
@@ -110,6 +113,8 @@ public class EntityInformation {
               .values()
               .stream()
               .filter(serviceInfo -> index.equals(serviceInfo.getIndex()))
+              .filter(serviceInfo -> serviceInfo.getBinding() != null)
+              .filter(serviceInfo -> serviceInfo.getBinding().equals(Binding.HTTP_POST))
               .findFirst()
               .orElse(null);
       if (si != null) {
@@ -118,6 +123,7 @@ public class EntityInformation {
     }
     if (request != null
         && request.getProtocolBinding() != null
+        && request.getProtocolBinding().equals(SamlProtocol.POST_BINDING)
         && supportedBindings.contains(Binding.from(request.getProtocolBinding()))) {
       si = assertionConsumerServices.get(Binding.from(request.getProtocolBinding()));
       if (si != null) {
@@ -150,7 +156,7 @@ public class EntityInformation {
       si =
           infos
               .stream()
-              .filter(service -> service.getBinding().getUri().equals(request.getProtocolBinding()))
+              .filter(service -> service.getBinding().getUri().equals(SamlProtocol.POST_BINDING))
               .findFirst()
               .orElse(null);
     }

@@ -142,7 +142,7 @@ public final class RestSecurity {
   }
 
   public static String inflateBase64(String base64EncodedValue) throws IOException {
-    byte[] deflatedValue = base64Decode(base64EncodedValue);
+    byte[] deflatedValue = Base64.getMimeDecoder().decode(base64EncodedValue);
     InputStream is =
         new InflaterInputStream(
             new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
@@ -153,9 +153,11 @@ public final class RestSecurity {
    * Decodes Base64 encoded values
    *
    * @param base64EncodedValue value to decode
-   * @return the bytes of the decoded value
+   * @return decoded value
    */
-  public static byte[] base64Decode(String base64EncodedValue) {
-    return Base64.getMimeDecoder().decode(base64EncodedValue);
+  public static String base64Decode(String base64EncodedValue) {
+    return new String(
+        Base64.getMimeDecoder().decode(base64EncodedValue.getBytes(StandardCharsets.UTF_8)),
+        StandardCharsets.UTF_8);
   }
 }

@@ -125,7 +125,7 @@ public class AssertionConsumerService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
-    return processSamlResponse(decodeBase64(encodedSamlResponse), relayState, false);
+    return processSamlResponse(RestSecurity.base64Decode(encodedSamlResponse), relayState, false);
   }
 
   @POST
@@ -179,6 +179,17 @@ public class AssertionConsumerService {
     return (org.opensaml.saml.saml2.core.Response) responseXmlObj;
   }
 
+  /**
+   * The HTTP-Redirect binding should not be used for Single Sign-On responses.
+   *
+   * <p>SAML Profiles Spec: The identity provider issues a <Response> message to be delivered by the
+   * user agent to the service provider. Either the HTTP POST, or HTTP Artifact binding can be used
+   * to transfer the message to the service provider through the user agent. The HTTP Redirect
+   * binding MUST NOT be used, as the response will typically exceed the URL length permitted by
+   * most user agents.
+   *
+   * <p>Keeping this method to work with non-conformant Identity Providers.
+   */
   @GET
   public Response getSamlResponse(
       @QueryParam(SAML_RESPONSE) String deflatedSamlResponse,
@@ -186,6 +197,7 @@ public class AssertionConsumerService {
       @QueryParam(SIG_ALG) String signatureAlgorithm,
       @QueryParam(SIGNATURE) String signature) {
 
+    LOGGER.info("HTTP-Redirect binding should not be used for Single Sign On responses");
     if (validateSignature(deflatedSamlResponse, relayState, signatureAlgorithm, signature)) {
       try {
         return processSamlResponse(
@@ -212,11 +224,11 @@ public class AssertionConsumerService {
               String.format(
                   "%s=%s&%s=%s&%s=%s",
                   SAML_RESPONSE,
-                  URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                  URLEncoder.encode(deflatedSamlResponse, StandardCharsets.UTF_8.name()),
                   RELAY_STATE,
-                  URLEncoder.encode(relayState, "UTF-8"),
+                  URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()),
                   SIG_ALG,
-                  URLEncoder.encode(signatureAlgorithm, "UTF-8"));
+                  URLEncoder.encode(signatureAlgorithm, StandardCharsets.UTF_8.name()));
           signaturePasses =
               simpleSign.validateSignature(
                   signedMessage, signature, idpMetadata.getSigningCertificate());
@@ -448,12 +460,6 @@ public class AssertionConsumerService {
     }
 
     return response;
-  }
-
-  private String decodeBase64(String encoded) {
-    return new String(
-        Base64.getMimeDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8)),
-        StandardCharsets.UTF_8);
   }
 
   public Filter getLoginFilter() {

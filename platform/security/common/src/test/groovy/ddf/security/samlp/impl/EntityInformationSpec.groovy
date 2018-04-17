@@ -40,8 +40,8 @@ class EntityInformationSpec extends Specification {
 
 
         then:
-        FAKE_SIGN_CERT.equals(signCert)
-        FAKE_ENCRYPT_CERT.equals(encryptCert)
+        FAKE_SIGN_CERT == signCert
+        FAKE_ENCRYPT_CERT == encryptCert
     }
 
     def "check logout service"() {
@@ -58,13 +58,13 @@ class EntityInformationSpec extends Specification {
         serviceInfo = entityInfo.getLogoutService(Binding.HTTP_POST)
 
         then:
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when:
         serviceInfo = entityInfo.getLogoutService(Binding.HTTP_REDIRECT)
 
         then:
-        Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
+        Binding.HTTP_REDIRECT == serviceInfo.binding
 
         when: "Binding that we don't support in the FakeSPMetadata"
         serviceInfo = entityInfo.getLogoutService(Binding.HTTP_ARTIFACT)
@@ -86,19 +86,19 @@ class EntityInformationSpec extends Specification {
 
         then: "only supported binding of Union(SP, IDP)"
         serviceInfo.binding != null
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when: "preferred an unsupported binding"
         serviceInfo = entityInfo.getLogoutService(Binding.PAOS)
 
         then:
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when: "preferred a binding only supported by sp"
         serviceInfo = entityInfo.getLogoutService(Binding.HTTP_ARTIFACT)
 
         then:
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
     }
 
     def "check assertionconsumerservice"() {
@@ -109,7 +109,7 @@ class EntityInformationSpec extends Specification {
         def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then:
-        Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when: "authnreq has binding and its supported, prefer it"
         AuthnRequest authnRequest = Mock(AuthnRequest) {
@@ -118,7 +118,7 @@ class EntityInformationSpec extends Specification {
         serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST, null)
 
         then:
-        Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when: "authnreq has binding and its supported, prefer it"
         authnRequest = Mock(AuthnRequest) {
@@ -127,7 +127,7 @@ class EntityInformationSpec extends Specification {
         serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_REDIRECT, null)
 
         then:
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
 
         when: "authnreq has binding and not supported, use specified preferred binding"
         authnRequest = Mock(AuthnRequest) {
@@ -136,7 +136,7 @@ class EntityInformationSpec extends Specification {
         serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST, null)
 
         then:
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
     }
 
     def "check assertionconsumerservice with half supported metadata"() {
@@ -150,13 +150,13 @@ class EntityInformationSpec extends Specification {
         def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then: "should be only supported binding (post)"
-        Binding.HTTP_POST.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
     }
 
     def "check assertionconsumerservice with a default"() {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser(
-                [fakeSpHalfSupportedMetadata])
+                [fakeSpNoPostMetadata])
         EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
@@ -166,7 +166,7 @@ class EntityInformationSpec extends Specification {
         def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then:
-        Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
+        Binding.HTTP_POST == serviceInfo.binding
         serviceInfo.url.contains("default.com")
     }
 
@@ -176,8 +176,7 @@ class EntityInformationSpec extends Specification {
         EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
 
         when:
-        EntityInformation entityInformation = new EntityInformation.Builder(ed, DEFAULT_BINDINGS)
-                .build()
+        new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         then:
         notThrown(Exception)
@@ -199,7 +198,7 @@ class EntityInformationSpec extends Specification {
         Field f = entityInfo.class.getDeclaredField("defaultAssertionConsumerService")
         f.setAccessible(true)
         f.set(entityInfo,
-                new EntityInformation.ServiceInfo("https://default.com", Binding.HTTP_REDIRECT, null))
+                new EntityInformation.ServiceInfo("https://default.com", Binding.HTTP_POST, null))
         f.setAccessible(false)
     }
 
@@ -227,6 +226,33 @@ $FAKE_ENCRYPT_CERT
 <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/saml/logout"/>
 <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://localhost:8993/services/saml/sso" index="0"/>
 <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/saml/sso" index="1"/>
+</md:SPSSODescriptor>
+</md:EntityDescriptor>/$
+
+    String fakeSpNoPostMetadata = $/<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/saml">
+<md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+<md:KeyDescriptor use="signing">
+<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:X509Data>
+<ds:X509Certificate>
+$FAKE_SIGN_CERT
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</md:KeyDescriptor>
+<md:KeyDescriptor use="encryption">
+<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:X509Data>
+<ds:X509Certificate>
+$FAKE_ENCRYPT_CERT
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</md:KeyDescriptor>
+<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://localhost:8993/services/saml/logout"/>
+<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/saml/logout"/>
+<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://localhost:8993/services/saml/sso" index="0"/>
+<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/saml/sso" index="1"/>
 </md:SPSSODescriptor>
 </md:EntityDescriptor>/$
 
