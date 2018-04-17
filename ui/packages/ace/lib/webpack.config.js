@@ -182,15 +182,16 @@ const handleProxyRes = (proxyRes, req, res) => {
   }
 }
 
-const proxyConfig = (target) => ({
+const proxyConfig = ({target = 'https://localhost:8993', auth}) => ({
   target,
   ws: true,
   secure: false,
   changeOrigin: true,
-  onProxyRes: handleProxyRes
+  onProxyRes: handleProxyRes,
+  auth
 })
 
-const dev = (base, { main }) => merge.smart(base, {
+const dev = (base, { main, auth }) => merge.smart(base, {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
   entry: [
@@ -205,10 +206,10 @@ const dev = (base, { main }) => merge.smart(base, {
     historyApiFallback: true,
     contentBase: resolve('src/main/resources/'),
     proxy: {
-      '/admin/**': proxyConfig('https://localhost:8993'),
-      '/search/catalog/**': proxyConfig('https://localhost:8993'),
-      '/services/**': proxyConfig('https://localhost:8993'),
-      '/webjars/**': proxyConfig('https://localhost:8993')
+      '/admin/**': proxyConfig({auth}),
+      '/search/catalog/**': proxyConfig({auth}),
+      '/services/**': proxyConfig({auth}),
+      '/webjars/**': proxyConfig({auth})
     }
   },
   plugins: [
@@ -283,13 +284,13 @@ const prod = (base, { main }) => merge.smart(base, {
 })
 
 module.exports = (opts) => {
-  const { env = 'development', main, alias } = opts
+  const { env = 'development', main, alias, auth } = opts
   const b = base({ env, alias })
 
   switch (env) {
     case 'production': return prod(b, { main })
     case 'test': return test(b, { main })
     case 'development':
-    default: return dev(b, { main })
+    default: return dev(b, { main, auth })
   }
 }
