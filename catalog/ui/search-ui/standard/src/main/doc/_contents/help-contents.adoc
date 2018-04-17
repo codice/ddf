@@ -15,7 +15,7 @@
 :type: using
 :status: published
 :summary: Using Standard Search UI.
-:link: _using_search_ui
+:link: _using_standard_search_ui
 :order: 02
 
 The {branding} Standard Search UI application allows a user to search for records in the local

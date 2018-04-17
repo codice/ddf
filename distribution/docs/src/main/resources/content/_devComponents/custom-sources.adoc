@@ -57,7 +57,7 @@ Catalog Store:: `catalog.store.interface` _is used to store data._
 The procedure for implementing any of the source types follows a similar format:
 
 . Create a new class that implements the specified Source interface, the `ConfiguredService` and the required methods.
-. Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to <<_osgi_services,OSGi Services>>.)
+. Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to <<_osgi_basics,OSGi Services>>.)
 .. Import ${branding} packages.
 .. Register source class as service to the OSGi registry.
 . Deploy to ${branding}.
@@ -93,7 +93,7 @@ Create a custom implementation of a catalog provider.
 <service ref="[[TestCatalogProvider]]" interface="ddf.catalog.source.CatalogProvider" />
 ----
 
-See the <<_included_catalog_providers,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
+See the <<_connecting_to_sources,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
 
 ===== Developing Federated Sources
 
@@ -109,11 +109,6 @@ See the <<_included_catalog_providers,existing Catalog Provider list>> for examp
 ----
 <service ref="[[TestFederatedSource]]" interface="ddf.catalog.source.FederatedSource" />
 ----
-
-[NOTE]
-====
-A code example of a Federated Source delivered with ${branding} can be found in <<_solr_cache_source,Solr Cache Source>>
-====
 
 ===== Developing Connected Sources
 

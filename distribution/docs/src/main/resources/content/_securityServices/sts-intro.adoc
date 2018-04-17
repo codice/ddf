@@ -17,7 +17,7 @@ It builds off of the Apache CXF STS code and adds components specific to ${brand
 
 |`security-sts-realm`
 |`security-sts-realm`
-|<<_security_sts_realm_contents,Security STS Realm>>
+|<<_security_sts_service,Security STS Realm>>
 
 |`security-sts-ldaplogin`
 |`security-sts-ldaplogin`

@@ -5,5 +5,5 @@
 
 == {title}
 
-${branding} incorporates support for many common <<_service_standards,Service>>, <<_metadata_standards,Metadata>>, and <<_security_standards,Security>> standards, as well as many common <<_data_formats,Data Formats>>.
+${branding} incorporates support for many common <<_catalog_service_standards,Service>>, <<_data_formats,Metadata>>, and <<_security_standards,Security>> standards, as well as many common <<_data_formats,Data Formats>>.
 

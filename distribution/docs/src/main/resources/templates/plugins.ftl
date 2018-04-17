@@ -19,14 +19,14 @@ include::${pi.file}[]
 |===
 
 |Plugin
-|<<_pre-authorization_plugins,Pre-Authorization Plugins>>
+|<<_pre_authorization_plugins,Pre-Authorization Plugins>>
 |<<_policy_plugins,Policy Plugins>>
 |<<_access_plugins,Access Plugins>>
-|<<_pre-ingest_plugins,Pre-Ingest Plugins>>
-|<<_post-ingest_plugins,Post-Ingest Plugins>>
-|<<_pre-query_plugins,Pre-Query Plugins>>
-|<<_post-query_plugins,Post-Query Plugins>>
-|<<_post-process_plugins,Post-Process Plugins>>
+|<<_pre_ingest_plugins,Pre-Ingest Plugins>>
+|<<_post_ingest_plugins,Post-Ingest Plugins>>
+|<<_pre_query_plugins,Pre-Query Plugins>>
+|<<_post_query_plugins,Post-Query Plugins>>
+|<<_post_process_plugins,Post-Process Plugins>>
 
 <#list plugins as plugin>
 <#if (plugin.status == "published" && plugin.plugintypes?contains ("preauthorization") || plugin.plugintypes?contains ("policy") || plugin.plugintypes?contains ("access") || plugin.plugintypes?contains ("preingest") || plugin.plugintypes?contains ("postingest") || plugin.plugintypes?contains ("prequery") || plugin.plugintypes?contains ("postquery") || plugin.plugintypes?contains ("postprocess")) >
@@ -58,16 +58,16 @@ include::${pi.file}[]
 |===
 
 |Plugin
-|<<_pre-federated_query_plugins,Pre-Federated-Query Plugins>>
-|<<_post-federated_query_plugins,Post-Federated-Query Plugins>>
-|<<_pre-resource_plugins,Pre-Resource Plugins>>
-|<<_post-resource_plugins,Post-Resource Plugins>>
-|<<_pre-create_storage_plugins,Pre-Create Storage Plugins>>
-|<<_post-create_storage_plugins,Post-Create Storage Plugins>>
-|<<_pre-update_storage_plugins,Pre-Update Storage Plugins>>
-|<<_post-update_storage_plugins,Post-Update Storage Plugins>>
-|<<_pre-subscription_plugins,Pre-Subscription Plugins>>
-|<<_pre-delivery_plugins,Pre-Delivery Plugins>>
+|<<_pre_federated_query_plugins,Pre-Federated-Query Plugins>>
+|<<_post_federated_query_plugins,Post-Federated-Query Plugins>>
+|<<_pre_resource_plugins,Pre-Resource Plugins>>
+|<<_post_resource_plugins,Post-Resource Plugins>>
+|<<_pre_create_storage_plugins,Pre-Create Storage Plugins>>
+|<<_post_create_storage_plugins,Post-Create Storage Plugins>>
+|<<_pre_update_storage_plugins,Pre-Update Storage Plugins>>
+|<<_post_update_storage_plugins,Post-Update Storage Plugins>>
+|<<_pre_subscription_plugins,Pre-Subscription Plugins>>
+|<<_pre_delivery_plugins,Pre-Delivery Plugins>>
 
 <#list plugins as plugin>
 <#if (plugin.status == "published" && plugin.plugintypes?contains ("preresource") || plugin.plugintypes?contains ("postresource") || plugin.plugintypes?contains ("precreatestorage") || plugin.plugintypes?contains ("postcreatestorage") || plugin.plugintypes?contains ("preupdatestorage") || plugin.plugintypes?contains ("postupdatestorage") || plugin.plugintypes?contains ("presubscription") || plugin.plugintypes?contains ("predelivery"))>

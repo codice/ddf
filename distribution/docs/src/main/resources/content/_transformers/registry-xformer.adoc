@@ -14,7 +14,7 @@ The Registry Transformer is not installed by default with a standard installatio
 
 To install:
 
-. <<_installing_ddf_registry,Install ${ddf-registry}>> application.
+. <<_installing_registry,Install ${ddf-registry}>> application.
 
 ===== Configuring the Registry Transformer
 

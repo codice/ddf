@@ -18,10 +18,10 @@ Complete the following procedure to create an endpoint. 
 . Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
 `Import-Package: ddf.catalog, ddf.catalog.*`
 
-. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<_working_with_osgi_-_service_registry,Working with OSGi - Service Registry>> for examples.)
+. Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to <<_osgi_basics,Working with OSGi - Service Registry>> for examples.)
 
 . Deploy the packaged service to ${branding}.
-(Refer to <<_working_with_osgi_-_bundles,Working with OSGi - Bundles>>.)
+(Refer to <<_osgi_basics,Working with OSGi - Bundles>>.)
 
 [NOTE]
 ====
