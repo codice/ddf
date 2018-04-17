@@ -21,6 +21,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -190,6 +193,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
     metacard.setFormsFilter(filterXml);
 
+    //TODO: Remove this once CRUD support gets added
+    metacard.setAttribute(Core.METACARD_OWNER, "dummyUser@gmail.com");
+
     // Validation so the catalog is not contaminated on startup, which would impact every request
     if (TemplateTransformer.invalidFormTemplate(metacard)) {
       LOGGER.warn("System forms configuration for template '{}' had one or more problems", title);
@@ -309,17 +315,40 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   }
 
   private static void saveMetacards(CatalogFramework framework, List<Metacard> metacards) {
-    SECURITY.runAsAdmin(
+    //TODO: This code will be removed once CRUD support is completed
+    /**
+     * Purpose: Circumvents the idea of a system template to make it look like the loaded templates were created by a std. user.
+     * Additional Info: dummyUser is created (temporarily) in user.properties/user.attributes to demonstrate template creation
+     *   - This sets the metacard owner during boot time
+     *   - This allows the template to be shared when logged in as dummyUser
+     *   - Allows this PR to be hero'ed without the need for CRUD functionality
+     */
+    Subject userSubject = SECURITY.getSubject("dummyUser", "dummyPassword");
+    userSubject.execute(
         () -> {
           try {
-            return SECURITY.runWithSubjectOrElevate(
-                () -> framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards());
-          } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.warn(
-                "Can't create metacard for system search template, was unable to elevate privileges",
-                e);
+            framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards();
+          } catch (IngestException e) {
+            LOGGER.warn("Unable to create metacard under this user", e);
+          } catch (SourceUnavailableException e) {
+            LOGGER.warn("Unable to create metacard under this user", e);
           }
-          return null;
         });
+
+    //TODO: Add this code back in once CRUD support is completed
+    //    SECURITY.runAsAdmin(
+    //        () -> {
+    //          try {
+    //            return SECURITY.runWithSubjectOrElevate(
+    //                () -> framework.create(new
+    // CreateRequestImpl(metacards)).getCreatedMetacards());
+    //          } catch (SecurityServiceException | InvocationTargetException e) {
+    //            LOGGER.warn(
+    //                "Can't create metacard for system search template, was unable to elevate
+    // privileges",
+    //                e);
+    //          }
+    //          return null;
+    //        });
   }
 }
