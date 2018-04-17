@@ -13,11 +13,11 @@
  */
 package ddf.catalog.util.impl;
 
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.osgi.service.blueprint.container.Converter;
 import org.osgi.service.blueprint.container.ReifiedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codice.ddf.platform.util.SortedServiceList;
 
 /**
  * This converter is used to allow {@link SortedServiceList} objects to pass through for {@link
