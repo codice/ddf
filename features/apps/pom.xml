@@ -104,6 +104,7 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <!--end feature dependencies-->
         <dependency>
             <groupId>ddf.admin</groupId>
             <artifactId>admin-app</artifactId>

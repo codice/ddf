@@ -378,6 +378,44 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--feature dependencies-->
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>branding</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>cxf</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>camel</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>kernel</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--end feature dependencies-->
+
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>kernel</artifactId>

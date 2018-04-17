@@ -40,6 +40,24 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--feature dependencies-->
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>cxf</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>karaf</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--end feature dependencies-->
+
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>test-utilities</artifactId>

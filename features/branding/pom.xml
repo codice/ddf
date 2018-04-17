@@ -55,6 +55,16 @@
             <type>zip</type>
             <scope>test</scope>
         </dependency>
+        <!--feature dependencies-->
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--end feature dependencies-->
+
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>test-utilities</artifactId>
