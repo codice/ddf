@@ -31,14 +31,16 @@ public class OnlyIfAction<R> extends RepeatingAction<R> {
   private Boolean currentCondition; // null if never evaluated
 
   /**
-   * Constructs a new action which will conditionally execute the specified action.
+   * Constructs a new action which will conditionally execute the last recorded action from the
+   * specified expectation.
    *
-   * @param action the action to be conditionally executed
+   * @param expectation the expectation where to get the last recorded action to be conditionally
+   *     executed
    * @param condition <code>true</code> to execute the action; <code>false</code> not to execute it
    * @param info string representation of the condition
    */
-  public OnlyIfAction(Action<R> action, boolean condition, String info) {
-    super(action);
+  public OnlyIfAction(ActionRegistry<R>.Expectation expectation, boolean condition, String info) {
+    super(expectation);
     this.dynamic = false;
     this.predicate = null;
     this.info = info;
@@ -46,16 +48,18 @@ public class OnlyIfAction<R> extends RepeatingAction<R> {
   }
 
   /**
-   * Constructs a new action which will conditionally execute the specified action. The predicate
-   * will be evaluated only the first time the action is executed.
+   * Constructs a new action which will conditionally execute the last recorded action from the
+   * specified expectation. The predicate will be evaluated only the first time the action is
+   * executed.
    *
-   * @param action the action to be conditionally executed
+   * @param expectation the expectation where to get the last recorded action to be conditionally
+   *     executed
    * @param predicate a predicate that returns <code>true</code> to execute the action; <code>
    *     false</code> not to execute it
    * @param info string representation of the condition
    */
-  public OnlyIfAction(Action<R> action, BooleanSupplier predicate, String info) {
-    super(action);
+  OnlyIfAction(ActionRegistry<R>.Expectation expectation, BooleanSupplier predicate, String info) {
+    super(expectation);
     this.dynamic = true;
     this.predicate = predicate;
     this.info = info;

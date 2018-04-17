@@ -13,16 +13,14 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
-
 /**
  * Action to simulate a thread interruption when failsafe makes an attempt.
  *
  * @param <R> the result type
  */
 public class DoInterruptAction<R> extends Action<R> {
-  public DoInterruptAction(FailsafeController<R> controller) {
-    super(controller);
+  DoInterruptAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   @Override

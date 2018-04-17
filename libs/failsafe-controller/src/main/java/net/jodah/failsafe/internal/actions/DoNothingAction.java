@@ -13,16 +13,14 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
-
 /**
  * Action to do nothing when failsafe makes an attempt.
  *
  * @param <R> the result type
  */
 public class DoNothingAction<R> extends Action<R> {
-  public DoNothingAction(FailsafeController<R> controller) {
-    super(controller);
+  DoNothingAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   @Override

@@ -24,14 +24,15 @@ public class TimesAction<R> extends RepeatingAction<R> {
   private final int count;
 
   /**
-   * Constructs a new action which will repeat the specified action the specified number of times.
+   * Constructs a new action which will repeat the last recorded action from the specified
+   * expectation the specified number of times.
    *
-   * @param action the action to be repeated
+   * @param expectation the expectation where to get the last recorded action to repeat
    * @param count the number of times to repeat the action
    * @throws IllegalArgumentException if <code>count</code> is negative
    */
-  public TimesAction(Action<R> action, int count) {
-    super(action);
+  TimesAction(ActionRegistry<R>.Expectation expectation, int count) {
+    super(expectation);
     Validate.isTrue(count >= 0, "count must be greater or equal than 0");
     this.count = count;
   }

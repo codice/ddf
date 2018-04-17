@@ -13,6 +13,7 @@
  */
 package net.jodah.failsafe;
 
+import groovy.lang.Closure;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -106,6 +107,48 @@ public class FailsafeController<R> {
   }
 
   /**
+   * Register expected actions for the next Failsafe execution.
+   *
+   * @param actionList the list of actions to be executed for the next Failsafe's execution
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> onNextExecution(Actions.Done<R> actionList) {
+    actions.add(actionList.done());
+    return this;
+  }
+
+  /**
+   * Register expected actions for the next Failsafe execution.
+   *
+   * <p>This method makes it nice to use in with Spock.
+   *
+   * @param closure a closure for the list of actions to be executed for the next Failsafe's
+   *     execution
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> onNextExecution(Closure<Actions.Done<R>> closure) {
+    return onNextExecution(closure.call());
+  }
+
+  /**
+   * Syntax sugar.
+   *
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> then() {
+    return this;
+  }
+
+  /**
+   * Syntax sugar.
+   *
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> and() {
+    return this;
+  }
+
+  /**
    * Shuts down testing using this controller.
    *
    * <p>All subsequent failsafe attempts will fail with an interruption and all waits for latches
@@ -133,15 +176,6 @@ public class FailsafeController<R> {
    */
   public synchronized boolean isShutdown() {
     return shutdownFailure != null;
-  }
-
-  /**
-   * Starts registering actions to be processed when failsafe is attempting to execute.
-   *
-   * @return a stub construct for chaining
-   */
-  public ActionRegistry.Stubber whenAttempting() {
-    return actions.whenAttempting();
   }
 
   /**
@@ -265,41 +299,17 @@ public class FailsafeController<R> {
    * Waits for all threads and executions to complete and verifies if a failure occurred and if all
    * recorded actions that cannot be left incomplete have been completed. For example actions that
    * are customized with <code>forever()</code>, <code>never()</code>, <code>times(0)</code> are
-   * allowed.
+   * allowed to not complete.
    *
    * @throws AssertionError if a failure occurred while controlling failsafe
    */
-  public void verifyNoMoreActions() {
+  public void verify() {
     LOGGER.debug("FailsafeController({}): verifying no more actions", id);
     shutdown();
     if (failure != null) {
       throw failure;
     }
-    actions.verifyNoMoreActions();
-  }
-
-  /**
-   * Waits for all threads and executions to complete and verifies if a failure occurred and if all
-   * recorded actions that cannot be left incomplete have been completed. For example actions that
-   * are customized with <code>forever()</code>, <code>never()</code>, <code>times(0)</code> are
-   * allowed.
-   *
-   * @param expected the number of executions expected
-   * @throws AssertionError if a failure occurred while controlling failsafe or if the number of
-   *     actual executions doesn't match the expectation
-   */
-  public void verifyExecutionsAndNoMoreActions(int expected) {
-    LOGGER.debug(
-        "FailsafeController({}): verifying {} executions and no more actions", id, expected);
-    verifyNoMoreActions();
-    final int actual = getNumExecutions();
-
-    if (actual != expected) {
-      throw new AssertionError(
-          String.format(
-              "expected %d executions from '%s' controller but only %d occurred",
-              expected, id, actual));
-    }
+    actions.verify();
   }
 
   @Override
@@ -410,29 +420,33 @@ public class FailsafeController<R> {
 
     @Override
     public <T> FailsafeFuture<T> get(Callable<T> callable) {
+      final ActionRegistry<R>.Expectation expectation = actions.next();
+
       return (FailsafeFuture<T>)
           new FailsafeFutureAdapter<>(
               this,
               executions
-                  .newExecution(this)
+                  .newExecution(this, expectation)
                   .execute(
                       new ContextualCallable<CompletableFuture<R>>() {
                         @Override
                         public CompletableFuture<R> call(ExecutionContext context)
                             throws Exception {
                           return CompletableFuture.completedFuture(
-                              attempt(context, (Callable<R>) callable));
+                              attempt(context, expectation, (Callable<R>) callable));
                         }
                       }));
     }
 
-    @SuppressWarnings("squid:S1181" /* purposely catching VirtualMachineError first */)
-    private R attempt(ExecutionContext context, Callable<R> callable) throws Exception {
+    @SuppressWarnings("squid:S00112" /* Based on Failsafe's API */)
+    private R attempt(
+        ExecutionContext context, ActionRegistry<R>.Expectation expectation, Callable<R> callable)
+        throws Exception {
       try {
         synchronized (FailsafeController.this) {
           threads.add(Thread.currentThread());
         }
-        return actions.attempt(context, callable);
+        return expectation.attempt(context, callable);
       } finally {
         synchronized (FailsafeController.this) {
           threads.remove(Thread.currentThread());

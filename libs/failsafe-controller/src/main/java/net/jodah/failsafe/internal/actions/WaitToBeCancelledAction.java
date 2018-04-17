@@ -13,19 +13,18 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
-
 /**
  * Action to wait for failsafe's execution to be cancelled.
  *
  * @param <R> the result type
  */
-public class DoWaitToBeCancelledAction<R> extends Action<R> {
-  public DoWaitToBeCancelledAction(FailsafeController<R> controller) {
-    super(controller);
+public class WaitToBeCancelledAction<R> extends Action<R> {
+  WaitToBeCancelledAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   @Override
+  @SuppressWarnings("squid:S2142" /* interruption is re-thrown after failsafe is cancelled */)
   public R execute(ActionContext<R> context) throws Exception {
     return super.execute(
         context,
@@ -53,6 +52,6 @@ public class DoWaitToBeCancelledAction<R> extends Action<R> {
 
   @Override
   public String toString() {
-    return "doWaitToBeCancelled()";
+    return "waitToBeCancelled()";
   }
 }

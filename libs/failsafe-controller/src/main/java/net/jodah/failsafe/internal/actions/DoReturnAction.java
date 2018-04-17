@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.jodah.failsafe.FailsafeController;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 
 /**
@@ -33,8 +32,8 @@ public class DoReturnAction<R> extends Action<R> {
 
   private final List<R> current;
 
-  public DoReturnAction(FailsafeController<R> controller, @Nullable R... results) {
-    super(controller);
+  DoReturnAction(ActionRegistry<R>.Expectation expectation, @Nullable R... results) {
+    super(expectation);
     // if results is null then we consider it as a single null element
     this.results = (results != null) ? Arrays.asList(results) : Collections.singletonList(null);
     this.current = Collections.synchronizedList(new LinkedList<>(this.results));

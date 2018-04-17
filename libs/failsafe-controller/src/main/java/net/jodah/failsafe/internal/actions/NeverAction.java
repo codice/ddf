@@ -19,13 +19,8 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class NeverAction<R> extends RepeatingAction<R> {
-  /**
-   * Constructs a new action which will never execute the specified action forever.
-   *
-   * @param action the action to not be executed
-   */
-  public NeverAction(Action<R> action) {
-    super(action);
+  NeverAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   private NeverAction(NeverAction<R> action) {

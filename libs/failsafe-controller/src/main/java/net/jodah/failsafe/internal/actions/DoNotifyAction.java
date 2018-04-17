@@ -13,7 +13,6 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 
@@ -26,8 +25,8 @@ import org.apache.commons.lang.Validate;
 public class DoNotifyAction<R> extends Action<R> {
   private final String latch;
 
-  public DoNotifyAction(FailsafeController<R> controller, String latch) {
-    super(controller);
+  DoNotifyAction(ActionRegistry<R>.Expectation expectation, String latch) {
+    super(expectation);
     Validate.notNull(latch, "invalid null latch");
     this.latch = latch;
   }

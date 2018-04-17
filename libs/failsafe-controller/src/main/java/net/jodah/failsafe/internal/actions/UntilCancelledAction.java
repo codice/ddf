@@ -20,24 +20,14 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class UntilCancelledAction<R> extends RepeatingAction<R> {
-  private final Action<R> action;
-
   private boolean cancelled = false;
 
-  /**
-   * Constructs a new action which will repeat the specified action until failsafe's execution is
-   * cancelled.
-   *
-   * @param action the action to be repeated
-   */
-  public UntilCancelledAction(Action<R> action) {
-    super(action);
-    this.action = action;
+  UntilCancelledAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   private UntilCancelledAction(UntilCancelledAction<R> action) {
     super(action);
-    this.action = action.action;
   }
 
   @Override

@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import net.jodah.failsafe.FailsafeController;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 
 /**
@@ -32,8 +32,8 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
   private final List<?> processedArguments;
   private final List<?> current;
 
-  public DoThrowOrReturnAction(FailsafeController<R> controller, @Nullable Object... args) {
-    super(controller);
+  DoThrowOrReturnAction(ActionRegistry<R>.Expectation expectation, @Nullable Object... args) {
+    super(expectation);
     // if args is null then we consider it as a single null element
     this.arguments = (args != null) ? Arrays.asList(args) : Collections.singletonList(null);
     this.processedArguments =
@@ -92,7 +92,7 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
     synchronized (current) {
       return current
               .stream()
-              .map(Object::toString)
+              .map(Objects::toString)
               .collect(Collectors.joining(",", "doThrowOrReturn(", ") at "))
           + getDefinitionInfo();
     }
@@ -102,7 +102,7 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
   public String toString() {
     return arguments
         .stream()
-        .map(Object::toString)
+        .map(Objects::toString)
         .collect(Collectors.joining(",", "doThrowOrReturn(", ")"));
   }
 }

@@ -13,7 +13,6 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 
@@ -23,11 +22,11 @@ import org.apache.commons.lang.Validate;
  *
  * @param <R> the result type
  */
-public class DoWaitForAction<R> extends Action<R> {
+public class WaitForAction<R> extends Action<R> {
   private final String latch;
 
-  public DoWaitForAction(FailsafeController<R> controller, String latch) {
-    super(controller);
+  WaitForAction(ActionRegistry<R>.Expectation expectation, String latch) {
+    super(expectation);
     Validate.notNull(latch, "invalid null latch");
     this.latch = latch;
   }
@@ -50,6 +49,6 @@ public class DoWaitForAction<R> extends Action<R> {
 
   @Override
   public String toString() {
-    return "doWaitFor(" + latch + ")";
+    return "waitFor(" + latch + ")";
   }
 }

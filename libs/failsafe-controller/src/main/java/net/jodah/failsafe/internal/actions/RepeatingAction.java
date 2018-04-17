@@ -25,14 +25,18 @@ public abstract class RepeatingAction<R> extends Action<R> {
   /** The number of times the action was repeated. */
   protected int currentCount = 0;
 
-  RepeatingAction(Action<R> action) {
-    super(action.getController());
-    this.action = action;
+  RepeatingAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
+    this.action = expectation.removeLast();
   }
 
   RepeatingAction(RepeatingAction<R> action) {
     super(action);
     this.action = action.action;
+  }
+
+  public Action<R> getAction() {
+    return action;
   }
 
   @Override
@@ -90,5 +94,6 @@ public abstract class RepeatingAction<R> extends Action<R> {
    * @return <code>true</code> if the action should be repeated; <code>false</code> otherwise
    * @throws Exception if an error occurred
    */
+  @SuppressWarnings("squid:S00112" /* based on Failsafe's API */)
   protected abstract boolean shouldRepeat(ActionContext<R> context) throws Exception;
 }

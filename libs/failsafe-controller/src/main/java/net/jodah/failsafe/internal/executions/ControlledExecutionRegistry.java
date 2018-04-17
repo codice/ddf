@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import net.jodah.failsafe.AsyncFailsafe;
 import net.jodah.failsafe.ControlledExecutionException;
 import net.jodah.failsafe.FailsafeController;
+import net.jodah.failsafe.internal.actions.ActionRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,17 +79,20 @@ public class ControlledExecutionRegistry<R> {
   }
 
   /**
-   * Creates a new asynchronous controlled execution based on the given failsafe async.
+   * Creates a new asynchronous controlled execution based on the given failsafe async with the
+   * specified expectation.
    *
    * @param master the master failsafe async
+   * @param expectation the expectation to use for this execution
    * @return a newly created asynchronous controlled execution
    */
-  public AsyncControlledExecution<R> newExecution(AsyncFailsafe<R> master) {
+  public AsyncControlledExecution<R> newExecution(
+      AsyncFailsafe<R> master, ActionRegistry<R>.Expectation expectation) {
     synchronized (controller) {
       checkIfFailed();
       failIfShutdown();
       final AsyncControlledExecution<R> exec =
-          new AsyncControlledExecution<>(controller, master, executions.size());
+          new AsyncControlledExecution<>(expectation.getController(), master, expectation.getId());
 
       executions.add(exec);
       controller.notifyAll();

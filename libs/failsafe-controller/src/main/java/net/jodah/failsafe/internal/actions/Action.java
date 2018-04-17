@@ -55,6 +55,10 @@ public abstract class Action<R> {
 
   private final StackTraceElement stack;
 
+  Action(ActionRegistry<R>.Expectation expectation) {
+    this(expectation.getController());
+  }
+
   Action(FailsafeController<R> controller) {
     this.controller = controller;
     // find the stack trace element for the test case - this would be the first stack element
@@ -158,8 +162,6 @@ public abstract class Action<R> {
   @SuppressWarnings("squid:S1181" /* purposely catching VirtualMachineError first */)
   protected R execute(ActionContext<R> context, String info, ThrowingSupplier<R> supplier)
       throws Exception {
-    final FailsafeController<R> controller = context.getController();
-
     logger.debug("FailsafeController({}): executing {}{}", controller, this, info);
     try {
       final R r = supplier.get();

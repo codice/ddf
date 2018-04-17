@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import net.jodah.failsafe.FailsafeController;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 
@@ -33,8 +32,8 @@ public class DoThrowAction<R> extends Action<R> {
   private final List<Throwable> throwables;
   private final List<Throwable> current;
 
-  public DoThrowAction(FailsafeController<R> controller, Throwable... throwables) {
-    super(controller);
+  DoThrowAction(ActionRegistry<R>.Expectation expectation, Throwable... throwables) {
+    super(expectation);
     Validate.notNull(throwables, "invalid null throwables");
     Validate.noNullElements(throwables, "invalid null throwable");
     this.arguments = Arrays.asList(throwables);
@@ -42,8 +41,9 @@ public class DoThrowAction<R> extends Action<R> {
     this.current = Collections.synchronizedList(new LinkedList<>(this.throwables));
   }
 
-  public DoThrowAction(FailsafeController<R> controller, Class<? extends Throwable>... throwables) {
-    super(controller);
+  DoThrowAction(
+      ActionRegistry<R>.Expectation expectation, Class<? extends Throwable>... throwables) {
+    super(expectation);
     Validate.notNull(throwables, "invalid null throwables");
     Validate.noNullElements(throwables, "invalid null throwable");
     this.arguments = Arrays.asList(throwables);

@@ -13,8 +13,6 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import net.jodah.failsafe.FailsafeController;
-
 /**
  * Action to proceed with calling the production action registered with failsafe normally when
  * failsafe makes an attempt.
@@ -22,8 +20,8 @@ import net.jodah.failsafe.FailsafeController;
  * @param <R> the result type
  */
 public class DoProceedAction<R> extends Action<R> {
-  public DoProceedAction(FailsafeController<R> controller) {
-    super(controller);
+  DoProceedAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   @Override

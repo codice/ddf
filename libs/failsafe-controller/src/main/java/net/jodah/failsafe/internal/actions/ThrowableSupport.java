@@ -86,11 +86,11 @@ public class ThrowableSupport {
       final Throwable c = e.getCause();
 
       throw new IllegalArgumentException(
-          String.format("unable to instantiate %s for controller: %s", clazz.getName(), id),
+          String.format("unable to instantiate %s for controller: '%s'", clazz.getName(), id),
           (c != null) ? c : e);
     } catch (Exception e) {
       throw new IllegalArgumentException(
-          String.format("unable to instantiate %s for controller: %s", clazz.getName(), id), e);
+          String.format("unable to instantiate %s for controller: '%s'", clazz.getName(), id), e);
     }
   }
 

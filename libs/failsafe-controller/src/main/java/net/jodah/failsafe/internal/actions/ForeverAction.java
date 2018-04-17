@@ -19,13 +19,8 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class ForeverAction<R> extends RepeatingAction<R> {
-  /**
-   * Constructs a new action which will repeat the specified action forever.
-   *
-   * @param action the action to be repeated
-   */
-  public ForeverAction(Action<R> action) {
-    super(action);
+  ForeverAction(ActionRegistry<R>.Expectation expectation) {
+    super(expectation);
   }
 
   private ForeverAction(ForeverAction<R> action) {

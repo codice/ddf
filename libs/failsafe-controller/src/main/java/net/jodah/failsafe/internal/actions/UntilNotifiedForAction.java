@@ -22,30 +22,26 @@ import org.apache.commons.lang.Validate;
  * @param <R> the result type
  */
 public class UntilNotifiedForAction<R> extends RepeatingAction<R> {
-  private final Action<R> action;
-
   private final String latch;
 
   private boolean notified = false;
 
   /**
-   * Constructs a new action which will repeat the specified action until the specified latch is
-   * notified.
+   * Constructs a new action which will repeat the last recorded action from the specified
+   * expectation until the specified latch is notified.
    *
-   * @param action the action to be repeated
+   * @param expectation the expectation where to get the last recorded action to repeat
    * @param latch the latch to check after the action has executed to see if it should be repeated
    * @throws IllegalArgumentException if <code>latch</code> if <code>null</code>
    */
-  public UntilNotifiedForAction(Action<R> action, String latch) {
-    super(action);
+  UntilNotifiedForAction(ActionRegistry<R>.Expectation expectation, String latch) {
+    super(expectation);
     Validate.notNull(latch, "invalid null latch");
-    this.action = action;
     this.latch = latch;
   }
 
   private UntilNotifiedForAction(UntilNotifiedForAction<R> action) {
     super(action);
-    this.action = action.action;
     this.latch = action.latch;
   }
 
