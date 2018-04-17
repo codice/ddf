@@ -13,11 +13,11 @@
  *
  **/
  /*global require*/
- var Marionette = require('marionette');
- var $ = require('jquery');
- var template = require('../search-form.collection.hbs');
- var SearchFormCollectionView = require('./search-form-sharing.collection.view');
- var CustomElements = require('js/CustomElements');
+ let Marionette = require('marionette');
+ let $ = require('jquery');
+ let template = require('../search-form.collection.hbs');
+ let SearchFormCollectionView = require('./search-form-sharing.collection.view');
+ let CustomElements = require('js/CustomElements');
 
  module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -30,9 +30,11 @@
             model: this.model
         }));
         this.$el.find('.loading').show();
-        this.listenTo(this.collection.currentView.collection, 'doneLoading', this.showCollection);
+        this.listenTo(this.collection.currentView.searchFormSharingCollection, "change:doneLoading", this.showCollection);
     },
     showCollection: function() {
-        this.$el.find('.loading').hide();
+        if(this.collection.currentView.searchFormSharingCollection.getDoneLoading()) {
+            this.$el.find('.loading').hide();
+        }
     }
  });

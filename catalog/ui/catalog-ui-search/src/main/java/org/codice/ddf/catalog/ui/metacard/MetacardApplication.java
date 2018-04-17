@@ -947,15 +947,14 @@ public class MetacardApplication implements SparkApplication {
 
   private List<Serializable> getSecurityAttributes(
       Map<String, Object> inputTemplate, String securityAccess) {
-    return inputTemplate
-        .entrySet()
-        .stream()
-        .filter(obj -> obj.getKey().contains(securityAccess))
-        .map(Map.Entry::getValue)
-        .map(List.class::cast)
-        .flatMap(List::stream)
-        .map(Object::toString)
-        .collect(Collectors.toList());
+    return (List<Serializable>)
+        inputTemplate
+            .entrySet()
+            .stream()
+            .filter(obj -> obj.getKey().contains(securityAccess))
+            .flatMap(e -> ((List) e.getValue()).stream())
+            .map(Object::toString)
+            .collect(Collectors.toList());
   }
 
   /**

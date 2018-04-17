@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.forms.model;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Core;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -71,11 +72,13 @@ public class TemplateTransformer {
 
     try {
       FilterReader reader = new FilterReader();
+      String metacardOwner = metacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
       JAXBElement<FilterType> root =
           reader.unmarshalFilter(
               new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
       makeVisitable(root).accept(visitor);
-      return new FormTemplate(wrapped, visitor.getResult(), accessIndividuals, accessGroups);
+      return new FormTemplate(
+          wrapped, visitor.getResult(), accessIndividuals, accessGroups, metacardOwner);
     } catch (JAXBException | UnsupportedEncodingException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "

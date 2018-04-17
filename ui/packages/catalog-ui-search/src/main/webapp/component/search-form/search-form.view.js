@@ -66,7 +66,7 @@
                 });
                 user.getQuerySettings().set({
                     type: 'custom',
-                    template: this.model.toJSON(),
+                    template: this.model.toJSON()
                 });
 
                 this.options.queryModel.set({

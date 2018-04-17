@@ -193,7 +193,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
     metacard.setFormsFilter(filterXml);
 
-    //TODO: Remove this once CRUD support gets added
+    // TODO: Remove this once CRUD support gets added - https://codice.atlassian.net/browse/DDF-3672
     metacard.setAttribute(Core.METACARD_OWNER, "dummyUser@gmail.com");
 
     // Validation so the catalog is not contaminated on startup, which would impact every request
@@ -315,27 +315,27 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   }
 
   private static void saveMetacards(CatalogFramework framework, List<Metacard> metacards) {
-    //TODO: This code will be removed once CRUD support is completed
+    // TODO: This code will be removed once CRUD support is completed -
+    // https://codice.atlassian.net/browse/DDF-3672
     /**
-     * Purpose: Circumvents the idea of a system template to make it look like the loaded templates were created by a std. user.
-     * Additional Info: dummyUser is created (temporarily) in user.properties/user.attributes to demonstrate template creation
-     *   - This sets the metacard owner during boot time
-     *   - This allows the template to be shared when logged in as dummyUser
-     *   - Allows this PR to be hero'ed without the need for CRUD functionality
+     * Purpose: Circumvents the idea of a system template to make it look like the loaded templates
+     * were created by a std. user. Additional Info: dummyUser is created (temporarily) in
+     * user.properties/user.attributes to demonstrate template creation - This sets the metacard
+     * owner during boot time - This allows the template to be shared when logged in as dummyUser -
+     * Allows this PR to be hero'ed without the need for CRUD functionality
      */
     Subject userSubject = SECURITY.getSubject("dummyUser", "dummyPassword");
     userSubject.execute(
         () -> {
           try {
             framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards();
-          } catch (IngestException e) {
-            LOGGER.warn("Unable to create metacard under this user", e);
-          } catch (SourceUnavailableException e) {
-            LOGGER.warn("Unable to create metacard under this user", e);
+          } catch (IngestException | SourceUnavailableException e) {
+            LOGGER.warn("Unable to create metacard under the user dummyUser", e);
           }
         });
 
-    //TODO: Add this code back in once CRUD support is completed
+    // TODO: Add this code back in once CRUD support is completed -
+    // https://codice.atlassian.net/browse/DDF-3672
     //    SECURITY.runAsAdmin(
     //        () -> {
     //          try {

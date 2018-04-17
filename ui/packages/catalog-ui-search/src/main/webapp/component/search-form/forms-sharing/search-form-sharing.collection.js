@@ -13,47 +13,96 @@
  *
  **/
  /*global require*/
- var _ = require('underscore');
- var $ = require('jquery');
- var Backbone = require('backbone');
- var SearchForm = require('../search-form');
- var Common = require('js/Common');
+ let _ = require('underscore');
+ let $ = require('jquery');
+ let Backbone = require('backbone');
+ let SearchForm = require('../search-form');
+ let Common = require('js/Common');
+ let user = require('component/singletons/user-instance');
 
  let sharedTemplates = [];
  let templatePromise = $.ajax({
     type: 'GET',
     context: this,
-    url: '/search/catalog/internal/forms/sharing',
+    url: '/search/catalog/internal/forms/query',
     contentType: 'application/json',
     success: function (data) {
         sharedTemplates = data;
     }
 });
 
- module.exports = Backbone.Collection.extend({
+ module.exports = Backbone.AssociatedModel.extend({
    model: SearchForm,
+   defaults: {
+        doneLoading: false,
+        sharedSearchForms: []
+   },
    initialize: function() {
        this.addMySharedForms();
    },
+    relations: [{
+        type: Backbone.Many,
+        key: 'sharedSearchForms',
+        collectionType: Backbone.Collection.extend({
+            model: SearchForm,
+            initialize: function() {}
+        })
+    }],
    addMySharedForms: function() {
        templatePromise.then(() => {
             if (!this.isDestroyed){
                 $.each(sharedTemplates, (index, value) => {
-                    var utcSeconds = value.created / 1000;
-                    var d = new Date(0);
-                    d.setUTCSeconds(utcSeconds);
-                    this.addSearchForm(new SearchForm({
-                        createdOn: Common.getHumanReadableDate(d),
-                        id: value.id,
-                        name: value.title,
-                        type: 'custom',
-                        filterTemplate: value.filterTemplate,
-                        accessIndividuals: value.accessIndividuals,
-                        accessGroups: value.accessGroups
-                    }));
+                    if (this.checkIfShareable(value)) {
+                        let utcSeconds = value.created / 1000;
+                        let d = new Date(0);
+                        d.setUTCSeconds(utcSeconds);
+                        this.addSearchForm(new SearchForm({
+                            createdOn: Common.getHumanReadableDate(d),
+                            id: value.id,
+                            name: value.title,
+                            type: 'custom',
+                            filterTemplate: value.filterTemplate,
+                            accessIndividuals: value.accessIndividuals,
+                            accessGroups: value.accessGroups
+                        }));
+                    }
                 });
-                this.trigger("doneLoading");
+                this.doneLoading();
             }
        });
-   }
+   },
+   checkIfShareable: function(template) {
+       if (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) {
+           return true;
+       }
+       return false;
+   },
+   checkIfInGroup: function(template) {
+       let myGroups = user.get('user').get('roles');
+       let roleIntersection = myGroups.filter(function(n) {
+        return template.accessGroups.indexOf(n) !== -1;
+       });
+
+       return !_.isEmpty(roleIntersection);
+   },
+   checkIfInIndividiuals: function(template) {
+       let myEmail = [user.get('user').get('email')];
+       let accessIndividualIntersection = myEmail.filter(function(n) {
+        return template.accessIndividuals.indexOf(n) !== -1;
+       });
+
+       return !_.isEmpty(accessIndividualIntersection);
+   },
+    addSearchForm: function(searchForm) {
+        this.get('sharedSearchForms').add(searchForm);
+    },
+    getDoneLoading: function() {
+        return this.get('doneLoading');
+    },
+    doneLoading: function() {
+        this.set('doneLoading', true);
+    },
+    getCollection: function() {
+        return this.get('sharedSearchForms');
+    },
  });

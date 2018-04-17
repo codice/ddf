@@ -23,15 +23,11 @@ import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.security.SubjectUtils;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.shiro.SecurityUtils;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -111,33 +107,6 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()),
         MAPPER::toJson);
-
-    /** Gets me all query templates that are shared with me * */
-    // TODO: This is no longer required, incorporate client-side filtering using new adjustments to
-    // Template Transformer
-    get(
-        "/forms/sharing",
-        (req, res) -> {
-          String currentUser = SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
-
-          return util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
-              .entrySet()
-              .stream()
-              .map(Map.Entry::getValue)
-              .map(Result::getMetacard)
-              .filter(
-                  metacard -> metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS) != null)
-              .filter(
-                  metacard ->
-                      metacard
-                          .getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS)
-                          .getValues()
-                          .contains(currentUser))
-              .map(transformer::toFormTemplate)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toList());
-        },
-        util::getJson);
 
     delete(
         "/forms/:id",

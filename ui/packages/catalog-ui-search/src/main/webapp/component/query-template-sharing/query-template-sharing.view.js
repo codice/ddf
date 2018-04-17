@@ -13,202 +13,197 @@
  *
  **/
 /*global define, window*/
-define([
-    'backbone',
-    'marionette',
-    'underscore',
-    'jquery',
-    './query-template-sharing.hbs',
-    './query-template-sharing.item.hbs',
-    'js/CustomElements',
-    'component/singletons/user-instance',
-    './editable-rows-template.view',
-    'component/dropdown/dropdown.view',
-    'component/loading-companion/loading-companion.view',
-    'component/announcement'
-], function (Backbone, Marionette, _, $, template, itemTemplate, CustomElements, user, EditableRows, DropdownView, Loading, announcement) {
 
-    var Input = Marionette.ItemView.extend({
-        template: '<input class="form-control" type="text"/>',
-        modelEvents: { change: 'updateValue' },
-        events: {
-            'change .form-control': 'onChange'
-        },
-        onRender: function () { this.updateValue(); },
-        valueKey: function () {
-            return this.options.valueKey || 'value';
-        },
-        onChange: function (e) {
-            this.model.set(this.valueKey(), e.target.value);
-        },
-        updateValue: function () {
-            this.$('input').val(this.model.get(this.valueKey()));
+let Backbone = require('backbone');
+let Marionette = require('marionette');
+let _ = require('underscore');
+let $ = require('jquery');
+let template = require('./query-template-sharing.hbs');
+let itemTemplate = require('./query-template-sharing.item.hbs');
+let CustomElements = require('js/CustomElements');
+let user = require('component/singletons/user-instance');
+let EditableRows = require('component/editable-rows/editable-rows.view');
+let DropdownView = require('component/dropdown/dropdown.view');
+let Loading = require('component/loading-companion/loading-companion.view');
+let announcement = require('component/announcement');
+
+
+let Input = Marionette.ItemView.extend({
+    template: '<input class="form-control" type="text"/>',
+    modelEvents: { change: 'updateValue' },
+    events: {
+        'change .form-control': 'onChange'
+    },
+    onRender: function () { this.updateValue(); },
+    valueKey: function () {
+        return this.options.valueKey || 'value';
+    },
+    onChange: function (e) {
+        this.model.set(this.valueKey(), e.target.value);
+    },
+    updateValue: function () {
+        this.$('input').val(this.model.get(this.valueKey()));
+    }
+});
+
+let IconView = Marionette.ItemView.extend({
+    className: 'icon-view',
+    template: '<i class="fa {{icon}}"></i> <span class="icon-label">{{label}}</span>'
+});
+
+let SharingByEmailView = Marionette.LayoutView.extend({
+    template: '<div class="email"></div>' +
+                '<div class="action"></div>',
+    regions: {
+        email: '.email',
+        action: '.action'
+    },
+    onRender: function () {
+        this.email.show(new Input({ model: this.model }));
+    }
+});
+
+let EmailSharingEditor = EditableRows.extend({
+    embed: function (model) {
+        return new SharingByEmailView({ model: model });
+    }
+});
+
+let SharingByRoleView = Marionette.LayoutView.extend({
+    className: 'row',
+    template: '<div class="role">{{value}}</div>' +
+                '<div class="action"></div>',
+    regions: {
+        role: '.role',
+        action: '.action'
+    },
+    updateAction: function () {
+        this.model.set('action', this.action.currentView.model.get('value')[0]);
+    },
+    onRender: function () {
+        this.action.show(DropdownView.createSimpleDropdown(
+            {
+                list: [
+                    { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
+                    { icon: 'fa-pencil', label: 'Can Access', value: 'access' }
+                ],
+                defaultSelection: [this.model.get('action')],
+                customChildView: IconView
+            }
+        ));
+
+        this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
+    }
+});
+
+let RoleSharingEditor = Marionette.CollectionView.extend({
+    childView: SharingByRoleView
+});
+
+module.exports = Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('template-sharing'),
+    modelEvents: {
+        reset: 'render',
+        sync: 'cleanup'
+    },
+    regions: {
+        byEmail: '.template-sharing-by-email',
+        byRole: '.template-sharing-by-role'
+    },
+    events: {
+        'click .save': 'save',
+        'click .reset': 'render' // resetting can be done by re-rendering and flushing the state
+    },
+    serializeData: function () {
+        return {
+            link: window.location.href + '/' + this.model.get('id')
         }
-    });
+    },
+    getSharingByEmail: function () {
+        return this.options.permissions.accessIndividuals != undefined ? 
+            this.options.permissions.accessIndividuals
+            .map(function (email) {
+                return { value: email }
+            }) : [];
+    },
+    getSharingByRole: function () {
+        let view = this;
 
-    var IconView = Marionette.ItemView.extend({
-        className: 'icon-view',
-        template: '<i class="fa {{icon}}"></i> <span class="icon-label">{{label}}</span>'
-    });
+        let roles = this.options.permissions.accessGroups != undefined ? 
+            this.options.permissions.accessGroups
+            .map(function (group) {
+                return group;
+            }) : [];
 
-    var SharingByEmailView = Marionette.LayoutView.extend({
-        template: '<div class="email"></div>' +
-                  '<div class="action"></div>',
-        regions: {
-            email: '.email',
-            action: '.action'
-        },
-        onRender: function () {
-            this.email.show(new Input({ model: this.model }));
-        }
-    });
-
-    var EmailSharingEditor = EditableRows.extend({
-        embed: function (model) {
-            return new SharingByEmailView({ model: model });
-        }
-    });
-
-    var SharingByRoleView = Marionette.LayoutView.extend({
-        className: 'row',
-        template: '<div class="role">{{value}}</div>' +
-                  '<div class="action"></div>',
-        regions: {
-            role: '.role',
-            action: '.action'
-        },
-        updateAction: function () {
-            this.model.set('action', this.action.currentView.model.get('value')[0]);
-        },
-        onRender: function () {
-            this.action.show(DropdownView.createSimpleDropdown(
-                {
-                    list: [
-                        { icon: 'fa-ban',    label: 'No Access',  value: 'none' },
-                        { icon: 'fa-pencil', label: 'Can Access', value: 'access' }
-                    ],
-                    defaultSelection: [this.model.get('action')],
-                    customChildView: IconView
-                }
-            ));
-
-            this.listenTo(this.action.currentView.model, 'change:value', this.updateAction);
-        }
-    });
-
-    var RoleSharingEditor = Marionette.CollectionView.extend({
-        childView: SharingByRoleView
-    });
-
-    var QueryTemplateSharing = Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('template-sharing-test'),
-        modelEvents: {
-            reset: 'render',
-            sync: 'cleanup'
-        },
-        regions: {
-            byEmail: '.template-sharing-by-email',
-            byRole: '.template-sharing-by-role'
-        },
-        events: {
-            'click .save': 'save',
-            'click .reset': 'render' // resetting can be done by re-rendering and flushing the state
-        },
-        serializeData: function () {
+        return user.get('user').get('roles').map(function (role) {
             return {
-                link: window.location.href + '/' + this.model.get('id')
-            }
-        },
-        getSharingByEmail: function () {
-            return this.options.permissions.accessIndividuals != undefined ? 
-                this.options.permissions.accessIndividuals
-                .map(function (email) {
-                    return { value: email }
-                }) : [];
-        },
-        getSharingByRole: function () {
-            var view = this;
+                attribute: 'role',
+                action: (roles.indexOf(role) === -1) ? 'none' : 'access',
+                value: role
+            };
+        });
+    },
+    onRender: function () {
+        this.collection = new Backbone.Collection(this.getSharingByRole());
+        this.emailCollection = new Backbone.Collection(this.getSharingByEmail());
 
-            var roles = this.options.permissions.accessGroups != undefined ? 
-                this.options.permissions.accessGroups
-                .map(function (group) {
-                    return group;
-                }) : [];
+        this.byEmail.show(new EmailSharingEditor({
+            collection: this.emailCollection
+        }));
 
-            return user.get('user').get('roles').map(function (role) {
-                return {
-                    attribute: 'role',
-                    action: (roles.indexOf(role) === -1) ? 'none' : 'access',
-                    value: role
-                };
-            });
-        },
-        onRender: function () {
-            this.collection = new Backbone.Collection(this.getSharingByRole());
-            this.emailCollection = new Backbone.Collection(this.getSharingByEmail());
+        this.byRole.show(new RoleSharingEditor({
+            collection: this.collection
+        }));
+    },
+    save: function () {
 
-            this.byEmail.show(new EmailSharingEditor({
-                collection: this.emailCollection
-            }));
+        let view = this;
 
-            this.byRole.show(new RoleSharingEditor({
-                collection: this.collection
-            }));
-        },
-        save: function () {
+        Loading.beginLoading(view);
 
-            var view = this;
+        let emailList = this.emailCollection.map(function(email) {
+            return email.get('value')
+        });
 
-            Loading.beginLoading(view);
+        let roleList = this.collection.chain()
+            .filter(function (role) {
+                return role.get('action') !== 'none';
+            }).map(function (role) {
+                return role.get('value');
+            }).value();
 
-            var emailList = this.emailCollection.map(function(email) {
-                return email.get('value')
-            });
-
-            var roleList = this.collection.chain()
-                .filter(function (role) {
-                    return role.get('action') !== 'none';
-                }).map(function (role) {
-                    return role.get('value');
-                }).value();
-
-            var templatePerms = {
-                    'security.access-individuals': emailList,
-                    'security.access-groups': roleList 
-            }
-
-            this.updateSharingPermissions(templatePerms)
-        },
-        updateSharingPermissions: function(templatePerms) {
-            var _this = this;
-            console.log(this.model.attributes)
-
-            $.ajax({
-                //TODO: This URL needs to be a constant pulled from the model?
-                url: "/search/catalog/internal/sharing/".concat(_this.options.modelId),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                type: 'PUT',
-                data: JSON.stringify(templatePerms),
-                success: function(data) {
-                    _this.message('Success!', 'Sharing Settings Saved for Query Template', 'success');
-                    _this.cleanup();
-                }
-            });
-        },
-        message: function(title, message, type) {
-            announcement.announce({
-                title: title,
-                message: message,
-                type: type
-            });
-        },
-        cleanup: function () {
-            this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
-            Loading.endLoading(this);
+        let templatePerms = {
+                'security.access-individuals': emailList,
+                'security.access-groups': roleList 
         }
-    });
 
-    return QueryTemplateSharing;
+        this.updateSharingPermissions(templatePerms)
+    },
+    updateSharingPermissions: function(templatePerms) {
+        let _this = this;
+        $.ajax({
+            url: "/search/catalog/internal/sharing/".concat(_this.options.modelId),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            type: 'PUT',
+            data: JSON.stringify(templatePerms),
+            success: function(data) {
+                _this.message('Success!', 'Sharing Settings Saved for Query Template', 'success');
+                _this.cleanup();
+            }
+        });
+    },
+    message: function(title, message, type) {
+        announcement.announce({
+            title: title,
+            message: message,
+            type: type
+        });
+    },
+    cleanup: function () {
+        this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
+        Loading.endLoading(this);
+    }
+
 });

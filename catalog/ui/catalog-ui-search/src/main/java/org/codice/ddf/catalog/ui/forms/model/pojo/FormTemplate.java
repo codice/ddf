@@ -38,15 +38,20 @@ public class FormTemplate extends CommonTemplate {
   @JsonProperty("accessGroups")
   private List<Serializable> accessGroups;
 
+  @JsonProperty("creator")
+  private String creator;
+
   public FormTemplate(
       Metacard metacard,
       FilterNode root,
       List<Serializable> accessIndividuals,
-      List<Serializable> accessGroups) {
+      List<Serializable> accessGroups,
+      String creator) {
     super(metacard);
     this.root = root;
     this.accessIndividuals = accessIndividuals;
     this.accessGroups = accessGroups;
+    this.creator = creator;
   }
 
   public FilterNode getRoot() {
