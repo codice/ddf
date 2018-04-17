@@ -197,14 +197,15 @@ module.exports = Marionette.LayoutView.extend({
         this.map.zoomToBoundingBox(homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox);
     },
     addHome: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button zoomToHome"><span class="fa fa-home"></span><span> Home</span></div>');
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button zoomToHome">' +
+            '<span>Home </span>' +
+            '<span class="fa fa-home"></span></div>');
     },
     addClustering: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button cluster cluster-button">' +
-            '<span class="fa fa-cubes is-not-clustering"></span>' +
-            '<span class="fa fa-cube is-clustering"></span>' +
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button cluster cluster-button">' +
             '<span> Cluster </span>' +
-            '<span class="fa fa-toggle-on is-clustering"></span>' +
+            '<span class="fa fa-toggle-on is-clustering"/>' +
+            '<span class="fa fa-cubes"/>' +
             '</div>');
     },
     addSettings: function(){

@@ -40,7 +40,7 @@
     top: 0px; 
     right: 0px;
     padding-right: @minimumSpacing;
-    .is-large-font;
+    .is-medium-font;
     background: inherit;
     line-height: @minimumButtonSize;
     .cesium-viewer-geocoderContainer,
@@ -73,9 +73,7 @@
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
       display: inline-block;
-    }
-    .is-button {
-      margin-left: @minimumSpacing;
+      margin-left: @mediumSpacing;
     }
   }
 
@@ -95,7 +93,8 @@
   }
 
   .is-clustering {
-      display: none;
+    display: none;
+    padding-right: 5px;
   }
 
   .is-clustering.fa-toggle-on {
@@ -106,9 +105,5 @@
 @{customElementNamespace}map.is-clustering {
   .is-clustering {
     display: inline;
-  }
-
-  .is-not-clustering {
-    display: none;
   }
 }
