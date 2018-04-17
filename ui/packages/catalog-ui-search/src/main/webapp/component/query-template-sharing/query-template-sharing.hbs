@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,16 +10,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- var Tabs = require('component/tabs/tabs');
- var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
- var MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
+ --}}
+<div class="sharing-information">
+    <div class="information-role">
+        <h4 align="center">By Role:</h4>
 
- module.exports = Tabs.extend({
-    defaults: {
-        tabs: {
-            'My Search Forms': MySearchFormCollectionView,
-            'Shared Templates': MySearchSharingFormCollectionView
-         }
-    }
- });
+        <div class="template-sharing-by-role"></div>
+    </div>
+    <div class="information-email">
+        <h4 align="center">By Email:</h4>
+
+        <div class="template-sharing-by-email"></div>
+    </div>
+</div>
+
+<div class="sharing-buttons">
+    <button class="is-negative reset">
+        <i class="fa fa-undo" aria-hidden="true"></i> Reset
+    </button>
+    <button class="is-positive save">
+        <i class="fa fa-floppy-o" aria-hidden="true"></i> Apply
+    </button>
+</div>

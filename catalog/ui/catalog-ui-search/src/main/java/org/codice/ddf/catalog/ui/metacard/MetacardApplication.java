@@ -18,6 +18,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.codice.ddf.catalog.ui.security.ShareableMetacardImpl.canShare;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -480,6 +481,37 @@ public class MetacardApplication implements SparkApplication {
         });
 
     put(
+        "/sharing/:id",
+        (req, res) -> {
+          String id = req.params(":id");
+
+          Map<String, Object> queryTemplate =
+              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+
+          Metacard metacard = util.getMetacard(id);
+
+          if (canShare(metacard)) {
+            metacard.setAttribute(
+                new AttributeImpl(
+                    SecurityAttributes.ACCESS_INDIVIDUALS,
+                    getSecurityAttributes(queryTemplate, SecurityAttributes.ACCESS_INDIVIDUALS)));
+
+            metacard.setAttribute(
+                new AttributeImpl(
+                    SecurityAttributes.ACCESS_GROUPS,
+                    getSecurityAttributes(queryTemplate, SecurityAttributes.ACCESS_GROUPS)));
+
+            updateMetacard(id, metacard);
+            return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, "Metacard Updated Successfully!");
+
+          } else {
+            res.status(401);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "This type of metacard cannot be shared.");
+          }
+        });
+
+    put(
         "/workspaces/:id",
         APPLICATION_JSON,
         (req, res) -> {
@@ -911,6 +943,19 @@ public class MetacardApplication implements SparkApplication {
       LOGGER.debug("Could not delete the deleted metacard marker", e);
     }
     LOGGER.trace("Deleted delete marker metacard successfully");
+  }
+
+  private List<Serializable> getSecurityAttributes(
+      Map<String, Object> inputTemplate, String securityAccess) {
+    return inputTemplate
+        .entrySet()
+        .stream()
+        .filter(obj -> obj.getKey().contains(securityAccess))
+        .map(Map.Entry::getValue)
+        .map(List.class::cast)
+        .flatMap(List::stream)
+        .map(Object::toString)
+        .collect(Collectors.toList());
   }
 
   /**

@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,16 +10,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- var Tabs = require('component/tabs/tabs');
- var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
- var MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
-
- module.exports = Tabs.extend({
-    defaults: {
-        tabs: {
-            'My Search Forms': MySearchFormCollectionView,
-            'Shared Templates': MySearchSharingFormCollectionView
-         }
-    }
- });
+ --}}
+<div class="template-sharing-role">
+    <div class="row">
+        <div class="col-md-8"><div class="template-role-value">{{value}}</div></div>
+        <div class="col-md-4 sharing-dropdown"></div>
+    </div>
+</div>

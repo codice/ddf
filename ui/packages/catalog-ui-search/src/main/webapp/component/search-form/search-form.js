@@ -15,9 +15,11 @@
 
  module.exports = Backbone.Model.extend({
     defaults: {
-        name: 'A Search Form',
-        createdBy: 'admin',
-        type: 'custom',
-        filterTemplate: '{}'
+        name: "A Search Form",
+        createdBy: "admin",
+        type: "custom",
+        filterTemplate: "{}",
+        accessIndividuals: [],
+        accessGroups: []
     }
  });

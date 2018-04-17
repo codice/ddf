@@ -80,7 +80,9 @@ module.exports = Backbone.AssociatedModel.extend({
                         id: value.id,
                         name: value.title,
                         type: 'custom',
-                        filterTemplate: value.filterTemplate
+                        filterTemplate: value.filterTemplate,
+                        accessIndividuals: value.accessIndividuals,
+                        accessGroups: value.accessGroups
                     }));
                 });
                 this.doneLoading();
