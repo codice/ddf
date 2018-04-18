@@ -88,32 +88,10 @@ define([
         initialize: function (options) {
             this.index = options.childIndex;
             this.collection = options.collection;
-            this.parent = options.parent;
-            this.listenTo(this.collection, "add", this.render);
-            this.listenTo(this.collection, "remove", this.render);
-            this.listenTo(this.model, "change", this.parent.render);
         },
         removeModel: function () {
+            this.destroy();
             this.model.destroy();
-        },
-        getNextAttribute: function () {
-            let that = this;
-            let filtered = this.sortAttributes.filter(function (type) {
-                let sorts = that.collection.filter(function (sort) {
-                    return sort.get('attribute') === type.label;
-                });
-                return sorts.length !== 1;
-            });
-            return filtered[0].label;
-        },
-        addModel: function () {
-            this.collection.add({
-                attribute: this.getNextAttribute(),
-                direction: 'descending'
-            });
-        },
-        onDomRefresh: function () {
-            this.onBeforeShow();
         },
         onBeforeShow: function () {
             let that = this;
@@ -123,11 +101,6 @@ define([
                 return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
             }).filter(function (type) {
                 return blacklist.indexOf(type.id) === -1;
-            }).filter(function (type) {
-                let sorts = that.collection.filter(function (sort) {
-                    return sort.get('attribute') === type.id;
-                });
-                return sorts.length !== 1 || type.id === that.model.get('attribute');
             }).map(function (metacardType) {
                 return {
                     label: metacardType.alias || metacardType.id,
@@ -159,6 +132,18 @@ define([
                 this.model.set('attribute', attribute[0]);
                 this.handleAttribute();
             });
+            this.listenTo(this.collection, 'change:attribute remove', () => {
+                this.updateDuplicates();
+            });
+        },
+        updateDuplicates: function () {
+            const hasDuplicates = this.collection.models.filter((sort) => {
+                return sort.get('attribute') === this.model.get('attribute') &&
+                    sort.cid !== this.model.cid;
+            }).length > 0;
+
+            this.$el.toggleClass('sort-duplicate-show', hasDuplicates);
+            // this.$el.find('.fa').text(' ' + this.model.get('attribute') + ' is already specified as a sort');
         },
         turnOffEditing: function () {
             this.sortAttribute.currentView.turnOffEditing();
@@ -171,6 +156,9 @@ define([
             }
         },
         handleAttribute: function () {
+            if (!this.sortAttribute) {
+                return;
+            }
             var attribute = this.sortAttribute.currentView.model.getValue()[0];
             var labels = getSortLabel(attribute);
 
@@ -205,13 +193,21 @@ define([
             this.listenTo(this.sortDirection.currentView.model, 'change:value', (model, direction) => {
                 this.model.set('direction', direction[0])
             });
-
+            this.updateDuplicates();
         },
         getSortField: function () {
             return this.sortAttribute.currentView.model.getValue()[0];
         },
         getSortOrder: function () {
             return this.sortDirection.currentView.model.getValue()[0];
+        },
+        serializeData: function () {
+            const data = this.model.toJSON();
+            data.aliased = metacardDefinitions.getLabel(data.attribute);
+            if (data.aliased === 'RELEVANCE') {
+                data.aliased = 'Best Text Match';
+            }
+            return data;
         }
     });
 });

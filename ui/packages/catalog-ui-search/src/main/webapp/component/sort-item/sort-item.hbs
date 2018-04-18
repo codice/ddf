@@ -11,19 +11,18 @@
  *
  **/
  --}}
-<button class="sort-remove is-negative">
-    <span class="fa fa-minus">
-
-    </span>
-</button>
-<button class="sort-add is-primary">
-    <span class="fa fa-plus">
-
-    </span>
-</button>
 <div class="sort-attribute">
 
 </div>
 <div class="sort-direction">
 
+</div>
+
+<button class="sort-remove is-negative">
+    <span class="fa fa-minus">
+
+    </span>
+</button>
+<div class="sort-duplicate">
+    <span class="fa fa-warning"></span> <span class="sort-duplicate-message"> {{bind selector="> .sort-duplicate > .sort-duplicate-message" event="change:attribute" key=(path "aliased")}}</span> <span>is already specified as a sort</span>
 </div>

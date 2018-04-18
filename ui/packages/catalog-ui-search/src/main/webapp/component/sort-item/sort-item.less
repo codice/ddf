@@ -1,8 +1,24 @@
+@{customElementNamespace}sort-item.sort-duplicate-show {
+  .sort-duplicate {
+    color: contrast(@warning-color);
+    display: block;
+    line-height: @minimumLineSize;
+    text-align: left;
+    padding: @minimumSpacing;
+    margin-left: @minimumSpacing;
+    background: @warning-color;
+    white-space: normal;
+  }
+  .sort-attribute > @{customElementNamespace}property,
+  .sort-direction > @{customElementNamespace}property {
+    padding-bottom: 0px;
+  }
+}
+
 @{customElementNamespace}sort-item-collection {
   display: block;
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
 
   @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
   }
@@ -13,11 +29,18 @@
     }
   }
 
-  @{customElementNamespace}sort-item:first-of-type {
-    .sort-add {
-      display: inline-block;
-    }
+  @{customElementNamespace}sort-item:last-of-type {
+    margin-bottom: @minimumSpacing;
   }
+
+  > .sort-add {
+    width: 100%;
+  }
+
+}
+
+@{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
+  margin-top: @minimumSpacing;
 }
 
 @{customElementNamespace}sort-item {
@@ -25,25 +48,34 @@
   white-space: nowrap;
   overflow: hidden;
 
+  .sort-attribute > @{customElementNamespace}property,
+  .sort-direction > @{customElementNamespace}property {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  > .sort-duplicate {
+    display: none;
+    width: ~'calc(50%  - @{minimumButtonSize}/2 - 3*@{minimumSpacing})';
+  }
+
   .sort-attribute,
   .sort-direction {
-    width: ~'calc(47%)';
+    width: ~'calc(50%  - @{minimumButtonSize}/2 - @{minimumSpacing})';
   }
 
   .sort-attribute,
   .sort-direction,
-  .sort-remove,
-  .sort-add {
+  .sort-remove {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: top;
   }
 
   .sort-attribute {
     transition: width @coreTransitionTime ease-in-out;
   }
 
-  .sort-remove,
-  .sort-add {
+  .sort-remove {
     height: @minimumButtonSize;
     width: @minimumButtonSize;
     display: none;
@@ -53,9 +85,12 @@
 
 @{customElementNamespace}sort-item.is-non-directional-sort {
   .sort-attribute {
-    width: 100%;
+    width: ~'calc(100% - 1.5*@{minimumSpacing} - @{minimumButtonSize})';
   }
   .sort-direction {
+    display: none;
+  }
+  .sort-duplicate {
+    width: ~'calc(100% - 3.5*@{minimumSpacing} - @{minimumButtonSize})';
   }
 }
-  

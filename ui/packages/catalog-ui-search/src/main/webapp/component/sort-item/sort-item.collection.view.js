@@ -19,15 +19,11 @@ define([
     'jquery',
     'js/CustomElements',
     './sort-item.view',
-    './sort-item-collection.hbs',
-    'js/store'
-], function (Marionette, _, $, CustomElements, queryItemView, template, store) {
+    './sort-item-collection.hbs'
+], function (Marionette, _, $, CustomElements, queryItemView, template) {
 
-    return Marionette.CompositeView.extend({
-        tagName: CustomElements.register('sort-item-collection'),
+    let SortListView = Marionette.CollectionView.extend({
         childView: queryItemView,
-        template: template,
-        childViewContainer: ".sorts",
         initialize: function (options) {
             if (this.collection.length === 0) {
                 this.collection.add({
@@ -40,8 +36,46 @@ define([
             return {
                 collection: this.collection,
                 childIndex: index,
-                parent: this
+                showBestTextOption: this.options.showBestTextOption
             }
+        }
+    });
+
+    return Marionette.LayoutView.extend({
+        template: template,
+        tagName: CustomElements.register('sort-item-collection'),
+        regions: {
+            sorts: '.sorts'
+        },
+        events: {
+            'click .sort-add': 'handleAdd'
+        },
+        handleAdd: function () {
+            this.childView.collection.add({
+                attribute: this.getNextAttribute(),
+                direction: 'descending',
+                showBestTextOption: this.options.showBestTextOption
+            });
+        },
+        getNextAttribute: function () {
+            let that = this;
+            let filtered = this.childView.children.findByModel(this.collection.models[0]).sortAttributes
+                .filter(function (type) {
+                    let sorts = that.childView.collection.filter(function (sort) {
+                        return sort.get('attribute') === type.value;
+                    });
+                    return sorts.length === 0;
+                });
+            return filtered[0].value;
+        },
+        initialize: function () {
+            this.childView = new SortListView({
+                collection: this.collection,
+                showBestTextOption: this.options.showBestTextOption
+            });
+        },
+        onBeforeShow: function () {
+            this.showChildView('sorts', this.childView);
         }
     });
 });
