@@ -27,6 +27,7 @@
     <packaging>pom</packaging>
 
     <dependencies>
+        <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>cxf</artifactId>
@@ -34,6 +35,7 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <!--end feature dependencies-->
 
         <dependency>
             <groupId>org.codice.ddf</groupId>

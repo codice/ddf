@@ -257,7 +257,7 @@ public class FeatureUtilities {
               printInactiveBundles();
               fail("The bundle " + bundleName + " failed.");
             } else if (!BundleState.Active.equals(bundleState)) {
-              LOGGER.info(
+              LOGGER.debug(
                   "{} bundle not ready with state {}\n{}",
                   bundleName,
                   bundleState,
