@@ -61,6 +61,7 @@ public class TemplateTransformer {
     JsonTransformVisitor visitor = new JsonTransformVisitor();
     List<Serializable> accessIndividuals = new ArrayList<>();
     List<Serializable> accessGroups = new ArrayList<>();
+    String metacardOwner = "System Template";
 
     if (metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS) != null) {
       accessIndividuals = metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS).getValues();
@@ -70,9 +71,12 @@ public class TemplateTransformer {
       accessGroups = metacard.getAttribute(SecurityAttributes.ACCESS_GROUPS).getValues();
     }
 
+    if (metacard.getAttribute(Core.METACARD_OWNER) != null) {
+      metacardOwner = metacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
+    }
+
     try {
       FilterReader reader = new FilterReader();
-      String metacardOwner = metacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
       JAXBElement<FilterType> root =
           reader.unmarshalFilter(
               new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
