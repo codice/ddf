@@ -25,6 +25,7 @@ sessionTimeoutModel.on('change:showPrompt', () => {
         blockingLightbox.model.open();
         blockingLightbox.lightboxContent.show(new SessionTimeoutView());
     } else {
+        console.log("modal closed");
         blockingLightbox.model.close();
     }
 });

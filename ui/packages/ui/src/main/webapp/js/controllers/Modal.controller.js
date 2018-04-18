@@ -19,6 +19,7 @@ define(['jquery',
     ], function ($, _, Marionette, wreqr, SessionTimeoutView, SessionTimeout) {
         'use strict';
         var ModalController;
+        var sessionTimeoutView = null;
 
         ModalController = Marionette.Controller.extend({
             initialize: function (options) {
@@ -32,9 +33,11 @@ define(['jquery',
             },
             showSessionTimeoutModal: function () {
                 if (SessionTimeout.get('showPrompt')) {
-                    var modalView = new SessionTimeoutView();
-                    this.application.sessionTimeoutModalRegion.show(modalView);
-                    modalView.show();
+                    sessionTimeoutView = new SessionTimeoutView();
+                    this.application.sessionTimeoutModalRegion.show(sessionTimeoutView);
+                    sessionTimeoutView.show();
+                } else {
+                    sessionTimeoutView.destroy();
                 }
             }
 

@@ -28,14 +28,18 @@ define([
             template: 'sessionTimeoutModalTemplate',
             model: null,
 
+            events: {
+                'click button': 'renewSession'
+            },
             initialize: function () {
-                this.$el.one('hidden.bs.modal', this.handleContinue);
+                console.log("creating new modal");
             },
             onRender: function () {
+                console.log(sessionTimeoutModel.getIdleSeconds());
                 setTimeout(this.refreshTimeLeft.bind(this), 1000);
             },
             refreshTimeLeft: function () {
-                if (!this.isDestroyed) {
+                if (!this.isClosed) {
                     this.render();
                 }
             },
@@ -44,8 +48,7 @@ define([
                     timeLeft: sessionTimeoutModel.getIdleSeconds()
                 };
             },
-
-            handleContinue: function () {
+            renewSession: function () {
                 sessionTimeoutModel.renew();
             }
         });
