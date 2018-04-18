@@ -16,19 +16,30 @@ package ddf.test.itests.catalog;
 import static com.jayway.restassured.RestAssured.given;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.boon.Boon;
 import org.boon.json.JsonFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.test.common.LoggingUtils;
@@ -52,15 +63,28 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private static final String WORKSPACE_QUERIES = "queries";
 
-  public static final String PATH = "/search/catalog/internal/workspaces";
+  public static final String WORKSPACES_PATH = "/search/catalog/internal/workspaces";
 
-  public static final DynamicUrl API_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, PATH);
+  public static final String QUERY_TEMPLATES_PATH = "/search/catalog/internal/forms/query";
+
+  public static final String RESULT_TEMPLATES_PATH = "/search/catalog/internal/forms/result";
+
+  public static final DynamicUrl WORKSPACES_API_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, WORKSPACES_PATH);
+
+  public static final DynamicUrl QUERY_TEMPLATES_API_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, QUERY_TEMPLATES_PATH);
+
+  public static final DynamicUrl RESULT_TEMPLATES_API_PATH =
+      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, RESULT_TEMPLATES_PATH);
 
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
       waitForSystemReady();
-      getServiceManager().waitForHttpEndpoint(API_PATH.getUrl());
+      getServiceManager().waitForHttpEndpoint(WORKSPACES_API_PATH.getUrl());
+      getServiceManager().waitForHttpEndpoint(QUERY_TEMPLATES_API_PATH.getUrl());
+      getServiceManager().waitForHttpEndpoint(RESULT_TEMPLATES_API_PATH.getUrl());
       getServiceManager().waitForAllBundles();
 
     } catch (Exception e) {
@@ -73,12 +97,25 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     clearCatalog();
   }
 
-  private static String api() {
-    return API_PATH.getUrl();
+  private static String workspacesApi() {
+    return WORKSPACES_API_PATH.getUrl();
+  }
+
+  private static String queryTemplatesApi() {
+    return QUERY_TEMPLATES_API_PATH.getUrl();
+  }
+
+  private static String resultTemplatesApi() {
+    return RESULT_TEMPLATES_API_PATH.getUrl();
   }
 
   private static Map parse(Response res) {
     return JsonFactory.create().readValue(res.getBody().asInputStream(), Map.class);
+  }
+
+  private static List<Map> parseList(Response res) {
+    List<Object> list = Boon.fromJson(res.getBody().asString(), List.class);
+    return list.stream().map(Map.class::cast).collect(Collectors.toList());
   }
 
   private static String stringify(Object o) {
@@ -116,14 +153,14 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testGuestCantCreateWorkspace() throws Exception {
     Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
-    expect(asGuest().body(stringify(workspace)), 404).post(api());
+    expect(asGuest().body(stringify(workspace)), 404).post(workspacesApi());
   }
 
   @Test
   public void testGuestCanCreateWorkspacesForOthers() {
     Map<String, String> workspace =
         ImmutableMap.of("title", "my workspace", Core.METACARD_OWNER, "a@b.c");
-    Response res = expect(asGuest().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asGuest().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -133,7 +170,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testAdminCanCreateWorkspace() {
     Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -143,13 +180,13 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testGuestCantViewUnsharedWorkspace() {
     Map<String, Object> workspace = Collections.emptyMap();
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 404).get(api() + "/" + id);
+    expect(asGuest(), 404).get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -157,13 +194,13 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Map<String, Object> workspace =
         ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of("guest"));
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 200).get(api() + "/" + id);
+    expect(asGuest(), 200).get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -172,14 +209,14 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         ImmutableMap.of(
             SecurityAttributes.ACCESS_INDIVIDUALS, ImmutableList.of("random@localhost.local"));
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 404).get(api() + "/" + id);
-    expect(asUser("random", "password"), 200).get(api() + "/" + id);
+    expect(asGuest(), 404).get(workspacesApi() + "/" + id);
+    expect(asUser("random", "password"), 200).get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -187,7 +224,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Map<String, Object> workspace =
         ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of("guest"));
 
-    Response res = expect(asUser("random", "password").body(stringify(workspace)), 201).post(api());
+    Response res =
+        expect(asUser("random", "password").body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -197,7 +235,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
             asUser("random", "password")
                 .body(stringify(ImmutableMap.of(Core.METACARD_OWNER, "random@localhost.local"))),
             200)
-        .put(api() + "/" + id);
+        .put(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -205,7 +243,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<String> metacards = ImmutableList.of("item1", "item2");
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_METACARDS, metacards);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -225,7 +263,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<Map<String, Object>> queries = ImmutableList.of(query);
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -245,11 +283,89 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<Map<String, Object>> queries = ImmutableList.of(query);
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(api());
+    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
     assertThat(body.get(WORKSPACE_QUERIES), is(queries));
+  }
+
+  @Test
+  public void testGetSystemTemplates() {
+    Set<String> expectedQueryTemplateTitles =
+        new HashSet<>(ImmutableSet.of("Contact Name", "Imagery Only"));
+
+    Response httpRes1 = expect(asUser("srogers", "password1"), 200).get(queryTemplatesApi());
+    Response httpRes2 = expect(asUser("srogers", "password1"), 200).get(resultTemplatesApi());
+
+    assertTemplateDataStructures(JsonPath.from(httpRes1.getBody().asString()));
+
+    List<Map> queryTemplates = parseList(httpRes1);
+    List<Map> resultTemplates = parseList(httpRes2);
+
+    assertThat(
+        "Missing expected query templates: " + expectedQueryTemplateTitles.toString(),
+        queryTemplates
+            .stream()
+            .map(m -> m.get("title"))
+            .map(String.class::cast)
+            .map(expectedQueryTemplateTitles::remove)
+            .reduce(Boolean::logicalAnd)
+            .orElse(false),
+        is(true));
+
+    List<?> unknownElements =
+        Optional.of(resultTemplates.get(0))
+            .map(m -> m.get("descriptors"))
+            .map(List.class::cast)
+            .orElseThrow(() -> new AssertionError("Result template data was malformed"));
+
+    List<String> descriptors =
+        unknownElements.stream().map(String.class::cast).collect(Collectors.toList());
+
+    assertThat(resultTemplates, hasSize(1));
+    assertThat(
+        "Result template did not have expected descriptors in the data",
+        descriptors,
+        hasItems("title", "description", "created", "resource-download-url", "thumbnail"));
+  }
+
+  private static void assertTemplateDataStructures(JsonPath json) {
+    assertThat(json.get("[0].title"), is("Imagery Only"));
+    assertThat(json.get("[0].description"), is("Search across all image datatypes."));
+    assertThat(json.get("[0].id"), isA(String.class));
+    assertThat(json.get("[0].created"), isA(Long.class));
+
+    assertThat(json.get("[0].filterTemplate.type"), is("AND"));
+
+    assertThat(json.get("[0].filterTemplate.filters[0].type"), is("="));
+    assertThat(json.get("[0].filterTemplate.filters[0].property"), is("datatype"));
+    assertThat(json.get("[0].filterTemplate.filters[0].value"), is("Image"));
+    assertThat(json.get("[0].filterTemplate.filters[0].templated"), is(false));
+
+    assertThat(json.get("[0].filterTemplate.filters[1].type"), is("="));
+    assertThat(json.get("[0].filterTemplate.filters[1].property"), is("title"));
+    assertThat(json.get("[0].filterTemplate.filters[1].value"), is(nullValue()));
+    assertThat(json.get("[0].filterTemplate.filters[1].templated"), is(true));
+    assertThat(json.get("[0].filterTemplate.filters[1].defaultValue"), is(nullValue()));
+    assertThat(json.get("[0].filterTemplate.filters[1].nodeId"), is("my-id-1"));
+    assertThat(json.get("[0].filterTemplate.filters[1].isVisible"), is(true));
+    assertThat(json.get("[0].filterTemplate.filters[1].isReadOnly"), is(false));
+
+    assertThat(json.get("[0].filterTemplate.filters[2].type"), is("<="));
+    assertThat(json.get("[0].filterTemplate.filters[2].property"), is("media.bit-rate"));
+    assertThat(json.get("[0].filterTemplate.filters[2].value"), is(nullValue()));
+    assertThat(json.get("[0].filterTemplate.filters[2].templated"), is(true));
+    assertThat(json.get("[0].filterTemplate.filters[2].defaultValue"), is(nullValue()));
+    assertThat(json.get("[0].filterTemplate.filters[2].nodeId"), is("my-id-2"));
+    assertThat(json.get("[0].filterTemplate.filters[2].isVisible"), is(true));
+    assertThat(json.get("[0].filterTemplate.filters[2].isReadOnly"), is(false));
+
+    assertThat(json.get("[1].title"), is("Contact Name"));
+    assertThat(json.get("[1].id"), isA(String.class));
+    assertThat(json.get("[1].created"), isA(Long.class));
+
+    assertThat(json.get("[1].filterTemplate.type"), is("OR"));
   }
 }

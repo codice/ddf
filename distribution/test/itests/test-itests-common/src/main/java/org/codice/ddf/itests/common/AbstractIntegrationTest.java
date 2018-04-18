@@ -665,13 +665,24 @@ public abstract class AbstractIntegrationTest {
    */
   protected Option[] configureCustom() {
     try {
-      return options( // extra config options for catalog-ui and security
+      return options(
+          // Extra config options for catalog-ui and security
           installStartupFile(
               getClass().getResource("/etc/test-users.properties"), "/etc/users.properties"),
           installStartupFile(
               getClass().getResource("/etc/test-users.attributes"), "/etc/users.attributes"),
           installStartupFile(
-              getClass().getResource("/injections.json"), "/etc/definitions/injections.json"));
+              getClass().getResource("/injections.json"), "/etc/definitions/injections.json"),
+          // Catalog-ui custom forms
+          installStartupFile(
+              getClass().getResource("/etc/forms/forms.json"), "/etc/forms/forms.json"),
+          installStartupFile(
+              getClass().getResource("/etc/forms/results.json"), "/etc/forms/results.json"),
+          installStartupFile(
+              getClass().getResource("/etc/forms/imagery.xml"), "/etc/forms/imagery.xml"),
+          installStartupFile(
+              getClass().getResource("/etc/forms/contact-name.xml"),
+              "/etc/forms/contact-name.xml"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
