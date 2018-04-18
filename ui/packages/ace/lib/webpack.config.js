@@ -58,9 +58,6 @@ const base = ({ alias = {}, env }) => ({
       filename: 'index.html',
       template: resolve('src/main/webapp/index.html')
     }),
-    new SimpleProgressWebpackPlugin({
-      format: 'compact'
-    }),
     new webpack.ProvidePlugin({
       ReactDOM: 'react-dom',
       React: 'react'
@@ -214,7 +211,10 @@ const dev = (base, { main, auth }) => merge.smart(base, {
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new SimpleProgressWebpackPlugin({
+      format: 'compact'
+    })
   ]
 })
 
