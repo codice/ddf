@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
+import net.jodah.failsafe.function.CheckedRunnable;
 import net.jodah.failsafe.function.ContextualCallable;
 import net.jodah.failsafe.internal.TimelessRetryPolicy;
 import net.jodah.failsafe.internal.actions.ActionRegistry;
@@ -436,6 +437,11 @@ public class FailsafeController<R> {
                               attempt(context, expectation, (Callable<R>) callable));
                         }
                       }));
+    }
+
+    @Override
+    public FailsafeFuture<Void> run(CheckedRunnable runnable) {
+      return get(Functions.callableOf(runnable));
     }
 
     @SuppressWarnings("squid:S00112" /* Based on Failsafe's API */)
