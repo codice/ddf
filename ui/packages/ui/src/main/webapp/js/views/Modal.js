@@ -33,7 +33,6 @@ function (Marionette) {
         // be default, "close" just closes the modal
         destroy: function () {
             var view = this;
-            console.log("destroy modal");
             // we add this listener because we do not want to remove the dom before the animation completes.
             this.$el.one('hidden.bs.modal', function () {
                 view.close();

@@ -32,10 +32,8 @@ define([
                 'click button': 'renewSession'
             },
             initialize: function () {
-                console.log("creating new modal");
             },
             onRender: function () {
-                console.log(sessionTimeoutModel.getIdleSeconds());
                 setTimeout(this.refreshTimeLeft.bind(this), 1000);
             },
             refreshTimeLeft: function () {

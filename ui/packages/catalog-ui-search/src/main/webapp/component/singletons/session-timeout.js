@@ -58,9 +58,6 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         idleTimeoutDate: 0
     },
     initialize: function () {
-        console.log(properties.ui.timeout);
-        console.log("will logout in " + idleTimeoutThreshold + " ms");
-
         if (!storageAvailable('localStorage')) {
             console.log("WARNING: localStorage is unavailable. Unexpected logout may occur.");
         }
@@ -71,7 +68,6 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         this.handleShowPrompt();
     },
     handleLocalStorageChange: function() {
-        console.log("Activity detected in another tab!");
         this.set('idleTimeoutDate', parseInt(localStorage.getItem('idleTimeoutDate')));
         this.hidePrompt();
     },

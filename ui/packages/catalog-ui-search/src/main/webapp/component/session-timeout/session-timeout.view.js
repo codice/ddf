@@ -25,10 +25,8 @@ module.exports = Marionette.LayoutView.extend({
         'click button': 'renewSession'
     },
     initialize: function (options) {
-        console.log("creating new modal");
     },
     onRender: function () {
-        console.log(sessionTimeoutModel.getIdleSeconds())
         setTimeout(this.refreshTimeLeft.bind(this), 1000);
     },
     refreshTimeLeft: function () {

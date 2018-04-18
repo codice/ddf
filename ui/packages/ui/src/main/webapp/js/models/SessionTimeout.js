@@ -54,9 +54,6 @@ define([
     ],
     function (Backbone, $, _, properties) {
         idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : idleTimeoutThreshold;
-        console.log(properties);
-        console.log("will logout in " + idleTimeoutThreshold + " ms");
-
         var sessionTimeoutModel = new (Backbone.Model.extend({
             defaults: {
                 showPrompt: false,
@@ -73,7 +70,6 @@ define([
                 this.handleShowPrompt();
             },
             handleLocalStorageChange: function() {
-                console.log("Activity detected in another tab!");
                 this.set('idleTimeoutDate', parseInt(localStorage.getItem('idleTimeoutDate')));
                 this.hidePrompt();
             },
