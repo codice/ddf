@@ -70,7 +70,7 @@ define([
                     selectionInterface: this.options.selectionInterface,
                     selectionSelector: `${CustomElements.getNamespace()}result-item`
                 }
-            };   
+            };
         },
         regions: {
             resultStatus: '.resultSelector-status',

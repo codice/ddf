@@ -20,8 +20,8 @@
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="tikaMimeTypeResolver" filter="(name=tikaMimeTypeResolver)" interface="ddf.mime.MimeTypeResolver"/>
-    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
 
     <bean id="actionFactory"
           class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory"/>
@@ -38,10 +38,10 @@
 
     <bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
         <argument ref="catalog"/>
+        <argument ref="attachmentParser"/>
         <property name="filterBuilder" ref="filterBuilder"/>
         <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
-        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
         </property>

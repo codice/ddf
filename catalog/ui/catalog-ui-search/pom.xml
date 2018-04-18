@@ -276,13 +276,18 @@
             <artifactId>jts</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.action.core</groupId>
-            <artifactId>action-core-impl</artifactId>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -351,7 +356,9 @@
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>
-                        <Export-Package/>
+                        <Export-Package>
+                            org.codice.ddf.catalog.ui.metacard.internal
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -383,12 +390,12 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.33</minimum>
+                                            <minimum>0.32</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.37</minimum>
+                                            <minimum>0.36</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

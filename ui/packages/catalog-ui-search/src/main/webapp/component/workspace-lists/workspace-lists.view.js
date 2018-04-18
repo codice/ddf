@@ -83,23 +83,22 @@ module.exports = Marionette.LayoutView.extend({
                 navigation: {}
             }
         }));
-        this.listenTo(this.listSelect.currentView.model, 'change:value', this.updateResultsList);
-        this.listenTo(this.listSelect.currentView.model, 'change:value', this.handleSelection);
-        this.listenTo(this.listSelect.currentView.model, 'change:value', this.handleEmptyList);
-        this.listenTo(this.model, 'add remove update', this.handleEmptyLists);
-        this.listenTo(this.model, 'add remove update', this.handleSelection);
-        this.listenTo(this.model, 'change:list.bookmarks', this.handleEmptyList);
+        this.listenTo(this.listSelect.currentView.model, 'change:value', this.handleUpdates);
+        this.listenTo(this.model, 'remove update change:list.bookmarks add', this.handleUpdates);
         this.listenTo(this.model, 'add', this.handleAdd);
-        this.updateResultsList();
-        this.handleEmptyLists();
-        this.handleEmptyList();
-        this.handleSelection();
+        this.handleUpdates();
     },
     handleAdd: function(newList, lists, options) {
         if (options.preventSwitch !== true) {
             this.listSelect.currentView.model.set('value', newList.id);
             this.listSelect.currentView.model.close();
         }
+    },
+    handleUpdates(newList, lists, options) {
+        this.updateResultsList();
+        this.handleEmptyLists();
+        this.handleEmptyList();
+        this.handleSelection();
     },
     handleSelection: function() {
         this.$el.toggleClass('has-selection', this.model.get(this.listSelect.currentView.model.get('value')) !== undefined);
@@ -121,7 +120,9 @@ module.exports = Marionette.LayoutView.extend({
         var listId = this.listSelect.currentView.model.get('value');
         if (listId){
             selectedListId = listId;
-            if (!this.model.get(selectedListId).isEmpty()) {
+            if (!this.model.get(selectedListId).isEmpty() &&
+                (this.listResults.currentView === undefined ||
+                    this.listResults.currentView.model.id !== selectedListId)) {
                 this.listResults.show(new ResultSelectorView({
                     model: this.model.get(selectedListId).get('query'),
                     selectionInterface: store

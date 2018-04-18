@@ -104,6 +104,12 @@ module.exports = InputView.extend({
             return this.$el.find('input').val();
         },
         handleValidation: function(){
+            if (this.model.getValue() === "") {
+                this.$el.toggleClass('error-form', false);
+                this.$el.toggleClass('error-ordering', false);
+                this.$el.toggleClass('has-validation-issues', false);
+                return;
+            }
             var validForm = checkForm(this.model);
             var validOrdering = true;
             if (validForm){

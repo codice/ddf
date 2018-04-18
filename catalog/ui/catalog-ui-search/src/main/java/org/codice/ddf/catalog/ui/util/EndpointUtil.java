@@ -102,6 +102,14 @@ public class EndpointUtil {
 
   private static final String APPLICATION_JSON = "application/json";
 
+  private static final String TYPE_KEY = "type";
+
+  private static final String MULTIVALUED_KEY = "multivalued";
+
+  private static final String ID_KEY = "id";
+
+  private static final String ISINJECTED_KEY = "isInjected";
+
   private static int pageSize = 250;
 
   private final Random random = new Random();
@@ -241,16 +249,16 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
-  @SuppressWarnings("unchecked")
   public Map<String, Object> getMetacardTypeMap() {
     Map<String, Object> resultTypes = new HashMap<>();
     for (MetacardType metacardType : metacardTypes) {
       Map<String, Object> attributes = new HashMap<>();
       for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
         Map<String, Object> attributeProperties = new HashMap<>();
-        attributeProperties.put("type", descriptor.getType().getAttributeFormat().name());
-        attributeProperties.put("multivalued", descriptor.isMultiValued());
-        attributeProperties.put("id", descriptor.getName());
+        attributeProperties.put(TYPE_KEY, descriptor.getType().getAttributeFormat().name());
+        attributeProperties.put(MULTIVALUED_KEY, descriptor.isMultiValued());
+        attributeProperties.put(ID_KEY, descriptor.getName());
+        attributeProperties.put(ISINJECTED_KEY, false);
         attributes.put(descriptor.getName(), attributeProperties);
       }
       resultTypes.put(metacardType.getName(), attributes);
@@ -263,20 +271,46 @@ public class EndpointUtil {
 
       AttributeDescriptor descriptor = lookup.get();
       Map<String, Object> attributeProperties = new HashMap<>();
-      attributeProperties.put("type", descriptor.getType().getAttributeFormat().name());
-      attributeProperties.put("multivalued", descriptor.isMultiValued());
-      attributeProperties.put("id", descriptor.getName());
+      attributeProperties.put(TYPE_KEY, descriptor.getType().getAttributeFormat().name());
+      attributeProperties.put(MULTIVALUED_KEY, descriptor.isMultiValued());
+      attributeProperties.put(ID_KEY, descriptor.getName());
+      attributeProperties.put(ISINJECTED_KEY, true);
       Set<String> types =
           attribute.metacardTypes().isEmpty() ? resultTypes.keySet() : attribute.metacardTypes();
-      for (String type : types) {
-        Map<String, Object> attributes =
-            (Map) resultTypes.getOrDefault(type, new HashMap<String, Object>());
-        attributes.put(attribute.attribute(), attributeProperties);
-        resultTypes.put(type, attributes);
-      }
+
+      types
+          .stream()
+          .filter(type -> isAttributeMissing(resultTypes, attribute, type))
+          .forEach(
+              type ->
+                  mergeMetacardTypeIntoResults(resultTypes, attribute, attributeProperties, type));
     }
 
     return resultTypes;
+  }
+
+  @SuppressWarnings("unchecked")
+  private void mergeMetacardTypeIntoResults(
+      Map<String, Object> resultTypes,
+      InjectableAttribute attribute,
+      Map<String, Object> attributeProperties,
+      String type) {
+    Map<String, Object> attributes =
+        (Map) resultTypes.getOrDefault(type, new HashMap<String, Object>());
+    attributes.put(attribute.attribute(), attributeProperties);
+    resultTypes.put(type, attributes);
+  }
+
+  @SuppressWarnings("unchecked")
+  private boolean isAttributeMissing(
+      Map<String, Object> resultTypes, InjectableAttribute attribute, String type) {
+    if (!resultTypes.containsKey(type)) {
+      return true;
+    }
+
+    Map<String, Object> attributes = (Map<String, Object>) resultTypes.get(type);
+
+    return !attributes.containsKey(attribute.attribute());
   }
 
   @SuppressWarnings("squid:S1319") // needs to match signature of AttributeImpl

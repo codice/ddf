@@ -155,7 +155,6 @@
 }
 
 @{customElementNamespace}upload-item.has-success {
-    cursor: pointer;
     .info-success {
         height: 100%;
         line-height: 2*@minimumButtonSize;
@@ -172,6 +171,10 @@
     .upload-fail {
         transform: translateX(-100%);
     }
+}
+
+@{customElementNamespace}upload-item.has-success:not(.has-children) {
+    cursor: pointer;
 }
 
 @{customElementNamespace}upload-item.has-error {
