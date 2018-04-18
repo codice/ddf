@@ -34,7 +34,9 @@ let Input = Marionette.ItemView.extend({
     events: {
         'change .form-control': 'onChange'
     },
-    onRender: function () { this.updateValue(); },
+    onRender: function () { 
+        this.updateValue(); 
+    },
     valueKey: function () {
         return this.options.valueKey || 'value';
     },
@@ -181,16 +183,17 @@ module.exports = Marionette.LayoutView.extend({
         this.updateSharingPermissions(templatePerms)
     },
     updateSharingPermissions: function(templatePerms) {
-        let _this = this;
+        let sharingEndpoint = `/search/catalog/internal/sharing/${this.options.modelId}`
         $.ajax({
-            url: "/search/catalog/internal/sharing/".concat(_this.options.modelId),
+            url: sharingEndpoint,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             type: 'PUT',
             data: JSON.stringify(templatePerms),
+            context: this,
             success: function(data) {
-                _this.message('Success!', 'Sharing Settings Saved for Query Template', 'success');
-                _this.cleanup();
+                this.message('Success!', 'Sharing Settings Saved for Query Template', 'success');
+                this.cleanup();
             }
         });
     },

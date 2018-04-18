@@ -18,6 +18,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Associations;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +31,8 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
 
   public WorkspaceMetacardImpl() {
     super(TYPE);
-    Set<String> setOfTags = new HashSet<String>();
-    setOfTags.add(WorkspaceAttributes.WORKSPACE_TAG);
-    setTags(setOfTags);
+    Set<String> setOfTags = new HashSet<>();
+    setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
   }
 
   public WorkspaceMetacardImpl(String id) {
