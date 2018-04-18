@@ -13,16 +13,14 @@
  *
  **/
 /*global define, window*/
-
-
-var  wreqr = require('wreqr');
-var  Marionette = require('marionette');
-var  template = require('./search-form-interactions.hbs');
-var  CustomElements = require('js/CustomElements');
-var  user = require('component/singletons/user-instance');
-var  LoadingView = require('component/loading/loading.view');
-var  announcement = require('component/announcement');
-var  ConfirmationView = require('component/confirmation/confirmation.view');
+const wreqr = require('wreqr');
+const Marionette = require('marionette');
+const template = require('./search-form-interactions.hbs');
+const CustomElements = require('js/CustomElements');
+const user = require('component/singletons/user-instance');
+const LoadingView = require('component/loading/loading.view');
+const announcement = require('component/announcement');
+const ConfirmationView = require('component/confirmation/confirmation.view');
 
 module.exports =  Marionette.ItemView.extend({
         template: template,
@@ -49,7 +47,7 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
         },
         handleTrash: function() {
-            var loginUser = user.get('user');
+            let loginUser = user.get('user');
             if(loginUser.get('username') === this.model.get('createdBy'))
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
@@ -60,7 +58,7 @@ module.exports =  Marionette.ItemView.extend({
                 'change:choice',
                 function(confirmation) {
                     if (confirmation.get('choice')) {
-                        var loadingview = new LoadingView();
+                        let loadingview = new LoadingView();
                             this.model.url = '/search/catalog/internal/forms/' + this.model.id;
                             this.model.destroy({
                                 wait: true,

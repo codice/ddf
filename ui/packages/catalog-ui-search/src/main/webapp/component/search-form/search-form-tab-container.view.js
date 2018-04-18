@@ -29,8 +29,9 @@
         this.collection.show(new SearchFormCollectionView({
             model: this.model
         }));
+
         this.$el.find('.loading').show();
-        this.listenTo(this.collection.currentView.searchFormCollection, "change:doneLoading", this.showCollection);
+        this.listenTo(this.collection.currentView.searchFormCollection, 'change:doneLoading', this.showCollection);
     },
     showCollection: function() {
         if(this.collection.currentView.searchFormCollection.getDoneLoading()) {

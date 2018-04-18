@@ -46,7 +46,6 @@
         }
     },
     changeView: function() {
-
         switch(this.model.get('type')) {
             case 'basic':
                 this.options.queryModel.set('type', 'basic');
@@ -58,13 +57,15 @@
                 break;
             case 'custom':
                 var oldType = this.options.queryModel.get('type');
-                this.options.queryModel.set({
-                    type: 'custom',
-                    title: this.model.get('name')
-                });
+
                 user.getQuerySettings().set({
                     type: 'custom',
                     template: this.model.toJSON()
+                });
+
+                this.options.queryModel.set({
+                    type: 'custom',
+                    title: this.model.get('name')
                 });
 
                 if (oldType  === 'custom') {
