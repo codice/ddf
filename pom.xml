@@ -55,7 +55,7 @@
         <reports.repository.url/>
         <project.scm.id>github</project.scm.id>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.12</ddf.support.version>
+        <ddf.support.version>2.3.13</ddf.support.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -1010,6 +1010,12 @@ are essentially embedding a slightly modified version of felix -->
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.support</groupId>
+            <artifactId>spock-shaded</artifactId>
+            <version>${ddf.support.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
