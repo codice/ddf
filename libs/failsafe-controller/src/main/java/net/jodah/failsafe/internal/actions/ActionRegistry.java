@@ -16,11 +16,11 @@ package net.jodah.failsafe.internal.actions;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.jodah.failsafe.ExecutionContext;
 import net.jodah.failsafe.FailsafeController;
+import net.jodah.failsafe.function.ContextualCallable;
 import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -191,7 +191,7 @@ public class ActionRegistry<R> {
     }
 
     @SuppressWarnings("squid:S1181" /* purposely catching VirtualMachineError first */)
-    public R attempt(ExecutionContext context, Callable<R> callable) throws Exception {
+    public R attempt(ExecutionContext context, ContextualCallable<R> callable) throws Exception {
       LOGGER.debug("FailsafeController({} - {}): failsafe is attempting", controller, id);
       while (true) {
         final ActionContext<R> actionContext = new ActionContext<>(controller, context, callable);

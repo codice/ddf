@@ -13,9 +13,9 @@
  */
 package net.jodah.failsafe.internal.actions;
 
-import java.util.concurrent.Callable;
 import net.jodah.failsafe.ExecutionContext;
 import net.jodah.failsafe.FailsafeController;
+import net.jodah.failsafe.function.ContextualCallable;
 
 /**
  * Provides context information about a specific failsafe attempt.
@@ -28,7 +28,7 @@ public class ActionContext<R> {
   @SuppressWarnings("unused" /* provided for future development */)
   private final ExecutionContext context;
 
-  private final Callable<R> callable;
+  private final ContextualCallable<R> callable;
 
   /**
    * Constructs a new action context.
@@ -39,7 +39,7 @@ public class ActionContext<R> {
    *     failsafe attempt
    */
   public ActionContext(
-      FailsafeController<R> controller, ExecutionContext context, Callable<R> callable) {
+      FailsafeController<R> controller, ExecutionContext context, ContextualCallable<R> callable) {
     this.controller = controller;
     this.context = context;
     this.callable = callable;
@@ -62,6 +62,6 @@ public class ActionContext<R> {
    * @throws Exception if an error occurred while executing the production code
    */
   public R proceed() throws Exception {
-    return callable.call();
+    return callable.call(context);
   }
 }

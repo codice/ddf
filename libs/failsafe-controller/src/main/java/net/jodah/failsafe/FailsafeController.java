@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import net.jodah.failsafe.function.CheckedRunnable;
 import net.jodah.failsafe.function.ContextualCallable;
+import net.jodah.failsafe.function.ContextualRunnable;
 import net.jodah.failsafe.internal.TimelessRetryPolicy;
 import net.jodah.failsafe.internal.actions.ActionRegistry;
 import net.jodah.failsafe.internal.executions.ControlledExecutionRegistry;
@@ -420,7 +421,7 @@ public class FailsafeController<R> {
     }
 
     @Override
-    public <T> FailsafeFuture<T> get(Callable<T> callable) {
+    public <T> FailsafeFuture<T> get(ContextualCallable<T> callable) {
       final ActionRegistry<R>.Expectation expectation = actions.next();
 
       return (FailsafeFuture<T>)
@@ -434,9 +435,14 @@ public class FailsafeController<R> {
                         public CompletableFuture<R> call(ExecutionContext context)
                             throws Exception {
                           return CompletableFuture.completedFuture(
-                              attempt(context, expectation, (Callable<R>) callable));
+                              attempt(context, expectation, (ContextualCallable<R>) callable));
                         }
                       }));
+    }
+
+    @Override
+    public <T> FailsafeFuture<T> get(Callable<T> callable) {
+      return get(c -> callable.call());
     }
 
     @Override
@@ -444,9 +450,20 @@ public class FailsafeController<R> {
       return get(Functions.callableOf(runnable));
     }
 
+    @Override
+    public FailsafeFuture<Void> run(ContextualRunnable runnable) {
+      return get(
+          c -> {
+            runnable.run(c);
+            return null;
+          });
+    }
+
     @SuppressWarnings("squid:S00112" /* Based on Failsafe's API */)
     private R attempt(
-        ExecutionContext context, ActionRegistry<R>.Expectation expectation, Callable<R> callable)
+        ExecutionContext context,
+        ActionRegistry<R>.Expectation expectation,
+        ContextualCallable<R> callable)
         throws Exception {
       try {
         synchronized (FailsafeController.this) {
