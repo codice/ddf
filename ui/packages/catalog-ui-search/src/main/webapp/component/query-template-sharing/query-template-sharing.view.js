@@ -104,7 +104,7 @@ let RoleSharingEditor = Marionette.CollectionView.extend({
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
-    tagName: CustomElements.register('template-sharing'),
+    tagName: CustomElements.register('query-template-sharing'),
     modelEvents: {
         reset: 'render',
         sync: 'cleanup'

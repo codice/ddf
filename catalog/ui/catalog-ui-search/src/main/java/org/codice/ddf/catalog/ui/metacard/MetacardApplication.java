@@ -485,7 +485,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
 
-          Map<String, Object> queryTemplate =
+          Map<String, Object> inputMetacard =
               JsonFactory.create().parser().parseMap(util.safeGetBody(req));
 
           Metacard metacard = util.getMetacard(id);
@@ -494,20 +494,19 @@ public class MetacardApplication implements SparkApplication {
             metacard.setAttribute(
                 new AttributeImpl(
                     SecurityAttributes.ACCESS_INDIVIDUALS,
-                    getSecurityAttributes(queryTemplate, SecurityAttributes.ACCESS_INDIVIDUALS)));
+                    getSecurityAttributes(inputMetacard, SecurityAttributes.ACCESS_INDIVIDUALS)));
 
             metacard.setAttribute(
                 new AttributeImpl(
                     SecurityAttributes.ACCESS_GROUPS,
-                    getSecurityAttributes(queryTemplate, SecurityAttributes.ACCESS_GROUPS)));
+                    getSecurityAttributes(inputMetacard, SecurityAttributes.ACCESS_GROUPS)));
 
             updateMetacard(id, metacard);
             return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, "Metacard Updated Successfully!");
 
           } else {
             res.status(401);
-            return util.getResponseWrapper(
-                ERROR_RESPONSE_TYPE, "This type of metacard cannot be shared.");
+            return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "Could not share this item.");
           }
         });
 
@@ -946,9 +945,9 @@ public class MetacardApplication implements SparkApplication {
   }
 
   private List<Serializable> getSecurityAttributes(
-      Map<String, Object> inputTemplate, String securityAccess) {
+      Map<String, Object> inputMetacard, String securityAccess) {
     return (List<Serializable>)
-        inputTemplate
+        inputMetacard
             .entrySet()
             .stream()
             .filter(obj -> obj.getKey().contains(securityAccess))

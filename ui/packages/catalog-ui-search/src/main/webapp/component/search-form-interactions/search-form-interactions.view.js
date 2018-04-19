@@ -134,7 +134,6 @@ module.exports =  Marionette.ItemView.extend({
                 },
                 modelId: this.model.get('id')
             }));
-            this.handleClick();
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());

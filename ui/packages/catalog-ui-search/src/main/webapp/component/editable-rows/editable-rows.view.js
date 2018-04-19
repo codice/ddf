@@ -12,16 +12,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-let Backbone = require('backbone');
-let Marionette = require('marionette');
-let _ = require('underscore');
-let $ = require('jquery');
-let CustomElements = require('js/CustomElements');
+const Backbone = require('backbone');
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const CustomElements = require('js/CustomElements');
+const EditableRowsItemTemplate = require('./editable-rows-item.hbs');
+const EditableRowsTemplate = require('./editable-rows.hbs');
 
 let RowView = Marionette.LayoutView.extend({
     className: 'editable-rows-item',
-    template: '<div class="embed"></div>' +
-                '<div class="remove"><button class="is-negative"><span class="fa fa-minus"></span></button></div>',
+    template: EditableRowsItemTemplate,
     events:  { 'click .remove': 'removeRow' },
     regions: { embed: '.embed' },
     removeRow: function () {
@@ -44,7 +45,7 @@ let JsonView = Marionette.ItemView.extend({
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('editable-rows'),
-    template: '<div class="rows"></div><button class="add-row is-positive"><span class="fa fa-plus"></span></button>',
+    template: EditableRowsTemplate,
     events:      { 'click .add-row': 'addRow' },
     regions:     { rows: '.rows' },
     initialize: function(){
