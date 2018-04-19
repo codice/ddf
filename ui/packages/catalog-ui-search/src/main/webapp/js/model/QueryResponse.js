@@ -54,8 +54,9 @@ function handleResultFormFields(result, selectedResultTemplate) {
             let newProperties = {};
             newProperties.id = result.metacard.properties.id;
             newProperties.title = result.metacard.properties.title ? result.metacard.properties.title : '';
-            newProperties["metacard-type"] = result.metacard.properties["metacard-type"];
-            newProperties["metacard-tags"] = result.metacard.properties["metacard-tags"];
+            newProperties['metacard-type'] = result.metacard.properties['metacard-type'];
+            newProperties['metacard-tags'] = result.metacard.properties['metacard-tags'];
+            newProperties['source-id'] = result.metacard.properties['source-id'];
             _.each(resultAttributes, function(value, index) {
                 if (result.metacard.properties[value]) {
                     newProperties[value] = result.metacard.properties[value];
