@@ -52,14 +52,6 @@
         <feature>decanter-sla</feature>
         <feature>decanter-simple-scheduler</feature>
         <feature>persistence-core</feature>
-        <configfile override="true"
-                    finalname="${ddf.etc}/org.apache.karaf.decanter.sla.checker.cfg">
-            mvn:ddf.platform/platform-app/${project.version}/config/sla
-        </configfile>
-        <configfile override="true"
-                    finalname="${ddf.etc}/org.apache.karaf.decanter.scheduler.simple.cfg">
-            mvn:ddf.platform/platform-app/${project.version}/config/scheduler
-        </configfile>
     </feature>
 
     <feature name="landing-page" version="${project.version}"
