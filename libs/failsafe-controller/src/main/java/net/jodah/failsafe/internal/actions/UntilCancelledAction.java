@@ -22,8 +22,8 @@ package net.jodah.failsafe.internal.actions;
 public class UntilCancelledAction<R> extends RepeatingAction<R> {
   private boolean cancelled = false;
 
-  UntilCancelledAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  UntilCancelledAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
   }
 
   private UntilCancelledAction(UntilCancelledAction<R> action) {
@@ -47,7 +47,7 @@ public class UntilCancelledAction<R> extends RepeatingAction<R> {
 
   @Override
   public String toString() {
-    return action + ".untilCancelled()";
+    return action + "." + name + "()";
   }
 
   @Override

@@ -32,8 +32,8 @@ public class DoReturnAction<R> extends Action<R> {
 
   private final List<R> current;
 
-  DoReturnAction(ActionRegistry<R>.Expectation expectation, @Nullable R... results) {
-    super(expectation);
+  DoReturnAction(ActionRegistry<R>.Expectation expectation, String name, @Nullable R... results) {
+    super(expectation, name);
     // if results is null then we consider it as a single null element
     this.results = (results != null) ? Arrays.asList(results) : Collections.singletonList(null);
     this.current = Collections.synchronizedList(new LinkedList<>(this.results));
@@ -81,7 +81,7 @@ public class DoReturnAction<R> extends Action<R> {
       return current
               .stream()
               .map(Objects::toString)
-              .collect(Collectors.joining(",", "doReturn(", ") at "))
+              .collect(Collectors.joining(",", name + "(", ") at "))
           + getDefinitionInfo();
     }
   }
@@ -91,6 +91,6 @@ public class DoReturnAction<R> extends Action<R> {
     return results
         .stream()
         .map(Objects::toString)
-        .collect(Collectors.joining(",", "doReturn(", ")"));
+        .collect(Collectors.joining(",", name + "(", ")"));
   }
 }

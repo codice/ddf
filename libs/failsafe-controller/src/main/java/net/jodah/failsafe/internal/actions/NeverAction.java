@@ -19,8 +19,8 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class NeverAction<R> extends RepeatingAction<R> {
-  NeverAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  NeverAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
   }
 
   private NeverAction(NeverAction<R> action) {
@@ -44,7 +44,7 @@ public class NeverAction<R> extends RepeatingAction<R> {
 
   @Override
   public String toString() {
-    return action + ".forever()";
+    return action + "." + name + "()";
   }
 
   @Override

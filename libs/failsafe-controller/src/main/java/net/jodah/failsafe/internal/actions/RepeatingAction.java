@@ -25,8 +25,8 @@ public abstract class RepeatingAction<R> extends Action<R> {
   /** The number of times the action was repeated. */
   protected int currentCount = 0;
 
-  RepeatingAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  RepeatingAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
     this.action = expectation.removeLast();
   }
 

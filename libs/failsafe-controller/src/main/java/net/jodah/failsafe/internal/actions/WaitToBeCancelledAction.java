@@ -13,14 +13,27 @@
  */
 package net.jodah.failsafe.internal.actions;
 
+import net.jodah.failsafe.internal.FailsafeContinueException;
+
 /**
  * Action to wait for failsafe's execution to be cancelled.
  *
  * @param <R> the result type
  */
 public class WaitToBeCancelledAction<R> extends Action<R> {
-  WaitToBeCancelledAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  private boolean executed = false;
+
+  WaitToBeCancelledAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
+  }
+
+  private WaitToBeCancelledAction(WaitToBeCancelledAction<R> action) {
+    super(action);
+  }
+
+  @Override
+  public WaitToBeCancelledAction<R> copy() {
+    return new WaitToBeCancelledAction<>(this);
   }
 
   @Override
@@ -31,27 +44,42 @@ public class WaitToBeCancelledAction<R> extends Action<R> {
         "",
         () -> {
           synchronized (controller) {
-            while (!controller.wasLastExecutionCancelled()) {
-              try {
-                controller.wait();
-              } catch (InterruptedException e) {
-                // this means we internally got interrupted which either means we are about to
-                // discover that we were cancelled or we were shutdown or again a failure occurred
-                // so just loop back to check
+            this.executed = true;
+            boolean interrupted = false;
+
+            try {
+              while (!controller.wasLastExecutionCancelled()) {
+                try {
+                  controller.wait();
+                } catch (InterruptedException e) {
+                  // this means we internally got interrupted which either means we are about to
+                  // discover that we were cancelled or we were shutdown or again a failure occurred
+                  // so just loop back to check
+                  interrupted = true;
+                }
+              }
+            } finally {
+              if (interrupted) {
+                Thread.currentThread().interrupt();
               }
             }
           }
-          throw new InterruptedException("'" + controller + "' was cancelled");
+          throw FailsafeContinueException.INSTANCE; // move on to the next one
         });
   }
 
   @Override
   public boolean hasCompleted() {
-    return controller.wasLastExecutionCancelled();
+    return executed;
+  }
+
+  @Override
+  public boolean canBeLeftIncomplete() {
+    return executed;
   }
 
   @Override
   public String toString() {
-    return "waitToBeCancelled()";
+    return name + "()";
   }
 }

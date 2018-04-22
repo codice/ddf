@@ -64,7 +64,7 @@ public class ActionList<R> implements Done<R> {
   }
 
   /**
-   * Indicates to do nothing (return <code>null</code>) the next time failsafe attempts a retry.
+   * Indicates to do nothing (returns <code>null</code>) the next time failsafe attempts a retry.
    * Doing so short circuits any actions registered with failsafe by the code under test.
    *
    * @return a stub construct for chaining
@@ -142,34 +142,65 @@ public class ActionList<R> implements Done<R> {
   }
 
   /**
-   * Indicates to notify the specified latch and wake up anybody waiting on it. After executing this
-   * action, the controller will move on to the next one and execute it right away.
+   * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+   * executing this action, the controller will move on to the next one and execute it right away.
    *
-   * <p>If the specified latch has already been notified then the controller will move on to the
-   * next action.
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
    *
-   * @param latch the latch to notify
+   * @param condition the condition/latch to notify
    * @return a stub construct for chaining
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public ActionList<R>.Stubber0 doNotify(String latch) {
-    return stubber.doNotify(latch);
+  public ActionList<R>.Stubber0 doNotify(String condition) {
+    return stubber.doNotify(condition);
   }
 
   /**
-   * Indicates to block failsafe the next time it attempts a retry until the specified latch is
-   * notified. After the specified latch has been notified, the controller will move on to the next
-   * action and execute it right away.
+   * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+   * executing this action, the controller will move on to the next one and execute it right away.
    *
-   * <p>If the specified latch has already been notified then the controller will move on to the
-   * next action.
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
    *
-   * @param latch the latch to wait for
+   * @param condition the condition/latch to notify
    * @return a stub construct for chaining
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public ActionList<R>.Stubber0 waitFor(String latch) {
-    return stubber.waitFor(latch);
+  public ActionList<R>.Stubber0 doNotifyTo(String condition) {
+    return stubber.doNotifyTo(condition);
+  }
+
+  /**
+   * Indicates to block failsafe the next time it attempts a retry until the specified
+   * condition/latch is notified. After the specified condition/latch has been notified, the
+   * controller will move on to the next action and execute it right away.
+   *
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
+   *
+   * @param condition the condition/latch to wait for
+   * @return a stub construct for chaining
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   */
+  public ActionList<R>.Stubber0 waitFor(String condition) {
+    return stubber.waitFor(condition);
+  }
+
+  /**
+   * Indicates to block failsafe the next time it attempts a retry until the specified
+   * condition/latch is notified. After the specified condition/latch has been notified, the
+   * controller will move on to the next action and execute it right away.
+   *
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
+   *
+   * @param condition the condition/latch to wait for
+   * @return a stub construct for chaining
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   */
+  public ActionList<R>.Stubber0 waitTo(String condition) {
+    return stubber.waitTo(condition);
   }
 
   /**
@@ -224,7 +255,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber2 doReturn(@Nullable R... results) {
-      add(expectation -> new DoReturnAction<>(expectation, results));
+      add(expectation -> new DoReturnAction<>(expectation, "doReturn", results));
       return stubber2;
     }
 
@@ -235,7 +266,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber2 doNothing() {
-      add(DoNothingAction::new);
+      add(expectation -> new DoNothingAction<>(expectation, "doNothing"));
       return stubber2;
     }
 
@@ -252,7 +283,7 @@ public class ActionList<R> implements Done<R> {
      *     null</code>
      */
     public Stubber2 doThrow(Throwable... throwables) {
-      add(expectation -> new DoThrowAction<>(expectation, throwables));
+      add(expectation -> new DoThrowAction<>(expectation, "doThrow", throwables));
       return stubber2;
     }
 
@@ -270,7 +301,7 @@ public class ActionList<R> implements Done<R> {
      *     null</code> if unable to instantiate any exception classes
      */
     public Stubber2 doThrow(Class<? extends Throwable>... throwables) {
-      add(expectation -> new DoThrowAction<>(expectation, throwables));
+      add(expectation -> new DoThrowAction<>(expectation, "doThrow", throwables));
       return stubber2;
     }
 
@@ -286,7 +317,23 @@ public class ActionList<R> implements Done<R> {
      * @throws IllegalArgumentException if unable to instantiate any exception classes
      */
     public Stubber2 doThrowOrReturn(@Nullable Object... arguments) {
-      add(expectation -> new DoThrowOrReturnAction<>(expectation, arguments));
+      add(expectation -> new DoThrowOrReturnAction<>(expectation, "doThrowOrReturn", arguments));
+      return stubber2;
+    }
+
+    /**
+     * Registers the specified results or exceptions to be returned or thrown in sequence the next
+     * time failsafe attempts a retry. Doing so short circuits any actions registered with failsafe
+     * by the code under test.
+     *
+     * @param arguments the results to be returned or the exceptions to be thrown or the exception
+     *     classes to be instantiated and thrown in sequence or <code>null</code> if a single <code>
+     *     null</code> element should be returned
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if unable to instantiate any exception classes
+     */
+    public Stubber2 doReturnOrThrow(@Nullable Object... arguments) {
+      add(expectation -> new DoThrowOrReturnAction<>(expectation, "doReturnOrThrow", arguments));
       return stubber2;
     }
 
@@ -297,7 +344,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber2 doInterrupt() {
-      add(DoInterruptAction::new);
+      add(expectation -> new DoInterruptAction<>(expectation, "doInterrupt"));
       return stubber2;
     }
 
@@ -308,55 +355,88 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber2 doProceed() {
-      add(DoProceedAction::new);
+      add(expectation -> new DoProceedAction<>(expectation, "doProceed"));
       return stubber2;
     }
 
     /**
-     * Indicates to notify the specified latch and wake up anybody waiting on it. After executing
-     * this action, the controller will move on to the next one and execute it right away.
+     * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+     * executing this action, the controller will move on to the next one and execute it right away.
      *
-     * <p>If the specified latch has already been notified then the controller will move on to the
-     * next action.
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
      *
-     * @param latch the latch to notify
+     * @param condition the condition/latch to notify
      * @return a stub construct for chaining
-     * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
      */
-    public Stubber0 doNotify(String latch) {
-      add(expectation -> new DoNotifyAction(expectation, latch));
+    public Stubber0 doNotify(String condition) {
+      add(expectation -> new DoNotifyAction(expectation, "doNotify", condition));
       return stubber0;
     }
 
     /**
-     * Indicates to block failsafe the next time it attempts a retry until the specified latch is
-     * notified. After the specified latch has been notified, the controller will move on to the
-     * next action and execute it right away.
+     * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+     * executing this action, the controller will move on to the next one and execute it right away.
      *
-     * <p>If the specified latch has already been notified then the controller will move on to the
-     * next action.
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
      *
-     * @param latch the latch to wait for
+     * @param condition the condition/latch to notify
      * @return a stub construct for chaining
-     * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
      */
-    public Stubber0 waitFor(String latch) {
-      add(expectation -> new WaitForAction<>(expectation, latch));
+    public Stubber0 doNotifyTo(String condition) {
+      add(expectation -> new DoNotifyAction(expectation, "doNotifyTo", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to block failsafe the next time it attempts a retry until the specified
+     * condition/latch is notified. After the specified condition/latch has been notified, the
+     * controller will move on to the next action and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to wait for
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
+    public Stubber0 waitFor(String condition) {
+      add(expectation -> new WaitForAction<>(expectation, "waitFor", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to block failsafe the next time it attempts a retry until the specified
+     * condition/latch is notified. After the specified condition/latch has been notified, the
+     * controller will move on to the next action and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to wait for
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
+    public Stubber0 waitTo(String condition) {
+      add(expectation -> new WaitForAction<>(expectation, "waitTo", condition));
       return stubber0;
     }
 
     /**
      * Indicates to block failsafe the next time it attempts a retry until it's execution is
-     * cancelled. After the execution is cancelled, the controller will simulate an interruption by
-     * throwing an {@link InterruptedException} back.
+     * cancelled. After the execution is cancelled, the controller will move on to the next action
+     * and execute it right away.
      *
-     * <p>If the execution has already been cancelled then the controller will throw the interrupted
-     * exception right away.
+     * <p>If the execution has already been cancelled then the controller will will move on to the
+     * next action.
      *
      * @return a stub construct for chaining
      */
     public Stubber0 waitToBeCancelled() {
-      add(WaitToBeCancelledAction::new);
+      add(expectation -> new WaitToBeCancelledAction<>(expectation, "waitToBeCancelled"));
       return stubber0;
     }
 
@@ -392,7 +472,9 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber onlyIf(boolean condition) {
-      add(expectation -> new OnlyIfAction<>(expectation, condition, Boolean.toString(condition)));
+      add(
+          expectation ->
+              new OnlyIfAction<>(expectation, "onlyIf", condition, Boolean.toString(condition)));
       return stubber;
     }
 
@@ -405,7 +487,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber onlyIf(boolean condition, String info) {
-      add(expectation -> new OnlyIfAction<>(expectation, condition, info));
+      add(expectation -> new OnlyIfAction<>(expectation, "onlyIf", condition, info));
       return stubber;
     }
 
@@ -431,7 +513,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber onlyIf(BooleanSupplier predicate, String info) {
-      add(expectation -> new OnlyIfAction<>(expectation, predicate, info));
+      add(expectation -> new OnlyIfAction<>(expectation, "onlyIf", predicate, info));
       return stubber;
     }
 
@@ -471,19 +553,36 @@ public class ActionList<R> implements Done<R> {
     }
 
     /**
-     * Indicates to repeat the previously registered action until the specified latch has been
-     * notified at which point the controller will move on to the next action and execute it right
-     * away.
+     * Indicates to repeat the previously registered action until the specified condition/latch has
+     * been notified at which point the controller will move on to the next action and execute it
+     * right away.
      *
-     * <p>The previous action will be executed at least once even if the latch has already been
-     * notified.
+     * <p>The previous action will be executed at least once even if the condition/latch has already
+     * been notified.
      *
-     * @param latch the latch to check before repeating the previous action
+     * @param condition the condition/latch to check before repeating the previous action
      * @return a stub construct for chaining
-     * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
      */
-    public Stubber0 untilNotifiedFor(String latch) {
-      add(expectation -> new UntilNotifiedForAction<>(expectation, latch));
+    public Stubber0 untilNotifiedFor(String condition) {
+      add(expectation -> new UntilNotifiedForAction<>(expectation, "untilNotifiedFor", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to repeat the previously registered action until the specified condition/latch has
+     * been notified at which point the controller will move on to the next action and execute it
+     * right away.
+     *
+     * <p>The previous action will be executed at least once even if the condition/latch has already
+     * been notified.
+     *
+     * @param condition the condition/latch to check before repeating the previous action
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
+    public Stubber0 untilNotifiedTo(String condition) {
+      add(expectation -> new UntilNotifiedForAction<>(expectation, "untilNotifiedTo", condition));
       return stubber0;
     }
 
@@ -497,7 +596,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber0 untilCancelled() {
-      add(UntilCancelledAction::new);
+      add(expectation -> new UntilCancelledAction<>(expectation, "untilCancelled"));
       return stubber0;
     }
 
@@ -508,7 +607,7 @@ public class ActionList<R> implements Done<R> {
      * @return the action list for chaining
      */
     public ActionList<R> forever() {
-      add(ForeverAction::new);
+      add(expectation -> new ForeverAction<>(expectation, "forever"));
       return ActionList.this;
     }
 
@@ -518,7 +617,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber never() {
-      add(NeverAction::new);
+      add(expectation -> new NeverAction<>(expectation, "never"));
       return stubber;
     }
   }
@@ -536,7 +635,7 @@ public class ActionList<R> implements Done<R> {
      * @throws IllegalArgumentException if <code>count</code> is negative
      */
     public Stubber1 times(int count) {
-      add(expectation -> new TimesAction<>(expectation, count));
+      add(expectation -> new TimesAction<>(expectation, "times", count));
       return stubber1;
     }
 
@@ -548,7 +647,7 @@ public class ActionList<R> implements Done<R> {
      * @throws IllegalArgumentException if <code>delay</code> is negative
      */
     public Stubber0 delayedFor(int delay) {
-      add(expectation -> new DelayedForAction<>(expectation, delay));
+      add(expectation -> new DelayedForAction<>(expectation, "delayedFor", delay));
       return stubber0;
     }
   }

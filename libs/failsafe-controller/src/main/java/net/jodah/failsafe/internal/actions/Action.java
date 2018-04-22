@@ -28,6 +28,12 @@ import org.slf4j.LoggerFactory;
  * @param <R> the result type
  */
 public abstract class Action<R> {
+  /**
+   * Returned value when nothing is being or needs to be returned (e.g. as a result of a void-based
+   * method like in a {@link Runnable}).
+   */
+  public static final Object NOTHING = "NOTHING";
+
   /** Set of package prefixes to skip when determining the location where the action is defined */
   private static final Set<String> PACKAGE_PREFIXES =
       ImmutableSet.of(
@@ -53,14 +59,17 @@ public abstract class Action<R> {
 
   protected final FailsafeController<R> controller;
 
+  protected final String name;
+
   private final StackTraceElement stack;
 
-  Action(ActionRegistry<R>.Expectation expectation) {
-    this(expectation.getController());
+  Action(ActionRegistry<R>.Expectation expectation, String name) {
+    this(expectation.getController(), name);
   }
 
-  Action(FailsafeController<R> controller) {
+  Action(FailsafeController<R> controller, String name) {
     this.controller = controller;
+    this.name = name;
     // find the stack trace element for the test case - this would be the first stack element
     // that is not from a Failsafe Controller class
     this.stack =
@@ -73,6 +82,7 @@ public abstract class Action<R> {
 
   Action(Action<R> action) {
     this.controller = action.controller;
+    this.name = action.name;
     this.stack = action.stack;
   }
 
@@ -110,7 +120,8 @@ public abstract class Action<R> {
    * Executes this action.
    *
    * @param context the context representing the current failsafe attempt
-   * @return the result to be returned from the failsafe attempt
+   * @return the result to be returned from the failsafe attempt or {@link #NOTHING} if nothing
+   *     should be returned (e.g. as a result of a void-based * method like in a {@link Runnable})
    * @throws FailsafeContinueException if the controller should execute the next recorded action
    *     right away in order to determine the failsafe attempt result
    * @throws Exception if an error occurred while executing the action (this error will be thrown
@@ -153,7 +164,8 @@ public abstract class Action<R> {
    * @param info action specific info to add to the debug statements
    * @param supplier the supplier design to perform the action's code which should either return a
    *     result or throw back an error in case of failure
-   * @return the result to be returned from the failsafe attempt
+   * @return the result to be returned from the failsafe attempt or {@link #NOTHING} if nothing
+   *     should be returned (e.g. as a result of a void-based * method like in a {@link Runnable})
    * @throws FailsafeContinueException if the controller should execute the next recorded action
    *     right away in order to determine the failsafe attempt result
    * @throws Exception if an error occurred while executing the action (this error will be thrown
@@ -166,7 +178,13 @@ public abstract class Action<R> {
     try {
       final R r = supplier.get();
 
-      logger.debug("FailsafeController({}): executed {} and returned: {}", controller, this, r);
+      if (logger.isDebugEnabled()) {
+        if (r == Action.NOTHING) {
+          logger.debug("FailsafeController({}): executed {}", controller, this);
+        } else {
+          logger.debug("FailsafeController({}): executed {} and returned: {}", controller, this, r);
+        }
+      }
       return r;
     } catch (VirtualMachineError e) {
       throw e;

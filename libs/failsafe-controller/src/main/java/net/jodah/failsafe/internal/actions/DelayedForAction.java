@@ -28,18 +28,14 @@ public class DelayedForAction<R> extends RepeatingAction<R> {
    * Constructs a new action which will delay the specified action for the specified amount of time.
    *
    * @param expectation the expectation where to get the last recorded action to delay
+   * @param name the name for this action
    * @param delay the number of seconds to delay
    * @throws IllegalArgumentException if <code>delay</code> is negative
    */
-  DelayedForAction(ActionRegistry<R>.Expectation expectation, int delay) {
-    super(expectation);
+  DelayedForAction(ActionRegistry<R>.Expectation expectation, String name, int delay) {
+    super(expectation, name);
     Validate.isTrue(delay >= 0, "number of seconds must not be negative");
     this.delay = delay;
-  }
-
-  @Override
-  public DelayedForAction<R> copy() {
-    return this;
   }
 
   @Override
@@ -49,7 +45,7 @@ public class DelayedForAction<R> extends RepeatingAction<R> {
 
   @Override
   public String toString() {
-    return action + ".delayedFor(" + delay + ")";
+    return action + "." + name + "(" + delay + ")";
   }
 
   @Override

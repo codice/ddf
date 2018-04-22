@@ -45,7 +45,7 @@ public class FailsafeController<R> {
   private static final String FAILSAFE_CONTROLLER_WAS_SHUTDOWN =
       "failsafe controller was shutdown: ";
 
-  private static final String INVALID_NULL_LATCH = "invalid null latch";
+  private static final String INVALID_NULL_CONDITION = "invalid null condition";
 
   private final String id;
 
@@ -53,7 +53,7 @@ public class FailsafeController<R> {
 
   private final ControlledExecutionRegistry<R> executions;
 
-  private final Set<String> latches = new HashSet<>();
+  private final Set<String> conditions = new HashSet<>();
 
   private final Deque<Thread> threads = new LinkedList<>();
 
@@ -153,7 +153,7 @@ public class FailsafeController<R> {
   /**
    * Shuts down testing using this controller.
    *
-   * <p>All subsequent failsafe attempts will fail with an interruption and all waits for latches
+   * <p>All subsequent failsafe attempts will fail with an interruption and all waits for conditions
    * will be interrupted.
    */
   public synchronized void shutdown() {
@@ -181,55 +181,104 @@ public class FailsafeController<R> {
   }
 
   /**
-   * Notifies the specified latch.
+   * Notifies the specified condition.
    *
-   * @param latch the latch to be notified
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+   * @param condition the condition/latch to be notified
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public synchronized void notify(String latch) {
+  public synchronized void notify(String condition) {
     checkIfFailed();
     failIfShutdown();
-    Validate.notNull(latch, FailsafeController.INVALID_NULL_LATCH);
-    LOGGER.debug("FailsafeController({}): notifying '{}'", this, latch);
-    if (latches.add(latch)) {
+    Validate.notNull(condition, FailsafeController.INVALID_NULL_CONDITION);
+    LOGGER.debug("FailsafeController({}): notifying '{}'", this, condition);
+    if (conditions.add(condition)) {
       notifyAll();
     }
   }
 
   /**
-   * Waits for the specified latch to be notified.
+   * Notifies the specified condition/latch.
    *
-   * <p>The method returns right away if the specified latch has already been notified.
-   *
-   * @param latch the latch to wait for
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
-   * @throws InterruptedException if shutdown or if interrupted while waiting for the specified
-   *     latch
+   * @param condition the condition/latch to be notified
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public synchronized void waitFor(String latch) throws InterruptedException {
+  public synchronized void notifyTo(String condition) {
     checkIfFailed();
-    interruptIfShutdown();
-    Validate.notNull(latch, FailsafeController.INVALID_NULL_LATCH);
-    LOGGER.debug("FailsafeController({}): waiting for '{}'", this, latch);
-    while (!latches.contains(latch)) {
-      wait();
-      checkIfFailed();
-      interruptIfShutdown();
-      LOGGER.debug("FailsafeController({}): '{}' was notified", this, latch);
+    failIfShutdown();
+    Validate.notNull(condition, FailsafeController.INVALID_NULL_CONDITION);
+    LOGGER.debug("FailsafeController({}): notifying to '{}'", this, condition);
+    if (conditions.add(condition)) {
+      notifyAll();
     }
   }
 
   /**
-   * Checks if a given latch was notified.
+   * Waits for the specified condition/latch to be notified.
    *
-   * @param latch the latch to check if it was notified
-   * @return <code>true</code> if the latch was notified; false if not
+   * <p>The method returns right away if the specified condition/latch has already been notified.
+   *
+   * @param condition the condition/latch to wait for
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   * @throws InterruptedException if shutdown or if interrupted while waiting for the specified
+   *     condition/latch
    */
-  public synchronized boolean wasNotified(String latch) {
+  public synchronized void waitFor(String condition) throws InterruptedException {
+    checkIfFailed();
+    interruptIfShutdown();
+    Validate.notNull(condition, FailsafeController.INVALID_NULL_CONDITION);
+    LOGGER.debug("FailsafeController({}): waiting for '{}'", this, condition);
+    while (!conditions.contains(condition)) {
+      wait();
+      checkIfFailed();
+      interruptIfShutdown();
+      LOGGER.debug("FailsafeController({}): '{}' was notified", this, condition);
+    }
+  }
+
+  /**
+   * Waits for the specified condition/latch to be notified.
+   *
+   * <p>The method returns right away if the specified condition/latch has already been notified.
+   *
+   * @param condition the condition/latch to wait for
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   * @throws InterruptedException if shutdown or if interrupted while waiting for the specified
+   *     condition/latch
+   */
+  public synchronized void waitTo(String condition) throws InterruptedException {
+    checkIfFailed();
+    interruptIfShutdown();
+    Validate.notNull(condition, FailsafeController.INVALID_NULL_CONDITION);
+    LOGGER.debug("FailsafeController({}): waiting to '{}'", this, condition);
+    while (!conditions.contains(condition)) {
+      wait();
+      checkIfFailed();
+      interruptIfShutdown();
+      LOGGER.debug("FailsafeController({}): '{}' was notified", this, condition);
+    }
+  }
+
+  /**
+   * Checks if a given condition/latch was notified.
+   *
+   * @param condition the condition/latch to check if it was notified
+   * @return <code>true</code> if the condition/latch was notified; <code>false</code> if not
+   */
+  public synchronized boolean wasNotified(String condition) {
     checkIfFailed();
     failIfShutdown();
-    Validate.notNull(latch, FailsafeController.INVALID_NULL_LATCH);
-    return latches.contains(latch);
+    Validate.notNull(condition, FailsafeController.INVALID_NULL_CONDITION);
+    return conditions.contains(condition);
+  }
+
+  /**
+   * Checks if a given condition/latch was notified.
+   *
+   * @param condition the condition/latch to check if it was notified
+   * @return <code>true</code> if the condition/latch was notified; <code>false</code> if not
+   */
+  public synchronized boolean wasNotifiedTo(String condition) {
+    return wasNotified(condition);
   }
 
   /**

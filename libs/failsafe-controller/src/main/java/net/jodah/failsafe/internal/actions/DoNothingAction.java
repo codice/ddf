@@ -19,17 +19,17 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class DoNothingAction<R> extends Action<R> {
-  DoNothingAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  DoNothingAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
   }
 
   @Override
   public R execute(ActionContext<R> context) throws Exception {
-    return super.execute(context, "", () -> null);
+    return super.execute(context, "", () -> (R) Action.NOTHING);
   }
 
   @Override
   public String toString() {
-    return "doNothing()";
+    return name + "()";
   }
 }

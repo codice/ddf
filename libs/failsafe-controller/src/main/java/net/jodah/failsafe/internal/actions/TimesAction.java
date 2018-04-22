@@ -28,11 +28,12 @@ public class TimesAction<R> extends RepeatingAction<R> {
    * expectation the specified number of times.
    *
    * @param expectation the expectation where to get the last recorded action to repeat
+   * @param name the name for this action
    * @param count the number of times to repeat the action
    * @throws IllegalArgumentException if <code>count</code> is negative
    */
-  TimesAction(ActionRegistry<R>.Expectation expectation, int count) {
-    super(expectation);
+  TimesAction(ActionRegistry<R>.Expectation expectation, String name, int count) {
+    super(expectation, name);
     Validate.isTrue(count >= 0, "count must be greater or equal than 0");
     this.count = count;
   }
@@ -62,12 +63,18 @@ public class TimesAction<R> extends RepeatingAction<R> {
 
   @Override
   public synchronized String currentToString() {
-    return action + ".times(" + (count - currentCount) + ") at " + action.getDefinitionInfo();
+    return action
+        + "."
+        + name
+        + "("
+        + (count - currentCount)
+        + ") at "
+        + action.getDefinitionInfo();
   }
 
   @Override
   public String toString() {
-    return action + ".times(" + count + ")";
+    return action + "." + name + "(" + count + ")";
   }
 
   @Override

@@ -19,8 +19,8 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class DoInterruptAction<R> extends Action<R> {
-  DoInterruptAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  DoInterruptAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
   }
 
   @Override
@@ -36,6 +36,6 @@ public class DoInterruptAction<R> extends Action<R> {
 
   @Override
   public String toString() {
-    return "doInterrupt()";
+    return name + "()";
   }
 }

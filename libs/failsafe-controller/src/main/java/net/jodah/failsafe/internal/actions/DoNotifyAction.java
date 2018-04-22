@@ -17,18 +17,18 @@ import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 
 /**
- * Action to notify a latch and wake up anybody waiting on it and then move on to the next action
- * when failsafe makes an attempt.
+ * Action to notify a condition/latch and wake up anybody waiting on it and then move on to the next
+ * action when failsafe makes an attempt.
  *
  * @param <R> the result type
  */
 public class DoNotifyAction<R> extends Action<R> {
-  private final String latch;
+  private final String condition;
 
-  DoNotifyAction(ActionRegistry<R>.Expectation expectation, String latch) {
-    super(expectation);
-    Validate.notNull(latch, "invalid null latch");
-    this.latch = latch;
+  DoNotifyAction(ActionRegistry<R>.Expectation expectation, String name, String condition) {
+    super(expectation, name);
+    Validate.notNull(condition, "invalid null condition");
+    this.condition = condition;
   }
 
   @Override
@@ -37,13 +37,17 @@ public class DoNotifyAction<R> extends Action<R> {
         context,
         "",
         () -> {
-          context.getController().notify(latch);
+          if (name.endsWith("To")) {
+            context.getController().notifyTo(condition);
+          } else {
+            context.getController().notify(condition);
+          }
           throw FailsafeContinueException.INSTANCE; // move on to the next one
         });
   }
 
   @Override
   public String toString() {
-    return "doNotify(" + latch + ")";
+    return name + "(" + condition + ")";
   }
 }

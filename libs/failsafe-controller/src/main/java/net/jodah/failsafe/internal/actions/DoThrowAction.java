@@ -32,8 +32,8 @@ public class DoThrowAction<R> extends Action<R> {
   private final List<Throwable> throwables;
   private final List<Throwable> current;
 
-  DoThrowAction(ActionRegistry<R>.Expectation expectation, Throwable... throwables) {
-    super(expectation);
+  DoThrowAction(ActionRegistry<R>.Expectation expectation, String name, Throwable... throwables) {
+    super(expectation, name);
     Validate.notNull(throwables, "invalid null throwables");
     Validate.noNullElements(throwables, "invalid null throwable");
     this.arguments = Arrays.asList(throwables);
@@ -42,8 +42,10 @@ public class DoThrowAction<R> extends Action<R> {
   }
 
   DoThrowAction(
-      ActionRegistry<R>.Expectation expectation, Class<? extends Throwable>... throwables) {
-    super(expectation);
+      ActionRegistry<R>.Expectation expectation,
+      String name,
+      Class<? extends Throwable>... throwables) {
+    super(expectation, name);
     Validate.notNull(throwables, "invalid null throwables");
     Validate.noNullElements(throwables, "invalid null throwable");
     this.arguments = Arrays.asList(throwables);
@@ -101,7 +103,7 @@ public class DoThrowAction<R> extends Action<R> {
       return current
               .stream()
               .map(Object::toString)
-              .collect(Collectors.joining(",", "doThrow(", ") at "))
+              .collect(Collectors.joining(",", name + "(", ") at "))
           + getDefinitionInfo();
     }
   }
@@ -111,6 +113,6 @@ public class DoThrowAction<R> extends Action<R> {
     return arguments
         .stream()
         .map(Object::toString)
-        .collect(Collectors.joining(",", "doThrow(", ")"));
+        .collect(Collectors.joining(",", name + "(", ")"));
   }
 }

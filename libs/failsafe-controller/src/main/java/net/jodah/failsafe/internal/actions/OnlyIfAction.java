@@ -36,11 +36,13 @@ public class OnlyIfAction<R> extends RepeatingAction<R> {
    *
    * @param expectation the expectation where to get the last recorded action to be conditionally
    *     executed
+   * @param name the name for this action
    * @param condition <code>true</code> to execute the action; <code>false</code> not to execute it
    * @param info string representation of the condition
    */
-  public OnlyIfAction(ActionRegistry<R>.Expectation expectation, boolean condition, String info) {
-    super(expectation);
+  public OnlyIfAction(
+      ActionRegistry<R>.Expectation expectation, String name, boolean condition, String info) {
+    super(expectation, name);
     this.dynamic = false;
     this.predicate = null;
     this.info = info;
@@ -54,12 +56,17 @@ public class OnlyIfAction<R> extends RepeatingAction<R> {
    *
    * @param expectation the expectation where to get the last recorded action to be conditionally
    *     executed
+   * @param name the name for this action
    * @param predicate a predicate that returns <code>true</code> to execute the action; <code>
    *     false</code> not to execute it
    * @param info string representation of the condition
    */
-  OnlyIfAction(ActionRegistry<R>.Expectation expectation, BooleanSupplier predicate, String info) {
-    super(expectation);
+  OnlyIfAction(
+      ActionRegistry<R>.Expectation expectation,
+      String name,
+      BooleanSupplier predicate,
+      String info) {
+    super(expectation, name);
     this.dynamic = true;
     this.predicate = predicate;
     this.info = info;
@@ -97,7 +104,7 @@ public class OnlyIfAction<R> extends RepeatingAction<R> {
 
   @Override
   public String toString() {
-    return action + ".onlyIf(" + info + ")";
+    return action + "." + name + "(" + info + ")";
   }
 
   @Override

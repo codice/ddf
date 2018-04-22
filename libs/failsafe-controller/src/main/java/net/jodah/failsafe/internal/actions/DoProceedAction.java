@@ -20,8 +20,8 @@ package net.jodah.failsafe.internal.actions;
  * @param <R> the result type
  */
 public class DoProceedAction<R> extends Action<R> {
-  DoProceedAction(ActionRegistry<R>.Expectation expectation) {
-    super(expectation);
+  DoProceedAction(ActionRegistry<R>.Expectation expectation, String name) {
+    super(expectation, name);
   }
 
   @Override
@@ -31,6 +31,6 @@ public class DoProceedAction<R> extends Action<R> {
 
   @Override
   public String toString() {
-    return "doProceed()";
+    return name + "()";
   }
 }

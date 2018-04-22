@@ -16,33 +16,35 @@ package net.jodah.failsafe.internal.actions;
 import org.apache.commons.lang.Validate;
 
 /**
- * Action to repeat a given action each time failsafe makes attempts until a specified latch is
- * notified.
+ * Action to repeat a given action each time failsafe makes attempts until a specified
+ * condition/latch is notified.
  *
  * @param <R> the result type
  */
 public class UntilNotifiedForAction<R> extends RepeatingAction<R> {
-  private final String latch;
+  private final String condition;
 
   private boolean notified = false;
 
   /**
    * Constructs a new action which will repeat the last recorded action from the specified
-   * expectation until the specified latch is notified.
+   * expectation until the specified condition/latch is notified.
    *
    * @param expectation the expectation where to get the last recorded action to repeat
-   * @param latch the latch to check after the action has executed to see if it should be repeated
-   * @throws IllegalArgumentException if <code>latch</code> if <code>null</code>
+   * @param name the name for this action
+   * @param condition the condition/latch to check after the action has executed to see if it should
+   *     be repeated
+   * @throws IllegalArgumentException if <code>condition</code> if <code>null</code>
    */
-  UntilNotifiedForAction(ActionRegistry<R>.Expectation expectation, String latch) {
-    super(expectation);
-    Validate.notNull(latch, "invalid null latch");
-    this.latch = latch;
+  UntilNotifiedForAction(ActionRegistry<R>.Expectation expectation, String name, String condition) {
+    super(expectation, name);
+    Validate.notNull(condition, "invalid null condition");
+    this.condition = condition;
   }
 
   private UntilNotifiedForAction(UntilNotifiedForAction<R> action) {
     super(action);
-    this.latch = action.latch;
+    this.condition = action.condition;
   }
 
   @Override
@@ -64,12 +66,12 @@ public class UntilNotifiedForAction<R> extends RepeatingAction<R> {
 
   @Override
   public String toString() {
-    return action + ".untilNotifiedFor(" + latch + ")";
+    return action + "." + name + "(" + condition + ")";
   }
 
   @Override
   protected synchronized boolean shouldRepeat(ActionContext<R> context) {
-    this.notified = controller.wasNotified(latch);
+    this.notified = controller.wasNotified(condition);
     // make sure that we execute the action at least once
     return !notified || (currentCount == 0);
   }

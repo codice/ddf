@@ -200,6 +200,11 @@ public class ActionRegistry<R> {
         try {
           final R r = action.execute(actionContext);
 
+          if (r == Action.NOTHING) {
+            LOGGER.debug(
+                "FailsafeController({} - {}): action {} completed", controller, id, action);
+            return null; // nothing is returned back as null and will eventually be ignored
+          }
           LOGGER.debug(
               "FailsafeController({} - {}): action {} returned: {}", controller, id, action, r);
           return r;

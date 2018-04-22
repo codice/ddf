@@ -32,8 +32,9 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
   private final List<?> processedArguments;
   private final List<?> current;
 
-  DoThrowOrReturnAction(ActionRegistry<R>.Expectation expectation, @Nullable Object... args) {
-    super(expectation);
+  DoThrowOrReturnAction(
+      ActionRegistry<R>.Expectation expectation, String name, @Nullable Object... args) {
+    super(expectation, name);
     // if args is null then we consider it as a single null element
     this.arguments = (args != null) ? Arrays.asList(args) : Collections.singletonList(null);
     this.processedArguments =
@@ -93,7 +94,7 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
       return current
               .stream()
               .map(Objects::toString)
-              .collect(Collectors.joining(",", "doThrowOrReturn(", ") at "))
+              .collect(Collectors.joining(",", name + "(", ") at "))
           + getDefinitionInfo();
     }
   }
@@ -103,6 +104,6 @@ public class DoThrowOrReturnAction<R> extends Action<R> {
     return arguments
         .stream()
         .map(Objects::toString)
-        .collect(Collectors.joining(",", "doThrowOrReturn(", ")"));
+        .collect(Collectors.joining(",", name + "(", ")"));
   }
 }

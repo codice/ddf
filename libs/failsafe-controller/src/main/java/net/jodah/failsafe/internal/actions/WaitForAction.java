@@ -17,18 +17,18 @@ import net.jodah.failsafe.internal.FailsafeContinueException;
 import org.apache.commons.lang.Validate;
 
 /**
- * Action to wait a latch to be notified before letting failsafe move on to the next action when it
- * makes an attempt.
+ * Action to wait for a condition/latch to be notified before letting failsafe move on to the next
+ * action when it makes an attempt.
  *
  * @param <R> the result type
  */
 public class WaitForAction<R> extends Action<R> {
-  private final String latch;
+  private final String condition;
 
-  WaitForAction(ActionRegistry<R>.Expectation expectation, String latch) {
-    super(expectation);
-    Validate.notNull(latch, "invalid null latch");
-    this.latch = latch;
+  WaitForAction(ActionRegistry<R>.Expectation expectation, String name, String condition) {
+    super(expectation, name);
+    Validate.notNull(condition, "invalid null condition");
+    this.condition = condition;
   }
 
   @Override
@@ -37,18 +37,22 @@ public class WaitForAction<R> extends Action<R> {
         context,
         "",
         () -> {
-          controller.waitFor(latch);
+          if (name.endsWith("To")) {
+            controller.waitTo(condition);
+          } else {
+            controller.waitFor(condition);
+          }
           throw FailsafeContinueException.INSTANCE; // move on to the next one
         });
   }
 
   @Override
   public boolean hasCompleted() {
-    return controller.wasNotified(latch);
+    return controller.wasNotified(condition);
   }
 
   @Override
   public String toString() {
-    return "waitFor(" + latch + ")";
+    return name + "(" + condition + ")";
   }
 }

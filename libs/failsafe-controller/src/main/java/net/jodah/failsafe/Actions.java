@@ -51,7 +51,7 @@ public class Actions {
   }
 
   /**
-   * Indicates to do nothing (return <code>null</code>) the next time failsafe attempts a retry.
+   * Indicates to do nothing (returns <code>null</code>) the next time failsafe attempts a retry.
    * Doing so short circuits any actions registered with failsafe by the code under test.
    *
    * @param <R> the result type
@@ -135,45 +135,78 @@ public class Actions {
   }
 
   /**
-   * Indicates to block failsafe the next time it attempts a retry until the specified latch is
-   * notified. After the specified latch has been notified, the controller will move on to the next
-   * action and execute it right away.
+   * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+   * executing this action, the controller will move on to the next one and execute it right away.
    *
-   * <p>If the specified latch has already been notified then the controller will move on to the
-   * next action.
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
    *
    * @param <R> the result type
-   * @param latch the latch to wait for
+   * @param condition the latch to notify
    * @return a stub construct for chaining
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public static <R> ActionList<R>.Stubber0 waitFor(String latch) {
-    return new ActionList<R>().waitFor(latch);
+  public static <R> ActionList<R>.Stubber0 doNotify(String condition) {
+    return new ActionList<R>().doNotify(condition);
   }
 
   /**
-   * Indicates to notify the specified latch and wake up anybody waiting on it. After executing this
-   * action, the controller will move on to the next one and execute it right away.
+   * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+   * executing this action, the controller will move on to the next one and execute it right away.
    *
-   * <p>If the specified latch has already been notified then the controller will move on to the
-   * next action.
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
    *
    * @param <R> the result type
-   * @param latch the latch to notify
+   * @param condition the latch to notify
    * @return a stub construct for chaining
-   * @throws IllegalArgumentException if <code>latch</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
    */
-  public static <R> ActionList<R>.Stubber0 doNotify(String latch) {
-    return new ActionList<R>().doNotify(latch);
+  public static <R> ActionList<R>.Stubber0 doNotifyTo(String condition) {
+    return new ActionList<R>().doNotifyTo(condition);
+  }
+
+  /**
+   * Indicates to block failsafe the next time it attempts a retry until the specified
+   * condition/latch is notified. After the specified condition/latch has been notified, the
+   * controller will move on to the next action and execute it right away.
+   *
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
+   *
+   * @param <R> the result type
+   * @param condition the condition/latch to wait for
+   * @return a stub construct for chaining
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   */
+  public static <R> ActionList<R>.Stubber0 waitFor(String condition) {
+    return new ActionList<R>().waitFor(condition);
+  }
+
+  /**
+   * Indicates to block failsafe the next time it attempts a retry until the specified
+   * condition/latch is notified. After the specified condition/latch has been notified, the
+   * controller will move on to the next action and execute it right away.
+   *
+   * <p>If the specified condition/latch has already been notified then the controller will move on
+   * to the next action.
+   *
+   * @param <R> the result type
+   * @param condition the condition/latch to wait for
+   * @return a stub construct for chaining
+   * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+   */
+  public static <R> ActionList<R>.Stubber0 waitTo(String condition) {
+    return new ActionList<R>().waitTo(condition);
   }
 
   /**
    * Indicates to block failsafe the next time it attempts a retry until it's execution is
-   * cancelled. After the execution is cancelled, the controller will simulate an interruption by
-   * throwing an {@link InterruptedException} back.
+   * cancelled. After the execution is cancelled, the controller will move on to the next action and
+   * execute it right away.
    *
-   * <p>If the execution has already been cancelled then the controller will throw the interrupted
-   * exception right away.
+   * <p>If the execution has already been cancelled then the controller will will move on to the
+   * next action.
    *
    * @param <R> the result type
    * @return a stub construct for chaining
