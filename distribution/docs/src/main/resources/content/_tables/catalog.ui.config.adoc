@@ -1,12 +1,12 @@
-:title: ${catalog-ui} Search
+:title: Catalog UI Search
 :id: org.codice.ddf.catalog.ui.config
 :type: table
 :status: published
 :application: ${ddf-ui}
-:summary: ${catalog-ui} Search.
+:summary: Catalog UI Search.
 
-.[[org.codice.ddf.catalog.ui.config]]${catalog-ui} Search
-[cols="1,1m,1,3,1,1" options="header"]
+.[[org.codice.ddf.catalog.ui.config]]Catalog UI Search
+[cols="1,1m,1,3,1m,1" options="header"]
 |===
 
 |Name
@@ -228,21 +228,33 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |true
 |true
 
-|Feedback Email Subject Template
+|Query Feedback Email Subject Template
 |queryFeedbackEmailSubjectTemplate
 |String
-|Query Feedback template for the email subject.
+|See <<_configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
 |Query Feedback from {{username}}
 |true
 
-|Feedback Email Body Template
+|Query Feedback Email Body Template
 |queryFeedbackEmailBodyTemplate
 |String
-|Query Feedback template for the email body.
-|Query Feedback\\n\\nAuthenticated User: {{auth_username}}\\nUser: {{username}}\\nEmail: {{email}}\\nWorkspace: {{workspace_name}} ({{workspace_id}})\\nQuery: {{{query}}}\\nQuery time: {{query_initiated_time}}\\nQuery status: {{query_status}}\\nQuery_results: {{query_results}}\\nComments: {{comments}}
+|See <<_configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
+|
+<h2>Query Feedback</h2> +
+<p><br> +
+	<b>Authenticated User</b>: {{{auth_username}}}<br><br> +
+	<b>User</b>: {{{username}}}<br><br> +
+	<b>Email</b>: {{{email}}}<br><br> +
+	<b>Workspace</b>: {{{workspace_name}}} ({{{workspace_id}}})<br><br> +
+	<b>Query</b>: {{{query}}}<br><br> +
+	<b>Query time</b>: {{{query_initiated_time}}}<br><br> +
+	<b>Query status</b>: {{{query_status}}}<br><br> +
+	<b>Comments</b>: {{{comments}}}<br><br> +
+	<b>Query_results</b>: <pre>{{{query_results}}}</pre> +
+</p>
 |true
 
-|Feedback Email Destination
+|Query Feedback Email Destination
 |queryFeedbackEmailDestination
 |String
 |Email destination to send Query Feedback results.
