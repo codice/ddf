@@ -13,10 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -69,16 +67,6 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
   private static final Integer IS_VISIBLE_INDEX = 2;
 
   private static final Integer IS_READONLY_INDEX = 3;
-
-  private static final Map<String, String> BINARY_COMPARE_MAPPING =
-      ImmutableMap.<String, String>builder()
-          .put("PropertyIsEqualTo", "=")
-          .put("PropertyIsNotEqualTo", "!=")
-          .put("PropertyIsLessThan", "<")
-          .put("PropertyIsLessThanOrEqualTo", "<=")
-          .put("PropertyIsGreaterThan", ">")
-          .put("PropertyIsGreaterThanOrEqualTo", ">=")
-          .build();
 
   private final JsonModelBuilder builder = new JsonModelBuilder();
 
@@ -158,7 +146,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
     String localPart = element.getName().getLocalPart();
     traceLocalPart(localPart);
 
-    builder.beginBinaryLogicType(localPart.toUpperCase());
+    builder.beginBinaryLogicType(localPart);
     element.getValue().getOps().forEach(jax -> makeVisitable(jax).accept(this));
     builder.endBinaryLogicType();
   }
@@ -169,13 +157,7 @@ public class JsonTransformVisitor extends AbstractFilterVisitor2 {
     String localPart = element.getName().getLocalPart();
     traceLocalPart(localPart);
 
-    String operator = BINARY_COMPARE_MAPPING.get(localPart);
-    if (operator == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary comparison operator: " + localPart);
-    }
-
-    builder.beginBinaryComparisonType(operator);
+    builder.beginBinaryComparisonType(localPart);
     element.getValue().getExpression().forEach(jax -> makeVisitable(jax).accept(this));
     builder.endTerminalType();
   }

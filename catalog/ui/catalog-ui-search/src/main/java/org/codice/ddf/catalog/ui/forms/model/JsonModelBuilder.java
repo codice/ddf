@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -40,9 +41,16 @@ import java.util.Set;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class JsonModelBuilder {
-  private static final Set<String> BINARY_COMPARE_OPS =
-      ImmutableSet.of("=", "!=", ">", ">=", "<", "<=");
+public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
+  private static final Map<String, String> BINARY_COMPARE_MAPPING =
+      ImmutableMap.<String, String>builder()
+          .put("PropertyIsEqualTo", "=")
+          .put("PropertyIsNotEqualTo", "!=")
+          .put("PropertyIsLessThan", "<")
+          .put("PropertyIsLessThanOrEqualTo", "<=")
+          .put("PropertyIsGreaterThan", ">")
+          .put("PropertyIsGreaterThanOrEqualTo", ">=")
+          .build();
 
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
 
@@ -72,11 +80,12 @@ public class JsonModelBuilder {
    * @throws IllegalStateException if begun/open nodes are not properly ended/closed or if no data
    *     exists to return.
    */
+  @Override
   public FilterNode getResult() {
     if (!complete) {
-      canEnd();
-      canReturn();
-      depth.clear();
+      verifyTerminalNodeNotInProgress();
+      verifyLogicalNodeNotInProgress();
+      verifyResultNotNull();
       complete = true;
     }
     return rootNode;
@@ -91,9 +100,11 @@ public class JsonModelBuilder {
    * @throws IllegalStateException if this builder can no longer be modified, or if a leaf node has
    *     begun but was never ended.
    */
+  @Override
   public JsonModelBuilder beginBinaryLogicType(String operator) {
-    canModify();
-    canStartNew();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    operator = operator.toUpperCase();
     if (!LOGIC_COMPARE_OPS.contains(operator)) {
       throw new IllegalArgumentException("Invalid operator for logic comparison type: " + operator);
     }
@@ -107,28 +118,34 @@ public class JsonModelBuilder {
     return this;
   }
 
+  @Override
   public JsonModelBuilder endBinaryLogicType() {
-    canModify();
-    canEnd();
-    canReturn();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    verifyLogicalNodeInProgress();
+    verifyLogicalNodeHasChildren();
     depth.pop();
     return this;
   }
 
+  // Note: Currently taking in the XML local part as the "operator"
+  @Override
   public JsonModelBuilder beginBinaryComparisonType(String operator) {
-    canModify();
-    canStartNew();
-    if (!BINARY_COMPARE_OPS.contains(operator)) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    String jsonOperator = BINARY_COMPARE_MAPPING.get(operator);
+    if (jsonOperator == null) {
       throw new IllegalArgumentException(
-          "Invalid operator for binary comparison type: " + operator);
+          "Cannot find mapping for binary comparison operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(operator);
+    nodeInProgress = new FilterNodeImpl(jsonOperator);
     return this;
   }
 
+  @Override
   public JsonModelBuilder beginBinarySpatialType(String operator) {
-    canModify();
-    canStartNew();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
     if (!BINARY_SPATIAL_OPS.contains(operator)) {
       throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
     }
@@ -136,11 +153,10 @@ public class JsonModelBuilder {
     return this;
   }
 
+  @Override
   public JsonModelBuilder endTerminalType() {
-    canModify();
-    if (depth.isEmpty() && rootNode != null) {
-      throw new IllegalStateException("If stack is empty, the root node should not be initialized");
-    }
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
     if (depth.isEmpty()) {
       rootNode = nodeInProgress;
     } else {
@@ -150,24 +166,27 @@ public class JsonModelBuilder {
     return this;
   }
 
+  @Override
   public JsonModelBuilder setProperty(String property) {
-    canModify();
-    canSetField();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
     nodeInProgress.setProperty(property);
     return this;
   }
 
+  @Override
   public JsonModelBuilder setValue(String value) {
-    canModify();
-    canSetField();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
     nodeInProgress.setValue(value);
     return this;
   }
 
+  @Override
   public JsonModelBuilder setTemplatedValues(
       String defaultValue, String nodeId, boolean isVisible, boolean isReadOnly) {
-    canModify();
-    canSetField();
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
 
     Map<String, Object> templateProps = new HashMap<>();
     templateProps.put("defaultValue", defaultValue);
@@ -179,35 +198,54 @@ public class JsonModelBuilder {
     return this;
   }
 
-  private void canModify() {
+  // CanModify
+  private void verifyResultNotYetRetrieved() {
     if (complete) {
       throw new IllegalStateException(
           "This builder's result has been retrieved and no further modification is permitted");
     }
   }
 
-  private void canSetField() {
+  // CanSetField
+  private void verifyTerminalNodeInProgress() {
     if (nodeInProgress == null) {
-      throw new IllegalStateException("Cannot set field, no leaf node in progress");
+      throw new IllegalStateException("Cannot complete operation, no leaf node in progress");
     }
   }
 
-  private void canStartNew() {
-    if (nodeInProgress != null) {
-      throw new IllegalStateException("Cannot start node, a leaf node in progress");
+  // ~
+  private void verifyLogicalNodeInProgress() {
+    if (depth.isEmpty()) {
+      throw new IllegalStateException("Cannot end the logic node, no node in progress");
     }
   }
 
-  private void canReturn() {
+  // ~
+  private void verifyLogicalNodeNotInProgress() {
+    if (!depth.isEmpty()) {
+      throw new IllegalStateException("Logic node in progress, results not ready for return");
+    }
+  }
+
+  private void verifyLogicalNodeHasChildren() {
+    if (!depth.isEmpty() && depth.peek().isEmpty()) {
+      throw new IllegalStateException("Cannot end the logic node, no children provided");
+    }
+  }
+
+  // CanReturn
+  private void verifyResultNotNull() {
     if (rootNode == null) {
       throw new IllegalStateException(
           "Cannot end the node or return a result, no data was specified");
     }
   }
 
-  private void canEnd() {
+  // CanStartNew
+  // CanEnd
+  private void verifyTerminalNodeNotInProgress() {
     if (nodeInProgress != null) {
-      throw new IllegalStateException("Cannot end node, a leaf node in progress");
+      throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
     }
   }
 }
