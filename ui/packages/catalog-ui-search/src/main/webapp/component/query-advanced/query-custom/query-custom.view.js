@@ -24,14 +24,16 @@ define([
     'js/cql',
     'js/store',
     'component/query-settings/query-settings.view',
-    'component/query-advanced/query-advanced.view',
-    'component/singletons/user-instance',
-    'component/announcement'
+    'component/query-advanced/query-advanced.view'
 ], function (Marionette, _, $, template, CustomElements, FilterBuilderView, FilterBuilderModel, cql,
-            store, QuerySettingsView, QueryAdvanced, user, announcement) {
+            store, QuerySettingsView, QueryAdvanced) {
 
     return QueryAdvanced.extend({
         template: template,
+        regions: {
+            querySettings: '.query-settings',
+            queryAdvanced: '.query-advanced',
+        },
         className: 'is-custom',
         onBeforeShow: function(){
             this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
@@ -58,12 +60,12 @@ define([
             this.querySettings.currentView.turnOnEditing();
         },
         setDefaultTitle: function(){
-            this.model.set('title', "Custom Title");
+            this.model.set('title', 'Custom Title');
         },
         setCqlFromFilter: function(filterTemplate) {
             this.queryAdvanced.currentView.model.set('operator', filterTemplate.type);
             this.queryAdvanced.currentView.setFilters(filterTemplate.filters);
-            var filter = this.queryAdvanced.currentView.transformToCql();
+            let filter = this.queryAdvanced.currentView.transformToCql();
             this.model.set({
                 cql: filter
             });

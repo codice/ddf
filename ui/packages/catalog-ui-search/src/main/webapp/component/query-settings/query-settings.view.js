@@ -27,9 +27,10 @@ define([
     'component/property/property',
     'component/singletons/user-instance',
     'component/sort-item/sort-item.view',
-    'js/Common'
+    'js/Common',
+    'component/result-form/result-form'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
-            QuerySrcView, PropertyView, Property, user, SortItemView, Common) {
+            QuerySrcView, PropertyView, Property, user, SortItemView, Common, ResultForm) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -44,7 +45,8 @@ define([
         },
         regions: {
             settingsSortField: '.settings-sorting-field',
-            settingsSrc: '.settings-src'
+            settingsSrc: '.settings-src',
+            resultForm: '.result-form'
         },
         ui: {
         },
@@ -58,6 +60,27 @@ define([
             this.setupSortFieldDropdown();
             this.setupSrcDropdown();
             this.turnOnEditing();
+
+            if (ResultForm.getResultTemplatesProperties()) {
+                let detailLevelProperty = new Property({
+                    label: 'Detail Level',
+                    enum: ResultForm.getResultTemplatesProperties(),
+                    id: 'Detail Level'
+                });
+                this.listenTo(detailLevelProperty, 'change:value', this.handleChangeDetailLevel);
+                this.resultForm.show(new PropertyView({
+                    model: detailLevelProperty
+                }));
+                this.resultForm.currentView.turnOnLimitedWidth();
+                this.resultForm.currentView.turnOnEditing();
+            }
+        },
+        handleChangeDetailLevel: function(model, values) {
+            $.each(model.get('enum') , (function(index, value) {
+                if (values[0] === value.value) {
+                    this.model.set('selectedResultTemplate', value);
+                }
+            }).bind(this));
         },
         setupSortFieldDropdown: function() {
             this.settingsSortField.show(new SortItemView({
