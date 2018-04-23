@@ -95,6 +95,8 @@
                forget to replace the felix config admin bundle with OUR platform-osgi-configadmin
                bundle if you copy-pasted. -->
         <karaf.version>4.1.2</karaf.version>
+        <!-- There is a problem with version 4.1.2 of the karaf-maven-plugin for projects of type feature -->
+        <karaf.plugin.version>4.1.3</karaf.plugin.version>
         <felix.configadmin.version>1.8.14</felix.configadmin.version>
         <!--  ################################################################################  -->
 

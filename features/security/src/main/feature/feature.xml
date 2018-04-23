@@ -201,9 +201,6 @@
 
     <feature name="security-pdp-authz" version="${project.version}"
              description="Security PDP.">
-        <configfile finalname="${ddf.etc}/ddf.security.pdp.realm.AuthzRealm.config">
-            mvn:ddf.security/security-services-app/${project.version}/config/pdp
-        </configfile>
         <feature>security-expansion</feature>
         <feature>security-expansion-user-attributes</feature>
         <feature>security-expansion-metacard-attributes</feature>
@@ -258,9 +255,6 @@
     <feature name="security-sts-server" version="${project.version}"
              description="Security STS.">
         <feature>sts-prereqs</feature>
-        <configfile finalname="${ddf.etc}/ws-security/attributeMap.properties">
-            mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
-        </configfile>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <feature>javax-validation</feature>
 
@@ -318,20 +312,10 @@
 
     <feature name="ldap-embedded-default-claimshandler-config" version="${project.version}"
              description="Installs a default embedded ldap login config">
-        <configfile
-                finalname="${ddf.etc}/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
-                override="false">
-            mvn:ddf.security/security-services-app/${project.version}/config/ddf.security.sts.claimsHandler.ClaimsHandlerManager
-        </configfile>
     </feature>
 
     <feature name="ldap-embedded-default-stslogin-config" version="${project.version}"
              description="Installs a default embedded ldap claims handler config">
-        <configfile
-                finalname="${ddf.etc}/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
-                override="false">
-            mvn:ddf.security/security-services-app/${project.version}/config/ddf.ldap.ldaplogin.LdapLoginConfig
-        </configfile>
     </feature>
 
     <feature name="security-handler-basic" version="${project.version}"
