@@ -452,34 +452,41 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
    */
   private Map<String, Object> getObjectClassDefinitions(
       final IdGetter idGetter, Map<Long, MetaTypeInformation> metaTypeInformationByBundle) {
-    Locale locale = Locale.getDefault();
     final Map<String, Object> objectClassesDefinitions = new HashMap<>();
     final MetaTypeService mts = this.getMetaTypeService();
-    if (mts != null) {
-      final Bundle[] bundles = this.getBundleContext().getBundles();
-      for (Bundle bundle : bundles) {
-        final MetaTypeInformation mti =
-            metaTypeInformationByBundle.computeIfAbsent(
-                bundle.getBundleId(), id -> mts.getMetaTypeInformation(bundle));
-        if (mti != null) {
-          final String[] idList = idGetter.getIds(mti);
-          for (int j = 0; idList != null && j < idList.length; j++) {
-            // After getting the list of PIDs, a configuration might be
-            // removed. So the getObjectClassDefinition will throw
-            // an exception, and this will prevent ALL configuration from
-            // being displayed. By catching it, the configurations will be
-            // visible
-            ObjectClassDefinition ocd = null;
-            try {
-              ocd = mti.getObjectClassDefinition(idList[j], locale.toString());
-            } catch (IllegalArgumentException ignore) {
-              // ignore - just don't show this configuration
-            }
-            if (ocd != null) {
-              objectClassesDefinitions.put(idList[j], ocd);
-            }
-          }
-        }
+    if (mts == null) {
+      return objectClassesDefinitions;
+    }
+    final Bundle[] bundles = this.getBundleContext().getBundles();
+    for (Bundle bundle : bundles) {
+      final MetaTypeInformation mti =
+          metaTypeInformationByBundle.computeIfAbsent(
+              bundle.getBundleId(), id -> mts.getMetaTypeInformation(bundle));
+      objectClassesDefinitions.putAll(findOcdById(idGetter, mti));
+    }
+    return objectClassesDefinitions;
+  }
+
+  private Map<String, Object> findOcdById(IdGetter idGetter, MetaTypeInformation mti) {
+    if (mti == null) {
+      return Collections.emptyMap();
+    }
+    Map<String, Object> objectClassesDefinitions = new HashMap<>();
+    final String[] idList = idGetter.getIds(mti);
+    for (int j = 0; idList != null && j < idList.length; j++) {
+      // After getting the list of PIDs, a configuration might be
+      // removed. So the getObjectClassDefinition will throw
+      // an exception, and this will prevent ALL configuration from
+      // being displayed. By catching it, the configurations will be
+      // visible
+      ObjectClassDefinition ocd = null;
+      try {
+        ocd = mti.getObjectClassDefinition(idList[j], Locale.getDefault().toString());
+      } catch (IllegalArgumentException ignore) {
+        // ignore - just don't show this configuration
+      }
+      if (ocd != null) {
+        objectClassesDefinitions.put(idList[j], ocd);
       }
     }
     return objectClassesDefinitions;
