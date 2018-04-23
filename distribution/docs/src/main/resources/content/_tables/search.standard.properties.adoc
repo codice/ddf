@@ -6,7 +6,7 @@
 :summary: Standard Search UI.
 
 .[[org.codice.ddf.ui.search.standard.properties]]Standard Search UI
-[cols="1,1m,1,3,1,1" options="header"]
+[cols="1,1m,1,3,1m,1" options="header"]
 |===
 
 |Name
@@ -19,31 +19,34 @@
 |Result Count
 |resultCount
 |Integer
-|Specifies the number of results to request from each source (Max 1000)
+|Specifies the number of results to request from each source (Max 1000).
 |250
 |true
 
 |Imagery Providers
 |imageryProviders
 |String
-|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth).
+|List of imagery providers to use. Valid types are: *OSM* (OpenStreetMap), *AGM* (ArcGisMap), *BM* (BingMap), *WMS* (WebMapService), *WMT* (WebMapTile), *TMS* (TileMapService), and *GE* (GoogleEarth).
 
 Example:
-{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png",  "order": 0, "alpha": 1.0 }
+`{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`
 |
 |false
 
 |Terrain Provider
 |terrainProvider
 |String
-|Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}
-|{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}
+|Terrain provider to use for height data. Valid types are: *CT* (CesiumTerrain), *AGS* (ArcGisImageServer), and *VRW* (VRTheWorld).
+
+Example:
+`{"type": "CT" "url" "http://example.com"}`
+|{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}
 |false
 
 |Map Projection
 |projection
 |String
-|Projection of imagery providers
+|Projection of imagery providers (e.g. `EPSG:3857`, `EPSG:4326`).
 |EPSG:4326
 |false
 
@@ -64,7 +67,7 @@ Example:
 |Help Location
 |helpUrl
 |String
-|URL to help documentation
+|URL to help documentation.
 |help.html
 |false
 
@@ -99,7 +102,7 @@ Example:
 |Use External Authentication
 |externalAuthentication
 |Boolean
-|Use an external authentication point, such as IdP
+|Use an external authentication point, such as IdP.
 |false
 |false
 

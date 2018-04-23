@@ -19,40 +19,52 @@
 |Result Count
 |resultCount
 |Integer
-|Specifies the number of results to request from each source
+|Specifies the number of results to request from each source.
 |250
 |true
 
 |Imagery Providers
 |imageryProviders
 |String
-|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth).
+|List of imagery providers to use. Valid types are: *OSM* (OpenStreetMap), *AGM* (ArcGisMap), *BM* (BingMap), *WMS* (WebMapService), *WMT* (WebMapTile), **TMS** (TileMapService), and *GE* (GoogleEarth).
 
-WMS example: `{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}`
+*WMS example*: `{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}`
 
-OSM example: `{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}`
-AGM example: `{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}`
+*OSM example*: `{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}`
 
-Multiple layer example: Topmost Layer: `{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}` Bottommost Layer: `{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}`
+*AGM example*: `{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}`
 
-WMT example: `{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}
-`
+*Multiple layer example*: +
+_Topmost Layer_: `{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}` +
+_Bottommost Layer_: `{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}`
 
-TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}`
+*WMT example*: `{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}`
+
+*TMS example* (3d map support only): `{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}`
 |
 |false
 
 |Terrain Provider
 |terrainProvider
 |String
-|Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type": "CT", "url": "http://example.com"}
+|Terrain provider to use for height data. Valid types are: *CT* (CesiumTerrain), *AGS* (ArcGisImageServer), and *VRW* (VRTheWorld).
+
+Example:
+`{"type": "CT", "url": "http://example.com"}`
 |{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }
 |false
+
+|Default Layout
+|defaultLayout
+|String
+|The default UI layout and visualization configuration used in the Catalog UI. See http://golden-layout.com/docs/Config.html for more information. Example: `[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]`.
+|[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]
+|true
 
 |Map Projection
 |projection
 |String
-|Projection of imagery providers.  Valid values are `EPSG:4326` and `EPSG:3857`.
+|Projection of imagery providers (e.g. `EPSG:3857`, `EPSG:4326`).
 |EPSG:4326
 |false
 
@@ -62,6 +74,20 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.
 |
 |false
+
+|Theme Spacing Mode
+|spacingMode
+|String
+|Specifies the default theme spacing mode.
+|Comfortable
+|true
+
+|Theme Zoom
+|zoomPercentage
+|Integer
+|Specifies the default theme zoom percentage.
+|100
+|true
 
 |Connection Timeout
 |timeout
@@ -114,22 +140,22 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 
 |Use External Authentication
 |externalAuthentication
-|Use an external authentication point, such as IdP
 |Boolean
+|Use an external authentication point, such as IdP.
 |false
 |false
 
 |Disable Cache
 |cacheDisabled
-|Locally cached results will not be returned in search results.
 |Boolean
+|Locally cached results will not be returned in search results.
 |false
 |false
 
 |Type Name Mapping
 |typeNameMapping
 |String
-|Use an external authentication point, such as IdP.
+|Mapping of display names to content types in the form name=type.
 |
 |false
 
@@ -137,20 +163,21 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |readOnly
 |String
 |List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^checksum$,
-^checksum-algorithm$,
-^id$,
-^resource-download-url$,
-^resource-uri$,
-^resource.derived-uri$,
-^resource.derived-download-url$,
-^modified$,
-^metacard-tags$,
-^metadata$,
-^metacard-type$,
-^source-id$,
-^metacard\.,
-^version\.,
+|^checksum$, +
+^checksum-algorithm$, +
+^id$, +
+^resource-download-url$, +
+^resource-uri$, +
+^resource.derived-uri$, +
+^resource.derived-download-url$, +
+^modified$, +
+^metacard-tags$, +
+^metadata$, +
+^metacard-type$, +
+^source-id$, +
+^point-of-contact$, +
+^metacard\., +
+^version\., +
 ^validation\.
 |false
 
@@ -158,7 +185,9 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |summaryShow
 |String
 |List of metacard attributes to display in the summary view.
-|
+|created, +
+modified, +
+thumbnail
 |false
 
 |Result Preview Metacard Attributes
@@ -170,8 +199,8 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 
 |Attribute Aliases
 |attributeAliases
+|List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: `title=Title`.
 |String
-|List of attribute aliases. Example 'title=Title'
 |
 |false
 
@@ -179,25 +208,52 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |hiddenAttributes
 |String
 |List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^sortOrder$,
-^sortField$,
-^cql$,
-^polling$,
+|^sortOrder$, +
+^sortField$, +
+^cql$, +
+^polling$, +
 ^cached$
+|false
+
+|Attribute Descriptions
+|attributeDescriptions
+|String
+|List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: `checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors`.
+|
 |false
 
 |Query Schedule Frequencies
 |scheduleFrequencyList
 |Long
-|Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on ${catalog-ui}.
-|1800,3600,7200,14400,28800,57600,86400
+|Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.
+|1800, +
+3600, +
+7200, +
+14400, +
+28800, +
+57600, +
+86400
 |true
 
 |Allow Editing
 |isEditingAllowed
 |Boolean
-|Allow editing capability to be visible in the UI
+|Allow editing capability to be visible in the UI.
 |true
+|true
+
+|Enable Experimental Features
+|isExperimental
+|Boolean
+|WARNING: Enables experimental features in the UI. This allows users to preview upcoming features.
+|false
+|true
+
+|Auto Merge Time
+|autoMergeTime
+|Integer
+|Specifies the interval during which new results can be merged automatically. This is the time allowed since last merge (in milliseconds).
+|1000
 |true
 
 |Result Page Size
@@ -205,6 +261,13 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |Integer
 |Specifies the number of results allowed per page on the client-side.
 |25
+|true
+
+|Disable Local Catalog
+|disableLocalCatalog
+|Boolean
+|Disables queries to the local catalog.
+|false
 |true
 
 |Disable Historical Search
@@ -264,30 +327,134 @@ TMS example (3d map support only): `{ "name": "Example TMS", "show": true, "type
 |Maximum Endpoint Upload Size
 |maximumUploadSize
 |Integer
-|The maximum size of data that the Intrigue REST endpoints will receive. Please note this is not related to the product upload size, this only refers to the json data sent and received from the Intrigue endpoints.
+|The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue.
 |1048576
-|false
+|true
 
 |Map Home
 |mapHome
 |String
-|Specifies the default home view for the map by bounding box.  The format is: 'West, South, East, North' where North, East, South, and West are coordinates in degrees.  An example is: '-124, 60, -100, 40'.
+|Specifies the default home view for the map by bounding box. The format is: "West, South, East, North" where North, East, South, and West are coordinates in degrees. An example is: `-124, 60, -100, 40`.
 |
 |false
 
 |UI Branding Name
 |uiName
 |String
-|Specifies a custom UI branding name in the UI. This defaults to 'Intrigue'.
+|Specifies a custom UI branding name in the UI.
 |Intrigue
 |true
+
+|Show Relevance Scores
+|showRelevanceScores
+|Boolean
+|Toggle the display of relevance scores of search results.
+|false
+|false
+
+|Relevance Score Precision
+|relevancePrecision
+|Integer
+|Set the number of digits to display in for each relevance score. The default is `5` (i.e. 12.345).
+|5
+|false
 
 |Show Logo in Title Bar
 |showLogo
 |Boolean
-|Toggles the visibility of the logo in the title bar.
+|Toggles the visibility of the logo in the menu bar.
+|false
+|false
+
+|Theme
+|theme
+|String
+|Specifies the default theme. `Custom` consists of the colors below.
+|Dark
+|true
+
+|Primary Color
+|customPrimaryColor
+|String
+|
+|#3c6dd5
+|true
+
+|Positive Color
+|customPositiveColor
+|String
+|
+|#428442
+|true
+
+|Negative Color
+|customNegativeColor
+|String
+|
+|#8a423c
+|true
+
+|Warning Color
+|customWarningColor
+|String
+|
+|#c89600
+|true
+
+|Favorite Color
+|customFavoriteColor
+|String
+|
+|#d1d179
+|true
+
+|Background Navigation Color
+|customBackgroundNavigation
+|String
+|
+|#252529
+|true
+
+|Background Accent Content Color
+|customBackgroundAccentContent
+|String
+|
+|#2A2A2E
+|true
+
+|Background Dropdown Color
+|customBackgroundDropdown
+|String
+|
+|#35353a
+|true
+
+|Background Content Color
+|customBackgroundContent
+|String
+|
+|#35353a
+|true
+
+|Background Modal Color
+|customBackgroundModal
+|String
+|
+|#252529
+|true
+
+|Background Slideout Color
+|customBackgroundSlideout
+|String
+|
+|#252529
+|true
+
+|Disable Unknown Error Box
+|disableUnknownErrorBox
+|Boolean
+|Disable Unknown Error Box visibility.
 |false
 |false
 
 |===
-

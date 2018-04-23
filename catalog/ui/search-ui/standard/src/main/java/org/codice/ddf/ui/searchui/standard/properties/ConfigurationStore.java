@@ -86,7 +86,7 @@ public class ConfigurationStore {
 
   private String format;
 
-  private List<String> imageryProviders = new ArrayList<>();
+  private String imageryProviders;
 
   private List<Map<String, Object>> proxiedImageryProviders = new ArrayList<>();
 
@@ -224,26 +224,24 @@ public class ConfigurationStore {
     }
   }
 
-  public List<String> getImageryProviders() {
+  public String getImageryProviders() {
     return imageryProviders;
   }
 
   public void setImageryProviders(String imageryProviders) {
-    setImageryProviders(Arrays.asList(imageryProviders.split(",")));
-  }
-
-  public void setImageryProviders(List<String> imageryProviders) {
-    List<String> itemList = new ArrayList<String>();
-    for (String item : imageryProviders) {
-      if (item.contains(",")) {
-        String[] items = item.split(",");
-        itemList.addAll(Arrays.asList(items));
-      } else {
-        itemList.add(item);
+    List<String> itemList = new ArrayList<>();
+    if (StringUtils.isNotBlank(imageryProviders)) {
+      for (String item : Arrays.asList(imageryProviders.split(","))) {
+        if (item.contains(",")) {
+          String[] items = item.split(",");
+          itemList.addAll(Arrays.asList(items));
+        } else {
+          itemList.add(item);
+        }
       }
     }
-    this.imageryProviders = itemList;
     setProxiesForImagery(itemList);
+    this.imageryProviders = imageryProviders;
   }
 
   public Map<String, Object> getProxiedTerrainProvider() {
