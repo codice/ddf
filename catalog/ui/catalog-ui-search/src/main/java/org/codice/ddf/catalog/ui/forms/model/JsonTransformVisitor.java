@@ -31,7 +31,6 @@ import net.opengis.filter.v_2_0.LiteralType;
 import org.codice.ddf.catalog.ui.forms.filter.AbstractFilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

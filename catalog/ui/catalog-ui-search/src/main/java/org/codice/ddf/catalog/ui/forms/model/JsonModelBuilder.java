@@ -17,16 +17,15 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FilterLeafNode;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FilterTemplatedLeafNode;
 
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
  * for use on the frontend. Also supports building filter nodes with additional metadata in them,
- * such as {@link FilterTemplatedLeafNode}s.
+ * such as {@link FilterNodeImpl}s in a templated state.
  *
  * <p>As mentioned before, this object is single-use and only supports building a single model. It
  * cannot be modified by builder methods once the result has been retrieved by calling {@link
@@ -53,7 +52,7 @@ public class JsonModelBuilder {
 
   private FilterNode rootNode = null;
 
-  private FilterLeafNode nodeInProgress = null;
+  private FilterNode nodeInProgress = null;
 
   private boolean complete = false;
 
@@ -100,9 +99,9 @@ public class JsonModelBuilder {
     }
     List<FilterNode> nodes = new ArrayList<>();
     if (rootNode == null) {
-      rootNode = new FilterNode(operator, nodes);
+      rootNode = new FilterNodeImpl(operator, nodes);
     } else {
-      depth.peek().add(new FilterNode(operator, nodes));
+      depth.peek().add(new FilterNodeImpl(operator, nodes));
     }
     depth.push(nodes);
     return this;
@@ -123,7 +122,7 @@ public class JsonModelBuilder {
       throw new IllegalArgumentException(
           "Invalid operator for binary comparison type: " + operator);
     }
-    nodeInProgress = new FilterLeafNode(operator);
+    nodeInProgress = new FilterNodeImpl(operator);
     return this;
   }
 
@@ -133,7 +132,7 @@ public class JsonModelBuilder {
     if (!BINARY_SPATIAL_OPS.contains(operator)) {
       throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
     }
-    nodeInProgress = new FilterLeafNode(operator);
+    nodeInProgress = new FilterNodeImpl(operator);
     return this;
   }
 
@@ -169,8 +168,14 @@ public class JsonModelBuilder {
       String defaultValue, String nodeId, boolean isVisible, boolean isReadOnly) {
     canModify();
     canSetField();
-    nodeInProgress =
-        new FilterTemplatedLeafNode(nodeInProgress, defaultValue, nodeId, isVisible, isReadOnly);
+
+    Map<String, Object> templateProps = new HashMap<>();
+    templateProps.put("defaultValue", defaultValue);
+    templateProps.put("nodeId", nodeId);
+    templateProps.put("isVisible", isVisible);
+    templateProps.put("isReadOnly", isReadOnly);
+
+    nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
     return this;
   }
 

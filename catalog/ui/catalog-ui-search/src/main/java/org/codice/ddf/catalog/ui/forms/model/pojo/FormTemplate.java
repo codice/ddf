@@ -17,6 +17,7 @@ import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.List;
 import org.boon.json.annotations.JsonProperty;
+import org.codice.ddf.catalog.ui.forms.model.FilterNode;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.

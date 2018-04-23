@@ -332,40 +332,44 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   }
 
   private static void assertTemplateDataStructures(JsonPath json) {
-    assertThat(json.get("[0].title"), is("Imagery Only"));
-    assertThat(json.get("[0].description"), is("Search across all image datatypes."));
-    assertThat(json.get("[0].id"), isA(String.class));
-    assertThat(json.get("[0].created"), isA(Long.class));
-
-    assertThat(json.get("[0].filterTemplate.type"), is("AND"));
-
-    assertThat(json.get("[0].filterTemplate.filters[0].type"), is("="));
-    assertThat(json.get("[0].filterTemplate.filters[0].property"), is("datatype"));
-    assertThat(json.get("[0].filterTemplate.filters[0].value"), is("Image"));
-    assertThat(json.get("[0].filterTemplate.filters[0].templated"), is(false));
-
-    assertThat(json.get("[0].filterTemplate.filters[1].type"), is("="));
-    assertThat(json.get("[0].filterTemplate.filters[1].property"), is("title"));
-    assertThat(json.get("[0].filterTemplate.filters[1].value"), is(nullValue()));
-    assertThat(json.get("[0].filterTemplate.filters[1].templated"), is(true));
-    assertThat(json.get("[0].filterTemplate.filters[1].defaultValue"), is(nullValue()));
-    assertThat(json.get("[0].filterTemplate.filters[1].nodeId"), is("my-id-1"));
-    assertThat(json.get("[0].filterTemplate.filters[1].isVisible"), is(true));
-    assertThat(json.get("[0].filterTemplate.filters[1].isReadOnly"), is(false));
-
-    assertThat(json.get("[0].filterTemplate.filters[2].type"), is("<="));
-    assertThat(json.get("[0].filterTemplate.filters[2].property"), is("media.bit-rate"));
-    assertThat(json.get("[0].filterTemplate.filters[2].value"), is(nullValue()));
-    assertThat(json.get("[0].filterTemplate.filters[2].templated"), is(true));
-    assertThat(json.get("[0].filterTemplate.filters[2].defaultValue"), is(nullValue()));
-    assertThat(json.get("[0].filterTemplate.filters[2].nodeId"), is("my-id-2"));
-    assertThat(json.get("[0].filterTemplate.filters[2].isVisible"), is(true));
-    assertThat(json.get("[0].filterTemplate.filters[2].isReadOnly"), is(false));
-
-    assertThat(json.get("[1].title"), is("Contact Name"));
+    assertThat(json.get("[1].title"), is("Imagery Only"));
+    assertThat(json.get("[1].description"), is("Search across all image datatypes."));
     assertThat(json.get("[1].id"), isA(String.class));
     assertThat(json.get("[1].created"), isA(Long.class));
 
-    assertThat(json.get("[1].filterTemplate.type"), is("OR"));
+    assertThat(json.get("[1].filterTemplate.type"), is("AND"));
+
+    assertThat(json.get("[1].filterTemplate.filters[0].type"), is("="));
+    assertThat(json.get("[1].filterTemplate.filters[0].property"), is("datatype"));
+    assertThat(json.get("[1].filterTemplate.filters[0].value"), is("Image"));
+    //    assertThat(json.get("[0].filterTemplate.filters[0].templated"), is(false));
+
+    assertThat(json.get("[1].filterTemplate.filters[1].type"), is("="));
+    assertThat(json.get("[1].filterTemplate.filters[1].property"), is("title"));
+    assertThat(json.get("[1].filterTemplate.filters[1].value"), is(nullValue()));
+    //    assertThat(json.get("[0].filterTemplate.filters[1].templated"), is(true));
+
+    assertThat(
+        json.get("[1].filterTemplate.filters[1].templateProperties.defaultValue"), is(nullValue()));
+    assertThat(json.get("[1].filterTemplate.filters[1].templateProperties.nodeId"), is("my-id-1"));
+    assertThat(json.get("[1].filterTemplate.filters[1].templateProperties.isVisible"), is(true));
+    assertThat(json.get("[1].filterTemplate.filters[1].templateProperties.isReadOnly"), is(false));
+
+    assertThat(json.get("[1].filterTemplate.filters[2].type"), is("<="));
+    assertThat(json.get("[1].filterTemplate.filters[2].property"), is("media.bit-rate"));
+    assertThat(json.get("[1].filterTemplate.filters[2].value"), is(nullValue()));
+    //    assertThat(json.get("[0].filterTemplate.filters[2].templated"), is(true));
+
+    assertThat(
+        json.get("[1].filterTemplate.filters[2].templateProperties.defaultValue"), is(nullValue()));
+    assertThat(json.get("[1].filterTemplate.filters[2].templateProperties.nodeId"), is("my-id-2"));
+    assertThat(json.get("[1].filterTemplate.filters[2].templateProperties.isVisible"), is(true));
+    assertThat(json.get("[1].filterTemplate.filters[2].templateProperties.isReadOnly"), is(false));
+
+    assertThat(json.get("[0].title"), is("Contact Name"));
+    assertThat(json.get("[0].id"), isA(String.class));
+    assertThat(json.get("[0].created"), isA(Long.class));
+
+    assertThat(json.get("[0].filterTemplate.type"), is("OR"));
   }
 }

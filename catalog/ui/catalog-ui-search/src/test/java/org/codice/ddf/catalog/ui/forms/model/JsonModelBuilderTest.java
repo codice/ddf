@@ -17,7 +17,6 @@ import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.a
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
 
-import org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

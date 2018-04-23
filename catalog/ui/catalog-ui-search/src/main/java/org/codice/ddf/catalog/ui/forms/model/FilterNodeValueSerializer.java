@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link org.codice.ddf.catalog.ui.forms.model.pojo.FilterLeafNode} requires polymorphic behavior
- * which causes issues with JSON serialization. To avoid values of the following complex form:
+ * {@link org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl} requires polymorphic behavior which
+ * causes issues with JSON serialization. To avoid values of the following complex form:
  *
  * <p>{@code
  * "value":{"class":"java.lang.String","value":[r,u,s,s,i,a,n,-,n,e,w,s,-,s,t,o,r,y],"hash":0}}
