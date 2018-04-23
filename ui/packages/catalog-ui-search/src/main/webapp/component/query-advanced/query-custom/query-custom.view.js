@@ -28,7 +28,7 @@ define([
     'component/singletons/user-instance',
     'component/announcement'
 ], function (Marionette, _, $, template, CustomElements, FilterBuilderView, FilterBuilderModel, cql,
-            store, QuerySettingsView, QueryAdvanced, user, announcement) {
+            store, QuerySettingsView, QueryAdvanced) {
 
     return QueryAdvanced.extend({
         template: template,

@@ -14,18 +14,18 @@
  **/
 /*global define, window*/
 
-let Backbone = require('backbone');
-let Marionette = require('marionette');
-let _ = require('underscore');
-let $ = require('jquery');
-let template = require('./query-template-sharing.hbs');
-let itemTemplate = require('./query-template-sharing.item.hbs');
-let CustomElements = require('js/CustomElements');
-let user = require('component/singletons/user-instance');
-let EditableRows = require('component/editable-rows/editable-rows.view');
-let DropdownView = require('component/dropdown/dropdown.view');
-let Loading = require('component/loading-companion/loading-companion.view');
-let announcement = require('component/announcement');
+const Backbone = require('backbone');
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const template = require('./query-template-sharing.hbs');
+const itemTemplate = require('./query-template-sharing.item.hbs');
+const CustomElements = require('js/CustomElements');
+const user = require('component/singletons/user-instance');
+const EditableRows = require('component/editable-rows/editable-rows.view');
+const DropdownView = require('component/dropdown/dropdown.view');
+const Loading = require('component/loading-companion/loading-companion.view');
+const announcement = require('component/announcement');
 
 
 let Input = Marionette.ItemView.extend({
@@ -183,7 +183,7 @@ module.exports = Marionette.LayoutView.extend({
         this.updateSharingPermissions(templatePerms)
     },
     updateSharingPermissions: function(templatePerms) {
-        let sharingEndpoint = `/search/catalog/internal/sharing/${this.options.modelId}`
+        let sharingEndpoint = `/search/catalog/internal/sharing/${this.model.id}`
         $.ajax({
             url: sharingEndpoint,
             contentType: "application/json; charset=utf-8",

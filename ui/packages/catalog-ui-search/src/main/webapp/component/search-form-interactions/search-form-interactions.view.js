@@ -13,16 +13,16 @@
  *
  **/
 /*global define, window*/
-var  wreqr = require('wreqr');
-var  Marionette = require('marionette');
-var  template = require('./search-form-interactions.hbs');
-var  CustomElements = require('js/CustomElements');
-var  user = require('component/singletons/user-instance');
-var  LoadingView = require('component/loading/loading.view');
-var  announcement = require('component/announcement');
-var  ConfirmationView = require('component/confirmation/confirmation.view');
-var  lightboxInstance = require('component/lightbox/lightbox.view.instance');
-var  QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
+const  wreqr = require('wreqr');
+const  Marionette = require('marionette');
+const  template = require('./search-form-interactions.hbs');
+const  CustomElements = require('js/CustomElements');
+const  user = require('component/singletons/user-instance');
+const  LoadingView = require('component/loading/loading.view');
+const  announcement = require('component/announcement');
+const  ConfirmationView = require('component/confirmation/confirmation.view');
+const  lightboxInstance = require('component/lightbox/lightbox.view.instance');
+const  QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
 
 module.exports =  Marionette.ItemView.extend({
         template: template,
@@ -50,7 +50,7 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
         },
         handleTrash: function() {
-            var loginUser = user.get('user');
+            let loginUser = user.get('user');
             if(loginUser.get('email') === this.model.get('createdBy'))
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
@@ -131,8 +131,7 @@ module.exports =  Marionette.ItemView.extend({
                 permissions: {
                     'accessIndividuals': this.model.get('accessIndividuals'),
                     'accessGroups': this.model.get('accessGroups')
-                },
-                modelId: this.model.get('id')
+                }
             }));
         },
         handleClick: function() {

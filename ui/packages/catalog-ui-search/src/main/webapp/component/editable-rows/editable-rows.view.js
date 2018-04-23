@@ -17,31 +17,9 @@ const Marionette = require('marionette');
 const _ = require('underscore');
 const $ = require('jquery');
 const CustomElements = require('js/CustomElements');
-const EditableRowsItemTemplate = require('./editable-rows-item.hbs');
 const EditableRowsTemplate = require('./editable-rows.hbs');
-
-let RowView = Marionette.LayoutView.extend({
-    className: 'editable-rows-item',
-    template: EditableRowsItemTemplate,
-    events:  { 'click .remove': 'removeRow' },
-    regions: { embed: '.embed' },
-    removeRow: function () {
-        this.model.destroy();
-    },
-    onRender: function () {
-        this.embed.show(this.options.embed(this.model, this.options.embedOptions));
-    }
-});
-
-let RowsView = Marionette.CollectionView.extend({
-    childView: RowView,
-    childViewOptions: function () { return this.options }
-});
-
-let JsonView = Marionette.ItemView.extend({
-    tagName: 'pre',
-    template: 'JSON: {{json this}}'
-});
+const EditableRowsView = require('component/editable-row/editable-row.collection.view');
+const JsonView = require('component/json/json.view');
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('editable-rows'),
@@ -61,7 +39,7 @@ module.exports = Marionette.LayoutView.extend({
         return new JsonView({ model: model });
     },
     onRender: function () {
-        this.rows.show(new RowsView({
+        this.rows.show(new EditableRowsView({
             collection: this.collection,
             embed: this.embed,
             embedOptions: this.options
