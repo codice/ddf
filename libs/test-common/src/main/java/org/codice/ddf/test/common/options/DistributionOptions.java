@@ -75,7 +75,7 @@ public class DistributionOptions extends BasicOptions {
 
   // Required so pax-exam can include it's own pax-exam related artifacts during test run time.
   // Codice repositories have been added in order to support incremental builds
-  public static Option defaultMavenRepositoriesOption() {
+  private static Option defaultMavenRepositoriesOption() {
     return editConfigurationFilePut(
         "etc/org.ops4j.pax.url.mvn.cfg",
         "org.ops4j.pax.url.mvn.repositories",

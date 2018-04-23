@@ -74,8 +74,7 @@ public abstract class AbstractComponentTest {
     return options(
         getContainerOptions().get(),
         getApplicationOptions(portFinder).get(),
-        getTestBundleOptions().build(),
-        defaultMavenRepositoriesOption());
+        getTestBundleOptions().build());
   }
 
   /**
