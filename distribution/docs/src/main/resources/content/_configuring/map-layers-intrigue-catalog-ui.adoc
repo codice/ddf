@@ -1,0 +1,40 @@
+:title: Configuring Map for ${catalog-ui} - Catalog UI Search
+:type: subConfiguration
+:status: published
+:parent: Configuring ${catalog-ui}
+:order: 00
+:summary: Configuring map for Catalog UI Search
+
+== {title}
+
+Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Catalog UI Search*.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-ui}* application.
+. Select the *Configuration* tab.
+. Select the *Catalog UI Search* configuration.
+
+.Edit a Map Layer (Imagery Provider)
+. Enter the properties of the map layer into the *Imagery Provider* in the proper syntax.
+.. Example Imagery Provider Syntax: `{"type": "OSM", "url" "http://a.tile.openstreetmaps.org" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`.
+... "type": format of imagery provider.
+... "url": location of server hosting the imagery provider.
+... "layers": names of individual layers. (enclose list in square brackets`[ ]`).
+... "parameters": (enclose in braces `{}`):
+.... "FORMAT": image type used by imagery provider.
+.... "VERSION": version of imagery provider to use.
+.... "alpha": opacity of imagery provider layer.
+
+.Delete a Map Layer (Imagery Provider)
+. Delete the properties in *Imagery Provider* text box.
+
+.Edit a Terrain Provider
+. Enter the properties into the *Terrain Provider* in the proper syntax.
+.. A default Terrain Provider is provided: `{ "type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }`.
+... "type": format of terrain provider.
+... "url": location of server hosting the terrain provider.
+
+.Edit Gazetteer Configuration
+. Check/Uncheck *Show Gazetteer* to control searching place names functionality
+. Check/Uncheck *Use Online Gazetteer* to control ${catalog-ui} search gazetteer.
+.. Unchecked: use local gazetteer service
