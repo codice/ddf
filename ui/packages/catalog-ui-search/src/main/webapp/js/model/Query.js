@@ -79,10 +79,10 @@ define([
                     count: properties.resultCount,
                     start: 1,
                     federation: 'enterprise',
-                    sorts: [{
-                        attribute: 'modified',
-                        direction: 'descending'
-                    }],
+                    // sorts: [{
+                    //     attribute: 'modified',
+                    //     direction: 'descending'
+                    // }],
                     result: undefined,
                     serverPageIndex: 0,
                     type: 'text',

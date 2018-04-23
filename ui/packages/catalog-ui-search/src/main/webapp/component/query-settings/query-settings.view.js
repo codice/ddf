@@ -71,8 +71,8 @@ define([
                 this.resultForm.currentView.turnOnEditing();
             }
         },
-        handleChangeDetailLevel: function(model, values) {
-            $.each(model.get('enum') , (function(index, value) {
+        handleChangeDetailLevel: function (model, values) {
+            $.each(model.get('enum'), (function (index, value) {
                 if (values[0] === value.value) {
                     this.model.set('selectedResultTemplate', value);
                 }

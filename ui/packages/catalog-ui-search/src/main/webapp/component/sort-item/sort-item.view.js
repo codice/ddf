@@ -91,10 +91,8 @@ define([
         },
         removeModel: function () {
             this.destroy();
-            this.model.destroy();
         },
         onBeforeShow: function () {
-            let that = this;
             this.sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
                 return !properties.isHidden(type.id);
             }).filter(function (type) {
@@ -143,7 +141,6 @@ define([
             }).length > 0;
 
             this.$el.toggleClass('sort-duplicate-show', hasDuplicates);
-            // this.$el.find('.fa').text(' ' + this.model.get('attribute') + ' is already specified as a sort');
         },
         turnOffEditing: function () {
             this.sortAttribute.currentView.turnOffEditing();

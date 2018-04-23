@@ -53,19 +53,22 @@ define([
         handleAdd: function () {
             this.childView.collection.add({
                 attribute: this.getNextAttribute(),
-                direction: 'descending',
-                showBestTextOption: this.options.showBestTextOption
+                direction: 'descending'
             });
         },
+        // childViewOptions: function (model, index) {
+        //   return {
+        //     showBestTextOption: this.options.showBestTextOption
+        //   }
+        // },
         getNextAttribute: function () {
-            let that = this;
             let filtered = this.childView.children.findByModel(this.collection.models[0]).sortAttributes
                 .filter(function (type) {
-                    let sorts = that.childView.collection.filter(function (sort) {
+                    let sorts = this.childView.collection.filter(function (sort) {
                         return sort.get('attribute') === type.value;
                     });
                     return sorts.length === 0;
-                });
+                }).bind(this);
             return filtered[0].value;
         },
         initialize: function () {

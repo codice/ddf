@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.boon.sort.Sort;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
