@@ -41,7 +41,6 @@ define([
         onBeforeShow: function() {
             this.editorProperties.show(PropertyCollectionView.generateSummaryPropertyCollectionView(
                 [this.model.first().get('metacard>properties').toJSON()]));
-            this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
             this.getValidation();
             EditorView.prototype.onBeforeShow.call(this);

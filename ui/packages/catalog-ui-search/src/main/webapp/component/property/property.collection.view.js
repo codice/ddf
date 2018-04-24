@@ -70,11 +70,6 @@ define([
         removeProperties: function(attributes){
             this.collection.remove(attributes);
         },
-        turnOnLimitedWidth: function() {
-            this.children.forEach(function(childView) {
-                childView.turnOnLimitedWidth();
-            });
-        },
         turnOnEditing: function() {
             this.children.forEach(function(childView) {
                 childView.turnOnEditing();

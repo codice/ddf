@@ -23,11 +23,12 @@
         <span class="if-editing fa fa-undo property-revert is-button"></span>
         <span class="property-validation fa fa-exclamation-triangle is-hidden"></span>
     </div>
-    <label for="{{cid}}">
-        {{label}}
-        {{#unless label}}
+    <label for="{{cid}}" title="{{#if label}}{{label}}{{else}}{{id}}{{/if}}">
+        {{#if label}}
+            {{label}}
+        {{else}}
             {{id}}
-        {{/unless}}
+        {{/if}}
     </label>
     <div class="if-block">
         <span class="if-editing fa fa-undo property-revert is-button"></span>

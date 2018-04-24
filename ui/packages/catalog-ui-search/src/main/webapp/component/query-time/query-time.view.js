@@ -121,13 +121,6 @@ module.exports = Marionette.LayoutView.extend({
         }
         return filters;
     },
-    turnOnLimitedWidth: function () {
-        this.regionManager.forEach(function (region) {
-            if (region.currentView && region.currentView.turnOnLimitedWidth) {
-                region.currentView.turnOnLimitedWidth();
-            }
-        });
-    },
     handleTimeRangeValue: function () {
         var timeRange = this.basicTime.currentView.model.getValue()[0];
         this.$el.toggleClass('is-timeRange-any', timeRange === 'any');

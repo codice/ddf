@@ -54,7 +54,6 @@ module.exports = Marionette.LayoutView.extend({
                 type: 'STRING'
             })
         }));
-        this.coordinateFormatExample.currentView.turnOnLimitedWidth();
     },
     setupResultCount: function () {
         var coordinateFormat = user.get('user').get('preferences').get('coordinateFormat');
@@ -73,7 +72,6 @@ module.exports = Marionette.LayoutView.extend({
             })
         }));
 
-        this.coordinateFormat.currentView.turnOnLimitedWidth();
         this.coordinateFormat.currentView.turnOnEditing();
         this.listenTo(this.coordinateFormat.currentView.model, 'change:value', this.save);
     },
