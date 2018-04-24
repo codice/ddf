@@ -100,7 +100,6 @@
     <feature name="catalog-core-directorymonitor" version="${project.version}"
              description="Monitors directories to process content files.">
         <feature>apache-commons</feature>
-        <bundle>mvn:ddf.catalog.core/catalog-core-camelcontext/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
 

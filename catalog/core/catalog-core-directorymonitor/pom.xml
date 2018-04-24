@@ -140,12 +140,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-camelcontext</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>

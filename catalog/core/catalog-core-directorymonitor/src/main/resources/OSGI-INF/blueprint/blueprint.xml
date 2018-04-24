@@ -21,9 +21,7 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-
-    <reference id="camelContext" interface="org.apache.camel.CamelContext"
-               filter="(camel.context.name=catalogCamelContext)"/>
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="camelContext"/>
 
     <cm:managed-service-factory
             id="contentDirectoryMonitor_MSF"

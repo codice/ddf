@@ -298,7 +298,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("org.bouncycastle", "bcprov-jdk15on"),
         new BundleInfo("ddf.platform.util", "util-uuidgenerator-api"),
         new BundleInfo("ddf.platform.util", "util-uuidgenerator-impl"),
-        new BundleInfo("ddf.catalog.core", "catalog-core-camelcontext"),
         new BundleInfo("ddf.platform.api", "platform-api"),
         new BundleInfo("org.codice.thirdparty", "gt-opengis"),
         new BundleInfo("ddf.catalog.core", "catalog-core-api"),

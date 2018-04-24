@@ -105,7 +105,7 @@ grant codeBase "file:/org.eclipse.osgi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
 }
 
-grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/broker-route-manager/spatial-csw-transformer/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
+grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/broker-route-manager/spatial-csw-transformer/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
