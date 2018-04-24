@@ -25,13 +25,13 @@ import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
-import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,6 @@ import org.w3c.dom.Document;
 public class PostResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
-  private static final String SURROUND_WITH_TWO_PARENTHESES = "{{%s}}";
 
   public PostResponseCreator(
       SystemCrypto systemCrypto,
@@ -56,8 +55,7 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws WSSecurityException, SimpleSign.SignatureException {
     LOGGER.debug("Configuring SAML Response for POST.");
 
@@ -75,23 +73,48 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
     String encodedSamlResponse =
         Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
-    String submitFormUpdated =
-        responseTemplate.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.ACS_URL), assertionConsumerServiceURL);
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_TYPE), "SAMLResponse");
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_RESPONSE), encodedSamlResponse);
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.RELAY_STATE),
-            relayState != null ? relayState : "");
-    Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
+
+    String postForm =
+        createPostResponse(
+            SSOConstants.SAML_RESPONSE,
+            encodedSamlResponse,
+            relayState,
+            assertionConsumerServiceURL);
+    Response.ResponseBuilder ok = Response.ok(postForm);
     if (cookie != null) {
       ok = ok.cookie(cookie);
     }
     return ok.build();
+  }
+
+  private String createPostResponse(
+      String samlType, String samlResponse, String relayState, String acsUrl) {
+    StringBuilder builder = new StringBuilder("<!DOCTYPE html>");
+    builder
+        .append("<html>")
+        .append("<head>")
+        .append("<title>Form Submit</title>")
+        .append("</head>")
+        .append("<body Onload=\"document.forms[0].submit()\">")
+        .append("<form id=\"postform\" method=\"POST\" action=\"")
+        .append(acsUrl)
+        .append("\">")
+        .append("<input type=\"hidden\" name=\"")
+        .append(samlType)
+        .append("\"")
+        .append(" value=\"")
+        .append(samlResponse)
+        .append("\"/>");
+
+    if (relayState != null) {
+      builder
+          .append("<input type=\"hidden\" name=\"RelayState\" " + "value=\"")
+          .append(relayState)
+          .append("\"/>");
+    }
+
+    builder.append("</form></body></html>");
+
+    return builder.toString();
   }
 }

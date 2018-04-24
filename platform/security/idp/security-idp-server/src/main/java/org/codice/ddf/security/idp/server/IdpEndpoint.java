@@ -16,7 +16,6 @@ package org.codice.ddf.security.idp.server;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
@@ -195,8 +194,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       new AtomicReference<>();
   private List<String> spMetadata;
   private String indexHtml;
-  private String ecpMessage;
-  private Map<SamlProtocol.Binding, String> templateMap;
   private Boolean strictSignature = true;
   private SystemCrypto systemCrypto;
   private LogoutMessage logoutMessage;
@@ -225,19 +222,9 @@ public class IdpEndpoint implements Idp, SessionHandler {
   }
 
   public void init() {
-    try (InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html");
-        InputStream submitFormStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/submitForm.handlebars");
-        InputStream ecpMessageStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars")) {
+    try (InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html")) {
       indexHtml = IOUtils.toString(indexStream, StandardCharsets.UTF_8);
-
-      String submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
-      ecpMessage = IOUtils.toString(ecpMessageStream, StandardCharsets.UTF_8);
-      templateMap =
-          ImmutableMap.of(
-              SamlProtocol.Binding.HTTP_POST, submitForm, SamlProtocol.Binding.SOAP, ecpMessage);
-    } catch (Exception e) {
+    } catch (IOException e) {
       LOGGER.info("Unable to load index page for IDP.", e);
     }
 
@@ -473,9 +460,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
               authnRequest.getSignature() != null);
 
       Response samlpResponse =
-          soapBinding
-              .creator()
-              .getSamlpResponse(relayState, authnRequest, response, null, ecpMessage);
+          soapBinding.creator().getSamlpResponse(relayState, authnRequest, response, null);
       samlpResponse
           .getHeaders()
           .put(
@@ -664,7 +649,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       String originalBinding)
       throws WSSecurityException {
     String responseStr;
-    String template;
     AuthnRequest authnRequest = null;
     try {
       Map<String, Object> responseMap = new HashMap<>();
@@ -690,10 +674,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         LOGGER.debug("Received Passive & PKI AuthnRequest.");
         org.opensaml.saml.saml2.core.Response samlpResponse;
         try {
-
-          // Find binding supported by SP and change template
           binding = getResponseBinding(authnRequest);
-          template = getTemplate(binding);
 
           samlpResponse =
               handleLogin(
@@ -734,9 +715,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         }
         logAddedSp(authnRequest);
 
-        return binding
-            .creator()
-            .getSamlpResponse(relayState, authnRequest, samlpResponse, cookie, template);
+        return binding.creator().getSamlpResponse(relayState, authnRequest, samlpResponse, cookie);
       } else {
         LOGGER.debug("Building the JSON map to embed in the index.html page for login.");
         responseMap.put(PKI, hasCerts);
@@ -810,7 +789,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
             authnRequest.getID(),
             null);
     LOGGER.debug("Encoding error SAML Response for post or redirect.");
-    String template = getTemplate(binding);
 
     if (binding instanceof RedirectBinding) {
       binding =
@@ -821,9 +799,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
               spMetadata,
               SUPPORTED_BINDINGS);
     }
-    return binding
-        .creator()
-        .getSamlpResponse(relayState, authnRequest, samlResponse, null, template);
+    return binding.creator().getSamlpResponse(relayState, authnRequest, samlResponse, null);
   }
 
   @GET
@@ -844,7 +820,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
         relayState);
     try {
       Binding binding;
-      String template;
       if (!request.isSecure()) {
         throw new IllegalArgumentException(AUTHN_REQUEST_MUST_USE_TLS);
       }
@@ -880,9 +855,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
               signature,
               strictSignature);
 
-      // Find binding supported by SP and change template
       binding = getResponseBinding(authnRequest);
-      template = getTemplate(binding);
 
       org.opensaml.saml.saml2.core.Response encodedSaml =
           handleLogin(
@@ -897,9 +870,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug("Returning SAML Response for relayState: {}", relayState);
       NewCookie newCookie = createCookie(request, encodedSaml);
       Response response =
-          binding
-              .creator()
-              .getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie, template);
+          binding.creator().getSamlpResponse(relayState, authnRequest, encodedSaml, newCookie);
       if (newCookie != null) {
         cookieCache.addActiveSp(newCookie.getValue(), authnRequest.getIssuer().getValue());
         logAddedSp(authnRequest);
@@ -1500,14 +1471,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
     } else {
       throw new IdpException(new UnsupportedOperationException("Must use HTTP POST binding."));
     }
-  }
-
-  private String getTemplate(Binding binding) {
-    String template = templateMap.get(SamlProtocol.Binding.HTTP_POST);
-    if (binding instanceof SoapBinding) {
-      template = templateMap.get(SamlProtocol.Binding.SOAP);
-    }
-    return template;
   }
 
   public void setSecurityManager(SecurityManager securityManager) {
