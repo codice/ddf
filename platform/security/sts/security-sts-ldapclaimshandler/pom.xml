@@ -155,6 +155,11 @@
                                     <type>properties</type>
                                     <classifier>attributeMap</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>src/main/resources/default-ldap-claimshandler.config</file>
+                                    <type>config</type>
+                                    <classifier>default-ldap-claimshandler</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

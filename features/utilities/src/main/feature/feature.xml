@@ -77,6 +77,18 @@
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
+            mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
+        </configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-geojson.config">
+            mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-geojson
+        </configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-nitf.config">
+            mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-nitf
+        </configfile>
+        <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-xml.config">
+            mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-xml
+        </configfile>
     </feature>
 
     <feature name="mime-tika-resolver" version="${project.version}"
