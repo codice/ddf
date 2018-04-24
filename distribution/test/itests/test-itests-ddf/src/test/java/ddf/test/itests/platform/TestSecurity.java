@@ -1396,7 +1396,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         JsonPath.given(getAllFeaturesResponsePermitted).getString("value.AllFeatures.name");
 
     for (String app : getDefaultRequiredApps()) {
-      assertThat(filteredApplications, containsString(app));
+      if (!"sdk-app".equals(app)) {
+        assertThat(filteredApplications, containsString(app));
+      }
     }
 
     for (String feature : FEATURES_TO_FILTER) {
