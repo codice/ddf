@@ -41,14 +41,17 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
   private static final String SURROUND_WITH_TWO_PARENTHESES = "{{%s}}";
+  private String responseTemplate;
 
   public PostResponseCreator(
       SystemCrypto systemCrypto,
       Map<String, EntityInformation> serviceProviders,
       Set<SamlPresignPlugin> presignPlugins,
       List<String> spMetadata,
-      Set<Binding> supportedBindings) {
+      Set<Binding> supportedBindings,
+      String responseTemplate) {
     super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+    this.responseTemplate = responseTemplate;
   }
 
   @Override
@@ -56,8 +59,7 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws WSSecurityException, SimpleSign.SignatureException {
     LOGGER.debug("Configuring SAML Response for POST.");
 

@@ -392,8 +392,8 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
-    assertThat(response.getEntity().toString(), containsString("RelayState"));
+    assertThat(response.getLocation().toString(), containsString("SAMLResponse"));
+    assertThat(response.getLocation().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -426,8 +426,8 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getLocation().toString(), containsString(ssoSAMLResponse));
+    assertThat(response.getLocation().toString(), containsString("RelayState="));
   }
 
   @Test
@@ -477,8 +477,8 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getLocation().toString(), containsString(ssoSAMLResponse));
+    assertThat(response.getLocation().toString(), containsString("RelayState="));
   }
 
   @Test
@@ -524,8 +524,8 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getLocation().toString(), containsString(ssoSAMLResponse));
+    assertThat(response.getLocation().toString(), containsString("RelayState="));
   }
 
   @Test
@@ -545,8 +545,8 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getLocation().toString(), containsString(ssoSAMLResponse));
+    assertThat(response.getLocation().toString(), containsString("RelayState="));
   }
 
   @Test
@@ -685,8 +685,8 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getLocation().toString(), containsString(ssoSAMLResponse));
+    assertThat(response.getLocation().toString(), containsString("RelayState="));
   }
 
   @Test
@@ -738,7 +738,7 @@ public class IdpEndpointTest {
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
         StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
+            response.getLocation().toString(), "SAMLResponse=", "&RelayState");
     responseStr = URLDecoder.decode(responseStr, "UTF-8");
     responseStr = RestSecurity.inflateBase64(responseStr);
 
@@ -844,7 +844,7 @@ public class IdpEndpointTest {
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
         StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
+            response.getLocation().toString(), "SAMLResponse=", "&RelayState");
     responseStr = URLDecoder.decode(responseStr, "UTF-8");
     responseStr = RestSecurity.inflateBase64(responseStr);
 
@@ -886,7 +886,7 @@ public class IdpEndpointTest {
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
         StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
+            response.getLocation().toString(), "SAMLResponse=", "&RelayState");
     responseStr = URLDecoder.decode(responseStr, "UTF-8");
     responseStr = RestSecurity.inflateBase64(responseStr);
 

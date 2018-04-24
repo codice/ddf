@@ -37,11 +37,17 @@ public class SoapBinding implements Binding {
       Map<String, EntityInformation> serviceProviders,
       Set<SamlPresignPlugin> presignPlugins,
       List<String> spMetadata,
-      Set<SamlProtocol.Binding> supportedBindings) {
+      Set<SamlProtocol.Binding> supportedBindings,
+      String responseTemplate) {
     decoder = new SoapRequestDecoder();
     creator =
         new SoapResponseCreator(
-            systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+            systemCrypto,
+            serviceProviders,
+            presignPlugins,
+            spMetadata,
+            supportedBindings,
+            responseTemplate);
     validator = new SoapValidator(systemCrypto, serviceProviders);
   }
 

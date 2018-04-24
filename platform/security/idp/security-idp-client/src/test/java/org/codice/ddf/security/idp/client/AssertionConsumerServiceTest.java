@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isNull;
@@ -122,14 +123,11 @@ public class AssertionConsumerServiceTest {
     Response response =
         assertionConsumerService.postSamlResponse(
             Base64.getEncoder().encodeToString(this.cannedResponse.getBytes()), RELAY_STATE_VAL);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
-        response.getLocation().toString(),
-        equalTo(LOCATION));
+        response.getEntity().toString(),
+        containsString(LOCATION));
   }
 
   @Test
@@ -174,14 +172,11 @@ public class AssertionConsumerServiceTest {
     Response response =
         assertionConsumerService.getSamlResponse(
             deflatedSamlResponse, RELAY_STATE_VAL, SIG_ALG_VAL, SIGNATURE_VAL);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
-        response.getLocation().toString(),
-        equalTo(LOCATION));
+        response.getEntity().toString(),
+        containsString(LOCATION));
   }
 
   @Test
@@ -200,14 +195,11 @@ public class AssertionConsumerServiceTest {
     Response response =
         assertionConsumerService.getSamlResponse(
             deflatedSamlResponse, RELAY_STATE_VAL, SIG_ALG_VAL, null);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
-        response.getLocation().toString(),
-        equalTo(LOCATION));
+        response.getEntity().toString(),
+        containsString(LOCATION));
   }
 
   @Test
@@ -240,14 +232,11 @@ public class AssertionConsumerServiceTest {
 
     Response response =
         assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, true);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "The response did not redirect to the correct location.",
-        response.getLocation().getPath(),
-        is("/newurl"));
+        response.getEntity().toString(),
+        containsString("/newurl"));
   }
 
   @Test
@@ -256,14 +245,11 @@ public class AssertionConsumerServiceTest {
 
     Response response =
         assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, false);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "The response did not redirect to the correct location.",
-        response.getLocation().getPath(),
-        is("/newurl"));
+        response.getEntity().toString(),
+        containsString("/newurl"));
   }
 
   @Test
@@ -272,14 +258,11 @@ public class AssertionConsumerServiceTest {
 
     Response response =
         assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, false);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "The response did not redirect to the correct location.",
-        response.getLocation().getPath(),
-        is("/login"));
+        response.getEntity().toString(),
+        containsString("/login"));
   }
 
   @Test
@@ -350,14 +333,11 @@ public class AssertionConsumerServiceTest {
 
     Response response =
         assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
-        response.getLocation().toString(),
-        equalTo(LOCATION));
+        response.getEntity().toString(),
+        containsString(LOCATION));
   }
 
   @Test
@@ -384,14 +364,11 @@ public class AssertionConsumerServiceTest {
 
     Response response =
         assertionConsumerService.processSamlResponse(multipleAssertions, RELAY_STATE_VAL, false);
-    assertThat(
-        "The http response was not 307 TEMPORARY REDIRECT",
-        response.getStatus(),
-        is(HttpStatus.SC_TEMPORARY_REDIRECT));
+    assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
     assertThat(
         "Response LOCATION was " + response.getLocation() + " expected " + LOCATION,
-        response.getLocation().toString(),
-        equalTo(LOCATION));
+        response.getEntity().toString(),
+        containsString(LOCATION));
   }
 
   @Test
