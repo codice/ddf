@@ -64,9 +64,9 @@
                 default=""
         />
         <AD
-                description="Specifies the duration in milliseconds a user can be idle before they will be logged out."
+                description="Specifies the length of inactivity (in seconds) that will cause a user to be logged out automatically. Users are warned when 1 minute or less remains until logout, so this value should be greater than 60 seconds."
                 name="Session Timeout" id="timeout" required="true" type="Integer"
-                default="900000"
+                default="900"
         />
     </OCD>
 

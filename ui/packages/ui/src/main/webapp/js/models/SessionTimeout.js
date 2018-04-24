@@ -53,7 +53,7 @@ define([
         'properties'
     ],
     function (Backbone, $, _, properties) {
-        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : idleTimeoutThreshold;
+        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 1000 : idleTimeoutThreshold;
         var sessionTimeoutModel = new (Backbone.Model.extend({
             defaults: {
                 showPrompt: false,
