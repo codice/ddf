@@ -12,9 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>features</artifactId>
@@ -24,7 +24,6 @@
     <name>DDF :: Features :: Branding</name>
     <artifactId>branding</artifactId>
     <packaging>pom</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -41,7 +40,6 @@
             <artifactId>branding-registry-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>test-common</artifactId>
@@ -64,7 +62,6 @@
             <classifier>features</classifier>
         </dependency>
         <!--end feature dependencies-->
-
         <dependency>
             <groupId>ddf.features</groupId>
             <artifactId>test-utilities</artifactId>
@@ -72,6 +69,16 @@
             <type>xml</type>
             <classifier>features</classifier>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>${commons-configuration.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -70,11 +70,12 @@ public class DistributionOptions extends BasicOptions {
               .useDeployFolder(false);
     }
 
-    return new DefaultCompositeOption(distroOption, mavenRepos());
+    return new DefaultCompositeOption(distroOption, defaultMavenRepositoriesOption());
   }
 
   // Required so pax-exam can include it's own pax-exam related artifacts during test run time.
-  private static Option mavenRepos() {
+  // Codice repositories have been added in order to support incremental builds
+  private static Option defaultMavenRepositoriesOption() {
     return editConfigurationFilePut(
         "etc/org.ops4j.pax.url.mvn.cfg",
         "org.ops4j.pax.url.mvn.repositories",
@@ -85,6 +86,9 @@ public class DistributionOptions extends BasicOptions {
             + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
             + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
             + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-            + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype");
+            + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
+            + "http://artifacts.codice.org/content/repositories/snapshots@snapshots@noreleases@id=codice-snapshots,"
+            + "http://artifacts.codice.org/content/repositories/releases@id=codice-releases,"
+            + "http://artifacts.codice.org/content/repositories/thirdparty@id=codice-thirdparty");
   }
 }

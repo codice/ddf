@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.test.common;
 
+import static org.codice.ddf.test.common.options.DistributionOptions.defaultMavenRepositoriesOption;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
 import org.codice.ddf.test.common.configurators.ApplicationOptions;

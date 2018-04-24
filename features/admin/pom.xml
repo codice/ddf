@@ -12,9 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
@@ -24,7 +24,6 @@
     <name>DDF :: Features :: Admin</name>
     <artifactId>admin</artifactId>
     <packaging>pom</packaging>
-
     <dependencies>
         <dependency>
             <groupId>ddf.metrics.reporting</groupId>
@@ -56,7 +55,6 @@
             <artifactId>platform-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <!--feature dependencies-->
         <dependency>
             <groupId>ddf.features</groupId>
@@ -94,7 +92,6 @@
             <classifier>features</classifier>
         </dependency>
         <!--end feature dependencies-->
-
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>kernel</artifactId>
@@ -115,6 +112,26 @@
             <type>xml</type>
             <classifier>features</classifier>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.poi</artifactId>
+            <version>3.9_2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jsr339-api-2.0.1</artifactId>
+            <version>2.6.0</version>
         </dependency>
     </dependencies>
     <build>
