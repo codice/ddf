@@ -62,6 +62,7 @@ public abstract class ValidatorImpl implements Validator {
       String signature,
       boolean strictSignature)
       throws SimpleSign.SignatureException, ValidationException {
+
     if (strictSignature
         && authnRequest.getAssertionConsumerServiceURL() != null
         && (authnRequest.getSignature() == null && signature == null)) {
@@ -69,21 +70,20 @@ public abstract class ValidatorImpl implements Validator {
           "Invalid AuthnRequest, defined an AssertionConsumerServiceURL, but contained no identifying signature.");
     }
 
-    if (authnRequest.getRequestedAuthnContext() != null) {
-      if (authnRequest.isPassive()
-          && authnRequest
-              .getRequestedAuthnContext()
-              .getComparison()
-              .equals(AuthnContextComparisonTypeEnumeration.EXACT)
-          && authnRequest
-              .getRequestedAuthnContext()
-              .getAuthnContextClassRefs()
-              .stream()
-              .map(AuthnContextClassRef::getAuthnContextClassRef)
-              .anyMatch(PKI_SAML_CONTEXTS::contains)) {
-        throw new IllegalArgumentException(
-            "Unable to passively log user in when not specifying PKI AuthnContextClassRef");
-      }
+    if (authnRequest.getRequestedAuthnContext() != null
+        && authnRequest.isPassive()
+        && authnRequest
+            .getRequestedAuthnContext()
+            .getComparison()
+            .equals(AuthnContextComparisonTypeEnumeration.EXACT)
+        && authnRequest
+            .getRequestedAuthnContext()
+            .getAuthnContextClassRefs()
+            .stream()
+            .map(AuthnContextClassRef::getAuthnContextClassRef)
+            .anyMatch(PKI_SAML_CONTEXTS::contains)) {
+      throw new IllegalArgumentException(
+          "Unable to passively log user in when not specifying PKI AuthnContextClassRef");
     }
 
     if (authnRequest.getProtocolBinding() != null
@@ -96,10 +96,14 @@ public abstract class ValidatorImpl implements Validator {
   }
 
   @Override
-  public void validateRelayState(String relayState) {
+  public void validateRelayState(String relayState, boolean strictRelayState) {
     LOGGER.debug("Validating RelayState");
     if (relayState != null && relayState.length() > 80) {
-      LOGGER.warn("RelayState has invalid size: {}", relayState.length());
+      if (strictRelayState) {
+        throw new IllegalArgumentException("RelayState must be 80 bytes or shorter");
+      } else {
+        LOGGER.warn("RelayState has invalid size: {}", relayState.length());
+      }
     }
 
     if (relayState != null && (relayState.contains("<") || relayState.contains(">"))) {

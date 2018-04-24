@@ -28,6 +28,7 @@ Install the included IdP implementation.
 . Select *IdP Server*.
 . Configure Authentication Request requirements
 .. Disable the *Require Signed AuthnRequests* option to allow processing of authentication requests without signatures.
+.. Disable the *Limit RelayStates to 80 Bytes* option to allow interoperability with non SAML-compliant Service Providers that send RelayStates larger than 80 bytes.
 . Configure Guest Access:
 .. Disable the *Allow Guest Access* option to disallow a user to authenticate against the IdP with a guest account.
 . Configure SP Metadata:

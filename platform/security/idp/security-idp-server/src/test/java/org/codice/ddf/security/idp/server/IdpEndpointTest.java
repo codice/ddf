@@ -139,6 +139,11 @@ public class IdpEndpointTest {
           + authNRequestGetForce
           + "</soapenv:Body></soapenv:Envelope>";
 
+  String soapRequestWithRelayStateLongerThan80Bytes =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relayStateLongerThan80BytesShouldBeRejectedWhenTheStrictRelayStatePropertyIsSetToTrue</ecp:RelayState> </soapenv:Header> <soapenv:Body>"
+          + authNRequestGetForce
+          + "</soapenv:Body></soapenv:Envelope>";
+
   String soapRequestUserPass =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" soap:mustUnderstand=\"1\"> <wsse:UsernameToken wsu:Id=\"UsernameToken-1\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">\n"
           + "    <wsse:Username>user</wsse:Username>\n"
@@ -994,6 +999,67 @@ public class IdpEndpointTest {
 
     assertThat(soapLoginResponse.getEntity().toString(), containsString("<ecp:RelayState"));
     assertThat(soapLoginResponse.getEntity().toString(), containsString("relaystate"));
+  }
+
+  @Test
+  public void testStrictRelayStateWithRelayStateLongerThan80Bytes() throws Exception {
+    idpEndpoint.setStrictRelayState(true);
+    idpEndpoint.setStrictSignature(false);
+    String relayState =
+        "relayStatesLongerThan80BytesShouldBeRejectedWhenTheStrictRelayStatePropertyIsSetToTrue";
+
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.isSecure()).thenReturn(true);
+
+    Response postLoginResponse = idpEndpoint.showPostLogin(authNRequestPost, relayState, request);
+    Response getLoginResponse =
+        idpEndpoint.showGetLogin(
+            authNRequestGet, relayState, signatureAlgorithm, signature, request);
+    Response soapLoginResponse =
+        idpEndpoint.doSoapLogin(
+            new ByteArrayInputStream(
+                soapRequestWithRelayStateLongerThan80Bytes.getBytes(StandardCharsets.UTF_8)),
+            request);
+
+    assertThat(postLoginResponse.getStatus(), is(500));
+    assertThat(getLoginResponse.getStatus(), is(500));
+    assertNull(soapLoginResponse);
+  }
+
+  @Test
+  public void testStrictRelayStateWithRelayStateShorterThan80Bytes() throws Exception {
+    idpEndpoint.setStrictRelayState(true);
+    idpEndpoint.setStrictSignature(false);
+    String relayState = "RelayState";
+
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.isSecure()).thenReturn(true);
+
+    Response postLoginResponse = idpEndpoint.showPostLogin(authNRequestPost, relayState, request);
+    Response getLoginResponse =
+        idpEndpoint.showGetLogin(
+            authNRequestGet, relayState, signatureAlgorithm, signature, request);
+    Response soapLoginResponse =
+        idpEndpoint.doSoapLogin(
+            new ByteArrayInputStream(soapRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+    assertThat(postLoginResponse.getEntity().toString(), containsString("SAMLRequest"));
+    assertThat(postLoginResponse.getEntity().toString(), containsString("RelayState"));
+    assertThat(postLoginResponse.getEntity().toString(), containsString("ACSURL"));
+
+    assertThat(getLoginResponse.getEntity().toString(), containsString("SAMLRequest"));
+    assertThat(getLoginResponse.getEntity().toString(), containsString("RelayState"));
+    assertThat(getLoginResponse.getEntity().toString(), containsString("ACSURL"));
+
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("soapenv:Envelope"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("soapenv:Body"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("saml2p:Response"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("saml2:Assertion"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("saml2:AuthnStatement"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("SessionIndex="));
+    assertThat(
+        soapLoginResponse.getHeaders().get("SOAPAction").get(0),
+        is("http://www.oasis-open.org/committees/security"));
   }
 
   private Document readDocument(String name)
