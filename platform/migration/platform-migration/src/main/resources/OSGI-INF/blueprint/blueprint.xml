@@ -24,8 +24,7 @@
 
     <bean id="strategiesBean" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="strategiesRefList"
-            interface="org.codice.ddf.platform.io.internal.PersistenceStrategy"
-            availability="optional">
+            interface="org.codice.ddf.platform.io.internal.PersistenceStrategy">
         <reference-listener ref="strategiesBean" bind-method="bindPlugin"
                 unbind-method="unbindPlugin"/>
     </reference-list>

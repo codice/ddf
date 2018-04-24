@@ -13,9 +13,10 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
-var MetacardModel = require('js/model/Metacard');
+const Backbone = require('backbone');
+const MetacardModel = require('js/model/Metacard');
 const mtgeo = require('mt-geo');
+const Common = require('js/Common');
 
 module.exports = Backbone.AssociatedModel.extend({
     relations: [{
@@ -31,6 +32,18 @@ module.exports = Backbone.AssociatedModel.extend({
         clickLon: undefined,
         target: undefined,
         targetMetacard: undefined
+    },
+    clearMouseCoordinates: function() {
+        this.set({
+            mouseLat: undefined,
+            mouseLon: undefined
+        });
+    },
+    updateMouseCoordinates: function(coordinates) {
+        this.set({
+            mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
+            mouseLon: Number(Common.wrapMapCoordinates(coordinates.lon, [-180, 180]).toFixed(6))
+        });
     },
     updateClickCoordinates: function () {
         const lat = this.get('mouseLat');

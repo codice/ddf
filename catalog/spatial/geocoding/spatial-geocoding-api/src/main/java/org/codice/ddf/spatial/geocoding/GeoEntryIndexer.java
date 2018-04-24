@@ -27,9 +27,14 @@ public interface GeoEntryIndexer {
    * @param create true will create a new index and false will add to the existing index
    * @param progressCallback the callback to receive updates about the indexing progress, may be
    *     null if you don't want any updates
+   * @param entrySource the source for the GeoEntry data
    * @throws GeoEntryIndexingException if an error occurs while indexing the new entries
    */
-  void updateIndex(List<GeoEntry> newEntries, boolean create, ProgressCallback progressCallback)
+  void updateIndex(
+      List<GeoEntry> newEntries,
+      boolean create,
+      ProgressCallback progressCallback,
+      String entrySource)
       throws GeoEntryIndexingException;
 
   /**

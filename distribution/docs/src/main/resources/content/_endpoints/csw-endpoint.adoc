@@ -22,6 +22,13 @@ The CSW endpoint is accessible from \${secure_url}/services/csw.
 
 ====== CSW Endpoint Operations
 
+.Sample Responses May Not Match Actual Responses
+[NOTE]
+====
+Actual responses may vary from these samples, depending on your configuration.
+Send a GET or POST request to obtain an accurate response.
+====
+
 `GetCapabilities` Operation:: The `GetCapabilites` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
 
 .`GetCapabilities` HTTP GET
@@ -36,7 +43,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
 The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\${secure_url}/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
 
 .`GetCapabilities` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <csw:GetCapabilities
@@ -47,7 +54,7 @@ The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL 
 ----
 
 .`GetCapabilities` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Capabilities xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -281,7 +288,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAME
 The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
 
 .`DescribeRecord` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
   <DescribeRecord
@@ -294,7 +301,7 @@ The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName
 ----
 
 .`DescribeRecord` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:DescribeRecordResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -805,7 +812,7 @@ The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName
 The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
 ￼￼￼￼
 .`DescribeRecord` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
   <DescribeRecord
@@ -819,7 +826,7 @@ The HTTP POST request `DescribeRecordType` has the `typeName` as a List of QName
 ----
 
 .`DescribeRecord` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:DescribeRecordResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -986,7 +993,7 @@ The `HTTP POST` request GetRecords has the `typeNames` as a List of QName(s).
 The QNames are matched against the namespaces by prefix, if prefixes exist.
 
 .`GetRecords` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -1025,7 +1032,7 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
 ====
 
 .`GetRecords` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <csw:GetRecords resultType="results"
@@ -1058,7 +1065,7 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
 ----
 
 .`GetRecords` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
@@ -1111,7 +1118,7 @@ The `DistributedSearch` element must be specific with a `hopCount` greater than 
 It is possible to receive a response to a `GetRecords` query that conforms to the GMD specification.
 
 .`GetRecords` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -1142,7 +1149,7 @@ It is possible to receive a response to a `GetRecords` query that conforms to th
 ----
 
 .`GetRecords` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version='1.0' encoding='UTF-8'?>
 <csw:GetRecordsResponse xmlns:dct="http://purl.org/dc/terms/" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0.2">
@@ -1248,7 +1255,7 @@ Note: UTM coordinates are only supported with requests providing an `ogc:Filter`
 as there isn't a way to specify the UTM srsName in CQL.
 
 .`GetRecords` XML Request - UTM Northern Hemisphere Zone 36
-[source,xml,linenums]
+[source,xml]
 ----
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
         xmlns:ogc="http://www.opengis.net/ogc"
@@ -1309,7 +1316,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMES
 ----
 
 .`GetRecordById` HTTP POST
-[source,xml,linenums]
+[source,xml]
 ----
 <GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
   xmlns:ogc="http://www.opengis.net/ogc"
@@ -1327,7 +1334,7 @@ ${secure_url}/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMES
 ----
 
 .`GetRecordByIdResponse` Sample Response (`application/xml`)
-[source,xml,linenums]
+[source,xml]
 ----
 <csw:GetRecordByIdResponse xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows"
@@ -1476,7 +1483,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 |0-n
 
 |dct:abstract
-|
+|description
 |
 |0-n
 |0-n
@@ -1717,7 +1724,7 @@ The schema of the record needs to conform to the schema of the information model
 The following example shows a request for a record to be inserted.
 
 .Sample XML Transaction `Insert` Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
@@ -1755,7 +1762,7 @@ The following is an example of an `application/xml` response to the Transaction 
 Note that you will only receive the `InsertResult` element if you specify `verboseResponse="true"`.
 
 .Sample XML Transaction `Insert` Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
@@ -1805,7 +1812,7 @@ The following example shows how the newly inserted record could be updated to mo
 If your update request contains a `<csw:Record>` rather than a set of `<RecordProperty>` elements plus a `<Constraint>` , the existing record with the same ID will be replaced with the new record.
 
 .Sample XML Transaction `Update` Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
@@ -1838,7 +1845,7 @@ If your update request contains a `<csw:Record>` rather than a set of `<RecordPr
 The following example shows how the newly inserted record could be updated to modify the date field while using a filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
 
 .Sample XML Transaction `Update` Request with filter constraint
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
@@ -1874,7 +1881,7 @@ The following example shows how the newly inserted record could be updated to mo
 The following example shows how the newly inserted record could be updated to modify the date field while using a CQL filter constraint with title equal to `Aliquam fermentum purus quis arcu`.
 
 .Sample XML Transaction `Update` Request with CQL filter constraint
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
@@ -1905,7 +1912,7 @@ The following example shows how the newly inserted record could be updated to mo
 ----
 
 .Sample XML Transaction Update Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse xmlns:ogc="http://www.opengis.net/ogc"
@@ -1935,7 +1942,7 @@ The Delete sub-operation is a method to identify a set of records to be deleted 
 The following example shows a delete request for all records with a SpatialReferenceSystem name equal to `WGS-84`.
 
 .Sample XML Transaction `Delete` Request with filter constraint
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction service="CSW" version="2.0.2"
@@ -1958,7 +1965,7 @@ The following example shows a delete request for all records with a SpatialRefer
 The following example shows a delete operation specifying a CQL constraint to delete all records with a title equal to `Aliquam fermentum purus quis arcu`
 
 .Sample XML Transaction `Delete` Request with CQL filter constraint
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction service="CSW" version="2.0.2"
@@ -1976,7 +1983,7 @@ The following example shows a delete operation specifying a CQL constraint to de
 ----
 
 .Sample XML Transaction Delete Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse
@@ -2010,7 +2017,7 @@ ${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRec
 ====== Subscription `GetRecords` HTTP POST
 
 .Subscription `GetRecords` XML Request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -2049,7 +2056,7 @@ ${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021
 ----
 
 .Subscription `GetRecords` XML Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -2089,7 +2096,7 @@ xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-
 The following is an example of an `application/xml` event sent to a subscribers `ResponseHandler` using an `HTTP POST` for a create, `HTTP PUT` for an update, and `HTTP DELETE` for a delete using the default `outputSchema` of `http://www.opengis.net/cat/csw/2.0.2` if you specified another supported schema format in the subscription it will be returned in that format.
 
 .Subscription `GetRecords` event XML Response
-[source,xml,linenums]
+[source,xml]
 ----
 <csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
@@ -2121,7 +2128,7 @@ ${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021
 The following is an example `HTTP GET` Response retrieving an active subscription
 
 .Subscription `HTTP GET` or `HTTP DELETE` XML Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" ?>
 <Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -2167,7 +2174,7 @@ For security purposes the `ows:ExceptionText` on invalid data is generic.
 The log file should be consulted for more information.
 
 .Example CSW Request with no payload
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
@@ -2175,7 +2182,7 @@ The log file should be consulted for more information.
 ----
 
 .No Payload CSW Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2191,7 +2198,7 @@ The log file should be consulted for more information.
 The follow example sends malformed XML to the CSW Endpoint.
 
 .Example Malformed XML request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction
@@ -2225,7 +2232,7 @@ An HTTP 400 Bad request response is returned.
 The error is logged in the log file and the following response body is returned.
 
 .Malformed XML CSW Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2239,7 +2246,7 @@ The error is logged in the log file and the following response body is returned.
 The following example sends a non-CSW request to the CSW endpoint.
 
 .Example Non-CSW request
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <document>
@@ -2251,7 +2258,7 @@ The following example sends a non-CSW request to the CSW endpoint.
 An HTTP 400 Bad request response is returned, and the following response body is returned.
 
 .Non-CSW Data Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2266,7 +2273,7 @@ This type of request will succeed and attribute names that match the expected na
 In the example, the `title` attribute will get mapped to the metacard `title` attribute since it's the same attribute name as `<dc:title>` that `csw:Record` is configured to parse.
 
 .Example Unknown Schema
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
@@ -2288,7 +2295,7 @@ In the example, the `title` attribute will get mapped to the metacard `title` at
 Metacard is created successfully.
 
 .Example Successful Unknown Schema Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2312,7 +2319,7 @@ The `typeName` on the `csw:Insert` specifies the transformer to use when parsing
 If the name specified is not configured, an error response is returned.
 
 .Example Invalid `typeName`
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:Transaction service="CSW" verboseResponse="true" version="2.0.2" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2">
@@ -2328,7 +2335,7 @@ An HTTP 400 Bad request response is returned.
 The error is logged in the log file and the following response body is returned.
 
 .Invalid typeName Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:gml="http://www.opengis.net/gml" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2342,7 +2349,7 @@ The error is logged in the log file and the following response body is returned.
 The following example sends XML data to the CSW Endpoint without the XML prologue.
 
 .Example Missing XML Tag
-[source,xml,linenums]
+[source,xml]
 ----
 <csw:Transaction
     service="CSW"
@@ -2375,7 +2382,7 @@ The following example sends XML data to the CSW Endpoint without the XML prologu
 Metacard is created successfully.
 
 .Example Missing XML Tag Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <csw:TransactionResponse xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">
@@ -2402,7 +2409,7 @@ Metacard is created successfully.
 The following is a non-XML request sent to the CSW Endpoint.
 
 .Non-XML data Example
-[source,text,linenums]
+[source,text]
 ----
 title: Non-XML title
 id: abc123
@@ -2412,7 +2419,7 @@ An HTTP 400 Bad request response is returned.
 The error is logged in the log file and the following response body is returned.
 
 .Non-XML Response
-[source,xml,linenums]
+[source,xml]
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ows:ExceptionReport xmlns:ows="http://www.opengis.net/ows" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ogc="http://www.opengis.net/ogc" xmlns:gml="http://www.opengis.net/gml" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns6="http://www.w3.org/2001/SMIL20/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="1.2.0" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-publication.xsd">

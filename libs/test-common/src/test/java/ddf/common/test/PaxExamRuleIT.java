@@ -21,6 +21,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
+import org.codice.ddf.test.common.DependencyVersionResolver;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
@@ -68,7 +69,9 @@ public class PaxExamRuleIT {
       return options(
           junitBundles(),
           bundle("file:target/test-common-" + System.getProperty("ddf.version") + ".jar"),
-          wrappedBundle(mavenBundle("org.assertj", "assertj-core").versionAsInProject()));
+          wrappedBundle(
+              mavenBundle("org.assertj", "assertj-core")
+                  .version(DependencyVersionResolver.resolver())));
     }
 
     @Test

@@ -15,7 +15,7 @@ The ${branding} framework hosts ${branding} applications, which are extensible b
 The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
 The ${branding} Catalog API serves as the foundation for several applications and resides in the applications tier.
 
-The Catalog Components consist of <<_endpoints,Endpoints>>, <<_plugins,Plugins>>, <<_catalog_frameworks,Catalog Frameworks>>, <<_sources,Sources>>, and <<_catalog_providers,Catalog Providers>>.
+The Catalog Components consist of <<_endpoints,Endpoints>>, <<_types_of_plugins,Plugins>>, <<_catalog_framework_reference,Catalog Frameworks>>, <<_introduction_to_federation_and_sources,Sources>>, and <<_catalog_providers,Catalog Providers>>.
 Customized components can be added to ${branding}.
 
 Capability:: A general term used to refer to an ability of the system.

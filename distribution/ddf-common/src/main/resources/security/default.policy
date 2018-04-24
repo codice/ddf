@@ -115,7 +115,7 @@ grant codeBase "file:/registry-federation-admin-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}registry${/}-", "read";
 }
 
-grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-api-impl/org.apache.camel.camel-blueprint" {
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -126,12 +126,16 @@ grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j" {
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-corba/org.apache.cxf.cxf-rt-transports-jms/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/org.apache.cxf.cxf-rt-frontend-jaxrs/org.apache.cxf.cxf-rt-ws-security/org.apache.cxf.cxf-rt-wsdl/org.apache.cxf.cxf-rt-frontend-jaxws" {
+grant codeBase "file:/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-frontend-simple/org.apache.cxf.cxf-rt-databinding-jaxb/org.apache.cxf.cxf-rt-bindings-corba/org.apache.cxf.cxf-rt-transports-jms/org.apache.cxf.cxf-core/org.apache.cxf.cxf-rt-rs-client/org.apache.cxf.cxf-rt-frontend-jaxrs/org.apache.cxf.cxf-rt-ws-security/org.apache.cxf.cxf-rt-wsdl/org.apache.cxf.cxf-rt-frontend-jaxws" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "read,execute";
 }
 
-grant codeBase "file:/persistence-core-impl/persistence-core-listeners/org.apache.aries.blueprint.core/org.apache.aries.blueprint.cm/org.ops4j.pax.web.pax-web-spi/catalog-ui-search/standard/catalog-solr-provider/catalog-solr-solrclient" {
+grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/persistence-core-listeners/org.apache.aries.blueprint.core/org.apache.aries.blueprint.cm/org.ops4j.pax.web.pax-web-spi/catalog-ui-search/standard/catalog-solr-provider/catalog-solr-solrclient" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
@@ -186,7 +190,7 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
-grant codeBase "file:/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
+grant codeBase "file:/woodstox-core-asl/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -275,7 +279,7 @@ grant codeBase "file:/admin-core-jolokia/javax.servlet-api/org.apache.shiro.core
     permission java.security.SecurityPermission "insertProvider";
 }
 
-grant codeBase "file:/security-core-api/security-core-impl/security-idp-server/security-idp-client/security-idp-plugin-subjectconfirmation" {
+grant codeBase "file:/security-rest-authentication/security-core-api/security-core-impl/security-idp-server/security-idp-client/security-idp-plugin-subjectconfirmation" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -285,7 +289,7 @@ grant codeBase "file:/security-core-api/security-core-impl/security-idp-server/s
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api" {
+grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-soap/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -300,6 +304,8 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pa
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
     permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}*", "read";
 }
 
 grant codeBase "file:/org.apache.commons.io" {
@@ -315,7 +321,7 @@ grant codeBase "file:/admin-configuration-configupdater" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
 }
 
-grant codeBase "file:/catalog-core-standardframework" {
+grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standalone" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -346,6 +352,24 @@ grant codeBase "file:/platform-parser-xml" {
     permission java.lang.RuntimePermission "setContextClassLoader";
 }
 
+grant codeBase "file:/catalog-core-localstorageprovider" {
+    permission java.io.FilePermission "${ddf.home.perm}content", "write";
+    permission java.io.FilePermission "${ddf.home.perm}content${/}-", "read, write";
+}
+
+grant codeBase "file:/platform-country-converter-local" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
+}
+
+grant codeBase "file:/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/security-servlet-session-expiry" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
+}
+
+grant codeBase "file:/security-sts-attributequeryclaimshandler/security-sts-ldapclaimshandler" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
+}
+
 //
 // itest specific perms
 //
@@ -361,7 +385,25 @@ grant codeBase "file:/PAXEXAM-PROBE/ddf.thirdparty.restito/ddf.lib.test-common/d
 }
 
 grant {
+    permission java.io.FilePermission "${test.resources.dir}", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}${/}-", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}*", "read, write, delete";
+    permission java.io.FilePermission "${test.resources.dir}${/}*", "read, write, delete";
+}
+
+grant {
     permission java.io.FilePermission "/jenkins/-", "read";
+}
+
+// Permissions required by the wrapper:install command
+grant codeBase "file:/org.apache.karaf.wrapper.core/org.apache.karaf.shell.core/org.apache.karaf.shell.ssh/org.apache.sshd.core" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.io.FilePermission "${ddf.home.perm}bin${/}*", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}lib${/}wrapper", "write";
+    permission java.io.FilePermission "${ddf.home.perm}lib${/}wrapper${/}*", "write";
+    permission java.io.FilePermission "/etc/redhat-release", "read";
+    permission java.io.FilePermission "/etc/debian_version", "read";
 }
 
 //
@@ -424,6 +466,8 @@ grant {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}scripts${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}profiles", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}profiles${/}*", "read";
 
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}wrap:mvn:org.jvnet.ogc${/}-", "read";

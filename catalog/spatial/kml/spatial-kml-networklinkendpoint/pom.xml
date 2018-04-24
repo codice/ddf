@@ -73,7 +73,7 @@
     </dependencies>
     <build>
         <plugins>
-            <!-- The Import of package org.codice.ddf.opensearch.query is used to ensure that the OpenSearch Endpoint is deployed -->
+            <!-- The Import of package org.codice.ddf.opensearch.endpoint.query is used to ensure that the OpenSearch Endpoint is deployed. -->
             <!-- This package, however, is not used by the code.  It is required to create a successful NetworkLink though. -->
             <plugin>
                 <groupId>org.apache.felix</groupId>

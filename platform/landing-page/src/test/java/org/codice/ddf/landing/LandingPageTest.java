@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
-import org.codice.ddf.branding.BrandingRegistryImpl;
+import org.codice.ddf.branding.impl.BrandingRegistryImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

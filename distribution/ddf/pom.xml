@@ -32,7 +32,6 @@
     <packaging>pom</packaging>
     <properties>
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
-        <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
     </properties>
     <build>
         <resources>
@@ -66,49 +65,7 @@
                             <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
                                 <descriptor>
-                                    mvn:ddf.platform/platform-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.security/security-services-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.admin/admin-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.catalog/catalog-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.ui/search-ui-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.resourcemanagement/resourcemanagement-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.spatial/geowebcache-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.distribution/ddf-branding-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf/ui/${project.version}/xml/features
+                                    mvn:ddf.features/install-profiles/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -261,106 +218,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>security-services-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin</groupId>
-            <artifactId>admin-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.broker</groupId>
-            <artifactId>broker-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog</groupId>
-            <artifactId>catalog-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.solr</groupId>
-            <artifactId>solr-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.opendj.embedded</groupId>
-            <artifactId>opendj-embedded-app</artifactId>
-            <version>${opendj-embedded.app.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>search-ui-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.resourcemanagement</groupId>
-            <artifactId>resourcemanagement-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>geowebcache-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>ddf-branding-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.features</groupId>
             <artifactId>install-profiles</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ui</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

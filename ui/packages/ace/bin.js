@@ -76,6 +76,7 @@ program
 program
   .command('start')
   .description('start the dev server')
+  .option('-a, --auth <auth>', 'auth <username:password> (default: admin:admin)')
   .option('-e, --env <env>', 'build environment <development|test|production>')
   .option('-o, --open', 'open default browser')
   .option('--port <port>', 'dev server port (default: 8080)')

@@ -7,7 +7,6 @@
 
   @{customElementNamespace}dropdown.is-simpleDropdown.is-editing {
     width: auto;
-    max-width: 200px;
   }
 
   > .filter-header > .contents-buttons .add-filterBuilder {
@@ -49,14 +48,15 @@
     > .filter-operator {
       display: inline-block;
       vertical-align: top;
-    }
-
-    > .filter-operator {
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
+      @{customElementNamespace}dropdown.is-editing .dropdown-text {
+        width: auto;
+        max-width: 300px;
+      }
     }
 
-      > .contents-buttons > button{
+    > .contents-buttons > button{
       padding: 0px @minimumSpacing;
     }
 

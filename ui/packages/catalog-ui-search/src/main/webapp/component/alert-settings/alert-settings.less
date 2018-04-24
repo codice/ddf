@@ -2,16 +2,16 @@
   .customElement;
 
   overflow: auto;
-  padding: @minimumSpacing @minimumSpacing;
-  font-size: @largeFontSize;
+  font-size: @minimumFontSize;
+  padding: @minimumSpacing;
 
   .editor-properties {
     overflow: auto;
     max-height: ~"calc(100% - @{minimumButtonSize} - 2*@{minimumSpacing})";
-    text-align: center;
+    text-align: left;
 
     .property-label {
-      text-align: center;
+      .is-bold();
     }
   }
 
@@ -19,11 +19,9 @@
     display: none;
   }
 
-  .editor-properties {
-    .property-label {
-      height: @minimumButtonSize;
-      line-height: @minimumButtonSize;
-      .is-bold();
+  .property-persistance {
+    > .property-region {
+      margin: -10px 0 20px 0;
     }
   }
 }

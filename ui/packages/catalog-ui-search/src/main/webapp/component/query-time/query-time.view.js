@@ -206,7 +206,7 @@ module.exports = Marionette.LayoutView.extend({
         this.basicTimeBetweenBefore.show(new PropertyView({
             model: new Property({
                 value: [currentBefore],
-                id: 'Before',
+                id: 'To',
                 placeholder: 'Limit search to before this time.',
                 type: 'DATE'
             })
@@ -214,7 +214,7 @@ module.exports = Marionette.LayoutView.extend({
         this.basicTimeBetweenAfter.show(new PropertyView({
             model: new Property({
                 value: [currentAfter],
-                id: 'After',
+                id: 'From',
                 placeholder: 'Limit search to after this time.',
                 type: 'DATE'
             })

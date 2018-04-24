@@ -11,7 +11,7 @@ This will deny such an update request, which essentially makes the point-of-cont
 
 ===== Related Components to Point of Contact Policy Plugin
 
-<<_point_of_contact_update_plugin,Point of Contact Update Plugin>>
+<<_point_of_contact_policy_plugin,Point of Contact Update Plugin>>
 
 ===== Installing the Point of Contact Policy Plugin
 

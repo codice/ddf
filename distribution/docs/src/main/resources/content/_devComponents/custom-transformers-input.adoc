@@ -15,7 +15,7 @@ ${branding} supports the creation of custom <<_types_of_transformers,input trans
 `public Metacard transform(InputStream input, String id) throws IOException, CatalogTransformerException`
 . Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.transform`
-. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in the <<_working_with_osgi,Working with OSGi>> section). Export the service to the OSGi Registry and declare service properties.
+. Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in the <<_osgi_basics,Working with OSGi>> section). Export the service to the OSGi Registry and declare service properties.
 +
 .Input Transformer Blueprint Descriptor Example
 [source,xml,linenums]

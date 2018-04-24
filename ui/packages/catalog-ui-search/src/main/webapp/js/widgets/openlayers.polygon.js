@@ -20,9 +20,10 @@ define([
         'wreqr',
         'maptype',
         './notification.view',
-        'js/ShapeUtils'
+        'js/ShapeUtils',
+        './drawing.controller'
     ],
-    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, ShapeUtils) {
+    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, ShapeUtils, DrawingController) {
         "use strict";
 
         var Draw = {};
@@ -204,62 +205,11 @@ define([
             }
         });
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: true,
-            initialize: function(options) {
-                this.map = options.map;
-                this.notificationEl = options.notificationEl;
-
-                this.listenTo(wreqr.vent, 'search:polydisplay', function(model) {
-                    this.showBox(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawpoly', function(model) {
-                    this.draw(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    this.stop(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    this.destroy(model);
-                });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    this.destroyAll(model);
-                });
-            },
-            views: [],
-            isVisible: function() {
-                return this.map.getTarget().offsetParent !== null;
-            },
-            destroyAll: function() {
-                for (var i = this.views.length - 1; i >= 0; i -= 1) {
-                    this.destroyView(this.views[i]);
-                }
-            },
-            getViewForModel: function(model) {
-                return this.views.filter(function(view) {
-                    return view.model === model && view.map === this.map;
-                }.bind(this))[0];
-            },
-            removeViewForModel: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    this.views.splice(this.views.indexOf(view), 1);
-                }
-            },
-            removeView: function(view) {
-                this.views.splice(this.views.indexOf(view), 1);
-            },
-            addView: function(view) {
-                this.views.push(view);
-            },
-            showBox: function(model) {
+        Draw.Controller = DrawingController.extend({
+            drawingType: 'poly',
+            show: function(model) {
                 if (this.enabled) {
                     var polygonModel = model || new Draw.PolygonModel();
-                    /*view = new Draw.PolygonView(
-                        {
-                            map: this.map,
-                            model: polygonModel
-                        });*/
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
@@ -267,7 +217,7 @@ define([
                         existingView.updatePrimitive(model);
                     } else {
                         var view = new Draw.PolygonView({
-                            map: this.map,
+                            map: this.options.map,
                             model: polygonModel
                         });
                         view.updatePrimitive(model);
@@ -281,7 +231,7 @@ define([
                 if (this.enabled) {
                     var polygonModel = model || new Draw.PolygonModel();
                     var view = new Draw.PolygonView({
-                        map: this.map,
+                        map: this.options.map,
                         model: polygonModel
                     });
 
@@ -302,32 +252,6 @@ define([
                     });
 
                     return polygonModel;
-                }
-            },
-            stop: function(model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                }
-                if (this.notificationView) {
-                    this.notificationView.destroy();
-                }
-            },
-            destroyView: function(view) {
-                view.stop();
-                view.destroyPrimitive();
-                this.removeView(view);
-            },
-            destroy: function(model) {
-                this.stop(model);
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                    view.destroyPrimitive();
-                    this.removeView(view);
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
                 }
             }
         });

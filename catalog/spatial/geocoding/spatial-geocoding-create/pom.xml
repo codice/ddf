@@ -26,6 +26,11 @@
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>

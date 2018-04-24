@@ -53,6 +53,8 @@ public class PlatformUiConfiguration {
 
   public static final String VENDOR_IMAGE_CONFIG_KEY = "vendorImage";
 
+  public static final String TIMEOUT_CONFIG_KEY = "timeout";
+
   private boolean systemUsageEnabled;
 
   private String systemUsageTitle;
@@ -68,6 +70,8 @@ public class PlatformUiConfiguration {
   private String color;
 
   private String background;
+
+  private int timeout;
 
   private Optional<BrandingRegistry> branding = Optional.empty();
 
@@ -92,6 +96,7 @@ public class PlatformUiConfiguration {
     jsonObject.put(PRODUCT_IMAGE_CONFIG_KEY, getProductImage());
     jsonObject.put(FAV_ICON_CONFIG_KEY, getFavIcon());
     jsonObject.put(VENDOR_IMAGE_CONFIG_KEY, getVendorImage());
+    jsonObject.put(TIMEOUT_CONFIG_KEY, getTimeout());
 
     return jsonObject.toJSONString();
   }
@@ -170,6 +175,14 @@ public class PlatformUiConfiguration {
 
   public void setBackground(String background) {
     this.background = background;
+  }
+
+  public int getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
   }
 
   public String getProductImage() {

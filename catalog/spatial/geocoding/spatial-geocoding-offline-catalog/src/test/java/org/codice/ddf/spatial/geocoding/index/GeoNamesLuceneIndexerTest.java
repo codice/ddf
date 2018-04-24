@@ -187,7 +187,7 @@ public class GeoNamesLuceneIndexerTest extends TestBase {
   public void testCreateIndexFromList() throws GeoEntryIndexingException, IOException {
     configureMocks();
 
-    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null);
+    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null, null);
 
     verify(indexWriter, times(GEO_ENTRY_LIST.size())).addDocument(documentArgumentCaptor.capture());
 
@@ -203,7 +203,7 @@ public class GeoNamesLuceneIndexerTest extends TestBase {
 
     final ProgressCallback progressCallback = mock(ProgressCallback.class);
 
-    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, progressCallback);
+    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, progressCallback, null);
 
     verify(indexWriter, times(GEO_ENTRY_LIST.size())).addDocument(documentArgumentCaptor.capture());
 
@@ -278,7 +278,7 @@ public class GeoNamesLuceneIndexerTest extends TestBase {
 
     geoNamesLuceneIndexer.setIndexLocation(INDEX_PATH);
 
-    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null);
+    geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null, null);
 
     assertTrue(Files.exists(Paths.get(INDEX_PATH)));
   }

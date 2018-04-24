@@ -47,6 +47,26 @@ function humanizeResourceSize(result) {
     }
 }
 
+function handleResultFormFields(result, selectedResultTemplate) {
+    if (selectedResultTemplate) {
+        let resultAttributes = selectedResultTemplate.descriptors;
+        if (resultAttributes.length > 0) {
+            let newProperties = {};
+            newProperties.id = result.metacard.properties.id;
+            newProperties.title = result.metacard.properties.title ? result.metacard.properties.title : '';
+            newProperties['metacard-type'] = result.metacard.properties['metacard-type'];
+            newProperties['metacard-tags'] = result.metacard.properties['metacard-tags'];
+            newProperties['source-id'] = result.metacard.properties['source-id'];
+            _.each(resultAttributes, function(value, index) {
+                if (result.metacard.properties[value]) {
+                    newProperties[value] = result.metacard.properties[value];
+                }
+            });
+            result.metacard.properties = newProperties;
+        }
+    }
+}
+
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
         'queryId': undefined,
@@ -155,6 +175,7 @@ module.exports = Backbone.AssociatedModel.extend({
         metacardDefinitions.addMetacardDefinitions(resp.types);
         if (resp.results) {
             var queryId = this.getQueryId();
+            var selectedResultTemplate = this.get('selectedResultTemplate');
             var color = this.getColor();
             _.forEach(resp.results, function (result) {
                 result.propertyTypes = resp.types[result.metacard.properties['metacard-type']];
@@ -167,6 +188,7 @@ module.exports = Backbone.AssociatedModel.extend({
                 result.metacard.queryId = queryId;
                 result.metacard.color = color;
                 humanizeResourceSize(result);
+                handleResultFormFields(result, selectedResultTemplate);
 
                 var thumbnailAction = _.findWhere(result.actions, {
                     id: 'catalog.data.metacard.thumbnail'

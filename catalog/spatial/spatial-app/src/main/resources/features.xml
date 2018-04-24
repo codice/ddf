@@ -101,6 +101,7 @@
     <feature name="offline-gazetteer" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
         <feature>catalog-solr-provider</feature>
+        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
@@ -129,7 +130,7 @@
              description="Spatial WPS Endpoint">
         <feature>spatial-wps-api</feature>
         <feature>spatial-process-api</feature>
-        <feature>commons</feature>
+        <feature>apache-commons</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wps-endpoint/${project.version}</bundle>
     </feature>
 
@@ -145,6 +146,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <feature>spatial-kml</feature>
         <feature>spatial-wfs-core</feature>
         <feature>spatial-wfs-v1_0_0</feature>

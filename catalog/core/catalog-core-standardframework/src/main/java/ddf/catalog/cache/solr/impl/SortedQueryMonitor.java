@@ -49,7 +49,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
-import org.codice.ddf.platform.util.Exceptions;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -204,10 +203,7 @@ class SortedQueryMonitor implements Runnable {
         break;
       } catch (ExecutionException e) {
         LOGGER.info(
-            "Couldn't get results from completed federated query. {}, {}",
-            sourceId,
-            Exceptions.getFullMessage(e),
-            e);
+            "Couldn't get results from completed federated query for sourceId = {}", sourceId, e);
         executePostFederationQueryPluginsWithSourceError(
             queryRequest, sourceId, e, processingDetails);
       }

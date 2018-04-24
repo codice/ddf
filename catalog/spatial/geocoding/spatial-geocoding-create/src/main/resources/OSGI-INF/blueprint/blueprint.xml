@@ -16,5 +16,6 @@
                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="geonamesCreator" class="org.codice.ddf.spatial.geocoding.create.GeoNamesCreator"/>
+
     <service ref="geonamesCreator" interface="org.codice.ddf.spatial.geocoding.GeoEntryCreator"/>
 </blueprint>

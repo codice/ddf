@@ -94,8 +94,8 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
     </service>
 
-    <bean id="workspacePreIngestPlugin"
-          class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin">
+    <bean id="shareableMetacardPreIngestPlugin"
+          class="org.codice.ddf.catalog.ui.security.ShareableMetacardPreIngestPlugin">
         <argument ref="subjectIdentity"/>
     </bean>
 
@@ -109,23 +109,23 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <ref component-id="workspacePreIngestPlugin"/>
+        <ref component-id="shareableMetacardPreIngestPlugin"/>
     </service>
 
-    <bean id="workspaceAccessPlugin"
-          class="org.codice.ddf.catalog.ui.security.WorkspaceAccessPlugin">
+    <bean id="shareableMetacardAccessPlugin"
+          class="org.codice.ddf.catalog.ui.security.ShareableMetacardAccessPlugin">
     </bean>
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
-        <ref component-id="workspaceAccessPlugin"/>
+        <ref component-id="shareableMetacardAccessPlugin"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin"/>
+        <bean class="org.codice.ddf.catalog.ui.security.ShareableMetacardSharingPolicyPlugin"/>
     </service>
 
-    <bean id="workspaceSecurityConfiguration"
-          class="org.codice.ddf.catalog.ui.security.WorkspaceSecurityConfiguration">
+    <bean id="shareableMetacardSecurityConfiguration"
+          class="org.codice.ddf.catalog.ui.security.ShareableMetacardSecurityConfiguration">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.security"
                 update-strategy="container-managed"/>
@@ -133,15 +133,15 @@
 
     <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
-    <bean id="workspacePolicyExtension"
-          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
-        <argument ref="workspaceSecurityConfiguration"/>
+    <bean id="shareableMetacardPolicyExtension"
+          class="org.codice.ddf.catalog.ui.security.ShareableMetacardPolicyExtension">
+        <argument ref="shareableMetacardSecurityConfiguration"/>
         <argument ref="subjectIdentity"/>
     </bean>
 
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
-        <ref component-id="workspacePolicyExtension"/>
+        <ref component-id="shareableMetacardPolicyExtension"/>
     </service>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>

@@ -2,7 +2,7 @@
 :type: using
 :status: published
 :summary: Using ${catalog-ui}.
-:link: _using_catalog_ui
+:link: _using_intrigue
 :order: 01
 
 Introduction: ${catalog-ui} represents the most advanced search interface available with ${branding}.

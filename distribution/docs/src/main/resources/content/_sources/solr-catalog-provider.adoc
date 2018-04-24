@@ -16,7 +16,7 @@ The following are the three ways to configure the Solr Catalog Provider:
 
 <<_http_solr,HTTP Solr>> (default):: Used with an external (HTTP) Solr server.
 
-<<_embedded_solr,Embedded Solr>>:: Used with an embedded Solr server with no HTTP interface.
+Embedded Solr:: Used with an embedded Solr server with no HTTP interface.
 
 <<_solr_cloud,Solr Cloud>>:: Used with a cluster of Solr servers.
 

@@ -20,10 +20,11 @@ define([
         'wreqr',
         'maptype',
         './notification.view',
-        '@turf/turf'
+        '@turf/turf',
+        './drawing.controller'
     ],
     function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
-              Turf) {
+              Turf, DrawingController) {
         "use strict";
 
         function translateFromOpenlayersCoordinates(coords) {
@@ -192,55 +193,9 @@ define([
 
         });
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: true,
-            initialize: function (options) {
-                this.map = options.map;
-                this.notificationEl = options.notificationEl;
-
-                this.listenTo(wreqr.vent, 'search:linedisplay', function (model) {
-                    this.showBox(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawline', function (model) {
-                    this.draw(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
-                    this.stop(model);
-                });
-                this.listenTo(wreqr.vent, 'search:drawend', function(model) {
-                    this.destroy(model);
-                });
-                this.listenTo(wreqr.vent, 'search:destroyAllDraw', function(model) {
-                    this.destroyAll(model);
-                });
-            },
-            views: [],
-            isVisible: function () {
-                return this.map.getTarget().offsetParent !== null;
-            },
-            destroyAll: function () {
-                for (var i = this.views.length - 1; i >= 0; i -= 1) {
-                    this.destroyView(this.views[i]);
-                }
-            },
-            getViewForModel: function(model) {
-                return this.views.filter(function(view) {
-                    return view.model === model && view.map === this.map;
-                }.bind(this))[0];
-            },
-            removeViewForModel: function (model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    this.views.splice(this.views.indexOf(view), 1);
-                }
-            },
-            removeView: function (view) {
-                this.views.splice(this.views.indexOf(view), 1);
-            },
-            addView: function (view) {
-                this.views.push(view);
-            },
-            showBox: function (model) {
+        Draw.Controller = DrawingController.extend({
+            drawingType: 'line',
+            show: function (model) {
                 if (this.enabled) {
 
                     var existingView = this.getViewForModel(model);
@@ -250,7 +205,7 @@ define([
                     } else {
                         var view = new Draw.LineView(
                             {
-                                map: this.map,
+                                map: this.options.map,
                                 model: model
                             });
                         view.updatePrimitive(model);
@@ -264,7 +219,7 @@ define([
                 if (this.enabled) {
                     var view = new Draw.LineView(
                         {
-                            map: this.map,
+                            map: this.options.map,
                             model: model
                         });
 
@@ -285,32 +240,6 @@ define([
                     });
 
                     return model;
-                }
-            },
-            stop: function (model) {
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                }
-                if (this.notificationView) {
-                    this.notificationView.destroy();
-                }
-            },
-            destroyView: function (view) {
-                view.stop();
-                view.destroyPrimitive();
-                this.removeView(view);
-            },
-            destroy: function (model) {
-                this.stop(model);
-                var view = this.getViewForModel(model);
-                if (view) {
-                    view.stop();
-                    view.destroyPrimitive();
-                    this.removeView(view);
-                    if (this.notificationView) {
-                        this.notificationView.destroy();
-                    }
                 }
             }
         });

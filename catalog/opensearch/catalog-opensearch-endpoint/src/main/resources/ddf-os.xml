@@ -37,14 +37,14 @@
          template="http://ddf-url:8181/services/catalog/query?q={searchTerms?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;geometry={geo:geometry?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dtoffset={ddf:offset?}&amp;selector={ddf:selector?}&amp;sort={fs:sort?}&amp;format=atom&amp;type={type?}&amp;version={version?}"/>
 
     <!--
-      (q) searchTerms - Space delimited list of search terms.
+      (q) searchTerms - Space-delimited list of search terms.
 
       (mr) maxResults - Maximum # of results to return.
          If count is also specified, the count value will take
          precedence over the maxResults value
          (default: mr=1000,mr<=1000).
 
-      (src) fs:routeTo - Defines a comma delimited list of sites to query.
+      (src) fs:routeTo - Defines a comma-delimited list of sites to query.
 
       (mt) maxTimeout - Maximum timeout (msec) for query to respond
          (default: mt=30000).
@@ -56,11 +56,11 @@
 
       (geometry) geometry - WKT Geometries (Support POINT and POLYGON).
 
-      (bbox) bbox - Comma delimited list of lat/lon (deg) bounding box coordinates
+      (bbox) bbox - Comma-delimited list of lat/lon (deg) bounding box coordinates
          (geo format: geo:bbox ~ West,South,East,North).
 
-      (polygon) polygon - Comma delimited list of lat/lon (deg) pairs, in clockwise
-         order around the polygon, with the last point being the same as the first
+      (polygon) polygon - Comma-delimited list of lat/lon (deg) pairs, in clockwise
+         order around the polygon, where the last point is the same as the first
          in order to close the polygon.
 
       (lat) lat - Latitude in decimal degrees (typical GPS receiver WGS84 coordinates).
@@ -88,7 +88,7 @@
 
       (format) format - Defines the format that the return type should be in. (example:atom, html)
 
-      (selector) selector - Defines a comma delimited list of XPath selectors to narrow the query.
+      (selector) selector - Defines a comma-delimited list of XPath selectors to narrow the query.
 
       (type) type - Specifies the type of data to search for. (example: nitf)
 

@@ -107,6 +107,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()),
         MAPPER::toJson);
+
     delete(
         "/forms/:id",
         APPLICATION_JSON,

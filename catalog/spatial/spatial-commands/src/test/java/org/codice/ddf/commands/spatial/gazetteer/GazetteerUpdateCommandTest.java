@@ -111,7 +111,10 @@ public class GazetteerUpdateCommandTest {
               public void updateIndex(
                   final List<GeoEntry> newEntries,
                   final boolean create,
-                  final ProgressCallback progressCallback) {}
+                  final ProgressCallback progressCallback,
+                  final String entrySource) {
+                /* stub */
+              }
 
               @Override
               public void updateIndex(
@@ -124,7 +127,9 @@ public class GazetteerUpdateCommandTest {
                 final ExtractionCallback extractionCallback =
                     new ExtractionCallback() {
                       @Override
-                      public void extracted(final GeoEntry newEntry) {}
+                      public void extracted(final GeoEntry newEntry) {
+                        // Not used in test
+                      }
 
                       @Override
                       public void updateProgress(final int progress) {
@@ -166,7 +171,10 @@ public class GazetteerUpdateCommandTest {
           public void updateIndex(
               final List<GeoEntry> newEntries,
               final boolean create,
-              final ProgressCallback progressCallback) {}
+              final ProgressCallback progressCallback,
+              final String entrySource) {
+            /* stub */
+          }
 
           @Override
           public void updateIndex(

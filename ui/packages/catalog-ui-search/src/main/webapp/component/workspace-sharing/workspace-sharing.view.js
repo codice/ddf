@@ -22,7 +22,7 @@ define([
     './workspace-sharing.item.hbs',
     'js/CustomElements',
     'component/singletons/user-instance',
-    './editable-rows.view',
+    'component/editable-rows/editable-rows.view',
     'component/dropdown/dropdown.view',
     'component/loading-companion/loading-companion.view',
 ], function (Backbone, Marionette, _, $, template, itemTemplate, CustomElements, user, EditableRows, DropdownView, Loading) {

@@ -19,7 +19,23 @@
  var Backbone = require('backbone');
  var SearchForm = require('./search-form');
  var Common = require('js/Common');
+ let user = require('component/singletons/user-instance');
 
+ const fixFilter = function(filter) {
+    if (filter.filters) {
+        filter.filters.forEach(fixFilter);
+    } else {
+        filter.defaultValue = filter.defaultValue || '';
+        filter.value = filter.value || filter.defaultValue;
+    }
+ }
+
+ const fixTemplates = function(templates) {
+    templates.forEach((template) => {
+        return fixFilter(template.filterTemplate);
+    });
+ };
+ 
  let systemTemplates = [];
  let templatePromise = $.ajax({
     type: 'GET',
@@ -27,6 +43,7 @@
     url: '/search/catalog/internal/forms/query',
     contentType: 'application/json',
     success: function (data) {
+        fixTemplates(data);
         systemTemplates = data;
     }
  });
@@ -40,7 +57,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.addSearchForm(new SearchForm({type: 'basic'}));
         this.addSearchForm(new SearchForm({type: 'text'}));
         this.addCustomForms();
-        wreqr.vent.on("deleteTemplateById", this.deleteTemplateById);
+        wreqr.vent.on('deleteTemplateById', this.deleteTemplateById);
     },
     relations: [{
         type: Backbone.Many,
@@ -56,10 +73,21 @@ module.exports = Backbone.AssociatedModel.extend({
         templatePromise.then(() => {
             if (!this.isDestroyed) {
                 $.each(systemTemplates, (index, value) => {
-                    var utcSeconds = value.created / 1000;
-                    var d = new Date(0);
-                    d.setUTCSeconds(utcSeconds);
-                    this.addSearchForm(new SearchForm({createdOn: Common.getHumanReadableDate(d), id: value.id, name: value.title, type: 'custom', filterTemplate: value.filterTemplate}));
+                    // if (this.checkIfOwnerOrSystem(value)) {
+                        var utcSeconds = value.created / 1000;
+                        var d = new Date(0);
+                        d.setUTCSeconds(utcSeconds);
+                        this.addSearchForm(new SearchForm({
+                            createdOn: Common.getHumanReadableDate(d),
+                            id: value.id,
+                            name: value.title,
+                            type: 'custom',
+                            filterTemplate: value.filterTemplate,
+                            accessIndividuals: value.accessIndividuals,
+                            accessGroups: value.accessGroups,
+                            createdBy: value.creator
+                        }));
+                    // }
                 });
                 this.doneLoading();
             }
@@ -73,6 +101,11 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     getDoneLoading: function() {
         return this.get('doneLoading');
+    },
+    checkIfOwnerOrSystem: function(template) {
+        let myEmail = user.get('user').get('email');
+        let templateCreator = template.creator;
+        return myEmail === templateCreator || templateCreator === "System Template";
     },
     doneLoading: function() {
         this.set('doneLoading', true);

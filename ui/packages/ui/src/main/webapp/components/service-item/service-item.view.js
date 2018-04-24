@@ -59,7 +59,14 @@ define([
             }
 
             this.editModal.show(new ConfigurationEdit.View({model: configuration, service: model}));
+        },
+
+        serializeData: function () {
+            return _.extend(this.model.toJSON(), {
+            cid: this.cid
+            });
         }
+
     });
 
 });

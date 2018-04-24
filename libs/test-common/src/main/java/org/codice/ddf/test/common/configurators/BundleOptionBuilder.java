@@ -16,6 +16,7 @@ package org.codice.ddf.test.common.configurators;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
+import org.codice.ddf.test.common.DependencyVersionResolver;
 import org.ops4j.pax.exam.Option;
 
 /**
@@ -41,7 +42,12 @@ public class BundleOptionBuilder {
      * @return this {@link BundleOption}
      */
     public BundleOption add(String groupId, String artifactId) {
-      options = composite(options, mavenBundle(groupId, artifactId).versionAsInProject().start());
+      options =
+          composite(
+              options,
+              mavenBundle(groupId, artifactId)
+                  .version(DependencyVersionResolver.resolver())
+                  .start());
       return this;
     }
 

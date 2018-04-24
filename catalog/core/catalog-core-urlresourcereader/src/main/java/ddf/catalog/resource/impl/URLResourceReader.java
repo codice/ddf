@@ -34,6 +34,7 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -517,7 +518,13 @@ public class URLResourceReader implements ResourceReader {
   }
 
   private boolean validateFilePath(File resourceFilePath) throws IOException {
-    String resourceCanonicalPath = resourceFilePath.getCanonicalPath();
+    String resourceCanonicalPath;
+    try {
+      resourceCanonicalPath = resourceFilePath.getCanonicalPath();
+    } catch (AccessControlException e) {
+      LOGGER.debug("Unable to read path [{}]", resourceFilePath, e);
+      return false;
+    }
     LOGGER.debug(
         "Converted resource path [{}] to its canonical path of [{}]",
         resourceFilePath,

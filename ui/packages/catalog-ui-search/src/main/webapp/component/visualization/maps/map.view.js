@@ -66,8 +66,8 @@ function getHomeCoordinates() {
                 if (isNaN(lon) || isNaN(lat)) {
                     return undefined;
                 } 
-                lon = wrapNum(lon, [-180, 180]);
-                lat = wrapNum(lat, [-90, 90]);
+                lon = Common.wrapMapCoordinates(lon, [-180, 180]);
+                lat = Common.wrapMapCoordinates(lat, [-90, 90]);
                 return {
                     lon: lon,
                     lat: lat
@@ -145,6 +145,12 @@ module.exports = Marionette.LayoutView.extend({
         this.mapModel = new MapModel();
         this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing);
         this.handleDrawing();
+        this.setupMouseLeave();
+    },
+    setupMouseLeave: function() {
+        this.$el.on('mouseleave', () => {
+            this.mapModel.clearMouseCoordinates();
+        });
     },
     setupCollections: function() {
         if (!this.map) {
@@ -191,14 +197,15 @@ module.exports = Marionette.LayoutView.extend({
         this.map.zoomToBoundingBox(homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox);
     },
     addHome: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button zoomToHome"><span class="fa fa-home"></span><span> Home</span></div>');
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button zoomToHome">' +
+            '<span>Home </span>' +
+            '<span class="fa fa-home"></span></div>');
     },
     addClustering: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button cluster cluster-button">' +
-            '<span class="fa fa-cubes is-not-clustering"></span>' +
-            '<span class="fa fa-cube is-clustering"></span>' +
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button cluster cluster-button">' +
             '<span> Cluster </span>' +
-            '<span class="fa fa-toggle-on is-clustering"></span>' +
+            '<span class="fa fa-toggle-on is-clustering"/>' +
+            '<span class="fa fa-cubes"/>' +
             '</div>');
     },
     addSettings: function(){
@@ -214,12 +221,6 @@ module.exports = Marionette.LayoutView.extend({
             .get(mapEvent.mapTarget);
         this.updateTarget(metacard);
         this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== ('userDrawing')));
-    },
-    updateMouseCoordinates: function(coordinates){
-        this.mapModel.set({
-            mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
-            mouseLon: Number(wrapNum(coordinates.lon, [-180, 180]).toFixed(6))
-        });
     },
     updateTarget: function(metacard){
         var target;
@@ -267,7 +268,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     createMap: function(Map){
         this.map = Map(this.el.querySelector('#mapContainer'),
-                this.options.selectionInterface, this.mapDrawingPopup.el, this.el, this);
+                this.options.selectionInterface, this.mapDrawingPopup.el, this.el, this.mapModel);
         this.setupCollections();
         this.setupListeners();
         this.addHome();

@@ -25,13 +25,14 @@ import java.util.Collections;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.branding.BrandingRegistryImpl;
+import org.codice.ddf.branding.impl.BrandingRegistryImpl;
 import org.junit.Test;
 
 public class PlatformUiConfigurationTest {
 
   @Test
   public void testConfig() throws IOException {
+    int timeout = 1234;
     PlatformUiConfiguration configuration = new PlatformUiConfiguration();
     String wsOutput = configuration.getConfig();
     Object obj = JSONValue.parse(wsOutput); // throws JSON Parse exception if not valid json.
@@ -56,6 +57,7 @@ public class PlatformUiConfigurationTest {
     configuration.setFooter("footer");
     configuration.setBackground("background");
     configuration.setColor("color");
+    configuration.setTimeout(timeout);
 
     wsOutput = configuration.getConfig();
     obj = JSONValue.parse(wsOutput); // throws JSON Parse exception if not valid json.
@@ -84,5 +86,6 @@ public class PlatformUiConfigurationTest {
         new String(
             Base64.getMimeDecoder()
                 .decode((String) jsonObject.get(PlatformUiConfiguration.FAV_ICON_CONFIG_KEY))));
+    assertEquals(timeout, jsonObject.get(PlatformUiConfiguration.TIMEOUT_CONFIG_KEY));
   }
 }

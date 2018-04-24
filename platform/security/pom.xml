@@ -236,6 +236,5 @@
         <module>rest</module>
         <module>security-migratable</module>
         <module>command</module>
-        <module>security-services-app</module>
     </modules>
 </project>

@@ -19,7 +19,7 @@ The Solr Admin user interface uses basic authentication as part of the server co
 === Configuring Solr Node Security
 
 The Solr server is protected by the built in REST security architecture.
-The configuration can be changed by editing the <<_web_context_policy_manager,Web Context Policy Manager>>
+The configuration can be changed by editing the <<_configuring_the_web_context_policy_manager,Web Context Policy Manager>>
  configuration for the `/solr` web context.
 
 . Navigate to the *${admin-console}*.

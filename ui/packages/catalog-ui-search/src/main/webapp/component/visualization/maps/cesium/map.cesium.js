@@ -151,7 +151,7 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
     return !occluder.isPointVisible(cartesian3CenterOfGeometry);
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
+module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, mapModel) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
@@ -161,28 +161,15 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
     setupTooltip(map, selectionInterface);
 
     function updateCoordinatesTooltip(position) {
-        if (map.scene.pickPositionSupported) {
-            var cartesian = map.scene.pickPosition(position);
-            if (Cesium.defined(cartesian)){
-                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                parentView.updateMouseCoordinates({
-                    lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
-                    lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
-                });
-            }
-        }
-    }
-
-    function getCartographicCoordinatesFromEvent(e, boundingRect){
-        if (map.scene.pickPositionSupported){
-            let cartesian = map.scene.pickPosition({
-                x: e.clientX - boundingRect.left,
-                y: e.clientY - boundingRect.top
+        var cartesian = map.camera.pickEllipsoid(position, map.scene.globe.ellipsoid);
+        if (Cesium.defined(cartesian)){
+            let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            mapModel.updateMouseCoordinates({
+                lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+                lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
             });
-            if (Cesium.defined(cartesian)){
-                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                return cartographic;
-            }
+        } else {
+            mapModel.clearMouseCoordinates();
         }
     }
 
@@ -238,6 +225,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         },
         drawPolygon: function(model){
             drawingTools.polygon.draw(model);
+        },
+        destroyDrawingTools: function() {
+            drawingTools.line.destroy();
+            drawingTools.polygon.destroy();
+            drawingTools.circle.destroy();
+            drawingTools.bbox.destroy();
         },
         onLeftClick: function(callback) {
             $(map.scene.canvas).on('click', function(e) {
@@ -672,6 +665,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             shapes = [];
         },
         destroy: function() {
+            this.destroyDrawingTools();
             map.destroy();
         }
     });

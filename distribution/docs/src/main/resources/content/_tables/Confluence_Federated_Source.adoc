@@ -74,7 +74,7 @@
 |Attribute Overrides
 |additionalAttributes
 |String cardinality=100
-|Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<_catalog_taxonomy, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
+|Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the <<_catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 |
 |No
 

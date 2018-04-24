@@ -90,7 +90,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
   public void updateIndex(
       final List<GeoEntry> geoEntryList,
       final boolean create,
-      final ProgressCallback progressCallback)
+      final ProgressCallback progressCallback,
+      String entrySource)
       throws GeoEntryIndexingException {
     buildIndex(geoEntryList, create, progressCallback);
   }

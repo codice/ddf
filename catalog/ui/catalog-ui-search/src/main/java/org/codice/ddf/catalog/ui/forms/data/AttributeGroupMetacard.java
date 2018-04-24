@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
 
 /**
  * Metacard used for storing shareable attribute groups in the catalog. Should not be used as a
@@ -42,7 +43,7 @@ import java.util.Set;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class AttributeGroupMetacard extends ShareableMetacard {
+public class AttributeGroupMetacard extends ShareableMetacardImpl {
   public AttributeGroupMetacard(String title, String description) {
     super(new AttributeGroupType());
     setAttribute(Core.TITLE, title);
@@ -71,7 +72,7 @@ public class AttributeGroupMetacard extends ShareableMetacard {
   }
 
   public Set<String> getGroupDescriptors() {
-    return new HashSet<>(getValues(ATTRIBUTE_GROUP_LIST));
+    return new HashSet<>(getValuesOrEmpty(ATTRIBUTE_GROUP_LIST));
   }
 
   public void setGroupDescriptors(Set<String> resultDescriptors) {

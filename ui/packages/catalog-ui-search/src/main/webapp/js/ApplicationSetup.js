@@ -30,7 +30,7 @@ require([
     'backbone',
     'marionette',
     'properties',
-    'handlebars/dist/handlebars',
+    'ace/handlebars',
     'component/announcement',
     'js/Marionette.Region',
     'js/requestAnimationFramePolyfill',

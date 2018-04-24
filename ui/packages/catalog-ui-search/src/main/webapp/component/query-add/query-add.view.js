@@ -26,8 +26,8 @@ var store = require('js/store');
 var QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
 var LoadingView = require('component/loading/loading.view');
 var wreqr = require('wreqr');
-const cql = require('js/cql');
 const user = require('component/singletons/user-instance');
+const cql = require('js/cql');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,

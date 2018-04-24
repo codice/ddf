@@ -82,6 +82,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
+import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -158,7 +159,9 @@ public abstract class AbstractIntegrationTest {
   @Inject protected MetaTypeService metatype;
 
   /** To make sure the tests run only when the boot features are fully installed */
-  @Inject BootFinished bootFinished;
+  @Inject
+  @Filter(timeout = 300000L)
+  BootFinished bootFinished;
 
   private AdminConfig adminConfig;
 

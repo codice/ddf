@@ -18,6 +18,8 @@
         name: "A Search Form",
         createdBy: "admin",
         type: "custom",
-        filterTemplate: "{}"
+        filterTemplate: "{}",
+        accessIndividuals: [],
+        accessGroups: []
     }
  });

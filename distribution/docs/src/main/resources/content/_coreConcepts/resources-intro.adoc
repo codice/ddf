@@ -5,7 +5,7 @@
 
 == {title}
 
-The Catalog Framework can interface with <<_storage_providers,Storage Providers>> to provide storage of resources to specific types of storage, e.g., file system, relational database, XML database.
+The Catalog Framework can interface with storage providers to provide storage of resources to specific types of storage, e.g., file system, relational database, XML database.
 A default file system implementation is provided by default.
 
 Storage providers act as a proxy between the Catalog Framework and the mechanism storing the content.

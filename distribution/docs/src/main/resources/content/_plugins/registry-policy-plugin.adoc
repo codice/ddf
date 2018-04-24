@@ -10,7 +10,7 @@ The Registry Policy Plugin defines the policies for user access to registry entr
 ===== Installing the Registry Policy Plugin
 
 The Registry Policy Plugin is not installed by default on a standard installation.
-It is installed with the <<_installing_ddf_registry,${ddf-registry}>> application.
+It is installed with the <<_installing_registry,${ddf-registry}>> application.
 
 ===== Configuring the Registry Policy Plugin
 

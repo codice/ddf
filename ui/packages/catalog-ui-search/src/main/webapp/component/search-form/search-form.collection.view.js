@@ -17,7 +17,7 @@
  var _ = require('underscore');
  var $ = require('jquery');
  var SearchFormView = require('./search-form.view');
- var SearchFormCollection = require('././search-form.collection');
+ var SearchFormCollection = require('./search-form.collection');
  var CustomElements = require('js/CustomElements');
 
  module.exports = Marionette.CollectionView.extend({

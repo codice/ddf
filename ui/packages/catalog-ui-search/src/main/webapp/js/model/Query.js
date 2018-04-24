@@ -84,7 +84,8 @@ define([
                     serverPageIndex: 0,
                     type: 'text',
                     isLocal: false,
-                    isOutdated: false
+                    isOutdated: false,
+                    selectedResultTemplate: undefined
                 }, user.getQuerySettings().toJSON());
             },
             resetToDefaults: function() {
@@ -157,6 +158,7 @@ define([
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
+                    result.set('selectedResultTemplate', this.get('selectedResultTemplate'));
                     result.set('merged', true);
                     result.get('queuedResults').fullCollection.reset();
                     result.get('queuedResults').reset();
@@ -167,7 +169,8 @@ define([
                     result = new QueryResponse({
                         queryId: this.getId(),
                         color: this.getColor(),
-                        status: initialStatus
+                        status: initialStatus,
+                        selectedResultTemplate: this.get('selectedResultTemplate')
                     });
                     this.set({
                         result: result
