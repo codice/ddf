@@ -170,6 +170,22 @@ class EntityInformationSpec extends Specification {
         serviceInfo.url.contains("default.com")
     }
 
+    def "check assertionconsumerservice with index"() {
+        setup:
+        MetadataConfigurationParser mcp = new MetadataConfigurationParser(
+                [fakeSpMetadata])
+        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
+
+        reflectAndSetDefaultAssertionConsumerService(entityInfo)
+
+        when:
+        def serviceInfo = entityInfo.getAssertionConsumerService(null, null, 0)
+
+        then:
+        Binding.HTTP_POST == serviceInfo.binding
+    }
+
     def "parse sample sp metadata"() {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser([sampleSPMetadata])

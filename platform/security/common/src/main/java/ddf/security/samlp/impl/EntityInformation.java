@@ -103,7 +103,7 @@ public class EntityInformation {
     ServiceInfo si = null;
     if (request != null && request.getAssertionConsumerServiceURL() != null) {
       si = getAssertionConsumerServiceInfoByUrl(request);
-      if (si.getBinding().getUri().equals(SamlProtocol.POST_BINDING)) {
+      if (si != null && si.getBinding() != null && si.getBinding().equals(Binding.HTTP_POST)) {
         return si;
       }
     }

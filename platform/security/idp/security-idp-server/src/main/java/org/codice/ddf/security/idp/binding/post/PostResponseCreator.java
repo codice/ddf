@@ -25,7 +25,6 @@ import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
@@ -75,11 +74,7 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
 
     String postForm =
-        createPostResponse(
-            SSOConstants.SAML_RESPONSE,
-            encodedSamlResponse,
-            relayState,
-            assertionConsumerServiceURL);
+        createPostResponse(encodedSamlResponse, relayState, assertionConsumerServiceURL);
     Response.ResponseBuilder ok = Response.ok(postForm);
     if (cookie != null) {
       ok = ok.cookie(cookie);
@@ -87,8 +82,7 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
     return ok.build();
   }
 
-  private String createPostResponse(
-      String samlType, String samlResponse, String relayState, String acsUrl) {
+  private String createPostResponse(String samlResponse, String relayState, String acsUrl) {
     StringBuilder builder = new StringBuilder("<!DOCTYPE html>");
     builder
         .append("<html>")
@@ -99,16 +93,13 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         .append("<form id=\"postform\" method=\"POST\" action=\"")
         .append(acsUrl)
         .append("\">")
-        .append("<input type=\"hidden\" name=\"")
-        .append(samlType)
-        .append("\"")
-        .append(" value=\"")
+        .append("<input type=\"hidden\" name=\"SAMLResponse\" value=\"")
         .append(samlResponse)
         .append("\"/>");
 
     if (relayState != null) {
       builder
-          .append("<input type=\"hidden\" name=\"RelayState\" " + "value=\"")
+          .append("<input type=\"hidden\" name=\"RelayState\" value=\"")
           .append(relayState)
           .append("\"/>");
     }
