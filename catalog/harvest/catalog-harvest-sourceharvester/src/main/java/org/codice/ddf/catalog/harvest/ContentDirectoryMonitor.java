@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.content.monitor;
+package org.codice.ddf.catalog.harvest;
 
 import ddf.catalog.Constants;
 import java.io.Serializable;
@@ -23,19 +23,15 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.jodah.failsafe.Failsafe;
-import net.jodah.failsafe.RetryPolicy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.Security;
@@ -46,12 +42,7 @@ import org.slf4j.LoggerFactory;
  * Container class for managing the configuration of a Camel Route that allows content to be
  * automatically ingested when dropped into the specified monitored directory.
  */
-public class ContentDirectoryMonitor implements DirectoryMonitor {
-  public static final String DELETE = "delete";
-
-  public static final String MOVE = "move";
-
-  public static final String IN_PLACE = "in_place";
+public class ContentDirectoryMonitor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
 
@@ -65,17 +56,13 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final Security SECURITY = Security.getInstance();
 
-  private final int maxRetries;
-
-  private final int delayBetweenRetries;
-
   private final Executor configurationExecutor;
 
   private final CamelContext camelContext;
 
   private String monitoredDirectory = null;
 
-  private String processingMechanism = DELETE;
+  private String processingMechanism = SourceHarvester.DELETE;
 
   private List<RouteDefinition> routeCollection;
 
@@ -102,8 +89,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   public ContentDirectoryMonitor(CamelContext camelContext) {
     this(
         camelContext,
-        20,
-        5,
         Executors.newSingleThreadExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("contentDirectoryMonitorThread")));
   }
@@ -113,20 +98,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * the given Executor to run the setup and Camel configuration.
    *
    * @param camelContext the Camel context to use across all Content directory monitors.
-   * @param maxRetries Policy for polling the 'content' CamelComponent. Specifies, for any content
-   *     directory monitor, the number of times it will poll.
-   * @param delayBetweenRetries Policy for polling the 'content' CamelComponent. Specifies, for any
-   *     content directory monitor, the number of seconds it will wait between consecutive polls.
    * @param configurationExecutor the executor used to run configuration and updates.
    */
-  public ContentDirectoryMonitor(
-      CamelContext camelContext,
-      int maxRetries,
-      int delayBetweenRetries,
-      Executor configurationExecutor) {
+  public ContentDirectoryMonitor(CamelContext camelContext, Executor configurationExecutor) {
     this.camelContext = camelContext;
-    this.maxRetries = maxRetries;
-    this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
     setBlacklist();
   }
@@ -199,11 +174,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   private Object configure() {
-    if (StringUtils.isEmpty(monitoredDirectory)) {
-      LOGGER.warn("Cannot setup camel route - must specify a directory to be monitored");
-      return null;
-    }
-
+    Validate.notBlank(monitoredDirectory, "Property monitoredDirectory may not be empty");
     CompletableFuture.runAsync(this::attemptAddRoutes, configurationExecutor);
     return null;
   }
@@ -235,29 +206,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
   }
 
-  /**
-   * Invoked when updates are made to the configuration of existing directory monitors. This method
-   * is invoked by the container as specified by the update-strategy and update-method attributes in
-   * Blueprint XML file.
-   *
-   * @param properties - properties map for the configuration
-   */
-  public void updateCallback(Map<String, Object> properties) {
-    if (properties != null) {
-      setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
-      setProcessingMechanism((String) properties.get("processingMechanism"));
-      setNumThreads((Integer) properties.get("numThreads"));
-      setReadLockIntervalMilliseconds((Integer) properties.get("readLockIntervalMilliseconds"));
-
-      String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-      if (parameterArray != null) {
-        setAttributeOverrides(Arrays.asList(parameterArray));
-      }
-
-      init();
-    }
-  }
-
   /** @param monitoredDirectoryPath - directory path for the monitored directory */
   public void setMonitoredDirectoryPath(String monitoredDirectoryPath) {
     this.monitoredDirectory = monitoredDirectoryPath;
@@ -280,9 +228,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             "Invalid attribute override configured for monitored directory");
       }
 
-      if (attributeOverrideMap.get(keyValue[0]) == null) {
-        attributeOverrideMap.put(keyValue[0], new ArrayList<String>());
-      }
+      attributeOverrideMap.computeIfAbsent(keyValue[0], k -> new ArrayList<String>());
       ArrayList valueList = (ArrayList) attributeOverrideMap.get(keyValue[0]);
       valueList.add(keyValue[1]);
     }
@@ -297,7 +243,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     if (CollectionUtils.isNotEmpty(badFiles)) {
-      patterns.addAll(badFiles.stream().collect(Collectors.toList()));
+      patterns.addAll(badFiles);
     }
 
     if (CollectionUtils.isEmpty(patterns)) {
@@ -321,33 +267,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
       RouteBuilder routeBuilder = createRouteBuilder();
-      verifyContentCamelComponentIsAvailable();
       camelContext.addRoutes(routeBuilder);
       setRouteCollection(routeBuilder);
     } catch (Exception e) {
       LOGGER.info("Unable to configure Camel route.", e);
       INGEST_LOGGER.warn("Unable to configure Camel route.", e);
-    } finally {
-      if (LOGGER.isDebugEnabled()) {
-        dumpCamelContext("after attemptAddRoutes()");
-      }
     }
-  }
-
-  /*
-     Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
-  */
-  private void verifyContentCamelComponentIsAvailable() {
-    Failsafe.with(
-            new RetryPolicy()
-                .retryWhen(null)
-                .withMaxRetries(maxRetries)
-                .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
-        .withFallback(
-            () -> {
-              throw new IllegalStateException("Could not get Camel component 'content'");
-            })
-        .get(() -> camelContext.getComponent("content"));
   }
 
   /*
@@ -369,49 +294,46 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   private RouteBuilder createRouteBuilder() {
     return new RouteBuilder() {
       @Override
-      public void configure() throws Exception {
+      public void configure() {
         StringBuilder stringBuilder = new StringBuilder();
         // Configure the camel route to ignore changing files (larger files that are in the process
         // of being copied)
         // Set the readLockTimeout to 2 * readLockIntervalMilliseconds
         // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
-        boolean isDav = false;
 
-        if (monitoredDirectory.startsWith("http")) {
-          isDav = true;
-        } else {
-          stringBuilder.append("file:" + monitoredDirectory);
-          stringBuilder.append("?recursive=true");
-          stringBuilder.append("&moveFailed=.errors");
+        stringBuilder
+            .append("file:")
+            .append(monitoredDirectory)
+            .append("?recursive=true")
+            .append("&moveFailed=.errors")
+            /* ReadLock Configuration */
+            .append("&readLockMinLength=1")
+            .append("&readLock=changed")
+            .append("&readLockTimeout=")
+            .append(2 * readLockIntervalMilliseconds)
+            .append("&readLockCheckInterval=")
+            .append(readLockIntervalMilliseconds);
 
-          /* ReadLock Configuration */
-          stringBuilder.append("&readLockMinLength=1");
-          stringBuilder.append("&readLock=changed");
-          stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
-          stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
-
-          /* File Exclusions */
-          String exclusions = getBlackListAsRegex();
-          if (StringUtils.isNotBlank(exclusions)) {
-            stringBuilder.append("&exclude=" + exclusions);
-          }
+        /* File Exclusions */
+        String exclusions = getBlackListAsRegex();
+        if (StringUtils.isNotBlank(exclusions)) {
+          stringBuilder.append("&exclude=");
+          stringBuilder.append(exclusions);
         }
 
         switch (processingMechanism) {
-          case DELETE:
+          case SourceHarvester.DELETE:
             stringBuilder.append("&delete=true");
             break;
-          case MOVE:
+          case SourceHarvester.MOVE:
             stringBuilder.append("&move=.ingested");
             break;
-          case IN_PLACE:
-            stringBuilder = new StringBuilder("durable:" + monitoredDirectory);
-            if (isDav) {
-              stringBuilder.append("?isDav=true");
-            }
-            break;
+          default:
+            throw new IllegalArgumentException(
+                String.format("Received invalid processingMechanism [%s]", processingMechanism));
         }
-        LOGGER.trace("inbox = {}", stringBuilder);
+
+        LOGGER.trace("ContentDirectoryMonitor inbox = {}", stringBuilder);
 
         RouteDefinition routeDefinition = from(stringBuilder.toString());
 
@@ -423,33 +345,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         routeDefinition.threads(numThreads).process(systemSubjectBinder).to("content:framework");
       }
     };
-  }
-
-  private void dumpCamelContext(String msg) {
-    LOGGER.debug("\n\n***************  START: {}  *****************", msg);
-    List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
-    if (routeDefinitions != null) {
-      LOGGER.debug("Number of routes = {}", routeDefinitions.size());
-      for (RouteDefinition routeDef : routeDefinitions) {
-        String routeId = routeDef.getId();
-        LOGGER.debug("route ID = {}", routeId);
-        List<FromDefinition> routeInputs = routeDef.getInputs();
-        if (routeInputs.isEmpty()) {
-          LOGGER.debug("routeInputs are EMPTY");
-        } else {
-          for (FromDefinition fromDef : routeInputs) {
-            LOGGER.debug("route input's URI = {}", fromDef.getUri());
-          }
-        }
-        ServiceStatus routeStatus = camelContext.getRouteStatus(routeId);
-        if (routeStatus != null) {
-          LOGGER.debug("Route ID {} is started = {}", routeId, routeStatus.isStarted());
-        } else {
-          LOGGER.debug("routeStatus is NULL for routeId = {}", routeId);
-        }
-      }
-    }
-    LOGGER.debug("***************  END: {}  *****************\n\n", msg);
   }
 
   public static class SystemSubjectBinder implements Processor {

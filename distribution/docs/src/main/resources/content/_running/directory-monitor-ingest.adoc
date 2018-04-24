@@ -7,9 +7,4 @@
 
 == {title}
 
-The ${ddf-catalog} application contains a Content Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically.
-For more information about configuring a directory to be monitored, see <<_configuring_the_content_directory_monitor,Configuring the Content Directory Monitor>>.
-
-Files placed in the monitored directory will be ingested automatically.
-If a file cannot be ingested, they will be moved to an automatically-created directory named `.errors`.
-Optionally, ingested files can be automatically moved to a directory called `.ingested`.
+// TODO

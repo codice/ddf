@@ -420,11 +420,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-directorymonitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-versioning</artifactId>
             <version>${project.version}</version>
@@ -616,6 +611,21 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-preview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.harvest</groupId>
+            <artifactId>catalog-harvest-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.harvest</groupId>
+            <artifactId>catalog-harvest-metacardadapter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.harvest</groupId>
+            <artifactId>catalog-harvest-manager</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

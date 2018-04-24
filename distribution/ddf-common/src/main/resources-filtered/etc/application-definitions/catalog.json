@@ -4,7 +4,7 @@
   "bundleLocations": [
     "mvn:ddf.catalog.admin/catalog-admin-poller-service/${project.version}",
     "mvn:ddf.catalog.confluence/catalog-confluence-source/${project.version}",
-    "mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}",
+    "mvn:ddf.catalog.harvest/catalog-harvest-manager/${project.version}",
     "mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}",
     "mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}",
     "mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}",

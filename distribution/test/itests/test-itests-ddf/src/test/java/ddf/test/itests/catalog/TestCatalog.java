@@ -65,7 +65,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
@@ -92,7 +91,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
-import org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor;
 import org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage.MetacardFileStorageRoute;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
@@ -176,7 +174,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @BeforeExam
-  public void beforeExam() throws Exception {
+  public void beforeExam() {
     try {
       waitForSystemReady();
     } catch (Exception e) {
@@ -1665,272 +1663,6 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testContentDirectoryMonitor() throws Exception {
-    final String TMP_PREFIX = "tcdm_";
-    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-    tmpDir.toFile().deleteOnExit();
-    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
-    tmpFile.toFile().deleteOnExit();
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    Map<String, Object> cdmProperties = new HashMap<>();
-    cdmProperties.putAll(
-        getServiceManager()
-            .getMetatypeDefaults(
-                "content-core-directorymonitor",
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-    cdmProperties.put("processingMechanism", "delete");
-    Configuration managedService =
-        getServiceManager()
-            .createManagedService(
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
-
-    assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    getServiceManager().stopManagedService(managedService.getPid());
-
-    given()
-        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-        .body(
-            getFileContent(
-                CSW_REQUEST_RESOURCE_PATH + "/CswCqlDeleteRequest",
-                ImmutableMap.of("title", "Metacard-5")))
-        .post(CSW_PATH.getUrl())
-        .then()
-        .body(
-            hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-            hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
-  }
-
-  @Test
-  public void testAttributeOverridesOnUpdate() throws Exception {
-    final String TMP_PREFIX = "tcdm_";
-    final String attribute = "title";
-    final String value = "someTitleIMadeUp";
-
-    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-    tmpDir.toFile().deleteOnExit();
-    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
-    tmpFile.toFile().deleteOnExit();
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    Map<String, Object> cdmProperties = new HashMap<>();
-    cdmProperties.putAll(
-        getServiceManager()
-            .getMetatypeDefaults(
-                "content-core-directorymonitor",
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-    cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
-    cdmProperties.put("attributeOverrides", format("%s=%s", attribute, value));
-    Configuration managedService =
-        getServiceManager()
-            .createManagedService(
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
-
-    // assert that the file was ingested
-    ValidatableResponse response = assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    // assert that the metacard contains the overridden attribute
-    assertStringMetacardAttribute(response, attribute, value);
-
-    // edit the file
-    Files.copy(
-        getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    // assert updated
-    response = assertIngestedDirectoryMonitor("Space", 1);
-
-    // assert that the metacard still contains the overridden attribute
-    assertStringMetacardAttribute(response, attribute, value);
-
-    // delete the file
-    tmpFile.toFile().delete();
-
-    // assert deleted
-    assertIngestedDirectoryMonitor("SysAdmin", 0);
-
-    getServiceManager().stopManagedService(managedService.getPid());
-  }
-
-  private ValidatableResponse assertStringMetacardAttribute(
-      ValidatableResponse response, String attribute, String value) {
-    String attributeValueXpath = format("/metacards/metacard/string[@name='%s']/value", attribute);
-    response.body(hasXPath(attributeValueXpath, is(value)));
-    return response;
-  }
-
-  @Test
-  public void testInPlaceDirectoryMonitor() throws Exception {
-    final String TMP_PREFIX = "tcdm_";
-    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-    tmpDir.toFile().deleteOnExit();
-    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
-    tmpFile.toFile().deleteOnExit();
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    Map<String, Object> cdmProperties = new HashMap<>();
-    cdmProperties.putAll(
-        getServiceManager()
-            .getMetatypeDefaults(
-                "content-core-directorymonitor",
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-    cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
-    Configuration managedService =
-        getServiceManager()
-            .createManagedService(
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
-
-    // assert that the file was ingested
-    assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    // edit the file
-    Files.copy(
-        getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    // assert updated
-    assertIngestedDirectoryMonitor("Space", 1);
-
-    // rename the file and change
-    Path newPath = Paths.get(tmpFile.toAbsolutePath().toString().replace("tmp.xml", "tmp2.xml"));
-    Files.move(tmpFile, newPath, StandardCopyOption.REPLACE_EXISTING);
-    tmpFile = newPath;
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    // assert renamed
-    assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    // delete the file
-    tmpFile.toFile().delete();
-
-    // assert deleted
-    assertIngestedDirectoryMonitor("SysAdmin", 0);
-
-    getServiceManager().stopManagedService(managedService.getPid());
-  }
-
-  @Test
-  public void testInPlaceDirectoryMonitorPersistence() throws Exception {
-    final String TMP_PREFIX = "tcdm_";
-    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-    tmpDir.toFile().deleteOnExit();
-    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
-    tmpFile.toFile().deleteOnExit();
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    Map<String, Object> cdmProperties = new HashMap<>();
-    cdmProperties.putAll(
-        getServiceManager()
-            .getMetatypeDefaults(
-                "content-core-directorymonitor",
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-    cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
-    Configuration managedService =
-        getServiceManager()
-            .createManagedService(
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
-
-    // assert that the file was ingested
-    assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    getServiceManager()
-        .stopBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-    getServiceManager()
-        .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-
-    // edit the file
-    Files.copy(
-        getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    // assert updated
-    assertIngestedDirectoryMonitor("Space", 1);
-
-    getServiceManager()
-        .stopBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-    getServiceManager()
-        .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-
-    // rename the file and change
-    Path newPath = Paths.get(tmpFile.toAbsolutePath().toString().replace("tmp.xml", "tmp2.xml"));
-    Files.move(tmpFile, newPath, StandardCopyOption.REPLACE_EXISTING);
-    tmpFile = newPath;
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    getServiceManager()
-        .stopBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-    getServiceManager()
-        .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
-
-    // assert renamed
-    assertIngestedDirectoryMonitor("SysAdmin", 1);
-
-    // delete the file
-    tmpFile.toFile().delete();
-
-    // assert deleted
-    assertIngestedDirectoryMonitor("SysAdmin", 0);
-
-    getServiceManager().stopManagedService(managedService.getPid());
-  }
-
-  private ValidatableResponse assertIngestedDirectoryMonitor(String query, int numResults) {
-    long startTime = System.nanoTime();
-    ValidatableResponse response;
-    do {
-      response = getOpenSearch("xml", null, null, "q=*" + query + "*");
-      if (response.extract().xmlPath().getList("metacards.metacard").size() == numResults) {
-        break;
-      }
-      try {
-        TimeUnit.SECONDS.sleep(1);
-      } catch (InterruptedException e) {
-      }
-    } while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime)
-        < TimeUnit.MINUTES.toMillis(3));
-    response.body("metacards.metacard.size()", equalTo(numResults));
-    return response;
-  }
-
-  @Test
-  public void testIngestXmlNoExtension() throws Exception {
-    final String TMP_PREFIX = "tcdm_";
-    Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
-    tmpDir.toFile().deleteOnExit();
-    Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp");
-    tmpFile.toFile().deleteOnExit();
-    Files.copy(
-        getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
-
-    Map<String, Object> cdmProperties = new HashMap<>();
-    cdmProperties.putAll(
-        getServiceManager()
-            .getMetatypeDefaults(
-                "content-core-directorymonitor",
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
-    cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
-    cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
-    Configuration managedService =
-        getServiceManager()
-            .createManagedService(
-                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
-
-    ValidatableResponse response = assertIngestedDirectoryMonitor("SysAdmin", 1);
-    response.extract().xmlPath().getString("metacards.metacard.type").equals("ddf.metacard");
-
-    getServiceManager().stopManagedService(managedService.getPid());
-  }
-
-  @Test
   public void persistObjectToWorkspace() throws Exception {
     persistToWorkspace(100);
   }
@@ -2684,7 +2416,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
   }
 
-  private void verifyMetadataBackup() throws Exception {
+  private void verifyMetadataBackup() {
     StringBuilder buffer =
         new StringBuilder(OPENSEARCH_PATH.getUrl())
             .append("?")

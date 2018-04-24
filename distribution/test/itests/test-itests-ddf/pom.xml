@@ -98,11 +98,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-directorymonitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-logging</artifactId>
             <version>${project.version}</version>

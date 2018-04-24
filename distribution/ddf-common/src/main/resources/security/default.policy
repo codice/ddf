@@ -141,7 +141,7 @@ grant codeBase "file:/catalog-transformer-csw-profile/persistence-core-impl/pers
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
 }
 
-grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
+grant codeBase "file:/jetty-server/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
@@ -161,6 +161,10 @@ grant codeBase "file:/org.apache.karaf.shell.core/org.apache.shiro.core" {
     //permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     //should only need the above, but the itests try to read random files, leaving for now to hopefully change in the future
     permission java.io.FilePermission "<<ALL FILES>>", "read,write";
+}
+
+grant codeBase "file:/catalog-harvest-manager" {
+   permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/catalog-core-commands" {
