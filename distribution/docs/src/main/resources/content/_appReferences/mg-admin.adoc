@@ -14,5 +14,9 @@ None.
 
 === Installing the ${ddf-admin} Application
 
-The ${ddf-admin} application is installed by default with a standard installation.
+Install ${ddf-admin} through the ${admin-console}.
 
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `admin-app` feature.

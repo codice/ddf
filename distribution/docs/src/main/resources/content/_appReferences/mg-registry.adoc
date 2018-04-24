@@ -20,9 +20,7 @@ To use the ${ddf-registry}, the following apps/features must be installed:
 
 ===  Installing ${ddf-registry}
 
-${ddf-registry} is not installed by default with a standard installation.
-
-To install:
+Install ${ddf-registry} through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.

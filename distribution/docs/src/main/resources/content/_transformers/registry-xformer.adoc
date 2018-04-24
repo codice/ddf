@@ -10,9 +10,7 @@ It also returns the `ebrim` message from the metacard metadata.
 
 ===== Installing the Registry Transformer
 
-The Registry Transformer is not installed by default with a standard installation, but with the ${ddf-registry} application.
-
-To install:
+The Registry Transformer is installed with the ${ddf-registry} application.
 
 . <<_installing_registry,Install ${ddf-registry}>> application.
 
