@@ -546,6 +546,7 @@
         <module>validator</module>
         <module>confluence</module>
         <module>async</module>
+        <module>harvest</module>
     </modules>
     <build>
         <plugins>
