@@ -29,5 +29,10 @@
 
     <modules>
         <module>catalog-harvest-api</module>
+        <module>catalog-harvest-common</module>
+        <module>catalog-harvest-file</module>
+        <module>catalog-harvest-metacardadaptor</module>
+        <module>catalog-harvest-persistentlistener</module>
+        <module>catalog-harvest-webdav</module>
     </modules>
 </project>
