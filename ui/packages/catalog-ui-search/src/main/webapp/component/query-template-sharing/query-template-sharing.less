@@ -1,10 +1,10 @@
 @import '../editable-rows/editable-rows';
 
 .icon-label {
-padding-left: 8px;
+  padding-left: @minimumSpacing;
 }
 
-@{customElementNamespace}workspace-sharing {
+@{customElementNamespace}query-template-sharing {
 
   position: relative;
 
@@ -29,7 +29,7 @@ padding-left: 8px;
     }
   }
 
-  .workspace-sharing-by-role {
+  .template-sharing-by-role {
     .role {
       line-height: @minimumButtonSize;
       height: @minimumButtonSize;
@@ -37,8 +37,8 @@ padding-left: 8px;
     }
     .row {
       white-space: nowrap;
-      margin: 0px 0px 10px 0px;
-      padding: 0px 10px;
+      margin: 0px 0px @minimumSpacing 0px;
+      padding: 0px @minimumSpacing;
     }
 
     .role,
@@ -49,7 +49,7 @@ padding-left: 8px;
     }
   }
 
-  .workspace-sharing-by-email {
+  .template-sharing-by-email {
     input {
       height: @minimumButtonSize;
     }
@@ -64,7 +64,7 @@ padding-left: 8px;
     }
   }
 
-  .workspace-sharing-by-role {
+  .template-sharing-by-role {
     height: ~'calc(100% - @{minimumButtonSize})';
     overflow: auto;
   }
@@ -75,7 +75,7 @@ padding-left: 8px;
     display: inline-block;
     height: 100%;
     vertical-align: top;
-    padding: 10px;
+    padding: @minimumSpacing;
   }
 
   .sharing-information {
@@ -86,7 +86,7 @@ padding-left: 8px;
 
   .information-email {
     border-left: 1px solid grey;
-    padding: 10px;
+    padding: @minimumSpacing;
   }
 
   .is-header {
@@ -95,7 +95,7 @@ padding-left: 8px;
 }
 
  .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}workspace-sharing {
+  @{customElementNamespace}template-sharing {
     .sharing-information {
       white-space: normal;
       overflow: auto;

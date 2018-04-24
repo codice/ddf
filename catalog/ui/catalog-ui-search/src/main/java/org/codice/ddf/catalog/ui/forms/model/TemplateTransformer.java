@@ -14,8 +14,13 @@
 package org.codice.ddf.catalog.ui.forms.model;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Core;
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -51,15 +56,33 @@ public class TemplateTransformer {
       LOGGER.debug("Metacard {} was not a query template metacard", metacard.getId());
       return null;
     }
+
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);
     JsonTransformVisitor visitor = new JsonTransformVisitor();
+    List<Serializable> accessIndividuals = new ArrayList<>();
+    List<Serializable> accessGroups = new ArrayList<>();
+    String metacardOwner = "System Template";
+
+    if (metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS) != null) {
+      accessIndividuals = metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS).getValues();
+    }
+
+    if (metacard.getAttribute(SecurityAttributes.ACCESS_GROUPS) != null) {
+      accessGroups = metacard.getAttribute(SecurityAttributes.ACCESS_GROUPS).getValues();
+    }
+
+    if (metacard.getAttribute(Core.METACARD_OWNER) != null) {
+      metacardOwner = metacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
+    }
+
     try {
       FilterReader reader = new FilterReader();
       JAXBElement<FilterType> root =
           reader.unmarshalFilter(
               new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
       makeVisitable(root).accept(visitor);
-      return new FormTemplate(wrapped, visitor.getResult());
+      return new FormTemplate(
+          wrapped, visitor.getResult(), accessIndividuals, accessGroups, metacardOwner);
     } catch (JAXBException | UnsupportedEncodingException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "

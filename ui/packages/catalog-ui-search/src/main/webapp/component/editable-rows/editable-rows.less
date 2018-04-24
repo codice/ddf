@@ -3,56 +3,27 @@
     overflow: hidden;
     height: 100%;
 
-    .editable-rows-item {
-        position: relative;
-        margin-top: 10px;
-        min-height: 50px;
-    }
-
-    .editable-rows-item:first-child {
-        margin-top: 0;
-    }
-
-    .embed {
-        width: ~'calc(100% - 50px - 40px)';
-    }
-
-    .remove {
-        width: 50px;
-        position: absolute;
-        right: 10px;
-        top: 0;
-
-        button {
-            width: 100%;
-        }
-    }
-
-    .add-row {
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    .rows {
+    > .rows {
         display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
         width: 100%;
         max-height: ~'calc(100% - @{minimumButtonSize} -  @{minimumFontSize} + .52*(@{largeFontSize} - @{minimumFontSize}) - 10px)';
         overflow: auto;
     }
 
-    button.add-row {
+   > button.add-row {
         display: block;
+        width: 100%;
+        margin-top: 10px;
     }
-
 }
 
 @{customElementNamespace}editable-rows.is-empty {
 
-    .add-row {
+    > .add-row {
         margin: 0px;
     }
 
-    .rows {
+    > .rows {
         max-height: ~'calc(100% - @{minimumButtonSize})';
     }
 }

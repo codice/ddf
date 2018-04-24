@@ -57,7 +57,13 @@
                 break;
             case 'custom':
                 var oldType = this.options.queryModel.get('type');
-
+                this.options.queryModel.set({
+                    type: 'custom',
+                    title: this.model.get('name'),
+                    modelId: this.model.get('id'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals')
+                });
                 user.getQuerySettings().set({
                     type: 'custom',
                     template: this.model.toJSON()

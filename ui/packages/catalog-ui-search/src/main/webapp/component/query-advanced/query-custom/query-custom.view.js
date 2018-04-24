@@ -24,7 +24,9 @@ define([
     'js/cql',
     'js/store',
     'component/query-settings/query-settings.view',
-    'component/query-advanced/query-advanced.view'
+    'component/query-advanced/query-advanced.view',
+    'component/singletons/user-instance',
+    'component/announcement'
 ], function (Marionette, _, $, template, CustomElements, FilterBuilderView, FilterBuilderModel, cql,
             store, QuerySettingsView, QueryAdvanced) {
 

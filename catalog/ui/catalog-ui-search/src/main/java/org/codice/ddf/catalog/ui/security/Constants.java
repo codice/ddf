@@ -27,6 +27,8 @@ public class Constants {
           WorkspaceAttributes.WORKSPACE_TAG,
           QueryTemplateType.QUERY_TEMPLATE_TAG);
 
+  public static final String IS_SHAREABLE = "security.tag.is-shareable";
+
   public static final String ROLES_CLAIM_URI =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
