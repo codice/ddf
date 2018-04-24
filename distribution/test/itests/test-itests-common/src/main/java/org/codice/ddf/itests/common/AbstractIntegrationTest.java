@@ -625,7 +625,7 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configureVmOptions() {
     return options(
-        vmOption("-Xmx2048M"),
+        vmOption("-Xmx6144M"),
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
