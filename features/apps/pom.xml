@@ -182,6 +182,11 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>secure-boot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--end feature dependencies-->
 
         <dependency>
