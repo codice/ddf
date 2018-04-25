@@ -13,7 +13,7 @@
  */
 package ddf.catalog.cache.solr.impl;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -100,7 +100,7 @@ class SortedQueryMonitor implements Runnable {
     if (sortBy != null && sortBy.getPropertyName() != null) {
       sortBys.add(sortBy);
     }
-    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORT_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       if (extSortBys.length > 0) {

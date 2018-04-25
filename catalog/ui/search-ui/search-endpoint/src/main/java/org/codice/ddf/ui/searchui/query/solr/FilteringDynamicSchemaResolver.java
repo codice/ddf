@@ -60,7 +60,7 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
       }
     }
 
-    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
+    Serializable sortBySer = request.getPropertyValue(ADDITIONAL_SORT_BYS);
     if (sortBySer instanceof SortBy[]) {
       SortBy[] extSortBys = (SortBy[]) sortBySer;
       if (extSortBys.length > 0) {

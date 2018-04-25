@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.Constants;
@@ -1185,7 +1185,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (query != null && query.getSortBy() != null && query.getSortBy().getPropertyName() != null) {
       List<SortBy> sortBys = new ArrayList<>();
       sortBys.add(query.getSortBy());
-      Serializable extSortBySer = queryRequest.getPropertyValue(ADDITIONAL_SORTS_BYS);
+      Serializable extSortBySer = queryRequest.getPropertyValue(ADDITIONAL_SORT_BYS);
       if (extSortBySer instanceof SortBy[]) {
         SortBy[] extSortBys = (SortBy[]) extSortBySer;
         if (extSortBys.length > 0) {

@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.query;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
@@ -127,7 +127,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     SortBy populationSortBy =
         new SortByImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, SortOrder.DESCENDING);
     SortBy[] sortbys = {populationSortBy};
-    properties.put(ADDITIONAL_SORTS_BYS, sortbys);
+    properties.put(ADDITIONAL_SORT_BYS, sortbys);
 
     Query query = new QueryImpl(queryFilter, 1, maxResults, featureCodeSortBy, false, TIMEOUT);
     QueryRequest queryRequest = new QueryRequestImpl(query, properties);

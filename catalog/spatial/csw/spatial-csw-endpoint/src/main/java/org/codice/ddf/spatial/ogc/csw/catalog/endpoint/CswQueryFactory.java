@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.types.Core;
@@ -152,7 +152,7 @@ public class CswQueryFactory {
 
     Map<String, Serializable> properties = new HashMap<>();
     if (extSortBys != null && extSortBys.length > 0) {
-      properties.put(ADDITIONAL_SORTS_BYS, extSortBys);
+      properties.put(ADDITIONAL_SORT_BYS, extSortBys);
     }
 
     QueryRequest queryRequest = getQueryRequest(frameworkQuery, isEnterprise, properties);
@@ -241,7 +241,7 @@ public class CswQueryFactory {
     // Additional sort parameters
     Map<String, Serializable> newProperties = request.getProperties();
     if (newProperties != null) {
-      Serializable extraSortBys = request.getPropertyValue(ADDITIONAL_SORTS_BYS);
+      Serializable extraSortBys = request.getPropertyValue(ADDITIONAL_SORT_BYS);
       if (extraSortBys instanceof SortBy[]) {
         List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
         extraSortBysList
@@ -250,14 +250,14 @@ public class CswQueryFactory {
             .filter(Objects::nonNull)
             .forEach(sortBys::add);
       } else {
-        LOGGER.debug("The \"{}\" query request property could not be read", ADDITIONAL_SORTS_BYS);
+        LOGGER.debug("The \"{}\" query request property could not be read", ADDITIONAL_SORT_BYS);
       }
 
       if (sortBys.size() > 1) {
         SortBy[] extraSortBysArray = sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]);
-        newProperties.put(ADDITIONAL_SORTS_BYS, extraSortBysArray);
+        newProperties.put(ADDITIONAL_SORT_BYS, extraSortBysArray);
       } else {
-        newProperties.remove(ADDITIONAL_SORTS_BYS);
+        newProperties.remove(ADDITIONAL_SORT_BYS);
       }
     }
 

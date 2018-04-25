@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORTS_BYS;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -92,7 +92,7 @@ public class CqlRequestTest {
     SortBy firstSort = queryRequest.getQuery().getSortBy();
     assertThat(firstSort.getPropertyName().getPropertyName(), is(SORT_PROPERTY));
     assertThat(firstSort.getSortOrder(), is(SortOrder.ASCENDING));
-    SortBy[] sortBys = (SortBy[]) queryRequest.getProperties().get(ADDITIONAL_SORTS_BYS);
+    SortBy[] sortBys = (SortBy[]) queryRequest.getProperties().get(ADDITIONAL_SORT_BYS);
     assertThat(sortBys.length, is(1));
     SortBy secondSort = sortBys[0];
     assertThat(secondSort.getPropertyName().getPropertyName(), is("foobar"));
