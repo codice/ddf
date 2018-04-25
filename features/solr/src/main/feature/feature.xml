@@ -89,7 +89,6 @@
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <feature>common-system</feature>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
-
         <configfile finalname="${ddf.data}/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
