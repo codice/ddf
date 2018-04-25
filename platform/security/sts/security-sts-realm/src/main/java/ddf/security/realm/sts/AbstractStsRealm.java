@@ -407,20 +407,15 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
    */
   protected Element createClaimsElement() {
     Element claimsElement = null;
-    List<String> claims = new ArrayList<>();
+    Set<String> claims = new LinkedHashSet<>();
     claims.addAll(getClaims());
 
     if (contextPolicyManager != null) {
       Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
-      Set<String> attributes = new LinkedHashSet<>();
       if (contextPolicies != null && contextPolicies.size() > 0) {
         for (ContextPolicy contextPolicy : contextPolicies) {
-          attributes.addAll(contextPolicy.getAllowedAttributeNames());
+          claims.addAll(contextPolicy.getAllowedAttributeNames());
         }
-      }
-
-      if (attributes.size() > 0) {
-        claims.addAll(attributes);
       }
     }
 
