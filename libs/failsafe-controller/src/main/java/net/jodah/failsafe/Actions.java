@@ -201,9 +201,9 @@ public class Actions {
   }
 
   /**
-   * Indicates to block failsafe the next time it attempts a retry until it's execution is
-   * cancelled. After the execution is cancelled, the controller will move on to the next action and
-   * execute it right away.
+   * Indicates to block failsafe the next time it attempts a retry until its execution is cancelled.
+   * After the execution is cancelled, the controller will move on to the next action and execute it
+   * right away.
    *
    * <p>If the execution has already been cancelled then the controller will will move on to the
    * next action.

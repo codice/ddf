@@ -204,9 +204,9 @@ public class ActionList<R> implements Done<R> {
   }
 
   /**
-   * Indicates to block failsafe the next time it attempts a retry until it's execution is
-   * cancelled. After the execution is cancelled, the controller will simulate an interruption by
-   * throwing an {@link InterruptedException} back.
+   * Indicates to block failsafe the next time it attempts a retry until its execution is cancelled.
+   * After the execution is cancelled, the controller will simulate an interruption by throwing an
+   * {@link InterruptedException} back.
    *
    * <p>If the execution has already been cancelled then the controller will throw the interrupted
    * exception right away.
@@ -426,7 +426,7 @@ public class ActionList<R> implements Done<R> {
     }
 
     /**
-     * Indicates to block failsafe the next time it attempts a retry until it's execution is
+     * Indicates to block failsafe the next time it attempts a retry until its execution is
      * cancelled. After the execution is cancelled, the controller will move on to the next action
      * and execute it right away.
      *
