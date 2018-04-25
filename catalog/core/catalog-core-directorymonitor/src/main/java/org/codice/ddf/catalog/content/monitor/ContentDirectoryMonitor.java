@@ -215,8 +215,11 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * is shared across all Content Directory Monitors.
    */
   public void destroy(int code) {
-    List<RouteDefinition> routeDefinitions = new ArrayList<>(camelContext.getRouteDefinitions());
-    for (RouteDefinition routeDef : routeDefinitions) {
+    if (routeCollection == null) {
+      return;
+    }
+
+    for (RouteDefinition routeDef : routeCollection) {
       try {
         String routeId = routeDef.getId();
         if (isMyRoute(routeId)) {
