@@ -30,6 +30,8 @@ const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
 const announcement = require('component/announcement');
 const SearchFormModel = require('component/search-form/search-form.js');
+const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
+const lightboxInstance = lightboxResultInstance.generateNewLightbox();
 
 
 module.exports = Marionette.LayoutView.extend({
@@ -69,6 +71,10 @@ module.exports = Marionette.LayoutView.extend({
             case 'custom':
                 this.showCustom();
                 break;
+            case 'newResult': //pass through case statement
+            case 'result':
+                this.showResult();
+                break;
         }
     },
     onBeforeShow: function () {
@@ -95,6 +101,15 @@ module.exports = Marionette.LayoutView.extend({
     showBasic: function () {
         this.queryContent.show(new QueryBasic({
             model: this.model
+        }));
+    },
+    showResult: function () {
+        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        lightboxInstance.model.updateTitle(this.model.get('title'));
+        lightboxInstance.model.open();
+        lightboxInstance.$el.addClass('is-result-form');
+        lightboxInstance.lightboxContent.show(new QueryResult({
+                model: this.model,
         }));
     },
     handleEditOnShow: function () {

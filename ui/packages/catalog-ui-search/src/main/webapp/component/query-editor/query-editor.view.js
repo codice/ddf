@@ -23,6 +23,7 @@ const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 const cql = require('js/cql');
 const CQLUtils = require('js/CQLUtils');
 const store = require('js/store');
+const store = require('js/store');
 const user = require('component/singletons/user-instance');
 
 function isNested(filter) {
@@ -140,6 +141,9 @@ module.exports = Marionette.LayoutView.extend({
             case 'custom':
                 this.showCustom();
                 break;
+            case 'result':
+                this.showResult();
+                break;
         }
         this.edit();
     },
@@ -176,6 +180,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     showAdvanced: function () {
         this.queryContent.show(new QueryAdvanced({
+            model: this.model
+        }));
+    },
+    showResult: function () {
+        this.model.set({
+            title: user.getQuerySettings().get('template').name
+        });
+        this.queryContent.show(new QueryResult({
             model: this.model
         }));
     },

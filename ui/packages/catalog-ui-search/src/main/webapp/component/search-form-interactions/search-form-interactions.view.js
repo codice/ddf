@@ -27,9 +27,9 @@ module.exports =  Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('search-form-interactions'),
         className: 'composed-menu',
-        modelEvents: {
-            'change': 'render'
-        },
+        modelEvents: { 
+            'change': 'render' 
+        }, 
         events: {
             'click .interaction-default': 'handleMakeDefault',
             'click .interaction-clear': 'handleClearDefault',
@@ -129,28 +129,40 @@ module.exports =  Marionette.ItemView.extend({
             });
         },
         handleShare: function() {
-            lightboxInstance.model.updateTitle('Query Template Sharing');
+            lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle);
             lightboxInstance.model.open();
             lightboxInstance.lightboxContent.show(new QueryTemplateSharing({
-                model: this.model,
-                permissions: {
-                    'accessIndividuals': this.model.get('accessIndividuals'),
-                    'accessGroups': this.model.get('accessGroups')
-                }
+                model: this.options.modelForComponent
             }));
+            this.handleClick();
         },
         isSystemTemplate: function() {
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleEdit: function() {
-            this.model.set({
-                type: 'new-form',
-                title: this.model.get('name'),
-                filterTree: this.model.get('filterTemplate'),
-                id: this.model.get('id'),
-                accessGroups: this.model.get('accessGroups'),
-                accessIndividuals: this.model.get('accessIndividuals')
-            });
+            if(this.model.get('type') === 'custom')
+            {
+                this.model.set({
+                    type: 'new-form',
+                    title: this.model.get('name'),
+                    filterTree: this.model.get('filterTemplate'),
+                    id: this.model.get('id'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals')
+                });
+            }
+            else if(this.model.get('type') === 'result')
+            {
+                this.model.set({
+                    type: 'result',
+                    title: this.model.get('name'),
+                    formId: this.model.get('id'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals'),
+                    descriptors: this.model.get('descriptors'),
+                    description: this.model.get('description')
+                });
+            }
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
             this.model.trigger('change:type');
         },

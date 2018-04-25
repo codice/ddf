@@ -46,6 +46,40 @@ define([
             return result;
         }, {});
     }
+    const metacardStartingTypes = {
+        anyText: {
+            id: 'anyText',
+            type: 'STRING',
+            multivalued: false
+        },
+        anyGeo: {
+            id: 'anyGeo',
+            type: 'LOCATION',
+            multivalued: false
+        },
+        'metacard-type': {
+            id: 'metacard-type',
+            type: 'STRING',
+            multivalued: false,
+            readOnly: true
+        },
+        'source-id': {
+            id: 'source-id',
+            type: 'STRING',
+            multivalued: false,
+            readOnly: true
+        },
+        cached: {
+            id: 'cached',
+            type: 'STRING',
+            multivalued: false
+        },
+        'metacard-tags': {
+            id: 'metacard-tags',
+            type: 'STRING',
+            multivalued: true
+        }
+    }
 
     return new (Backbone.Model.extend({
         initialize: function () {
@@ -147,42 +181,12 @@ define([
             var definition = this.metacardTypes[id];
             return definition ? definition.alias || id : id;
         },
+        getMetacardStartingTypes: function(){
+            return metacardStartingTypes;
+        },
         metacardDefinitions: [],
         sortedMetacardTypes: [],
-        metacardTypes: {
-            anyText: {
-                id: 'anyText',
-                type: 'STRING',
-                multivalued: false
-            },
-            anyGeo: {
-                id: 'anyGeo',
-                type: 'LOCATION',
-                multivalued: false
-            },
-            'metacard-type': {
-                id: 'metacard-type',
-                type: 'STRING',
-                multivalued: false,
-                readOnly: true
-            },
-            'source-id': {
-                id: 'source-id',
-                type: 'STRING',
-                multivalued: false,
-                readOnly: true
-            },
-            cached: {
-                id: 'cached',
-                type: 'STRING',
-                multivalued: false
-            },
-            'metacard-tags': {
-                id: 'metacard-tags',
-                type: 'STRING',
-                multivalued: true
-            }
-        },
+        metacardTypes: Object.assign({}, metacardStartingTypes),
         validation: {
         },
         enums: {
