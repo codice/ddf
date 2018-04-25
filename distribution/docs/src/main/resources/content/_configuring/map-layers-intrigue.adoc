@@ -8,7 +8,7 @@
 == {title}
 
 Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
-Equivalent addition, editing, and deleting of a layer can be found <<_configuring_map_for_intrigue_using_catalog_ui_search,
+Equivalent addition and deletion of a layer can be found in <<_configuring_map_for_intrigue_using_catalog_ui_search,
 Configuring Map for ${catalog-ui} Using Catalog UI Search>>.
 
 . Navigate to the *${admin-console}*.
