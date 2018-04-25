@@ -1,15 +1,14 @@
-:title: Configuring Map for ${catalog-ui} Using Map Layers UI
+:title: Configuring Map Layers for ${catalog-ui}
 :type: subConfiguration
 :status: published
 :parent: Configuring ${catalog-ui}
 :order: 00
-:summary: Configuring map for ${catalog-ui} - Map Layers UI.
+:summary: Configuring Map Layers for ${catalog-ui}
 
 == {title}
 
 Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
-Equivalent addition and deletion of a layer can be found in <<_configuring_map_for_intrigue_using_catalog_ui_search,
-Configuring Map for ${catalog-ui} Using Catalog UI Search>>.
+Equivalent addition and deletion of a map layer can be found in <<_map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
