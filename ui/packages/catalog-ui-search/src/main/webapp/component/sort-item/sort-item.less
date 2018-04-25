@@ -5,12 +5,12 @@
     line-height: @minimumLineSize;
     text-align: left;
     padding: @minimumSpacing;
-    margin-left: @minimumSpacing;
+    margin: 0px @minimumSpacing 0px @minimumSpacing;
     background: @warning-color;
     white-space: normal;
   }
-  .sort-attribute > @{customElementNamespace}property,
-  .sort-direction > @{customElementNamespace}property {
+
+  .sort-attribute @{customElementNamespace}property {
     padding-bottom: 0px;
   }
 }
@@ -19,9 +19,6 @@
   display: block;
   width: 100%;
   overflow: hidden;
-
-  @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
-  }
 
   @{customElementNamespace}sort-item:not(:first-of-type) {
     .sort-remove {
@@ -47,35 +44,31 @@
   display: block;
   white-space: nowrap;
   overflow: hidden;
+  position: relative;
 
-  .sort-attribute > @{customElementNamespace}property,
-  .sort-direction > @{customElementNamespace}property {
-    padding-top: 0px;
-    padding-bottom: 0px;
+  .sort-properties .if-viewing {
+    height: @minimumButtonSize;
   }
 
-  > .sort-duplicate {
+  .sort-duplicate {
     display: none;
-    width: ~'calc(50%  - @{minimumButtonSize}/2 - 3*@{minimumSpacing})';
   }
 
-  .sort-attribute,
-  .sort-direction {
-    width: ~'calc(50%  - @{minimumButtonSize}/2 - @{minimumSpacing})';
-  }
-
-  .sort-attribute,
-  .sort-direction,
+  .sort-properties,
   .sort-remove {
     display: inline-block;
     vertical-align: top;
   }
 
-  .sort-attribute {
-    transition: width @coreTransitionTime ease-in-out;
+  .sort-properties {
+    width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing})';
   }
 
   .sort-remove {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
     height: @minimumButtonSize;
     width: @minimumButtonSize;
     display: none;
@@ -84,13 +77,13 @@
 }
 
 @{customElementNamespace}sort-item.is-non-directional-sort {
-  .sort-attribute {
-    width: ~'calc(100% - 1.5*@{minimumSpacing} - @{minimumButtonSize})';
-  }
   .sort-direction {
     display: none;
   }
+}
+
+@{customElementNamespace}sort-item.is-non-directional-sort.sort-duplicate-show {
   .sort-duplicate {
-    width: ~'calc(100% - 3.5*@{minimumSpacing} - @{minimumButtonSize})';
+    margin: 0px @minimumSpacing @minimumSpacing @minimumSpacing;
   }
 }
