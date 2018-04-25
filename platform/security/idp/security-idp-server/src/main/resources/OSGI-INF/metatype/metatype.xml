@@ -27,7 +27,7 @@
 
         <AD name="Limit RelayStates to 80 Bytes" id="strictRelayState" required="false" type="Boolean"
             default="true"
-            description="Disable this option to allow interoperability with non SAML-compliant Service Providers that send RelayStates larger than 80 bytes. Default value is 'true'."/>
+            description="Toggle whether or not to restrict the RelayState length to 80 bytes. Default value is 'true'."/>
 
         <AD name="Cookie Expiration Time (minutes)" id="expirationTime" required="true"
             type="Integer"

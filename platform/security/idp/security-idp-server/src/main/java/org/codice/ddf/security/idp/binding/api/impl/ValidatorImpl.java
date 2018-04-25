@@ -99,10 +99,9 @@ public abstract class ValidatorImpl implements Validator {
   public void validateRelayState(String relayState, boolean strictRelayState) {
     LOGGER.debug("Validating RelayState");
     if (relayState != null && relayState.length() > 80) {
+      LOGGER.warn("RelayState has invalid size: {}", relayState.length());
       if (strictRelayState) {
         throw new IllegalArgumentException("RelayState must be 80 bytes or shorter");
-      } else {
-        LOGGER.warn("RelayState has invalid size: {}", relayState.length());
       }
     }
 
