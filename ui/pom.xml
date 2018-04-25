@@ -413,6 +413,11 @@
                                     <classifier>cesium-assets</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>packages/codice-icons/target/codice-icons.jar</file>
+                                    <type>jar</type>
+                                    <classifier>codice-icons</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>packages/geowebcache-admin-plugin/target/geowebcache-admin-plugin.jar</file>
                                     <type>jar</type>
                                     <classifier>geowebcache-admin-plugin</classifier>
