@@ -13,11 +13,12 @@
  */
 package org.codice.ddf.catalog.harvest.file;
 
+import com.google.common.hash.Hashing;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.codice.ddf.catalog.harvest.Listener;
@@ -69,7 +70,7 @@ public class DirectoryHarvester extends PollingHarvester {
     super(pollInterval);
     harvestFile = new File(dir);
     validateDirectory(dir);
-    persistenceKey = DigestUtils.sha1Hex(dir);
+    persistenceKey = Hashing.sha256().hashString(dir, StandardCharsets.UTF_8).toString();
 
     initialListeners.forEach(this::registerListener);
     fileSystemPersistenceProvider = new FileSystemPersistenceProvider("harvest/directory");

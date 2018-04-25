@@ -15,13 +15,14 @@ package org.codice.ddf.catalog.harvest.webdav;
 
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import com.google.common.hash.Hashing;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.catalog.harvest.HarvestedResource;
 import org.codice.ddf.catalog.harvest.Harvester;
@@ -63,7 +64,7 @@ public class WebDavHarvester extends PollingHarvester {
     webdavListener = new HarvestedResourceListener();
 
     initialListeners.forEach(this::registerListener);
-    persistentKey = DigestUtils.sha1Hex(address);
+    persistentKey = Hashing.sha256().hashString(address, StandardCharsets.UTF_8).toString();
     observer = getCachedObserverOrCreate(persistentKey, address);
 
     super.init();

@@ -13,7 +13,8 @@
  */
 package org.codice.ddf.catalog.harvest.listeners;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import com.google.common.hash.Hashing;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.harvest.HarvestException;
 import org.codice.ddf.catalog.harvest.HarvestedResource;
@@ -34,12 +35,17 @@ public class PersistentListener implements Listener {
   public PersistentListener(StorageAdaptor adaptor, String pid) {
     this.adaptor = adaptor;
     persistenceProvider =
-        new FileSystemPersistenceProvider("harvest/persistent/" + DigestUtils.sha1Hex(pid));
+        new FileSystemPersistenceProvider(
+            "harvest/persistent/"
+                + Hashing.sha256().hashString(pid, StandardCharsets.UTF_8).toString());
   }
 
   @Override
   public void onCreate(HarvestedResource resource) {
-    String key = DigestUtils.sha1Hex(resource.getUri().toASCIIString());
+    String key =
+        Hashing.sha256()
+            .hashString(resource.getUri().toASCIIString(), StandardCharsets.UTF_8)
+            .toString();
     if (resourceNotCreated(key)) {
       String resourceId = null;
       try {
@@ -58,7 +64,10 @@ public class PersistentListener implements Listener {
 
   @Override
   public void onUpdate(HarvestedResource resource) {
-    String key = DigestUtils.sha1Hex(resource.getUri().toASCIIString());
+    String key =
+        Hashing.sha256()
+            .hashString(resource.getUri().toASCIIString(), StandardCharsets.UTF_8)
+            .toString();
     String resourceId = getResourceId(key);
 
     if (StringUtils.isNotEmpty(resourceId)) {
@@ -73,7 +82,7 @@ public class PersistentListener implements Listener {
 
   @Override
   public void onDelete(String uri) {
-    String key = DigestUtils.sha1Hex(uri);
+    String key = Hashing.sha256().hashString(uri, StandardCharsets.UTF_8).toString();
     String resourceId = getResourceId(key);
 
     if (StringUtils.isNotEmpty(resourceId)) {
