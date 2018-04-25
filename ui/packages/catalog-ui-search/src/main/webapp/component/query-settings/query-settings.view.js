@@ -26,7 +26,7 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/singletons/user-instance',
-    'component/sort-item/sort-item.collection.view',
+    'component/sort/sort.view',
     'js/Common',
     'component/result-form/result-form'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,

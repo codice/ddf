@@ -21,7 +21,7 @@ define([
     './result-sort.hbs',
     'js/CustomElements',
     'component/singletons/user-instance',
-    'component/sort-item/sort-item.collection.view'
+    'component/sort/sort.view'
 ], function (Marionette, Backbone, _, $, template, CustomElements, user, SortItemCollectionView) {
 
     return Marionette.LayoutView.extend({

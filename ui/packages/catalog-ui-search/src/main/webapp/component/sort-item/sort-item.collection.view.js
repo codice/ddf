@@ -19,11 +19,12 @@ define([
     'jquery',
     'js/CustomElements',
     './sort-item.view',
-    './sort-item-collection.hbs'
+    '../sort/sort.hbs'
 ], function (Marionette, _, $, CustomElements, queryItemView, template) {
 
-    let SortListView = Marionette.CollectionView.extend({
+    return Marionette.CollectionView.extend({
         childView: queryItemView,
+      tagName: CustomElements.register('sort-item-collection'),
         initialize: function (options) {
             if (this.collection.length === 0) {
                 this.collection.add({
@@ -41,44 +42,4 @@ define([
         }
     });
 
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('sort-item-collection'),
-        regions: {
-            sorts: '.sorts'
-        },
-        events: {
-            'click .sort-add': 'handleAdd'
-        },
-        handleAdd: function () {
-            this.childView.collection.add({
-                attribute: this.getNextAttribute(),
-                direction: 'descending'
-            });
-        },
-        // childViewOptions: function (model, index) {
-        //   return {
-        //     showBestTextOption: this.options.showBestTextOption
-        //   }
-        // },
-        getNextAttribute: function () {
-            let filtered = this.childView.children.findByModel(this.collection.models[0]).sortAttributes
-                .filter(function (type) {
-                    let sorts = this.childView.collection.filter(function (sort) {
-                        return sort.get('attribute') === type.value;
-                    });
-                    return sorts.length === 0;
-                }).bind(this);
-            return filtered[0].value;
-        },
-        initialize: function () {
-            this.childView = new SortListView({
-                collection: this.collection,
-                showBestTextOption: this.options.showBestTextOption
-            });
-        },
-        onBeforeShow: function () {
-            this.showChildView('sorts', this.childView);
-        }
-    });
 });
