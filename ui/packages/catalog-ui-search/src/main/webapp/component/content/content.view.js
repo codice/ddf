@@ -21,6 +21,7 @@ define([
     './content.hbs',
     'js/CustomElements',
     'component/navigation/workspace/navigation.workspace.view',
+    'component/toolbar/toolbar.view',
     'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
@@ -34,7 +35,7 @@ define([
     'component/visualization/visualization.view',
     'component/query-title/query-title.view',
     'component/golden-layout/golden-layout.view'
-], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
+], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, ToolbarView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, VisualizationView,
             QueryTitleView, GoldenLayoutView) {
@@ -53,6 +54,7 @@ define([
         },
         regions: {
             'menu': '.content-menu',
+            'toolbar': '.content-toolbar',
             'panelOne': '.content-panelOne',
             'panelTwo': '.content-panelTwo-content',
             'panelTwoTitle': '.content-panelTwo-title',
@@ -86,6 +88,7 @@ define([
             this.menu.show(new MenuView());
             if (this._mapView){
                 this.panelThree.show(this._mapView);
+                this.toolbar.show(new ToolbarView({goldenLayout: this._mapView.goldenLayout}));
             }
         },
         updatePanelOne: function(workspace){
