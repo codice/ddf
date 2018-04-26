@@ -50,7 +50,7 @@ hosting a local catalog.
 |Quad Core 2.6 GHz
 
 |RAM
-|4 GB^*^
+|8 GB^*^
 |32 GB
 
 |Disk Space
