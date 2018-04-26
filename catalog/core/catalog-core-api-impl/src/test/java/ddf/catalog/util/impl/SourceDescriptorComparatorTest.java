@@ -17,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.source.impl.SourceDescriptorImpl;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,10 +32,10 @@ public class SourceDescriptorComparatorTest {
 
   @Before
   public void setup() throws Exception {
-    firstSource = new SourceDescriptorImpl("aSource", null);
-    nextSource = new SourceDescriptorImpl("bSource", null);
-    lastSource = new SourceDescriptorImpl("cSource", null);
-    nullSource = new SourceDescriptorImpl(null, null);
+    firstSource = new SourceDescriptorImpl("aSource", null, Collections.emptyList());
+    nextSource = new SourceDescriptorImpl("bSource", null, Collections.emptyList());
+    lastSource = new SourceDescriptorImpl("cSource", null, Collections.emptyList());
+    nullSource = new SourceDescriptorImpl(null, null, Collections.emptyList());
   }
 
   @Test

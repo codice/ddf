@@ -16,10 +16,12 @@ package ddf.catalog.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.action.ActionRegistry;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.defaultvalues.DefaultAttributeValueRegistryImpl;
@@ -102,11 +104,14 @@ public class CatalogFrameworkQueryTest {
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
 
+    ActionRegistry sourceActionRegistry = mock(ActionRegistry.class);
+    when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(props);
+    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);
     ResourceOperations resourceOperations =

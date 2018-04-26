@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.action.ActionRegistry;
 import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.impl.MockMemoryStorageProvider;
 import ddf.catalog.data.Metacard;
@@ -100,6 +101,8 @@ public class RemoteDeleteOperationsTest {
   PostResourcePlugin mockPostResourcePlugin;
 
   List<PostResourcePlugin> mockPostResourcePlugins;
+
+  private ActionRegistry mockSourceActionRegistry;
 
   UuidGenerator uuidGenerator;
 
@@ -316,6 +319,9 @@ public class RemoteDeleteOperationsTest {
     when(inputTransformer.transform(any(InputStream.class))).thenReturn(new MetacardImpl());
     when(mimeTypeToTransformerMapper.findMatches(any(Class.class), any(MimeType.class)))
         .thenReturn(Collections.singletonList(inputTransformer));
+
+    mockSourceActionRegistry = mock(ActionRegistry.class);
+    when(mockSourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
   }
 
   private void setUpDeleteRequest() {
@@ -349,7 +355,8 @@ public class RemoteDeleteOperationsTest {
   }
 
   private void setUpDeleteOperations() {
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, mockSourceActionRegistry);
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);

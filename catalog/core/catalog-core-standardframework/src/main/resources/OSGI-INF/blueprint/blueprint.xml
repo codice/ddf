@@ -88,4 +88,17 @@
                                registration-method="start" unregistration-method="cancel"/>
     </service>
 
+
+    <cm:managed-service-factory id="Src_Action_Provider"
+                                factory-pid="Src_Action_Provider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.source.simple"/>
+        </service-properties>
+        <cm:managed-component class="ddf.catalog.impl.action.SourceActionProviderImpl">
+            <argument value="catalog.data.source.simple"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="container-managed" />
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
 </blueprint>

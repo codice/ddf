@@ -52,8 +52,23 @@
         <property name="historian" ref="historian"/>
     </bean>
 
+    <reference-list id="sourceActionProviders" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.source.*)" availability="optional" member-type="service-object">
+        <reference-listener bind-method="addActionProvider"
+                            unbind-method="removeActionProvider" ref="sourceActionRegistry"/>
+    </reference-list>
+
+    <reference-list id="sourceMultiActionProviders" interface="ddf.action.MultiActionProvider"
+                    filter="(id=catalog.data.source.*)" availability="optional" member-type="service-object">
+        <reference-listener bind-method="addMultiActionProvider"
+                            unbind-method="removeMultiActionProvider" ref="sourceActionRegistry"/>
+    </reference-list>
+
+    <bean id="sourceActionRegistry" class="ddf.action.impl.ActionRegistryImpl"/>
+
     <bean id="cfSourceOps" class="ddf.catalog.impl.operations.SourceOperations">
         <argument ref="frameworkProperties"/>
+        <argument ref="sourceActionRegistry"/>
     </bean>
 
     <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">

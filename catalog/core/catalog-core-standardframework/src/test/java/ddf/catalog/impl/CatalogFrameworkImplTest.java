@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
+import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.cache.impl.ResourceCacheImpl;
@@ -232,6 +233,8 @@ public class CatalogFrameworkImplTest {
 
   RemoteDeleteOperations mockRemoteDeleteOperations;
 
+  private ActionRegistry sourceActionRegistry;
+
   UuidGenerator uuidGenerator;
 
   @Rule
@@ -396,12 +399,16 @@ public class CatalogFrameworkImplTest {
     uuidGenerator = mock(UuidGenerator.class);
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
 
+    sourceActionRegistry = mock(ActionRegistry.class);
+    when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, sourceActionRegistry);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
@@ -1389,7 +1396,8 @@ public class CatalogFrameworkImplTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOperations =
+        new SourceOperations(frameworkProperties, sourceActionRegistry);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
     OperationsStorageSupport opsStorage =
@@ -2764,7 +2772,7 @@ public class CatalogFrameworkImplTest {
     frameworkProperties.setFederationStrategy(strategy);
     frameworkProperties.setCatalogProviders(Collections.singletonList(provider));
 
-    SourceOperations sourceOps = new SourceOperations(frameworkProperties);
+    SourceOperations sourceOps = new SourceOperations(frameworkProperties, sourceActionRegistry);
     QueryOperations queryOps = new QueryOperations(frameworkProperties, sourceOps, null, null);
     ResourceOperations resOps = new ResourceOperations(frameworkProperties, queryOps, null);
     resOps.setId(DDF);

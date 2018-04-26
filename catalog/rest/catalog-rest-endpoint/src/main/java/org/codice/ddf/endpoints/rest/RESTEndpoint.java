@@ -17,6 +17,7 @@ import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
 import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
 
 import com.google.common.io.ByteSource;
+import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -83,6 +84,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
@@ -391,6 +393,14 @@ public class RESTEndpoint implements RESTService {
     return getDocument(null, id, transformerParam, uriInfo, httpRequest);
   }
 
+  private JSONObject sourceActionToJSON(Action action) {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("title", action.getTitle());
+    jsonObject.put("url", action.getUrl().toString());
+    jsonObject.put("description", action.getDescription());
+    return jsonObject;
+  }
+
   /**
    * REST Get. Retrieves information regarding sources available.
    *
@@ -417,6 +427,12 @@ public class RESTEndpoint implements RESTService {
         sourceObj.put("id", source.getSourceId());
         sourceObj.put("version", source.getVersion() != null ? source.getVersion() : "");
         sourceObj.put("available", Boolean.valueOf(source.isAvailable()));
+
+        List<JSONObject> sourceActions =
+            source.getActions().stream().map(this::sourceActionToJSON).collect(Collectors.toList());
+
+        sourceObj.put("sourceActions", sourceActions);
+
         JSONArray contentTypesObj = new JSONArray();
         if (source.getContentTypes() != null) {
           for (ContentType contentType : source.getContentTypes()) {

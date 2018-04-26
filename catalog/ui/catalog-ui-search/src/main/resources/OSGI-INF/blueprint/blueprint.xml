@@ -159,7 +159,7 @@
     <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute"
                     availability="optional"/>
 
-    <bean id="metacardActionRegistry" class="org.codice.ddf.catalog.ui.MetacardActionRegistry">
+    <bean id="metacardActionRegistry" class="ddf.action.impl.ActionRegistryImpl">
         <argument ref="metacardActionProviders"/>
         <argument ref="metacardMultiActionProviders"/>
     </bean>

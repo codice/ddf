@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.action.ActionRegistry;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -109,10 +110,15 @@ public class FederationStrategyTest {
 
   private Query mockQuery;
 
+  private ActionRegistry sourceActionRegistry;
+
   @Rule public PowerMockRule rule = new PowerMockRule();
 
   @Before
   public void setup() throws Exception {
+    sourceActionRegistry = mock(ActionRegistry.class);
+    when(sourceActionRegistry.list(any())).thenReturn(Collections.emptyList());
+
     mockQuery = mock(Query.class);
     when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
 
@@ -163,7 +169,7 @@ public class FederationStrategyTest {
     Historian historian = new Historian();
     historian.setHistoryEnabled(false);
 
-    SourceOperations sourceOperations = new SourceOperations(props);
+    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
 
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);

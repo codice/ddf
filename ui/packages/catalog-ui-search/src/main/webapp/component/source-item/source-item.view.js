@@ -13,23 +13,36 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var template = require('./source-item.hbs');
+const Marionette = require('marionette');
+const CustomElements = require('js/CustomElements');
+const template = require('./source-item.hbs');
+const lightboxInstance = require('component/lightbox/lightbox.view.instance');
+const SourceAppView = require('component/source-app/source-app.view');
 
 module.exports = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('source-item'),
     modelEvents: {
-        'change': 'render' 
+        'change': 'render'
     },
     events: {
+        'click button': 'onActionClicked'
+    },
+    onActionClicked(event) {
 
+        var target = event.currentTarget;
+
+        if(target !== null) {
+            const url = target.getAttribute('data-url');
+            const title = target.getAttribute('data-title');
+
+            lightboxInstance.model.updateTitle(title);
+            lightboxInstance.model.open();
+            lightboxInstance.lightboxContent.show(new SourceAppView({ url }));
+        }
     },
-    initialize: function(){
-        
-    },
-    onRender: function(){
+    onRender(){
         this.$el.toggleClass('is-available', this.model.get('available'));
+
     }
 });

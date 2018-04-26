@@ -11,21 +11,10 @@
  *
  **/
  --}}
-<div class="source-available">
-    <span class="is-available fa fa-check"></span>
-    <span class="is-not-available fa fa-bolt"></span>
-</div><div class="source-name" title="{{id}}">
-    {{id}}
+<div class="is-iframe-div">
+  <iframe class="is-iframe" sandbox src="{{url}}">
+  </iframe>
 </div>
-<div class="source-actions">
-    {{#each this.sourceActions}}
-    <div class="source-action">
-         <button class="action-button is-button" title="{{this.title}}: {{this.description}}" data-title="{{this.title}}" data-url="{{this.url}}" data-help="{{this.title}}: {{this.description}}">
-            <span class="fa fa-external-link"></span>
-            <span>
-                {{this.title}}
-            </span>
-        </button>
-    </div>
-    {{/each}}
+<div>
+  <button class="is-primary is-ack">Done</button>
 </div>
