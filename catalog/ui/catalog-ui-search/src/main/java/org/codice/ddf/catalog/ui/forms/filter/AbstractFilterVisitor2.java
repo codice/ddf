@@ -15,23 +15,7 @@ package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-import javax.xml.bind.JAXBElement;
-import net.opengis.filter.v_2_0.BBOXType;
-import net.opengis.filter.v_2_0.BinaryComparisonOpType;
-import net.opengis.filter.v_2_0.BinaryLogicOpType;
-import net.opengis.filter.v_2_0.BinarySpatialOpType;
-import net.opengis.filter.v_2_0.BinaryTemporalOpType;
-import net.opengis.filter.v_2_0.DistanceBufferType;
-import net.opengis.filter.v_2_0.FilterType;
-import net.opengis.filter.v_2_0.FunctionType;
-import net.opengis.filter.v_2_0.LiteralType;
-import net.opengis.filter.v_2_0.PropertyIsBetweenType;
-import net.opengis.filter.v_2_0.PropertyIsLikeType;
-import net.opengis.filter.v_2_0.PropertyIsNilType;
-import net.opengis.filter.v_2_0.PropertyIsNullType;
-import net.opengis.filter.v_2_0.UnaryLogicOpType;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,163 +38,108 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFilterVisitor2.class);
 
   @Override
-  public void visitFilter(VisitableXmlElement<FilterType> visitable) {
-    JAXBElement<FilterType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-
-    FilterType filterType = element.getValue();
-    JAXBElement<?> root =
-        Stream.of(
-                filterType.getComparisonOps(),
-                filterType.getLogicOps(),
-                filterType.getSpatialOps(),
-                filterType.getTemporalOps())
-            .filter(Objects::nonNull)
-            .findAny()
-            .orElse(null);
-
-    if (root != null) {
-      LOGGER.trace("Valid root found, beginning traversal...");
-      makeVisitable(root).accept(this);
-      return;
-    }
-
-    // Support can be enhanced in the future, but currently these components aren't needed
-    handleUnsupported(filterType.getId());
-    handleUnsupported(filterType.getExtensionOps());
-
-    // Functions are supported but not as the FIRST element of a document
-    handleUnsupported(filterType.getFunction());
-
-    throw new FilterProcessingException("No valid starting element for the filter was found");
+  public void visitFilter(VisitableElement<VisitableElement<?>> visitable) {
+    traceName(visitable);
+    visitable.getValue().accept(this);
   }
 
   @Override
-  public void visitString(VisitableXmlElement<String> visitable) {
-    JAXBElement<String> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
+  public void visitString(VisitableElement<String> visitable) {
+    traceName(visitable);
+    traceValue(visitable.getValue());
   }
 
   @Override
-  public void visitLiteralType(VisitableXmlElement<LiteralType> visitable) {
-    JAXBElement<LiteralType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitFunctionType(VisitableXmlElement<FunctionType> visitable) {
-    JAXBElement<FunctionType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitUnaryLogicType(VisitableXmlElement<UnaryLogicOpType> visitable) {
-    JAXBElement<UnaryLogicOpType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitBinaryTemporalType(VisitableXmlElement<BinaryTemporalOpType> visitable) {
-    JAXBElement<BinaryTemporalOpType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitBinarySpatialType(VisitableXmlElement<BinarySpatialOpType> visitable) {
-    JAXBElement<BinarySpatialOpType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitDistanceBufferType(VisitableXmlElement<DistanceBufferType> visitable) {
-    JAXBElement<DistanceBufferType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitBoundingBoxType(VisitableXmlElement<BBOXType> visitable) {
-    JAXBElement<BBOXType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitBinaryLogicType(VisitableXmlElement<BinaryLogicOpType> visitable) {
-    JAXBElement<BinaryLogicOpType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-
-    element.getValue().getOps().forEach(jax -> makeVisitable(jax).accept(this));
-  }
-
-  @Override
-  public void visitBinaryComparisonType(VisitableXmlElement<BinaryComparisonOpType> visitable) {
-    JAXBElement<BinaryComparisonOpType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-
-    element.getValue().getExpression().forEach(jax -> makeVisitable(jax).accept(this));
-  }
-
-  @Override
-  public void visitPropertyIsLikeType(VisitableXmlElement<PropertyIsLikeType> visitable) {
-    JAXBElement<PropertyIsLikeType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitPropertyIsNullType(VisitableXmlElement<PropertyIsNullType> visitable) {
-    JAXBElement<PropertyIsNullType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitPropertyIsNilType(VisitableXmlElement<PropertyIsNilType> visitable) {
-    JAXBElement<PropertyIsNilType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  @Override
-  public void visitPropertyIsBetweenType(VisitableXmlElement<PropertyIsBetweenType> visitable) {
-    JAXBElement<PropertyIsBetweenType> element = visitable.getElement();
-    String localPart = element.getName().getLocalPart();
-    traceLocalPart(localPart);
-  }
-
-  private static void handleUnsupported(Object type) {
-    if (type != null) {
-      throw new UnsupportedOperationException(
-          "Encountered filter with unsupported element: " + type.getClass().getName());
+  public void visitLiteralType(VisitableElement<List<Serializable>> visitable) {
+    if (LOGGER.isTraceEnabled()) {
+      visitable.getValue().forEach(AbstractFilterVisitor2::traceValue);
     }
   }
 
-  private static void handleUnsupported(List type) {
-    if (!type.isEmpty()) {
-      throw new UnsupportedOperationException(
-          "Encountered filter with unsupported element: " + type.getClass().getName());
-    }
+  @Override
+  public void visitFunctionType(VisitableElement<Map<String, Object>> visitable) {
+    traceName(visitable);
   }
 
-  protected void traceLocalPart(String localPart) {
-    LOGGER.trace("Local Part: {}", localPart);
+  @Override
+  public void visitBinaryLogicType(VisitableElement<List<VisitableElement<?>>> visitable) {
+    traceName(visitable);
+    visitable.getValue().forEach(v -> v.accept(this));
   }
 
-  protected void traceValue(Serializable value) {
+  @Override
+  public void visitUnaryLogicType(VisitableElement<VisitableElement<?>> visitable) {
+    traceName(visitable);
+    visitable.accept(this);
+  }
+
+  @Override
+  public void visitBinaryTemporalType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    visitObjects(visitable);
+  }
+
+  @Override
+  public void visitBinarySpatialType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    visitObjects(visitable);
+  }
+
+  @Override
+  public void visitDistanceBufferType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    visitObjects(visitable);
+  }
+
+  @Override
+  public void visitBoundingBoxType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    visitObjects(visitable);
+  }
+
+  @Override
+  public void visitBinaryComparisonType(VisitableElement<List<VisitableElement<?>>> visitable) {
+    traceName(visitable);
+    visitable.getValue().forEach(v -> v.accept(this));
+  }
+
+  @Override
+  public void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable) {
+    traceName(visitable);
+    visitable.getValue().forEach(v -> v.accept(this));
+  }
+
+  @Override
+  public void visitPropertyIsNullType(VisitableElement<VisitableElement<?>> visitable) {
+    traceName(visitable);
+    // Verify result of visiting embedded entity
+  }
+
+  @Override
+  public void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable) {
+    traceName(visitable);
+    // Verify result of visiting embedded entity
+  }
+
+  @Override
+  public void visitPropertyIsBetweenType(VisitableElement<List<VisitableElement<?>>> visitable) {
+    traceName(visitable);
+    throw new UnsupportedOperationException("PropertyIsBetweenType currently is not supported");
+  }
+
+  private void visitObjects(VisitableElement<List<Object>> visitable) {
+    visitable
+        .getValue()
+        .stream()
+        .map(VisitableElement.class::cast)
+        .forEachOrdered(v -> v.accept(this));
+  }
+
+  private static void traceName(VisitableElement element) {
+    LOGGER.trace("LocalPart: {}", element.getName());
+  }
+
+  private static void traceValue(Serializable value) {
     LOGGER.trace("Value: {}", value);
-  }
-
-  protected VisitableXmlElement makeVisitable(JAXBElement element) {
-    return new VisitableXmlElementImpl(element);
   }
 }

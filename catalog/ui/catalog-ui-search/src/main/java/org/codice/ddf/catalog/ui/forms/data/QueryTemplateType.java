@@ -21,6 +21,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Set;
+import org.codice.ddf.catalog.ui.forms.model.TransformVisitor;
 
 /**
  * Represents a data structure for storing a query template. The {@code template.query.filter} field
@@ -33,7 +34,7 @@ import java.util.Set;
  * @see <a href="http://schemas.opengis.net/filter/2.0/">schemas.opengis.net/filter/2.0/</a>
  * @see org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate
  * @see org.codice.ddf.catalog.ui.forms.model.pojo.FilterNode
- * @see org.codice.ddf.catalog.ui.forms.model.JsonTransformVisitor
+ * @see TransformVisitor
  */
 public class QueryTemplateType extends MetacardTypeImpl {
   public static final String QUERY_TEMPLATE_TAG = "query-template";

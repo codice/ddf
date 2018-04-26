@@ -18,6 +18,7 @@ import static org.boon.Boon.println;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +73,9 @@ public class XmlModelBuilderTest {
         builder
             .beginBinaryComparisonType(JSON_EQUAL)
             .setProperty("name")
-            .setTemplatedValues("5", "id", true, false)
+            .setTemplatedValues(
+                ImmutableMap.of(
+                    "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false))
             .endTerminalType()
             .getResult();
 

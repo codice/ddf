@@ -177,10 +177,15 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public XmlModelBuilder setTemplatedValues(
-      String defaultValue, String nodeId, boolean isVisible, boolean isReadOnly) {
+  public XmlModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
+
+    String defaultValue = (String) templateProps.get("defaultValue");
+    String nodeId = (String) templateProps.get("nodeId");
+    boolean isVisible = (boolean) templateProps.get("isVisible");
+    boolean isReadOnly = (boolean) templateProps.get("isReadOnly");
+
     supplierInProgress.setValue(
         FACTORY.createFunction(
             new FunctionType()

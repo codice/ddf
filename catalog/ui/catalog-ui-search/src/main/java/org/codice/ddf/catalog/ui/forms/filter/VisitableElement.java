@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
-import javax.xml.bind.JAXBElement;
-
 /**
  * Can be visited by a {@link FilterVisitor2}. Currently visitability is coupled to JAXB as a result
  * of the Filter 2.0 binding implementation used.
@@ -22,9 +20,11 @@ import javax.xml.bind.JAXBElement;
  * <p><i>This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library.</i>
  */
-public interface VisitableXmlElement<T> {
+public interface VisitableElement<T> {
 
-  JAXBElement<T> getElement();
+  String getName();
+
+  T getValue();
 
   void accept(FilterVisitor2 visitor);
 }

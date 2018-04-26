@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -183,17 +182,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public JsonModelBuilder setTemplatedValues(
-      String defaultValue, String nodeId, boolean isVisible, boolean isReadOnly) {
+  public JsonModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-
-    Map<String, Object> templateProps = new HashMap<>();
-    templateProps.put("defaultValue", defaultValue);
-    templateProps.put("nodeId", nodeId);
-    templateProps.put("isVisible", isVisible);
-    templateProps.put("isReadOnly", isReadOnly);
-
     nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
     return this;
   }

@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
+import java.util.Map;
+
 public interface FlatFilterBuilder<T> {
 
   T getResult();
@@ -31,6 +33,5 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder setValue(String value);
 
-  FlatFilterBuilder setTemplatedValues(
-      String defaultValue, String nodeId, boolean isVisible, boolean isReadOnly);
+  FlatFilterBuilder setTemplatedValues(Map<String, Object> templateProps);
 }

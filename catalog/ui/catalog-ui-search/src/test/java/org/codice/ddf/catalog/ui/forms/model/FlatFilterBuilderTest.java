@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.model;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import org.junit.Before;
@@ -146,12 +147,16 @@ public class FlatFilterBuilderTest {
   @Test(expected = IllegalStateException.class)
   public void testSetTemplatedValuesCanModify() {
     setupDefaultTestValue(builder);
-    builder.setTemplatedValues("default", "id", true, false);
+    builder.setTemplatedValues(
+        ImmutableMap.of(
+            "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
   }
 
   @Test(expected = IllegalStateException.class)
   public void testSetTemplatedValuesCanSetField() {
-    builder.setTemplatedValues("default", "id", true, false);
+    builder.setTemplatedValues(
+        ImmutableMap.of(
+            "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
   }
 
   @Test(expected = IllegalArgumentException.class)

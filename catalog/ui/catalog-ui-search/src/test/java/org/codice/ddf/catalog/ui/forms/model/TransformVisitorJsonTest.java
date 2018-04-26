@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
+import org.codice.ddf.catalog.ui.forms.filter.VisitableElement;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class JsonTransformVisitorTest {
+public class TransformVisitorJsonTest {
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/filter2");
 
@@ -42,11 +42,11 @@ public class JsonTransformVisitorTest {
 
   private static final String DEPTH_VAL = "100";
 
-  private JsonTransformVisitor visitor;
+  private TransformVisitor<FilterNode> visitor;
 
   @Before
   public void setup() {
-    visitor = new JsonTransformVisitor();
+    visitor = new TransformVisitor<>(new JsonModelBuilder());
   }
 
   @Test
@@ -92,7 +92,7 @@ public class JsonTransformVisitorTest {
     assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
   }
 
-  private static VisitableXmlElement getRootFilterNode(String... resourceRoute) throws Exception {
+  private static VisitableElement getRootFilterNode(String... resourceRoute) throws Exception {
     File dir = new File(FILTER_RESOURCES_DIR.toURI());
     if (!dir.exists()) {
       fail(
@@ -111,7 +111,7 @@ public class JsonTransformVisitorTest {
       fail("File was not found " + xmlFile.getAbsolutePath());
     }
 
-    return new VisitableXmlElementImpl(
+    return VisitableXmlElementImpl.create(
         new FilterReader().unmarshalFilter(new FileInputStream(xmlFile)));
   }
 }

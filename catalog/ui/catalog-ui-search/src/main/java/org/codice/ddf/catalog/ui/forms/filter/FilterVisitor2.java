@@ -13,24 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
-import net.opengis.filter.v_2_0.BBOXType;
-import net.opengis.filter.v_2_0.BinaryComparisonOpType;
-import net.opengis.filter.v_2_0.BinaryLogicOpType;
-import net.opengis.filter.v_2_0.BinarySpatialOpType;
-import net.opengis.filter.v_2_0.BinaryTemporalOpType;
-import net.opengis.filter.v_2_0.DistanceBufferType;
-import net.opengis.filter.v_2_0.FilterType;
-import net.opengis.filter.v_2_0.FunctionType;
-import net.opengis.filter.v_2_0.LiteralType;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import net.opengis.filter.v_2_0.PropertyIsBetweenType;
-import net.opengis.filter.v_2_0.PropertyIsLikeType;
-import net.opengis.filter.v_2_0.PropertyIsNilType;
-import net.opengis.filter.v_2_0.PropertyIsNullType;
-import net.opengis.filter.v_2_0.UnaryLogicOpType;
 
 /**
  * An experimental interface to support Filter XML 2.0 and all related capabilities. Able to visit
- * implementations of {@link VisitableXmlElement}.
+ * implementations of {@link VisitableElement}.
  *
  * <p>Currently support is not provided for the following:
  *
@@ -45,34 +35,56 @@ import net.opengis.filter.v_2_0.UnaryLogicOpType;
  */
 public interface FilterVisitor2 {
 
-  void visitFilter(VisitableXmlElement<FilterType> visitable);
+  // Note: Scope is wider than EXPRESSION - could be any type within schema
+  void visitFilter(VisitableElement<VisitableElement<?>> visitable);
 
-  // Work around for Value References not having an explicit binding
-  void visitString(VisitableXmlElement<String> visitable);
+  // Value References bind to String instead of their own specific type
+  void visitString(VisitableElement<String> visitable);
 
-  void visitLiteralType(VisitableXmlElement<LiteralType> visitable);
+  void visitLiteralType(VisitableElement<List<Serializable>> visitable);
 
-  void visitFunctionType(VisitableXmlElement<FunctionType> visitable);
+  // Traversal for the time being will assume NO embedded functions / currying support
+  void visitFunctionType(VisitableElement<Map<String, Object>> visitable);
 
-  void visitBinaryLogicType(VisitableXmlElement<BinaryLogicOpType> visitable);
+  void visitBinaryLogicType(VisitableElement<List<VisitableElement<?>>> visitable);
 
-  void visitUnaryLogicType(VisitableXmlElement<UnaryLogicOpType> visitable);
+  // Note: Scope is wider than EXPRESSION - could be any type within schema
+  void visitUnaryLogicType(VisitableElement<VisitableElement<?>> visitable);
 
-  void visitBinaryTemporalType(VisitableXmlElement<BinaryTemporalOpType> visitable);
+  void visitBinaryTemporalType(VisitableElement<List<Object>> visitable);
 
-  void visitBinarySpatialType(VisitableXmlElement<BinarySpatialOpType> visitable);
+  void visitBinarySpatialType(VisitableElement<List<Object>> visitable);
 
-  void visitDistanceBufferType(VisitableXmlElement<DistanceBufferType> visitable);
+  void visitDistanceBufferType(VisitableElement<List<Object>> visitable);
 
-  void visitBoundingBoxType(VisitableXmlElement<BBOXType> visitable);
+  void visitBoundingBoxType(VisitableElement<List<Object>> visitable);
 
-  void visitBinaryComparisonType(VisitableXmlElement<BinaryComparisonOpType> visitable);
+  void visitBinaryComparisonType(VisitableElement<List<VisitableElement<?>>> visitable);
 
-  void visitPropertyIsLikeType(VisitableXmlElement<PropertyIsLikeType> visitable);
+  void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable);
 
-  void visitPropertyIsNullType(VisitableXmlElement<PropertyIsNullType> visitable);
+  void visitPropertyIsNullType(VisitableElement<VisitableElement<?>> visitable);
 
-  void visitPropertyIsNilType(VisitableXmlElement<PropertyIsNilType> visitable);
+  void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable);
 
-  void visitPropertyIsBetweenType(VisitableXmlElement<PropertyIsBetweenType> visitable);
+  /**
+   * Visit a {@link PropertyIsBetweenType}. Note that this type will be strange; it's an expression
+   * with boundary components strongly typed, each yielding a single {@link
+   * javax.xml.bind.JAXBElement}.
+   *
+   * <p>For now the expected value will be that of a traditional expression ({@code
+   * List<VisitableElement<?>>} but is subject to change in the future.
+   *
+   * <p><b>Note: This construct is not yet fully supported and always throws {@link
+   * UnsupportedOperationException}.</b>
+   *
+   * @param visitable the data node to visit.
+   * @throws UnsupportedOperationException this type of data is currently not supported.
+   * @see net.opengis.filter.v_2_0.UpperBoundaryType
+   * @see net.opengis.filter.v_2_0.LowerBoundaryType
+   * @see PropertyIsBetweenType#getExpression()
+   * @see PropertyIsBetweenType#getLowerBoundary()
+   * @see PropertyIsBetweenType#getUpperBoundary()
+   */
+  void visitPropertyIsBetweenType(VisitableElement<List<VisitableElement<?>>> visitable);
 }
