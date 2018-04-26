@@ -32,8 +32,7 @@ var LowBandwidthMapView = require('component/visualization/low-bandwidth-map/low
 var Common = require('js/Common');
 var store = require('js/store');
 var user = require('component/singletons/user-instance');
-var VisualizationDropdown = require('component/dropdown/visualization-selector/dropdown.visualization-selector.view');
-var DropdownModel = require('component/dropdown/dropdown');
+
 const sanitize = require('sanitize-html');
 
 const treeMap = (obj, fn, path = []) => {
@@ -174,13 +173,6 @@ module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('golden-layout'),
     template: template,
     className: 'is-minimised',
-    events: {
-        'click > .golden-layout-toolbar .to-toggle-size': 'handleToggleSize',
-    },
-    regions: {
-        toolbar: '> .golden-layout-toolbar',
-        widgetDropdown: '> .golden-layout-toolbar .to-add'
-    },
     initialize: function (options) {
         this.options.selectionInterface = options.selectionInterface || store;
     },
@@ -196,12 +188,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     updateSize: function () {
         this.goldenLayout.updateSize();
-    },
-    showWidgetDropdown: function () {
-        this.widgetDropdown.show(new VisualizationDropdown({
-            model: new DropdownModel(),
-            goldenLayout: this.goldenLayout
-        }));
     },
     showGoldenLayout: function () {
         this.goldenLayout = new GoldenLayout(this.getGoldenLayoutConfig(), this.el.querySelector('.golden-layout-container'));
@@ -263,7 +249,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function () {
         this.showGoldenLayout();
-        this.showWidgetDropdown();
         this.setupListeners();
     },
     handleToggleSize: function () {
