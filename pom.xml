@@ -231,7 +231,7 @@
         <ddf-security>Security</ddf-security>
         <ddf-solr>Solr Catalog</ddf-solr>
         <ddf-spatial>Spatial</ddf-spatial>
-        <ddf-ui>Standard Search UI</ddf-ui>
+        <ddf-ui>Search UI</ddf-ui>
 
         <asciidoctor.maven.plugin.version>1.5.6</asciidoctor.maven.plugin.version>
         <asciidoctorj.version>1.5.6</asciidoctorj.version>
