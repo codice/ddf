@@ -90,6 +90,7 @@ define([
             this.collection = options.collection;
         },
         removeModel: function () {
+            this.model.destroy();
             this.destroy();
         },
         onBeforeShow: function () {
