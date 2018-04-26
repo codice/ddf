@@ -133,7 +133,7 @@ define([
 
                 data.sorts = this.get('sorts');
 
-                return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
+                return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sorts', 'id');
             },
             startSearch: function (options) {
                 this.set('isOutdated', false);
