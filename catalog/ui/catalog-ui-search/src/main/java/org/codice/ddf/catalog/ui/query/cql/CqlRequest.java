@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static spark.Spark.halt;
 
 import com.google.common.collect.Sets;
@@ -158,7 +159,7 @@ public class CqlRequest {
     if (sortBys.size() > 1) {
       queryRequest
           .getProperties()
-          .put("additional.sorts.bys", sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
+          .put(ADDITIONAL_SORT_BYS, sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
     }
 
     return queryRequest;
@@ -230,6 +231,7 @@ public class CqlRequest {
 
   /** POJO binding for BOON */
   public static class Sort {
+
     private String attribute;
     private String direction;
 
