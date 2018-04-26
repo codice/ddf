@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class ActionRegistry<R> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ActionRegistry.class);
 
-  private static final String CR_AND_INDENT = "\r\n\t";
+  private static final String NL_AND_INDENT = String.format("%n\t");
 
   private final FailsafeController<R> controller;
 
@@ -103,18 +103,15 @@ public class ActionRegistry<R> {
       if (!expectations.isEmpty()) {
         throw controller.setFailure(
             new AssertionError(
-                "expecting "
-                    + (expectations.size() + processing.size())
-                    + " executions for '"
-                    + controller
-                    + "' but only "
-                    + processing.size()
-                    + " occurred; the following were not executed: \r\n\t"
-                    + expectations
+                String.format(
+                    "expecting %d executions for `%s` but only %d occurred; the following were not executed: %n\t%s%n",
+                    (expectations.size() + processing.size()),
+                    controller,
+                    processing.size(),
+                    expectations
                         .stream()
                         .map(Expectation::toString)
-                        .collect(Collectors.joining(ActionRegistry.CR_AND_INDENT))
-                    + "\r\n"));
+                        .collect(Collectors.joining(ActionRegistry.NL_AND_INDENT)))));
       }
     }
   }
@@ -177,15 +174,13 @@ public class ActionRegistry<R> {
         if (!left.isEmpty()) {
           throw controller.setFailure(
               new AssertionError(
-                  "too many expected actions for execution '"
-                      + controller
-                      + " - "
-                      + id
-                      + "'; the following action(s) were not attempted: \r\n\t"
-                      + left.stream()
+                  String.format(
+                      "too many expected actions for execution '%s - %s'; the following action(s) were not attempted: %n\t%s%n",
+                      controller,
+                      id,
+                      left.stream()
                           .map(Action::currentToString)
-                          .collect(Collectors.joining(ActionRegistry.CR_AND_INDENT))
-                      + "\r\n"));
+                          .collect(Collectors.joining(ActionRegistry.NL_AND_INDENT)))));
         }
       }
     }
@@ -285,18 +280,15 @@ public class ActionRegistry<R> {
         if (action == null) {
           throw controller.setFailure(
               new AssertionError(
-                  "not enough expected actions for execution '"
-                      + controller
-                      + " - "
-                      + id
-                      + "'; the following "
-                      + processed.size()
-                      + " action(s) were processed: \r\n\t"
-                      + processed
+                  String.format(
+                      "not enough expected actions for execution '%s - %s'; the following %d action(s) were processed: %n\t%s%n",
+                      controller,
+                      id,
+                      processed.size(),
+                      processed
                           .stream()
                           .map(Action::definedToString)
-                          .collect(Collectors.joining(ActionRegistry.CR_AND_INDENT))
-                      + "\r\n"));
+                          .collect(Collectors.joining(ActionRegistry.NL_AND_INDENT)))));
         }
         LOGGER.debug(
             "FailsafeController({} - {}): next action to execute: {}", controller, id, action);
