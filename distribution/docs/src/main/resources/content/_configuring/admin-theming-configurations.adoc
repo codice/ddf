@@ -1,0 +1,10 @@
+:title: Admin Theming Configurations
+:type: configuringIntro
+:status: published
+:parent: Configuring
+:order: 11
+:Summary: Admin Theming Configurations.
+
+== {title}
+
+The optional configurations in this section cover minor changes that can be made to optimize ${branding} appearances.

@@ -1,9 +1,9 @@
 :title: Login Page
 :id: org.codice.ddf.security.handler.guest.configuration
-:status: published
 :type: table
-:application: ${ddf-security}
-:summary: Login Page configurations.
+:status: published
+:application: ${ddf-platform}
+:summary: Starting page for any user of ${branding}.
 
 .[[org.codice.ddf.security.handler.guest.configuration]]Login Page
 [cols="1,1m,1,3,1,1" options="header"]
@@ -21,28 +21,28 @@
 |String
 |Specifies the header text to be rendered on the Login page
 |
-|true
+|false
 
 |Footer
 |footer
 |String
 |Specifies the footer text to be rendered on the Login page
 |
-|true
+|false
 
 |Style
 |style
-|String
-|Specifies the style of the Header and Footer.
-|green
-|true
+|
+|Specifies the style of the Header and Footer
+|Green
+|false
 
 |Text Color
 |textColor
-|String
-|Specifies the text color of the Header and Footer.
-|banner-text-white
-|true
+|
+|Specifies the text color of the Header and Footer
+|White
+|false
+
 
 |===
-

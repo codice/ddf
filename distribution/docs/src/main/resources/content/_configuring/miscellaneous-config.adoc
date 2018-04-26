@@ -2,7 +2,7 @@
 :type: configuringIntro
 :status: published
 :parent: Configuring
-:order: 11
+:order: 12
 :Summary: Miscellaneous configurations and optimizations
 
 == {title}

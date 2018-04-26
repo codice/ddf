@@ -1,9 +1,9 @@
 :title: Landing Page
 :type: configuration
 :status: published
-:parent: Miscellaneous Configurations
+:parent: Admin Theming Configurations
 :summary: Configure landing page.
-:order: 03
+:order: 00
 
 == {title}
 
@@ -27,5 +27,8 @@ Configure the Landing Page from the ${admin-console}:
 . Select *${ddf-platform}* Application.
 . Select *Configuration* tab.
 . Select *Landing Page*.
+
+Configure important landing page items such as branding logo, contact information, description,
+and additional links.
 
 See <<org.codice.ddf.distribution.landingpage.properties,Landing Page configurations>> for all possible configurations.
