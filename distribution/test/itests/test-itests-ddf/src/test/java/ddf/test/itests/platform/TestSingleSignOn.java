@@ -523,8 +523,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
-            URLEncoder.encode(idpHelper.postSamlResponse, "UTF-8"),
-            URLEncoder.encode(idpHelper.postRelayState, "UTF-8"));
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
 
     Response acsResponse =
         given()
@@ -619,8 +619,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
-            URLEncoder.encode(idpHelper.postSamlResponse, "UTF-8"),
-            URLEncoder.encode(idpHelper.postRelayState, "UTF-8"));
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
     Response acsResponse =
         given()
             .body(body)
@@ -696,8 +696,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
-            URLEncoder.encode(idpHelper.postSamlResponse, "UTF-8"),
-            URLEncoder.encode(idpHelper.postRelayState, "UTF-8"));
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
 
     Response acsResponse =
         given()
@@ -798,7 +798,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     private void parseParamsFromUrl(String url) throws URISyntaxException {
       redirectUrl = url.split("[?]")[0];
 
-      List<NameValuePair> paramList = URLEncodedUtils.parse(new URI(url), "UTF-8");
+      List<NameValuePair> paramList =
+          URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8.name());
       for (NameValuePair param : paramList) {
         params.put(param.getName(), param.getValue());
       }

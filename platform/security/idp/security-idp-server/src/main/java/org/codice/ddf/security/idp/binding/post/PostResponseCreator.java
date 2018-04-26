@@ -17,6 +17,8 @@ import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -31,6 +34,8 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
+import org.codice.ddf.security.idp.server.Idp;
+import org.codice.ddf.security.idp.server.IdpEndpoint;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +45,8 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
 
+  private String postResponseForm;
+
   public PostResponseCreator(
       SystemCrypto systemCrypto,
       Map<String, EntityInformation> serviceProviders,
@@ -47,6 +54,12 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       List<String> spMetadata,
       Set<Binding> supportedBindings) {
     super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+    try (InputStream postMessageStream =
+        IdpEndpoint.class.getResourceAsStream("/templates/postResponse.handlebars")) {
+      postResponseForm = IOUtils.toString(postMessageStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOGGER.info("Unable to load the POST response template.");
+    }
   }
 
   @Override
@@ -83,29 +96,20 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
   }
 
   private String createPostResponse(String samlResponse, String relayState, String acsUrl) {
-    StringBuilder builder = new StringBuilder("<!DOCTYPE html>");
-    builder
-        .append("<html>")
-        .append("<head>")
-        .append("<title>Form Submit</title>")
-        .append("</head>")
-        .append("<body Onload=\"document.forms[0].submit()\">")
-        .append("<form id=\"postform\" method=\"POST\" action=\"")
-        .append(acsUrl)
-        .append("\">")
-        .append("<input type=\"hidden\" name=\"SAMLResponse\" value=\"")
-        .append(samlResponse)
-        .append("\"/>");
+    String submitFormUpdated =
+        postResponseForm
+            .replace("{{" + Idp.ACS_URL + "}}", acsUrl)
+            .replace("{{" + Idp.SAML_RESPONSE + "}}", samlResponse);
 
     if (relayState != null) {
-      builder
-          .append("<input type=\"hidden\" name=\"RelayState\" value=\"")
-          .append(relayState)
-          .append("\"/>");
+      submitFormUpdated =
+          submitFormUpdated.replace(
+              "{{" + Idp.RELAY_STATE + "}}",
+              "<input type=\"hidden\" name=\"RelayState\" value=\"" + relayState + "\"/>");
+    } else {
+      submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", "");
     }
 
-    builder.append("</form></body></html>");
-
-    return builder.toString();
+    return submitFormUpdated;
   }
 }

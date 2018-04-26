@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.xml.schema.XSBase64Binary;
@@ -56,6 +55,12 @@ public class EntityInformation {
   private final Set<Binding> supportedBindings;
 
   protected static final Binding PREFERRED_BINDING = Binding.HTTP_POST;
+
+  private static final ImmutableSet<Binding> IDP_SUPPORTED_BINDINGS =
+      ImmutableSet.of(Binding.HTTP_POST, Binding.HTTP_REDIRECT, Binding.SOAP);
+
+  private static final ImmutableSet<Binding> SSO_RESPONSE_BINDINGS =
+      ImmutableSet.of(Binding.HTTP_POST, Binding.HTTP_ARTIFACT);
 
   private EntityInformation(Builder builder) {
     signingCertificate = builder.signingCertificate;
@@ -101,35 +106,31 @@ public class EntityInformation {
   public ServiceInfo getAssertionConsumerService(
       AuthnRequest request, Binding preferred, Integer index) {
     ServiceInfo si = null;
+
     if (request != null && request.getAssertionConsumerServiceURL() != null) {
       si = getAssertionConsumerServiceInfoByUrl(request);
-      if (si != null && si.getBinding() != null && si.getBinding().equals(Binding.HTTP_POST)) {
+
+      if (si != null) {
         return si;
       }
     }
+
     if (index != null) {
-      si =
-          assertionConsumerServices
-              .values()
-              .stream()
-              .filter(serviceInfo -> index.equals(serviceInfo.getIndex()))
-              .filter(serviceInfo -> serviceInfo.getBinding() != null)
-              .filter(serviceInfo -> serviceInfo.getBinding().equals(Binding.HTTP_POST))
-              .findFirst()
-              .orElse(null);
+      si = getAssertionConsumerServiceInfoByIndex(index);
+
       if (si != null) {
         return si;
       }
     }
-    if (request != null
-        && request.getProtocolBinding() != null
-        && request.getProtocolBinding().equals(SamlProtocol.POST_BINDING)
-        && supportedBindings.contains(Binding.from(request.getProtocolBinding()))) {
-      si = assertionConsumerServices.get(Binding.from(request.getProtocolBinding()));
+
+    if (request != null && request.getProtocolBinding() != null) {
+      si = getAssertionConsumerServiceInfoByProtocolBinding(request);
+
       if (si != null) {
         return si;
       }
     }
+
     Binding binding = preferred != null ? preferred : PREFERRED_BINDING;
     si = assertionConsumerServices.get(binding);
     if (si != null) {
@@ -144,28 +145,27 @@ public class EntityInformation {
   }
 
   private ServiceInfo getAssertionConsumerServiceInfoByUrl(AuthnRequest request) {
-    String assertionConsumerServiceURL = request.getAssertionConsumerServiceURL();
-    List<ServiceInfo> infos =
-        assertionConsumerServices
-            .values()
-            .stream()
-            .filter(service -> assertionConsumerServiceURL.equals(service.getUrl()))
-            .collect(Collectors.toList());
-    ServiceInfo si = null;
-    if (!infos.isEmpty()) {
-      si =
-          infos
-              .stream()
-              .filter(service -> service.getBinding().getUri().equals(SamlProtocol.POST_BINDING))
-              .findFirst()
-              .orElse(null);
-    }
-    if (si != null) {
-      return si;
-    } else {
-      return new ServiceInfo(
-          assertionConsumerServiceURL, Binding.from(request.getProtocolBinding()), null);
-    }
+    return getACS(s -> request.getAssertionConsumerServiceURL().equals(s.getUrl()));
+  }
+
+  private ServiceInfo getAssertionConsumerServiceInfoByIndex(Integer index) {
+    return getACS(s -> index.equals(s.getIndex()));
+  }
+
+  private ServiceInfo getAssertionConsumerServiceInfoByProtocolBinding(AuthnRequest request) {
+    return getACS(s -> Binding.from(request.getProtocolBinding()).equals(s.getBinding()));
+  }
+
+  private ServiceInfo getACS(Predicate<ServiceInfo> predicate) {
+    return assertionConsumerServices
+        .values()
+        .stream()
+        .filter(predicate)
+        .filter(serviceInfo -> supportedBindings.contains(serviceInfo.getBinding()))
+        .filter(serviceInfo -> IDP_SUPPORTED_BINDINGS.contains(serviceInfo.getBinding()))
+        .filter(serviceInfo -> SSO_RESPONSE_BINDINGS.contains(serviceInfo.getBinding()))
+        .findFirst()
+        .orElse(null);
   }
 
   public static class Builder {
