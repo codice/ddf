@@ -218,6 +218,7 @@
         <cve>CVE-2014-3567</cve>
         <cve>CVE-2014-8176</cve>
         <cve>CVE-2015-0292</cve>
+        <cve>CVE-2015-8768</cve>
         <cve>CVE-2016-2108</cve>
         <cve>CVE-2016-2109</cve>
     </suppress>
