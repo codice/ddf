@@ -48,7 +48,6 @@
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
         <feature>admin-app</feature>
-        <feature>admin-modules-installer</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
