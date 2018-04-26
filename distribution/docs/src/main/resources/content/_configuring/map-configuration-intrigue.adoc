@@ -21,7 +21,7 @@ Equivalent addition and deletion of a map layer can be found in <<_configuring_m
 ... "type": format of imagery provider.
 ... "url": location of server hosting the imagery provider.
 ... "layers": names of individual layers. (enclose list in square brackets`[ ]`).
-... "parameters": (enclose in braces `{}`):
+... "parameters": (enclose in braces `{}`)
 .... "FORMAT": image type used by imagery provider.
 .... "VERSION": version of imagery provider to use.
 .... "alpha": opacity of imagery provider layer.
