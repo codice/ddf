@@ -1,9 +1,9 @@
+@panelOneWidth: 9.55*@minimumButtonSize;
+@panelTwoWidth: 8*@minimumButtonSize;
+
 @{customElementNamespace}content {
-  @panelTwoSpacing: 20px;
-  @panelOneWidth: 9.55*@minimumButtonSize;
 
   .customElement;
-
   position: relative;
   z-index: @zIndexContent;
 
@@ -23,15 +23,27 @@
     width: @panelOneWidth;
     left: 0%;
     top: 0%;
-    transition: width @coreTransitionTime ease-in-out;
+    transition: transform @coreTransitionTime ease-in-out;
+    transform: translateX(100%);
+  }
+
+  .content-panelTwo {
+    .changeBackground(@backgroundAccentContent);
+    padding: @largeSpacing;
+    border-left: 1px solid fade(contrast(@backgroundAccentContent), 5%);
+    width: @panelTwoWidth;
+    left: 100%;
+    top: 0%;
+    transition: transform @coreTransitionTime ease-in-out;
+    transform: translateX(0%);
   }
 
   .content-panelThree {
-    width: ~'calc(100% - @{panelOneWidth})';
-    transition: width @coreTransitionTime ease-in-out;
+    transition: all @coreTransitionTime ease-in-out;
     .changeBackground(@backgroundContent);
     right: 0%;
     top: 0%;
+    left: 0%
   }
 
   .content-panel {
@@ -40,4 +52,29 @@
     vertical-align: top;
     overflow: hidden;
   }
+
+}
+
+@{customElementNamespace}content.panel-one-is-open {
+
+  .content-panelOne {
+    transform: translateX(0%);
+  }
+
+  .content-panelThree {
+    left: @panelOneWidth;
+  }
+
+}
+
+@{customElementNamespace}content.panel-two-is-open {
+
+  .content-panelTwo {
+    transform: translateX(-100%);
+  }
+
+  .content-panelThree {
+    right: @panelTwoWidth;
+  }
+
 }

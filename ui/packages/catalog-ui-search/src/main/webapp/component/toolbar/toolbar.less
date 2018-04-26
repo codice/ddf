@@ -7,24 +7,76 @@
   overflow: hidden;
   white-space: nowrap;
   border-bottom: 1px solid fade(contrast(@backgroundNavigation), 10%);
+  z-index: @zIndexMenubar;
 
-  > .toolbar-right {
+  > .toolbar-right,
+  > .toolbar-left{
     display: inline-block;
-    vertical-align: top;
+
     font-size: @largeFontSize;
     line-height: @minimumButtonSize;
     height: 100%;
     position: absolute;
-    right: 0px;
     transition: width @coreTransitionTime ease-out;
-    margin-right: @minimumSpacing;
+  }
+
+  > .toolbar-right {
+    right:0;
+    .toolbar-item {
+      right:0;
+      border-left: 1px solid fade(contrast(@backgroundNavigation), 10%);
+    }
+  }
+
+  > .toolbar-left {
+    left: 0;
+    .toolbar-item {
+      border-right: 1px solid fade(contrast(@backgroundNavigation), 10%);
+    }
   }
 
   .toolbar-item {
-    height: 100%;
+    position: fixed;
+    height: @minimumButtonSize;
+    min-width: @minimumButtonSize;
     display: inline-block;
     text-align: center;
-    vertical-align: top;
+    padding: 0 @minimumSpacing;
+    border-bottom: 1px solid fade(contrast(@backgroundNavigation), 10%);
+  }
+
+   .is-tab {
+     background: @backgroundNavigation;
+     color: fade(contrast(@backgroundNavigation), 60%);
+     &:hover {
+       color:contrast(@backgroundNavigation);
+     }
+   }
+
+  #item-toggle-search {
+    font-size: 1.75rem;
+    > span.if-closed {
+      display:inline-block;
+    }
+    > span.if-open {
+        display:none;
+      }
+    }
+
+  #item-toggle-search.is-open {
+    border-bottom: 1px solid @backgroundAccentContent;
+    background: @backgroundAccentContent;
+    > span.if-closed {
+      display:none;
+    }
+    > span.if-open {
+      display:inline-block;
+    }
+  }
+
+  #item-add-visual.is-open {
+    border-bottom: 1px solid @backgroundAccentContent;
+    background: @backgroundAccentContent;
   }
 
 }

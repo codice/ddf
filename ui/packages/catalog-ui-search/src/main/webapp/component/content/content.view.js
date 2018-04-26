@@ -23,9 +23,10 @@ define([
     'component/toolbar/toolbar.view',
     'js/store',
     'js/Common',
-    'component/golden-layout/golden-layout.view'
+    'component/golden-layout/golden-layout.view',
+    'component/visualization-selector/visualization-selector.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, ToolbarView,
-              store, Common, GoldenLayoutView) {
+              store, Common, GoldenLayoutView, VisualizationSelector) {
 
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
@@ -33,9 +34,15 @@ define([
         regions: {
             'toolbar': '.content-toolbar',
             'panelOne': '.content-panelOne',
+            'panelTwo': '.content-panelTwo',
             'panelThree': '.content-panelThree'
         },
+        childEvents: {
+            'content:togglePanelOne': 'togglePanelOne',
+            'content:togglePanelTwo': 'togglePanelTwo'
+        },
         initialize: function(){
+            this.$el.addClass('panel-one-is-open');
             this._mapView = new GoldenLayoutView({
                 selectionInterface: store.get('content'),
                 configName: 'goldenLayout'
@@ -49,14 +56,26 @@ define([
             this.updatePanelOne();
             if (this._mapView){
                 this.panelThree.show(this._mapView);
-                this.toolbar.show(new ToolbarView({goldenLayout: this._mapView.goldenLayout}));
+                this.toolbar.show(new ToolbarView());
+                this.panelTwo.show(new VisualizationSelector({goldenLayout: this._mapView.goldenLayout}));
             }
         },
         updatePanelOne: function(workspace){
             //override in extended views
         },
+        togglePanelOne: function(){
+            this.$el.toggleClass('panel-one-is-open');
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }.bind(this), Common.coreTransitionTime*.6);
+        },
+        togglePanelTwo: function(){
+            this.$el.toggleClass('panel-two-is-open');
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }.bind(this), Common.coreTransitionTime*.6);
+        },
         _mapView: undefined
-
     });
 
     return ContentView;
