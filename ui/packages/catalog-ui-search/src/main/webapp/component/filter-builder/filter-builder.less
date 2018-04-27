@@ -40,6 +40,20 @@
       margin-right: @minimumSpacing;
     }
 
+    > .filter-rearrange {
+      .grab-cursor();
+      // margin-left: @minimumSpacing;
+      margin-right: @minimumSpacing;
+      width: 0.75 * @minimumButtonSize;
+      //height: ~'calc(100% + @minimumSpacing)';
+      opacity: 0.15;
+    }
+
+    > .filter-rearrange:hover {
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+    }
+
     > .filter-remove {
       display: none;
       vertical-align: top;
@@ -110,6 +124,12 @@
     vertical-align: top;
   }
 
+}
+
+@{customElementNamespace}filter-builder.hide-rearrange {
+  > .filter-header > .filter-rearrange {
+    display: none;
+  }
 }
 
 @{customElementNamespace}filter-builder.hide-field-button {

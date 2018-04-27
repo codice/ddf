@@ -71,6 +71,7 @@ define([
         modelEvents: {
         },
         regions: {
+            filterRearrange: '.filter-rearrange',
             filterAttribute: '.filter-attribute',
             filterComparator: '.filter-comparator',
             filterInput: '.filter-input'
@@ -82,6 +83,7 @@ define([
             this.listenTo(this.model, 'change:comparator', this.determineInput);
         },
         onBeforeShow: function(){
+            this.$el.toggleClass('hide-rearrange', this.options.isSortableDisabled);
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
             this.filterAttribute.show(DropdownView.createSimpleDropdown({
                 list: metacardDefinitions.sortedMetacardTypes.filter(function(metacardType){

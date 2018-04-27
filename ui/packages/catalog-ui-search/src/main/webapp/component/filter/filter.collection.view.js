@@ -13,16 +13,15 @@
  *
  **/
 /*global define, alert*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    'js/CustomElements',
-    './filter',
-    'component/filter-builder/filter-builder'
-], function (Marionette, _, $, CustomElements, FilterModel, FilterBuilderModel) {
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const CustomElements = require('js/CustomElements');
+const FilterModel = require('./filter');
+const FilterBuilderModel = require('component/filter-builder/filter-builder');
+const Sortable = require('sortablejs');
 
-    return Marionette.CollectionView.extend({
+    module.exports = Marionette.CollectionView.extend({
         getChildView: function (item) {
             switch(item.type){
                 case 'filter':
@@ -32,10 +31,22 @@ define([
             }
         },
         tagName: CustomElements.register('filter-collection'),
+        onBeforeRenderCollection: function() {
+            this.sortable = Sortable.create(this.el, {
+                handle: 'button.filter-rearrange',
+                animation: 250,
+                draggable: '>*',
+                disabled: this.options.isForm && !this.options.isFormBuilder,
+                onEnd: () => {
+                    //Hooray?
+                }
+            })
+        },
         childViewOptions: function() {
             return {
                 isForm: this.options.isForm || false,
-                isFormBuilder: this.options.isFormBuilder || false
+                isFormBuilder: this.options.isFormBuilder || false,
+                isSortableDisabled: this.sortable.options.disabled
             }
         },
         initialize: function(){
@@ -67,4 +78,3 @@ define([
             this.$el.toggleClass('can-delete', this.collection.length > 1);
         }
     });
-});

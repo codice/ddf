@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -54,6 +54,7 @@
         }
     },
     onBeforeShow: function(){
+        this.$el.toggleClass('hide-rearrange', this.options.isSortableDisabled);
         this.filterOperator.show(DropdownView.createSimpleDropdown({
             list: [{
                 label: 'AND',

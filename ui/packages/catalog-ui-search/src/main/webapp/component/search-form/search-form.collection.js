@@ -99,7 +99,7 @@ module.exports = Backbone.AssociatedModel.extend({
                         accessGroups: value.accessGroups,
                         createdBy: value.creator
                     }));
-                });
+                }.bind(this));
                 this.doneLoading();
             }
         }.bind(this));

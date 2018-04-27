@@ -3,6 +3,7 @@
   white-space: nowrap;
   margin: @minimumSpacing;
 
+  > .filter-rearrange,
   > .filter-remove,
   > .filter-attribute,
   > .filter-comparator,
@@ -10,6 +11,20 @@
     display: inline-block;
     vertical-align: middle;
     margin-right: @minimumSpacing;
+  }
+
+  > .filter-rearrange {
+    .grab-cursor();
+    // margin-left: @minimumSpacing;
+    width: 0.75 * @minimumButtonSize;
+    //height: ~'calc(100% + @minimumSpacing)';
+    opacity: 0.15;
+  }
+
+  > .filter-rearrange:hover {
+    // .dropshadowlight; -- only highlights the target region. Need to apply this to one element up in the tree
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
   }
 
   > .filter-comparator,
@@ -36,16 +51,16 @@
   }
 }
 
+@{customElementNamespace}filter.hide-rearrange {
+  > .filter-rearrange {
+    display: none;
+  }
+}
+
 @{customElementNamespace}filter.is-location {
   > .filter-input {
     margin-top: @minimumSpacing;
     display: block;
-  }
-}
-
-@{customElementNamespace}filter.hide-minus {
-  > .filter-remove {
-    display: none;
   }
 }
 

@@ -35,6 +35,7 @@ module.exports =  Marionette.ItemView.extend({
             'click .interaction-clear': 'handleClearDefault',
             'click .interaction-trash': 'handleTrash',
             'click .interaction-share': 'handleShare',
+            'click .interaction-edit': 'handleEdit',
             'click': 'handleClick'
         },
         ui: {},
@@ -140,6 +141,9 @@ module.exports =  Marionette.ItemView.extend({
         },
         isSystemTemplate: function() {
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
+        },
+        handleEdit: function() {
+            //Do the same thing as when you open it up for use as a form but say "formBuilder = true"
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
