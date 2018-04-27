@@ -166,9 +166,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
 
     File file = createTestFile(directoryPath);
+    long fileLength = file.length();
+
     waitForCreate();
 
-    verifyCreateStorageRequest("test", ".txt", file.length());
+    verifyCreateStorageRequest("test", ".txt", fileLength);
     assertThat("File should still exist", file.exists(), is(true));
   }
 
@@ -190,10 +192,12 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.MOVE);
 
     File file = createTestFile(directoryPath);
+    long fileLength = file.length();
     File movedFile = Paths.get(directoryPath, ".ingested", file.getName()).toFile();
+
     waitForCreate();
 
-    verifyCreateStorageRequest("test", ".txt", file.length());
+    verifyCreateStorageRequest("test", ".txt", fileLength);
     await("File deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).until(() -> !file.exists());
     await("File moved")
         .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
@@ -306,6 +310,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.security.expansion", "security-expansion-api"),
         new BundleInfo("ddf.security.expansion", "security-expansion-impl"),
         new BundleInfo("ddf.platform", "branding-api"),
+        new BundleInfo("ddf.action.core", "action-core-api"),
         new BundleInfo("ddf.distribution", "ddf-branding-plugin"),
         new BundleInfo("ddf.platform", "platform-configuration"),
         new BundleInfo("ddf.security.handler", "security-handler-api"),
