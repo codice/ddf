@@ -13,23 +13,23 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var $ = require('jquery');
-var template = require('./search-form.hbs');
-var CustomElements = require('js/CustomElements');
-var user = require('../singletons/user-instance');
-var DropdownModel = require('../dropdown/dropdown');
-var SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view');
+const Marionette = require('marionette');
+const $ = require('jquery');
+const template = require('./search-form.hbs');
+const CustomElements = require('js/CustomElements');
+const user = require('../singletons/user-instance');
+const DropdownModel = require('../dropdown/dropdown');
+const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('search-form'),
     className: 'is-button',
     events: {
-        click: 'changeView',
+        'click': 'changeView'
     },
     regions: {
-        workspaceActions: '.choice-actions',
+        workspaceActions: '.choice-actions'
     },
     onRender: function() {
         if (
@@ -68,16 +68,16 @@ module.exports = Marionette.LayoutView.extend({
                     title: this.model.get('name'),
                     modelId: this.model.get('id'),
                     accessGroups: this.model.get('accessGroups'),
-                    accessIndividuals: this.model.get('accessIndividuals'),
+                    accessIndividuals: this.model.get('accessIndividuals')
                 });
                 user.getQuerySettings().set({
                     type: 'custom',
-                    template: this.model.toJSON(),
+                    template: this.model.toJSON()
                 });
 
                 this.options.queryModel.set({
                     type: 'custom',
-                    title: this.model.get('name'),
+                    title: this.model.get('name')
                 });
 
                 if (oldType === 'custom') {
@@ -96,5 +96,5 @@ module.exports = Marionette.LayoutView.extend({
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         this.options.queryModel.trigger('closeDropDown');
-    },
+    }
 });
