@@ -55,5 +55,5 @@
     <service ref="processingFramework"
              interface="org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework"/>
 
-    <bean id="postProcessPluginsSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="postProcessPluginsSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 </blueprint>
