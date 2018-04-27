@@ -36,13 +36,15 @@
             this.$el.addClass('is-static');
         }
         else{
-        this.workspaceActions.show(new SearchFormInteractionsDropdownView({
-            model: new DropdownModel(),
-            modelForComponent: this.model,
-            dropdownCompanionBehaviors: {
-                navigation: {}
+            if (this.isSystemTemplate) {
+                this.workspaceActions.show(new SearchFormInteractionsDropdownView({
+                    model: new DropdownModel(),
+                    modelForComponent: this.model,
+                    dropdownCompanionBehaviors: {
+                        navigation: {}
+                    }
+                }));
             }
-        }));
         }
     },
     changeView: function() {
@@ -83,6 +85,9 @@
 
         user.savePreferences();
         this.triggerCloseDropdown();
+    },
+    isSystemTemplate: function(model) {
+        return this.model.get('createdBy') != 'System Template';
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());

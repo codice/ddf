@@ -51,7 +51,7 @@ module.exports =  Marionette.ItemView.extend({
         },
         handleTrash: function() {
             let loginUser = user.get('user');
-            if(loginUser.get('email') === this.model.get('createdBy'))
+            if(loginUser.get('email') !== this.model.get('createdBy'))
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'This will permanently delete the template. Are you sure?',
@@ -64,6 +64,8 @@ module.exports =  Marionette.ItemView.extend({
                         let loadingview = new LoadingView();
                             this.model.url = '/search/catalog/internal/forms/' + this.model.id;
                             this.model.destroy({
+                                data: JSON.stringify({'metacard.owner': [this.model.get('createdBy')]}),
+                                contentType: 'application/json',
                                 wait: true,
                                 error: function(model, xhr, options){
                                     announcement.announce({

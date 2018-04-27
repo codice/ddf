@@ -73,7 +73,7 @@ module.exports = Backbone.AssociatedModel.extend({
         templatePromise.then(() => {
             if (!this.isDestroyed) {
                 $.each(systemTemplates, (index, value) => {
-                    // if (this.checkIfOwnerOrSystem(value)) {
+                    if (this.checkIfOwnerOrSystem(value)) {
                         var utcSeconds = value.created / 1000;
                         var d = new Date(0);
                         d.setUTCSeconds(utcSeconds);
@@ -87,7 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
                             accessGroups: value.accessGroups,
                             createdBy: value.creator
                         }));
-                    // }
+                    }
                 });
                 this.doneLoading();
             }

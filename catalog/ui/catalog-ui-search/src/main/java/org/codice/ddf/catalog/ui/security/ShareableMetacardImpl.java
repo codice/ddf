@@ -76,7 +76,6 @@ public class ShareableMetacardImpl extends MetacardImpl {
    */
   public static boolean canShare(Metacard metacard) {
     return metacard != null
-        //        && metacard.getTags().stream().noneMatch("resource"::equals)
         && (WorkspaceMetacardImpl.isWorkspaceMetacard(metacard)
             || QueryTemplateMetacard.isQueryTemplateMetacard(metacard)
             || AttributeGroupMetacard.isAttributeGroupMetacard(metacard))
