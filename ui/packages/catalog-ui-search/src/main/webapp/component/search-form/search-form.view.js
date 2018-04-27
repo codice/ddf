@@ -12,43 +12,47 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- var Marionette = require('marionette');
- var $ = require('jquery');
- var template = require('./search-form.hbs');
- var CustomElements = require('js/CustomElements');
- var user = require('../singletons/user-instance');
- var DropdownModel = require('../dropdown/dropdown');
- var SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view')
+/*global require*/
+var Marionette = require('marionette');
+var $ = require('jquery');
+var template = require('./search-form.hbs');
+var CustomElements = require('js/CustomElements');
+var user = require('../singletons/user-instance');
+var DropdownModel = require('../dropdown/dropdown');
+var SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view');
 
- module.exports = Marionette.LayoutView.extend({
+module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('search-form'),
     className: 'is-button',
     events: {
-        'click': 'changeView'
+        click: 'changeView',
     },
     regions: {
-        workspaceActions: '.choice-actions'
+        workspaceActions: '.choice-actions',
     },
     onRender: function() {
-        if (this.model.get('type') === 'basic' || this.model.get('type') === 'text') {
+        if (
+            this.model.get('type') === 'basic' ||
+            this.model.get('type') === 'text'
+        ) {
             this.$el.addClass('is-static');
-        }
-        else{
-            if (this.isSystemTemplate) {
-                this.workspaceActions.show(new SearchFormInteractionsDropdownView({
-                    model: new DropdownModel(),
-                    modelForComponent: this.model,
-                    dropdownCompanionBehaviors: {
-                        navigation: {}
-                    }
-                }));
+        } else {
+            if (!this.isSystemTemplate) {
+                this.workspaceActions.show(
+                    new SearchFormInteractionsDropdownView({
+                        model: new DropdownModel(),
+                        modelForComponent: this.model,
+                        dropdownCompanionBehaviors: {
+                            navigation: {},
+                        },
+                    })
+                );
             }
         }
     },
     changeView: function() {
-        switch(this.model.get('type')) {
+        switch (this.model.get('type')) {
             case 'basic':
                 this.options.queryModel.set('type', 'basic');
                 user.getQuerySettings().set('type', 'basic');
@@ -64,19 +68,19 @@
                     title: this.model.get('name'),
                     modelId: this.model.get('id'),
                     accessGroups: this.model.get('accessGroups'),
-                    accessIndividuals: this.model.get('accessIndividuals')
+                    accessIndividuals: this.model.get('accessIndividuals'),
                 });
                 user.getQuerySettings().set({
                     type: 'custom',
-                    template: this.model.toJSON()
+                    template: this.model.toJSON(),
                 });
 
                 this.options.queryModel.set({
                     type: 'custom',
-                    title: this.model.get('name')
+                    title: this.model.get('name'),
                 });
 
-                if (oldType  === 'custom') {
+                if (oldType === 'custom') {
                     this.options.queryModel.trigger('change:type');
                 }
 
@@ -90,7 +94,7 @@
         return this.model.get('createdBy') != 'System Template';
     },
     triggerCloseDropdown: function() {
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         this.options.queryModel.trigger('closeDropDown');
-    }
+    },
 });
