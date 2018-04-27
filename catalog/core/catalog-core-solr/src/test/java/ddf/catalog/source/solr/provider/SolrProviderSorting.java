@@ -14,7 +14,7 @@
 package ddf.catalog.source.solr.provider;
 
 import static com.google.common.truth.Truth.assertThat;
-import static ddf.catalog.Constants.*;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

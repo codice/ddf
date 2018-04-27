@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.ui.searchui.query.solr;
 
-import static ddf.catalog.Constants.*;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
