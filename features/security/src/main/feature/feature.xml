@@ -192,13 +192,6 @@
         <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
-    <feature name="security-cas-cxfservletfilter" version="${project.version}"
-             description="Security CAS Servlet Filter for CXF.">
-        <feature>security-cas-client</feature>
-        <feature>cxf-http-client</feature>
-        <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
-    </feature>
-
     <feature name="security-pdp-authz" version="${project.version}"
              description="Security PDP.">
         <configfile finalname="${ddf.etc}/ddf.security.pdp.realm.AuthzRealm.config">
