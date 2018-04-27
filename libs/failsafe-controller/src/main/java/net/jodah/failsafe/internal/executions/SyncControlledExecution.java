@@ -15,15 +15,12 @@ package net.jodah.failsafe.internal.executions;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
-import net.jodah.failsafe.AsyncFailsafe;
-import net.jodah.failsafe.AsyncFailsafeConfigDelegater;
 import net.jodah.failsafe.ControlledExecutionException;
 import net.jodah.failsafe.FailsafeController;
-import net.jodah.failsafe.FailsafeFuture;
-import net.jodah.failsafe.function.AsyncCallable;
-import net.jodah.failsafe.function.AsyncRunnable;
+import net.jodah.failsafe.FailsafeException;
+import net.jodah.failsafe.SyncFailsafe;
+import net.jodah.failsafe.SyncFailsafeConfigDelegater;
 import net.jodah.failsafe.function.CheckedRunnable;
 import net.jodah.failsafe.function.ContextualCallable;
 import net.jodah.failsafe.function.ContextualRunnable;
@@ -32,22 +29,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class defines an {@link AsyncFailsafe} which is used to control and track a specific
- * failsafe execution.
+ * This class defines an {@link SyncFailsafe} which is used to control and track a specific failsafe
+ * execution.
  *
  * @param <R> the result type
  */
-public class AsyncControlledExecution<R> extends AsyncFailsafeConfigDelegater<R>
+public class SyncControlledExecution<R> extends SyncFailsafeConfigDelegater<R>
     implements ControlledExecution<R> {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AsyncControlledExecution.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SyncControlledExecution.class);
+
+  private static final String EXECUTION = "execution";
 
   private final FailsafeController<R> controller;
 
   /**
-   * Reference to the master {@link AsyncFailsafe} where all requests for more execution should be
+   * Reference to the master {@link SyncFailsafe} where all requests for more execution should be
    * delegated.
    */
-  private final AsyncFailsafe<R> master;
+  private final SyncFailsafe<R> master;
 
   /**
    * Keeps track of all threads that are currently allocated to help failsafe perform a specific
@@ -75,17 +74,11 @@ public class AsyncControlledExecution<R> extends AsyncFailsafeConfigDelegater<R>
    */
   @Nullable private Throwable error = null;
 
-  public AsyncControlledExecution(
-      FailsafeController<R> controller, AsyncFailsafe<R> master, int id) {
-    this(controller, master, id, new ThreadMonitor(controller, id));
-  }
-
-  private AsyncControlledExecution(
-      FailsafeController<R> controller, AsyncFailsafe<R> master, int id, ThreadMonitor monitor) {
-    super(master, monitor.monitor(AsyncFailsafeConfigDelegater.getOriginalScheduler(master)));
+  public SyncControlledExecution(FailsafeController<R> controller, SyncFailsafe<R> master, int id) {
+    super(master);
     this.controller = controller;
     this.master = master;
-    this.monitor = monitor;
+    this.monitor = new ThreadMonitor(controller, id);
     this.id = id;
   }
 
@@ -146,21 +139,27 @@ public class AsyncControlledExecution<R> extends AsyncFailsafeConfigDelegater<R>
   }
 
   /**
-   * Control the execution of the specified code asynchronously.
+   * Control the execution of the specified code synchronously.
    *
    * @param callable the code to control its execution
-   * @return a completable future for the code being executed asynchronously
+   * @return the result of the executed code
+   * @throws FailsafeException if the {@code callable} fails with a Throwable and the retry policy
+   *     is exceeded, or if interrupted while waiting to perform a retry
+   * @throws net.jodah.failsafe.CircuitBreakerOpenException if a configured circuit is open
    */
-  public CompletableFuture<R> execute(ContextualCallable<CompletableFuture<R>> callable) {
-    LOGGER.debug("FailsafeController({} - {}): starting execution", controller, id);
-    final CompletableFuture<R> future = super.future(callable);
+  @SuppressWarnings("squid:S1181" /* Forced to because of monitor() */)
+  public R execute(ContextualCallable<R> callable) {
+    try {
+      return monitor.monitor(() -> executeImpl(callable));
+    } catch (RuntimeException | Error e) {
+      throw e;
+    } catch (Exception e) {
+      // should never happen since super.get() does't throw these but monitor requires it
+      final InternalError ie = new InternalError(e);
 
-    // setup a completed stage such that we be notified when failsafe has completed the execution
-    // but do not return the resulting future as we do not want that stage to not be called if the
-    // production code decides to cancel the future it will be receiving; instead return the future
-    // returned by failsafe for executing/controlling the registered retry production code
-    future.whenComplete(this::completed);
-    return future;
+      setCompleted(null, ie, SyncControlledExecution.EXECUTION);
+      throw ie;
+    }
   }
 
   @Override
@@ -169,52 +168,43 @@ public class AsyncControlledExecution<R> extends AsyncFailsafeConfigDelegater<R>
   }
 
   @Override
-  public <T> CompletableFuture<T> future(Callable<CompletableFuture<T>> callable) {
-    return master.future(callable);
-  }
-
-  @Override
-  public <T> CompletableFuture<T> future(ContextualCallable<CompletableFuture<T>> callable) {
-    return master.future(callable);
-  }
-
-  @Override
-  public <T> CompletableFuture<T> futureAsync(AsyncCallable<CompletableFuture<T>> callable) {
-    return master.futureAsync(callable);
-  }
-
-  @Override
-  public <T> FailsafeFuture<T> get(Callable<T> callable) {
+  public <T> T get(Callable<T> callable) {
     return master.get(callable);
   }
 
   @Override
-  public <T> FailsafeFuture<T> get(ContextualCallable<T> callable) {
+  public <T> T get(ContextualCallable<T> callable) {
     return master.get(callable);
   }
 
   @Override
-  public <T> FailsafeFuture<T> getAsync(AsyncCallable<T> callable) {
-    return master.getAsync(callable);
+  public void run(CheckedRunnable runnable) {
+    master.run(runnable);
   }
 
   @Override
-  public FailsafeFuture<Void> run(CheckedRunnable runnable) {
-    return master.run(runnable);
+  public void run(ContextualRunnable runnable) {
+    master.run(runnable);
   }
 
-  @Override
-  public FailsafeFuture<Void> run(ContextualRunnable runnable) {
-    return master.run(runnable);
-  }
+  @SuppressWarnings("squid:S1181" /* Bubbling up VirtualMachineError first */)
+  private R executeImpl(ContextualCallable<R> callable) {
+    LOGGER.debug("FailsafeController({} - {}): starting execution", controller, id);
+    try {
+      final R r = super.get(callable);
 
-  @Override
-  public FailsafeFuture<Void> runAsync(AsyncRunnable runnable) {
-    return master.runAsync(runnable);
-  }
-
-  private <T> void completed(T result, Throwable error) {
-    setCompleted((R) result, error, "future");
+      setCompleted(r, null, SyncControlledExecution.EXECUTION);
+      return r;
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (FailsafeException e) {
+      setCompleted(
+          null, (e.getCause() != null) ? e.getCause() : e, SyncControlledExecution.EXECUTION);
+      throw e;
+    } catch (RuntimeException | Error e) {
+      setCompleted(null, e, SyncControlledExecution.EXECUTION);
+      throw e;
+    }
   }
 
   private void setCompleted(R result, Throwable error, String from) {
