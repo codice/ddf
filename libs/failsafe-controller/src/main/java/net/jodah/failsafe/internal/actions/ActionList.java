@@ -23,7 +23,7 @@ import net.jodah.failsafe.Actions.Done;
 
 /**
  * The action list class is used to track failsafe actions registered for a given failsafe
- * execution.
+ * execution. 
  *
  * @param <R> the result type
  */
