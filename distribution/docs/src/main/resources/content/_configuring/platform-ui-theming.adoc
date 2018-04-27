@@ -21,7 +21,7 @@ along with changing the colors of text and backgrounds.
 === Customizing the UI Theme
 
 The customization of the UI theme across ${branding} is available through the capabilities of Platform UI Configuration.
-There are four main areas that are able to be configured:
+There are four main areas that are able to be configured with effects on the banners:
 
 . *Header*
 . *Footer*

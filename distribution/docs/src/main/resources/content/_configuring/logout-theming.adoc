@@ -7,7 +7,7 @@
 
 == {title}
 
-The logout pages is presented to users through the navigation of ${branding} and has a changeable time out value.
+The logout pages is presented to users through the navigation of ${branding} and has a changeable timeout value.
 
 === Navigating to Logout Configuration
 
@@ -21,7 +21,8 @@ Configure the Login and Logout pages from the ${admin-console}:
 === Logout Page Customization
 
 The customizable feature of the logout page is the *Logout Page Time Out*. This is the time limit the IDP
-client will wait for a user to click log out on the logout page.
+client will wait for a user to click log out on the logout page. Any requests that take longer than this
+time for the user to submit will be rejected.
 
 . *Default value*: 3600000
 
