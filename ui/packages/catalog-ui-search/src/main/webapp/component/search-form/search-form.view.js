@@ -35,7 +35,7 @@ module.exports = Marionette.LayoutView.extend({
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text') {
             this.$el.addClass('is-static');
         } else {
-            if (!this.isSystemTemplate) {
+            if (!this.isSystemTemplate()) {
                 this.workspaceActions.show(
                     new SearchFormInteractionsDropdownView({
                         model: new DropdownModel(),
@@ -87,7 +87,7 @@ module.exports = Marionette.LayoutView.extend({
         user.savePreferences();
         this.triggerCloseDropdown();
     },
-    isSystemTemplate: function(model) {
+    isSystemTemplate: function() {
         return this.model.get('createdBy') != 'System Template';
     },
     triggerCloseDropdown: function() {
