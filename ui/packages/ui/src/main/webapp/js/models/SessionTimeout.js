@@ -22,27 +22,14 @@ function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
 }
 
-function storageAvailable(type) {
-    var test = 'test', storage;
+function localStorageAvailable() {
+    var test = 'test';
     try {
-        storage = window[type];
-        storage.setItem(test, test);
-        storage.removeItem(test);
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
         return true;
-    } catch(e) {
-        /*global DOMException */
-        return e instanceof DOMException && (
-            // everything except Firefox
-            e.code === 22 ||
-            // Firefox
-            e.code === 1014 ||
-            // test name field too, because code might not be present
-            // everything except Firefox
-            e.name === 'QuotaExceededError' ||
-            // Firefox
-            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-            // acknowledge QuotaExceededError only if there's something already stored
-            storage.length !== 0;
+    } catch (e) {
+        return false;
     }
 }
 
@@ -53,17 +40,20 @@ define([
         'properties'
     ],
     function (Backbone, $, _, properties) {
-        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 1000 : idleTimeoutThreshold;
+        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 60000 : idleTimeoutThreshold;
         var sessionTimeoutModel = new (Backbone.Model.extend({
             defaults: {
                 showPrompt: false,
-                idleTimeoutDate: 0
+                idleTimeoutDate: 0,
+                localStorageAvailable: true
             },
             initialize: function () {
-                if (!storageAvailable('localStorage')) {
-                    console.log("WARNING: localStorage is unavailable. Unexpected logout may occur.");
+                if (localStorageAvailable()) {
+                    $(window).on("storage", this.handleLocalStorageChange.bind(this));
                 }
-                $(window).on("storage", this.handleLocalStorageChange.bind(this));
+                else {
+                    this.set('localStorageAvailable', false);
+                }
                 this.listenTo(this, 'change:idleTimeoutDate', this.handleIdleTimeoutDate);
                 this.listenTo(this, 'change:showPrompt', this.handleShowPrompt);
                 this.resetIdleTimeoutDate();
@@ -106,7 +96,9 @@ define([
             },
             resetIdleTimeoutDate: function () {
                 var idleTimeoutDate = getIdleTimeoutDate();
-                localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+                if (this.get('localStorageAvailable')) {
+                    localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+                }
                 this.set('idleTimeoutDate', idleTimeoutDate);
             },
             startListeningForUserActivity: function () {

@@ -34,7 +34,7 @@ define([
             handleExpiryTimeResponse: function (response) {
                 var msUntilTimeout = parseInt(response);
                 var msUntilAutoRenew = Math.max(msUntilTimeout * 0.7, msUntilTimeout - 60000);  // 70% or at least one minute before
-                this.set('sessionRenewDate', Date.now() + Math.trunc(msUntilAutoRenew));
+                this.set('sessionRenewDate', Date.now() + msUntilAutoRenew);
             },
             handleSessionRenewDate: function () {
                 this.clearSessionRenewTimer();

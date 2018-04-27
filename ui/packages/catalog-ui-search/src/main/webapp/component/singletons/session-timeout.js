@@ -16,40 +16,17 @@ var Backbone = require('backbone');
 var $ = require('jquery');
 var _ = require('underscore');
 var properties = require('properties');
+const featureDetection = require('./feature-detection');
 
 var invalidateUrl = '/services/internal/session/invalidate?prevurl=';
 
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 1000 : 900000;
+var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 60000 : 900000;
 
 function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
-}
-
-function storageAvailable(type) {
-    var test = 'test', storage;
-    try {
-        storage = window[type];
-        storage.setItem(test, test);
-        storage.removeItem(test);
-        return true;
-    } catch(e) {
-        /*global DOMException */
-        return e instanceof DOMException && (
-            // everything except Firefox
-            e.code === 22 ||
-            // Firefox
-            e.code === 1014 ||
-            // test name field too, because code might not be present
-            // everything except Firefox
-            e.name === 'QuotaExceededError' ||
-            // Firefox
-            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-            // acknowledge QuotaExceededError only if there's something already stored
-            storage.length !== 0;
-    }
 }
 
 var sessionTimeoutModel = new (Backbone.Model.extend({
@@ -58,9 +35,6 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         idleTimeoutDate: 0
     },
     initialize: function () {
-        if (!storageAvailable('localStorage')) {
-            console.log("WARNING: localStorage is unavailable. Unexpected logout may occur.");
-        }
         $(window).on("storage", this.handleLocalStorageChange.bind(this));
         this.listenTo(this, 'change:idleTimeoutDate', this.handleIdleTimeoutDate);
         this.listenTo(this, 'change:showPrompt', this.handleShowPrompt);
@@ -108,7 +82,13 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
     },
     resetIdleTimeoutDate: function () {
         var idleTimeoutDate = getIdleTimeoutDate();
-        localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+        if (featureDetection.supportsFeature('localStorage')) {
+            try {
+                localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+            } catch (e) {
+                featureDetection.addFailure('localStorage');
+            }
+        }
         this.set('idleTimeoutDate', idleTimeoutDate);
     },
     startListeningForUserActivity: function () {
