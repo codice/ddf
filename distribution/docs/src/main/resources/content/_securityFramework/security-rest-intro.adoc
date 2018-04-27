@@ -73,8 +73,125 @@ To retrieve the subject, the token is sent through Shiro to the STS Realm where 
 . If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
 If the user has the correct permissions to access that web context, the request is allowed to hit the endpoint.
 
-[NOTE]
-====
-This diagram does not yet include the SAML 2.0 Web SSO integration.
-====
+
+[ditaa,security_idp_architecture,png]
+....
++---------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                       Metadata Exchange                               |
+|                                                      /---------------------------------------------------------------------------\    |
+|                                                      |                                                                           |    |
+|                                                      v                                                                           |    |
+|  +--------------+         +--------------------------+-------+       +-------------+        +----------------------------+       |    |
+|  |              |         |                                  |       |             |        |                            |       |    |
+|  |   Web SSO    +----+    |   IdP Client                     |       |  Endpoint   |        |                            |       |    |
+|  |   Filter     |    |    |                                  |       |             |        |       STS Server           |       |    |
+|  |              |    |    |                                  |       |c5F5         |        |                            |       |    |
+|  +-+------------+    |    +-----------------+----------------+       +------+------+        |                            |       |    |
+|    ^    ^            |    |   IdP Handler   |   Assertion    |              ^               +----+------+----------------+       |    |
+|    |    |            \--->+ cDEF            |   Consumer     |              |                    ^      |                        |    |
+|    |    |    Yes          |  +------------+ |   Service (ACS)|              |                    |      |                        |    |
+|    |    \-----------------|--+Has Session | |                |  Logged In   |                    |      |                        |    |
+|    |                      |  |            | |                +--------------/                    |      |                        |    |
+|    |                      |  +-------+----+ |                |                             Token |      | SAML                   |    |
+|    |                      |          | No   |                |                                   |      |                        |    |
+|    |                      |          v      |                |                                   |      v                        |    |
+|    |                      |  +-------+----+ |                |                         +---------+----------+--------------+     |    |
+|    |         Yes          |  | Has SAML   | |                | Redirect back via POST  |                    |   Metadata   |     |    |
+|    \----------------------|--+            | |                |<------------------------+                    |   Endpoint   +<----/    |
+|                           |  +-------+----+ |                |                         |      IdP Server    |cDEF          |          |
+|                           |          | No   |                |              /--------->|                    +--------------+          |
+|                           |          v      |                |              |          |                                   |          |
+|                           |  +-------+----+ |                |              |          |                                   |          |
+|                    Yes    |  | Is Browser | |                |              |          |                                   |          |
+|                   /-------|--+            | |                |              |          +-----------------------------------+          |
+|                   |       |  +-------+----+ |                |              |                                                         |
+|                   |       |          | No   |                |              |                                                         |
+|                   |       |          v      |                |              |                                                         |
+|                   |       |  +-------+----+ |                |              |                                                         |
+|                   |       |  | Start ECP  | |                |              |                                                         |
+|                   |       |  |c5F5        | |                |              |                                                         |
+|                   |       |  +------------+ |cDEF            |              |                                                         |
+|                   |       +-----------------+----------------+              |                                                         |
+|                   |                   Redirect to IdP                       |                                                         |
+|                   \---------------------------------------------------------/                                                         |
+|                                                                                                                                       |
++---------------------------------------------------------------------------------------------------------------------------------------+
+
+....
+
+The IdP Handler is a configured handler on the Web SSO Filter just like the other handlers in the previous diagram.
+The IdP Handler and the Assertion Consumer Service are both part of the IdP client that can be used to interface with any compliant SAML 2.0 Web SSO Identity Provider.
+
+The Metadata Exchange happens asynchronously from any login event.
+The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for either the IdP client or the IdP server that the system ships with.
+The metadata contains information about what bindings are accepted by the client or server and whether or not either expects messages to be signed, etc.
+The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the IdP Handler.
+The request will proceed through the rest of the filters as any other connection would in the previous diagram.
+
+Unauthenticated non-browser clients that pass the HTTP headers signaling that they understand SAML ECP can authenticate via that mechanism as explained below.
+
+
+[ditaa,security_ecp_architecture,png]
+....
++---------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                     |
+|                                                                                                                     |
+|                                                                                                                     |
+|        +------------------------------------------------+         +----------------------------------------+        |
+|        |                                                |         |                                        |        |
+|        |                                                |         |                                        |        |
+|        |                                                |         |                                        |        |
+|        |             Service Provider (SP)              |         |                                        |        |
+|        |                                                |         |                                        |        |
+|        |                                                |         |                                        |        |
+|        |                  +-------------------+         |         |                                        |        |
+|        |                  |cDEF               |         |         |                                        |        |
+|        |                  |     IdP Client    |         |         |        Identity Provider (IdP)         |        |
+|        |                  |                   |         |         |                                        |        |
+|        |                  +---------+---------+         |         |                                        |        |
+|        |                  |         |         |         |         |                                        |        |
+|        |                  | Handler |   ACS   |         |         |                                        |        |
+|        |                  |         |         |         |         |                                        |        |
+|        |                  |cDEF     |cDEF     |         |         |                                        |        |
+|        |                  +----+----+--+------+         |         |                                        |        |
+|        |                       |       ^                |         |                                        |        |
+|        +-+-----------+----------------------------------+         +-----+------+---------------------------+        |
+|          ^           |         |       |                                |      ^                                    |
+|          |           |         |       |5                               |      |                                    |
+|          |1          |         |       |Signed Response                 |      |                                    |
+|          |Access     |         |       |In PAOS Response                |      |3                                   |
+|          |Resource   |         |       |                                |      |AuthNRequest                        |
+|          |           |         |       |                               4|      |In SOAP Request                     |
+|          |          6|         |       \---------\      Signed Response |      |                                    |
+|          |    Supply |         |2                |      In SOAP Response|      |                                    |
+|          |   Resource|         |AuthNRequest     |                      |      |                                    |
+|          |           |         |In PAOS Request  |                      |      |                                    |
+|          |           |         |                 |                      |      |                                    |
+|          |           v         |                 |                      |      |                                    |
+|        +-+-------------------------------------------------------------------------------------------------+        |
+|        |                       |                 |                      |      |                           |        |
+|        |                       v                 |                      v      |                           |        |
+|        |                      +------------------+-----------------------------+-+                         |        |
+|        |   SAML ECP Aware     |                SOAP Intermediary                 |                         |        |
+|        |   Secure Client      |cDEF            (CXF Interceptor)                 |                         |        |
+|        |                      +--------------------------------------------------+                         |        |
+|        |                                                                                                   |        |
+|        +---------------------------------------------------------------------------------------------------+        |
+|                                                                                                                     |
++---------------------------------------------------------------------------------------------------------------------+
+....
+
+SAML ECP can be used to authenticate a non-browser client or non-person entity (NPE).
+This method of authentication is useful when there is no human in the loop, but authentication with an IdP is still desired.
+The IdP Handler will send a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
+That response does not complete the request/response loop, but is instead caught by a SOAP intermediary, which is implemented through a CXF interceptor.
+The PAOS response contains an `<AuthNRequest>` request message, which is intended to be rerouted to an IdP via SOAP.
+The SOAP intermediary will then contact an IdP (selection of the IdP is not covered by the spec).
+The IdP will either reject the login attempt, or issue a Signed `<Response>` that is to be delivered to the Assertion Consumer Service by the intermediary.
+The method of logging into the IdP is not covered by the spec and is up to the implementation.
+The SP is then signaled to supply the originally requested resource, assuming the signed Response message is valid and the user has permission to view the resource.
+
+The ambiguity in parts of the spec with regard to selecting an IdP to use and logging into that IdP can lead to integration issues between different systems.
+However, this method of authentication is not necessarily expected to work by default with anything other than other instances of ${branding}.
+It does, however, provide a starting point that downstream projects can leverage in order to provide ECP based authentication for their particular scenario or to connect to other systems that utilize SAML ECP.
 
