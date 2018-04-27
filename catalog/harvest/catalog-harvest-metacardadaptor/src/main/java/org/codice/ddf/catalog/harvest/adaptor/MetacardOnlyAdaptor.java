@@ -71,13 +71,6 @@ public class MetacardOnlyAdaptor implements StorageAdaptor {
   public String create(HarvestedResource resource) throws HarvestException {
     Metacard metacard = harvestedResourceTransformer.transformHarvestedResource(resource);
 
-    if (metacard == null) {
-      throw new HarvestException(
-          String.format(
-              "Unable to transform resource [%s]. Resource will not be processed.",
-              resource.getName()));
-    }
-
     CreateRequest createRequest =
         new CreateRequestImpl(Collections.singletonList(metacard), getSecurityMap());
 
@@ -106,13 +99,6 @@ public class MetacardOnlyAdaptor implements StorageAdaptor {
   @Override
   public void update(HarvestedResource resource, String updateId) throws HarvestException {
     Metacard metacard = harvestedResourceTransformer.transformHarvestedResource(resource, updateId);
-
-    if (metacard == null) {
-      throw new HarvestException(
-          String.format(
-              "Unable to transform resource [%s]. Resource will not be processed.",
-              resource.getName()));
-    }
 
     UpdateRequest updateRequest = new UpdateRequestImpl(updateId, metacard);
 
