@@ -1,0 +1,28 @@
+:title: Logout Page Configuration
+:type: configuration
+:status: published
+:parent: Admin Theming Configurations
+:summary: Configure logout pages displayed on ${branding}.
+:order: 01
+
+== {title}
+
+The logout pages is presented to users through the navigation of ${branding} and has a changeable time out value.
+
+=== Navigating to Logout Configuration
+
+Configure the Login and Logout pages from the ${admin-console}:
+
+. Navigate to the *${admin-console}*.
+. Select *${ddf-security}* Application.
+. Select *Configuration* tab.
+. Select *Logout Page*.
+
+=== Logout Page Customization
+
+The customizable feature of the logout page is the *Logout Page Time Out*. This is the time limit the IDP
+client will wait for a user to click log out on the logout page.
+
+. *Default value*: 3600000
+
+See <<org.codice.ddf.security.idp.client.LogoutRequestService, Logout Configuration>> for detailed information.
