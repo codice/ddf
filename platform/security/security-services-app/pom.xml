@@ -391,5 +391,10 @@
             <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-casclaimshandler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

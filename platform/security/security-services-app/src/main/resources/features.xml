@@ -56,6 +56,18 @@
         <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
+    <feature name="security-sts-casclaimshandler" version="${project.version}"
+      description="Retrieves a user's claims from a CAS server.">
+        <bundle>mvn:ddf.security.sts/security-sts-casclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-cas" version="${project.version}"
+      description="CAS client, token validator, and claims handler">
+        <feature>security-cas-client</feature>
+        <feature>security-cas-tokenvalidator</feature>
+        <feature>security-sts-casclaimshandler</feature>
+    </feature>
+
     <feature name="security-pdp-authz" install="manual" version="${project.version}"
              description="Security PDP.">
         <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">mvn:ddf.security/security-services-app/${project.version}/config/pdp</configfile>
