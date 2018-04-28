@@ -2746,57 +2746,6 @@
       ]
     },
     {
-      "id": "ddf.content.core.directorymonitor.ContentDirectoryMonitor",
-      "name": "Content Directory Monitor",
-      "metatype": [
-        {
-          "id": "monitoredDirectoryPath",
-          "optionLabels": [],
-          "description": "Specifies the directory to be monitored",
-          "optionValues": [],
-          "name": "Directory Path",
-          "defaultValue": [
-            ""
-          ],
-          "type": 1,
-          "cardinality": 0
-        },
-        {
-          "id": "directive",
-          "optionLabels": [
-            "Store Only",
-            "Process Only",
-            "Store and Process"
-          ],
-          "description": "How ingested files are to be handled: Store Only = only store ingested file in DDF Content Repository; Process Only = only create catalog entry in Metadata Catalog for ingested file; Store and Process = do both",
-          "optionValues": [
-            "STORE",
-            "PROCESS",
-            "STORE_AND_PROCESS"
-          ],
-          "name": "Processing Directive",
-          "defaultValue": [
-            "STORE_AND_PROCESS"
-          ],
-          "type": 1,
-          "cardinality": 0
-        },
-        {
-          "id": "copyIngestedFiles",
-          "optionLabels": [],
-          "description": "Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository.",
-          "optionValues": [],
-          "name": "Copy Files to Backup Directory",
-          "defaultValue": [
-            "false"
-          ],
-          "type": 11,
-          "cardinality": 0
-        }
-      ],
-      "factory": true
-    },
-    {
       "id": "org.codice.ddf.spatial.kml.style",
       "name": "Spatial KML Style Map Entry",
       "metatype": [
