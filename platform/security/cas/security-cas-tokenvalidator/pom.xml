@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -12,7 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>security-cas-pom</artifactId>
@@ -27,27 +28,36 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <scope>provided</scope>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf.services.sts</groupId>
             <artifactId>cxf-services-sts-core</artifactId>
             <scope>compile</scope>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
+            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jasig.cas</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -61,6 +71,7 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+            <version>${validation.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -92,11 +103,14 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>cas-client-core,ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            cas-client-core,
+                            ddf-security-common,
+                            platform-util-unavailableurls
+                        </Embed-Dependency>
                         <Import-Package>
-                            javax.servlet; version="[2.5.0,3.0.0)",
-                            javax.servlet.http;version="[2.5.0,3.0.0)",
+                            !org.codice.ddf.platform.util,
                             *
                         </Import-Package>
                         <Export-Package />

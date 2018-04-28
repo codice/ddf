@@ -12,7 +12,8 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>security-cas-pom</artifactId>
@@ -21,14 +22,15 @@
     </parent>
     <artifactId>security-cas-client</artifactId>
     <name>DDF :: Security :: CAS :: Client</name>
-    <packaging>war</packaging>
+    <packaging>bundle</packaging>
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jasig.cas</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
         </dependency>
         <dependency>
@@ -39,6 +41,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -55,97 +58,57 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>OSGI-INF/metatype/metatype.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <excludes>
+                    <exclude>OSGI-INF/metatype/metatype.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.8</version>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.google.guava</groupId>
-                                    <artifactId>guava</artifactId>
-                                    <version>17.0</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>
-                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
-                                    </outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>bundle-manifest</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
-                        <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
                             ddf.security.cas.client;version=${project.version}
                         </Export-Package>
                         <Import-Package>
                             ddf.security.sts.client.configuration;version="[2.4,3)",
-                            javax.servlet;version="[2.5.0,3.0.0)",
-                            javax.servlet.http,
+                            javax.servlet;version="[3,4)",
+                            javax.servlet.http;version="[3,4)",
                             org.codice.ddf.security.handler.api;version="[2.4,3)",
-                            org.jasig.cas.client.authentication,
-                            org.jasig.cas.client.proxy,
-                            org.jasig.cas.client.validation,
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-                            org.slf4j;version="[1.7,2)"
+                            org.slf4j;version="[1.7,2)",
+                            *
                         </Import-Package>
-                        <Bundle-ClassPath>.,WEB-INF/classes,WEB-INF/lib/guava-17.0.jar
-                        </Bundle-ClassPath>
-                        <Web-ContextPath>${web.contextPath}</Web-ContextPath>
-                        <Webapp-Context>${web.contextPath}</Webapp-Context>
                     </instructions>
-                    <supportedProjectTypes>
-                        <supportedProjectType>jar</supportedProjectType>
-                        <supportedProjectType>bundle</supportedProjectType>
-                        <supportedProjectType>war</supportedProjectType>
-                    </supportedProjectTypes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                        <resource>
-                            <!-- this is relative to the pom.xml directory -->
-                            <directory>src/main/resources</directory>
-                            <includes>
-                                <include>OSGI-INF/blueprint/*.xml</include>
-                                <include>OSGI-INF/metatype/*.xml</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-                    <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF
-                        </manifestFile>
-                    </archive>
                 </configuration>
             </plugin>
             <plugin>
@@ -166,19 +129,18 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.44</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.31</minimum>
+                                            <minimum>0.30</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.30</minimum>
+                                            <minimum>0.29</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
