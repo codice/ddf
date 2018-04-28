@@ -27,7 +27,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.cas.filter.ProxyFilter;
 import org.codice.ddf.security.handler.cas.filter.ProxyFilterChain;
@@ -46,7 +45,7 @@ public class CasHandler implements AuthenticationHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
 
-  protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
+  protected String realm = CASAuthenticationToken.REALM;
 
   private STSClientConfiguration clientConfiguration;
 

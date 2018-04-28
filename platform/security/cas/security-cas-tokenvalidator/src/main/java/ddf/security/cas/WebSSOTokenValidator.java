@@ -16,6 +16,7 @@ package ddf.security.cas;
 import ddf.security.encryption.EncryptionService;
 import java.nio.charset.Charset;
 import java.util.Base64;
+import java.util.Map;
 import javax.security.auth.callback.CallbackHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -175,6 +176,29 @@ public class WebSSOTokenValidator implements TokenValidator {
       LOGGER.debug("User name retrieved from CAS: {}", principal.getName());
 
       response.setPrincipal(principal);
+      Map<String, Object> additionalProperties = principal.getAttributes();
+
+      if (additionalProperties != null) {
+        response.setAdditionalProperties(additionalProperties);
+
+        if (LOGGER.isTraceEnabled()) {
+          StringBuffer output = new StringBuffer();
+          String prefix = "\n";
+          output.append("CAS attributes retrieved: { ");
+          for (Map.Entry<String, Object> entry : additionalProperties.entrySet()) {
+            output.append(prefix);
+            prefix = ", \n";
+            output.append(entry.getKey());
+            output.append("=");
+            output.append(entry.getValue());
+          }
+          output.append("\n}");
+          LOGGER.trace(output.toString());
+        } else {
+          LOGGER.debug("Added additional CAS attributes to response.");
+        }
+      }
+
       LOGGER.debug("CAS ticket successfully validated, setting state to valid.");
       validateTarget.setState(STATE.VALID);
 
