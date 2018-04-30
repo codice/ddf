@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
 public class PersistentStoreImpl implements PersistentStore {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
-  private SolrClientFactory clientFactory;
+  private final SolrClientFactory clientFactory;
 
-  private final Map<String, SolrClient> solrCients = new ConcurrentHashMap<>();
+  private final Map<String, SolrClient> solrClients = new ConcurrentHashMap<>();
 
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
     this.clientFactory = clientFactory;
@@ -176,22 +176,7 @@ public class PersistentStoreImpl implements PersistentStore {
                     .map(String.class::cast)
                     .collect(Collectors.toSet()));
           } else {
-            Object firstValue = doc.getFirstValue(name);
-            if (name.endsWith(PersistentItem.XML_SUFFIX)) {
-              result.addXmlProperty(name, (String) firstValue);
-            } else if (name.endsWith(PersistentItem.TEXT_SUFFIX)) {
-              result.addProperty(name, (String) firstValue);
-            } else if (name.endsWith(PersistentItem.LONG_SUFFIX)) {
-              result.addProperty(name, (long) firstValue);
-            } else if (name.endsWith(PersistentItem.INT_SUFFIX)) {
-              result.addProperty(name, (int) firstValue);
-            } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
-              result.addProperty(name, (Date) firstValue);
-            } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
-              result.addProperty(name, (byte[]) firstValue);
-            } else {
-              LOGGER.debug("Not adding field {} because it has invalid suffix", name);
-            }
+            addPropertyBasedOnSuffix(result, name, doc.getFirstValue(name));
           }
         }
         results.add(result);
@@ -240,9 +225,28 @@ public class PersistentStoreImpl implements PersistentStore {
     return idsToDelete.size();
   }
 
+  private void addPropertyBasedOnSuffix(PersistentItem result, String name, Object firstValue) {
+    if (name.endsWith(PersistentItem.XML_SUFFIX)) {
+      result.addXmlProperty(name, (String) firstValue);
+    } else if (name.endsWith(PersistentItem.TEXT_SUFFIX)) {
+      result.addProperty(name, (String) firstValue);
+    } else if (name.endsWith(PersistentItem.LONG_SUFFIX)) {
+      result.addProperty(name, (long) firstValue);
+    } else if (name.endsWith(PersistentItem.INT_SUFFIX)) {
+      result.addProperty(name, (int) firstValue);
+    } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
+      result.addProperty(name, (Date) firstValue);
+    } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
+      result.addProperty(name, (byte[]) firstValue);
+    } else {
+      LOGGER.debug("Not adding field {} because it has invalid suffix", name);
+    }
+  }
+
   private SolrClient getSolrClient(String storeName) throws PersistenceException {
     try {
-      final SolrClient solrClient = solrCients.computeIfAbsent(storeName, clientFactory::newClient);
+      final SolrClient solrClient =
+          solrClients.computeIfAbsent(storeName, clientFactory::newClient);
 
       if (solrClient.isAvailable(5, TimeUnit.SECONDS)) {
         return solrClient;
