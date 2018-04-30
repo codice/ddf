@@ -13,8 +13,6 @@
  */
 package ddf.catalog.source.solr;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import ddf.catalog.data.ContentType;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
@@ -45,18 +43,14 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
 
-  private static final String PING_ERROR_MESSAGE = "Solr ping failed.";
-
-  private static final String OK_STATUS = "OK";
-
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
-  private static Properties describableProperties = new Properties();
+  private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   static {
     try (InputStream inputStream =
         RemoteSolrCatalogProvider.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
-      describableProperties.load(inputStream);
+      DESCRIBABLE_PROPERTIES.load(inputStream);
     } catch (IOException e) {
       LOGGER.info("Did not load properties properly.", e);
     }
@@ -64,15 +58,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   protected static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-  private final CatalogProvider provider;
-
-  private SolrClient client;
-
-  private FilterAdapter filterAdapter;
-
-  private SolrFilterDelegateFactory solrFilterDelegateFactory;
-
-  private DynamicSchemaResolver resolver;
+  private final SolrCatalogProvider provider;
 
   /**
    * Constructor.
@@ -88,15 +74,12 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
       SolrClient client,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
       @Nullable DynamicSchemaResolver resolver) {
-    notNull(filterAdapter, "FilterAdapter cannot be null");
-    notNull(solrFilterDelegateFactory, "SolrFilterDelegateFactory cannot be null");
-
-    this.filterAdapter = filterAdapter;
-    this.client = client;
-    this.solrFilterDelegateFactory = solrFilterDelegateFactory;
-    this.resolver = (resolver == null) ? new DynamicSchemaResolver() : resolver;
     this.provider =
-        new SolrCatalogProvider(client, filterAdapter, solrFilterDelegateFactory, this.resolver);
+        new SolrCatalogProvider(
+            client,
+            filterAdapter,
+            solrFilterDelegateFactory,
+            (resolver == null) ? new DynamicSchemaResolver() : resolver);
     provider.maskId(getId());
   }
 
@@ -128,72 +111,61 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   @Override
   public Set<ContentType> getContentTypes() {
-    return getProvider().getContentTypes();
+    return provider.getContentTypes();
   }
 
   @Override
   public boolean isAvailable() {
-    return getProvider().isAvailable();
+    return provider.isAvailable();
   }
 
   @Override
   public boolean isAvailable(SourceMonitor callback) {
-    return getProvider().isAvailable(callback);
+    return provider.isAvailable(callback);
   }
 
   @Override
   public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-    return getProvider().query(queryRequest);
+    return provider.query(queryRequest);
   }
 
   @Override
   public String getDescription() {
-    return describableProperties.getProperty("description", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("description", "");
   }
 
   @Override
   public String getOrganization() {
-    return describableProperties.getProperty("organization", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("organization", "");
   }
 
   @Override
   public String getTitle() {
-    return describableProperties.getProperty("name", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("name", "");
   }
 
   @Override
   public String getVersion() {
-    return describableProperties.getProperty("version", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("version", "");
   }
 
   @Override
   public CreateResponse create(CreateRequest createRequest) throws IngestException {
-    return getProvider().create(createRequest);
+    return provider.create(createRequest);
   }
 
   @Override
   public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
-    return getProvider().delete(deleteRequest);
+    return provider.delete(deleteRequest);
   }
 
   @Override
   public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
-    return getProvider().update(updateRequest);
+    return provider.update(updateRequest);
   }
 
   /** Shuts down the connection to Solr and releases resources. */
   public void shutdown() {
-    LOGGER.debug("Closing connection to Solr client.");
-    final SolrClient c = client;
-    try {
-      c.close();
-    } catch (IOException e) {
-      LOGGER.info("Unable to close Solr client", e);
-    }
-    LOGGER.debug("Finished closing connection to Solr client.");
-  }
-
-  private CatalogProvider getProvider() {
-    return provider;
+    provider.shutdown();
   }
 }
