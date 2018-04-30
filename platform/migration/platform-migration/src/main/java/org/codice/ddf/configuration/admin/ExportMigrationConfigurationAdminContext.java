@@ -28,6 +28,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
@@ -54,20 +55,29 @@ public class ExportMigrationConfigurationAdminContext {
 
   private final ExportMigrationContext context;
 
+  private final String defaultFileExtension;
+
   private final ConfigurationAdminMigratable admin;
 
   private final Set<String> warnedExtensions = new HashSet<>(8);
+
+  private boolean warnedDefaultExtension = false;
 
   private final Set<ExportMigrationEntry> fileEntries;
 
   private final Map<Path, ExportMigrationConfigurationAdminEntry> memoryEntries;
 
   public ExportMigrationConfigurationAdminContext(
-      ExportMigrationContext context, ConfigurationAdminMigratable admin, Configuration[] configs) {
+      ExportMigrationContext context,
+      String defaultFileExtension,
+      ConfigurationAdminMigratable admin,
+      Configuration[] configs) {
     Validate.notNull(context, "invalid null contexts");
+    Validate.notNull(defaultFileExtension, "invalid null default file extension");
     Validate.notNull(admin, "invalid null configuration admin migratable");
     Validate.notNull(configs, "invalid null configurations");
     this.context = context;
+    this.defaultFileExtension = defaultFileExtension;
     this.admin = admin;
     this.fileEntries =
         context
@@ -77,6 +87,7 @@ public class ExportMigrationConfigurationAdminContext {
         Stream.of(configs)
             .filter(this::isValid)
             .map(this::getEntry)
+            .filter(Objects::nonNull)
             .collect(
                 Collectors.toMap(
                     ExportMigrationConfigurationAdminEntry::getPath, Function.identity()));
@@ -122,6 +133,7 @@ public class ExportMigrationConfigurationAdminContext {
     return memoryEntries.values().stream();
   }
 
+  @Nullable
   private ExportMigrationConfigurationAdminEntry getEntry(Configuration configuration) {
     Path path = getPathFromConfiguration(configuration);
     final String pathString = path.toString();
@@ -129,7 +141,6 @@ public class ExportMigrationConfigurationAdminContext {
     PersistenceStrategy ps = admin.getPersister(extn);
 
     if (ps == null) {
-      ps = admin.getDefaultPersister();
       if (warnedExtensions.add(extn)) {
         context
             .getReport()
@@ -137,9 +148,23 @@ public class ExportMigrationConfigurationAdminContext {
                 new MigrationWarning(
                     String.format(
                         "Persistence strategy [%s] is not defined; defaulting to [%s]",
-                        extn, ps.getExtension())));
+                        extn, defaultFileExtension)));
       }
-      path = Paths.get(pathString + FilenameUtils.EXTENSION_SEPARATOR + ps.getExtension());
+      ps = admin.getPersister(defaultFileExtension);
+      if (ps == null) {
+        if (!warnedDefaultExtension) {
+          this.warnedDefaultExtension = true;
+          context
+              .getReport()
+              .record(
+                  new MigrationWarning(
+                      String.format(
+                          "Default persistence strategy [%s] is not defined",
+                          defaultFileExtension)));
+        }
+        return null;
+      }
+      path = Paths.get(pathString + FilenameUtils.EXTENSION_SEPARATOR + defaultFileExtension);
     }
     return new ExportMigrationConfigurationAdminEntry(context.getEntry(path), configuration, ps);
   }
@@ -203,7 +228,6 @@ public class ExportMigrationConfigurationAdminContext {
     } else {
       basename = configuration.getPid();
     }
-    return Paths.get(
-        basename + FilenameUtils.EXTENSION_SEPARATOR + admin.getDefaultPersister().getExtension());
+    return Paths.get(basename + FilenameUtils.EXTENSION_SEPARATOR + defaultFileExtension);
   }
 }

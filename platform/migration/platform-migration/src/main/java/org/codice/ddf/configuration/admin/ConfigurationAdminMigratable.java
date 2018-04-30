@@ -52,7 +52,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final List<PersistenceStrategy> strategies;
 
-  private final PersistenceStrategy defaultStrategy;
+  private final String defaultFileExtension;
 
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
@@ -62,9 +62,7 @@ public class ConfigurationAdminMigratable implements Migratable {
     Validate.notNull(defaultFileExtension, "invalid null default file extension");
     this.configurationAdmin = configurationAdmin;
     this.strategies = strategies;
-    this.defaultStrategy = getPersister(defaultFileExtension);
-    Validate.notNull(
-        defaultStrategy, "unknown persistence strategy extension: " + defaultFileExtension);
+    this.defaultFileExtension = defaultFileExtension;
   }
 
   @SuppressWarnings(
@@ -107,7 +105,8 @@ public class ConfigurationAdminMigratable implements Migratable {
   @Override
   public void doExport(ExportMigrationContext context) {
     final ExportMigrationConfigurationAdminContext adminContext =
-        new ExportMigrationConfigurationAdminContext(context, this, getConfigurations(context));
+        new ExportMigrationConfigurationAdminContext(
+            context, defaultFileExtension, this, getConfigurations(context));
 
     adminContext.fileEntries().forEach(ExportMigrationEntry::store);
     adminContext.memoryEntries().forEach(ExportMigrationConfigurationAdminEntry::store);
@@ -120,12 +119,6 @@ public class ConfigurationAdminMigratable implements Migratable {
             context, this, configurationAdmin, getConfigurations(context));
 
     adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
-  }
-
-  @SuppressWarnings(
-      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext in this package */)
-  PersistenceStrategy getDefaultPersister() {
-    return defaultStrategy;
   }
 
   @SuppressWarnings(
