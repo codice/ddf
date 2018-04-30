@@ -18,16 +18,40 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import javax.annotation.Nullable;
 
 /**
  * This class is used to properly close {@link Closeable}s in case of failures. In case of success,
- * it would disables itself and no longer close the registered {@link Closeable}.
+ * it would disable itself and no longer close the registered {@link Closeable}s.
+ *
+ * <p>Here is a sample usage of this class:
+ *
+ * <pre><code>
+ *   try (final Closer closer = new Closer()) {
+ *     final MyCloseable resource1 = closer.with(new MyCloseable());
+ *     final MyCloseable resource2 = closer.with(new MyCloseable());
+ *
+ *     // do stuff that could potentially throw exceptions out and abort
+ *
+ *     final MyCloseable resource3 = closer.with(new MyCloseable());
+ *
+ *     // do more stuff
+ *
+ *     return closer.returning(new MyManager(resource1, resource2, resource3));
+ *   }
+ * </code></pre>
+ *
+ * <p>In the above example, if any errors occurs before the call to {@link #returning(Object)}, the
+ * closer will automatically close all registered resources with {@link #with(Closeable)}. Once
+ * {@link #returning(Object)} returns, the closer will no longer close any registered resources when
+ * the try-with-resources block exits.
  */
 public class Closer implements Closeable {
   private final Deque<Closeable> closeables = new ArrayDeque<>(4);
 
   /** Creates a new closer class. */
-  public Closer() {}
+  public Closer() { // nothing else to initialize
+  }
 
   /**
    * Registers a {@link Closeable} to be later closed if we are unable to return successfully.
@@ -36,8 +60,10 @@ public class Closer implements Closeable {
    * @param closeable the closeable to register
    * @return <code>closeable</code> for chaining
    */
-  public <T extends Closeable> T with(T closeable) {
-    this.closeables.addFirst(closeable);
+  public <T extends Closeable> T with(@Nullable T closeable) {
+    if (closeable != null) {
+      this.closeables.addFirst(closeable);
+    }
     return closeable;
   }
 
@@ -49,11 +75,15 @@ public class Closer implements Closeable {
    * @param result the result to be returned
    * @return <code>result</code> for chaining
    */
-  public <T> T returning(T result) {
+  public <T> T returning(@Nullable T result) {
     this.closeables.clear();
     return result;
   }
 
+  /**
+   * Closes all registered {@link Closeable}s since the creation or since the last call to {@link
+   * #returning} whichever came first.
+   */
   @Override
   public void close() {
     while (!closeables.isEmpty()) {

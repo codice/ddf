@@ -46,7 +46,7 @@ import org.apache.solr.common.util.NamedList;
  *       intercept the delegation
  * </ul>
  */
-public abstract class SolrClientProxy extends SolrClient implements StatefulCloseable.Data {
+public abstract class SolrClientProxy extends SolrClient {
   /**
    * Functional interface used to keep track of code to be delegate to a Solr client.
    *
@@ -54,6 +54,7 @@ public abstract class SolrClientProxy extends SolrClient implements StatefulClos
    */
   @FunctionalInterface
   protected interface Code<T> {
+
     /**
      * Invokes the code.
      *
@@ -85,19 +86,6 @@ public abstract class SolrClientProxy extends SolrClient implements StatefulClos
    */
   protected <T> T handle(Code<T> code) throws SolrServerException, IOException {
     return code.invoke(getProxiedClient());
-  }
-
-  /**
-   * Quick check to see if the client is available based last known information.
-   *
-   * <p><i>Note:</i> By default this method returns <code>true</code>.
-   *
-   * @return <code>true</code> if the client was available the last time it was checked; <code>false
-   *     </code> otherwise
-   */
-  @Override
-  public boolean isAvailable() {
-    return true;
   }
 
   @Override

@@ -13,54 +13,41 @@
  */
 package org.codice.solr.factory.impl;
 
-import javax.annotation.Nullable;
+import org.apache.commons.lang.Validate;
 import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.client.solrj.UnavailableSolrException;
 
+/** A SolrClient that will fail all calls to API methods. */
 public class UnavailableSolrClient extends SolrClientProxy {
-  private final String msg;
-
-  @Nullable private final Throwable cause;
+  private final Throwable cause;
 
   /**
    * Instantiates an <code>UnvailableSolrClient</code> with the provided messages to return as part
    * of the exception thrown from all methods.
    *
-   * @param msg the message for the unavailable exception to be thrown
+   * @param cause the cause for being unavailable
+   * @throws IllegalArgumentException if <code>cause</code> is <code>null</code>
    */
-  public UnavailableSolrClient(String msg) {
-    this.msg = msg;
-    this.cause = null;
-  }
-
-  /**
-   * Instantiates an <code>UnvailableSolrClient</code> with the provided messages to return as part
-   * of the exception thrown from all methods.
-   *
-   * @param msg the message for the unavailable exception to be thrown
-   * @param cause the cause for the solr client to be unavailable
-   */
-  public UnavailableSolrClient(String msg, Throwable cause) {
-    this.msg = msg;
+  public UnavailableSolrClient(Throwable cause) {
+    Validate.notNull(cause, "invalid null cause");
     this.cause = cause;
   }
 
   @Override
   protected SolrClient getProxiedClient() {
-    throw new UnavailableSolrException(msg, cause);
-  }
-
-  @Override
-  public boolean isAvailable() {
-    return false;
+    throw new UnavailableSolrException(cause);
   }
 
   @Override
   public void close() { // nothing to close
   }
 
+  public Throwable getCause() {
+    return cause;
+  }
+
   @Override
   public String toString() {
-    return "UnavailableSolrClient(" + msg + ")";
+    return "UnavailableSolrClient(" + cause + ")";
   }
 }

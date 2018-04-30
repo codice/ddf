@@ -14,6 +14,7 @@
 package org.codice.solr.factory.impl;
 
 import java.io.IOException;
+import org.apache.commons.lang.Validate;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -27,7 +28,17 @@ public class PingAwareSolrClientProxy extends SolrClientProxy {
 
   private final SolrClient pingClient;
 
+  /**
+   * Creates a new proxy with the given client and ping client.
+   *
+   * @param client the client to use for everything except ping requests
+   * @param pingClient the client t use for ping requests
+   * @throws IllegalArgumentException if <code>client</code> or <code>pingClient</code> are <code>
+   *     null</code>
+   */
   public PingAwareSolrClientProxy(SolrClient client, SolrClient pingClient) {
+    Validate.notNull(client, "invalid null client");
+    Validate.notNull(pingClient, "invalid null ping client");
     this.client = client;
     this.pingClient = pingClient;
   }
@@ -43,6 +54,8 @@ public class PingAwareSolrClientProxy extends SolrClientProxy {
   }
 
   @Override
+  @SuppressWarnings(
+      "squid:S00108" /* Using empty block of try-with-resources to close multiple resources */)
   public void close() throws IOException {
     try (final SolrClient c = client;
         final SolrClient p = pingClient) {}
