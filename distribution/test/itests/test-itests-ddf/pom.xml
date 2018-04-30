@@ -283,7 +283,7 @@
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>${servicemix-depends.version}</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>

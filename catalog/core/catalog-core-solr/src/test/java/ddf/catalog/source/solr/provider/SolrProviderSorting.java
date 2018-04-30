@@ -14,6 +14,7 @@
 package ddf.catalog.source.solr.provider;
 
 import static com.google.common.truth.Truth.assertThat;
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -52,8 +53,6 @@ import org.slf4j.LoggerFactory;
 public class SolrProviderSorting extends SolrProviderTestBase {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSorting.class);
-
-  private static final String EXT_SORT_BY = "additional.sort.bys";
 
   private static final String DOUBLE_FIELD = "hertz";
   private static final double DOUBLE_FIELD_VALUE = 16065.435;
@@ -443,7 +442,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
     SortBy titleSort =
         new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE, SortOrder.ASCENDING.name());
     SortBy[] additionalSorts = new SortBy[] {relevanceSort, titleSort};
-    properties.put(EXT_SORT_BY, additionalSorts);
+    properties.put(ADDITIONAL_SORT_BYS, additionalSorts);
     sourceResponse = provider.query(new QueryRequestImpl(query, properties));
 
     assertEquals(list.size(), sourceResponse.getResults().size());
@@ -488,7 +487,7 @@ public class SolrProviderSorting extends SolrProviderTestBase {
     SortBy distanceSort =
         new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING.name());
     SortBy[] additionalSorts = new SortBy[] {distanceSort};
-    properties.put(EXT_SORT_BY, additionalSorts);
+    properties.put(ADDITIONAL_SORT_BYS, additionalSorts);
     sourceResponse = provider.query(new QueryRequestImpl(query, properties));
 
     assertEquals(list.size(), sourceResponse.getResults().size());

@@ -175,7 +175,7 @@
             description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
             type="String"
             cardinality="10000"
-            default="^sortOrder$,^sortField$,^cql$,^polling$,^cached$"
+            default="^sorts$,^cql$,^polling$,^cached$"
             required="false"/>
 
         <AD id="attributeDescriptions"

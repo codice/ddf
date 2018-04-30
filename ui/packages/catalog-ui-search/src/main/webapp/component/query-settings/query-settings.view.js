@@ -26,17 +26,16 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/singletons/user-instance',
-    'component/sort-item/sort-item.view',
+    'component/sort/sort.view',
     'js/Common',
     'component/result-form/result-form'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
-            QuerySrcView, PropertyView, Property, user, SortItemView, Common, ResultForm) {
+             QuerySrcView, PropertyView, Property, user, SortItemCollectionView, Common, ResultForm) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-settings'),
-        modelEvents: {
-        },
+        modelEvents: {},
         events: {
             'click .editor-edit': 'turnOnEditing',
             'click .editor-cancel': 'cancel',
@@ -48,17 +47,15 @@ define([
             settingsSrc: '.settings-src',
             resultForm: '.result-form'
         },
-        ui: {
+        ui: {},
+        focus: function () {
         },
-        focus: function(){
-        },
-        initialize: function(){
+        initialize: function () {
             this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
             this.listenTo(this.model, 'change:sortField change:sortOrder change:src change:federation', Common.safeCallback(this.onBeforeShow));
         },
-        onBeforeShow: function(){
+        onBeforeShow: function () {
             this.setupSortFieldDropdown();
-            this.setupSrcDropdown();
             this.turnOnEditing();
 
             if (ResultForm.getResultTemplatesProperties()) {
@@ -74,25 +71,23 @@ define([
                 this.resultForm.currentView.turnOnEditing();
             }
         },
-        handleChangeDetailLevel: function(model, values) {
-            $.each(model.get('enum') , (function(index, value) {
+        handleChangeDetailLevel: function (model, values) {
+            $.each(model.get('enum'), (function (index, value) {
                 if (values[0] === value.value) {
                     this.model.set('selectedResultTemplate', value);
                 }
             }).bind(this));
         },
-        setupSortFieldDropdown: function() {
-            this.settingsSortField.show(new SortItemView({
-                model: new Backbone.Model({
-                    attribute: this.model.get('sortField'),
-                    direction: this.model.get('sortOrder')
-                }),
-                showBestTextOption: true
-                
-            }));
-            this.settingsSortField.currentView.turnOffEditing();
+        onRender: function () {
+            this.setupSrcDropdown();
         },
-        setupSrcDropdown: function(){
+        setupSortFieldDropdown: function () {
+            this.settingsSortField.show(new SortItemCollectionView({
+                collection: new Backbone.Collection(this.model.get('sorts')),
+                showBestTextOption: true
+            }));
+        },
+        setupSrcDropdown: function () {
             var sources = this.model.get('src');
             this._srcDropdownModel = new DropdownModel({
                 value: sources ? sources : [],
@@ -103,29 +98,29 @@ define([
             }));
             this.settingsSrc.currentView.turnOffEditing();
         },
-        turnOffEditing: function(){
-           this.$el.removeClass('is-editing');
-            this.regionManager.forEach(function(region){
-                if (region.currentView && region.currentView.turnOffEditing){
+        turnOffEditing: function () {
+            this.$el.removeClass('is-editing');
+            this.regionManager.forEach(function (region) {
+                if (region.currentView && region.currentView.turnOffEditing) {
                     region.currentView.turnOffEditing();
                 }
             });
         },
-        turnOnEditing: function(){
-           this.$el.addClass('is-editing');
-            this.regionManager.forEach(function(region){
-                if (region.currentView && region.currentView.turnOnEditing){
+        turnOnEditing: function () {
+            this.$el.addClass('is-editing');
+            this.regionManager.forEach(function (region) {
+                if (region.currentView && region.currentView.turnOnEditing) {
                     region.currentView.turnOnEditing();
                 }
             });
             this.focus();
         },
-        cancel: function(){
+        cancel: function () {
             this.$el.removeClass('is-editing');
             this.onBeforeShow();
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         },
-        toJSON: function() {
+        toJSON: function () {
             var federation = this._srcDropdownModel.get('federation');
             var src;
             if (federation === 'selected') {
@@ -134,29 +129,27 @@ define([
                     federation = 'local';
                 }
             }
-            var sortField = this.settingsSortField.currentView.getSortField();
-            var sortOrder = this.settingsSortField.currentView.getSortOrder();
+            var sorts = this.settingsSortField.currentView.collection.toJSON();
             return {
                 src: src,
                 federation: federation,
-                sortField: sortField,
-                sortOrder: sortOrder
+                sorts: sorts
             };
         },
-        saveToModel: function(){
+        saveToModel: function () {
             this.model.set(this.toJSON());
         },
-        save: function(){
+        save: function () {
             this.saveToModel();
             this.cancel();
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         },
-        run: function(){
+        run: function () {
             this.saveToModel();
             this.cancel();
             this.model.startSearch();
             store.setCurrentQuery(this.model);
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
     });
 });

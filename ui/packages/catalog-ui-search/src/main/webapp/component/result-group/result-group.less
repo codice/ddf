@@ -9,20 +9,12 @@
   }
 
   @{customElementNamespace}result-item-collection {
-    padding: 0px 0px 0px @minimumSpacing;
+    padding: 0px 0px 0px 0px;
   }
 
   > .group-results {
     position: relative;  
-  }
-    
-  @{customElementNamespace}result-item-collection:before {
-    content: '';
-    left: -@minimumSpacing;
-    opacity: @minimumOpacity;
-    position: absolute;
-    height:100%;
-    width: @minimumSpacing;
+    padding-left: 2*@minimumSpacing;
   }
 }
 

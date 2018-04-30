@@ -19,12 +19,12 @@ define([
     'jquery',
     'js/CustomElements',
     './sort-item.view',
-    'js/store'
-], function (Marionette, _, $, CustomElements, queryItemView, store) {
+    '../sort/sort.hbs'
+], function (Marionette, _, $, CustomElements, queryItemView, template) {
 
     return Marionette.CollectionView.extend({
-        tagName: CustomElements.register('sort-item-collection'),
         childView: queryItemView,
+      tagName: CustomElements.register('sort-item-collection'),
         initialize: function (options) {
             if (this.collection.length === 0) {
                 this.collection.add({
@@ -32,6 +32,14 @@ define([
                     direction: 'ascending'
                 });
             }
+        },
+        childViewOptions: function (model, index) {
+            return {
+                collection: this.collection,
+                childIndex: index,
+                showBestTextOption: this.options.showBestTextOption
+            }
         }
     });
+
 });

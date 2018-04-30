@@ -208,8 +208,7 @@ thumbnail
 |hiddenAttributes
 |String
 |List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.
-|^sortOrder$, +
-^sortField$, +
+|^sorts$, +
 ^cql$, +
 ^polling$, +
 ^cached$

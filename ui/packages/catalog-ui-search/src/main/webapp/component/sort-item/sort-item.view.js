@@ -76,19 +76,25 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('sort-item'),
+        sortAttributes: [],
         regions: {
             sortAttribute: '.sort-attribute',
             sortDirection: '.sort-direction'
         },
         events: {
-            'click .sort-remove': 'removeModel'
+            'click .sort-remove': 'removeModel',
+            'click .sort-add': 'addModel'
         },
-        initialize: function (options) {},
+        initialize: function (options) {
+            this.index = options.childIndex;
+            this.collection = options.collection;
+        },
         removeModel: function () {
             this.model.destroy();
+            this.destroy();
         },
         onBeforeShow: function () {
-            var sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
+            this.sortAttributes = metacardDefinitions.sortedMetacardTypes.filter(function (type) {
                 return !properties.isHidden(type.id);
             }).filter(function (type) {
                 return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id);
@@ -102,7 +108,7 @@ define([
             });
 
             if (this.options.showBestTextOption) {
-                sortAttributes.unshift({
+                this.sortAttributes.unshift({
                     label: 'Best Text Match',
                     value: 'RELEVANCE'
                 });
@@ -110,11 +116,12 @@ define([
 
             this.sortAttribute.show(new PropertyView({
                 model: new Property({
-                    enum: sortAttributes,
+                    enum: this.sortAttributes,
 
                     value: [this.model.get('attribute')],
-                    id: 'Sort Attribute',
-                    enumFiltering: true
+                    id: 'Sort',
+                    enumFiltering: true,
+                    showLabel: !(this.index > 0)
                 })
             }));
             this.handleAttribute();
@@ -124,6 +131,17 @@ define([
                 this.model.set('attribute', attribute[0]);
                 this.handleAttribute();
             });
+            this.listenTo(this.collection, 'change:attribute remove', () => {
+                this.updateDuplicates();
+            });
+        },
+        updateDuplicates: function () {
+            const hasDuplicates = this.collection.models.filter((sort) => {
+                return sort.get('attribute') === this.model.get('attribute') &&
+                    sort.cid !== this.model.cid;
+            }).length > 0;
+
+            this.$el.toggleClass('sort-duplicate-show', hasDuplicates);
         },
         turnOffEditing: function () {
             this.sortAttribute.currentView.turnOffEditing();
@@ -136,6 +154,9 @@ define([
             }
         },
         handleAttribute: function () {
+            if (!this.sortAttribute) {
+                return;
+            }
             var attribute = this.sortAttribute.currentView.model.getValue()[0];
             var labels = getSortLabel(attribute);
 
@@ -154,7 +175,8 @@ define([
                     }],
 
                     value: [this.model.get('direction')],
-                    id: 'Sort Direction'
+                    id: 'Sort Direction',
+                    showLabel: false
                 })
             }));
 
@@ -169,13 +191,22 @@ define([
             this.listenTo(this.sortDirection.currentView.model, 'change:value', (model, direction) => {
                 this.model.set('direction', direction[0])
             });
-
+            this.updateDuplicates();
         },
         getSortField: function () {
             return this.sortAttribute.currentView.model.getValue()[0];
         },
         getSortOrder: function () {
             return this.sortDirection.currentView.model.getValue()[0];
+        },
+        serializeData: function () {
+            const data = this.model.toJSON();
+            data.aliased = metacardDefinitions.getLabel(data.attribute);
+            if (data.aliased === 'RELEVANCE') {
+                data.aliased = 'Best Text Match';
+            }
+            data.top = this.index === 0;
+            return data;
         }
     });
 });

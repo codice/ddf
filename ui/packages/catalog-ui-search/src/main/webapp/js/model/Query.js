@@ -17,6 +17,7 @@ define([
         'properties',
         'js/cql',
         'js/model/QueryResponse',
+        'js/model/ResultSort',
         'component/singletons/sources-instance',
         'js/Common',
         'js/CacheSourceSelector',
@@ -26,8 +27,8 @@ define([
         'lodash/merge',
         'backbone-associations',
     ],
-    function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
-        CQLUtils, user, _merge) {
+    function (Backbone, _, properties, cql, QueryResponse, ResultSort, Sources, Common, CacheSourceSelector, announcement,
+              CQLUtils, user, _merge) {
         "use strict";
         var Query = {};
 
@@ -78,8 +79,10 @@ define([
                     count: properties.resultCount,
                     start: 1,
                     federation: 'enterprise',
-                    sortField: 'modified',
-                    sortOrder: 'descending',
+                    sorts: [{
+                        attribute: 'modified',
+                        direction: 'descending'
+                    }],
                     result: undefined,
                     serverPageIndex: 0,
                     type: 'text',
@@ -88,17 +91,17 @@ define([
                     selectedResultTemplate: undefined
                 }, user.getQuerySettings().toJSON());
             },
-            resetToDefaults: function() {
+            resetToDefaults: function () {
                 this.set(_.omit(this.defaults(), ['type', 'isLocal', 'serverPageIndex', 'result']));
                 this.trigger('resetToDefaults');
             },
-            applyDefaults: function() {
-                this.set(_.pick(this.defaults(), ['sortField', 'sortOrder', 'federation', 'src']));
+            applyDefaults: function () {
+                this.set(_.pick(this.defaults(), ['sorts', 'federation', 'src']));
             },
-            revert: function() {
+            revert: function () {
                 this.trigger('revert');
             },
-            isLocal: function() {
+            isLocal: function () {
                 return this.get('isLocal');
             },
             initialize: function () {
@@ -128,9 +131,9 @@ define([
 
                 data.count = user.get('user').get('preferences').get('resultCount');
 
-                data.sort = this.get('sortField') + ':' + this.get('sortOrder');
+                data.sorts = this.get('sorts');
 
-                return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
+                return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sorts', 'id');
             },
             startSearch: function (options) {
                 this.set('isOutdated', false);
@@ -177,37 +180,9 @@ define([
                     });
                 }
 
-                var sortField = this.get('sortField');
-                var sortOrder = this.get('sortOrder') === 'descending' ? -1 : 1;
-
-                switch (sortField) {
-                    case 'RELEVANCE':
-                        result.get('results').fullCollection.comparator = function (a, b) {
-                            return sortOrder * (a.get('relevance') - b.get('relevance'));
-                        };
-                        break;
-                    case 'DISTANCE':
-                        result.get('results').fullCollection.comparator = function (a, b) {
-                            return sortOrder * (a.get('distance') - b.get('distance'));
-                        };
-                        break;
-                    default:
-                        result.get('results').fullCollection.comparator = function (a, b) {
-                            var aVal = a.get('metacard>properties>' + sortField);
-                            var bVal = b.get('metacard>properties>' + sortField);
-                            if (aVal < bVal) {
-                                return sortOrder * -1;
-                            }
-                            if (aVal > bVal) {
-                                return sortOrder;
-                            }
-                            return 0;
-                        };
-                }
-
                 result.set('initiated', Date.now());
                 result.set('resultCountOnly', options.resultCountOnly);
-                result.get('results').fullCollection.sort();
+                ResultSort.sortResults(this.get('sorts'), result.get('results').fullCollection);
 
                 if (sources.length === 0) {
                     announcement.announce({
