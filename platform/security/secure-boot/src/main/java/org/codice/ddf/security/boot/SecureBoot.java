@@ -35,30 +35,20 @@ public class SecureBoot {
 
   private final SystemService systemService;
 
-  private Path ddfHome;
+  private final Path ddfHome;
 
-  private Path userHome;
+  private final Path userHome;
 
-  private boolean shuttingDown = false;
+  private volatile boolean shuttingDown = false;
 
   public SecureBoot(SystemService systemService) {
     this.systemService = systemService;
-    try {
-      ddfHome = getDdfHome();
-      userHome = getUserHome();
-    } catch (IOException e) {
-      String message =
-          "Unable to determine if your installation ["
-              + ddfHome
-              + "] is located in an insecure directory. See log for details. Shutting down...";
-      System.err.println("\n" + message + "\n");
-      LOGGER.error(message, e);
-      shutdown();
-    }
+    ddfHome = getDdfHome();
+    userHome = getUserHome();
   }
 
   public void init() {
-    if (isInsecureInstallation()) {
+    if (!shuttingDown && isInsecureInstallation()) {
       String message =
           "ERROR: Your installation ["
               + ddfHome
@@ -73,15 +63,39 @@ public class SecureBoot {
   }
 
   private boolean isInsecureInstallation() {
-    return !shuttingDown && securityManagerEnabled() && isInstalledInUserHome();
+    return securityManagerEnabled() && isInstalledInUserHome();
   }
 
-  private Path getDdfHome() throws IOException {
-    return Paths.get(System.getProperty(DDF_HOME_SYS_PROP)).toRealPath();
+  private Path getDdfHome() {
+    Path ddfHome;
+    try {
+      ddfHome = Paths.get(System.getProperty(DDF_HOME_SYS_PROP)).toRealPath();
+    } catch (IOException e) {
+      ddfHome = Paths.get(System.getProperty(DDF_HOME_SYS_PROP));
+      String message =
+          "ERROR: Unable to get real path for ddf.home [" + ddfHome + "]. Shutting down...";
+      System.err.println("\n" + message + "\n");
+      LOGGER.error(message);
+      LOGGER.debug(message, e);
+      shutdown();
+    }
+    return ddfHome;
   }
 
-  private Path getUserHome() throws IOException {
-    return Paths.get(System.getProperty(USER_HOME_SYS_PROP)).toRealPath();
+  private Path getUserHome() {
+    Path userHome;
+    try {
+      userHome = Paths.get(System.getProperty(USER_HOME_SYS_PROP)).toRealPath();
+    } catch (IOException e) {
+      userHome = Paths.get(System.getProperty(USER_HOME_SYS_PROP));
+      String message =
+          "ERROR: Unable to get real path for user.home [" + userHome + "]. Shutting down...";
+      System.err.println("\n" + message + "\n");
+      LOGGER.error(message);
+      LOGGER.debug(message, e);
+      shutdown();
+    }
+    return userHome;
   }
 
   private boolean isInstalledInUserHome() {
@@ -90,8 +104,10 @@ public class SecureBoot {
 
   private void shutdown() {
     try {
-      shuttingDown = true;
-      systemService.halt(NOW);
+      if (!shuttingDown) {
+        shuttingDown = true;
+        systemService.halt(NOW);
+      }
     } catch (Exception e) {
       systemExit(e);
     }
@@ -107,7 +123,8 @@ public class SecureBoot {
     String message =
         "ERROR: Exception encountered while shutting system down via SystemService. Terminating JVM...";
     System.err.println("\n" + message + "\n");
-    LOGGER.error(message, e);
+    LOGGER.error(message);
+    LOGGER.debug(message, e);
     System.exit(INSECURE_BOOT_EXIT_CODE);
   }
 }

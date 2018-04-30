@@ -192,6 +192,60 @@ class SecureBootSpec  extends Specification {
         exitedDueToSystemServiceFailureToExit == false
     }
 
+    def 'System exits normally when attempting to read invalid user.home'() {
+        setup:
+        def exitedDueToSystemServiceFailureToExit = false
+        def userHomeSysProp = "/" + System.currentTimeMillis() + "/" + UUID.randomUUID() + "/tomPenny"
+        def ddfHomeSysProp = ddfHome.newFolder("ddf").toString()
+        def systemService = Mock(SystemService)
+        def securityManager = Mock(SecurityManager)
+        System.properties.'ddf.home' = ddfHomeSysProp
+        System.properties.'user.home' = userHomeSysProp
+
+        when:
+        def secureBoot = new SecureBoot(systemService) {
+            boolean securityManagerEnabled() {
+                return securityManager;
+            }
+
+            void systemExit(Exception e) {
+                exitedDueToSystemServiceFailureToExit = true
+            }
+        }
+        secureBoot.init()
+
+        then:
+        1 * systemService.halt("0")
+        exitedDueToSystemServiceFailureToExit == false
+    }
+
+    def 'System exits normally when attempting to read invalid ddf.home and invalid user.home'() {
+        setup:
+        def exitedDueToSystemServiceFailureToExit = false
+        def userHomeSysProp = "/" + System.currentTimeMillis() + "/" + UUID.randomUUID() + "/tomPenny"
+        def ddfHomeSysProp = "/" + System.currentTimeMillis() + "/" + UUID.randomUUID() + "/ddf"
+        def systemService = Mock(SystemService)
+        def securityManager = Mock(SecurityManager)
+        System.properties.'ddf.home' = ddfHomeSysProp
+        System.properties.'user.home' = userHomeSysProp
+
+        when:
+        def secureBoot = new SecureBoot(systemService) {
+            boolean securityManagerEnabled() {
+                return securityManager;
+            }
+
+            void systemExit(Exception e) {
+                exitedDueToSystemServiceFailureToExit = true
+            }
+        }
+        secureBoot.init()
+
+        then:
+        1 * systemService.halt("0")
+        exitedDueToSystemServiceFailureToExit == false
+    }
+
     /**
      * ie. /opt/ddfHomeSymLink -> /users/tomPenny/ddf
      */
