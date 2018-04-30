@@ -38,8 +38,7 @@ public class PostRequestDecoder implements RequestDecoder {
     if (StringUtils.isEmpty(samlRequest)) {
       throw new IllegalArgumentException("Missing SAMLRequest on IdP request.");
     }
-    String decodedRequest =
-        new String(RestSecurity.base64Decode(samlRequest), StandardCharsets.UTF_8);
+    String decodedRequest = RestSecurity.base64Decode(samlRequest);
     ByteArrayInputStream tokenStream =
         new ByteArrayInputStream(decodedRequest.getBytes(StandardCharsets.UTF_8));
     Document authnDoc;

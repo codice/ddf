@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -58,7 +57,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -170,8 +168,6 @@ public class IdpEndpointTest {
 
   String signatureAlgorithm;
 
-  String ssoSAMLResponse;
-
   public IdpEndpointTest() throws IOException {}
 
   public static Document readXml(InputStream is)
@@ -257,7 +253,6 @@ public class IdpEndpointTest {
     samlConditionDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     signature = authNRequestGetSignature;
     signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-    ssoSAMLResponse = "https://localhost:8993/services/saml/sso?SAMLResponse=";
     System.setProperty("org.codice.ddf.system.rootContext", "/services");
   }
 
@@ -426,8 +421,9 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getEntity().toString(), containsString("Form Submit"));
+    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
+    assertThat(response.getEntity().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -477,8 +473,9 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getEntity().toString(), containsString("Form Submit"));
+    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
+    assertThat(response.getEntity().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -524,8 +521,9 @@ public class IdpEndpointTest {
             SamlProtocol.REDIRECT_BINDING,
             request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getEntity().toString(), containsString("Form Submit"));
+    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
+    assertThat(response.getEntity().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -545,8 +543,9 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getEntity().toString(), containsString("Form Submit"));
+    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
+    assertThat(response.getEntity().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -685,8 +684,9 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    assertThat(response.getEntity().toString(), containsString(ssoSAMLResponse));
-    assertThat(response.getEntity().toString(), containsString("RelayState="));
+    assertThat(response.getEntity().toString(), containsString("Form Submit"));
+    assertThat(response.getEntity().toString(), containsString("SAMLResponse"));
+    assertThat(response.getEntity().toString(), containsString("RelayState"));
   }
 
   @Test
@@ -714,9 +714,7 @@ public class IdpEndpointTest {
   }
 
   @Test
-  public void testPassiveLoginPkiFail()
-      throws SecurityServiceException, WSSecurityException, CertificateEncodingException,
-          IOException {
+  public void testPassiveLoginPkiFail() throws Exception {
     String samlRequest = authNRequestPassivePkiGet;
     HttpServletRequest request = mock(HttpServletRequest.class);
     X509Certificate x509Certificate = mock(X509Certificate.class);
@@ -737,10 +735,9 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
-        StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
-    responseStr = URLDecoder.decode(responseStr, "UTF-8");
-    responseStr = RestSecurity.inflateBase64(responseStr);
+        XmlSearch.evaluate(
+            "/html/body/form/input[@name='SAMLResponse']/@value", response.getEntity().toString());
+    responseStr = RestSecurity.base64Decode(responseStr);
 
     // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:AuthnFailed"));
@@ -811,9 +808,7 @@ public class IdpEndpointTest {
   }
 
   @Test
-  public void testPassiveLoginPkiUnsupported()
-      throws SecurityServiceException, WSSecurityException, CertificateEncodingException,
-          IOException {
+  public void testPassiveLoginPkiUnsupported() throws Exception {
     String samlRequest = authNRequestPassivePkiGet;
     HttpServletRequest request = mock(HttpServletRequest.class);
     X509Certificate x509Certificate = mock(X509Certificate.class);
@@ -843,19 +838,16 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
-        StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
-    responseStr = URLDecoder.decode(responseStr, "UTF-8");
-    responseStr = RestSecurity.inflateBase64(responseStr);
+        XmlSearch.evaluate(
+            "/html/body/form/input[@name='SAMLResponse']/@value", response.getEntity().toString());
+    responseStr = RestSecurity.base64Decode(responseStr);
 
     // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:RequestUnsupported"));
   }
 
   @Test
-  public void testPassiveLoginPkiUnsupportedBinding()
-      throws SecurityServiceException, WSSecurityException, CertificateEncodingException,
-          IOException {
+  public void testPassiveLoginPkiUnsupportedBinding() throws Exception {
     String samlRequest = authNRequestPassivePkiGetUnsupportedBinding;
     HttpServletRequest request = mock(HttpServletRequest.class);
     X509Certificate x509Certificate = mock(X509Certificate.class);
@@ -885,10 +877,9 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
     String responseStr =
-        StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse=", "&RelayState");
-    responseStr = URLDecoder.decode(responseStr, "UTF-8");
-    responseStr = RestSecurity.inflateBase64(responseStr);
+        XmlSearch.evaluate(
+            "/html/body/form/input[@name='SAMLResponse']/@value", response.getEntity().toString());
+    responseStr = RestSecurity.base64Decode(responseStr);
 
     // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:UnsupportedBinding"));

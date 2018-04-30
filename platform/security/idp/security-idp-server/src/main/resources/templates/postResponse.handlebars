@@ -1,3 +1,4 @@
+<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,23 +10,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'marionette',
-    'icanhaz',
-    'text!templates/submitForm.handlebars'
-], function(Marionette, ich, submitForm) {
-
-    ich.addTemplate('submitForm', submitForm);
-
-    var Login = {};
-
-    Login.LoginForm = Marionette.ItemView.extend({
-        template: 'submitForm',
-        onRender: function() {
-            this.$('.idp-form-submit').click();
-        }
-    });
-
-    return Login;
-});
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Form Submit</title>
+</head>
+<body Onload="document.forms[0].submit()">
+<form id="postform" method="POST" action="{{ACSURL}}">
+    <input type="hidden" name="SAMLResponse" value="{{SAMLResponse}}"/>
+    {{RelayState}}
+</form>
+</body>
+</html>
