@@ -106,6 +106,10 @@ module.exports = Marionette.LayoutView.extend({
         this.handleSelectionChange();
         this.handleResultsChange();
         this.keepHoverMetacardAround();
+        this.handleOffMap();
+    },
+    handleOffMap: function() {
+        this.$el.toggleClass('is-off-map', this.options.mapModel.isOffMap());
     },
     keepHoverMetacardAround: function () {
         this.previousHoverModel = this.options.mapModel.get('targetMetacard') ||

@@ -33,6 +33,9 @@ module.exports = Backbone.AssociatedModel.extend({
         target: undefined,
         targetMetacard: undefined
     },
+    isOffMap: function() {
+        return this.get('mouseLat') === undefined;
+    },
     clearMouseCoordinates: function() {
         this.set({
             mouseLat: undefined,
