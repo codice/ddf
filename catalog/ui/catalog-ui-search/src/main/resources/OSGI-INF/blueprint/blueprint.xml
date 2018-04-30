@@ -371,6 +371,7 @@
             </bean>
         </argument>
         <argument ref="securityService"/>
+        <argument ref="persistentStore"/>
     </bean>
 
     <service interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore">
