@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * depending on if the code is run within an OSGi container or not.
  */
 public class ConfigurationFileProxy {
-
   public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
   public static final String DEFAULT_SOLR_DATA_PARENT_DIR =
@@ -94,7 +93,7 @@ public class ConfigurationFileProxy {
                     .getResourceAsStream("solr/conf/" + filename);
             FileOutputStream outputStream = new FileOutputStream(currentFile)) {
           long byteCount = IOUtils.copyLarge(inputStream, outputStream);
-          LOGGER.debug("Wrote out {} bytes.", byteCount);
+          LOGGER.debug("Wrote out {} bytes for [{}].", byteCount, filename);
         } catch (IOException e) {
           LOGGER.warn("Unable to copy Solr configuration file: " + filename, e);
         }
