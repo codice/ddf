@@ -20,7 +20,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,11 +36,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
 
@@ -60,14 +61,17 @@ public class SolrCacheTest {
 
   private SolrCache solrCache;
 
-  @Mock private SolrClientAdaptor mockSolrClientAdaptor;
+  @Mock private SolrClient mockSolrClient;
 
   @Mock private CacheSolrMetacardClient mockCacheSolrMetacardClient;
 
   @Before
   public void setUp() {
-    solrCache = new SolrCache(mockSolrClientAdaptor);
-    when(mockSolrClientAdaptor.getSolrMetacardClient()).thenReturn(mockCacheSolrMetacardClient);
+    solrCache =
+        new SolrCache(mockSolrClient, mockCacheSolrMetacardClient) {
+          @Override
+          void configureCacheExpirationScheduler() {}
+        };
   }
 
   @Test
@@ -80,7 +84,6 @@ public class SolrCacheTest {
 
     assertThat(actualResponse, is(expectedResponse));
 
-    verify(mockSolrClientAdaptor).getSolrMetacardClient();
     verify(mockCacheSolrMetacardClient).query(mockQuery);
   }
 
@@ -95,18 +98,18 @@ public class SolrCacheTest {
   @Test
   public void createWithNullMetacards() throws Exception {
     solrCache.create(null);
-    verify(mockSolrClientAdaptor, times(0)).getSolrMetacardClient();
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
   }
 
   @Test
   public void createWithEmptyMetacards() throws Exception {
     solrCache.create(Collections.emptyList());
-    verify(mockSolrClientAdaptor, times(0)).getSolrMetacardClient();
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
   }
 
   @Test
   public void createWithANullMetacard() throws Exception {
-    List<Metacard> metacards = new ArrayList<Metacard>();
+    List<Metacard> metacards = new ArrayList<>();
     metacards.add(null);
 
     solrCache.create(metacards);
@@ -118,7 +121,7 @@ public class SolrCacheTest {
 
   @Test
   public void createWithMetacard() throws Exception {
-    List<Metacard> metacards = new ArrayList<Metacard>();
+    List<Metacard> metacards = new ArrayList<>();
     Metacard metacard = mock(Metacard.class);
     when(metacard.getSourceId()).thenReturn(TEST_ID);
     when(metacard.getId()).thenReturn(TEST_ID);
@@ -143,7 +146,7 @@ public class SolrCacheTest {
   public void deleteWithNullRequest() throws Exception {
     solrCache.delete(null);
 
-    verify(mockSolrClientAdaptor, times(0)).getSolrMetacardClient();
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
   }
 
   @Test
@@ -152,7 +155,7 @@ public class SolrCacheTest {
 
     solrCache.delete(mockRequest);
 
-    verify(mockSolrClientAdaptor, times(0)).getSolrMetacardClient();
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
   }
 
   @Test
@@ -227,7 +230,7 @@ public class SolrCacheTest {
     Metacard expectedMetacard = new MetacardImpl();
     when(mockResult.getMetacard()).thenReturn(expectedMetacard);
 
-    List<Result> listOfResults = new ArrayList<Result>();
+    List<Result> listOfResults = new ArrayList<>();
     listOfResults.add(mockResult);
 
     when(mockResponse.getResults()).thenReturn(listOfResults);

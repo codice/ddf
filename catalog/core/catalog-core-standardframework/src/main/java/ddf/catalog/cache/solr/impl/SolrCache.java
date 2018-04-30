@@ -15,6 +15,7 @@ package ddf.catalog.cache.solr.impl;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -78,7 +79,7 @@ public class SolrCache implements SolrCacheMBean {
 
   private final SolrMetacardClient metacardClient;
 
-  private AtomicBoolean dirty = new AtomicBoolean(false);
+  private final AtomicBoolean dirty = new AtomicBoolean(false);
 
   private ScheduledExecutorService scheduler;
 
@@ -99,12 +100,24 @@ public class SolrCache implements SolrCacheMBean {
       FilterAdapter adapter,
       SolrClientFactory solrClientFactory,
       SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    this.client = solrClientFactory.newClient(METACARD_CACHE_CORE_NAME);
-    this.metacardClient = new CacheSolrMetacardClient(client, adapter, solrFilterDelegateFactory);
+    this(adapter, solrClientFactory.newClient(METACARD_CACHE_CORE_NAME), solrFilterDelegateFactory);
+  }
+
+  @VisibleForTesting
+  SolrCache(SolrClient client, CacheSolrMetacardClient metacardClient) {
+    this.client = client;
+    this.metacardClient = metacardClient;
 
     configureCacheExpirationScheduler();
 
     configureMBean();
+  }
+
+  private SolrCache(
+      FilterAdapter adapter,
+      SolrClient client,
+      SolrFilterDelegateFactory solrFilterDelegateFactory) {
+    this(client, new CacheSolrMetacardClient(client, adapter, solrFilterDelegateFactory));
   }
 
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
@@ -169,7 +182,8 @@ public class SolrCache implements SolrCacheMBean {
     this.expirationAgeInMinutes = expirationAgeInMinutes;
   }
 
-  private void configureCacheExpirationScheduler() {
+  @VisibleForTesting
+  void configureCacheExpirationScheduler() {
     shutdownCacheExpirationScheduler();
     LOGGER.debug(
         "Configuring cache expiration scheduler with an expiration interval of {} minute(s).",
