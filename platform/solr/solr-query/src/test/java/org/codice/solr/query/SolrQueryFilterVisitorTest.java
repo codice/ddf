@@ -21,9 +21,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.util.NamedList;
+import org.codice.solr.client.solrj.SolrClient;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +38,16 @@ public class SolrQueryFilterVisitorTest {
 
   @Mock private SolrClient solrClient;
 
+  @Mock private org.apache.solr.client.solrj.SolrClient solrjClient;
+
   @Mock private NamedList namedList;
 
   private SolrQueryFilterVisitor solrVisitor;
 
   @Before
   public void setup() throws Exception {
-    when(solrClient.request(any(), anyString())).thenReturn(namedList);
+    when(solrClient.getClient()).thenReturn(solrjClient);
+    when(solrjClient.request(any(), anyString())).thenReturn(namedList);
     solrVisitor = new SolrQueryFilterVisitor(solrClient, "alerts");
   }
 
