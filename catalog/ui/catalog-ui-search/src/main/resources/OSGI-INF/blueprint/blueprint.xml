@@ -519,6 +519,7 @@
             </bean>
         </argument>
         <argument ref="securityService"/>
+        <argument ref="persistentStore"/>
     </bean>
 
     <bean id="workspacePersistentStore" class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
