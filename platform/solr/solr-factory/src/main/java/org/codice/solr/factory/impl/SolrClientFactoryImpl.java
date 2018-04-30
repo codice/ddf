@@ -27,11 +27,11 @@ import org.codice.solr.factory.SolrClientFactory;
  * solr.client} system property.
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
-
   private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
 
+  @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl() {
-    newClientFunction = (factory, core) -> factory.newClient(core);
+    this((factory, core) -> factory.newClient(core));
   }
 
   @VisibleForTesting
