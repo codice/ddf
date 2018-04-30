@@ -199,7 +199,7 @@ module.exports = Marionette.LayoutView.extend({
     addHome: function() {
         this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button zoomToHome">' +
             '<span>Home </span>' +
-            '<span class="fa fa-home"></span></div>');
+            '<span class="cf cf-map-marker"></span></div>');
     },
     addClustering: function() {
         this.$el.find('.cesium-viewer-toolbar').append('<div class="is-button cluster cluster-button">' +
