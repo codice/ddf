@@ -29,6 +29,6 @@ public class UnavailableSolrException extends SolrException {
   }
 
   public UnavailableSolrException(Throwable cause) {
-    super(ErrorCode.SERVICE_UNAVAILABLE, cause);
+    super(ErrorCode.SERVICE_UNAVAILABLE, cause.getMessage(), cause);
   }
 }

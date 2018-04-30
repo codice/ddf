@@ -35,6 +35,13 @@ import org.apache.solr.common.util.NamedList;
 /**
  * Provides a pure interface to the Solr client allowing us to add new functionality.
  *
+ * <p><i>Note:</i> Such a client is returned via the {@link
+ * org.codice.solr.factory.SolrClientFactory#newClient(String)} method where it might not yet be
+ * available (see {@link SolrClient#isAvailable}). Even after having reported to be available, a
+ * client might suddenly become unavailable. All methods will throw {@link
+ * org.codice.solr.factory.impl.UnavailableSolrClient} exceptions anytime the client is unavailable
+ * and the client will attempt to reestablish the connection in the background.
+ *
  * <p><i>Note:</i> This is a precursor to having the whole Solr client abstracted into interfaces to
  * decouple us from the Solr implementation.
  */
@@ -56,7 +63,7 @@ public interface SolrClient extends Closeable {
   /**
    * Checks whether the Solr server this client is connected to and the corresponding core is
    * available or not. This method is different from an active ping as it might be basing its answer
-   * on cached information. It might, however, initiate a background ping.
+   * on cached information.
    *
    * <p><i>Note:</i> Returning <code>true</code> doesn't guarantee the next call to any methods will
    * succeed as the server or the core might become unavailable at any time without notice.
@@ -69,7 +76,7 @@ public interface SolrClient extends Closeable {
   /**
    * Waits if necessary for the Solr server this client is connected to and the corresponding core
    * to become available. This method is different from an active ping as it might be basing its
-   * answer on cached information. It might, however, initiate a background ping.
+   * answer on cached information.
    *
    * <p><i>Note:</i> Nothing will happen and the method will return right away if the client was
    * already closed.
@@ -82,6 +89,7 @@ public interface SolrClient extends Closeable {
    * @return <code>false</code> if the Solr server this client is connected or the corresponding
    *     core is not available; <code>true</code> otherwise
    * @throws InterruptedException if the current thread was interrupted while waiting
+   * @throws IllegalArgumentException if <code>unit</code> is <code>null</code>
    */
   public boolean isAvailable(long timeout, TimeUnit unit) throws InterruptedException;
 
@@ -90,8 +98,7 @@ public interface SolrClient extends Closeable {
    * that will be called back with a boolean flag representing the new availability for this Solr
    * client whenever it changes in the future. The listener will also be called back right away with
    * the current availability of the client. This method is different from an active ping as it
-   * might be basing its initial answer on cached information. It might, however, initiate a
-   * background ping.
+   * might be basing its initial answer on cached information.
    *
    * <p><i>Note:</i> Nothing will happen and the method will return right away if the client was
    * already closed.
@@ -102,6 +109,7 @@ public interface SolrClient extends Closeable {
    * @param listener a listener to notify whenever the Solr client's availability changes
    * @return <code>false</code> if the Solr server this client is connected or the corresponding
    *     core is not available; <code>true</code> otherwise
+   * @throws IllegalArgumentException if <code>listener</code> is <code>null</code>
    */
   public boolean isAvailable(Listener listener);
 
@@ -118,6 +126,7 @@ public interface SolrClient extends Closeable {
    * guaranteed that the client was available at least once.
    *
    * @param initializer an initializer to notify when the Solr client first become available
+   * @throws IllegalArgumentException if <code>initializer</code> is <code>null</code>
    */
   public void whenAvailable(Initializer initializer);
 
@@ -968,6 +977,18 @@ public interface SolrClient extends Closeable {
       throws SolrServerException, IOException;
 
   /**
+   * Execute a request against a Solr server for a given collection
+   *
+   * @param request the request to execute
+   * @param collection the collection to execute the request against
+   * @return a {@link NamedList} containing the response from the server
+   * @throws IOException If there is a low-level I/O error.
+   * @throws SolrServerException if there is an error on the server
+   */
+  public NamedList<Object> request(SolrRequest request, String collection)
+      throws SolrServerException, IOException;
+
+  /**
    * Execute a request against a Solr server
    *
    * @param request the request to execute
@@ -990,7 +1011,8 @@ public interface SolrClient extends Closeable {
 
   /**
    * Represents a listener that can be registered with the client to be notified of the availability
-   * changed of a client.
+   * changed of a client. Implementing {@link #hashCode()} and {@link #equals(Object)} will
+   * guarantee uniqueness of the listener object when registered.
    */
   @FunctionalInterface
   public interface Listener {
@@ -1016,6 +1038,7 @@ public interface SolrClient extends Closeable {
    */
   @FunctionalInterface
   public interface Initializer {
+
     /**
      * Notifies this initializer that the client finished initializing and became available.
      *

@@ -24,7 +24,7 @@ public interface SolrClientFactory {
    * SolrClient#isAvailable}). Even after having reported to be available, a client might suddenly
    * become unavailable. All methods will throw {@link
    * org.codice.solr.factory.impl.UnavailableSolrClient} exceptions anytime the client is
-   * unavailable and the client will attempt to restablish the connection in the background.
+   * unavailable and the client will attempt to reestablish the connection in the background.
    *
    * @param core the name of the Solr core to create to create a client for
    * @return the newly created {@code SolrClient}
