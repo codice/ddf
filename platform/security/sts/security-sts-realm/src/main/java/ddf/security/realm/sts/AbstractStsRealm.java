@@ -412,14 +412,14 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     if (contextPolicyManager != null) {
       Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
-      if (contextPolicies != null && contextPolicies.size() > 0) {
+      if (contextPolicies != null && !contextPolicies.isEmpty()) {
         for (ContextPolicy contextPolicy : contextPolicies) {
           claims.addAll(contextPolicy.getAllowedAttributeNames());
         }
       }
     }
 
-    if (claims.size() != 0) {
+    if (!claims.isEmpty()) {
       W3CDOMStreamWriter writer = null;
 
       try {
