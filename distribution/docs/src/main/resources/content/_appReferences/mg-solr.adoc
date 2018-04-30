@@ -17,4 +17,9 @@ To use the ${ddf-solr} Application, the following apps/features must be installe
 
 === Installing ${ddf-solr}
 
-The ${ddf-solr} Application is installed by default with a standard installation.
+Install ${ddf-solr} through the ${admin-console}.
+
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `solr-app` feature.

@@ -30,12 +30,10 @@ To use the ${ddf-resource-management} Application, the following apps/features m
 
 === Installing ${ddf-resource-management}
 
-The ${ddf-resource-management} application is not installed by default with a standard installation.
-
-To Install:
+Install ${ddf-resource-management} through the ${admin-console}.
 
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
 . Select the *Features* tab.
-. Install the `registry-app` feature.
+. Install the `resourcemanagement-app` feature.
 

@@ -22,4 +22,9 @@ None.
 
 ===  Installing ${ddf-platform}
 
-The ${ddf-platform} application is installed by default with a standard installation.
+Install ${ddf-platform} through the ${admin-console}.
+
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `platform-app` feature.
