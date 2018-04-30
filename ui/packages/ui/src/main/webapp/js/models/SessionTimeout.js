@@ -22,6 +22,17 @@ function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
 }
 
+function localStorageAvailable() {
+    var test = 'test';
+    try {
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 define([
         'backbone',
         'jquery',
@@ -29,16 +40,28 @@ define([
         'properties'
     ],
     function (Backbone, $, _, properties) {
-        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : idleTimeoutThreshold;
+        idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 60000 : idleTimeoutThreshold;
         var sessionTimeoutModel = new (Backbone.Model.extend({
             defaults: {
                 showPrompt: false,
-                idleTimeoutDate: 0
+                idleTimeoutDate: 0,
+                localStorageAvailable: true
             },
             initialize: function () {
+                if (localStorageAvailable()) {
+                    $(window).on("storage", this.handleLocalStorageChange.bind(this));
+                }
+                else {
+                    this.set('localStorageAvailable', false);
+                }
                 this.listenTo(this, 'change:idleTimeoutDate', this.handleIdleTimeoutDate);
                 this.listenTo(this, 'change:showPrompt', this.handleShowPrompt);
+                this.resetIdleTimeoutDate();
                 this.handleShowPrompt();
+            },
+            handleLocalStorageChange: function() {
+                this.set('idleTimeoutDate', parseInt(localStorage.getItem('idleTimeoutDate')));
+                this.hidePrompt();
             },
             handleIdleTimeoutDate: function () {
                 this.clearPromptTimer();
@@ -50,7 +73,6 @@ define([
                 if (this.get('showPrompt')) {
                     this.stopListeningForUserActivity();
                 } else {
-                    this.resetIdleTimeoutDate();
                     this.startListeningForUserActivity();
                 }
             },
@@ -73,19 +95,24 @@ define([
                 clearTimeout(this.logoutTimer);
             },
             resetIdleTimeoutDate: function () {
-                this.set('idleTimeoutDate', getIdleTimeoutDate());
+                var idleTimeoutDate = getIdleTimeoutDate();
+                if (this.get('localStorageAvailable')) {
+                    localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+                }
+                this.set('idleTimeoutDate', idleTimeoutDate);
             },
             startListeningForUserActivity: function () {
-                $(document).on('keydown.sessionTimeout mousedown.sessionTimeout mousemove.sessionTimeout', _.throttle(this.resetIdleTimeoutDate.bind(this), 5000));
+                $(document).on('keydown.sessionTimeout mousedown.sessionTimeout', _.throttle(this.resetIdleTimeoutDate.bind(this), 5000));
             },
             stopListeningForUserActivity: function () {
-                $(document).off('keydown.sessionTimeout mousedown.sessionTimeout mousemove.sessionTimeout');
+                $(document).off('keydown.sessionTimeout mousedown.sessionTimeout');
             },
             logout: function () {
                 window.location.replace(invalidateUrl + window.location.pathname);
             },
             renew: function () {
                 this.hidePrompt();
+                this.resetIdleTimeoutDate();
             },
             getIdleSeconds: function () {
                 return parseInt((this.get('idleTimeoutDate') - Date.now()) / 1000);

@@ -16,7 +16,8 @@ var Backbone = require('backbone');
 
 module.exports = new (Backbone.Model.extend({
     defaults: {
-        cesium: true
+        cesium: true,
+        localStorage: true
     },
     supportsFeature(feature) {
         return this.get(feature);
