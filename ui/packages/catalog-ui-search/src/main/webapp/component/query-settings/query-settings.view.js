@@ -71,7 +71,6 @@ define([
                 this.resultForm.show(new PropertyView({
                     model: detailLevelProperty
                 }));
-                this.resultForm.currentView.turnOnLimitedWidth();
                 this.resultForm.currentView.turnOnEditing();
             }
         },
@@ -92,7 +91,6 @@ define([
                 
             }));
             this.settingsSortField.currentView.turnOffEditing();
-            this.settingsSortField.currentView.turnOnLimitedWidth();
         },
         setupSrcDropdown: function(){
             var sources = this.model.get('src');

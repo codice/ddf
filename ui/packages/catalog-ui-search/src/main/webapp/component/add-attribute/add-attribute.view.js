@@ -65,7 +65,6 @@ module.exports = Marionette.LayoutView.extend({
             })
         }));
         this.attributeSelector.currentView.turnOnEditing();
-        this.attributeSelector.currentView.turnOnLimitedWidth();
         this.listenTo(this.attributeSelector.currentView.model, 'change:value', this.addAttribute);
     }
 });

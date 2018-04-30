@@ -101,7 +101,6 @@ module.exports = Marionette.LayoutView.extend({
             this[colorVariable].show(new PropertyView({
                 model: propertyModel
             }));
-            this[colorVariable].currentView.turnOnLimitedWidth();
             this[colorVariable].currentView.turnOnEditing();
             this.listenTo(propertyModel, 'change:value', () => {
                 var preferences = getPreferences(user);
@@ -130,7 +129,6 @@ module.exports = Marionette.LayoutView.extend({
         this.animationMode.show(new PropertyView({
             model: animationModel
         }));
-        this.animationMode.currentView.turnOnLimitedWidth();
         this.animationMode.currentView.turnOnEditing();
         this.listenTo(animationModel, 'change:value', this.saveAnimationChanges);
     },
@@ -153,7 +151,6 @@ module.exports = Marionette.LayoutView.extend({
         this.hoverPreview.show(new PropertyView({
             model: hoverPreviewModel
         }));
-        this.hoverPreview.currentView.turnOnLimitedWidth();
         this.hoverPreview.currentView.turnOnEditing();
         this.listenTo(hoverPreviewModel, 'change:value', this.saveHoverPreviewChanges);
     },
@@ -169,7 +166,6 @@ module.exports = Marionette.LayoutView.extend({
         this.fontSize.show(new PropertyView({
             model: fontSizeModel
         }));
-        this.fontSize.currentView.turnOnLimitedWidth();
         this.fontSize.currentView.turnOnEditing();
         this.listenTo(fontSizeModel, 'change:value', this.saveFontChanges);
     },
@@ -195,7 +191,6 @@ module.exports = Marionette.LayoutView.extend({
         this.spacingMode.show(new PropertyView({
             model: spacingModeModel
         }));
-        this.spacingMode.currentView.turnOnLimitedWidth();
         this.spacingMode.currentView.turnOnEditing();
         this.listenTo(spacingModeModel, 'change:value', this.saveSpacingChanges);
     },
@@ -225,7 +220,6 @@ module.exports = Marionette.LayoutView.extend({
         this.theme.show(new PropertyView({
             model: themeModel
         }));
-        this.theme.currentView.turnOnLimitedWidth();
         this.theme.currentView.turnOnEditing();
         this.listenTo(themeModel, 'change:value', this.saveThemeChanges);
     },

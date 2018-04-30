@@ -222,7 +222,6 @@ define([
             });
         },
         handleNewProperties: function(){
-            this.editorProperties.currentView.turnOnLimitedWidth();
             this.$el.addClass('is-editing');
             this.editorProperties.currentView.turnOnEditing();
         },

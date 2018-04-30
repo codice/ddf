@@ -62,7 +62,6 @@ define([
                 placeholder: 'Search ' + properties.branding + ' ' + properties.product
             }));
             this.adhocSearch.currentView.turnOnEditing();
-            this.adhocSearch.currentView.turnOnLimitedWidth();
             this.listenTo(this.adhocSearch.currentView.model, 'change:value', this.handleValue);
             this.setupAdhocListeners();
         },

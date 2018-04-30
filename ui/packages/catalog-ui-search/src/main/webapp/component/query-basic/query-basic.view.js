@@ -161,7 +161,6 @@ define([
 
             this.handleLocationValue();
             this.handleTypeValue();
-            this.turnOnLimitedWidth();
             this.edit();
         },
         setupSettings: function () {
@@ -297,13 +296,6 @@ define([
                     placeholder: 'Text to search for.  Use "%" or "*" for wildcard.'
                 })
             }));
-        },
-        turnOnLimitedWidth: function () {
-            this.regionManager.forEach(function (region) {
-                if (region.currentView && region.currentView.turnOnLimitedWidth) {
-                    region.currentView.turnOnLimitedWidth();
-                }
-            });
         },
         turnOffEdit: function () {
             this.regionManager.forEach(function (region) {

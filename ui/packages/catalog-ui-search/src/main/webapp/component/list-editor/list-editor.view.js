@@ -44,7 +44,6 @@ module.exports = Marionette.LayoutView.extend({
     this.showCQLSwitch();
     this.showCQL();
     this.showIcon();
-    this.turnOnLimitedWidth();
     this.edit();
   },
   showListTitle: function() {
@@ -98,13 +97,6 @@ module.exports = Marionette.LayoutView.extend({
         enum: List.getIconMappingForSelect()
       })
     );
-  },
-  turnOnLimitedWidth: function() {
-    this.regionManager.forEach(function(region) {
-      if (region.currentView && region.currentView.turnOnLimitedWidth) {
-        region.currentView.turnOnLimitedWidth();
-      }
-    });
   },
   edit: function() {
     this.$el.addClass('is-editing');

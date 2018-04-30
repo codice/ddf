@@ -70,7 +70,6 @@ define([
                 })
             }));
 
-            this.propertyResultCount.currentView.turnOnLimitedWidth();
             this.propertyResultCount.currentView.turnOnEditing();
         },
         updateSearchSettings: function() {

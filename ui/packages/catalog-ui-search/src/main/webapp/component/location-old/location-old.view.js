@@ -472,7 +472,6 @@ define([
             this.listenTo(keywordProperty, 'change:value', this.handleGetKeyword);
             var PropertyView = require('component/property/property.view');
             var keywordPropertyView = new PropertyView({ model: keywordProperty });
-            keywordPropertyView.turnOnLimitedWidth();
             this.keyword.show(keywordPropertyView);
         },
         handleGetKeyword: function(model, values) {

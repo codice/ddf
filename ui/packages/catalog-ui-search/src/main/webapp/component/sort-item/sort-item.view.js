@@ -119,7 +119,6 @@ define([
             }));
             this.handleAttribute();
             this.turnOnEditing();
-            this.turnOnLimitedWidth();
 
             this.listenTo(this.sortAttribute.currentView.model, 'change:value', (model, attribute) => {
                 this.model.set('attribute', attribute[0]);
@@ -135,10 +134,6 @@ define([
             if (!this.$el.hasClass('is-non-directional-sort')) {
                 this.sortDirection.currentView.turnOnEditing();
             }
-        },
-        turnOnLimitedWidth: function () {
-            this.sortAttribute.currentView.turnOnLimitedWidth();
-            this.sortDirection.currentView.turnOnLimitedWidth();
         },
         handleAttribute: function () {
             var attribute = this.sortAttribute.currentView.model.getValue()[0];
@@ -171,7 +166,6 @@ define([
                 this.$el.toggleClass('is-non-directional-sort', false);
             }
 
-            this.turnOnLimitedWidth();
             this.listenTo(this.sortDirection.currentView.model, 'change:value', (model, direction) => {
                 this.model.set('direction', direction[0])
             });

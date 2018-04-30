@@ -46,7 +46,6 @@ define([
                 })
             }));
             this.editorProperties.currentView.turnOnEditing();
-            this.editorProperties.currentView.turnOnLimitedWidth();
             this.listenTo(this.editorProperties.currentView.model, 'change', this.handleFilterValue);
             this.handleFilterValue();
         },

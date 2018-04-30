@@ -21,11 +21,8 @@ define([
     'js/CustomElements',
     'component/singletons/user-instance',
     'component/property/property.view',
-    'component/property/property',
-    'component/dropdown/dropdown.view',
-    'component/radio/radio.view'
-], function (Marionette, _, $, template, CustomElements, user, PropertyView, Property,
-             DropdownView, RadioView) {
+    'component/property/property'
+], function (Marionette, _, $, template, CustomElements, user, PropertyView, Property) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -37,8 +34,8 @@ define([
             'click .editor-save': 'save'
         },
         regions: {
-            propertyPersistance: '.property-persistance .property-region',
-            propertyExpiration: '.property-expiration .property-region'
+            propertyPersistance: '.property-persistance',
+            propertyExpiration: '.property-expiration'
         },
         ui: {},
         onBeforeShow: function () {
@@ -57,28 +54,32 @@ define([
             this.stopListening(this.propertyPersistance.currentView.model);
         },
         handlePeristance: function () {
-            var persistance = this.propertyPersistance.currentView.model.get('value');
+            var persistance = this.propertyPersistance.currentView.model.getValue()[0];
             this.$el.toggleClass('is-persisted', persistance);
         },
         setupPersistance: function () {
             var persistance = user.get('user').get('preferences').get('alertPersistance');
-            this.propertyPersistance.show(RadioView.createRadio({
-                options: [{
-                    label: 'Yes',
-                    value: true
-                }, {
-                    label: 'No',
-                    value: false
-                }],
-                defaultValue: persistance
+            this.propertyPersistance.show(new PropertyView({
+                model: new Property({
+                    id: 'Keep notifications after logging out',
+                    enum: [{
+                        label: 'Yes',
+                        value: true
+                    }, {
+                        label: 'No',
+                        value: false
+                    }],
+                    value: [persistance]
+                })
             }));
         },
         setupExpiration: function () {
             var expiration = user.get('user').get('preferences').get('alertExpiration');
             var millisecondsInDay = 24 * 60 * 60 * 1000;
-            this.propertyExpiration.show(DropdownView.createSimpleDropdown(
-                {
-                    list: [
+            this.propertyExpiration.show(new PropertyView({
+                model: new Property({
+                    id: 'Expire After',
+                    enum: [
                         {
                             label: '1 Day',
                             value: 1 * millisecondsInDay
@@ -111,9 +112,9 @@ define([
                             value: 365 * millisecondsInDay
                         }
                     ],
-                    defaultSelection: [expiration]
-                }
-            ));
+                    value: [expiration]
+                })
+            }));
         },
         turnOnEditing: function () {
             this.$el.addClass('is-editing');
@@ -126,7 +127,7 @@ define([
         save: function () {
             var preferences = user.get('user').get('preferences');
             preferences.set({
-                alertPersistance: this.propertyPersistance.currentView.model.get('value'),
+                alertPersistance: this.propertyPersistance.currentView.model.get('value')[0],
                 alertExpiration: this.propertyExpiration.currentView.model.get('value')[0]
             });
             preferences.savePreferences();

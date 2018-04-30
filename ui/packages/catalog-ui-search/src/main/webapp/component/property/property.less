@@ -17,6 +17,10 @@
 
   .property-label {
     text-align: right;
+    > div,
+    > label {
+      vertical-align: middle;
+    }
   }
 
   .property-label label {
@@ -24,8 +28,11 @@
     .is-bold();
     max-width: ~'calc(100% - @{minimumButtonSize})';
     margin: 0px;
-    line-height: @minimumButtonSize;
-    padding-right: @minimumSpacing;
+    line-height: 1.4;
+    padding: @minimumSpacing 0px;
+    min-height: @minimumButtonSize;
+    overflow: hidden;
+    text-overflow: ellipsis;
     word-wrap: normal;
     white-space: normal;
   }
@@ -125,10 +132,6 @@
     text-align: left;
   }
 
-  .property-label label {
-    padding-right: 0px;
-  }
-
   .if-inline {
     display: none;
   }
@@ -150,10 +153,6 @@
 
     .property-label {
       text-align: left;
-    }
-
-    .property-label > label {
-      padding-right: 0px;
     }
 
     .if-inline {

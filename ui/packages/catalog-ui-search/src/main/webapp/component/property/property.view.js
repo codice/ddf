@@ -51,6 +51,9 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});
         },
+        initialize: function() {
+            this.turnOnLimitedWidth();
+        },
         onRender: function () {
             this.handleEdit();
             this.handleReadOnly();
