@@ -41,12 +41,22 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
    *
    * @param sourceId the source's id
    * @param catalogedTypes the cataloged types
+   */
+  public SourceDescriptorImpl(String sourceId, Set<ContentType> catalogedTypes) {
+    this.sourceId = sourceId;
+    this.catalogedTypes = catalogedTypes;
+  }
+
+  /**
+   * Instantiates a new SourceDescriptorImpl.
+   *
+   * @param sourceId the source's id
+   * @param catalogedTypes the cataloged types
    * @param actions list of actions
    */
   public SourceDescriptorImpl(
       String sourceId, Set<ContentType> catalogedTypes, List<Action> actions) {
-    this.sourceId = sourceId;
-    this.catalogedTypes = catalogedTypes;
+    this(sourceId, catalogedTypes);
     this.actions = actions;
   }
 
@@ -99,6 +109,9 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
 
   @Override
   public List<Action> getActions() {
+    if (actions == null) {
+      return SourceDescriptor.super.getActions();
+    }
     return actions;
   }
 
