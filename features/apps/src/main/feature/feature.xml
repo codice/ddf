@@ -43,7 +43,7 @@
              description="Features that will be started on container startup.">
         <!--Added prerequisite to kernel since it starts up features that must be started before others such as wrap and blueprint -->
         <feature prerequisite="true">kernel</feature>
-        <bundle>mvn:ddf.platform.security/secure-boot/${project.version}</bundle>
+        <feature>secure-boot</feature>
         <feature>ddf-branding</feature>
         <feature>ui</feature>
         <feature>platform-app</feature>

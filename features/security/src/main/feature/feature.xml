@@ -589,4 +589,9 @@
         <feature>security-servlet-session-expiry</feature>
         <feature>security-sts-realm</feature>
     </feature>
+
+    <feature name="secure-boot" version="${project.version}"
+             description="Verifies that the installation is located in a secure directory.">
+        <bundle>mvn:ddf.platform.security/secure-boot/${project.version}</bundle>
+    </feature>
 </features>
