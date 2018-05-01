@@ -11,6 +11,8 @@
  **/
 var Backbone = require('backbone');
 require('backbone-associations');
+const URL = require('url');
+const QS = require('querystring');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function() {
@@ -18,10 +20,23 @@ module.exports = Backbone.AssociatedModel.extend({
             url: undefined,
             title: undefined,
             description: undefined,
-            id: undefined
+            id: undefined,
+            queryId: undefined
         };
     },
     getExportType: function() {
         return this.get('title').replace(/^Export( as)?\s+\b/, '');
+    },
+    initialize: function() {
+        this.handleQueryId();
+        this.listenTo(this, 'change:queryId', this.handleQueryId);
+    },
+    handleQueryId: function() {
+        if (this.get('queryId') !== undefined) {
+            const parsedU = URL.parse(this.get('url'));
+            const parsedQs = QS.parse(parsedU.query);
+            parsedQs.queryId = this.get('queryId');
+            this.set('url', `${parsedU.protocol}//${parsedU.host}${parsedU.pathname}?${QS.stringify(parsedQs)}`);
+        }
     }
 });
