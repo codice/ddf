@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static spark.Spark.delete;
+import static spark.Spark.exception;
 import static spark.Spark.get;
+import static spark.Spark.post;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
@@ -25,13 +28,17 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.SubjectUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.boon.json.JsonFactory;
@@ -41,9 +48,11 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
+import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Response;
 import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
@@ -119,6 +128,33 @@ public class SearchFormsApplication implements SparkApplication {
                 .collect(Collectors.toList()),
         MAPPER::toJson);
 
+    post(
+        "/forms/query",
+        APPLICATION_JSON,
+        (req, res) ->
+            doCreate(
+                res,
+                Stream.of(util.safeGetBody(req))
+                    .map(MAPPER::fromJson)
+                    .map(Map.class::cast)
+                    .map(transformer::toQueryTemplateMetacard)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList())),
+        MAPPER::toJson);
+
+    post(
+        "/forms/result",
+        APPLICATION_JSON,
+        (req, res) ->
+            doCreate(
+                res,
+                Stream.of(util.safeGetBody(req))
+                    .map(b -> MAPPER.fromJson(b, FieldFilter.class))
+                    .map(transformer::toAttributeGroupMetacard)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList())),
+        MAPPER::toJson);
+
     delete(
         "/forms/:id",
         APPLICATION_JSON,
@@ -146,5 +182,29 @@ public class SearchFormsApplication implements SparkApplication {
           return ImmutableMap.of(RESP_MSG, "Successfully deleted.");
         },
         util::getJson);
+
+    exception(
+        Exception.class,
+        (exception, request, response) -> {
+          LOGGER.error("Something went wrong", exception);
+          response.status(500);
+          response.header(CONTENT_TYPE, APPLICATION_JSON);
+          response.body(util.getJson(ImmutableMap.of("message", "Something went wrong")));
+        });
+  }
+
+  private Map<String, Object> doCreate(Response response, List<Metacard> metacards) {
+    if (metacards.isEmpty()) {
+      response.status(400);
+      return ImmutableMap.of("message", "Could not create, no valid template specified");
+    }
+    try {
+      catalogFramework.create(new CreateRequestImpl(metacards));
+    } catch (IngestException | SourceUnavailableException e) {
+      LOGGER.error("Error creating metacard", e);
+      response.status(500);
+      return ImmutableMap.of("message", "Could not create");
+    }
+    return ImmutableMap.of("message", "Successfully created");
   }
 }

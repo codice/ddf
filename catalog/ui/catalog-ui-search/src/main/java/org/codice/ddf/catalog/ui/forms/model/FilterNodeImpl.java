@@ -132,7 +132,8 @@ public class FilterNodeImpl implements FilterNode {
     this.value = value;
   }
 
-  Map<String, Object> getTemplateProperties() {
+  @Override
+  public Map<String, Object> getTemplateProperties() {
     if (!isTemplated()) {
       throw new IllegalStateException("Non-templated nodes do not have template properties");
     }

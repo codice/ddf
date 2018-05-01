@@ -14,13 +14,20 @@
 package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.validation.SchemaFactory;
 import net.opengis.filter.v_2_0.FilterType;
+import org.xml.sax.SAXException;
 
 public class FilterWriter {
+  private static final String FILTER_SCHEMA_URL =
+      "http://schemas.opengis.net/filter/2.0/filter.xsd";
+
   private final JAXBContext context;
 
   public FilterWriter() throws JAXBException {
@@ -28,8 +35,22 @@ public class FilterWriter {
   }
 
   public String marshal(JAXBElement element) throws JAXBException {
+    return marshal(element, false);
+  }
+
+  public String marshal(JAXBElement element, boolean validation) throws JAXBException {
     StringWriter writer = new StringWriter();
     Marshaller marshaller = context.createMarshaller();
+    if (validation) {
+      // Can't use XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI
+      // Error occurs: javax.xml.XMLConstants cannot be found by catalog-ui-search
+      SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+      try {
+        marshaller.setSchema(schemaFactory.newSchema(new URL(FILTER_SCHEMA_URL)));
+      } catch (MalformedURLException | SAXException e) {
+        throw new JAXBException("Error reading filter schema", e);
+      }
+    }
     marshaller.marshal(element, writer);
     return writer.toString();
   }

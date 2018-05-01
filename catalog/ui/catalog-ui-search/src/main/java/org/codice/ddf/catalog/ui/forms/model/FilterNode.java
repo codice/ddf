@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.forms.model;
 
 import java.util.List;
+import java.util.Map;
 
 public interface FilterNode {
 
@@ -24,6 +25,8 @@ public interface FilterNode {
   String getOperator();
 
   List<FilterNode> getChildren();
+
+  Map<String, Object> getTemplateProperties();
 
   String getProperty();
 

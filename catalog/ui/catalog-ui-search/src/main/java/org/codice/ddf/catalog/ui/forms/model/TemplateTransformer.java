@@ -20,7 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -29,6 +31,8 @@ import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
+import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
+import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
@@ -46,6 +50,40 @@ public class TemplateTransformer {
 
   public static boolean invalidFormTemplate(Metacard metacard) {
     return new TemplateTransformer().toFormTemplate(metacard) == null;
+  }
+
+  @Nullable
+  public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
+    Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
+    String title = (String) formTemplate.get("title");
+    String description = (String) formTemplate.get("description");
+    TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
+    try {
+      VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
+      JAXBElement filter = visitor.getResult();
+      if (!filter.getDeclaredType().equals(FilterType.class)) {
+        LOGGER.error(
+            "Error occurred during filter processing, root type should be a {} but was {}",
+            FilterType.class.getName(),
+            filter.getDeclaredType().getName());
+        return null;
+      }
+      FilterWriter writer = new FilterWriter();
+      String filterXml = writer.marshal(filter, true);
+      QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
+      metacard.setCreatedDate(new Date());
+      metacard.setFormsFilter(filterXml);
+      return metacard;
+    } catch (JAXBException e) {
+      LOGGER.error("XML generation failed for query template metacard's filter", e);
+    } catch (FilterProcessingException e) {
+      LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
+    } catch (UnsupportedOperationException e) {
+      LOGGER.error(
+          "Could not use filter JSON because it contains unsupported operations - {}",
+          e.getMessage());
+    }
+    return null;
   }
 
   /** Convert a query template metacard into the JSON representation of FormTemplate. */
@@ -100,6 +138,15 @@ public class TemplateTransformer {
           metacard.getId());
     }
     return null;
+  }
+
+  @Nullable
+  public Metacard toAttributeGroupMetacard(FieldFilter fieldFilter) {
+    AttributeGroupMetacard metacard =
+        new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription());
+    metacard.setCreatedDate(fieldFilter.getCreated());
+    metacard.setGroupDescriptors(fieldFilter.getDescriptors());
+    return metacard;
   }
 
   /** Convert an attribute group metacard into the JSON representation of FieldFilter. */

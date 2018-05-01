@@ -393,7 +393,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
   }
 
   /**
-   * Represents a node containing the name of the property. In Filter XML it corresponds to a {@code
+   * Represents a node containing the name of a property. In Filter XML it corresponds to a {@code
    * <ValueReference/>} type, but the binding does not supply a specific class for this type of
    * element.
    */

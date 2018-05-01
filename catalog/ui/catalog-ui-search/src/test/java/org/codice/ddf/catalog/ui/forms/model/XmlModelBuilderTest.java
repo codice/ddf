@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.forms.model;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.boon.Boon.println;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -174,7 +173,6 @@ public class XmlModelBuilderTest {
       this.filterWriter = new FilterWriter();
 
       String rawXml = filterWriter.marshal(element);
-      println(rawXml);
       try (InputStream inputStream = new ByteArrayInputStream(rawXml.getBytes())) {
         this.document = builder.parse(inputStream);
       }

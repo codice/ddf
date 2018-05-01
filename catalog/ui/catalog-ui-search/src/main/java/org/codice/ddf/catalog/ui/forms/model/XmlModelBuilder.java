@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
+import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
@@ -55,6 +56,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put(">=", Mapper::greaterThanOrEqualTo)
           .put("<", Mapper::lessThan)
           .put("<=", Mapper::lessThanOrEqualTo)
+          .put("INTERSECTS", Mapper::intersects)
           .build();
 
   private static final Map<String, MultiNodeReducer> LOGICAL_OPS =
@@ -143,6 +145,12 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   public XmlModelBuilder beginBinarySpatialType(String operator) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
+    MultiNodeReducer spatialMapping = TERMINAL_OPS.get(operator);
+    if (spatialMapping == null) {
+      throw new IllegalArgumentException(
+          "Cannot find mapping for binary spatial operator: " + operator);
+    }
+    supplierInProgress = new TerminalNodeSupplier(spatialMapping);
     return this;
   }
 
@@ -172,7 +180,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     supplierInProgress.setValue(
-        FACTORY.createLiteral(new LiteralType().withContent(Collections.singleton(value))));
+        FACTORY.createLiteral(new LiteralType().withContent(Collections.singletonList(value))));
     return this;
   }
 
@@ -347,12 +355,20 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       return FACTORY.createPropertyIsLessThanOrEqualTo(binaryComparison(children));
     }
 
+    private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {
+      return FACTORY.createIntersects(binarySpatial(children));
+    }
+
     private static BinaryLogicOpType binaryLogic(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
     }
 
     private static BinaryComparisonOpType binaryComparison(List<JAXBElement<?>> children) {
       return new BinaryComparisonOpType().withExpression(children);
+    }
+
+    private static BinarySpatialOpType binarySpatial(List<JAXBElement<?>> children) {
+      return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
     }
   }
 }
