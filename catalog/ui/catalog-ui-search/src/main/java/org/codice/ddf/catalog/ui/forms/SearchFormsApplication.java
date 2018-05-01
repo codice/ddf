@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -118,7 +118,8 @@ public class SearchFormsApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-          Subject subject = ThreadContext.getSubject();
+
+          Subject subject = SecurityUtils.getSubject();
           String currentUser = SubjectUtils.getName(subject);
 
           Map<String, Object> originalMetacardOwner =

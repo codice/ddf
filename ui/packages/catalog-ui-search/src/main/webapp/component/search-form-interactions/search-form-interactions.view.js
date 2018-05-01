@@ -42,6 +42,7 @@ module.exports =  Marionette.ItemView.extend({
         initialize: function() {
             this.checkIfDefaultSearchForm();
             this.listenTo(user.getQuerySettings(), 'change', this.checkIfDefaultSearchForm);
+            this.isSystemTemplate();
         },
         onRender: function() {
             this.checkIfSubscribed();
@@ -135,6 +136,9 @@ module.exports =  Marionette.ItemView.extend({
                     'accessGroups': this.model.get('accessGroups')
                 }
             }));
+        },
+        isSystemTemplate: function() {
+            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());

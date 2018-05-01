@@ -35,17 +35,15 @@ module.exports = Marionette.LayoutView.extend({
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text') {
             this.$el.addClass('is-static');
         } else {
-            if (!this.isSystemTemplate()) {
-                this.workspaceActions.show(
-                    new SearchFormInteractionsDropdownView({
-                        model: new DropdownModel(),
-                        modelForComponent: this.model,
-                        dropdownCompanionBehaviors: {
-                            navigation: {},
-                        },
-                    })
-                );
-            }
+            this.workspaceActions.show(
+                new SearchFormInteractionsDropdownView({
+                    model: new DropdownModel(),
+                    modelForComponent: this.model,
+                    dropdownCompanionBehaviors: {
+                        navigation: {},
+                    }
+                })
+            );
         }
     },
     changeView: function() {
@@ -67,6 +65,7 @@ module.exports = Marionette.LayoutView.extend({
                     accessGroups: this.model.get('accessGroups'),
                     accessIndividuals: this.model.get('accessIndividuals')
                 });
+
                 user.getQuerySettings().set({
                     type: 'custom',
                     template: this.model.toJSON()
@@ -86,9 +85,6 @@ module.exports = Marionette.LayoutView.extend({
 
         user.savePreferences();
         this.triggerCloseDropdown();
-    },
-    isSystemTemplate: function() {
-        return this.model.get('createdBy') != 'System Template';
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
