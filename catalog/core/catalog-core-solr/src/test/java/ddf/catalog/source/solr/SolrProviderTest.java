@@ -93,7 +93,7 @@ public class SolrProviderTest {
 
     Assert.assertThat(
         "Solr client is not available for testing",
-        client.isAvailable(10L, TimeUnit.SECONDS),
+        client.isAvailable(30L, TimeUnit.SECONDS),
         Matchers.equalTo(true));
 
     provider =
