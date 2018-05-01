@@ -54,7 +54,9 @@ import org.slf4j.LoggerFactory;
  * This class provides an implementation for the {@link org.codice.solr.client.solrj.SolrClient}
  * interface that adapts to {@link SolrClient}.
  */
-public class SolrClientAdapter extends SolrClientProxy
+// final is required for security reasons as this class use the Access Controller to extends its
+// privileges
+public final class SolrClientAdapter extends SolrClientProxy
     implements org.codice.solr.client.solrj.SolrClient {
   /** Enumeration representing the various states. */
   private enum State {
