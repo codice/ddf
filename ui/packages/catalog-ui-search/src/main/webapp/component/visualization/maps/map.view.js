@@ -30,7 +30,6 @@ var DropdownModel = require('component/dropdown/dropdown');
 var MapContextMenuDropdown = require('component/dropdown/map-context-menu/dropdown.map-context-menu.view');
 var MapModel = require('./map.model');
 var MapInfoView = require('component/map-info/map-info.view');
-var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-settings.view');
 var properties = require('properties');
 var Common = require('js/Common');
 
@@ -208,13 +207,6 @@ module.exports = Marionette.LayoutView.extend({
             '<span class="fa fa-cubes"/>' +
             '</div>');
     },
-    addSettings: function(){
-        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-settings is-button"></div>');
-        this.addRegion('toolbarSettings', '.toolbar-settings');
-        this.toolbarSettings.show(new MapSettingsDropdown({
-            model: new DropdownModel()
-        }));
-    },
     onMapHover: function(event, mapEvent) {
         var metacard = this.options.selectionInterface
             .getCompleteActiveSearchResults()
@@ -274,7 +266,6 @@ module.exports = Marionette.LayoutView.extend({
         this.addHome();
         this.addClustering();
         this.addLayers();
-        this.addSettings();
         this.endLoading();
     },
     addLayers: function(){
