@@ -26,6 +26,9 @@ import org.codice.solr.client.solrj.SolrClient.Listener
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
 import org.codice.spock.extension.ClearInterruptions
+import org.codice.spock.extension.DeFinalize
+import org.codice.spock.extension.builtin.DeFinalizer
+import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import org.spockframework.runtime.SpockTimeoutError
 import spock.lang.Specification
@@ -43,6 +46,8 @@ import static net.jodah.failsafe.Actions.*
 
 @ClearInterruptions
 @Timeout(SolrClientAdapterAsyncSpec.TIMEOUT_IN_SECS)
+@RunWith(DeFinalizer)
+@DeFinalize(SolrClientAdapter)
 class SolrClientAdapterAsyncSpec extends Specification {
   static final String CORE = "test_core"
   static final String COLLECTION = 'collection'

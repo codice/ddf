@@ -15,6 +15,9 @@ package org.codice.spock.extension.builtin
 
 import org.codice.spock.extension.Supplemental
 import org.spockframework.mock.IMockMethod
+import org.spockframework.mock.MockImplementation
+import org.spockframework.mock.MockNature
+import org.spockframework.mock.MockUtil
 import org.spockframework.mock.runtime.MockInvocation
 import org.spockframework.runtime.extension.AbstractAnnotationDrivenExtension
 import org.spockframework.runtime.extension.IMethodInterceptor
@@ -22,6 +25,7 @@ import org.spockframework.runtime.extension.IMethodInvocation
 import org.spockframework.runtime.extension.builtin.ConfineMetaClassChangesInterceptor
 import org.spockframework.runtime.model.SpecInfo
 import org.spockframework.util.Nullable
+import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import spock.mock.MockingApi
 
@@ -102,8 +106,8 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
         System.metaClass.static.setPropertyIfNotNull = ext.&setPropertyIfNotNull
         // supplement specification class to allow creating dummies
         invocation.instance.class.metaClass {
-          Dummy = ext.&createDummy
-          Dummies = ext.&createDummies
+          Dummy { Class<?> type -> ext.createDummy(delegate, type) }
+          Dummies { Class<?>[] types -> ext.createDummies(delegate, types) }
         }
         invocation.proceed()
       }
@@ -235,7 +239,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    * @param type the type for which to create a dummy value or stub
    * @return a corresponding default value or stub
    */
-  private def <T> T createDummy(Class<T> type) {
+  private def <T> T createDummy(Specification spec, Class<T> type) {
     // see org.spockframework.mock.EmptyOrDummyResponse
     def val = DEFAULT_VALUES.getOrDefault(type, type)
 
@@ -255,7 +259,22 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
         type.newInstance()
       } catch (Exception e) {
         // if we cannot instantiate it, then fallback to stubbing the class
-        mockFactory.Stub(type)
+        if (type.classLoader == spec.class.classLoader) {
+          (T) mockFactory.Stub(type)
+        } else {
+          // this is to work around a bug where when we use the Definalizer, the spec ends up living
+          // in a different classloader than standard Java classes, as such, when we attempt to create
+          // stubs the normal way, it aborts since it is trying to add the ISpockMockObject interface
+          // to the stubbed class which is not visible from the parent class loader
+          (T) new MockUtil().createDetachedMock(
+              type.simpleName,
+              type,
+              MockNature.STUB,
+              MockImplementation.JAVA,
+              Collections.<String, Object> emptyMap(),
+              spec.class.classLoader
+          )
+        }
       }
     }
   }
@@ -266,7 +285,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
    * @param types the types for which to create dummy default values or stubs
    * @return a corresponding array of dummy default values or stubs corresponding to the provided types
    */
-  private def createDummies(Class<?>... types) {
-    types.collect this.&createDummy
+  private def createDummies(Specification spec, Class<?>... types) {
+    types.collect { type -> this.createDummy(spec, type) }
   }
 }

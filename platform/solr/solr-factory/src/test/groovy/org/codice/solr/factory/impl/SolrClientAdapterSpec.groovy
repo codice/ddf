@@ -25,7 +25,10 @@ import org.apache.solr.common.util.NamedList
 import org.codice.solr.client.solrj.UnavailableSolrException
 import org.codice.solr.factory.impl.SolrClientAdapter.Creator
 import org.codice.spock.extension.ClearInterruptions
+import org.codice.spock.extension.DeFinalize
 import org.codice.spock.extension.Supplemental
+import org.codice.spock.extension.builtin.DeFinalizer
+import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import spock.lang.Shared
 import spock.lang.Specification
@@ -40,6 +43,8 @@ import java.util.concurrent.ScheduledExecutorService
 import static org.codice.solr.factory.impl.SolrClientAdapter.State.*
 
 @Supplemental
+@RunWith(DeFinalizer)
+@DeFinalize(SolrClientAdapter)
 class SolrClientAdapterSpec extends Specification {
   static final String CORE = "test_core"
   static final int TIMEOUT_IN_SECS = 25
