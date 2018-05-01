@@ -47,6 +47,10 @@ public class SecureBoot {
     userHome = getUserHome();
   }
 
+  @SuppressWarnings({
+    "squid:S1192", /* Surpress duplicate string literal warning */
+    "squid:S106" /* System.err.println used to notify admin of error */
+  })
   public void init() {
     if (!shuttingDown && isInsecureInstallation()) {
       String message =
@@ -66,6 +70,10 @@ public class SecureBoot {
     return securityManagerEnabled() && isInstalledInUserHome();
   }
 
+  @SuppressWarnings({
+    "squid:HiddenFieldCheck",
+    "squid:S106" /* System.err.println used to notify admin of error */
+  })
   private Path getDdfHome() {
     Path ddfHome;
     try {
@@ -82,6 +90,10 @@ public class SecureBoot {
     return ddfHome;
   }
 
+  @SuppressWarnings({
+    "squid:HiddenFieldCheck",
+    "squid:S106" /* System.err.println used to notify admin of error */
+  })
   private Path getUserHome() {
     Path userHome;
     try {
@@ -119,6 +131,7 @@ public class SecureBoot {
   }
 
   @VisibleForTesting
+  @SuppressWarnings("squid:S106" /* System.err.println used to notify admin of error */)
   void systemExit(Exception e) {
     String message =
         "ERROR: Exception encountered while shutting system down via SystemService. Terminating JVM...";
