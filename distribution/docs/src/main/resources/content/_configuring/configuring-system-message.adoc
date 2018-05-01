@@ -1,7 +1,7 @@
-:title: Configuring Platform UI
+:title: Configuring System Usage Message
 :type: configuration
 :status: published
-:summary: Configuring platform UI
+:summary: Configuring system usage message
 :parent: Configuring Data Management
 :order: 04
 
@@ -14,7 +14,7 @@ For, example this configuration can provide warnings that system usage is monito
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-platform}* application.
 . Select *Configuration*.
-. Select *Platform UI*.
+. Select *Platform UI Configuration*.
 . Select *Enable System Usage Message*.
 . Enter text in the remaining fields and save.
 
