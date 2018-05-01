@@ -1,7 +1,7 @@
-:title: Configuring UI Theme
+:title: Platform UI Themes
 :type: configuration
 :status: published
-:parent: Admin Theming Configurations
+:parent: Configuring UI Themes
 :summary: Configure theme of all pages displayed on ${branding}.
 :order: 02
 
@@ -21,10 +21,10 @@ along with changing the colors of text and backgrounds.
 === Customizing the UI Theme
 
 The customization of the UI theme across ${branding} is available through the capabilities of Platform UI Configuration.
-There are four main areas that are able to be configured with effects on the banners:
+The banner has four items to configure:
 
-. *Header*
-. *Footer*
+. *Header* (text)
+. *Footer* (text)
 . *Text Color*
 . *Background Color*
 
