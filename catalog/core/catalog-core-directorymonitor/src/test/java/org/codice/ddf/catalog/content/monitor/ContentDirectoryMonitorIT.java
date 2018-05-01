@@ -312,7 +312,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.platform", "branding-api"),
         new BundleInfo("ddf.action.core", "action-core-api"),
         new BundleInfo("ddf.distribution", "ddf-branding-plugin"),
-        new BundleInfo("ddf.platform", "platform-configuration"),
         new BundleInfo("ddf.security.handler", "security-handler-api"),
         new BundleInfo("ddf.mime.core", "mime-core-api"),
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
