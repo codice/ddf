@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class QueryMetacardImpl extends MetacardImpl {
-  private static final QueryMetacardTypeImpl TYPE = new QueryMetacardTypeImpl();
+  public static final QueryMetacardTypeImpl TYPE = new QueryMetacardTypeImpl();
 
   public QueryMetacardImpl() {
     super(TYPE);

@@ -182,11 +182,57 @@
         <argument ref="catalogFramework"/>
     </bean>
 
+    <bean id="querySortsParser"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.QuerySortsParser"/>
+
+    <service ref="querySortsParser"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="workspaceMetacardsKeyTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.WorkspaceMetacardsKeyToAssociations"/>
+
+    <service ref="workspaceMetacardsKeyTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="srcKeyTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.SrcToQuerySources"/>
+
+    <service ref="srcKeyTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="removeMetacardTagsTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.RemoveMetacardTags"/>
+
+    <service ref="removeMetacardTagsTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="queryMetacardsTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.QueryMetacardsHandler"/>
+
+    <service ref="queryMetacardsTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="listMetacardsTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.ListMetacardsHandler"/>
+
+    <service ref="listMetacardsTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
+    <bean id="removeBlankAccessIndividualsTransformation"
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.FilterBlankAccessIndividuals"/>
+
+    <service ref="removeBlankAccessIndividualsTransformation"
+             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
+
     <bean id="workspaceTransformer"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer">
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer">
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
         <argument ref="endpointUtil"/>
+        <argument>
+            <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
+                            availability="optional"/>
+        </argument>
     </bean>
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">

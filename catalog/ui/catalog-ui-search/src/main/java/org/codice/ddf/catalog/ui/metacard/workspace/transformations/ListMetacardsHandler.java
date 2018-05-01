@@ -11,11 +11,23 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
-/** A Runtime exception class for workspace transformers */
-public class WorkspaceTransformException extends RuntimeException {
-  public WorkspaceTransformException(Exception e) {
-    super(e);
+import ddf.catalog.data.MetacardType;
+import java.util.List;
+import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
+
+public class ListMetacardsHandler
+    implements EmbeddedMetacardsHandler, WorkspaceValueTransformation<List, List> {
+  @Override
+  public String getKey() {
+    return WorkspaceAttributes.WORKSPACE_LISTS;
+  }
+
+  @Override
+  public MetacardType getMetacardType() {
+    return ListMetacardImpl.TYPE;
   }
 }

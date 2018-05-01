@@ -36,7 +36,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
@@ -134,7 +134,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     return workspaceMetacard
         .getQueries()
         .stream()
-        .map(workspaceTransformer::toMetacardFromXml)
+        .map(workspaceTransformer::xmlToMetacard)
         .map(QueryMetacardImpl::from)
         .collect(Collectors.toList());
   }

@@ -18,7 +18,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import java.util.Collections;
 
 public class ListMetacardImpl extends MetacardImpl {
-  private static final ListMetacardTypeImpl TYPE = new ListMetacardTypeImpl();
+  public static final ListMetacardTypeImpl TYPE = new ListMetacardTypeImpl();
 
   public ListMetacardImpl() {
     super(TYPE);
