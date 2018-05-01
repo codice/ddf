@@ -164,9 +164,11 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
-        // this.model.set({
-        //     title: user.getQuerySettings().get('template').name
-        // });
+        debugger;
+        let currTemplate = user.getQuerySettings().get('template');
+        this.model.set({
+            title: currTemplate !== undefined ? currTemplate.name : 'Search Form'
+        });
         this.queryContent.show(new QueryAdvanced({
             model: this.model,
             isForm: true,

@@ -143,6 +143,10 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleEdit: function() {
+            debugger;
+            user.getQuerySettings().set({
+
+            });
             //Do the same thing as when you open it up for use as a form but say "formBuilder = true"
         },
         handleClick: function() {
