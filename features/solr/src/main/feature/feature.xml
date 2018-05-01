@@ -83,18 +83,4 @@
         </bundle>
     </feature>
 
-    <feature name="banana" version="${project.version}"
-             description="Adds banana">
-        <feature version="${project.version}">solr</feature>
-        <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
-        <feature>common-system</feature>
-        <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
-        <configfile finalname="${ddf.data}/solr/banana/conf/schema.xml">
-            mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
-        </configfile>
-        <configfile finalname="/examples/banana/DefaultDashboard.json">
-            mvn:ddf.platform.solr/solr-banana/${project.version}/json/bananadashboard
-        </configfile>
-    </feature>
-
 </features>
