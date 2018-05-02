@@ -70,7 +70,8 @@ public class SolrCacheTest {
     solrCache =
         new SolrCache(mockSolrClient, mockCacheSolrMetacardClient) {
           @Override
-          void configureCacheExpirationScheduler() {}
+          void configureCacheExpirationScheduler() { // to disable configuration of the scheduler
+          }
         };
   }
 

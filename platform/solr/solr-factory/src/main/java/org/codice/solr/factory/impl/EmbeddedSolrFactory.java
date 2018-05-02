@@ -188,7 +188,10 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
   }
 
   @VisibleForTesting
-  @SuppressWarnings("squid:S00107" /* parameters are required by the SolrCore API */)
+  @SuppressWarnings({
+    "squid:S00107", /* parameters are required by the SolrCore API */
+    "PMD.ExcessiveParameterList" /* parameters are required by the SolrCore API */
+  })
   SolrCore newCore(
       SolrCoreContainer container,
       String coreName,

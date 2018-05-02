@@ -45,6 +45,7 @@ import org.apache.solr.common.util.NamedList;
  * <p><i>Note:</i> This is a precursor to having the whole Solr client abstracted into interfaces to
  * decouple us from the Solr implementation.
  */
+@SuppressWarnings("PMD.ExcessiveClassLength" /* Duplicating SolrJ SolrClient interface */)
 public interface SolrClient extends Closeable {
   /**
    * Retrieve the corresponding SolrJ's client.
