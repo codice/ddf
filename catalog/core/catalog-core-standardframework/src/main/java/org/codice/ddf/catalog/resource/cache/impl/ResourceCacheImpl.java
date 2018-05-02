@@ -17,6 +17,7 @@ import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.resource.Resource;
 import java.util.Optional;
@@ -43,6 +44,12 @@ public class ResourceCacheImpl implements ResourceCache {
   public Optional<Resource> get(Metacard metacard, ResourceRequest resourceRequest) {
     return Optional.ofNullable(
         delegate.getValid(new CacheKey(metacard, resourceRequest).generateKey(), metacard));
+  }
+
+  @Override
+  public void put(Metacard metacard, ResourceResponse resourceResponse) {
+    // NO OP
+    return;
   }
 
   @Override

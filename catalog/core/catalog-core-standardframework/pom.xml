@@ -394,7 +394,8 @@
                             ddf.catalog.resourceretriever,
                             ddf.catalog.resource.data,
                             org.codice.ddf.catalog.resource.download,
-                            org.codice.ddf.catalog.resource.cache
+                            org.codice.ddf.catalog.resource.cache,
+                            org.codice.ddf.catalog.resource.download.internal
                         </Export-Package>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,

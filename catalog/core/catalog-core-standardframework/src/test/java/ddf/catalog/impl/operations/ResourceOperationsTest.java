@@ -44,7 +44,6 @@ import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.download.DownloadException;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -62,6 +61,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.junit.Before;
 import org.junit.Test;
 

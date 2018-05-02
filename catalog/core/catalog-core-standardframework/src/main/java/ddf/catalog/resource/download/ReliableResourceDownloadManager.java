@@ -34,6 +34,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.catalog.resource.download.DownloadException;
+import org.codice.ddf.catalog.resource.download.internal.DownloadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * The manager for downloading a resource, including retrying the download if problems are
  * encountered, and optionally caching the resource as it is streamed to the client.
  */
-public class ReliableResourceDownloadManager {
+public class ReliableResourceDownloadManager implements DownloadManager {
 
   public static final String DOWNLOAD_ID_PROPERTY_KEY = "downloadId";
 
@@ -85,6 +87,7 @@ public class ReliableResourceDownloadManager {
    *     should read from
    * @throws DownloadException
    */
+  @Override
   public ResourceResponse download(
       ResourceRequest resourceRequest, Metacard metacard, ResourceRetriever retriever)
       throws DownloadException {

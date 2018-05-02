@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.resource.cache;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import java.util.Optional;
 
@@ -44,6 +45,14 @@ public interface ResourceCache {
    * @return resource associated with the {@link Metacard} provided, if any
    */
   Optional<Resource> get(Metacard metacard, ResourceRequest resourceRequest);
+
+  /**
+   * Put a resource into the cache based on the given {@link Metacard} and {@link ResourceResponse}.
+   *
+   * @param metacard metacard that corresponds to the resource that was requested
+   * @param resourceResponse response object associated with the {@link Metacard} provided
+   */
+  void put(Metacard metacard, ResourceResponse resourceResponse);
 
   /**
    * Determines if the resource associated with the {@link Metacard} is present in the cache
