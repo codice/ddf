@@ -40,12 +40,12 @@ module.exports =  Marionette.ItemView.extend({
         },
         ui: {},
         initialize: function() {
-            this.checkIfDefaultSearchForm();
             this.listenTo(user.getQuerySettings(), 'change', this.checkIfDefaultSearchForm);
-            this.isSystemTemplate();
         },
         onRender: function() {
             this.checkIfSubscribed();
+            this.checkIfDefaultSearchForm();
+            this.isSystemTemplate();
         },
         checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
