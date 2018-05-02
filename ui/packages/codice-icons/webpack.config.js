@@ -6,7 +6,7 @@ module.exports = {
         './codice.font.css'
     ],
     output: {
-        path: path.resolve(__dirname, 'target'),
+        path: path.resolve(__dirname, 'icons'),
         publicPath: '/',
         filename: 'codice.font.js'
     },

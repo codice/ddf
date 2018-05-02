@@ -153,5 +153,5 @@ require([
     };
 
     require('js/ApplicationStart');
-    require('codice-icons/target/codice.font');
+    require('codice-icons/icons/codice.font');
 });
