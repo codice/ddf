@@ -306,6 +306,22 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-soap/org.apache.cxf.cxf-rt-
     permission java.security.SecurityPermission "insertProvider";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions${/}*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.shell.cfg", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.management.cfg", "read,write";
+}
+
+grant codeBase "file:/org.apache.karaf.webconsole.console" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.karaf.webconsole.console/org.apache.karaf.instance.core/org.apache.karaf.webconsole.gogo/org.apache.karaf.webconsole.instance" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.shell.cfg", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.management.cfg", "read,write";
 }
 
 grant codeBase "file:/org.apache.commons.io" {
