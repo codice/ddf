@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This utility object sorts Services by their service rankings first and then breaks ties with
- * service ids. This was copied over from the catalog core utilities and should be refactored to a
- * common class in the future.
+ * service ids.
  *
  * <p>
  *

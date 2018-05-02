@@ -13,36 +13,14 @@
  */
 package org.codice.ddf.security.idp.binding.soap;
 
-import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
-import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
 import java.util.Map;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
-import org.opensaml.saml.saml2.core.AuthnRequest;
 
 public class SoapValidator extends ValidatorImpl implements Validator {
   public SoapValidator(SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
     super(systemCrypto, serviceProviders);
-  }
-
-  @Override
-  public void validateAuthnRequest(
-      AuthnRequest authnRequest,
-      String samlRequest,
-      String relayState,
-      String signatureAlgorithm,
-      String signature,
-      boolean strictSignature)
-      throws SimpleSign.SignatureException, ValidationException {
-
-    super.validateAuthnRequest(
-        authnRequest, samlRequest, relayState, signatureAlgorithm, signature, strictSignature);
-  }
-
-  @Override
-  public void validateRelayState(String relayState) {
-    super.validateRelayState(relayState);
   }
 }

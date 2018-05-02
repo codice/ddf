@@ -14,9 +14,14 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
+import static com.xebialabs.restito.builder.verify.VerifyHttp.verifyHttp;
+import static com.xebialabs.restito.semantics.Condition.endsWithUri;
+import static com.xebialabs.restito.semantics.Condition.method;
+import static com.xebialabs.restito.semantics.Condition.uri;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
@@ -33,13 +38,10 @@ import com.xebialabs.restito.semantics.Action;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.content.StorageException;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.data.impl.ContentItemValidator;
 import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.CreateStorageResponse;
-import ddf.catalog.content.operation.ReadStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageResponseImpl;
 import ddf.catalog.content.operation.impl.DeleteStorageResponseImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
@@ -50,15 +52,10 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.OperationImpl;
 import ddf.catalog.operation.impl.ResponseImpl;
-import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceDescriptor;
-import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.service.SecurityManager;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -69,12 +66,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javax.activation.MimeTypeParseException;
 import javax.inject.Inject;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Component;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.content.impl.FileSystemStorageProvider;
 import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreConfigurator;
@@ -82,6 +77,11 @@ import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
 import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
 import org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures;
 import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
+import org.codice.ddf.test.common.annotations.AfterExam;
+import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.codice.ddf.test.common.annotations.PaxExamRule;
+import org.codice.ddf.test.common.configurators.PortFinder;
+import org.glassfish.grizzly.http.Method;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -100,20 +100,56 @@ import org.ops4j.pax.tinybundles.core.TinyBundles;
 @ExamReactorStrategy(PerClass.class)
 public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
+  private static final String WEBDAV_FILE_CONTENT = "test";
+
+  @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private static PortFinder portFinder;
+
+  private static StubServer stubServer;
+
+  private static final String WEBDAV_STUB_SERVER = "WebDavStubServer";
+
   @Inject private CamelContext camelContext;
 
   @Inject private ContentDirectoryMonitor contentDirectoryMonitor;
-
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private String directoryPath;
 
   private CatalogFramework catalogFramework;
 
-  private StubServer stubServer;
+  private ArgumentCaptor<CreateStorageRequest> createStorageRequest;
+
+  private CountDownLatch catalogFrameworkCreate = new CountDownLatch(1);
+
+  private final Condition isPropFindMethod =
+      Condition.custom(c -> c.getMethod().getMethodString().equals("PROPFIND"));
+
+  @BeforeExam
+  public void setupClass() throws Exception {
+    portFinder = new PortFinder();
+    stubServer = new StubServer(portFinder.getPort(WEBDAV_STUB_SERVER));
+    whenHttp(stubServer)
+        .match(endsWithUri("/webdavtest"))
+        .then(
+            Action.stringContent(
+                IOUtils.toString(
+                    getClass().getClassLoader().getResourceAsStream("proplist.xml"), "UTF-8")));
+    whenHttp(stubServer)
+        .match(endsWithUri("/webdavtest/file1"))
+        .then(Action.contentType("text/plain"), Action.stringContent(WEBDAV_FILE_CONTENT));
+    stubServer.start();
+  }
+
+  @AfterExam
+  public void tearDownClass() throws Exception {
+    portFinder.close();
+  }
 
   @Before
-  public void setup() throws IOException, SourceUnavailableException {
+  public void setup() throws Exception {
     directoryPath = temporaryFolder.getRoot().getCanonicalPath();
 
     SecurityManager securityManager = mock(SecurityManager.class);
@@ -122,82 +158,63 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     catalogFramework = mockCatalogFramework();
     registerService(catalogFramework, CatalogFramework.class);
 
-    stubServer = new StubServer();
-    whenHttp(stubServer)
-        .match(Condition.endsWithUri("/webdavtest"))
-        .then(
-            Action.stringContent(
-                IOUtils.toString(getClass().getClassLoader().getResourceAsStream("proplist.xml"))));
-    whenHttp(stubServer)
-        .match(Condition.endsWithUri("/webdavtest/file1"))
-        .then(Action.bytesContent("test".getBytes()));
-    stubServer.start();
+    createStorageRequest = ArgumentCaptor.forClass(CreateStorageRequest.class);
   }
 
   @Test
-  public void testCamelContext() {
-    Component component = camelContext.getComponent("content");
-    assertThat(component, notNullValue());
-  }
-
-  @Test
-  public void testInPlaceMonitoring()
-      throws IOException, InterruptedException, SourceUnavailableException, IngestException,
-          MimeTypeParseException {
+  public void testInPlaceMonitoring() throws Exception {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
 
     File file = createTestFile(directoryPath);
-    ContentItem result = getContentItem();
+    long fileLength = file.length();
 
-    assertContentItem(result, file);
-    assertThat(file.exists(), is(true));
-  }
-
-  @Test
-  public void testInPlaceDavMonitoring()
-      throws IOException, InterruptedException, SourceUnavailableException, IngestException,
-          MimeTypeParseException, StorageException, URISyntaxException {
-    updateContentDirectoryMonitor(
-        "http://localhost:" + stubServer.getPort() + "/webdavtest",
-        ContentDirectoryMonitor.IN_PLACE);
     waitForCreate();
-    FileSystemStorageProvider provider = new FileSystemStorageProvider();
-    provider.setBaseContentDirectory(Files.createTempDirectory("dav").toString());
-    CreateStorageRequest createStorageRequest = getCreateStorageRequest();
-    CreateStorageResponse createStorageResponse = provider.create(createStorageRequest);
-    provider.commit(createStorageRequest);
-    ReadStorageResponse read =
-        provider.read(
-            new ReadStorageRequestImpl(
-                new URI(createStorageResponse.getCreatedContentItems().get(0).getUri()), null));
-    ContentItem contentItem = read.getContentItem();
-    assertThat(IOUtils.toString(contentItem.getInputStream()), is("test"));
+
+    verifyCreateStorageRequest("test", ".txt", fileLength);
+    assertThat("File should still exist", file.exists(), is(true));
   }
 
   @Test
-  public void testMoveMonitoring()
-      throws IOException, SourceUnavailableException, IngestException, MimeTypeParseException {
+  public void testInPlaceDavMonitoring() throws Exception {
+    String webDavPath = "http://localhost:" + stubServer.getPort() + "/webdavtest";
+    updateContentDirectoryMonitor(webDavPath, ContentDirectoryMonitor.IN_PLACE);
+
+    waitForCreate();
+
+    verifyCreateStorageRequest("file1", "", WEBDAV_FILE_CONTENT.length());
+    verifyHttp(stubServer).atLeast(1, isPropFindMethod, uri("/webdavtest"));
+    verifyHttp(stubServer).atLeast(1, isPropFindMethod, uri("/webdavtest/file1"));
+    verifyHttp(stubServer).once(method(Method.GET), uri("/webdavtest/file1"));
+  }
+
+  @Test
+  public void testMoveMonitoring() throws Exception {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.MOVE);
+
     File file = createTestFile(directoryPath);
+    long fileLength = file.length();
     File movedFile = Paths.get(directoryPath, ".ingested", file.getName()).toFile();
 
-    ContentItem result = getContentItem();
+    waitForCreate();
 
-    assertContentItem(result, movedFile);
-    assertThat(file.exists(), is(false));
-    assertThat(movedFile.exists(), is(true));
+    verifyCreateStorageRequest("test", ".txt", fileLength);
+    await("File deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).until(() -> !file.exists());
+    await("File moved")
+        .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
+        .until(() -> movedFile.exists());
   }
 
   @Test
-  public void testDeleteMonitoring()
-      throws IOException, SourceUnavailableException, IngestException, MimeTypeParseException {
+  public void testDeleteMonitoring() throws Exception {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.DELETE);
 
-    File file = createTestFile(directoryPath);
+    createTestFile(directoryPath);
     File directory = Paths.get(directoryPath).toFile();
+    waitForCreate();
 
-    await("file deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).until(() -> !file.exists());
-    assertThat(directory.list().length, is(0));
+    await("File deleted")
+        .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
+        .until(() -> directory.list().length == 0);
   }
 
   @Override
@@ -243,6 +260,10 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
   private List<BundleInfo> testDependencies() {
     return Arrays.asList(
+        new BundleInfo("org.apache.commons", "commons-collections4"),
+        new BundleInfo("org.apache.commons", "commons-lang3"),
+        new BundleInfo("ddf.lib", "test-common"),
+        new BundleInfo("ddf.lib", "common-system"),
         new BundleInfo("org.awaitility", "awaitility"),
         new BundleInfo("org.mockito", "mockito-core"),
         new BundleInfo("org.objenesis", "objenesis"));
@@ -289,8 +310,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.security.expansion", "security-expansion-api"),
         new BundleInfo("ddf.security.expansion", "security-expansion-impl"),
         new BundleInfo("ddf.platform", "branding-api"),
+        new BundleInfo("ddf.action.core", "action-core-api"),
         new BundleInfo("ddf.distribution", "ddf-branding-plugin"),
-        new BundleInfo("ddf.platform", "platform-configuration"),
         new BundleInfo("ddf.security.handler", "security-handler-api"),
         new BundleInfo("ddf.mime.core", "mime-core-api"),
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
@@ -300,69 +321,19 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"));
   }
 
-  private AtomicBoolean createStorageRequestNotification()
-      throws SourceUnavailableException, IngestException {
-    AtomicBoolean created = new AtomicBoolean(false);
-    Answer<CreateResponse> response =
-        invocation -> {
-          created.set(true);
-          return null;
-        };
-    when(catalogFramework.create(any(CreateStorageRequest.class))).thenAnswer(response);
-    return created;
-  }
-
-  private File createTestFile(String directoryPath)
-      throws IOException, SourceUnavailableException, IngestException {
-    File file = File.createTempFile("test", ".txt", new File(directoryPath));
-    Files.write(file.toPath(), Collections.singletonList("Hello, World"));
-
-    waitForCreate();
-    return file;
-  }
-
-  private void waitForCreate() throws SourceUnavailableException, IngestException {
-    AtomicBoolean created = createStorageRequestNotification();
-    await("create storage request created")
-        .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
-        .until(created::get);
-  }
-
-  private void updateContentDirectoryMonitor(String directoryPath, String processingMechanism) {
-    Map<String, Object> properties = new HashMap<>();
-
-    properties.put("monitoredDirectoryPath", directoryPath);
-    properties.put("numThreads", 1);
-    properties.put("readLockIntervalMilliseconds", 500);
-    properties.put("processingMechanism", processingMechanism);
-
-    contentDirectoryMonitor.updateCallback(properties);
-  }
-
-  private ContentItem getContentItem() throws SourceUnavailableException, IngestException {
-    return getCreateStorageRequest().getContentItems().get(0);
-  }
-
-  private CreateStorageRequest getCreateStorageRequest()
-      throws IngestException, SourceUnavailableException {
-    ArgumentCaptor<CreateStorageRequest> createStorageRequest =
-        ArgumentCaptor.forClass(CreateStorageRequest.class);
-    verify(catalogFramework).create(createStorageRequest.capture());
-    return createStorageRequest.getValue();
-  }
-
-  private void assertContentItem(ContentItem item, File file)
-      throws IOException, MimeTypeParseException {
-    assertThat(item.getFilename(), is(file.getName()));
-    assertThat(item.getUri(), is("content:" + item.getId()));
-    assertThat(item.getSize(), is(file.length()));
-  }
-
-  private CatalogFramework mockCatalogFramework() throws SourceUnavailableException {
+  private CatalogFramework mockCatalogFramework() throws Exception {
     CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
     SourceInfoResponse sourceInfoResponse = mockSourceInfoResponse();
     when(catalogFramework.getSourceInfo(anyObject())).thenReturn(sourceInfoResponse);
+
+    when(catalogFramework.create(any(CreateStorageRequest.class)))
+        .thenAnswer(
+            (Answer<CreateResponse>)
+                invocation -> {
+                  catalogFrameworkCreate.countDown();
+                  return null;
+                });
 
     return catalogFramework;
   }
@@ -378,5 +349,46 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     when(sourceInfoResponse.getSourceInfo()).thenReturn(sourceInfo);
     return sourceInfoResponse;
+  }
+
+  private void updateContentDirectoryMonitor(String directoryPath, String processingMechanism) {
+    Map<String, Object> properties = new HashMap<>();
+
+    properties.put("monitoredDirectoryPath", directoryPath);
+    properties.put("numThreads", 1);
+    properties.put("readLockIntervalMilliseconds", 500);
+    properties.put("processingMechanism", processingMechanism);
+
+    contentDirectoryMonitor.updateCallback(properties);
+  }
+
+  private File createTestFile(String directoryPath) throws Exception {
+    File file = File.createTempFile("test", ".txt", new File(directoryPath));
+    Files.write(file.toPath(), Collections.singletonList("Hello, World"));
+    return file;
+  }
+
+  private void waitForCreate() throws Exception {
+    catalogFrameworkCreate.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+  }
+
+  private void verifyCreateStorageRequest(
+      String fileNamePrefix, String fileNameSuffix, long fileLength) throws Exception {
+    verify(catalogFramework).create(createStorageRequest.capture());
+    List<ContentItem> contentItems = createStorageRequest.getValue().getContentItems();
+
+    assertThat(contentItems.size(), is(1));
+    ContentItem contentItem = contentItems.get(0);
+    verifyContentItem(contentItem, fileNamePrefix, fileNameSuffix, fileLength);
+  }
+
+  private void verifyContentItem(
+      ContentItem contentItem, String fileNamePrefix, String fileNameSuffix, long fileLength)
+      throws Exception {
+    assertThat(contentItem.getMimeTypeRawData(), is("application/octet-stream"));
+    assertThat(contentItem.getFilename(), startsWith(fileNamePrefix));
+    assertThat(contentItem.getFilename(), endsWith(fileNameSuffix));
+    assertThat(contentItem.getUri(), is("content:" + contentItem.getId()));
+    assertThat(contentItem.getSize(), is(fileLength));
   }
 }

@@ -22,6 +22,26 @@
         text-overflow: ellipsis;
     }
 
+    .source-actions {
+        padding-left: ~'calc(2 * @{minimumButtonSize})';
+    }
+
+    .source-action > button {
+        width: 100%;
+        text-align: left;
+        padding: 0px @minimumSpacing;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .source-actions {
+        display: block;
+    }
+
+    .source-app {
+        display: none;
+    }
+
     .source-available {
         width: @minimumButtonSize;
         text-align: center;

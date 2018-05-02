@@ -39,6 +39,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.boon.core.value.ValueMap;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 
 public class WorkspaceTransformer {
@@ -104,6 +105,16 @@ public class WorkspaceTransformer {
                   .filter(StringUtils::isNotBlank)
                   .collect(Collectors.toCollection(ArrayList::new));
             }));
+    metacardToJsonEntryMapper.put(
+        QueryMetacardTypeImpl.QUERY_SORTS,
+        remapValue(
+            value ->
+                ((List<ValueMap>) value)
+                    .stream()
+                    .map(
+                        lazyValueMap ->
+                            lazyValueMap.get("attribute") + "," + lazyValueMap.get("direction"))
+                    .collect(Collectors.toList())));
   }
 
   // for use during mapping keys/value from a metacard to a json map (metacard -> json)
@@ -124,6 +135,24 @@ public class WorkspaceTransformer {
                   .stream()
                   .map(this::toMetacardFromXml)
                   .map(this::transform)
+                  .collect(Collectors.toList());
+            }));
+    jsonToMetacardEntryMapper.put(
+        QueryMetacardTypeImpl.QUERY_SORTS,
+        remapValue(
+            value -> {
+              List<String> sorts = (List) value;
+
+              return sorts
+                  .stream()
+                  .map(
+                      s -> {
+                        String[] split = s.split(",");
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("attribute", split[0]);
+                        map.put("direction", split[1]);
+                        return map;
+                      })
                   .collect(Collectors.toList());
             }));
     jsonToMetacardEntryMapper.put(

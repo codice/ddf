@@ -16,13 +16,14 @@ var Backbone = require('backbone');
 var $ = require('jquery');
 var _ = require('underscore');
 var properties = require('properties');
+const featureDetection = require('./feature-detection');
 
 var invalidateUrl = '/services/internal/session/invalidate?prevurl=';
 
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : 900000;
+var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) * 60000 : 900000;
 
 function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
@@ -34,9 +35,15 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         idleTimeoutDate: 0
     },
     initialize: function () {
+        $(window).on("storage", this.handleLocalStorageChange.bind(this));
         this.listenTo(this, 'change:idleTimeoutDate', this.handleIdleTimeoutDate);
         this.listenTo(this, 'change:showPrompt', this.handleShowPrompt);
+        this.resetIdleTimeoutDate();
         this.handleShowPrompt();
+    },
+    handleLocalStorageChange: function() {
+        this.set('idleTimeoutDate', parseInt(localStorage.getItem('idleTimeoutDate')));
+        this.hidePrompt();
     },
     handleIdleTimeoutDate: function () {
         this.clearPromptTimer();
@@ -48,7 +55,6 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         if (this.get('showPrompt')) {
             this.stopListeningForUserActivity();
         } else {
-            this.resetIdleTimeoutDate();
             this.startListeningForUserActivity();
         }
     },
@@ -75,13 +81,21 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         clearTimeout(this.logoutTimer);
     },
     resetIdleTimeoutDate: function () {
-        this.set('idleTimeoutDate', getIdleTimeoutDate());
+        var idleTimeoutDate = getIdleTimeoutDate();
+        if (featureDetection.supportsFeature('localStorage')) {
+            try {
+                localStorage.setItem('idleTimeoutDate', idleTimeoutDate);
+            } catch (e) {
+                featureDetection.addFailure('localStorage');
+            }
+        }
+        this.set('idleTimeoutDate', idleTimeoutDate);
     },
     startListeningForUserActivity: function () {
-        $(document).on('keydown.sessionTimeout mousedown.sessionTimeout mousemove.sessionTimeout', _.throttle(this.resetIdleTimeoutDate.bind(this), 5000));
+        $(document).on('keydown.sessionTimeout mousedown.sessionTimeout', _.throttle(this.resetIdleTimeoutDate.bind(this), 5000));
     },
     stopListeningForUserActivity: function () {
-        $(document).off('keydown.sessionTimeout mousedown.sessionTimeout mousemove.sessionTimeout');
+        $(document).off('keydown.sessionTimeout mousedown.sessionTimeout');
     },
     logout: function () {
         if (window.onbeforeunload != null) {
@@ -91,6 +105,7 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
     },
     renew: function () {
         this.hidePrompt();
+        this.resetIdleTimeoutDate();
     },
     getIdleSeconds: function () {
         return parseInt((this.get('idleTimeoutDate') - Date.now()) / 1000);

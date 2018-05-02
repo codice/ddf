@@ -21,7 +21,7 @@ define([
     './result-sort.hbs',
     'js/CustomElements',
     'component/singletons/user-instance',
-    'component/sort-item/sort-item.collection.view'
+    'component/sort/sort.view'
 ], function (Marionette, Backbone, _, $, template, CustomElements, user, SortItemCollectionView) {
 
     return Marionette.LayoutView.extend({
@@ -32,8 +32,7 @@ define([
         },
         events: {
             'click > .editor-footer .footer-remove': 'removeSort',
-            'click > .editor-footer .footer-save': 'saveSort',
-            'click > .sort-add': 'addSort'
+            'click > .editor-footer .footer-save': 'saveSort'
         },
         ui: {},
         regions: {
@@ -47,12 +46,6 @@ define([
                 collection: new Backbone.Collection(resultSort)
             }));
             this.handleSort();
-        },
-        addSort: function () {
-            this.editorProperties.currentView.collection.add({
-                attribute: 'modified',
-                direction: 'descending'
-            });
         },
         removeSort: function () {
             user.get('user').get('preferences').set('resultSort', undefined);

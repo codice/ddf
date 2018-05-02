@@ -123,7 +123,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   }
 
   @Override
-  public void handleStore(ConfigurationContext context) throws IOException {
+  public final void handleStore(ConfigurationContext context) throws IOException {
     try {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Object>)

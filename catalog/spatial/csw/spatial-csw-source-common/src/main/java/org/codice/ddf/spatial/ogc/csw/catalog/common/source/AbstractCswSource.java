@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
+
 import com.thoughtworks.xstream.converters.Converter;
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
@@ -188,7 +190,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   private static final String BYTES_SKIPPED = "bytes-skipped";
 
-  private static final String EXT_SORT_BY = "additional.sort.bys";
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
@@ -320,11 +321,11 @@ public abstract class AbstractCswSource extends MaskableImpl
     configureEventService();
   }
 
-  private void initClientFactory() {
+  protected void initClientFactory() {
     if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -338,7 +339,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -352,7 +353,7 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getSslProtocol());
     } else {
       factory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
               Csw.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -368,7 +369,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getEventServiceAddress(),
               CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -382,9 +383,9 @@ public abstract class AbstractCswSource extends MaskableImpl
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getCswUrl(),
-              Csw.class,
+              CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
               null,
               cswSourceConfiguration.getDisableCnCheck(),
@@ -396,7 +397,7 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getSslProtocol());
     } else {
       subscribeClientFactory =
-          new SecureCxfClientFactory(
+          new SecureCxfClientFactory<>(
               cswSourceConfiguration.getEventServiceAddress(),
               CswSubscribe.class,
               initProviders(cswTransformConverter, cswSourceConfiguration),
@@ -1184,7 +1185,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     if (query != null && query.getSortBy() != null && query.getSortBy().getPropertyName() != null) {
       List<SortBy> sortBys = new ArrayList<>();
       sortBys.add(query.getSortBy());
-      Serializable extSortBySer = queryRequest.getPropertyValue(EXT_SORT_BY);
+      Serializable extSortBySer = queryRequest.getPropertyValue(ADDITIONAL_SORT_BYS);
       if (extSortBySer instanceof SortBy[]) {
         SortBy[] extSortBys = (SortBy[]) extSortBySer;
         if (extSortBys.length > 0) {

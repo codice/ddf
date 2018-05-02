@@ -11,11 +11,16 @@
  *
  **/
  --}}
-<div class="sort-attribute">
+<div class="sort-properties {{#unless top}}global-bracket is-right{{/unless}}">
+    <div class="sort-attribute">
 
-</div>
-<div class="sort-direction">
+    </div>
+    <div class="sort-duplicate">
+        <span class="fa fa-warning"></span> <span class="sort-duplicate-message"> {{bind selector="> .sort-properties > .sort-duplicate > .sort-duplicate-message" event="change:attribute" key=(path "aliased")}}</span> <span>is already specified as a sort</span>
+    </div>
+    <div class="sort-direction">
 
+    </div>
 </div>
 <button class="sort-remove is-negative">
     <span class="fa fa-minus">

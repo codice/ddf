@@ -165,14 +165,6 @@ public class ConfigurationAdminMigratableTest {
   }
 
   @Test
-  public void testGetDefaultPersister() {
-    ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
-    PersistenceStrategy strategy = cam.getDefaultPersister();
-    assertThat(strategy, instanceOf(ConfigStrategy.class));
-  }
-
-  @Test
   public void testDoExportConfigAdminThrowsIOException() throws Exception {
     // Setup
     when(exportMigrationContext.getReport()).thenReturn(migrationReport);

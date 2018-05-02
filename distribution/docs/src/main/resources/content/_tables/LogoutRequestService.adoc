@@ -15,10 +15,10 @@
 |Description
 |Default Value
 
-|Log Out Page Time Out
+|Logout Page Time Out
 |logOutPageTimeOut
 |Long
-|This is the time limit that the IDP client will wait for a user to click log out on the log out page. Any requests that take longer than this time for the user to submit will be rejected."/>
+|This is the time limit that the IDP client will wait for a user to click log out on the logout page. Any requests that take longer than this time for the user to submit will be rejected."/>
 |3600000
 
 |===

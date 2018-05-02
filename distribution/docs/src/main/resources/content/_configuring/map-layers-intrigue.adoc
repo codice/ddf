@@ -3,19 +3,22 @@
 :status: published
 :parent: Configuring ${catalog-ui}
 :order: 00
-:summary: Configuring map layers for ${catalog-ui}.
+:summary: Configuring Map Layers for ${catalog-ui}
 
 == {title}
 
 Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
+Equivalent addition and deletion of a map layer can be found in <<_map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Select the *Map Layers* tab.
 . *Add*, *Configure* or *Remove* map layers as desired.
 
-.Adding a Map Layer
-. Enter a unique alpahnumeric *Name* (no special characters).
+.Adding a Map Layer (Imagery Provider)
+Adding a Map Layer translates to adding an Imagery Provider
+
+. Enter a unique alphanumeric *Name* (no special characters).
 . Enter the *Provider URL* for the server hosting the map layer instance.
 . Select *Proxy* _if_ security policies _or_ the tile server does not allow Cross-Origin Resource Sharing (CORS).
 . Select *Allow Credential Formatting* if map layer server prompts for credentials.
@@ -36,6 +39,6 @@ To remove all map layers, select *RESET*.
 
 .Map Layer Advanced Configuration
 Select *Advanced Configuration* to edit the JSON-formatted configuration directly.
-See <<org.codice.ddf.catalog.ui.config,${catalog-ui} Configurations>> for examples of map layer configurations.
+See <<org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for examples of map layer configurations.
 
-External links to the specific API documentation of the map layer is alson available from the *Advanced Configuration* menu.
+External links to the specific API documentation of the map layer is also available from the *Advanced Configuration* menu.

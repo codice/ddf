@@ -32,7 +32,6 @@ public interface ResponseCreator {
    * @param authnRequest - unencoded authnRequest
    * @param samlResponse - initialized SAML 2 Response object
    * @param cookie - cookie associated with the login
-   * @param responseTemplate - response template to be used when generating the response
    * @return javax.ws.rs.core.Response
    * @throws IOException
    * @throws SimpleSign.SignatureException
@@ -42,8 +41,7 @@ public interface ResponseCreator {
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws IOException, SimpleSign.SignatureException, WSSecurityException;
 
   /**

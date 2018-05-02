@@ -19,10 +19,10 @@ The subscriptions commands are installed when the Catalog application is install
 |Command
 |Description
 
-|subscription:delete
+|subscriptions:delete
 |Deletes the subscription(s) specified by the search phrase or LDAP filter.
 
-|subscription:list
+|subscriptions:list
 |List the subscription(s) specified by the search phrase or LDAP filter.
 |===
 

@@ -40,7 +40,7 @@
     <reference-list id="attributeInjectors" interface="ddf.catalog.data.AttributeInjector"
                     availability="optional">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
-            <bean class="ddf.catalog.util.impl.SortedServiceList"/>
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
         </reference-listener>
     </reference-list>
 
@@ -87,5 +87,18 @@
         <registration-listener ref="sourcePoller"
                                registration-method="start" unregistration-method="cancel"/>
     </service>
+
+
+    <cm:managed-service-factory id="Src_Action_Provider"
+                                factory-pid="Src_Action_Provider" interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="catalog.data.source.simple"/>
+        </service-properties>
+        <cm:managed-component class="ddf.catalog.impl.action.SourceActionProviderImpl">
+            <argument value="catalog.data.source.simple"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="container-managed" />
+        </cm:managed-component>
+    </cm:managed-service-factory>
 
 </blueprint>

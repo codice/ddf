@@ -18,7 +18,7 @@
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
     </type-converters>
 
-    <bean id="metacardValidatorList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="metacardValidatorList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="metacardValidators"
                     interface="ddf.catalog.validation.MetacardValidator"
                     availability="optional">

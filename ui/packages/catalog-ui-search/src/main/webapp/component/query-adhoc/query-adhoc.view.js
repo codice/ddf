@@ -73,7 +73,6 @@ define([
                     break;
                 }
             });
-            this.textField.currentView.turnOnLimitedWidth();
             this.listenTo(this.textField.currentView.model, 'change:value', this.saveToModel);
         },
         turnOnEditing: function(){

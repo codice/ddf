@@ -144,6 +144,18 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>test-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Pax-Exam dependencies -->
         <dependency>
@@ -384,25 +396,22 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- FIXME DDF-3105 Add port randomization and reenable-->
-            <!--<plugin>-->
-                <!--<artifactId>maven-failsafe-plugin</artifactId>-->
-                <!--<version>2.17</version>-->
-                <!--<configuration>-->
-                    <!--<systemPropertyVariables>-->
-                        <!--<pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>-->
-                        <!--<component.artifactId>${artifactId}</component.artifactId>-->
-                        <!--<component.version>${project.version}</component.version>-->
-                    <!--</systemPropertyVariables>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>
+                        <component.artifactId>${artifactId}</component.artifactId>
+                        <component.version>${project.version}</component.version>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
             <!-- Needed if you use versionAsInProject() -->
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>${servicemix-depends.version}</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>

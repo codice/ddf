@@ -18,7 +18,7 @@
            
   <ext:property-placeholder/>
 
-    <bean id="storageProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    <bean id="storageProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList">
     </bean>
 
     <reference-list id="storage" interface="ddf.catalog.content.StorageProvider">

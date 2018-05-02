@@ -45,15 +45,7 @@ module.exports = Marionette.LayoutView.extend({
                 type: 'TEXTAREA'
             })
         }));
-        this.turnOnLimitedWidth();
         this.edit();
-    },
-    turnOnLimitedWidth: function(){
-        this.regionManager.forEach(function(region){
-            if (region.currentView && region.currentView.turnOnLimitedWidth){
-                region.currentView.turnOnLimitedWidth();
-            }
-        });
     },
     edit: function(){
         this.$el.addClass('is-editing');

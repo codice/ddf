@@ -13,21 +13,23 @@
 var Backbone = require('backbone');
 
 module.exports = Backbone.Model.extend({
-    defaults: function() {
-        return {
-            type: 'text',
-            src: undefined,
-            federation: 'enterprise',
-            sortField: 'modified',
-            sortOrder: 'descending',
-            template: undefined
-        };
-    },
-    isTemplate: function(template) {
-        if (this.get('template') !== undefined) {
-            return this.get('template').id === template.id;
-        } else {
-            return false;
-        }
+  defaults: function () {
+    return {
+      type: 'text',
+      src: undefined,
+      federation: 'enterprise',
+      sorts: [{
+        attribute: 'modified',
+        direction: 'descending',
+      }],
+      template: undefined
+    };
+  },
+  isTemplate: function (template) {
+    if (this.get('template') !== undefined) {
+      return this.get('template').id === template.id;
+    } else {
+      return false;
     }
+  }
 });

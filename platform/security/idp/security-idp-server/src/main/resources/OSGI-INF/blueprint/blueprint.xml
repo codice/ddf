@@ -59,6 +59,7 @@
         <property name="securityManager" ref="securityManager"/>
         <property name="tokenFactory" ref="tokenFactory" />
         <property name="strictSignature" value="true" />
+        <property name="strictRelayState" value="true" />
         <property name="guestAccess" value="true" />
         <property name="logoutMessage" ref="logoutMessage" />
         <property name="logoutStates" ref="logoutStates" />

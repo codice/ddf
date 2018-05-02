@@ -39,7 +39,7 @@
         </argument>
     </bean>
 
-    <bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="catalogProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
     <bean id="geonamesIndexer" class="org.codice.ddf.spatial.geocoding.index.GeoNamesCatalogIndexer">
         <argument ref="catalogFramework" />

@@ -79,6 +79,10 @@ function unconvertPointCoordinate(point) {
     return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
 }
 
+function offMap([longitude, latitude]) {
+    return longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90;
+}
+
 module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement, mapModel) {
     var overlays = {};
     var shapes = [];
@@ -87,13 +91,17 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
     setupTooltip(map);
     var drawingTools = setupDrawingTools(map);
   
-    function setupTooltip(map) {        
+    function setupTooltip(map) {     
         map.on('pointermove', function(e){
             var point = unconvertPointCoordinate(e.coordinate);
-            mapModel.updateMouseCoordinates({
-                lat: point[1],
-                lon: point[0]
-            });
+            if (!offMap(point)) {
+                mapModel.updateMouseCoordinates({
+                    lat: point[1],
+                    lon: point[0]
+                });
+            } else {
+                mapModel.clearMouseCoordinates();
+            }
         });
     }
 

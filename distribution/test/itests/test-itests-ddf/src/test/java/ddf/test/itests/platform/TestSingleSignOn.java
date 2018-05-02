@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.AllOf.allOf;
@@ -44,6 +43,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
@@ -63,6 +63,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.SessionHandler;
@@ -316,7 +317,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // @formatter:on
   }
 
-  private String setupHttpRequestUsingBinding(Binding binding) throws Exception {
+  private String setupHttpRequestUsingBinding(Binding requestBinding, Binding metadataBinding)
+      throws Exception {
     // Signing is tested in the unit tests, so we don't require signing here to make things simpler
     setConfig("org.codice.ddf.security.idp.server.IdpEndpoint", "strictSignature", false);
 
@@ -325,7 +327,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         String.format(
             getFileContent("confluence-sp-metadata.xml"),
             AUTHENTICATION_REQUEST_ISSUER,
-            binding.toString());
+            metadataBinding.toString());
     validateSaml(confluenceSpMetadata, SamlSchema.METADATA);
     setConfig(
         "org.codice.ddf.security.idp.server.IdpEndpoint",
@@ -336,7 +338,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     String mockAuthnRequest =
         String.format(
             getFileContent("confluence-sp-authentication-request.xml"),
-            binding.toString(),
+            requestBinding.toString(),
             AUTHENTICATION_REQUEST_ISSUER);
     validateSaml(mockAuthnRequest, SamlSchema.PROTOCOL);
     return mockAuthnRequest;
@@ -369,15 +371,15 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   @Test
   public void testRedirectBinding() throws Exception {
     String relayState = "test";
-    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT);
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT, Binding.POST);
     String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
     ResponseHelper helper =
         performHttpRequestUsingBinding(Binding.REDIRECT, relayState, encodedRequest);
 
-    assertThat(helper.parseBody(), is(Binding.REDIRECT));
-    assertThat(helper.get("RelayState"), is(relayState));
+    assertThat(helper.parseBody(), is(Binding.POST));
+    assertThat(helper.postRelayState, is(relayState));
 
-    String inflatedSamlResponse = RestSecurity.inflateBase64(helper.get("SAMLResponse"));
+    String inflatedSamlResponse = RestSecurity.base64Decode(helper.postSamlResponse);
     validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
   }
 
@@ -386,12 +388,34 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // We should get back a POST form that has everything we put in, thus the only thing
     // of interest to really check is that we do get back a post form
-    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.POST);
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.POST, Binding.POST);
     String encodedRequest =
         Base64.getEncoder()
             .encodeToString(mockAuthnRequest.getBytes(StandardCharsets.UTF_8.name()));
     ResponseHelper helper = performHttpRequestUsingBinding(Binding.POST, "test", encodedRequest);
     assertThat(helper.parseBody(), is(Binding.POST));
+  }
+
+  @Test
+  public void testIncorrectResponseRedirectBinding() throws Exception {
+    String relayState = "test";
+    String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT, Binding.REDIRECT);
+    String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
+
+    // @formatter:off
+    given()
+        .auth()
+        .preemptive()
+        .basic("admin", "admin")
+        .param("AuthMethod", "up")
+        .param("SAMLRequest", encodedRequest)
+        .param("RelayState", relayState)
+        .param("OriginalBinding", SamlProtocol.Binding.HTTP_REDIRECT.getUri())
+        .expect()
+        .statusCode(400)
+        .when()
+        .get(IDP_URL.getUrl() + "/sso");
+    // @formatter:on
   }
 
   @Test
@@ -480,32 +504,38 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
 
     // Perform a bunch of checks to make sure we're valid against both the spec and schema
-    assertThat(idpHelper.parseBody(), is(Binding.REDIRECT));
-    String inflatedSamlResponse = RestSecurity.inflateBase64(idpHelper.get("SAMLResponse"));
-    validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
+    assertThat(idpHelper.parseBody(), is(Binding.POST));
+    String decodedSamlResponse = RestSecurity.base64Decode(idpHelper.postSamlResponse);
+    validateSaml(decodedSamlResponse, SamlSchema.PROTOCOL);
     assertThat(
-        inflatedSamlResponse,
+        decodedSamlResponse,
         allOf(
             containsString("urn:oasis:names:tc:SAML:2.0:status:Success"),
             containsString("ds:SignatureValue"),
-            containsString("saml2:Assertion")));
-    assertThat(idpHelper.get("SigAlg"), not(isEmptyOrNullString()));
-    assertThat(idpHelper.get("Signature"), not(isEmptyOrNullString()));
+            containsString("saml2:Assertion"),
+            containsString("ds:Signature")));
     assertThat(
-        idpHelper.get("RelayState").length(),
+        idpHelper.postRelayState.length(),
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
     // @formatter:off
+    String body =
+        String.format(
+            "SAMLResponse=%s&RelayState=%s",
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
+
     Response acsResponse =
         given()
-            .params(idpHelper.params)
+            .body(body)
+            .contentType("application/x-www-form-urlencoded")
             .redirects()
             .follow(false)
             .expect()
             .statusCode(anyOf(is(307), is(303)))
             .when()
-            .get(idpHelper.redirectUrl);
+            .post(searchHelper.params.get("ACSURL"));
     // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
@@ -582,19 +612,25 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
-    idpHelper.parseBody();
+    assertThat(idpHelper.parseBody(), is(Binding.POST));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
     // @formatter:off
+    String body =
+        String.format(
+            "SAMLResponse=%s&RelayState=%s",
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
     Response acsResponse =
         given()
-            .params(idpHelper.params)
+            .body(body)
+            .contentType("application/x-www-form-urlencoded")
             .redirects()
             .follow(false)
             .expect()
             .statusCode(anyOf(is(307), is(303)))
             .when()
-            .get(idpHelper.redirectUrl);
+            .post(searchHelper.params.get("ACSURL"));
     // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
@@ -641,32 +677,38 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
 
     // Perform a bunch of checks to make sure we're valid against both the spec and schema
-    assertThat(idpHelper.parseBody(), is(Binding.REDIRECT));
-    String inflatedSamlResponse = RestSecurity.inflateBase64(idpHelper.get("SAMLResponse"));
-    validateSaml(inflatedSamlResponse, SamlSchema.PROTOCOL);
+    assertThat(idpHelper.parseBody(), is(Binding.POST));
+    String decodedResponse = RestSecurity.base64Decode(idpHelper.postSamlResponse);
+    validateSaml(decodedResponse, SamlSchema.PROTOCOL);
     assertThat(
-        inflatedSamlResponse,
+        decodedResponse,
         allOf(
             containsString("urn:oasis:names:tc:SAML:2.0:status:Success"),
             containsString("ds:SignatureValue"),
+            containsString("ds:Signature"),
             containsString("saml2:Assertion")));
-    assertThat(idpHelper.get("SigAlg"), not(isEmptyOrNullString()));
-    assertThat(idpHelper.get("Signature"), not(isEmptyOrNullString()));
     assertThat(
-        idpHelper.get("RelayState").length(),
+        idpHelper.postRelayState.length(),
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
     // @formatter:off
+    String body =
+        String.format(
+            "SAMLResponse=%s&RelayState=%s",
+            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
+            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
+
     Response acsResponse =
         given()
-            .params(idpHelper.params)
+            .body(body)
+            .contentType("application/x-www-form-urlencoded")
             .redirects()
             .follow(false)
             .expect()
             .statusCode(anyOf(is(307), is(303)))
             .when()
-            .get(idpHelper.redirectUrl);
+            .post(searchHelper.params.get("ACSURL"));
     // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
@@ -737,11 +779,15 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     private final Response response;
 
+    private String postSamlResponse;
+
+    private String postRelayState;
+
     private String redirectUrl;
 
     private final Map<String, String> params = new HashMap<>();
 
-    private ResponseHelper(Response response) throws IOException {
+    private ResponseHelper(Response response) {
       this.response = response;
     }
 
@@ -752,7 +798,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     private void parseParamsFromUrl(String url) throws URISyntaxException {
       redirectUrl = url.split("[?]")[0];
 
-      List<NameValuePair> paramList = URLEncodedUtils.parse(new URI(url), "UTF-8");
+      List<NameValuePair> paramList =
+          URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8.name());
       for (NameValuePair param : paramList) {
         params.put(param.getName(), param.getValue());
       }
@@ -766,14 +813,12 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       }
     }
 
-    private Binding parseBody() throws URISyntaxException {
-
-      // Because a POST form only has the stuff we put into it, we don't care
-      // about any parsing beyond recognizing it as a form
+    private Binding parseBody() throws Exception {
       String body = response.body().asString();
       Binding binding = null;
       if (body.contains("<form")) {
         binding = Binding.POST;
+        parseBodyPost();
       } else if (body.contains("<title>Redirect</title>")) {
         parseBodyRedirect();
         binding = Binding.REDIRECT;
@@ -796,7 +841,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       }
     }
 
-    private void parseBodyLogin() throws URISyntaxException {
+    private void parseBodyLogin() {
       // We're trying to parse a javascript variable that is embedded in an HTML form
       Pattern pattern = Pattern.compile("window.idpState *= *\\{(.*)\\}", Pattern.CASE_INSENSITIVE);
       Matcher matcher = pattern.matcher(response.body().asString());
@@ -827,6 +872,21 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                 + pattern.toString()
                 + "\nResponse Body: "
                 + response.body().asString();
+        fail(failMessage);
+      }
+    }
+
+    private void parseBodyPost() throws Exception {
+      postSamlResponse =
+          XmlSearch.evaluate(
+              "/html/body/form/input[@name='SAMLResponse']/@value", response.body().asString());
+      postRelayState =
+          XmlSearch.evaluate(
+              "/html/body/form/input[@name='RelayState']/@value", response.body().asString());
+
+      if (postSamlResponse == null) {
+        String failMessage =
+            "Failed to parse POST response." + "\nResponse Body: " + response.body().asString();
         fail(failMessage);
       }
     }

@@ -34,9 +34,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String QUERY_ENTERPRISE = "enterprise";
 
-  public static final String QUERY_SORT_ORDER = "sortOrder";
-
-  public static final String QUERY_SORT_FIELD = "sortField";
+  public static final String QUERY_SORTS = "sorts";
 
   public static final String QUERY_POLLING = "polling";
 
@@ -82,20 +80,11 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
     QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
-            QUERY_SORT_FIELD,
+            QUERY_SORTS,
             false /* indexed */,
             true /* stored */,
             false /* tokenized */,
-            false /* multivalued */,
-            BasicTypes.STRING_TYPE));
-
-    QUERY_DESCRIPTORS.add(
-        new AttributeDescriptorImpl(
-            QUERY_SORT_ORDER,
-            false /* indexed */,
-            true /* stored */,
-            false /* tokenized */,
-            false /* multivalued */,
+            true /* multivalued */,
             BasicTypes.STRING_TYPE));
 
     QUERY_DESCRIPTORS.add(

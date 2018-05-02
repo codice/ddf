@@ -20,7 +20,14 @@
         <format>zip</format>
     </formats>
     <fileSets>
-        <fileSet>
+       <fileSet>
+            <directory>${project.basedir}/packages/codice-icons/</directory>
+            <excludes>
+                <exclude>**/node_modules/**</exclude>
+            </excludes>
+            <outputDirectory>codice-icons</outputDirectory>
+       </fileSet>
+       <fileSet>
             <directory>${project.basedir}/packages/catalog-ui-search/</directory>
             <excludes>
                 <exclude>**/target/**</exclude>

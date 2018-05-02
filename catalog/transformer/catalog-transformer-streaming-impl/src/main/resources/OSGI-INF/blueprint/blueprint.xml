@@ -26,7 +26,7 @@
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
     </type-converters>
 
-    <bean id="saxEventHandlerFactoriesList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="saxEventHandlerFactoriesList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="saxEventHandlerFactories"
                     interface="org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory"
                     availability="optional">

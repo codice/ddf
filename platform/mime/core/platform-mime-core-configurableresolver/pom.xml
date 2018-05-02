@@ -51,6 +51,43 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>src/main/resources/default-mimetype-csw.config</file>
+                                    <type>config</type>
+                                    <classifier>default-mimetype-csw</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>src/main/resources/default-mimetype-geojson.config</file>
+                                    <type>config</type>
+                                    <classifier>default-mimetype-geojson</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>src/main/resources/default-mimetype-nitf.config</file>
+                                    <type>config</type>
+                                    <classifier>default-mimetype-nitf</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>src/main/resources/default-mimetype-xml.config</file>
+                                    <type>config</type>
+                                    <classifier>default-mimetype-xml</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>

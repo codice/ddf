@@ -54,6 +54,17 @@
             description="The interval (in minutes) at which to execute successive source polling. Must be a positive, nonzero integer."/>
     </OCD>
 
+    <OCD name="Source Actions" id="Src_Action_Provider">
+        <AD name="Source ID" id="sourceId" required="true" type="String" />
+        <AD name="Title" id="title" required="true" type="String" />
+        <AD name="Description" id="description" required="true" type="String" />
+        <AD name="URL" id="url" required="true" type="String" />
+    </OCD>
+
+    <Designate pid="Src_Action_Provider">
+        <Object ocdref="Src_Action_Provider"/>
+    </Designate>
+
     <Designate
             pid="ddf.catalog.CatalogFrameworkImpl">
         <Object

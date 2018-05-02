@@ -43,7 +43,6 @@ define([
                 return result.get('metacard>properties').toJSON();
             });
             this.editorProperties.show(PropertyCollectionView.generatePropertyCollectionView(metacards));
-            this.editorProperties.currentView.turnOnLimitedWidth();
             this.editorProperties.currentView.$el.addClass("is-list");
             this.getValidation();
             EditorView.prototype.onBeforeShow.call(this);

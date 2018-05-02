@@ -43,4 +43,9 @@ To use the ${ddf-spatial} Application, the following apps/features must be insta
 
 ===  Installing ${ddf-spatial}
 
-The ${ddf-spatial} application is installed by default with a standard installation.
+Install ${ddf-spatial} through the ${admin-console}.
+
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Features* tab.
+. Install the `spatial-app` feature.

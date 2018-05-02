@@ -150,4 +150,6 @@ public final class Constants {
   public static final String SUGGESTION_DICT_KEY = "suggestion-dictionary";
 
   public static final String SUGGESTION_RESULT_KEY = "suggestion-result";
+
+  public static final String ADDITIONAL_SORT_BYS = "additional-sort-bys";
 }

@@ -27,8 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreDescriptor;
-import org.apache.solr.core.DirectoryFactory;
-import org.apache.solr.core.PluginInfo;
 import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
@@ -174,17 +172,10 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
       SolrCoreContainer container = new SolrCoreContainer(loader);
 
       String dataDirPath = null;
-      if (!ConfigurationStore.getInstance().isInMemory()) {
-        File dataDir = configProxy.getDataDirectory();
-        if (dataDir != null) {
-          dataDirPath = Paths.get(dataDir.getAbsolutePath(), coreName, "data").toString();
-          LOGGER.debug("Using data directory [{}]", dataDirPath);
-        }
-      } else {
-        PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());
-        if (info != null && !"solr.RAMDirectoryFactory".equals(info.className)) {
-          LOGGER.debug("Using in-memory configuration without RAMDirectoryFactory.");
-        }
+      File dataDir = configProxy.getDataDirectory();
+      if (dataDir != null) {
+        dataDirPath = Paths.get(dataDir.getAbsolutePath(), coreName, "data").toString();
+        LOGGER.debug("Using data directory [{}]", dataDirPath);
       }
       CoreDescriptor coreDescriptor =
           new CoreDescriptor(

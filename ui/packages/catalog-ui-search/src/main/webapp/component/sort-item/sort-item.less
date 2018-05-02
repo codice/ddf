@@ -1,10 +1,24 @@
+@{customElementNamespace}sort-item.sort-duplicate-show {
+  .sort-duplicate {
+    color: contrast(@warning-color);
+    display: block;
+    line-height: @minimumLineSize;
+    text-align: left;
+    padding: @minimumSpacing;
+    margin: 0px @minimumSpacing 0px @minimumSpacing;
+    background: @warning-color;
+    white-space: normal;
+  }
+
+  .sort-attribute @{customElementNamespace}property {
+    padding-bottom: 0px;
+  }
+}
+
 @{customElementNamespace}sort-item-collection {
   display: block;
   width: 100%;
-  overflow-x: hidden;
-
-  @{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
-  }
+  overflow: hidden;
 
   @{customElementNamespace}sort-item:not(:first-of-type) {
     .sort-remove {
@@ -12,36 +26,45 @@
     }
   }
 
-  @{customElementNamespace}sort-item {
-    .sort-attribute,
-    .sort-direction {
-      width: auto;
-    }
+  @{customElementNamespace}sort-item:last-of-type {
+    margin-bottom: @minimumSpacing;
   }
+
+}
+
+@{customElementNamespace}sort-item + @{customElementNamespace}sort-item {
+  margin-top: @minimumSpacing;
 }
 
 @{customElementNamespace}sort-item {
   display: block;
   white-space: nowrap;
   overflow: hidden;
+  position: relative;
 
-  .sort-attribute,
-  .sort-direction {
-    width: ~'calc(50%)';
+  .sort-properties .if-viewing {
+    height: @minimumButtonSize;
   }
 
-  .sort-attribute,
-  .sort-direction,
+  .sort-duplicate {
+    display: none;
+  }
+
+  .sort-properties,
   .sort-remove {
-      display: inline-block;
-      vertical-align: middle;
+    display: inline-block;
+    vertical-align: top;
   }
 
-  .sort-attribute {
-      transition: width @coreTransitionTime ease-in-out;
+  .sort-properties {
+    width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing})';
   }
 
   .sort-remove {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
     height: @minimumButtonSize;
     width: @minimumButtonSize;
     display: none;
@@ -50,10 +73,13 @@
 }
 
 @{customElementNamespace}sort-item.is-non-directional-sort {
-    .sort-attribute {
-      width: 100%;
-    }
-    .sort-direction {
-    }
+  .sort-direction {
+    display: none;
+  }
 }
-  
+
+@{customElementNamespace}sort-item.is-non-directional-sort.sort-duplicate-show {
+  .sort-duplicate {
+    margin: 0px @minimumSpacing @minimumSpacing @minimumSpacing;
+  }
+}

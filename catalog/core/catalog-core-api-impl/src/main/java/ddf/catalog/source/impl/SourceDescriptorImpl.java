@@ -13,10 +13,12 @@
  */
 package ddf.catalog.source.impl;
 
+import ddf.action.Action;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.util.impl.DescribableImpl;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import org.codice.ddf.platform.util.DateUtils;
 
@@ -32,6 +34,8 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
 
   protected Date lastAvailableDate = null;
 
+  private List<Action> actions;
+
   /**
    * Instantiates a new SourceDescriptorImpl.
    *
@@ -41,6 +45,19 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
   public SourceDescriptorImpl(String sourceId, Set<ContentType> catalogedTypes) {
     this.sourceId = sourceId;
     this.catalogedTypes = catalogedTypes;
+  }
+
+  /**
+   * Instantiates a new SourceDescriptorImpl.
+   *
+   * @param sourceId the source's id
+   * @param catalogedTypes the cataloged types
+   * @param actions list of actions
+   */
+  public SourceDescriptorImpl(
+      String sourceId, Set<ContentType> catalogedTypes, List<Action> actions) {
+    this(sourceId, catalogedTypes);
+    this.actions = actions;
   }
 
   @Override
@@ -88,6 +105,14 @@ public class SourceDescriptorImpl extends DescribableImpl implements SourceDescr
   @Override
   public Date getLastAvailabilityDate() {
     return DateUtils.copy(lastAvailableDate);
+  }
+
+  @Override
+  public List<Action> getActions() {
+    if (actions == null) {
+      return SourceDescriptor.super.getActions();
+    }
+    return actions;
   }
 
   /**

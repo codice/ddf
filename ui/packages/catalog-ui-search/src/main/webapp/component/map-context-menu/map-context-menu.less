@@ -34,6 +34,14 @@
   }
 }
 
+@{customElementNamespace}map-context-menu.is-off-map {
+  .interaction-copy-coordinates,
+  .interaction-copy-dms,
+  .interaction-copy-wkt {
+    display: none;
+  }
+}
+
 @{customElementNamespace}map-context-menu.has-target {
   .interaction-view-details {
     display: block;
@@ -44,16 +52,5 @@
   .interaction-view-details-selection,
   .interaction-view-histogram-selection {
     display: block;
-  }
-}
-
-html:not(.is-experimental) {
-  @{customElementNamespace}map-context-menu {
-    .interaction-view-histogram,
-    .interaction-view-details,
-    .interaction-view-details-selection,
-    .interaction-view-histogram-selection {
-      display: none;
-    }
   }
 }

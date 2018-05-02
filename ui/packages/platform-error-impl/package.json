@@ -31,12 +31,12 @@
   },
   "dependencies": {
     "http-proxy": "0.10.0",
-    "express": "4.14.0",
+    "express": "4.16.3",
     "lodash": "4.17.4",
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9",
-    "request": "2.79.0"
+    "request": "2.85.0"
   },
   "scripts": {
     "start": "grunt",

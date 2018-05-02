@@ -24,7 +24,7 @@ import org.osgi.service.cm.SynchronousConfigurationListener;
 public class ConfigurationSecurityLogger implements SynchronousConfigurationListener {
 
   @Override
-  public void configurationEvent(ConfigurationEvent event) {
+  public final void configurationEvent(ConfigurationEvent event) {
     AccessController.doPrivileged(
         (PrivilegedAction<Void>)
             () -> {

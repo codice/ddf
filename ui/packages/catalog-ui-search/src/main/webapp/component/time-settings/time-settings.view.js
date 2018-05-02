@@ -54,7 +54,6 @@ module.exports = Marionette.LayoutView.extend({
                 type: 'DATE'
             })
         }));
-        this.propertyTimeCurrent.currentView.turnOnLimitedWidth();
     },
     setupResultCount: function () {
         var timeFormat = user.get('user').get('preferences').get('timeFormat');
@@ -73,7 +72,6 @@ module.exports = Marionette.LayoutView.extend({
             })
         }));
 
-        this.propertyTimeFormat.currentView.turnOnLimitedWidth();
         this.propertyTimeFormat.currentView.turnOnEditing();
         this.listenTo(this.propertyTimeFormat.currentView.model, 'change:value', this.save);
     },

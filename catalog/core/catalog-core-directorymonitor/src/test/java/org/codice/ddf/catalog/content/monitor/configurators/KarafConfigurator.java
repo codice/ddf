@@ -20,6 +20,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configure
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 import java.io.File;
@@ -42,7 +43,8 @@ public class KarafConfigurator {
             .unpackDirectory(new File("target", "exam"))
             .useDeployFolder(false),
         configureConsole().ignoreLocalConsole(),
-        logLevel().logLevel(LogLevelOption.LogLevel.WARN),
+        keepRuntimeFolder(),
+        logLevel().logLevel(LogLevelOption.LogLevel.DEBUG),
         editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
         editConfigurationFilePut(
             "etc/system.properties", "org.codice.ddf.system.hostname", "localhost"),

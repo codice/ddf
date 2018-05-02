@@ -18,11 +18,14 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -31,6 +34,7 @@ import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.idp.server.Idp;
+import org.codice.ddf.security.idp.server.IdpEndpoint;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.ecp.RelayState;
@@ -49,6 +53,8 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
   public static final String HTTP_SCHEMAS_XMLSOAP_ORG_SOAP_ACTOR_NEXT =
       "http://schemas.xmlsoap.org/soap/actor/next";
 
+  private String ecpMessage;
+
   public SoapResponseCreator(
       SystemCrypto systemCrypto,
       Map<String, EntityInformation> serviceProviders,
@@ -56,6 +62,12 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
       List<String> spMetadata,
       Set<Binding> supportedBindings) {
     super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+    try (InputStream ecpMessageStream =
+        IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars")) {
+      ecpMessage = IOUtils.toString(ecpMessageStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOGGER.info("Unable to load the ECP response template.");
+    }
   }
 
   @Override
@@ -63,8 +75,7 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.trace("Configuring SAML Response for POST.");
 
@@ -80,7 +91,7 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
     LOGGER.trace("Converting SAML Response to DOM");
     String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(processingResponse, doc));
     String submitFormUpdated =
-        responseTemplate.replace("{{" + Idp.SAML_RESPONSE + "}}", assertionResponse);
+        ecpMessage.replace("{{" + Idp.SAML_RESPONSE + "}}", assertionResponse);
 
     String ecpResponse = createEcpResponse(authnRequest);
     String ecpRelayState = relayState != null ? createEcpRelayState(relayState) : "";

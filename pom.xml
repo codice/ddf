@@ -95,6 +95,8 @@
                forget to replace the felix config admin bundle with OUR platform-osgi-configadmin
                bundle if you copy-pasted. -->
         <karaf.version>4.1.2</karaf.version>
+        <!-- There is a problem with version 4.1.2 of the karaf-maven-plugin for projects of type feature -->
+        <karaf.plugin.version>4.1.3</karaf.plugin.version>
         <felix.configadmin.version>1.8.14</felix.configadmin.version>
         <!--  ################################################################################  -->
 
@@ -162,6 +164,7 @@
         <org.ops4j.pax.swissbox.version>1.8.0</org.ops4j.pax.swissbox.version>
         <abdera.osgi.version>1.1.3_2</abdera.osgi.version>
         <protobuf.version>3.1.0</protobuf.version>
+        <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>

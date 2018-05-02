@@ -15,16 +15,14 @@ package org.codice.ddf.ui.searchui.standard.properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
@@ -33,11 +31,12 @@ import org.osgi.framework.BundleContext;
 
 public class ConfigurationStoreTest {
 
+  private static final String SERVLET_PATH = "/proxy";
+
   private static final String PROXY_SERVER = "http://www.example.com/wms";
 
-  private static final List<String> IMAGERY_PROVIDERS =
-      Arrays.asList(
-          "{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/map\" \"fileExtension\" \"jpg\" \"alpha\" 1},{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/sat\" \"fileExtension\" \"jpg\" \"alpha\" 0.5}");
+  private static final String IMAGERY_PROVIDERS =
+      "{\"type\" \"WMS\" \"url\" \"http://example.com\" \"layers\" [\"layer1\" \"layer2\"] \"parameters\" {\"FORMAT\" \"image/png\" \"VERSION\" \"1.1.1\"} \"alpha\" 0.5}";
 
   private static final String TERRAIN_PROVIDER =
       "{\"type\" \"CT\" \"url\" \"http://cesiumjs.org/stk-terrain/tilesets/world/tiles\"}";
@@ -59,9 +58,9 @@ public class ConfigurationStoreTest {
     configurationStore.setImageryProviders(IMAGERY_PROVIDERS);
 
     // Verify
-    for (Map<String, Object> provider : configurationStore.getProxiedImageryProviders()) {
-      assertTrue(provider.get(ConfigurationStore.URL).toString().contains(PROXY_SERVER));
-    }
+    assertThat(
+        configurationStore.getProxiedImageryProviders(),
+        contains(hasEntry(ConfigurationStore.URL, SERVLET_PATH + "/" + PROXY_SERVER)));
   }
 
   @Test
@@ -79,16 +78,13 @@ public class ConfigurationStoreTest {
     configurationStore.setTerrainProvider(TERRAIN_PROVIDER);
 
     // Verify
-    assertTrue(
-        configurationStore
-            .getProxiedTerrainProvider()
-            .get(ConfigurationStore.URL)
-            .toString()
-            .contains(PROXY_SERVER));
+    assertThat(
+        configurationStore.getProxiedTerrainProvider(),
+        hasEntry(ConfigurationStore.URL, SERVLET_PATH + "/" + PROXY_SERVER));
   }
 
   @Test
-  public void testContentTypeMappings() throws Exception {
+  public void testContentTypeMappings() {
     // Setup
     ConfigurationStore configurationStore = new ConfigurationStore();
     configurationStore.setTypeNameMapping(
@@ -111,7 +107,7 @@ public class ConfigurationStoreTest {
   }
 
   @Test
-  public void testContentTypeMappingsList() throws Exception {
+  public void testContentTypeMappingsList() {
     // Setup
     ConfigurationStore configurationStore = new ConfigurationStore();
     configurationStore.setTypeNameMapping(
@@ -132,7 +128,7 @@ public class ConfigurationStoreTest {
   }
 
   @Test
-  public void testContentTypeMappingsListString() throws Exception {
+  public void testContentTypeMappingsListString() {
     // Setup
     ConfigurationStore configurationStore = new ConfigurationStore();
     configurationStore.setTypeNameMapping(

@@ -13,6 +13,8 @@
  */
 package ddf.catalog.impl.operations;
 
+import ddf.action.Action;
+import ddf.action.ActionRegistry;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.impl.FrameworkProperties;
@@ -28,6 +30,7 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.Validate;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +65,15 @@ public class SourceOperations extends DescribableImpl {
 
   private StorageProvider storage;
 
-  public SourceOperations(FrameworkProperties frameworkProperties) {
+  private ActionRegistry sourceActionRegistry;
+
+  public SourceOperations(
+      FrameworkProperties frameworkProperties, ActionRegistry sourceActionRegistry) {
+    Validate.notNull(frameworkProperties, "frameworkProperties must be non-null");
+    Validate.notNull(sourceActionRegistry, "sourceActionRegistry must be non-null");
+
     this.frameworkProperties = frameworkProperties;
+    this.sourceActionRegistry = sourceActionRegistry;
   }
 
   /**
@@ -334,16 +345,20 @@ public class SourceOperations extends DescribableImpl {
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());
 
+      Source localSource = null;
+
       if (catalog != null) {
-        Source localSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
+        localSource = frameworkProperties.getSourcePoller().getCachedSource(catalog);
         if (localSource != null && localSource.isAvailable()) {
           availableSources.add(localSource);
           contentTypes.addAll(localSource.getContentTypes());
         }
       }
 
+      List<Action> actions = getSourceActions(localSource);
+
       // only reveal this sourceDescriptor, not the federated sources
-      sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
+      sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes, actions);
       if (this.getVersion() != null) {
         sourceDescriptor.setVersion(this.getVersion());
       }
@@ -357,6 +372,10 @@ public class SourceOperations extends DescribableImpl {
           "Exception during runtime while performing getSourceInfo", re);
     }
     return response;
+  }
+
+  private List<Action> getSourceActions(Source localSource) {
+    return localSource != null ? sourceActionRegistry.list(localSource) : Collections.emptyList();
   }
 
   /**
@@ -382,7 +401,9 @@ public class SourceOperations extends DescribableImpl {
             cachedSource = frameworkProperties.getSourcePoller().getCachedSource(source);
           }
 
-          sourceDescriptor = new SourceDescriptorImpl(sourceId, source.getContentTypes());
+          sourceDescriptor =
+              new SourceDescriptorImpl(
+                  sourceId, source.getContentTypes(), sourceActionRegistry.list(source));
           sourceDescriptor.setVersion(source.getVersion());
           sourceDescriptor.setAvailable((cachedSource != null) && cachedSource.isAvailable());
 
@@ -430,7 +451,10 @@ public class SourceOperations extends DescribableImpl {
         }
         if (cachedSource != null) {
           SourceDescriptorImpl descriptor =
-              new SourceDescriptorImpl(this.getId(), cachedSource.getContentTypes());
+              new SourceDescriptorImpl(
+                  this.getId(),
+                  cachedSource.getContentTypes(),
+                  sourceActionRegistry.list(cachedSource));
           if (this.getVersion() != null) {
             descriptor.setVersion(this.getVersion());
           }

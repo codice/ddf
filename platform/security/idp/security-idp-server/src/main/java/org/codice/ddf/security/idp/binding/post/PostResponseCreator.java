@@ -17,6 +17,8 @@ import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -32,6 +35,7 @@ import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.idp.server.Idp;
+import org.codice.ddf.security.idp.server.IdpEndpoint;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +44,8 @@ import org.w3c.dom.Document;
 public class PostResponseCreator extends ResponseCreatorImpl implements ResponseCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
-  private static final String SURROUND_WITH_TWO_PARENTHESES = "{{%s}}";
+
+  private String postResponseForm;
 
   public PostResponseCreator(
       SystemCrypto systemCrypto,
@@ -49,6 +54,12 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       List<String> spMetadata,
       Set<Binding> supportedBindings) {
     super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
+    try (InputStream postMessageStream =
+        IdpEndpoint.class.getResourceAsStream("/templates/postResponse.handlebars")) {
+      postResponseForm = IOUtils.toString(postMessageStream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LOGGER.info("Unable to load the POST response template.");
+    }
   }
 
   @Override
@@ -56,8 +67,7 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       String relayState,
       AuthnRequest authnRequest,
       org.opensaml.saml.saml2.core.Response samlResponse,
-      NewCookie cookie,
-      String responseTemplate)
+      NewCookie cookie)
       throws WSSecurityException, SimpleSign.SignatureException {
     LOGGER.debug("Configuring SAML Response for POST.");
 
@@ -75,23 +85,31 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
     String encodedSamlResponse =
         Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
-    String submitFormUpdated =
-        responseTemplate.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.ACS_URL), assertionConsumerServiceURL);
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_TYPE), "SAMLResponse");
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.SAML_RESPONSE), encodedSamlResponse);
-    submitFormUpdated =
-        submitFormUpdated.replace(
-            String.format(SURROUND_WITH_TWO_PARENTHESES, Idp.RELAY_STATE),
-            relayState != null ? relayState : "");
-    Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
+
+    String postForm =
+        createPostResponse(encodedSamlResponse, relayState, assertionConsumerServiceURL);
+    Response.ResponseBuilder ok = Response.ok(postForm);
     if (cookie != null) {
       ok = ok.cookie(cookie);
     }
     return ok.build();
+  }
+
+  private String createPostResponse(String samlResponse, String relayState, String acsUrl) {
+    String submitFormUpdated =
+        postResponseForm
+            .replace("{{" + Idp.ACS_URL + "}}", acsUrl)
+            .replace("{{" + Idp.SAML_RESPONSE + "}}", samlResponse);
+
+    if (relayState != null) {
+      submitFormUpdated =
+          submitFormUpdated.replace(
+              "{{" + Idp.RELAY_STATE + "}}",
+              "<input type=\"hidden\" name=\"RelayState\" value=\"" + relayState + "\"/>");
+    } else {
+      submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", "");
+    }
+
+    return submitFormUpdated;
   }
 }

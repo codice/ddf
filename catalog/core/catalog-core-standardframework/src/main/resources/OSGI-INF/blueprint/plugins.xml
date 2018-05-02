@@ -109,20 +109,20 @@
                             unbind-method="unbindPlugin" ref="accessSortedList"/>
     </reference-list>
 
-    <bean id="preCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="preAuthSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="policySortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <bean id="accessSortedList" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="preCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preUpdateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postUpdateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preIngestSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postIngestSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preQuerySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postQuerySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preFederatedQuerySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postFederatedQuerySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preResourceSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="postResourceSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="preAuthSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="policySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="accessSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
 </blueprint>

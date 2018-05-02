@@ -13,9 +13,12 @@
  */
 package ddf.catalog.source;
 
+import ddf.action.Action;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.util.Describable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /** The Interface {@link SourceDescriptor} is used to describe a {@link Source}. */
@@ -49,4 +52,13 @@ public interface SourceDescriptor extends Describable {
    * @return the last availability date
    */
   public Date getLastAvailabilityDate();
+
+  /**
+   * Get the list of actions associated with the {@link Source}.
+   *
+   * @return list of actions
+   */
+  default List<Action> getActions() {
+    return Collections.emptyList();
+  }
 }

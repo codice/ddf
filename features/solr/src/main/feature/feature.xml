@@ -1,0 +1,100 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
+
+    <feature name="solr" version="${project.version}"
+             description="Standalone Solr Server">
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
+        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle>
+        <!-- for GeoTools -->
+        <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
+
+        <bundle>mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/war
+        </bundle>
+        <configfile finalname="/solr/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+    </feature>
+
+
+    <feature name="solr-decanter-appender" version="${project.version}"
+             description="A Decanter appender that writes to solr">
+        <feature>persistence-core</feature>
+        <feature>spring</feature>
+        <feature>common-system</feature>
+        <bundle>mvn:ddf.platform.solr/solr-appender/${project.version}</bundle>
+    </feature>
+
+    <feature name="persistence-core-api" version="${project.version}"
+             description="Internal Persistence Core API">
+        <feature>security-encryption</feature>
+        <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="persistence-core" version="${project.version}"
+             description="Internal Persistence Core Implementation">
+        <feature version="${project.version}">solr</feature>
+        <feature>persistence-core-api</feature>
+        <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+
+        <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
+        <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
+        <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="banana" version="${project.version}"
+             description="Adds banana">
+        <feature version="${project.version}">solr</feature>
+        <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
+        <feature>common-system</feature>
+        <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
+        <configfile finalname="${ddf.data}/solr/banana/conf/schema.xml">
+            mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
+        </configfile>
+        <configfile finalname="/examples/banana/DefaultDashboard.json">
+            mvn:ddf.platform.solr/solr-banana/${project.version}/json/bananadashboard
+        </configfile>
+    </feature>
+
+</features>

@@ -285,7 +285,6 @@ define([
                 })
             }));
             this.histogramAttribute.currentView.turnOnEditing();
-            this.histogramAttribute.currentView.turnOnLimitedWidth();
             this.listenTo(this.histogramAttribute.currentView.model, 'change:value', this.showHistogram);
         },
         onRender: function(){

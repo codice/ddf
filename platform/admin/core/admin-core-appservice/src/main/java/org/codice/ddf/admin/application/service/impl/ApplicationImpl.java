@@ -14,17 +14,13 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.karaf.features.BundleInfo;
 import org.codice.ddf.admin.application.service.Application;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +38,11 @@ public class ApplicationImpl implements Application {
 
   private List<String> bundleLocations;
 
+  private Set<BundleInfo> bundles;
+
   public ApplicationImpl() {
     bundleLocations = new ArrayList<>();
+    bundles = new HashSet<>();
   }
 
   public BundleInfo bundleToBundleInfo(Bundle bundle) {
@@ -80,25 +79,18 @@ public class ApplicationImpl implements Application {
 
   @Override
   public Set<BundleInfo> getBundles() {
-    Set<BundleInfo> bundles = new HashSet<>();
-    Map<String, Bundle> bundleMap = bundlesByLocation();
+    return bundles;
+  }
 
+  public void loadBundles(Map<String, Bundle> bundlesByLocation) {
     for (String loc : bundleLocations) {
-      if (bundleMap.containsKey(loc)) {
-        if (bundleMap.get(loc).getState() == Bundle.ACTIVE) {
-          bundles.add(bundleToBundleInfo(bundleMap.get(loc)));
+      if (bundlesByLocation.containsKey(loc)) {
+        if (bundlesByLocation.get(loc).getState() == Bundle.ACTIVE) {
+          bundles.add(bundleToBundleInfo(bundlesByLocation.get(loc)));
         } else {
           LOGGER.debug("Unable to find bundle {} of app {} in system.", loc, name);
         }
       }
     }
-
-    return bundles;
-  }
-
-  private Map<String, Bundle> bundlesByLocation() {
-    return Arrays.stream(
-            FrameworkUtil.getBundle(ApplicationImpl.class).getBundleContext().getBundles())
-        .collect(Collectors.toMap(Bundle::getLocation, Function.identity()));
   }
 }

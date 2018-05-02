@@ -325,13 +325,6 @@ module.exports = Marionette.LayoutView.extend({
                 break;
         }
         return filters;
-    },
-    turnOnLimitedWidth: function () {
-        this.regionManager.forEach(function (region) {
-            if (region.currentView && region.currentView.turnOnLimitedWidth) {
-                region.currentView.turnOnLimitedWidth();
-            }
-        });
     }
 }); 
 

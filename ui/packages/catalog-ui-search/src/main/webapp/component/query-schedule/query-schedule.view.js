@@ -24,11 +24,10 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/dropdown/dropdown.view',
-    'component/radio/radio.view',
     'moment',
     'js/Common'
 ], function(Marionette, _, $, template, CustomElements, store, properties, PropertyView, Property,
-    DropdownView, RadioView, Moment, Common) {
+    DropdownView, Moment, Common) {
 
     function getHumanReadableDuration(milliseconds) {
         var duration = Moment.duration(milliseconds);
@@ -87,7 +86,6 @@ define([
                 })
             }));
             this.propertyInterval.currentView.turnOffEditing();
-            this.propertyInterval.currentView.turnOnLimitedWidth();
         },
         turnOnEditing: function() {
             this.$el.addClass('is-editing');

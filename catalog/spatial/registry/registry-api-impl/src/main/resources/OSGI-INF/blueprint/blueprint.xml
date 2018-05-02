@@ -126,7 +126,7 @@
         <argument ref="xmlParser"/>
     </bean>
 
-    <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
         <reference-listener ref="metacardTypes" bind-method="bindPlugin"
                             unbind-method="unbindPlugin"/>

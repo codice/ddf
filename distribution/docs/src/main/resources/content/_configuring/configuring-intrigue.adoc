@@ -6,4 +6,4 @@
 
 == {title}
 
-Start here to configure ${catalog-ui} as the primary interface for users.
+Start here to configure ${catalog-ui}.
