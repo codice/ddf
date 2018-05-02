@@ -200,6 +200,7 @@
         <geronimo-json-spec.version>1.0-alpha-1</geronimo-json-spec.version>
         <johnzon.version>0.9.5</johnzon.version>
         <servicemix-json-1.1.spec.version>2.9.0</servicemix-json-1.1.spec.version>
+        <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
