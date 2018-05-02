@@ -49,10 +49,6 @@ import javax.annotation.Nullable;
 public class Closer implements Closeable {
   private final Deque<Closeable> closeables = new ArrayDeque<>(4);
 
-  /** Creates a new closer class. */
-  public Closer() { // nothing else to initialize
-  }
-
   /**
    * Registers a {@link Closeable} to be later closed if we are unable to return successfully.
    *

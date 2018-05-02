@@ -46,6 +46,10 @@ public class ConfigurationStore {
    * configuration store to extract its properties instead of relying on the singleton; thus
    * allowing a mixture of settings in the system.
    */
+  @SuppressWarnings(
+      "PMD.UnnecessaryConstructor" /* Added to emphasize the fact tha we have a public default ctor
+                                   that should be used only in specific case as the majority of the system still relies on the
+                                   singleton for now */)
   public ConfigurationStore() { // everything is already initialized
   }
 

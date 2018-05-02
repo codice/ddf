@@ -75,10 +75,6 @@ public final class SolrClientAdapter extends SolrClientProxy
 
   private static final String OK_STATUS = "OK";
 
-  private static final String GOING = "going";
-
-  private static final String REMAINING = "remaining";
-
   private static final int THREAD_POOL_DEFAULT_SIZE = 128;
 
   private static final RetryPolicy ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_NOT_NULL =
@@ -565,8 +561,10 @@ public final class SolrClientAdapter extends SolrClientProxy
     LOGGER.warn("Solr client ({}) creation interrupted", core);
     LOGGER.debug("Solr({}): client creation failsafe attempts were interrupted", core, t);
     Thread.currentThread().interrupt(); // propagate
-    // TODO: we should actually close the whole thing as opposed to re-initializing it and piggy
-    // back the exception as the cause
+    // should we actually close the whole thing as opposed to re-initializing?
+    // ... and piggy back the exception as the cause
+    // that is because normally we would get here if the thread was interrupted from the outside
+    // which typically should happen if the executor was shutdown but we currently don't do that
     setCreating(unavailableClient, false);
   }
 
@@ -575,8 +573,10 @@ public final class SolrClientAdapter extends SolrClientProxy
     LOGGER.warn("Solr client ({}) connection interrupted", core);
     LOGGER.debug("Solr({}): client connection failsafe attempts were interrupted", core, t);
     Thread.currentThread().interrupt(); // propagate
-    // TODO: we should actually close the whole thing as opposed to re-connecting it and piggy
-    // back the exception as the cause
+    // should we actually close the whole thing as opposed to re-connecting it?
+    // ... and piggy back the exception as the cause
+    // that is because normally we would get here if the thread was interrupted from the outside
+    // which typically should happen if the executor was shutdown but we currently don't do that
     setConnecting(realClient, unavailableClient, false, State.CONNECTING);
   }
 
@@ -666,15 +666,9 @@ public final class SolrClientAdapter extends SolrClientProxy
       futureToCancel = cancelFuture ? future : null;
       previousClientToClose = realClient;
       // notify only if we were available
-      notifyAvailability = (state == State.CONNECTED);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Solr({}): {} unavailable because: {}",
-            core,
-            (notifyAvailability ? SolrClientAdapter.GOING : SolrClientAdapter.REMAINING),
-            newUnavailableClient.getCause(), // this will get the info logged on the first line
-            newUnavailableClient.getCause()); // this one will get the stack trace logged after
-      }
+      notifyAvailability =
+          shouldNotifyUnavailability(
+              newUnavailableClient.getCause(), newUnavailableClient.getCause());
       LOGGER.debug("Solr({}): starting a failsafe client creation task", core);
       this.apiClient = newUnavailableClient;
       this.pingClient = newUnavailableClient;
@@ -683,10 +677,8 @@ public final class SolrClientAdapter extends SolrClientProxy
       this.state = State.CREATING;
       this.future = createFailsafe.get(creator::create);
     }
-    try {
-      finalizeStateChange(notifyAvailability, futureToCancel, previousClientToClose, true);
-    } catch (IOException e) { // will never happen, exceptions are swallowed above
-    }
+    finalizeStateChangeWhileSwallowingIOExceptions(
+        notifyAvailability, futureToCancel, previousClientToClose);
   }
 
   /**
@@ -726,14 +718,8 @@ public final class SolrClientAdapter extends SolrClientProxy
       futureToCancel = cancelFuture ? future : null;
       previousClientToClose = realClient;
       // notify only if we were available
-      notifyAvailability = (state == State.CONNECTED);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Solr({}): {} unavailable; real client created as [{}]",
-            core,
-            (notifyAvailability ? SolrClientAdapter.GOING : SolrClientAdapter.REMAINING),
-            newClient);
-      }
+      notifyAvailability =
+          shouldNotifyUnavailability("real client created as [" + newClient + "]", null);
       LOGGER.debug("Solr({}): starting a failsafe client connection task", core);
       lastPing.set(System.currentTimeMillis()); // since we are starting a background task
       this.apiClient = newUnavailableClient;
@@ -743,10 +729,8 @@ public final class SolrClientAdapter extends SolrClientProxy
       this.state = State.CONNECTING;
       this.future = pingFailsafe.run(this::checkIfReachable);
     }
-    try {
-      finalizeStateChange(notifyAvailability, futureToCancel, previousClientToClose, true);
-    } catch (IOException e) { // will never happen, exceptions are swallowed above
-    }
+    finalizeStateChangeWhileSwallowingIOExceptions(
+        notifyAvailability, futureToCancel, previousClientToClose);
   }
 
   /**
@@ -771,13 +755,7 @@ public final class SolrClientAdapter extends SolrClientProxy
       }
       futureToCancel = cancelFuture ? future : null;
       // notify only if we were not available as we will now be
-      notifyAvailability = (state != State.CONNECTED);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Solr({}): {} available",
-            core,
-            (notifyAvailability ? SolrClientAdapter.GOING : SolrClientAdapter.REMAINING));
-      }
+      notifyAvailability = shouldNotifyOfAvailability();
       this.apiClient = realClient;
       // keep pingClient and realClient as is
       this.unavailableClient = null;
@@ -785,10 +763,7 @@ public final class SolrClientAdapter extends SolrClientProxy
       this.future = null;
       lock.notifyAll(); // wakeup those waiting for isAvailable(timeout)
     }
-    try {
-      finalizeStateChange(notifyAvailability, futureToCancel, null, true);
-    } catch (IOException e) { // will never happen, exceptions are swallowed above
-    }
+    finalizeStateChangeWhileSwallowingIOExceptions(notifyAvailability, futureToCancel, null);
   }
 
   @VisibleForTesting
@@ -851,6 +826,17 @@ public final class SolrClientAdapter extends SolrClientProxy
     checkIfReachable("from failsafe while trying to reconnect");
   }
 
+  private void finalizeStateChangeWhileSwallowingIOExceptions(
+      boolean notifyAvailability,
+      @Nullable Future<?> futureToCancel,
+      @Nullable SolrClient previousClientToClose) {
+    try {
+      finalizeStateChange(notifyAvailability, futureToCancel, previousClientToClose, true);
+    } catch (IOException e) { // will never happen, exceptions are swallowed above
+    }
+  }
+
+  @SuppressWarnings("PMD.CompareObjectsWithEquals" /* purposely testing previous client identity */)
   private void finalizeStateChange(
       boolean notifyAvailability,
       @Nullable Future<?> futureToCancel,
@@ -926,6 +912,30 @@ public final class SolrClientAdapter extends SolrClientProxy
     initializer.initialized(this);
   }
 
+  private boolean shouldNotifyUnavailability(Object reason, @Nullable Throwable cause) {
+    final boolean notifyAvailability = state == State.CONNECTED;
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(
+          "Solr({}): {} unavailable because: {}",
+          core,
+          SolrClientAdapter.goingOrRemaining(notifyAvailability),
+          reason, // this will get the reason logged on the first line
+          cause); // this one will get the stack trace logged after (if any)
+    }
+    return notifyAvailability;
+  }
+
+  private boolean shouldNotifyOfAvailability() {
+    final boolean notifyAvailability = (state != State.CONNECTED);
+
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(
+          "Solr({}): {} available", core, SolrClientAdapter.goingOrRemaining(notifyAvailability));
+    }
+    return notifyAvailability;
+  }
+
   private static ScheduledExecutorService createExecutor() throws NumberFormatException {
     return Executors.newScheduledThreadPool(
         NumberUtils.toInt(
@@ -938,6 +948,10 @@ public final class SolrClientAdapter extends SolrClientProxy
 
   private static String availableToString(boolean available) {
     return available ? "AVAILABLE" : "NOT AVAILABLE";
+  }
+
+  private static String goingOrRemaining(boolean going) {
+    return going ? "going" : "remaining";
   }
 
   /** Functional interface used to create Solr clients. */
