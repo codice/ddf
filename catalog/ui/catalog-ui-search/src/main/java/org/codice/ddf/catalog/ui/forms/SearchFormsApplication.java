@@ -62,7 +62,7 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final EndpointUtil util;
 
-  private static final String responseMessage = "Message";
+  private static final String RESP_MSG = "Message";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
@@ -130,16 +130,16 @@ public class SearchFormsApplication implements SparkApplication {
           if (!originalMetacardOwner.get(Core.METACARD_OWNER).equals(currentUser)) {
             res.status(500);
             LOGGER.debug("Failed to Delete Form {}", id);
-            return ImmutableMap.of(responseMessage, "Failed to delete.");
+            return ImmutableMap.of(RESP_MSG, "Failed to delete.");
           }
 
           DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
           if (!deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
             LOGGER.debug("Failed to Delete Form {}", id);
-            return ImmutableMap.of(responseMessage, "Failed to delete.");
+            return ImmutableMap.of(RESP_MSG, "Failed to delete.");
           }
-          return ImmutableMap.of(responseMessage, "Successfully deleted.");
+          return ImmutableMap.of(RESP_MSG, "Successfully deleted.");
         },
         util::getJson);
   }
