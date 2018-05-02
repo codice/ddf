@@ -77,13 +77,14 @@ public final class SolrClientAdapter extends SolrClientProxy
 
   private static final int THREAD_POOL_DEFAULT_SIZE = 128;
 
-  private static final RetryPolicy ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_NOT_NULL =
-      new RetryPolicy()
-          .retryWhen(null)
-          .retryOn(Throwable.class)
-          .abortOn(InterruptedIOException.class, InterruptedException.class)
-          .abortOn(VirtualMachineError.class)
-          .withBackoff(10L, TimeUnit.MINUTES.toMillis(1L), TimeUnit.MILLISECONDS);
+  private static final RetryPolicy
+      ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_A_CLIENT_IS_CREATED =
+          new RetryPolicy()
+              .retryIf(r -> !(r instanceof SolrClient))
+              .retryOn(Throwable.class)
+              .abortOn(InterruptedIOException.class, InterruptedException.class)
+              .abortOn(VirtualMachineError.class)
+              .withBackoff(10L, TimeUnit.MINUTES.toMillis(1L), TimeUnit.MILLISECONDS);
 
   private static final RetryPolicy ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR =
       new RetryPolicy()
@@ -221,7 +222,9 @@ public final class SolrClientAdapter extends SolrClientProxy
     this.creator = creator;
     this.createFailsafe =
         createFailsafeCreator
-            .apply(SolrClientAdapter.ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_NOT_NULL)
+            .apply(
+                SolrClientAdapter
+                    .ABORT_WHEN_INTERRUPTED_AND_RETRY_UNTIL_NO_ERROR_AND_A_CLIENT_IS_CREATED)
             .with(SolrClientAdapter.SCHEDULED_EXECUTOR)
             .onRetry(this::logFailure)
             .onAbort(this::logInterruptionAndRecreate)

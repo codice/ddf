@@ -31,6 +31,7 @@ import org.codice.spock.extension.builtin.DeFinalizer
 import org.junit.runner.RunWith
 import org.spockframework.mock.runtime.MockInvocation
 import org.spockframework.runtime.SpockTimeoutError
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.lang.Unroll
@@ -44,6 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger
 import static java.util.concurrent.TimeUnit.*
 import static net.jodah.failsafe.Actions.*
 
+import static org.codice.solr.factory.impl.SolrClientAdapter.State.*;
+
 @ClearInterruptions
 @Timeout(SolrClientAdapterAsyncSpec.TIMEOUT_IN_SECS)
 @RunWith(DeFinalizer)
@@ -54,6 +57,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
   static final int TIMEOUT_IN_SECS = 25
   static final String PING_ERROR_MSG = 'failing ping'
 
+  @Shared
   def client = Stub(SolrClient)
   def creator = Stub(Creator)
 
@@ -502,6 +506,9 @@ class SolrClientAdapterAsyncSpec extends Specification {
     and: "the adapter should be unavailable because it was closed"
       !adapter.available
 
+    and: "the adapter is closed"
+      adapter.state == CLOSED
+
     and: "there should be no more registered initializers or listeners"
       !adapter.hasInitializers() && !adapter.hasListeners()
 
@@ -558,6 +565,9 @@ class SolrClientAdapterAsyncSpec extends Specification {
     and: "the adapter should still be unavailable because it was closed"
       !adapter.available
 
+    and: "the adapter is still closed"
+      adapter.state == CLOSED
+
     and: "verify failsafe controllers"
       createController.verify()
       pingController.verify()
@@ -600,6 +610,9 @@ class SolrClientAdapterAsyncSpec extends Specification {
     and: "the adapter should be unavailable because it was closed"
       !adapter.available
 
+    and: "the adapter is closed"
+      adapter.state == CLOSED
+
     and: "there should be no more registered initializers or listeners"
       !adapter.hasInitializers() && !adapter.hasListeners()
 
@@ -623,6 +636,89 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
     where:
       exception << [new IOException("close failed"), new RuntimeException('close failed')]
+  }
+
+  def 'test closing just before we finally create a client'() {
+    given: "a create controller that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution {
+        doNotify('creating')
+            .then().waitToBeCancelled().before().returning(client)
+      }
+
+    and: "a ping controller that will never be called"
+      def pingController = new FailsafeController('SolrClient Ping')
+
+    when: "creating an adapter"
+      def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for the adapter to start creating the client"
+      createController.waitFor('creating')
+
+    and: "closing the adapter"
+      adapter.close()
+
+    and: "waiting for failsafe create to complete since it should be cancelled and/or complete normally"
+      createController.waitForCompletion()
+
+    then: "verify it was cancelled"
+      def e = thrown(ControlledExecutionException)
+
+      e.error instanceof CancellationException
+
+    and: "the adapter should be unavailable because it was closed"
+      !adapter.available
+
+    and: "the adapter is closed"
+      adapter.state == CLOSED
+
+    and: "verify failsafe controllers"
+      createController.verify()
+      pingController.verify()
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
+  }
+
+  def 'test closing just before we finally connect to the client'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+        doNotify('connecting')
+            .then().waitToBeCancelled().before().returning()
+      }
+
+    when: "creating an adapter"
+      def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for the adapter to start connecting to the client"
+      pingController.waitFor('connecting')
+
+    and: "closing the adapter"
+      adapter.close()
+
+    and: "waiting for failsafe to complete since it should be cancelled and/or complete normally"
+      createController.waitForCompletion()
+      pingController.waitForCompletion()
+
+    then: "verify it was cancelled"
+      def e = thrown(ControlledExecutionException)
+
+      e.error instanceof CancellationException
+
+    and: "the adapter should be unavailable because it was closed"
+      !adapter.available
+
+    and: "the adapter is closed"
+      adapter.state == CLOSED
+
+    and: "verify failsafe controllers"
+      createController.verify()
+      pingController.verify()
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
   }
 
   def 'test that getting the actual SolrClient should still return the adapter'() {
@@ -1254,5 +1350,191 @@ class SolrClientAdapterAsyncSpec extends Specification {
       'connecting' || true                | false              | false || false     | 0
       'connected'  || true                | true               | false || true      | 1
       'closed'     || true                | true               | true  || false     | 0
+  }
+
+  @ClearInterruptions
+  @Unroll
+  def 'test client creation retry policy will #policy_will when #when_what'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "the client creation retry policy is configured to allow retries"
+      createController.retryPolicy.allowsRetries();
+
+    and: "verify it will abort or not"
+      createController.retryPolicy.canAbortFor(result, exception) == abort
+
+    and: "verify it will retry or not (if not already aborting)"
+      // failsafe never checks for retries if the policy indicates to abort
+      abort || (createController.retryPolicy.canRetryFor(result, exception) == retry)
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
+
+    where:
+      policy_will               | when_what                          || result          | exception                                       || abort | retry
+      'retry and not abort'     | 'null is returned'                 || null            | null                                            || false | true
+      'retry and not abort'     | 'SolrException is thrown'          || null            | new SolrException(ErrorCode.UNKNOWN, 'testing') || false | true
+      'retry and not abort'     | 'SolrServerException is thrown'    || null            | new SolrServerException('testing')              || false | true
+      'retry and not abort'     | 'IOException is thrown'            || null            | new IOException('testing')                      || false | true
+      'retry and not abort'     | 'RuntimeException is thrown'       || null            | new RuntimeException('testing')                 || false | true
+      'retry and not abort'     | 'Throwable is thrown'              || null            | new Throwable('testing')                        || false | true
+      'retry and not abort'     | 'IOException is thrown'            || null            | new IOException('testing')                      || false | true
+      'retry and not abort'     | 'not a client is returned'         || 'a fake client' | null                                            || false | true
+      'not retry and not abort' | 'a client is returned'             || client          | null                                            || false | false
+      'abort'                   | 'OutOfMemoryError is thrown'       || null            | new OutOfMemoryError('testing')                 || true  | false
+      'abort'                   | 'InterruptedException is thrown'   || null            | new InterruptedException('testing')             || true  | false
+      'abort'                   | 'InterruptedIOException is thrown' || null            | new InterruptedIOException('testing')           || true  | false
+  }
+
+  def 'test client creation retry policy will delay in between attempts'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "verify the client creation retry policy delay configuration"
+      with(createController.retryPolicy) {
+        delay.toMillis() == 10
+        delayFactor == 2
+        maxDelay.toMinutes() == 1
+        !jitter
+        !jitterFactor
+      }
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
+  }
+
+  def 'test client creation retry policy will never stop unless aborted'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "verify the client creation retry policy will never stop unless aborted"
+      with(createController.retryPolicy) {
+        !maxDuration
+        maxRetries == -1
+      }
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
+  }
+
+  @ClearInterruptions
+  @Unroll
+  def 'test client connection retry policy will #policy_will when #when_what'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "the client connection retry policy is configured to allow retries"
+      pingController.retryPolicy.allowsRetries();
+
+    and: "verify it will abort or not"
+      pingController.retryPolicy.canAbortFor(result, exception) == abort
+
+    and: "verify it will retry or not (if not already aborting)"
+      // failsafe never checks for retries if the policy indicates to abort
+      abort || (pingController.retryPolicy.canRetryFor(result, exception) == retry)
+
+    cleanup:
+      pingController?.shutdown()
+      pingController?.shutdown()
+
+    where:
+      policy_will               | when_what                            || result     | exception                                       || abort | retry
+      'retry and not abort'     | 'SolrException is thrown'            || null       | new SolrException(ErrorCode.UNKNOWN, 'testing') || false | true
+      'retry and not abort'     | 'SolrServerException is thrown'      || null       | new SolrServerException('testing')              || false | true
+      'retry and not abort'     | 'UnavailableSolrException is thrown' || null       | new UnavailableSolrException('testing')         || false | true
+      'retry and not abort'     | 'IOException is thrown'              || null       | new IOException('testing')                      || false | true
+      'retry and not abort'     | 'RuntimeException is thrown'         || null       | new RuntimeException('testing')                 || false | true
+      'retry and not abort'     | 'Throwable is thrown'                || null       | new Throwable('testing')                        || false | true
+      'retry and not abort'     | 'IOException is thrown'              || null       | new IOException('testing')                      || false | true
+      'not retry and not abort' | 'it returns normally'                || null       | null                                            || false | false
+      'not retry and not abort' | 'anything is returned'               || 'anything' | null                                            || false | false
+      'abort'                   | 'OutOfMemoryError is thrown'         || null       | new OutOfMemoryError('testing')                 || true  | false
+      'abort'                   | 'InterruptedException is thrown'     || null       | new InterruptedException('testing')             || true  | false
+      'abort'                   | 'InterruptedIOException is thrown'   || null       | new InterruptedIOException('testing')           || true  | false
+  }
+
+  def 'test client connection retry policy will delay in between attempts'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "verify the client connection retry policy delay configuration"
+      with(pingController.retryPolicy) {
+        delay.toSeconds() == 1
+        delayFactor == 2
+        maxDelay.toMinutes() == 2
+        !jitter
+        !jitterFactor
+      }
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
+  }
+
+  def 'test client connection retry policy will never stop unless aborted'() {
+    given: "controllers that mocks every execution/attempts"
+      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
+      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+
+    when: "creating an adapter that initializes failsafe"
+      new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
+
+    and: "waiting for failsafe to complete"
+      createController.waitForSuccessfulCompletion()
+      pingController.waitForSuccessfulCompletion()
+
+    then: "verify the client connection retry policy will never stop unless aborted"
+      with(pingController.retryPolicy) {
+        !maxDuration
+        maxRetries == -1
+      }
+
+    cleanup:
+      createController?.shutdown()
+      pingController?.shutdown()
   }
 }
