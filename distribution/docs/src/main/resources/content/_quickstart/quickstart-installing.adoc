@@ -22,6 +22,11 @@ These steps will demonstrate:
 
 These are the basic requirements to set up the environment to run a ${branding}.
 
+[WARNING]
+====
+For security reasons, ${branding} cannot be started from a user's home directory. If attempted, the system will automatically shut down.
+====
+
 ==== Hardware Requirements (Quick Install)
 
 * At least 4096MB of memory for ${branding}.

@@ -377,6 +377,11 @@
             <artifactId>platform-country-converter-local</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>secure-boot</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!--feature dependencies-->
         <dependency>
