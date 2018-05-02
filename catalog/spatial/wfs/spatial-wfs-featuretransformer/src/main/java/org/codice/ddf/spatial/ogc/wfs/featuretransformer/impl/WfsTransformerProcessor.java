@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.slf4j.Logger;
@@ -36,8 +38,11 @@ public final class WfsTransformerProcessor {
 
   public Optional<Metacard> apply(String featureMember, WfsMetadata metadata) {
 
-    for (FeatureTransformer featureTransformer : transformerServiceList) {
+    if (StringUtils.isEmpty(featureMember)) {
+      return Optional.empty();
+    }
 
+    for (FeatureTransformer featureTransformer : transformerServiceList) {
       try (InputStream featureMemberInputStream =
           new BufferedInputStream(new ByteArrayInputStream(featureMember.getBytes()))) {
         Optional<Metacard> metacardOptional =

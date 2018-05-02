@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
@@ -30,6 +31,9 @@ import net.opengis.wfs.v_1_1_0.FeatureTypeType;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
+import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
@@ -50,23 +54,44 @@ public class XStreamWfs11FeatureTransformerTest {
 
   @Before
   public void setup() {
-    MetacardMapper metacardMapper = mock(MetacardMapper.class);
-    when(metacardMapper.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
-    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn("title");
-
     transformer = new XStreamWfs11FeatureTransformer();
-    transformer.setMetacardMappers(Collections.singletonList(metacardMapper));
     transformer.setMetacardTypeRegistry(mockMetacardTypeRegistry());
   }
 
   @Test
-  public void testRed() {
+  public void testMetacardMappers() {
+    transformer.setMetacardMappers(Collections.singletonList(mockMetacardMapper()));
+
     InputStream inputStream =
         new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"));
     Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
 
     assertThat(metacardOptional.isPresent(), equalTo(true));
     assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+  }
+
+  @Test
+  public void testFeatureConverters() {
+    FeatureConverterFactory featureConverterFactory = mock(FeatureConverterFactory.class);
+    when(featureConverterFactory.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
+
+    FeatureConverter featureConverter = new GenericFeatureConverter(mockMetacardMapper());
+    when(featureConverterFactory.createConverter()).thenReturn(featureConverter);
+    transformer.setFeatureConverterFactories(Collections.singletonList(featureConverterFactory));
+
+    InputStream inputStream =
+        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"));
+    Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
+
+    assertThat(metacardOptional.isPresent(), equalTo(true));
+    assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+  }
+
+  @Test
+  public void testBadMetacardReturnsNull() {
+    Optional<Metacard> metacardOptional =
+        transformer.apply(new ByteArrayInputStream(new byte[0]), mockWfsMetadata());
+    assertThat(metacardOptional.isPresent(), equalTo(false));
   }
 
   private WfsMetacardTypeRegistry mockMetacardTypeRegistry() {
@@ -94,11 +119,23 @@ public class XStreamWfs11FeatureTransformerTest {
     WfsMetadata<FeatureTypeType> wfsMetadata = mock(WfsMetadata.class);
     when(wfsMetadata.getId()).thenReturn(SOURCE_ID);
 
+    when(wfsMetadata.getDescriptors()).thenReturn(Collections.singletonList(mockFeatureType()));
+
+    return wfsMetadata;
+  }
+
+  private FeatureTypeType mockFeatureType() {
     FeatureTypeType featureTypeType = new FeatureTypeType();
     featureTypeType.setName(PETER_PAN_NAME);
     featureTypeType.setDefaultSRS("urn:x-ogc:def:crs:EPSG:4326");
-    when(wfsMetadata.getDescriptors()).thenReturn(Collections.singletonList(featureTypeType));
 
-    return wfsMetadata;
+    return featureTypeType;
+  }
+
+  private MetacardMapper mockMetacardMapper() {
+    MetacardMapper metacardMapper = mock(MetacardMapper.class);
+    when(metacardMapper.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
+    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn("title");
+    return metacardMapper;
   }
 }
