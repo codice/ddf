@@ -195,6 +195,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private List<String> spMetadata;
   private String indexHtml;
   private Boolean strictSignature = true;
+  private Boolean strictRelayState = true;
   private SystemCrypto systemCrypto;
   private LogoutMessage logoutMessage;
   private RelayStates<LogoutState> logoutStates;
@@ -442,7 +443,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       String bodyStr = IOUtils.toString(body, StandardCharsets.UTF_8);
       AuthnRequest authnRequest = soapBinding.decoder().decodeRequest(bodyStr);
       String relayState = ((SoapRequestDecoder) soapBinding.decoder()).decodeRelayState(bodyStr);
-      soapBinding.validator().validateRelayState(relayState);
+      soapBinding.validator().validateRelayState(relayState, strictRelayState);
       soapBinding
           .validator()
           .validateAuthnRequest(authnRequest, bodyStr, null, null, null, strictSignature);
@@ -652,7 +653,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     AuthnRequest authnRequest = null;
     try {
       Map<String, Object> responseMap = new HashMap<>();
-      binding.validator().validateRelayState(relayState);
+      binding.validator().validateRelayState(relayState, strictRelayState);
       authnRequest = binding.decoder().decodeRequest(samlRequest);
       authnRequest.getIssueInstant();
       binding
@@ -845,6 +846,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       }
 
       AuthnRequest authnRequest = binding.decoder().decodeRequest(samlRequest);
+      binding.validator().validateRelayState(relayState, strictRelayState);
       binding
           .validator()
           .validateAuthnRequest(
@@ -1139,6 +1141,15 @@ public class IdpEndpoint implements Idp, SessionHandler {
     LogoutState logoutState = getLogoutState(request);
     Cookie cookie = getCookie(request);
 
+    Binding binding =
+        new RedirectBinding(
+            systemCrypto,
+            getServiceProvidersMap(),
+            getPresignPlugins(),
+            spMetadata,
+            SUPPORTED_BINDINGS);
+    binding.validator().validateRelayState(relayState, strictRelayState);
+
     try {
       if (samlRequest != null) {
         LogoutRequest logoutRequest =
@@ -1243,6 +1254,14 @@ public class IdpEndpoint implements Idp, SessionHandler {
       @FormParam(RELAY_STATE) final String relayState,
       @Context final HttpServletRequest request)
       throws WSSecurityException, IdpException {
+    Binding binding =
+        new PostBinding(
+            systemCrypto,
+            getServiceProvidersMap(),
+            getPresignPlugins(),
+            spMetadata,
+            SUPPORTED_BINDINGS);
+    binding.validator().validateRelayState(relayState, strictRelayState);
     LogoutState logoutState = getLogoutState(request);
     Cookie cookie = getCookie(request);
     try {
@@ -1488,6 +1507,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   public void setStrictSignature(Boolean strictSignature) {
     this.strictSignature = strictSignature;
+  }
+
+  public void setStrictRelayState(Boolean strictRelayState) {
+    this.strictRelayState = strictRelayState;
   }
 
   public void setExpirationTime(int expirationTime) {

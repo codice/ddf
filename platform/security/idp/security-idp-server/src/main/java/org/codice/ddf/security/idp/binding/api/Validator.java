@@ -43,9 +43,8 @@ public interface Validator {
       throws SimpleSign.SignatureException, ValidationException;
 
   /**
-   * Validates the given relayState.
-   *
    * @param relayState
+   * @param strictRelayState If true, disallows relay states greater than 80 bytes
    */
-  void validateRelayState(String relayState);
+  void validateRelayState(String relayState, boolean strictRelayState);
 }

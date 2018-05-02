@@ -25,6 +25,10 @@
             default="true"
             description="Toggle whether or not to require signed AuthnRequests. The default is 'true'."/>
 
+        <AD name="Limit RelayStates to 80 Bytes" id="strictRelayState" required="false" type="Boolean"
+            default="true"
+            description="Toggle whether or not to restrict the RelayState length to 80 bytes. Default value is 'true'."/>
+
         <AD name="Cookie Expiration Time (minutes)" id="expirationTime" required="true"
             type="Integer"
             default="30"

@@ -95,7 +95,7 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
   }
 
   @Override
-  public void validateRelayState(String relayState) {
+  public void validateRelayState(String relayState, boolean strictRelayState) {
     if (relayState != null) {
       try {
         relayState = URLDecoder.decode(relayState, StandardCharsets.UTF_8.name());
@@ -104,6 +104,6 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
       }
     }
 
-    super.validateRelayState(relayState);
+    super.validateRelayState(relayState, strictRelayState);
   }
 }
