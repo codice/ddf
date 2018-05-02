@@ -1567,7 +1567,6 @@ class SolrClientAdapterSpec extends Specification {
   @Unroll
   def 'test setConnected() when moving from #starting_at and #requesting_or_not to cancel the previous future'() {
     given:
-      def unavailableClient = new UnavailableSolrClient(new Exception('testing'))
       def initializer = Mock(org.codice.solr.client.solrj.SolrClient.Initializer)
       def listener = Mock(org.codice.solr.client.solrj.SolrClient.Listener)
 
