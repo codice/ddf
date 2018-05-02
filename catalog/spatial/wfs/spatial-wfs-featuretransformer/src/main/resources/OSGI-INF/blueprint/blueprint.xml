@@ -29,8 +29,6 @@
     </reference-list>
 
     <bean id="wfsTransformerProcessor" class="org.codice.ddf.spatial.ogc.wfs.featuretransformer.impl.WfsTransformerProcessor">
-        <cm:managed-properties persistent-id="org.codice.ddf.spatial.ogc.wfs.featuretransformer.impl.WfsTransformerProcessor"
-                               update-strategy="container-managed"/>
         <argument ref="wfsTransformers"/>
     </bean>
 
