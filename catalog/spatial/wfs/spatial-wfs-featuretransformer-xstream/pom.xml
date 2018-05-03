@@ -140,7 +140,7 @@
               filter-v_2_0_0-schema,
               geospatial,
               gml-v_3_2_1-schema,
-              jaxb2-basics-runtime,
+              jaxb2-basics-runtime;version="1.11.1",
               ows-v_1_1_0-schema,
               platform-util,
               spatial-ogc-common,
