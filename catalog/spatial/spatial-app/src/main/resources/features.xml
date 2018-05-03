@@ -179,7 +179,9 @@
         <feature>spatial-wps-api</feature>
         <feature>spatial-wfs-feature-transformer-xstream</feature>
         <feature>spatial-wfs-feature-transformer-handlebars</feature>
+        <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v1_1_0</feature>
+        <feature>spatial-wfs-v2_0_0</feature>
     </feature>
 
     <feature name="feature-index" version="${project.version}"
