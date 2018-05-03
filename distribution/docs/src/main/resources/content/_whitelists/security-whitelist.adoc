@@ -24,7 +24,7 @@ In package `ddf.security.common.util`
 * `Security` Deprecated
 * `SecurityProperties`
 * `ServiceComparator`
-* `SortedServiceList`
+* `SortedServiceList` Deprecated
 
 In package `ddf.security.encryption`
 
