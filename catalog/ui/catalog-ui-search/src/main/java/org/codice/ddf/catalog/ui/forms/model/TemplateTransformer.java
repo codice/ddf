@@ -52,11 +52,13 @@ public class TemplateTransformer {
     return new TemplateTransformer().toFormTemplate(metacard) == null;
   }
 
+  /* PUT */
   @Nullable
   public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
     Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
     String title = (String) formTemplate.get("title");
     String description = (String) formTemplate.get("description");
+
     TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
     try {
       VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
@@ -68,25 +70,29 @@ public class TemplateTransformer {
             filter.getDeclaredType().getName());
         return null;
       }
+
+      String id = (String) formTemplate.get("id");
+      QueryTemplateMetacard metacard =
+          (id == null)
+              ? new QueryTemplateMetacard(title, description)
+              : new QueryTemplateMetacard(title, description, id);
+
       FilterWriter writer = new FilterWriter();
       String filterXml = writer.marshal(filter, true);
-      QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
-      metacard.setCreatedDate(new Date());
       metacard.setFormsFilter(filterXml);
+      metacard.setCreatedDate(new Date());
       return metacard;
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
     } catch (FilterProcessingException e) {
       LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
-    } catch (UnsupportedOperationException e) {
-      LOGGER.error(
-          "Could not use filter JSON because it contains unsupported operations - {}",
-          e.getMessage());
     }
     return null;
   }
 
-  /** Convert a query template metacard into the JSON representation of FormTemplate. */
+  /**
+   * Convert a query template metacard into the JSON representation of FormTemplate. Used for GET.
+   */
   @Nullable
   public FormTemplate toFormTemplate(Metacard metacard) {
     if (!QueryTemplateMetacard.isQueryTemplateMetacard(metacard)) {
@@ -141,7 +147,8 @@ public class TemplateTransformer {
   }
 
   @Nullable
-  public Metacard toAttributeGroupMetacard(FieldFilter fieldFilter) {
+  public Metacard toAttributeGroupMetacard(Map<String, Object> resultTemplateMap) {
+    FieldFilter fieldFilter = new FieldFilter(resultTemplateMap);
     AttributeGroupMetacard metacard =
         new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription());
     metacard.setCreatedDate(fieldFilter.getCreated());

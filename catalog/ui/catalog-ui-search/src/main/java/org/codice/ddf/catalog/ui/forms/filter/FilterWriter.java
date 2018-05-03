@@ -44,6 +44,7 @@ public class FilterWriter {
     if (validation) {
       // Can't use XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI
       // Error occurs: javax.xml.XMLConstants cannot be found by catalog-ui-search
+      // See: https://docs.oracle.com/javase/8/docs/api/javax/xml/validation/SchemaFactory.html
       SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
       try {
         marshaller.setSchema(schemaFactory.newSchema(new URL(FILTER_SCHEMA_URL)));

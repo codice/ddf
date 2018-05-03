@@ -18,6 +18,7 @@ import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
@@ -44,8 +45,19 @@ public class CommonTemplate {
     this.id = safeGet(metacard, Core.ID, String.class);
     this.title = safeGet(metacard, Core.TITLE, String.class);
     this.description = safeGet(metacard, Core.DESCRIPTION, String.class);
+
     this.created = safeGet(metacard, Core.CREATED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
+  }
+
+  public CommonTemplate(Map<String, Object> input) {
+    this.id = (String) input.get(Core.ID);
+    this.title = (String) input.get(Core.TITLE);
+    this.description = (String) input.get(Core.DESCRIPTION);
+
+    Long t = (Long) input.get(Core.CREATED);
+    this.created = (t == null) ? new Date() : new Date(t);
+    this.owner = (String) input.get(Core.METACARD_OWNER);
   }
 
   public String getId() {

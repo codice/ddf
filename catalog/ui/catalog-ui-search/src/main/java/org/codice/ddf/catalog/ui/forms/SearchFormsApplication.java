@@ -20,7 +20,7 @@ import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPL
 import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
-import static spark.Spark.post;
+import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
@@ -30,6 +30,7 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.SubjectUtils;
@@ -37,6 +38,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
@@ -48,7 +50,6 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
-import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,9 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final EndpointUtil util;
 
-  private static final String RESP_MSG = "Message";
+  private static final String RESP_MSG = "message";
+
+  private static final String SOMETHING_WENT_WRONG = "Something went wrong";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
@@ -128,31 +131,34 @@ public class SearchFormsApplication implements SparkApplication {
                 .collect(Collectors.toList()),
         MAPPER::toJson);
 
-    post(
+    put(
         "/forms/query",
         APPLICATION_JSON,
         (req, res) ->
-            doCreate(
+            doCreateOrUpdate(
                 res,
                 Stream.of(util.safeGetBody(req))
                     .map(MAPPER::fromJson)
                     .map(Map.class::cast)
                     .map(transformer::toQueryTemplateMetacard)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList())),
+                    .findFirst()
+                    .orElse(null)),
         MAPPER::toJson);
 
-    post(
+    put(
         "/forms/result",
         APPLICATION_JSON,
         (req, res) ->
-            doCreate(
+            doCreateOrUpdate(
                 res,
                 Stream.of(util.safeGetBody(req))
-                    .map(b -> MAPPER.fromJson(b, FieldFilter.class))
+                    .map(MAPPER::fromJson)
+                    .map(Map.class::cast)
                     .map(transformer::toAttributeGroupMetacard)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList())),
+                    .findFirst()
+                    .orElse(null)),
         MAPPER::toJson);
 
     delete(
@@ -184,27 +190,78 @@ public class SearchFormsApplication implements SparkApplication {
         util::getJson);
 
     exception(
+        IllegalArgumentException.class,
+        (e, req, res) -> {
+          LOGGER.error("Template input was not valid", e);
+          res.status(400);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid")));
+        });
+
+    exception(
+        UnsupportedOperationException.class,
+        (e, req, res) -> {
+          LOGGER.error(
+              "Could not use filter JSON because it contains unsupported operations - {}",
+              e.getMessage());
+          res.status(500);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "This operation is not supported")));
+        });
+
+    exception(
+        RuntimeException.class,
+        (e, req, res) -> {
+          LOGGER.error(SOMETHING_WENT_WRONG, e);
+          res.status(500);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, SOMETHING_WENT_WRONG)));
+        });
+
+    exception(
         Exception.class,
-        (exception, request, response) -> {
-          LOGGER.error("Something went wrong", exception);
-          response.status(500);
-          response.header(CONTENT_TYPE, APPLICATION_JSON);
-          response.body(util.getJson(ImmutableMap.of("message", "Something went wrong")));
+        (e, req, res) -> {
+          LOGGER.error(SOMETHING_WENT_WRONG, e);
+          res.status(500);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, SOMETHING_WENT_WRONG)));
         });
   }
 
-  private Map<String, Object> doCreate(Response response, List<Metacard> metacards) {
-    if (metacards.isEmpty()) {
+  private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard) {
+    if (metacard == null) {
       response.status(400);
-      return ImmutableMap.of("message", "Could not create, no valid template specified");
+      return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
     }
+    Set<String> allTemplateIds =
+        Stream.concat(
+                util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
+                    .values()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .filter(Objects::nonNull),
+                util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
+                    .values()
+                    .stream()
+                    .map(Result::getMetacard)
+                    .filter(Objects::nonNull))
+            .map(Metacard::getId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     try {
-      catalogFramework.create(new CreateRequestImpl(metacards));
+      String id = metacard.getId();
+      // The UI should not send an ID during a PUT unless the metacard already exists
+      if (id != null && allTemplateIds.contains(id)) {
+        catalogFramework.update(new UpdateRequestImpl(id, metacard));
+        return ImmutableMap.of(RESP_MSG, "Successfully updated");
+      } else {
+        catalogFramework.create(new CreateRequestImpl(metacard));
+        return ImmutableMap.of(RESP_MSG, "Successfully created");
+      }
     } catch (IngestException | SourceUnavailableException e) {
-      LOGGER.error("Error creating metacard", e);
+      LOGGER.error("Could not complete template request", e);
       response.status(500);
-      return ImmutableMap.of("message", "Could not create");
+      return ImmutableMap.of(RESP_MSG, "Could not complete template request");
     }
-    return ImmutableMap.of("message", "Successfully created");
   }
 }
