@@ -11,8 +11,7 @@
  **/
 var Backbone = require('backbone');
 require('backbone-associations');
-const URL = require('url');
-const QS = require('querystring');
+const URITemplate = require('urijs/src/URITemplate');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function() {
@@ -33,10 +32,11 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     handleQueryId: function() {
         if (this.get('queryId') !== undefined) {
-            const parsedU = URL.parse(this.get('url'));
-            const parsedQs = QS.parse(parsedU.query);
-            parsedQs.queryId = this.get('queryId');
-            this.set('url', `${parsedU.protocol}//${parsedU.host}${parsedU.pathname}?${QS.stringify(parsedQs)}`);
+            const decodedUrl = decodeURIComponent(this.get('url'));
+            const expandedUrl = URITemplate(decodedUrl).expand({
+                queryId: this.get('queryId')
+            });
+            this.set('url', expandedUrl);
         }
     }
 });
