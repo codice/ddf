@@ -30,29 +30,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @deprecated
- * This utility object sorts Services by their service rankings first and then breaks ties with
- * service ids. This was copied over from the catalog core utilities and should be refactored to a
- * common class in the future.
- *
- * <p>
- *
- * <p>
- *
- * <p>It is an implementation of {@link java.util.List} but is backed by a sorted {@link
- * java.util.TreeMap} of <@link ServiceReference, T> where the {@link
- * org.osgi.framework.ServiceReference} objects are what is used to maintain the list order but the
- * objects passed by this {@link java.util.List} to clients are the actual service objects and not
- * the service references.
- *
- * <p>
- *
- * <p>For instance if this was a SortedServiceList<@link AuthenticationHandler> object, then in the
- * internal TreeMap the {@link org.osgi.framework.ServiceReference} objects would be maintained as
- * keys but AuthenticationHandler objects would be what is passed to clients. Therefore, a call to a
- * populated {@link SortedServiceList} list such as <code>list.get(0)</code> would return the first
- * AuthenticationHandler object.
- *
+ * @deprecated This utility object sorts Services by their service rankings first and then breaks
+ *     ties with service ids. This was copied over from the catalog core utilities and should be
+ *     refactored to a common class in the future.
+ *     <p>
+ *     <p>
+ *     <p>It is an implementation of {@link java.util.List} but is backed by a sorted {@link
+ *     java.util.TreeMap} of <@link ServiceReference, T> where the {@link
+ *     org.osgi.framework.ServiceReference} objects are what is used to maintain the list order but
+ *     the objects passed by this {@link java.util.List} to clients are the actual service objects
+ *     and not the service references.
+ *     <p>
+ *     <p>For instance if this was a SortedServiceList<@link AuthenticationHandler> object, then in
+ *     the internal TreeMap the {@link org.osgi.framework.ServiceReference} objects would be
+ *     maintained as keys but AuthenticationHandler objects would be what is passed to clients.
+ *     Therefore, a call to a populated {@link SortedServiceList} list such as <code>list.get(0)
+ *     </code> would return the first AuthenticationHandler object.
  * @param <T>
  */
 @Deprecated
@@ -72,19 +65,17 @@ public class SortedServiceList<T> implements List<T> {
               }));
 
   /**
-   * @deprecated
-   * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
-   * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
-   * upon framework construction.
+   * @deprecated Constructor accepting OSGi bundle context. This constructor is currently invoked by
+   *     the ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's
+   *     blueprint upon framework construction.
    */
   public SortedServiceList() {}
 
   /**
-   * @deprecated
-   * Adds the newly bound OSGi service and its service reference to the internally maintained and
-   * sorted serviceMap. This method is invoked when a plugin is bound (created/installed). This
-   * includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
-   *
+   * @deprecated Adds the newly bound OSGi service and its service reference to the internally
+   *     maintained and sorted serviceMap. This method is invoked when a plugin is bound
+   *     (created/installed). This includes preingest, postingest, prequery, postquery, preresource,
+   *     postresource plugins.
    * @param ref the OSGi service reference
    */
   @Deprecated
@@ -112,11 +103,10 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Removes the newly bound OSGi service and its service reference to the internally maintained and
-   * sorted serviceMap. This method is invoked when a plugin is unbound (removed/uninstalled). This
-   * includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
-   *
+   * @deprecated Removes the newly bound OSGi service and its service reference to the internally
+   *     maintained and sorted serviceMap. This method is invoked when a plugin is unbound
+   *     (removed/uninstalled). This includes preingest, postingest, prequery, postquery,
+   *     preresource, postresource plugins.
    * @param ref the OSGi service reference
    */
   @Deprecated
@@ -132,8 +122,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -142,8 +132,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -152,8 +142,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -162,8 +152,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -172,8 +162,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -260,8 +250,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -270,8 +260,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -280,8 +270,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -290,8 +280,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
@@ -300,8 +290,8 @@ public class SortedServiceList<T> implements List<T> {
   }
 
   /**
-   * @deprecated
-   * Unsupported operation, throws an UnsupportedOperationException since this list is read-only.
+   * @deprecated Unsupported operation, throws an UnsupportedOperationException since this list is
+   *     read-only.
    */
   @Deprecated
   @Override
