@@ -88,10 +88,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
   def failsafeCreator = {
     Mock(SyncFailsafe) {
       with(_ as ScheduledExecutorService) >> Mock(AsyncFailsafe) {
-        onRetry(_) >> { (delegate as MockInvocation).mockObject.instance } // itself
-        onAbort(_) >> { (delegate as MockInvocation).mockObject.instance } // itself
-        onFailure(_) >> { (delegate as MockInvocation).mockObject.instance } // itself
-        onSuccess(_) >> { (delegate as MockInvocation).mockObject.instance } // itself
+        /on.*/(*_) >> { (delegate as MockInvocation).mockObject.instance } // itself
         get(_) >> Stub(FailsafeFuture)
         run(_) >> Stub(FailsafeFuture)
       }

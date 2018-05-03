@@ -28,6 +28,8 @@ import org.apache.solr.common.util.NamedList
 import org.apache.zookeeper.KeeperException
 import org.codice.spock.extension.ClearInterruptions
 import org.codice.spock.extension.Supplemental
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Timeout
 import spock.lang.Unroll
@@ -50,6 +52,14 @@ class SolrCloudClientFactorySpec extends Specification {
   static final int MAX_RETRIES = 2
 
   static final int AVAILABLE_TIMEOUT_IN_SECS = 25
+
+  @Rule
+  TemporaryFolder tempFolder = new TemporaryFolder();
+
+  def setup() {
+    tempFolder.create();
+    ConfigurationStore.instance.dataDirectoryPath = tempFolder.root.absolutePath
+  }
 
   def cleanup() {
     // reset the config store
@@ -243,9 +253,15 @@ class SolrCloudClientFactorySpec extends Specification {
   @Unroll
   def 'test creating a Solr cloud client when configuration is uploaded and the collection already exists and system property solr.data.dir is #data_dir_is'() {
     given:
-      System.setPropertyIfNotNull("solr.data.dir", solr_data_dir)
+      if (solr_data_dir) {
+        solr_data_dir = new File(tempFolder.root, solr_data_dir).absolutePath
+        System.setProperty("solr.data.dir", solr_data_dir)
+      } else {
+        System.clearProperty("solr.data.dir")
+      }
 
     and:
+      def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
       def zkClient = Mock(SolrZkClient)
       def listResponse = Mock(NamedList)
       def cloudClient = Mock(CloudSolrClient) {
@@ -284,12 +300,12 @@ class SolrCloudClientFactorySpec extends Specification {
       0 * cloudClient.close()
 
     and: "the config store is initialized and its data directory was or wasn't updated"
-      ConfigurationStore.instance.dataDirectoryPath == data_dir
+      ConfigurationStore.instance.dataDirectoryPath == data_dir_updated ? solr_data_dir : initialDataDir
 
     where:
-      data_dir_is   || solr_data_dir || data_dir
-      'defined'     || DATA_DIR      || DATA_DIR
-      'not defined' || null          || null
+      data_dir_is   || solr_data_dir || data_dir_updated
+      'defined'     || DATA_DIR      || true
+      'not defined' || null          || false
   }
 
   // @ClearInterruptions because Failsafe is affected whenever it catches an InterruptedException
