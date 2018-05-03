@@ -179,15 +179,22 @@ module.exports = Marionette.LayoutView.extend({
                 }.bind(this));
         }
     },
+    getFilterTreeAsTemplate: function() {
+        let filterTree = cql.simplify(this.queryContent.currentView.getFilterTree());
+        let filterTemplate = {
+            title: this.model.get('title'),
+            description: "",
+            filterTemplate: filterTree
+        }
+        return filterTemplate;
+    },
     saveTemplateToBackend: function() {
         $.ajax({
             url: '/search/catalog/internal/forms/query',
-            data: JSON.stringify(this.queryContent.currentView.getFilterTree()),
+            data: JSON.stringify(this.getFilterTreeAsTemplate()),
             method: 'POST',
             contentType: 'application/json',
             success: () => {
-                //TODO Seriously get rid of this wreqr
-                //wreqr.vent.trigger('search-form:create', this.queryContent.currentView.getFilterTree());
                 announcement.announce({
                     title: 'Created!',
                     message: 'New search form has been created.',
