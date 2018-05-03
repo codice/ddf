@@ -143,17 +143,18 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleEdit: function() {
-            debugger;
-            user.getQuerySettings().set({
-
+            this.options.queryModel.set({
+                type: 'new-form',
+                title: this.model.get('name'),
+                filterTree: this.model.get('filterTemplate'),
+                modelId: this.model.get('id'),
+                accessGroups: this.model.get('accessGroups'),
+                accessIndividuals: this.model.get('accessIndividuals')
             });
-            //Do the same thing as when you open it up for use as a form but say "formBuilder = true"
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+            this.model.trigger('change:type');
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        },
-        removeCachedTemplate: function(id){
-            //wreqr.vent.trigger("deleteTemplateById", id);
-
         }
     });

@@ -74,6 +74,11 @@ module.exports = Marionette.LayoutView.extend({
         this.reshow();
         this.showTitle();
     },
+    showTitle: function () {
+        this.queryTitle.show(new QueryTitle({
+            model: this.model
+        }));
+    },
     showFormBuilder: function () {
         this.queryContent.show(new QueryAdvanced({
             model: this.model,
@@ -83,11 +88,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
-            model: this.model
-        }));
-    },
-    showTitle: function () {
-        this.queryTitle.show(new QueryTitle({
             model: this.model
         }));
     },
@@ -103,7 +103,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     showAdvanced: function () {
         this.queryContent.show(new QueryAdvanced({
-            model: this.model
+            model: this.model,
+            isForm: false,
+            isFormBuilder: false
         }));
     },
     showCustom: function () {
@@ -125,13 +127,16 @@ module.exports = Marionette.LayoutView.extend({
         this.onBeforeShow();
     },
     save: function () {
+        //A new form is not necessarily a finished query, so skip saving the rest of the normal stuff
+        if (this.$el.hasClass('is-form-builder')) {
+            this.saveTemplateToBackend();
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+            return;
+        }
         this.queryContent.currentView.save();
         this.queryTitle.currentView.save();
         if (store.getCurrentQueries().get(this.model) === undefined) {
             store.getCurrentQueries().add(this.model);
-        }
-        if (this.$el.hasClass('is-form-builder')) {
-            this.saveTemplateToBackend();
         }
         this.cancel();
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());

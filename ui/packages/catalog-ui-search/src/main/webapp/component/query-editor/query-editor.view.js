@@ -129,6 +129,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     reshow: function() {
         switch (this.model.get('type')) {
+            case 'new-form':
+                this.showFormBuilder();
+                break;
             case 'text':
                 this.showText();
                 break;
@@ -153,6 +156,13 @@ module.exports = Marionette.LayoutView.extend({
             model: this.model
         }));
     },
+    showFormBuilder: function () {
+        this.queryContent.show(new QueryAdvanced({
+            model: this.model,
+            isForm: true,
+            isFormBuilder: true
+        }));
+    },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
             model: this.model
@@ -164,16 +174,10 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
-        debugger;
-        let currTemplate = user.getQuerySettings().get('template');
-        this.model.set({
-            title: currTemplate !== undefined ? currTemplate.name : 'Search Form'
-        });
         this.queryContent.show(new QueryAdvanced({
             model: this.model,
             isForm: true,
-            isFormBuilder: false,
-            filterTree: user.getQuerySettings().get('filterTree')
+            isFormBuilder: false
         }));
     },
     handleEditOnShow: function(){

@@ -56,7 +56,7 @@ module.exports = Marionette.LayoutView.extend({
         }));
 
         if (this.options.isForm === true && this.model.get('filterTree') !== undefined) {
-            this.setCqlFromFilter(this.model.get('filterTree').filterTemplate);
+            this.queryAdvanced.currentView.deserialize(this.model.get('filterTree'));
         }
         else if (this.model.get('cql')) {
             this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
@@ -89,7 +89,7 @@ module.exports = Marionette.LayoutView.extend({
         this.querySettings.currentView.saveToModel();
 
         this.model.set({
-            cql: this.queryAdvanced.currentView.transformToCql(),
+            cql: this.options.isFormBuilder === false ? this.queryAdvanced.currentView.transformToCql() : "",
             filterTree: this.queryAdvanced.currentView.getFilters()
         });
     },
@@ -98,13 +98,5 @@ module.exports = Marionette.LayoutView.extend({
     },
     getFilterTree: function() {
         return this.queryAdvanced.currentView.getFilters();
-    },
-    setCqlFromFilter: function(filterTemplate) {
-        this.queryAdvanced.currentView.model.set('operator', filterTemplate.type);
-        this.queryAdvanced.currentView.setFilters(filterTemplate.filters);
-        var filter = this.queryAdvanced.currentView.transformToCql();
-        this.model.set({
-            cql: filter
-        });
     }
 });

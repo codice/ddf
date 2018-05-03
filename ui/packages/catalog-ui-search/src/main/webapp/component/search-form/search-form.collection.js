@@ -13,14 +13,14 @@
  *
  **/
  /*global require*/
- var _ = require('underscore');
- var $ = require('jquery');
- var Backbone = require('backbone');
- var SearchForm = require('./search-form');
- var Common = require('js/Common');
- let user = require('component/singletons/user-instance');
+const _ = require('underscore');
+const $ = require('jquery');
+const Backbone = require('backbone');
+const SearchForm = require('./search-form');
+const Common = require('js/Common');
+const user = require('component/singletons/user-instance');
 
- const fixFilter = function(filter) {
+const fixFilter = function(filter) {
     if (filter.filters) {
         filter.filters.forEach(fixFilter);
     } else {
@@ -29,23 +29,28 @@
     }
  }
 
- const fixTemplates = function(templates) {
+const fixTemplates = function(templates) {
     templates.forEach((template) => {
         return fixFilter(template.filterTemplate);
     });
  };
- 
- let customTemplates = [];
- let templatePromise = $.ajax({
-    type: 'GET',
-    context: this,
-    url: '/search/catalog/internal/forms/query',
-    contentType: 'application/json',
-    success: function (data) {
-        fixTemplates(data);
-        customTemplates = data;
-    }
- });
+
+let cachedTemplates = [];
+
+const templatePromiseSupplier = () => $.ajax({
+        type: 'GET',
+        context: this,
+        url: '/search/catalog/internal/forms/query',
+        contentType: 'application/json',
+        success: function(data) {
+            fixTemplates(data);
+            data = data.filter(template => !cachedTemplates.includes(template));
+            cachedTemplates = cachedTemplates.concat(data);
+        }
+    });
+
+let bootstrapPromise = templatePromiseSupplier();
+let recurringPromise = { then: () => ({}) };
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
@@ -70,22 +75,9 @@ module.exports = Backbone.AssociatedModel.extend({
         })
     }],
     addCustomForms: function() {
-        // let newForms = [];
-        // if () {
-        //     $.ajax({
-        //         type: 'GET',
-        //         context: this,
-        //         url: '/search/catalog/internal/forms/query',
-        //         contentType: 'application/json',
-        //         success: function(data) {
-        //             fixTemplates(data);
-        //             nonFetchedTemplates = data;
-        //         }
-        //     });
-        // }
-        templatePromise.then(function() {
+        bootstrapPromise.then(function() {
             if (!this.isDestroyed) {
-                $.each(customTemplates, function(index, value) {
+                $.each(cachedTemplates, function(index, value) {
                     var utcSeconds = value.created / 1000;
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
@@ -122,7 +114,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.set('doneLoading', true);
     },
     deleteCachedTemplateById: function(id) {
-        customTemplates =  _.filter(customTemplates, function(template) {
+        cachedTemplates =  _.filter(cachedTemplates, function(template) {
             return template.id !== id
         });
     }

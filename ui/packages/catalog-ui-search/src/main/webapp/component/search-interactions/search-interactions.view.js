@@ -37,8 +37,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     events: {
         'click > .interaction-reset': 'triggerReset',
-        'click > .interaction-type-advanced': 'triggerTypeAdvanced',
-        'click > .interaction-form': 'triggerCloseDropdown'
+        'click > .interaction-type-advanced': 'triggerTypeAdvanced'
     },
     onRender: function(){
         this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
@@ -85,5 +84,6 @@ module.exports = Marionette.LayoutView.extend({
         this.model.set('type', 'advanced');
         user.getQuerySettings().set('type', 'advanced');
         user.savePreferences();
+        this.triggerCloseDropdown();
     }
 });

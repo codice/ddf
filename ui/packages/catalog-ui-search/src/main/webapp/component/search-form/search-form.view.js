@@ -31,6 +31,10 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         workspaceActions: '.choice-actions'
     },
+    initialize: function() {
+        //TODO Fix this hack
+        this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
+    },
     onRender: function() {
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text' || this.model.get('type') === 'new-form') {
             this.$el.addClass('is-static');
@@ -40,6 +44,7 @@ module.exports = Marionette.LayoutView.extend({
                 model: new DropdownModel(),
                 modelForComponent: this.model,
                 collectionWrapperModel: this.options.collectionWrapperModel,
+                queryModel: this.options.queryModel,
                 dropdownCompanionBehaviors: {
                     navigation: {}
                 }
@@ -49,7 +54,13 @@ module.exports = Marionette.LayoutView.extend({
     changeView: function() {
         switch(this.model.get('type')) {
             case 'new-form':
-                this.options.queryModel.set('type', 'new-form');
+                this.options.queryModel.set({
+                    type: 'new-form',
+                    title: this.model.get('name'),
+                    filterTree: this.model.get('filterTemplate'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals')
+                });
                 user.getQuerySettings().set('type', 'new-form');
                 break;
             case 'basic':
@@ -65,26 +76,15 @@ module.exports = Marionette.LayoutView.extend({
                 this.options.queryModel.set({
                     type: 'custom',
                     title: this.model.get('name'),
-                    filterTree: this.model.toJSON(),
+                    filterTree: this.model.get('filterTemplate'),
                     modelId: this.model.get('id'),
                     accessGroups: this.model.get('accessGroups'),
                     accessIndividuals: this.model.get('accessIndividuals')
                 });
-
-                // user.getQuerySettings().set({
-                //     type: 'custom',
-                //     title: this.model.get('name'),
-                //     filterTree: this.model.toJSON()
-                // });
-
-                this.options.queryModel.set({
-                    type: 'custom',
-                    title: this.model.get('name')
-                });
-
-                if (oldType === 'custom') {
+                if (oldType  === 'custom') {
                     this.options.queryModel.trigger('change:type');
                 }
+                user.getQuerySettings().set('type', 'custom');
 
                 break;
         }

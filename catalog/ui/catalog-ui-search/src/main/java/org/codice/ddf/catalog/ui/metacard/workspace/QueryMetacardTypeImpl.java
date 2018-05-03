@@ -30,6 +30,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String QUERY_CQL = "cql";
 
+  public static final String QUERY_FILTER_TREE = "filterTree";
+
   public static final String QUERY_SOURCES = "sources";
 
   public static final String QUERY_ENTERPRISE = "enterprise";
@@ -56,6 +58,15 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
     QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_CQL,
+            false /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.STRING_TYPE));
+
+    QUERY_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            QUERY_FILTER_TREE,
             false /* indexed */,
             true /* stored */,
             false /* tokenized */,

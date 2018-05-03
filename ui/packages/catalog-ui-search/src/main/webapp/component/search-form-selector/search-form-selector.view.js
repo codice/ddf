@@ -29,7 +29,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function () {
         this.tabsContent.show(new SearchFormsView({
-            model: this.model
+            queryModel: this.model
         }));
     }
 });
