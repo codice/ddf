@@ -25,6 +25,9 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransfo
 /**
  * This partial implementation of {@link WorkspaceTransformation} is intended to transform embedded
  * metacard data in XML strings into JSON-style data maps.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface EmbeddedMetacardsHandler extends WorkspaceTransformation<List, List> {
   @Override

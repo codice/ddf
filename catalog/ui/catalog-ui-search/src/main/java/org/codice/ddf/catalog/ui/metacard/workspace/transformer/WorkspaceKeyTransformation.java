@@ -18,6 +18,9 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
  * of value transformation related interface methods that accept any Objects and return the same
  * values. Implementations of this interface are therefore only able to change the key between a
  * metacard attribute and a JSON-style key-value pair; the value remains consistent.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
  */
 public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Object, Object> {
   @Override

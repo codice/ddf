@@ -20,6 +20,9 @@ import javax.annotation.Nullable;
  * Implementations of this interface can be used to transform JSON-style key-value pairs into
  * metacard attributes and vice versa, especially from and into workspace metacards.
  *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
+ *
  * @param <M> the expected type of metacard values handled by this {@link WorkspaceTransformation}
  * @param <J> the expected type of JSON-style key-value pair values handled by this {@link
  *     WorkspaceTransformation}

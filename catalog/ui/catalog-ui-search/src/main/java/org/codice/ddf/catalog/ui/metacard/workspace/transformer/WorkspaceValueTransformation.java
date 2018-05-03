@@ -19,6 +19,9 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
  * therefore only able to change the value between a metacard attribute and a JSON-style key-value
  * pair; the key remains consistent.
  *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
+ *
  * @param <M> See {@link WorkspaceTransformation}.
  * @param <J> See {@link WorkspaceTransformation}.
  */
