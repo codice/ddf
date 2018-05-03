@@ -40,11 +40,12 @@ module.exports =  Marionette.ItemView.extend({
         },
         ui: {},
         initialize: function() {
-            this.checkIfDefaultSearchForm();
             this.listenTo(user.getQuerySettings(), 'change', this.checkIfDefaultSearchForm);
         },
         onRender: function() {
             this.checkIfSubscribed();
+            this.checkIfDefaultSearchForm();
+            this.isSystemTemplate();
         },
         checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
@@ -64,6 +65,8 @@ module.exports =  Marionette.ItemView.extend({
                         let loadingview = new LoadingView();
                             this.model.url = '/search/catalog/internal/forms/' + this.model.id;
                             this.model.destroy({
+                                data: JSON.stringify({'metacard.owner': [this.model.get('createdBy')]}),
+                                contentType: 'application/json',
                                 wait: true,
                                 error: function(model, xhr, options){
                                     announcement.announce({
@@ -133,6 +136,9 @@ module.exports =  Marionette.ItemView.extend({
                     'accessGroups': this.model.get('accessGroups')
                 }
             }));
+        },
+        isSystemTemplate: function() {
+            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());

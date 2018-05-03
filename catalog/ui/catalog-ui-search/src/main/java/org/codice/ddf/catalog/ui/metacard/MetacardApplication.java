@@ -18,6 +18,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 import static org.codice.ddf.catalog.ui.security.ShareableMetacardImpl.canShare;
 import static spark.Spark.after;
 import static spark.Spark.delete;
@@ -490,7 +491,7 @@ public class MetacardApplication implements SparkApplication {
 
           Metacard metacard = util.getMetacard(id);
 
-          if (canShare(metacard)) {
+          if (canShare(metacard) && !isSystemTemplate(metacard)) {
             metacard.setAttribute(
                 new AttributeImpl(
                     SecurityAttributes.ACCESS_INDIVIDUALS,
@@ -506,7 +507,8 @@ public class MetacardApplication implements SparkApplication {
 
           } else {
             res.status(401);
-            return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "Could not share this item.");
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "Could not share or update this item.");
           }
         });
 
@@ -887,6 +889,14 @@ public class MetacardApplication implements SparkApplication {
     }
     LOGGER.trace("Successfully reverted metacard content for [{}]", id);
     revertMetacard(versionMetacard, id, alreadyCreated);
+  }
+
+  private boolean isSystemTemplate(Metacard metacard) {
+    return metacard
+        .getAttribute(Core.METACARD_OWNER)
+        .getValue()
+        .toString()
+        .contains(SYSTEM_TEMPLATE);
   }
 
   private void trySleep(long millis) {

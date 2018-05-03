@@ -23,11 +23,16 @@ import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.security.SubjectUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -56,6 +61,8 @@ public class SearchFormsApplication implements SparkApplication {
   private final TemplateTransformer transformer;
 
   private final EndpointUtil util;
+
+  private static final String RESP_MSG = "Message";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
@@ -113,13 +120,26 @@ public class SearchFormsApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
+
+          Subject subject = SecurityUtils.getSubject();
+          String currentUser = SubjectUtils.getName(subject);
+
+          Map<String, Object> originalMetacardOwner =
+              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+
+          if (!originalMetacardOwner.get(Core.METACARD_OWNER).equals(currentUser)) {
+            res.status(500);
+            LOGGER.debug("Failed to Delete Form {}", id);
+            return ImmutableMap.of(RESP_MSG, "Failed to delete.");
+          }
+
           DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
           if (!deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
             LOGGER.debug("Failed to Delete Form {}", id);
-            return ImmutableMap.of("message", "Failed to delete.");
+            return ImmutableMap.of(RESP_MSG, "Failed to delete.");
           }
-          return ImmutableMap.of("message", "Successfully deleted.");
+          return ImmutableMap.of(RESP_MSG, "Successfully deleted.");
         },
         util::getJson);
   }
