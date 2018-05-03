@@ -53,8 +53,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            <!--!ddf.catalog.data.impl*,-->
-                            <!--!ddf.catalog.util.impl*,-->
+                            !ddf.catalog.data.impl*,
+                            !ddf.catalog.util.impl*,
                             *
                         </Import-Package>
                         <Embed-Dependency>
