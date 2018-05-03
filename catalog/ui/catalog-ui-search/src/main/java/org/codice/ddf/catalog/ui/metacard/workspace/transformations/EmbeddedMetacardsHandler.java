@@ -41,7 +41,17 @@ public interface EmbeddedMetacardsHandler extends WorkspaceTransformation<List, 
   }
 
   @Override
-  default List<String> metacardValueToJsonValue(
+  default List<Map<String, Object>> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, List metacardXMLStrings) {
+    return ((List<String>) metacardXMLStrings)
+        .stream()
+        .map(transformer::xmlToMetacard)
+        .map(transformer::transform)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  default List<String> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, List metacardJsonData) {
     return ((List<Map<String, Object>>) metacardJsonData)
         .stream()
@@ -52,16 +62,6 @@ public interface EmbeddedMetacardsHandler extends WorkspaceTransformation<List, 
               return metacard;
             })
         .map(transformer::metacardToXml)
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  default List<Map<String, Object>> jsonValueToMetacardValue(
-      WorkspaceTransformer transformer, List metacardXMLStrings) {
-    return ((List<String>) metacardXMLStrings)
-        .stream()
-        .map(transformer::xmlToMetacard)
-        .map(transformer::transform)
         .collect(Collectors.toList());
   }
 

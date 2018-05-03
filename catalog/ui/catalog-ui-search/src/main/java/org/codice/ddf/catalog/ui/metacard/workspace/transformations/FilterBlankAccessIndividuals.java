@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
 import ddf.catalog.data.types.Security;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +41,7 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
     return ((List<String>) metacardValue)
         .stream()
         .filter(StringUtils::isNotBlank)
-        .collect(Collectors.toCollection(ArrayList::new));
+        .collect(Collectors.toList());
   }
 
   @Override

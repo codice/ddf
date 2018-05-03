@@ -20,11 +20,11 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTran
 public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
-    return WorkspaceAttributes.WORKSPACE_METACARDS;
+    return Associations.RELATED;
   }
 
   @Override
   public String getJsonKey() {
-    return Associations.RELATED;
+    return WorkspaceAttributes.WORKSPACE_METACARDS;
   }
 }

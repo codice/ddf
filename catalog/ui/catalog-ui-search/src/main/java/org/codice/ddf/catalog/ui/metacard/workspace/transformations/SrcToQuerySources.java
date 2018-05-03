@@ -19,11 +19,11 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTran
 public class SrcToQuerySources implements WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
-    return "src";
+    return QueryMetacardTypeImpl.QUERY_SOURCES;
   }
 
   @Override
   public String getJsonKey() {
-    return QueryMetacardTypeImpl.QUERY_SOURCES;
+    return "src";
   }
 }
