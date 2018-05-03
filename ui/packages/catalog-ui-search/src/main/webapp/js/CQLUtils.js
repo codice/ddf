@@ -116,7 +116,7 @@ define([
                     };
                 default:
                     return {
-                        type: '',
+                        type: 'INTERSECTS',
                         property: property,
                         value: ''
                     };
