@@ -16,7 +16,7 @@ If the ${branding} will be running memory-intensive applications, consider incre
 ${home_directory}/bin/setenv
 Update the JAVA_OPTS -Xmx value
 ${home_directory}/bin/setenv-wrapper.conf
-Update the wrapper.java.maxmemory value
+Update the wrapper.java.additional -Xmx value
 ----
 
 .Setenv Scripts: Windows
@@ -24,7 +24,7 @@ Update the wrapper.java.maxmemory value
 ${home_directory}/bin/setenv.bat
 Update the JAVA_OPTS -Xmx value
 ${home_directory}/bin/setenv-windows-wrapper.conf
-Update the wrapper.java.maxmemory value
+Update the wrapper.java.additional -Xmx value
 ----
 ====
 
