@@ -77,6 +77,7 @@ import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
 import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
 import org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures;
 import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
+import org.codice.ddf.test.common.ComponentTestRunner;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
@@ -91,12 +92,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.ops4j.io.FileUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.tinybundles.core.TinyBundles;
 
-@RunWith(PaxExam.class)
+@RunWith(ComponentTestRunner.class)
 @ExamReactorStrategy(PerClass.class)
 public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
@@ -260,8 +260,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
   private List<BundleInfo> testDependencies() {
     return Arrays.asList(
-        new BundleInfo("org.apache.commons", "commons-collections4"),
-        new BundleInfo("org.apache.commons", "commons-lang3"),
         new BundleInfo("ddf.lib", "test-common"),
         new BundleInfo("ddf.lib", "common-system"),
         new BundleInfo("org.awaitility", "awaitility"),
@@ -293,6 +291,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("commons-lang", "commons-lang"),
         new BundleInfo("commons-io", "commons-io"),
         new BundleInfo("commons-collections", "commons-collections"),
+        new BundleInfo("org.apache.commons", "commons-collections4"),
         new BundleInfo("commons-configuration", "commons-configuration"),
         new BundleInfo("com.google.guava", "guava"),
         new BundleInfo("org.apache.tika", "tika-core"),
@@ -316,7 +315,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.mime.core", "mime-core-api"),
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
         new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
-        new BundleInfo("ddf.catalog.core", "catalog-core-directorymonitor"),
         new BundleInfo("ddf.thirdparty", "restito"),
         new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"));
   }
