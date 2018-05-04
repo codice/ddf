@@ -45,47 +45,6 @@ import org.slf4j.LoggerFactory;
 public class TemplateTransformer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateTransformer.class);
 
-  //  private Predicate<Metacard> isOwner(Subject subject) {
-  //    return metacard ->
-  //        metacard
-  //            .getAttribute(Core.METACARD_OWNER)
-  //            .getValue()
-  //            .toString()
-  //            .equals(getSubjectEmail(subject));
-  //  }
-  //
-  //  private Predicate<Metacard> isSystem(Subject subject) {
-  //    return metacard ->
-  //        metacard
-  //            .getAttribute(Core.METACARD_OWNER)
-  //            .getValue()
-  //            .toString()
-  //            .equals(SYSTEM_TEMPLATE_ALIAS);
-  //  }
-  //
-  //  private Predicate<requesterHasAccess>(Subject subject, Predicate<Metacard> metacard) {
-  //    return true;
-  //  }
-  //
-  //  @SuppressWarnings("unchecked")
-  //  private String getSubjectEmail(Subject subject) {
-  //    return Optional.ofNullable(subject)
-  //        .map(SubjectUtils::getEmailAddress)
-  //        .orElseThrow(() -> new NullPointerException("Subject doesn't exist"));
-  //  }
-  //
-  //  /** Retrieve map of user groups */
-  //  private Map<String, List<String>> getSubjectPermissions() {
-  //    return new ImmutableMap.Builder<String, List<String>>()
-  //            SecurityUtils.getSubject().getPrincipals().
-  //
-  // .put(SecurityAttributes.ACCESS_GROUPS,SubjectUtils.getAttribute(SecurityUtils.getSubject(),
-  // SecurityAttributes.ACCESS_GROUPS))
-  //
-  // .put(SecurityAttributes.ACCESS_INDIVIDUALS,SubjectUtils.getAttribute(SecurityUtils.getSubject(), SecurityAttributes.ACCESS_INDIVIDUALS))
-  //            .build();
-  //  }
-
   public static boolean invalidFormTemplate(Metacard metacard) {
     return new TemplateTransformer().toFormTemplate(metacard) == null;
   }
