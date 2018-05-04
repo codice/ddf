@@ -80,6 +80,7 @@ public class TemplateTransformer {
       FilterWriter writer = new FilterWriter();
       String filterXml = writer.marshal(filter, true);
       metacard.setFormsFilter(filterXml);
+
       metacard.setCreatedDate(new Date());
       return metacard;
     } catch (JAXBException e) {
@@ -149,8 +150,13 @@ public class TemplateTransformer {
   @Nullable
   public Metacard toAttributeGroupMetacard(Map<String, Object> resultTemplateMap) {
     FieldFilter fieldFilter = new FieldFilter(resultTemplateMap);
+    String id = fieldFilter.getId();
+
     AttributeGroupMetacard metacard =
-        new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription());
+        (id == null)
+            ? new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription())
+            : new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription(), id);
+
     metacard.setCreatedDate(fieldFilter.getCreated());
     metacard.setGroupDescriptors(fieldFilter.getDescriptors());
     return metacard;
