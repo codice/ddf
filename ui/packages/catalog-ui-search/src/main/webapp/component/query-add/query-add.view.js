@@ -194,7 +194,7 @@ module.exports = Marionette.LayoutView.extend({
         $.ajax({
             url: '/search/catalog/internal/forms/query',
             data: JSON.stringify(this.getFilterTreeAsTemplate()),
-            method: 'POST',
+            method: 'PUT',
             contentType: 'application/json',
         })
         .done((data, textStatus, jqxhr) => {
