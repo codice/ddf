@@ -111,7 +111,7 @@ public class SearchFormsApplication implements SparkApplication {
                 .stream()
                 .map(Result::getMetacard)
                 .filter(Objects::nonNull)
-                .map(transformer::toFormTemplate)
+                .map(TemplateTransformer::toFormTemplate)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),

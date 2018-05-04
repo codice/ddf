@@ -170,7 +170,7 @@ public class XmlModelBuilderTest {
       this.xPath = XPathFactory.newInstance().newXPath();
       this.factory = DocumentBuilderFactory.newInstance();
       this.builder = this.factory.newDocumentBuilder();
-      this.filterWriter = new FilterWriter();
+      this.filterWriter = new FilterWriter(false);
 
       String rawXml = filterWriter.marshal(element);
       try (InputStream inputStream = new ByteArrayInputStream(rawXml.getBytes())) {

@@ -48,8 +48,14 @@ import org.slf4j.LoggerFactory;
 public class TemplateTransformer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateTransformer.class);
 
+  private final FilterWriter writer;
+
+  public TemplateTransformer(FilterWriter writer) {
+    this.writer = writer;
+  }
+
   public static boolean invalidFormTemplate(Metacard metacard) {
-    return new TemplateTransformer().toFormTemplate(metacard) == null;
+    return TemplateTransformer.toFormTemplate(metacard) == null;
   }
 
   /* PUT */
@@ -77,8 +83,7 @@ public class TemplateTransformer {
               ? new QueryTemplateMetacard(title, description)
               : new QueryTemplateMetacard(title, description, id);
 
-      FilterWriter writer = new FilterWriter();
-      String filterXml = writer.marshal(filter, true);
+      String filterXml = writer.marshal(filter);
       metacard.setFormsFilter(filterXml);
 
       metacard.setCreatedDate(new Date());
@@ -95,7 +100,7 @@ public class TemplateTransformer {
    * Convert a query template metacard into the JSON representation of FormTemplate. Used for GET.
    */
   @Nullable
-  public FormTemplate toFormTemplate(Metacard metacard) {
+  public static FormTemplate toFormTemplate(Metacard metacard) {
     if (!QueryTemplateMetacard.isQueryTemplateMetacard(metacard)) {
       LOGGER.debug("Metacard {} was not a query template metacard", metacard.getId());
       return null;
