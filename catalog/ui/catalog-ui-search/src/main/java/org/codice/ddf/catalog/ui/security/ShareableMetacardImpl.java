@@ -134,7 +134,7 @@ public class ShareableMetacardImpl extends MetacardImpl {
    * @return a {@link ShareableMetacardImpl} with all the attributes of the original.
    */
   @VisibleForTesting
-  static ShareableMetacardImpl clone(Metacard metacard) {
+  public static ShareableMetacardImpl clone(Metacard metacard) {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
     metacard
         .getMetacardType()
