@@ -11,6 +11,7 @@
  **/
 var Backbone = require('backbone');
 require('backbone-associations');
+const URITemplate = require('urijs/src/URITemplate');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function() {
@@ -18,10 +19,24 @@ module.exports = Backbone.AssociatedModel.extend({
             url: undefined,
             title: undefined,
             description: undefined,
-            id: undefined
+            id: undefined,
+            queryId: undefined
         };
     },
     getExportType: function() {
         return this.get('title').replace(/^Export( as)?\s+\b/, '');
+    },
+    initialize: function() {
+        this.handleQueryId();
+        this.listenTo(this, 'change:queryId', this.handleQueryId);
+    },
+    handleQueryId: function() {
+        if (this.get('queryId') !== undefined) {
+            const decodedUrl = decodeURIComponent(this.get('url'));
+            const expandedUrl = URITemplate(decodedUrl).expand({
+                queryId: this.get('queryId')
+            });
+            this.set('url', expandedUrl);
+        }
     }
 });

@@ -72,6 +72,7 @@
     "spectrum-colorpicker": "1.8.0",
     "terraformer": "1.0.5",
     "terraformer-wkt-parser": "1.1.0",
+    "urijs": "1.19.1",
     "usng.js": "https://github.com/codice/usng.js#b756a1dddd6292d7af44db363131d848a87a2be2",
     "uuid": "2.0.2",
     "vis": "4.15.0",

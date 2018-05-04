@@ -189,6 +189,7 @@ module.exports = Backbone.AssociatedModel.extend({
                 result.metacard.color = color;
                 humanizeResourceSize(result);
                 handleResultFormFields(result, selectedResultTemplate);
+                result.actions.forEach((action) => action.queryId = queryId);
 
                 var thumbnailAction = _.findWhere(result.actions, {
                     id: 'catalog.data.metacard.thumbnail'
