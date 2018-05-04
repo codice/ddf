@@ -86,7 +86,7 @@ module.exports = Backbone.AssociatedModel.extend({
                         id: value.id,
                         name: value.title,
                         type: 'custom',
-                        filterTemplate: value.filterTemplate,
+                        filterTemplate: JSON.stringify(value.filterTemplate),
                         accessIndividuals: value.accessIndividuals,
                         accessGroups: value.accessGroups,
                         createdBy: value.creator

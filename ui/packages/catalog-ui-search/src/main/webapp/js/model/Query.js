@@ -74,7 +74,7 @@ define([
             defaults: function () {
                 return _merge({
                     cql: "anyText ILIKE ''",
-                    filterTree: {"property":"anyText","value":"","type":"ILIKE"},
+                    filterTree: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
                     title: 'Search Name',
                     excludeUnnecessaryAttributes: true,
                     count: properties.resultCount,

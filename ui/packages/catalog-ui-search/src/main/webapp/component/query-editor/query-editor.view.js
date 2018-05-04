@@ -129,9 +129,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     reshow: function() {
         switch (this.model.get('type')) {
-            case 'new-form':
-                this.showFormBuilder();
-                break;
             case 'text':
                 this.showText();
                 break;
@@ -154,13 +151,6 @@ module.exports = Marionette.LayoutView.extend({
     showTitle: function() {
         this.queryTitle.show(new QueryTitle({
             model: this.model
-        }));
-    },
-    showFormBuilder: function () {
-        this.queryContent.show(new QueryAdvanced({
-            model: this.model,
-            isForm: true,
-            isFormBuilder: true
         }));
     },
     showText: function () {

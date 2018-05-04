@@ -196,18 +196,19 @@ module.exports = Marionette.LayoutView.extend({
             data: JSON.stringify(this.getFilterTreeAsTemplate()),
             method: 'PUT',
             contentType: 'application/json',
+            customErrorHandling: true
         })
         .done((data, textStatus, jqxhr) => {
             announcement.announce({
-                title: 'Created!',
-                message: 'New search form has been created.',
+                title: 'Saved!',
+                message: 'Search form has been saved.',
                 type: 'success'
             });
         })
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({
                 title: 'Error!',
-                message: 'New search form failed to be created.',
+                message: 'Search form failed to be saved.',
                 type: 'error'
             });
         })

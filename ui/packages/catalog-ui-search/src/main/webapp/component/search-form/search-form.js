@@ -20,7 +20,7 @@
         createdOn: "",
         type: "custom",
         id: undefined,
-        filterTemplate: {"property":"anyText","value":"","type":"ILIKE"},
+        filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
         accessIndividuals: [],
         accessGroups: []
     }
