@@ -17,7 +17,9 @@
     defaults: {
         name: "A Search Form",
         createdBy: "admin",
+        createdOn: "",
         type: "custom",
+        id: undefined,
         filterTemplate: {"property":"anyText","value":"","type":"ILIKE"},
         accessIndividuals: [],
         accessGroups: []

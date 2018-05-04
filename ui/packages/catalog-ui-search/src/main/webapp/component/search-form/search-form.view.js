@@ -33,7 +33,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     initialize: function() {
         //TODO Fix this hack
-        this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
+        this.listenTo(this.model, 'change:type', this.changeView);
     },
     onRender: function() {
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text' || this.model.get('type') === 'new-form') {
@@ -54,13 +54,18 @@ module.exports = Marionette.LayoutView.extend({
     changeView: function() {
         switch(this.model.get('type')) {
             case 'new-form':
+                let oldType = this.options.queryModel.get('type');
                 this.options.queryModel.set({
                     type: 'new-form',
+                    id: this.model.get('id'), //Change query id to form id because query editor is becoming form editor (for better or worse)
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
                     accessGroups: this.model.get('accessGroups'),
                     accessIndividuals: this.model.get('accessIndividuals')
                 });
+                if (oldType === 'new-form') {
+                    this.options.queryModel.trigger('change:type');
+                }
                 user.getQuerySettings().set('type', 'new-form');
                 break;
             case 'basic':
@@ -77,7 +82,6 @@ module.exports = Marionette.LayoutView.extend({
                     type: 'custom',
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
-                    modelId: this.model.get('id'),
                     accessGroups: this.model.get('accessGroups'),
                     accessIndividuals: this.model.get('accessIndividuals')
                 });

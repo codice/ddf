@@ -184,31 +184,36 @@ module.exports = Marionette.LayoutView.extend({
         let filterTemplate = {
             title: this.model.get('title'),
             description: "",
-            filterTemplate: filterTree
+            filterTemplate: filterTree,
+            id: this.model.get('id')
         }
         return filterTemplate;
     },
     saveTemplateToBackend: function() {
+        let loadingView = new LoadingView();
         $.ajax({
             url: '/search/catalog/internal/forms/query',
             data: JSON.stringify(this.getFilterTreeAsTemplate()),
             method: 'POST',
             contentType: 'application/json',
-            success: () => {
-                announcement.announce({
-                    title: 'Created!',
-                    message: 'New search form has been created.',
-                    type: 'success'
-                });
-            },
-            error: () => {
-                announcement.announce({
-                    title: 'Error!',
-                    message: 'New search form failed to be created.',
-                    type: 'error'
-                });
-            }
-        });
+        })
+        .done((data, textStatus, jqxhr) => {
+            announcement.announce({
+                title: 'Created!',
+                message: 'New search form has been created.',
+                type: 'success'
+            });
+        })
+        .fail((jqxhr, textStatus, errorThrown) => {
+            announcement.announce({
+                title: 'Error!',
+                message: 'New search form failed to be created.',
+                type: 'error'
+            });
+        })
+        .always(() => {
+            loadingView.remove();
+        }); 
     },
     endSave: function () {
         this.model.startSearch();

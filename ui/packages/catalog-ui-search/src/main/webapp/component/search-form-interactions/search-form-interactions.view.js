@@ -63,7 +63,7 @@ module.exports =  Marionette.ItemView.extend({
                 function(confirmation) {
                     if (confirmation.get('choice')) {
                         let loadingview = new LoadingView();
-                            this.model.url = '/search/catalog/internal/forms/' + this.model.id;
+                            this.model.url = '/search/catalog/internal/forms/' + this.model.get('id');
                             this.model.destroy({
                                 data: JSON.stringify({'metacard.owner': [this.model.get('createdBy')]}),
                                 contentType: 'application/json',
@@ -143,11 +143,11 @@ module.exports =  Marionette.ItemView.extend({
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleEdit: function() {
-            this.options.queryModel.set({
+            this.model.set({
                 type: 'new-form',
                 title: this.model.get('name'),
                 filterTree: this.model.get('filterTemplate'),
-                modelId: this.model.get('id'),
+                id: this.model.get('id'),
                 accessGroups: this.model.get('accessGroups'),
                 accessIndividuals: this.model.get('accessIndividuals')
             });
