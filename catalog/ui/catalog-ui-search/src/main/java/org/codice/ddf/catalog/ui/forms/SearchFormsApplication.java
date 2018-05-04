@@ -33,16 +33,19 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.security.SubjectUtils;
+import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
@@ -53,6 +56,7 @@ import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Request;
 import spark.Response;
 import spark.servlet.SparkApplication;
 
@@ -74,6 +78,8 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final EndpointUtil util;
 
+  private final SubjectIdentity subjectIdentity;
+
   private static final String RESP_MSG = "message";
 
   private static final String SOMETHING_WENT_WRONG = "Something went wrong";
@@ -81,10 +87,14 @@ public class SearchFormsApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
-      CatalogFramework catalogFramework, TemplateTransformer transformer, EndpointUtil util) {
+      CatalogFramework catalogFramework,
+      TemplateTransformer transformer,
+      EndpointUtil util,
+      SubjectIdentity subjectIdentity) {
     this.catalogFramework = catalogFramework;
     this.transformer = transformer;
     this.util = util;
+    this.subjectIdentity = subjectIdentity;
   }
 
   /**
@@ -135,30 +145,36 @@ public class SearchFormsApplication implements SparkApplication {
         "/forms/query",
         APPLICATION_JSON,
         (req, res) ->
-            doCreateOrUpdate(
+            runWhenNotGuest(
                 res,
-                Stream.of(util.safeGetBody(req))
-                    .map(MAPPER::fromJson)
-                    .map(Map.class::cast)
-                    .map(transformer::toQueryTemplateMetacard)
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null)),
+                () ->
+                    doCreateOrUpdate(
+                        res,
+                        Stream.of(safeGetBody(req))
+                            .map(MAPPER::fromJson)
+                            .map(Map.class::cast)
+                            .map(transformer::toQueryTemplateMetacard)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null))),
         MAPPER::toJson);
 
     put(
         "/forms/result",
         APPLICATION_JSON,
         (req, res) ->
-            doCreateOrUpdate(
+            runWhenNotGuest(
                 res,
-                Stream.of(util.safeGetBody(req))
-                    .map(MAPPER::fromJson)
-                    .map(Map.class::cast)
-                    .map(transformer::toAttributeGroupMetacard)
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null)),
+                () ->
+                    doCreateOrUpdate(
+                        res,
+                        Stream.of(safeGetBody(req))
+                            .map(MAPPER::fromJson)
+                            .map(Map.class::cast)
+                            .map(transformer::toAttributeGroupMetacard)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null))),
         MAPPER::toJson);
 
     delete(
@@ -167,8 +183,8 @@ public class SearchFormsApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
 
-          Subject subject = SecurityUtils.getSubject();
-          String currentUser = SubjectUtils.getName(subject);
+          Subject subject = (Subject) SecurityUtils.getSubject();
+          String currentUser = subjectIdentity.getUniqueIdentifier(subject);
 
           Map<String, Object> originalMetacardOwner =
               JsonFactory.create().parser().parseMap(util.safeGetBody(req));
@@ -226,6 +242,24 @@ public class SearchFormsApplication implements SparkApplication {
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(util.getJson(ImmutableMap.of(RESP_MSG, SOMETHING_WENT_WRONG)));
         });
+  }
+
+  private Map<String, Object> runWhenNotGuest(
+      Response res, Supplier<Map<String, Object>> templateOperation) {
+    Subject subject = (Subject) SecurityUtils.getSubject();
+    if (subject.isGuest()) {
+      res.status(401);
+      return ImmutableMap.of(RESP_MSG, "Unauthorized");
+    }
+    return templateOperation.get();
+  }
+
+  private String safeGetBody(Request req) {
+    try {
+      return util.safeGetBody(req);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard) {
