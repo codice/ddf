@@ -38,8 +38,10 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
 
   @Override
   public List metacardValueToJsonValue(WorkspaceTransformer transformer, List metacardValue) {
-    return ((List<String>) metacardValue)
+    return ((List<Object>) metacardValue)
         .stream()
+        .filter(String.class::isInstance)
+        .map(String.class::cast)
         .filter(StringUtils::isNotBlank)
         .collect(Collectors.toList());
   }

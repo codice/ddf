@@ -39,8 +39,10 @@ public class QuerySortsParser implements WorkspaceValueTransformation<List, List
 
   @Override
   public List<String> jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
-    return ((List<Map<String, String>>) jsonValue)
+    return ((List<Object>) jsonValue)
         .stream()
+        .filter(Map.class::isInstance)
+        .map(Map.class::cast)
         .map(
             sortsObject ->
                 sortsObject.getOrDefault("attribute", "")
@@ -52,8 +54,10 @@ public class QuerySortsParser implements WorkspaceValueTransformation<List, List
   @Override
   public List<Map<String, String>> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardValue) {
-    return ((List<String>) metacardValue)
+    return ((List<Object>) metacardValue)
         .stream()
+        .filter(String.class::isInstance)
+        .map(String.class::cast)
         .map(
             sortString -> {
               final String[] sortParameters = sortString.split(",");

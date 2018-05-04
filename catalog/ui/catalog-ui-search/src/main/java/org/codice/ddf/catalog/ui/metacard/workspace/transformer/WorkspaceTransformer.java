@@ -61,75 +61,76 @@ public class WorkspaceTransformer {
     this.transformations = transformations;
   }
 
+  private Optional<Map.Entry<String, Object>> metacardEntryToJsonEntry(
+      final Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
+    if (transformation.getExpectedMetacardType().isInstance(entry.getValue())) {
+      final String newKey = transformation.getJsonKey();
+      final Object newValue =
+          transformation.metacardValueToJsonValue(
+              this, transformation.getExpectedMetacardType().cast(entry.getValue()));
+      return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
+    } else {
+      LOGGER.warn(
+          "A workspace transformation expected a value of type {} for metacard attribute \"{}\", but instead found a value of type {}!",
+          transformation.getExpectedMetacardType().getName(),
+          entry.getKey(),
+          entry.getValue().getClass().getName());
+      return Optional.empty();
+    }
+  }
+
   private Map.Entry<String, Object> metacardEntryToJsonEntry(
       final Map.Entry<String, Object> entry) {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getMetacardKey()))
         .findAny()
-        .map(
-            transformation -> {
-              if (transformation.getExpectedMetacardType().isInstance(entry.getValue())) {
-                final String newKey = transformation.getJsonKey();
-                return new AbstractMap.SimpleEntry<>(
-                    newKey,
-                    transformation.metacardValueToJsonValue(
-                        this, transformation.getExpectedMetacardType().cast(entry.getValue())));
-              } else {
-                LOGGER.warn(
-                    "A workspace transformation expected a value of type {} for key \"{}\", but instead found a value of type {}!",
-                    transformation.getExpectedMetacardType().getName(),
-                    entry.getKey(),
-                    entry.getValue().getClass().getName());
-                return (Map.Entry<String, Object>) null;
-              }
-            })
+        .flatMap(transformation -> metacardEntryToJsonEntry(entry, transformation))
         .orElse(entry);
   }
 
-  private Map.Entry<String, Object> jsonEntryToMetacardEntry(Map.Entry<String, Object> entry) {
-    try {
-      return transformations
-          .stream()
-          .filter(transformation -> entry.getKey().equals(transformation.getJsonKey()))
-          .findAny()
-          .flatMap(
-              transformation -> {
-                if (transformation.getExpectedJsonType().isInstance(entry.getValue())) {
-                  final String newKey = transformation.getMetacardKey();
-                  final Object newValue =
-                      transformation.jsonValueToMetacardValue(
-                          this, transformation.getExpectedJsonType().cast(entry.getValue()));
-                  return Optional.of(
-                      (Map.Entry<String, Object>) new AbstractMap.SimpleEntry<>(newKey, newValue));
-                } else {
-                  LOGGER.warn(
-                      "A workspace transformation expected a value of type {} for key \"{}\", but instead found a value of type {}!",
-                      transformation.getExpectedJsonType().getName(),
-                      entry.getKey(),
-                      entry.getValue().getClass().getName());
-                  return Optional.empty();
-                }
-              })
-          .orElse(entry);
-    } catch (Throwable exception) {
-      return null;
+  private Optional<Map.Entry<String, Object>> jsonEntryToMetacardEntry(
+      Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
+    if (transformation.getExpectedJsonType().isInstance(entry.getValue())) {
+      final String newKey = transformation.getMetacardKey();
+      final Object newValue =
+          transformation.jsonValueToMetacardValue(
+              this, transformation.getExpectedJsonType().cast(entry.getValue()));
+      return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
+    } else {
+      LOGGER.warn(
+          "A workspace transformation expected a value of type {} for JSON key \"{}\", but instead found a value of type {}!",
+          transformation.getExpectedJsonType().getName(),
+          entry.getKey(),
+          entry.getValue().getClass().getName());
+      return Optional.empty();
     }
   }
 
-  private Metacard addAttributeValue(Metacard metacard, Map.Entry<String, Object> entry) {
+  private Map.Entry<String, Object> jsonEntryToMetacardEntry(Map.Entry<String, Object> entry) {
+    return transformations
+        .stream()
+        .filter(transformation -> entry.getKey().equals(transformation.getJsonKey()))
+        .findAny()
+        .flatMap(transformation -> jsonEntryToMetacardEntry(entry, transformation))
+        .orElse(entry);
+  }
+
+  private void addAttributeValue(Metacard metacard, Map.Entry<String, Object> entry) {
     final Object value = entry.getValue();
 
     LOGGER.debug(
-        "Adding attribute \"{}\" with value \"{}\" to metacard from map...", entry.getKey(), value);
+        "The map key \"{}\" with value \"{}\" is being added to the metacard.",
+        entry.getKey(),
+        value);
 
     if (value instanceof Serializable) {
       metacard.setAttribute(new AttributeImpl(entry.getKey(), (Serializable) value));
     } else if (value instanceof List) {
       metacard.setAttribute(new AttributeImpl(entry.getKey(), (List<Serializable>) value));
+    } else {
+      LOGGER.debug("The value was not a Serializable or List and will be discarded.");
     }
-
-    return metacard;
   }
 
   public void transformIntoMetacard(Map<String, Object> json, Metacard init) {

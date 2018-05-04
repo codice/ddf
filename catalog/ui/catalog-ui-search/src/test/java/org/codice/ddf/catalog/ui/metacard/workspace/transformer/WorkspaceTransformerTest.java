@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -43,9 +43,6 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.Before;
 import org.junit.Test;
