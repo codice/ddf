@@ -111,7 +111,7 @@ define(['underscore',
         reIndexLayers: function () {
             this.collection.forEach(function (model, index) {
                 var layer = this.layerForCid[model.id];
-                var previousOrder = this.map.imageryLayers.indexOf(layer);
+                var previousOrder = this.map.imageryLayers.indexOf(layer) + 1;
                 var currentOrder = this.collection.length - model.get('order');  // order is backwards on cesium (higher indexes are displayed above lower)
                 var method = currentOrder > previousOrder ? "raise" : "lower";  // raise means move to higher index :(
                 var count = Math.abs(currentOrder - previousOrder);
