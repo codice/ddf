@@ -76,7 +76,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class  HandlebarsWfsFeatureTransformer implements FeatureTransformer<FeatureTypeType> {
+public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<FeatureTypeType> {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(HandlebarsWfsFeatureTransformer.class);
