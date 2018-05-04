@@ -76,7 +76,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<FeatureTypeType> {
+public class  HandlebarsWfsFeatureTransformer implements FeatureTransformer<FeatureTypeType> {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(HandlebarsWfsFeatureTransformer.class);
@@ -511,7 +511,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     if (StringUtils.isNotBlank(wkt)) {
       return wkt;
     }
-    LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.", geometry);
+    LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.");
     return getWktFromGml2(geometry);
   }
 
