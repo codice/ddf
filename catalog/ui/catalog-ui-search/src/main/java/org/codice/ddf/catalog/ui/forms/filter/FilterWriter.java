@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -22,32 +21,33 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.validation.SchemaFactory;
 import net.opengis.filter.v_2_0.FilterType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("squid:S1075" /* Will parameterize only if necessary. */)
 public class FilterWriter {
-  private static final String SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
+  private static final Logger LOGGER = LoggerFactory.getLogger(FilterWriter.class);
 
-  private static final String FILTER_SCHEMA_URL =
-      "http://schemas.opengis.net/filter/2.0/filter.xsd";
+  private static final String FILTER_XSD_RESOURCE_PATH = "/schemas/filter.xsd";
+
+  private static final String SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
 
   private final Marshaller marshaller;
 
   /**
    * Create a {@link FilterWriter}.
    *
-   * <p>One important note regarding the {@link SchemaFactory}: {@link
-   * javax.xml.XMLConstants#W3C_XML_SCHEMA_INSTANCE_NS_URI} cannot be used.
+   * <p>Accessing {@link javax.xml.XMLConstants#W3C_XML_SCHEMA_NS_URI} through the constants class
+   * causes an error: {@code javax.xml.XMLConstants cannot be found by catalog-ui-search}.
+   * Workaround is to use {@link #SCHEMA_LANGUAGE} constant instead.
    *
-   * <ol>
-   *   <li>An error occurs - <i>{@link javax.xml.XMLConstants} cannot be found by
-   *       catalog-ui-search</i>
-   *   <li>The constant itself blows up the factory - {@code
-   *       http://www.w3.org/2001/XMLSchema-instance}
-   * </ol>
-   *
-   * See <a
+   * <p>See <a
    * href="https://docs.oracle.com/javase/8/docs/api/javax/xml/validation/SchemaFactory.html">
    * SchemaFactory</a> for more information.
+   *
+   * <p>See <a href="http://schemas.opengis.net/filter/2.0/">Filter 2.0</a> for original OGC schema
+   * documents.
    *
    * @param validationEnabled true if all XML writing done by this {@link FilterWriter} should also
    *     be validated against the <a href="http://schemas.opengis.net/filter/2.0/filter.xsd">filter
@@ -57,10 +57,12 @@ public class FilterWriter {
   public FilterWriter(boolean validationEnabled) throws JAXBException {
     this.marshaller = JAXBContext.newInstance(FilterType.class).createMarshaller();
     if (validationEnabled) {
+      LOGGER.info("Loading filter schemas...");
+      URL schemaLocation = FilterWriter.class.getResource(FILTER_XSD_RESOURCE_PATH);
       SchemaFactory schemaFactory = SchemaFactory.newInstance(SCHEMA_LANGUAGE);
       try {
-        marshaller.setSchema(schemaFactory.newSchema(new URL(FILTER_SCHEMA_URL)));
-      } catch (MalformedURLException | SAXException e) {
+        marshaller.setSchema(schemaFactory.newSchema(schemaLocation));
+      } catch (SAXException e) {
         throw new JAXBException("Error reading filter schema", e);
       }
     }
