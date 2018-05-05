@@ -36,6 +36,7 @@ const fixTemplates = function(templates) {
  };
 
 let cachedTemplates = [];
+let promiseIsResolved = false;
 
 const templatePromiseSupplier = () => $.ajax({
         type: 'GET',
@@ -44,13 +45,24 @@ const templatePromiseSupplier = () => $.ajax({
         contentType: 'application/json',
         success: function(data) {
             fixTemplates(data);
-            data = data.filter(template => !cachedTemplates.includes(template));
-            cachedTemplates = cachedTemplates.concat(data);
+            //Find templates with the same id but different property maps (because we should trust the server)
+            let updatedTemplates = data.filter(
+                incomingTemplate => _.any(cachedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id && !_.isEqual(cachedTemplate, incomingTemplate))
+            );
+            //Find templates that are new
+            let newTemplates = data.filter(
+                incomingTemplate => cachedTemplates.length === 0 || !_.any(cachedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id)
+            );
+            //Replace updated templates in their corresponding indices (//TODO: Should this just be a backbone collection instead of an array?)
+            _.each(updatedTemplates, 
+                updatedTemplate => cachedTemplates[_.findIndex(cachedTemplates, (cachedTemplate) => cachedTemplate.id === updatedTemplate.id)] = updatedTemplate
+            );
+            cachedTemplates = cachedTemplates.concat(newTemplates);
+            promiseIsResolved = true;
         }
     });
 
 let bootstrapPromise = templatePromiseSupplier();
-let recurringPromise = { then: () => ({}) };
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
@@ -62,7 +74,15 @@ module.exports = Backbone.AssociatedModel.extend({
         ]
     },
     initialize: function () {
-        this.addCustomForms();
+        if (promiseIsResolved === true) {
+            this.addCustomForms();
+            promiseIsResolved = false;
+            bootstrapPromise = new templatePromiseSupplier();
+        }
+        bootstrapPromise.then(() => {
+            this.addCustomForms()
+            this.doneLoading();
+        });
     },
     relations: [{
         type: Backbone.Many,
@@ -75,9 +95,9 @@ module.exports = Backbone.AssociatedModel.extend({
         })
     }],
     addCustomForms: function() {
-        bootstrapPromise.then(function() {
-            if (!this.isDestroyed) {
-                $.each(cachedTemplates, function(index, value) {
+        if (!this.isDestroyed) {
+            $.each(cachedTemplates, function(index, value) {
+                if (this.checkIfOwnerOrSystem(value)) {
                     var utcSeconds = value.created / 1000;
                     var d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
@@ -91,16 +111,15 @@ module.exports = Backbone.AssociatedModel.extend({
                         accessGroups: value.accessGroups,
                         createdBy: value.creator
                     }));
-                }.bind(this));
-                this.doneLoading();
-            }
-        }.bind(this));
+                }
+            }.bind(this));
+        }
     },
     getCollection: function() {
         return this.get('searchForms');
     },
     addSearchForm: function(searchForm) {
-        this.get('searchForms').add(searchForm);
+        this.get('searchForms').add(searchForm, {merge: true});
     },
     getDoneLoading: function() {
         return this.get('doneLoading');

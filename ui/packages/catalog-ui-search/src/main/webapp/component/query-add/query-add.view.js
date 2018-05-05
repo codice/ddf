@@ -181,11 +181,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     getFilterTreeAsTemplate: function() {
         let filterTree = cql.simplify(this.queryContent.currentView.getFilterTree());
+        if (filterTree.filters && filterTree.filters.length === 1) {
+            filterTree = filterTree.filters[0];
+        }
         let filterTemplate = {
             title: this.model.get('title'),
             description: "",
             filterTemplate: filterTree,
-            id: this.model.get('id')
+            id: this.model.get('formId')
         }
         return filterTemplate;
     },

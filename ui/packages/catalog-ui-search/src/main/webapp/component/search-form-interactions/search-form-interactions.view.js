@@ -65,7 +65,7 @@ module.exports =  Marionette.ItemView.extend({
                         let loadingview = new LoadingView();
                             this.model.url = '/search/catalog/internal/forms/' + this.model.get('id');
                             this.model.destroy({
-                                data: JSON.stringify({'metacard.owner': [this.model.get('createdBy')]}),
+                                data: JSON.stringify({'metacard.owner': this.model.get('createdBy')}),
                                 contentType: 'application/json',
                                 wait: true,
                                 error: function(model, xhr, options){

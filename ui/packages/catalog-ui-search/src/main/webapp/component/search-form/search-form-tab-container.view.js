@@ -19,27 +19,31 @@
  const SearchFormCollectionView = require('./search-form.collection.view');
  const SearchFormCollection = require('./search-form.collection.js');
  const CustomElements = require('js/CustomElements');
+ const LoadingView = require('component/loading/loading.view');
 
  module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('search-form-collection'),
     regions: {
-        collectionView: '.collection'
+        collectionView: '.collection',
+        loadingView: '.loading'
+    },
+    initialize: function() {
+        this.searchFormCollection = new SearchFormCollection();
+        this.listenTo(this.searchFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
     },
     onRender: function () {
-        let searchFormCollection = new SearchFormCollection();
         this.collectionView.show(new SearchFormCollectionView({
-            collection: searchFormCollection.getCollection(),
-            collectionWrapperModel: searchFormCollection,
+            collection: this.searchFormCollection.getCollection(),
+            collectionWrapperModel: this.searchFormCollection,
             queryModel: this.model
         }));
-
-        this.$el.find('.loading').show();
-        this.listenTo(searchFormCollection, 'change:doneLoading', this.showCollection);
+        this.loadingView.show(new LoadingView({ DOMHook: this.$el }));
+        this.handleLoadingSpinner();
     },
-    showCollection: function() {
-        if(this.collectionView.currentView.options.collectionWrapperModel.getDoneLoading()) {
-            this.$el.find('.loading').hide();
+    handleLoadingSpinner: function() {
+        if(this.searchFormCollection.getDoneLoading()) {
+            this.loadingView.currentView.remove();
         }
     }
  });

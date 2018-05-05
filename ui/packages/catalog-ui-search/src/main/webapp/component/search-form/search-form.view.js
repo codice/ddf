@@ -57,7 +57,7 @@ module.exports = Marionette.LayoutView.extend({
                 let oldType = this.options.queryModel.get('type');
                 this.options.queryModel.set({
                     type: 'new-form',
-                    id: this.model.get('id'), //Change query id to form id because query editor is becoming form editor (for better or worse)
+                    formId: this.model.get('id'), //TODO: Compare this with old approach of changing query id to form id (for better or worse)
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
                     accessGroups: this.model.get('accessGroups'),
