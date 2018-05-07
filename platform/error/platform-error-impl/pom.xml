@@ -53,7 +53,7 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.30</version>
+            <version>${boon.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
