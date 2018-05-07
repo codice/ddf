@@ -13,11 +13,10 @@
  */
 package org.codice.ddf.catalog.ui.ws;
 
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-import org.codice.ddf.security.handler.api.HandlerResult;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -31,15 +30,12 @@ import org.slf4j.LoggerFactory;
 
 public class SecureWebSocketServlet extends WebSocketServlet {
 
-  private static final String TOKEN_KEY = "ddf.security.token";
   private static final Logger LOGGER = LoggerFactory.getLogger(SecureWebSocketServlet.class);
   private final WebSocket ws;
-  private final SecurityManager manager;
   private final ExecutorService executor;
 
-  public SecureWebSocketServlet(ExecutorService executor, WebSocket ws, SecurityManager manager) {
+  public SecureWebSocketServlet(ExecutorService executor, WebSocket ws) {
     this.ws = ws;
-    this.manager = manager;
     this.executor = executor;
   }
 
@@ -50,36 +46,30 @@ public class SecureWebSocketServlet extends WebSocketServlet {
 
   @Override
   public void configure(WebSocketServletFactory factory) {
-    factory.setCreator((req, resp) -> new SocketWrapper(executor, ws, manager));
+    factory.setCreator((req, resp) -> new SocketWrapper(executor, ws));
   }
 
   @org.eclipse.jetty.websocket.api.annotations.WebSocket
   public static class SocketWrapper {
 
     private final WebSocket ws;
-    private final SecurityManager manager;
     private final ExecutorService executor;
 
-    SocketWrapper(ExecutorService executor, WebSocket ws, SecurityManager manager) {
+    SocketWrapper(ExecutorService executor, WebSocket ws) {
       this.ws = ws;
-      this.manager = manager;
       this.executor = executor;
     }
 
     private void runWithUser(Session session, Runnable runnable) {
-      HandlerResult result =
-          (HandlerResult)
+      Subject subject =
+          (Subject)
               ((ServletUpgradeRequest) session.getUpgradeRequest())
                   .getHttpServletRequest()
-                  .getAttribute(TOKEN_KEY);
+                  .getAttribute(SecurityConstants.SECURITY_SUBJECT);
 
       executor.submit(
           () -> {
-            try {
-              manager.getSubject(result.getToken()).execute(runnable::run);
-            } catch (SecurityServiceException e) {
-              LOGGER.error("Failed to get subject.", e);
-            }
+            subject.execute(runnable);
           });
     }
 
