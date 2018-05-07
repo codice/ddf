@@ -390,6 +390,15 @@ grant codeBase "file:/security-sts-attributequeryclaimshandler/security-sts-ldap
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
 }
 
+grant codebase "file:/spatial-wfs-v1_1_0-source" {
+    permission java.lang.RuntimePermission "createClassLoader", "*"};
+
+grant codebase "file:/spatial-wfs-v2_0_0-source" {
+    permission java.lang.RuntimePermission "createClassLoader", "*"};
+
+grant codebase "file:/spatial-wfs-v1_0_0-source" {
+    permission java.lang.RuntimePermission "createClassLoader", "*"};
+
 //
 // itest specific perms
 //
@@ -525,4 +534,5 @@ grant {
     permission javax.management.MBeanTrustPermission "register";
 
     permission org.osgi.service.cm.ConfigurationPermission "*", "configure";
+
 };
