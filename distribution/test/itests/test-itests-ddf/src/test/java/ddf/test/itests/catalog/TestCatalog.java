@@ -2040,7 +2040,6 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2743
   public void testDefaultValuesCreate() throws Exception {
     final String customMetacardTypeName = "custom";
     File file =
@@ -2058,52 +2057,52 @@ public class TestCatalog extends AbstractIntegrationTest {
               return null;
             });
 
-    String metacard1Xml = getFileContent("metacard1.xml");
+    String metacard3Xml = getFileContent("metacard3.xml");
 
-    String metacard2Xml = getFileContent("metacard2.xml");
+    String metacard4Xml = getFileContent("metacard4.xml");
 
-    metacard2Xml = metacard2Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
+    metacard4Xml = metacard4Xml.replaceFirst("ddf\\.metacard", customMetacardTypeName);
 
-    verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.DESCRIPTION);
-    verifyMetacardDoesNotContainAttribute(metacard1Xml, Metacard.EXPIRATION);
-    verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.DESCRIPTION);
-    verifyMetacardDoesNotContainAttribute(metacard2Xml, Metacard.EXPIRATION);
+    verifyMetacardDoesNotContainAttribute(metacard3Xml, Metacard.DESCRIPTION);
+    verifyMetacardDoesNotContainAttribute(metacard3Xml, Metacard.EXPIRATION);
+    verifyMetacardDoesNotContainAttribute(metacard4Xml, Metacard.DESCRIPTION);
+    verifyMetacardDoesNotContainAttribute(metacard4Xml, Metacard.EXPIRATION);
 
-    final String id1 = ingest(metacard1Xml, MediaType.APPLICATION_XML);
-    final String id2 = ingest(metacard2Xml, MediaType.APPLICATION_XML);
+    final String id3 = ingest(metacard3Xml, MediaType.APPLICATION_XML);
+    final String id4 = ingest(metacard4Xml, MediaType.APPLICATION_XML);
 
     try {
       final String defaultDescription = "Default description";
       final String defaultCustomMetacardDescription = "Default custom description";
       final String defaultExpiration = getDefaultExpirationAsString();
 
-      final String metacard1XPath = format(METACARD_X_PATH, id1);
-      final String metacard2XPath = format(METACARD_X_PATH, id2);
+      final String metacard3XPath = format(METACARD_X_PATH, id3);
+      final String metacard4XPath = format(METACARD_X_PATH, id4);
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
           .all()
           .assertThat()
           // The metacard had a title, so it should not have been set to the default
-          .body(hasXPath(metacard1XPath + "/string[@name='title']/value", is("Metacard-1")))
+          .body(hasXPath(metacard3XPath + "/string[@name='title']/value", is("Metacard-3")))
           .body(
               hasXPath(
-                  metacard1XPath + "/string[@name='description']/value", is(defaultDescription)))
+                  metacard3XPath + "/string[@name='description']/value", is(defaultDescription)))
           .body(
               hasXPath(
-                  metacard1XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)))
+                  metacard3XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)))
           // The metacard had a title, so it should not have been set to the default
-          .body(hasXPath(metacard2XPath + "/string[@name='title']/value", is("Metacard-2")))
+          .body(hasXPath(metacard4XPath + "/string[@name='title']/value", is("Metacard-4")))
           .body(
               hasXPath(
-                  metacard2XPath + "/string[@name='description']/value",
+                  metacard4XPath + "/string[@name='description']/value",
                   is(defaultCustomMetacardDescription)))
           .body(
               hasXPath(
-                  metacard2XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)));
+                  metacard4XPath + "/dateTime[@name='expiration']/value", is(defaultExpiration)));
     } finally {
-      deleteMetacard(id1);
-      deleteMetacard(id2);
+      deleteMetacard(id3);
+      deleteMetacard(id4);
       uninstallDefinitionJson(
           file,
           () -> {
