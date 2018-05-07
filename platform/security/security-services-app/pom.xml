@@ -176,11 +176,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-cxfservletfilter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.pdp</groupId>
             <artifactId>security-pdp-authzrealm</artifactId>
             <version>${project.version}</version>
