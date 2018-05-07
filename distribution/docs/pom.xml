@@ -56,6 +56,68 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>attach-omnibus</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/pdf/documentation.pdf</file>
+                                            <type>pdf</type>
+                                            <classifier>Documentation</classifier>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <version>${asciidoctor.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-pdf-doc</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>process-asciidoc</goal>
+                                </goals>
+                                <configuration>
+                                    <backend>pdf</backend>
+                                    <outputDirectory>${project.build.directory}/docs/pdf
+                                    </outputDirectory>
+                                    <!-- WARNING callout bullets don't yet work with CodeRay -->
+                                    <attributes>
+                                        <pagenums/>
+                                        <toc/>
+                                        <idprefix>_</idprefix>
+                                        <idseparator>_</idseparator>
+                                    </attributes>
+                                    <imagesDir>${project.build.directory}/images</imagesDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <!-- Disable vulnerability checks since this project only contains documentation -->
@@ -263,26 +325,6 @@
                             </attributes>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>generate-pdf-doc</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>pdf</backend>
-                            <outputDirectory>${project.build.directory}/docs/pdf
-                            </outputDirectory>
-                            <!-- WARNING callout bullets don't yet work with CodeRay -->
-                            <attributes>
-                                <pagenums/>
-                                <toc/>
-                                <idprefix>_</idprefix>
-                                <idseparator>_</idseparator>
-                            </attributes>
-                            <imagesDir>${project.build.directory}/images</imagesDir>
-                        </configuration>
-                    </execution>
                 </executions>
                 <configuration>
                     <sourceDirectory>${project.build.directory}/asciidoctor-ready
@@ -362,11 +404,6 @@
                                 <artifact>
                                     <file>${project.build.directory}/docs/html/documentation.html</file>
                                     <type>html</type>
-                                    <classifier>Documentation</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>${project.build.directory}/docs/pdf/documentation.pdf</file>
-                                    <type>pdf</type>
                                     <classifier>Documentation</classifier>
                                 </artifact>
                             </artifacts>
