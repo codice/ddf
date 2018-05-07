@@ -37,7 +37,7 @@ public interface WorkspaceTransformation<M, J> {
   String getMetacardKey();
 
   /**
-   * @return the JSON-style key associated with both the JSON-style value value passed into {@link
+   * @return the JSON-style key associated with both the JSON-style value passed into {@link
    *     #jsonValueToMetacardValue(WorkspaceTransformer, Object) jsonValueToMetacardValue} and the
    *     JSON-style value returned from {@link #metacardValueToJsonValue(WorkspaceTransformer,
    *     Object) metacardValueToJsonValue}
@@ -47,13 +47,13 @@ public interface WorkspaceTransformation<M, J> {
   /**
    * @return the class that the given and returned metacard values are expected to be an instance of
    */
-  Class<M> getExpectedMetacardType();
+  Class<M> getMetacardValueType();
 
   /**
    * @return the class that the given and returned JSON-style values are expected to be an instance
    *     of
    */
-  Class<J> getExpectedJsonType();
+  Class<J> getJsonValueType();
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms a metacard attribute value
@@ -64,32 +64,32 @@ public interface WorkspaceTransformation<M, J> {
    * @param transformer the {@link WorkspaceTransformer} that is transforming the given metacard
    *     value
    * @param metacardValue the metacard attribute value to be transformed; this will be an instance
-   *     of this {@link WorkspaceTransformation}'s {@link #getExpectedMetacardType() expected
-   *     metacard type} and will come from a metacard's attribute with the given {@link
-   *     #getMetacardKey() expected metacard key}.
+   *     of this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
+   *     type} and will come from a metacard's attribute with the given {@link #getMetacardKey()
+   *     expected metacard key}.
    * @return a new value to be used as the value in a JSON-style data map with this {@link
    *     WorkspaceTransformation}'s {@link #getJsonKey() JSON key}; this will be an instance of this
-   *     {@link WorkspaceTransformation}'s {@link #getExpectedJsonType() expected JSON type}
+   *     {@link WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
    */
   @Nullable
   J metacardValueToJsonValue(WorkspaceTransformer transformer, M metacardValue);
 
   /**
-   * The method by which this {@link WorkspaceTransformation} transforms value for a key-value pair
-   * for a JSON-style data map into a corresponding a metacard attribute value. Returning
-   * <b><tt>null</tt></b> will result in no corresponding metacard attribute being added to the
-   * final metacard transformation product.
+   * The method by which this {@link WorkspaceTransformation} transforms the value of a JSON-style
+   * key-value pair into a corresponding a metacard attribute value. Returning <b><tt>null</tt></b>
+   * will result in no corresponding metacard attribute being added to the final metacard
+   * transformation product.
    *
    * @param transformer the {@link WorkspaceTransformer} that is transforming the given JSON-style
    *     value
    * @param jsonValue the JSON-style value to be transformed; this will be an instance of this
-   *     {@link WorkspaceTransformation}'s {@link #getExpectedJsonType() expected JSON type} and
-   *     will come from a JSON-style data map's key-value pair with the given {@link #getJsonKey()
+   *     {@link WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type} and will
+   *     come from a JSON-style data map's key-value pair with the given {@link #getJsonKey()
    *     expected JSON key}.
    * @return a new value to be used as the value in a metacard attribute with this {@link
    *     WorkspaceTransformation}'s {@link #getMetacardKey() metacard key}; this will be an instance
-   *     of this {@link WorkspaceTransformation}'s {@link #getExpectedMetacardType() expected
-   *     metacard type}
+   *     of this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
+   *     type}
    */
   @Nullable
   M jsonValueToMetacardValue(WorkspaceTransformer transformer, J jsonValue);

@@ -23,12 +23,12 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTr
 
 public class QuerySortsParser implements WorkspaceValueTransformation<List, List> {
   @Override
-  public Class<List> getExpectedJsonType() {
+  public Class<List> getJsonValueType() {
     return List.class;
   }
 
   @Override
-  public Class<List> getExpectedMetacardType() {
+  public Class<List> getMetacardValueType() {
     return List.class;
   }
 

@@ -24,12 +24,12 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
  */
 public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Object, Object> {
   @Override
-  default Class<Object> getExpectedMetacardType() {
+  default Class<Object> getMetacardValueType() {
     return Object.class;
   }
 
   @Override
-  default Class<Object> getExpectedJsonType() {
+  default Class<Object> getJsonValueType() {
     return Object.class;
   }
 

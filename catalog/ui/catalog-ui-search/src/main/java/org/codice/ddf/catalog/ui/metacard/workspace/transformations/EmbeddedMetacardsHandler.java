@@ -31,12 +31,12 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransfo
  */
 public interface EmbeddedMetacardsHandler extends WorkspaceTransformation<List, List> {
   @Override
-  default Class<List> getExpectedMetacardType() {
+  default Class<List> getMetacardValueType() {
     return List.class;
   }
 
   @Override
-  default Class<List> getExpectedJsonType() {
+  default Class<List> getJsonValueType() {
     return List.class;
   }
 

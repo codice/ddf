@@ -25,12 +25,12 @@ public class RemoveMetacardTags implements WorkspaceValueTransformation<Object, 
   }
 
   @Override
-  public Class<Object> getExpectedMetacardType() {
+  public Class<Object> getMetacardValueType() {
     return Object.class;
   }
 
   @Override
-  public Class<Object> getExpectedJsonType() {
+  public Class<Object> getJsonValueType() {
     return Object.class;
   }
 

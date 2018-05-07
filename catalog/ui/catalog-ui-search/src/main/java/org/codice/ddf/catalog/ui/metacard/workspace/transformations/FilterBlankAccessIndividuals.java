@@ -27,12 +27,12 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
   }
 
   @Override
-  public Class<List> getExpectedMetacardType() {
+  public Class<List> getMetacardValueType() {
     return List.class;
   }
 
   @Override
-  public Class<List> getExpectedJsonType() {
+  public Class<List> getJsonValueType() {
     return List.class;
   }
 

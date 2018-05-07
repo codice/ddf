@@ -63,16 +63,16 @@ public class WorkspaceTransformer {
 
   private Optional<Map.Entry<String, Object>> metacardEntryToJsonEntry(
       final Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
-    if (transformation.getExpectedMetacardType().isInstance(entry.getValue())) {
+    if (transformation.getMetacardValueType().isInstance(entry.getValue())) {
       final String newKey = transformation.getJsonKey();
       final Object newValue =
           transformation.metacardValueToJsonValue(
-              this, transformation.getExpectedMetacardType().cast(entry.getValue()));
+              this, transformation.getMetacardValueType().cast(entry.getValue()));
       return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.warn(
           "A workspace transformation expected a value of type {} for metacard attribute \"{}\", but instead found a value of type {}!",
-          transformation.getExpectedMetacardType().getName(),
+          transformation.getMetacardValueType().getName(),
           entry.getKey(),
           entry.getValue().getClass().getName());
       return Optional.empty();
@@ -91,16 +91,16 @@ public class WorkspaceTransformer {
 
   private Optional<Map.Entry<String, Object>> jsonEntryToMetacardEntry(
       Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
-    if (transformation.getExpectedJsonType().isInstance(entry.getValue())) {
+    if (transformation.getJsonValueType().isInstance(entry.getValue())) {
       final String newKey = transformation.getMetacardKey();
       final Object newValue =
           transformation.jsonValueToMetacardValue(
-              this, transformation.getExpectedJsonType().cast(entry.getValue()));
+              this, transformation.getJsonValueType().cast(entry.getValue()));
       return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
-      LOGGER.warn(
+      LOGGER.debug(
           "A workspace transformation expected a value of type {} for JSON key \"{}\", but instead found a value of type {}!",
-          transformation.getExpectedJsonType().getName(),
+          transformation.getJsonValueType().getName(),
           entry.getKey(),
           entry.getValue().getClass().getName());
       return Optional.empty();
@@ -119,7 +119,7 @@ public class WorkspaceTransformer {
   private void addAttributeValue(Metacard metacard, Map.Entry<String, Object> entry) {
     final Object value = entry.getValue();
 
-    LOGGER.debug(
+    LOGGER.trace(
         "The map key \"{}\" with value \"{}\" is being added to the metacard.",
         entry.getKey(),
         value);

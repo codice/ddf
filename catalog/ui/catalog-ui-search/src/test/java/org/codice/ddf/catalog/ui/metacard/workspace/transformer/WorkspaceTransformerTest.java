@@ -14,7 +14,10 @@
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
@@ -82,12 +85,12 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        public Class<Integer> getExpectedMetacardType() {
+        public Class<Integer> getMetacardValueType() {
           return Integer.class;
         }
 
         @Override
-        public Class<Double> getExpectedJsonType() {
+        public Class<Double> getJsonValueType() {
           return Double.class;
         }
 
@@ -118,12 +121,12 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        public Class<Object> getExpectedMetacardType() {
+        public Class<Object> getMetacardValueType() {
           return Object.class;
         }
 
         @Override
-        public Class<Object> getExpectedJsonType() {
+        public Class<Object> getJsonValueType() {
           return Object.class;
         }
 
@@ -150,12 +153,12 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        public Class<Object> getExpectedMetacardType() {
+        public Class<Object> getMetacardValueType() {
           return Object.class;
         }
 
         @Override
-        public Class<Object> getExpectedJsonType() {
+        public Class<Object> getJsonValueType() {
           return Object.class;
         }
 
@@ -226,30 +229,30 @@ public class WorkspaceTransformerTest {
   public void testMetacardToMapDirectMapping() {
     metacard.setAttribute(UNTRANSFORMED_KEY, UNTRANSFORMED_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
-    assertThat(json.get(UNTRANSFORMED_KEY), is(UNTRANSFORMED_VALUE));
+    assertThat(json, hasEntry(UNTRANSFORMED_KEY, UNTRANSFORMED_VALUE));
   }
 
   @Test
   public void testMetacardToMapRemapKeys() {
     metacard.setAttribute(KEY_TRANSFORMATION_METACARD_KEY, KEY_TRANSFORMATION_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
-    assertThat(json.containsKey(KEY_TRANSFORMATION_METACARD_KEY), is(false));
-    assertThat(json.get(KEY_TRANSFORMATION_JSON_KEY), is(KEY_TRANSFORMATION_VALUE));
+    assertThat(json, not(hasKey(KEY_TRANSFORMATION_METACARD_KEY)));
+    assertThat(json, hasEntry(KEY_TRANSFORMATION_JSON_KEY, KEY_TRANSFORMATION_VALUE));
   }
 
   @Test
   public void testMetacardToMapRemapValues() {
     metacard.setAttribute(VALUE_TRANSFORMATION_KEY, VALUE_TRANSFORMATION_METACARD_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
-    assertThat(json.get(VALUE_TRANSFORMATION_KEY), is(VALUE_TRANSFORMATION_JSON_VALUE));
+    assertThat(json, hasEntry(VALUE_TRANSFORMATION_KEY, VALUE_TRANSFORMATION_JSON_VALUE));
   }
 
   @Test
   public void testMetacardAttributeRemoval() {
     metacard.setAttribute(METACARD_KEY_TO_REMOVE, KEY_TRANSFORMATION_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
-    assertThat(json.containsKey(METACARD_KEY_TO_REMOVE), is(false));
-    assertThat(json.containsKey(JSON_KEY_TO_REMOVE), is(false));
+    assertThat(json, hasKey(METACARD_KEY_TO_REMOVE));
+    assertThat(json, hasKey(JSON_KEY_TO_REMOVE));
   }
 
   // test map -> metacard
