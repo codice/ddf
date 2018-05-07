@@ -23,7 +23,7 @@ define([
     'js/model/UploadBatch',
     'component/announcement',
     'component/blacklist-item/blacklist-item',
-    'moment',
+    'moment-timezone',
     'js/model/Theme',
     'js/ThemeUtils',
     'js/model/QuerySettings',
@@ -141,7 +141,8 @@ define([
                 uploads: [],
                 fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
                 resultCount: properties.resultCount,
-                timeFormat: Common.getTimeFormats()['24'],
+                timeFormat: Common.getTimeFormats()['ISO'],
+                timeZone: Common.getTimeZones()['UTC'],
                 coordinateFormat: 'degrees',
                 goldenLayout: undefined,
                 goldenLayoutUpload: undefined,
@@ -356,7 +357,7 @@ define([
             return this.get('user').getSummaryShown();
         },
         getUserReadableDate: function(date){
-            return moment(date).format(this.get('user').get('preferences').get('timeFormat'));
+            return moment.tz(date, this.get('user').get('preferences').get('timeZone')).format(this.get('user').get('preferences').get('timeFormat'));
         },
         getHoverPreview: function() {
             return this.get('user').getHoverPreview();

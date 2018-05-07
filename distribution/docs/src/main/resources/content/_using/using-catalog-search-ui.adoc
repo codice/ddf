@@ -398,7 +398,7 @@ image::catalog-ui-settings-options.png[]
 * *Notifications*: Select if notifications persist across sessions.
 * *Map*: Select options for map layers.
 * *Query*: Customize the number of search results returned.
-* *Time*: Set the time format (24 hour or 12 hour).
+* *Time*: Set the time format (ISO-8601, 24 Hour or 12 Hour), as well as the timezone (UTC-12:00 through UTC+12:00).
 * *Hidden*: View or edit a list of results that have been hidden from the current search results.
 
 ==== ${catalog-ui} Notifications
