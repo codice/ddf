@@ -13,10 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.create;
 
-import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
-import org.codice.countrycode.CountryCodeConverter;
-import org.codice.countrycode.converter.Converter;
+import java.util.Optional;
 import org.codice.countrycode.standard.CountryCode;
 import org.codice.countrycode.standard.StandardProvider;
 import org.codice.countrycode.standard.StandardRegistry;
@@ -29,11 +26,9 @@ import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
  * href="http://download.geonames.org/export/dump">geonames.org</a>.
  */
 public class GeoNamesCreator implements GeoEntryCreator {
-  private Converter converter;
   private StandardProvider isoStandard;
 
   public GeoNamesCreator() {
-    this.converter = new CountryCodeConverter();
     StandardRegistry registry = StandardRegistryImpl.getInstance();
     isoStandard = registry.lookup("ISO3166", "1");
   }
@@ -43,12 +38,16 @@ public class GeoNamesCreator implements GeoEntryCreator {
     // Passing a negative value to preserve empty fields.
     final String[] fields = line.split("\\t", -1);
 
+    Optional<CountryCode> optionalCountryCode =
+        isoStandard
+            .getStandardEntries()
+            .stream()
+            .filter(c -> c.getAsFormat("alpha2").equals(fields[8]))
+            .findFirst();
+
     String countryCode = fields[8];
-    Set<CountryCode> countryCodes =
-        converter.fromAlpha2(
-            fields[8].trim(), isoStandard.getStandard(), isoStandard.getStandard());
-    if (CollectionUtils.isNotEmpty(countryCodes)) {
-      countryCode = countryCodes.iterator().next().getAsFormat("alpha3");
+    if (optionalCountryCode.isPresent()) {
+      countryCode = optionalCountryCode.get().getAsFormat("alpha3");
     }
 
     return new GeoEntry.Builder()

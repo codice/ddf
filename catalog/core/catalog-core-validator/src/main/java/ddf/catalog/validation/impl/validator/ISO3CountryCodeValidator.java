@@ -20,14 +20,13 @@ import ddf.catalog.validation.impl.report.AttributeValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.codice.countrycode.standard.StandardRegistryImpl;
 
 /**
  * Validates an attribute's value(s) against the ISO_3166-1 Alpha3 country codes.
@@ -38,10 +37,11 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
   private final boolean ignoreCase;
 
   private static final Set<String> COUNTRY_CODES =
-      Arrays.stream(Locale.getISOCountries())
-          .map(iso2CC -> new Locale("", iso2CC))
-          .map(Locale::getISO3Country)
-          .map(String::toUpperCase)
+      StandardRegistryImpl.getInstance()
+          .lookup("ISO3166", "1")
+          .getStandardEntries()
+          .stream()
+          .map(cc -> cc.getAsFormat("alpha3"))
           .collect(Collectors.toSet());
 
   public ISO3CountryCodeValidator(final boolean ignoreCase) {

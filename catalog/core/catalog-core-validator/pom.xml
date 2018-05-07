@@ -47,6 +47,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,6 +67,7 @@
                             catalog-core-api-impl,
                             platform-util
                         </Embed-Dependency>
+                        <Export-Package>ddf.catalog.validation.impl.validator</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
