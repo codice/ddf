@@ -534,5 +534,4 @@ grant {
     permission javax.management.MBeanTrustPermission "register";
 
     permission org.osgi.service.cm.ConfigurationPermission "*", "configure";
-
 };
