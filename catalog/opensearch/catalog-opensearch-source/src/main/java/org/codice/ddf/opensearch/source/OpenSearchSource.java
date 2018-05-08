@@ -211,6 +211,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   // lazy init
+  @VisibleForTesting
   protected SecureCxfClientFactory<OpenSearch> getClientFactory() {
     if (factory == null) {
       factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
