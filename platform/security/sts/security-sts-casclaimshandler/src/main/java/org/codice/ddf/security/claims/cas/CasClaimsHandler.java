@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -38,25 +39,19 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private Map<String, String> attributeMap = new HashMap<>();
 
-  private List<String> supportedClaims = new ArrayList<>();
+  private List<URI> supportedClaims = new ArrayList<>();
 
   private List<String> supportedRealms;
 
   private String realm;
 
+  // Multivalued attributes have values of the form "[val1, val2, ...]". Match such strings
+  // and return the substring within the brackets as group 1
+  private final Pattern attributePattern = Pattern.compile("^\\[(.*)\\]$");
+
   @Override
   public List<URI> getSupportedClaimTypes() {
-    List<URI> supportedClaimTypes = new ArrayList<>();
-
-    for (String claim : supportedClaims) {
-      try {
-        supportedClaimTypes.add(new URI(claim));
-      } catch (URISyntaxException e) {
-        LOGGER.error("Invalid supported claim: \"{}\"", claim);
-      }
-    }
-
-    return supportedClaimTypes;
+    return this.supportedClaims;
   }
 
   @Override
@@ -68,7 +63,7 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
 
     if (additionalProperties != null) {
       if (LOGGER.isTraceEnabled()) {
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         String prefix = "\n";
         output.append("CAS attributes returned: {");
         for (Map.Entry<String, Object> entry : additionalProperties.entrySet()) {
@@ -97,7 +92,7 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     if (LOGGER.isTraceEnabled()) {
-      StringBuffer output = new StringBuffer();
+      StringBuilder output = new StringBuilder();
       output.append("Claims map returned: {");
       String prefix = "\n";
       for (ProcessedClaim claim : claimsColl) {
@@ -122,10 +117,7 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
     c.setClaimType(claimType);
     c.setPrincipal(principal);
 
-    // Multivalued attributes have values of the form "[val1, val2, ...]". Match such strings
-    // and return the substring within the brackets as group 1
-    Pattern p = Pattern.compile("^\\[(.*)\\]$");
-    Matcher m = p.matcher((String) value);
+    Matcher m = attributePattern.matcher((String) value);
     if (m.matches()) {
       for (String s : m.group(1).split(",")) {
         c.addValue(s.trim());
@@ -143,6 +135,7 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
 
   public void setAttributeMap(Map<String, String> attributeMap) {
     this.attributeMap = attributeMap;
+    setSupportedClaims(this.attributeMap.keySet());
   }
 
   public void setAttributeMap(List<String> attributeMapEntries) {
@@ -156,13 +149,27 @@ public class CasClaimsHandler implements ClaimsHandler, RealmSupport {
             StringEscapeUtils.unescapeJava(keyValuePair[0]),
             StringEscapeUtils.unescapeJava(keyValuePair[1]));
       } else {
-        LOGGER.error("Invalid attribute map entry: {}", entry);
+        LOGGER.error(
+            "Invalid attribute map entry: \"{}\". Entries must be of the form \"claim=attribute\"",
+            entry);
       }
     }
+
+    setSupportedClaims(this.attributeMap.keySet());
   }
 
-  public void setSupportedClaims(List<String> supportedClaims) {
-    this.supportedClaims = supportedClaims;
+  public void setSupportedClaims(Set<String> supportedClaims) {
+    this.supportedClaims = new ArrayList<>();
+
+    for (String claim : supportedClaims) {
+      try {
+        this.supportedClaims.add(new URI(claim));
+      } catch (URISyntaxException e) {
+        LOGGER.warn(
+            "Claim is not a valid URI: \"{}\". Does it contain control characters or spaces?",
+            claim);
+      }
+    }
   }
 
   @Override

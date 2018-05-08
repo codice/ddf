@@ -182,7 +182,7 @@ public class WebSSOTokenValidator implements TokenValidator {
         response.setAdditionalProperties(additionalProperties);
 
         if (LOGGER.isTraceEnabled()) {
-          StringBuffer output = new StringBuffer();
+          StringBuilder output = new StringBuilder();
           String prefix = "\n";
           output.append("CAS attributes retrieved: { ");
           for (Map.Entry<String, Object> entry : additionalProperties.entrySet()) {

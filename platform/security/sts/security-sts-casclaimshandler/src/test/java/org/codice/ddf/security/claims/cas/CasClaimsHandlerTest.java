@@ -25,8 +25,10 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
@@ -75,7 +77,7 @@ public class CasClaimsHandlerTest {
   @Test
   public void testGetSupportedClaimTypes() {
     CasClaimsHandler handler = new CasClaimsHandler();
-    List<String> claims = Arrays.asList("NameIdentifier", "Email", "Role", "Groups");
+    Set<String> claims = new HashSet<>(Arrays.asList("NameIdentifier", "Email", "Role", "Groups"));
     handler.setSupportedClaims(claims);
     assertThat(handler.getSupportedClaimTypes().size(), is(4));
   }
@@ -83,7 +85,7 @@ public class CasClaimsHandlerTest {
   @Test
   public void testGetSupportedClaimTypesInvalidURI() {
     CasClaimsHandler handler = new CasClaimsHandler();
-    List<String> claims = Arrays.asList("control\\", "space ", "validURI");
+    Set<String> claims = new HashSet<>(Arrays.asList("control\\", "space ", "validURI"));
     handler.setSupportedClaims(claims);
     assertThat(handler.getSupportedClaimTypes().size(), is(1));
   }

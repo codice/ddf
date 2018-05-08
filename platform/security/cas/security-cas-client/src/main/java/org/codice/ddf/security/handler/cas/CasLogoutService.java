@@ -18,7 +18,6 @@ import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.util.Arrays;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -52,18 +51,19 @@ public class CasLogoutService {
           (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
       if (savedToken != null) {
         Subject subject = ThreadContext.getSubject();
-        boolean hasSecurityAuditRole =
-            Arrays.stream(System.getProperty("security.audit.roles", "").split(","))
-                .filter(subject::hasRole)
-                .findFirst()
-                .isPresent();
-        if (hasSecurityAuditRole) {
-          SecurityLogger.audit("Subject with admin privileges has logged out", subject);
+        if (subject != null) {
+          boolean hasSecurityAuditRole =
+              Arrays.stream(System.getProperty("security.audit.roles", "").split(","))
+                  .filter(subject::hasRole)
+                  .findFirst()
+                  .isPresent();
+          if (hasSecurityAuditRole) {
+            SecurityLogger.audit("Subject with admin privileges has logged out", subject);
+          }
         }
         savedToken.removeAll();
       }
       session.invalidate();
-      deleteJSessionId(response);
     }
 
     try {
@@ -71,14 +71,6 @@ public class CasLogoutService {
     } catch (IOException e) {
       LOGGER.warn("Failed to send redirect: ", e);
     }
-  }
-
-  private void deleteJSessionId(HttpServletResponse response) {
-    Cookie cookie = new Cookie("JSESSIONID", "");
-    cookie.setMaxAge(0);
-    cookie.setPath("/");
-    cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
-    response.addCookie(cookie);
   }
 
   public void setCasServerLogoutUrl(String url) {

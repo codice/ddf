@@ -18,8 +18,8 @@
 
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/"
-            description="URL of the CAS server (generally ends in /cas). The host much match the CN
-						 of the CAS certificate.">
+            description="URL of the CAS server (generally ends in /cas). The STS will use this to
+                        retrieve user attributes.">
         </AD>
 
     </OCD>

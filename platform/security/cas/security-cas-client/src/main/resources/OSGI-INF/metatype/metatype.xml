@@ -18,38 +18,37 @@
 
         <AD name="Server Name:" id="serverName" required="true" type="String"
             default="https://localhost:8993"
-            description="URL of the ${branding.upper} server. This URL is sent to CAS so it can
-            			 redirect users back to ${branding.upper}.">
+            description="Base URL of the ${branding.upper} server. This URL is sent to CAS so it can
+            			      redirect users back to ${branding.upper}.">
         </AD>
 
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas"
-            description="URL of the CAS server (generally ends in /cas). The host much match the CN
-						 of the CAS certificate.">
+            description="URL of the CAS server (generally ends in /cas). ${branding.upper} will use
+                        this for service ticket validation.">
         </AD>
 
         <AD name="CAS Server Login URL:" id="casServerLoginUrl" required="true" type="String"
             default="https://localhost:8443/cas/login"
             description="URL of the CAS login page (generally ends in /login). Unauthenticated
-            			 users will be redirected to this URL.">
+            			      users will be redirected to this URL.">
         </AD>
 
         <AD name="CAS Server Logout URL:" id="casServerLogoutUrl" required="true" type="String"
             default="https://localhost:8443/cas/logout"
             description="URL of the CAS logout page (generally ends in /logout). Authenticated users
-                         are redirected to this URL upon logout.">
+                        are redirected to this URL upon logout.">
         </AD>
 
         <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso"
             description="The URL to which CAS should send proxy granting tickets when requested
-             			 by a ${branding.upper} service. The host must match the CN of the
-             			 ${branding.upper} certificate.">
+             			      by the CAS client.">
         </AD>
 
         <AD name="Proxy Receptor URL:" id="proxyReceptorUrl" required="true" type="String"
             default="/sso"
-            description="CAS Client proxy receptor URL.">
+            description="The path where the CAS Client will receive proxy tickets.">
         </AD>
 
     </OCD>

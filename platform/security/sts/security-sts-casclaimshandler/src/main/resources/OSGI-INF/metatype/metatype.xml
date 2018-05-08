@@ -24,11 +24,6 @@
                    signs in the claim must be escaped.">
     </AD>
 
-    <AD name="Supported Claims:" id="supportedClaims" required="true" type="String" cardinality="100"
-      default=""
-      description="Claims must not contain control characters or spaces.">
-    </AD>
-
   </OCD>
 
   <Designate pid="ddf.security.claims.cas.CasClaimsHandler">

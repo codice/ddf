@@ -22,9 +22,6 @@
     <property name="attributeMap">
       <map/>
     </property>
-    <property name="supportedClaims">
-      <list/>
-    </property>
   </bean>
 
   <service interface="org.apache.cxf.sts.claims.ClaimsHandler" ref="casHandler"/>
