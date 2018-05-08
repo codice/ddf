@@ -251,8 +251,8 @@ public class WorkspaceTransformerTest {
   public void testMetacardAttributeRemoval() {
     metacard.setAttribute(METACARD_KEY_TO_REMOVE, KEY_TRANSFORMATION_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
-    assertThat(json, hasKey(METACARD_KEY_TO_REMOVE));
-    assertThat(json, hasKey(JSON_KEY_TO_REMOVE));
+    assertThat(json, not(hasKey(METACARD_KEY_TO_REMOVE)));
+    assertThat(json, not(hasKey(JSON_KEY_TO_REMOVE)));
   }
 
   // test map -> metacard
