@@ -18,6 +18,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import net.opengis.filter.v_2_0.FilterType;
 
 /** Provide functions for hydrating Filter XML into Filter JAXB objects. */
@@ -28,15 +31,20 @@ public class FilterReader {
     this.context = JAXBContext.newInstance(FilterType.class);
   }
 
-  public JAXBElement<FilterType> unmarshalFilter(InputStream inputStream) throws JAXBException {
+  public JAXBElement<FilterType> unmarshalFilter(InputStream inputStream)
+      throws JAXBException, XMLStreamException {
     return unmarshal(inputStream, FilterType.class);
   }
 
   @SuppressWarnings("unchecked")
   private <T> JAXBElement<T> unmarshal(InputStream inputStream, Class<T> tClass)
-      throws JAXBException {
+      throws JAXBException, XMLStreamException {
+    XMLInputFactory xif = XMLInputFactory.newFactory();
+    xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    xif.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    XMLStreamReader xsr = xif.createXMLStreamReader(inputStream);
     Unmarshaller unmarshaller = context.createUnmarshaller();
-    Object result = unmarshaller.unmarshal(inputStream);
+    Object result = unmarshaller.unmarshal(xsr);
     if (result instanceof JAXBElement) {
       JAXBElement element = (JAXBElement) result;
       if (tClass.isInstance(element.getValue())) {

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
@@ -83,7 +84,7 @@ public class TemplateTransformer {
       makeVisitable(root).accept(visitor);
       return new FormTemplate(
           wrapped, visitor.getResult(), accessIndividuals, accessGroups, metacardOwner);
-    } catch (JAXBException | UnsupportedEncodingException e) {
+    } catch (JAXBException | UnsupportedEncodingException | XMLStreamException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "
               + metacard.getId(),
