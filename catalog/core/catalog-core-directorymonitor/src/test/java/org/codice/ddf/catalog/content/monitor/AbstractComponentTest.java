@@ -75,7 +75,7 @@ public abstract class AbstractComponentTest {
         .until(() -> bundleContext.getServiceReference(registerClass) != null);
   }
 
-  private Option getComponentUnderTestOptions() throws IOException {
+  private Option getComponentUnderTestOptions() {
     String componentArtifactId = System.getProperty("component.artifactId");
     String componentVersion = System.getProperty("component.version");
     String bundleJarName = String.format("%s-%s.jar", componentArtifactId, componentVersion);

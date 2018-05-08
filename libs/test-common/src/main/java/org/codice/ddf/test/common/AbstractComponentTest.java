@@ -99,6 +99,7 @@ public abstract class AbstractComponentTest {
     return BundleOptionBuilder.add("org.mockito", "mockito-core")
         .add("org.objenesis", "objenesis")
         .add("org.awaitility", "awaitility")
+        .add("commons-io", "commons-io")
         .add("org.apache.commons", "commons-collections4")
         .add("org.apache.commons", "commons-lang3")
         .add("ddf.lib", "test-common")
