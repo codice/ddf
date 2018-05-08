@@ -103,6 +103,18 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   }
 
   @Override
+  public void visitBinaryTemporalType(VisitableElement<List<Object>> visitable) {
+    traceName(visitable);
+    builder.beginBinaryTemporalType(visitable.getName());
+    visitable
+        .getValue()
+        .stream()
+        .map(VisitableElement.class::cast)
+        .forEachOrdered(v -> v.accept(this));
+    builder.endTerminalType();
+  }
+
+  @Override
   public void visitBinarySpatialType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
     builder.beginBinarySpatialType("INTERSECTS");

@@ -21,11 +21,14 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
+import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.FilterType;
 import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
@@ -37,6 +40,9 @@ import org.junit.Test;
 public class TransformVisitorXmlTest {
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/filter-json");
+
+  private static final String EXPECTED_DATE =
+      Date.from(Instant.parse("2018-02-08T23:24:12.709Z")).toString();
 
   private static final String DEPTH_PROP = "depth";
 
@@ -107,9 +113,9 @@ public class TransformVisitorXmlTest {
                                 .withData(DEPTH_PROP, DEPTH_VAL),
                         k ->
                             forElement(k)
-                                .withBinding(BinarySpatialOpType.class)
-                                .verifyExpressionOrAny(BinarySpatialOpType::getExpressionOrAny)
-                                .withData("anyGeo", "WKT()")));
+                                .withBinding(BinaryTemporalOpType.class)
+                                .verifyExpressionOrAny(BinaryTemporalOpType::getExpressionOrAny)
+                                .withData("created", EXPECTED_DATE)));
   }
 
   private static VisitableElement getRootJsonFilterNode(String... resourceRoute) throws Exception {

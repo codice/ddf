@@ -76,7 +76,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitBinaryTemporalType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    throw new UnsupportedOperationException("BinaryTemporalType currently is not supported");
+    visitObjects(visitable);
   }
 
   @Override

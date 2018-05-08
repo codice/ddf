@@ -31,12 +31,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.LiteralType;
-import net.opengis.filter.v_2_0.ObjectFactory;
 
 /** As more test cases are added, more support functions will be needed. */
 class FilterNodeAssertionSupport {
-  private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-
   private FilterNodeAssertionSupport() {}
 
   static void assertParentNode(FilterNode node, String expectedType, int expectedChildCount) {

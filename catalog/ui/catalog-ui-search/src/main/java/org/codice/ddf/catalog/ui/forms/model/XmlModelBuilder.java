@@ -28,6 +28,8 @@ import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
+import net.opengis.filter.v_2_0.BinaryTemporalOpType;
+import net.opengis.filter.v_2_0.ComparisonOpsType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
@@ -57,6 +59,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("<", Mapper::lessThan)
           .put("<=", Mapper::lessThanOrEqualTo)
           .put("INTERSECTS", Mapper::intersects)
+          .put("BEFORE", Mapper::before)
+          .put("AFTER", Mapper::after)
           .build();
 
   private static final Map<String, MultiNodeReducer> LOGICAL_OPS =
@@ -139,6 +143,19 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
+  }
+
+  @Override
+  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    MultiNodeReducer temporalMapping = TERMINAL_OPS.get(operator);
+    if (temporalMapping == null) {
+      throw new IllegalArgumentException(
+          "Cannot find mapping for binary temporal operator: " + operator);
+    }
+    supplierInProgress = new TerminalNodeSupplier(temporalMapping);
+    return null;
   }
 
   @Override
@@ -299,20 +316,20 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     @SuppressWarnings("unchecked")
     private static JAXBElement<FilterType> filter(JAXBElement<?> root) {
-      if (BinaryLogicOpType.class.equals(root.getDeclaredType())) {
+      if (LogicOpsType.class.isAssignableFrom(root.getDeclaredType())) {
         return FACTORY.createFilter(
             new FilterType().withLogicOps((JAXBElement<? extends LogicOpsType>) root));
       }
-      if (BinaryComparisonOpType.class.equals(root.getDeclaredType())) {
+      if (ComparisonOpsType.class.isAssignableFrom(root.getDeclaredType())) {
         return FACTORY.createFilter(
             new FilterType()
                 .withComparisonOps((JAXBElement<? extends BinaryComparisonOpType>) root));
       }
-      if (SpatialOpsType.class.equals(root.getDeclaredType())) {
+      if (SpatialOpsType.class.isAssignableFrom(root.getDeclaredType())) {
         return FACTORY.createFilter(
             new FilterType().withSpatialOps((JAXBElement<? extends SpatialOpsType>) root));
       }
-      if (TemporalOpsType.class.equals(root.getDeclaredType())) {
+      if (TemporalOpsType.class.isAssignableFrom(root.getDeclaredType())) {
         return FACTORY.createFilter(
             new FilterType().withTemporalOps((JAXBElement<? extends TemporalOpsType>) root));
       }
@@ -356,6 +373,14 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       return FACTORY.createPropertyIsLessThanOrEqualTo(binaryComparison(children));
     }
 
+    private static JAXBElement<BinaryTemporalOpType> before(List<JAXBElement<?>> children) {
+      return FACTORY.createBefore(binaryTemporal(children));
+    }
+
+    private static JAXBElement<BinaryTemporalOpType> after(List<JAXBElement<?>> children) {
+      return FACTORY.createAfter(binaryTemporal(children));
+    }
+
     private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {
       return FACTORY.createIntersects(binarySpatial(children));
     }
@@ -366,6 +391,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinaryComparisonOpType binaryComparison(List<JAXBElement<?>> children) {
       return new BinaryComparisonOpType().withExpression(children);
+    }
+
+    private static BinaryTemporalOpType binaryTemporal(List<JAXBElement<?>> children) {
+      return new BinaryTemporalOpType().withExpressionOrAny(new ArrayList<>(children));
     }
 
     private static BinarySpatialOpType binarySpatial(List<JAXBElement<?>> children) {

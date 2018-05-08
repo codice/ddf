@@ -51,6 +51,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
           .put("PropertyIsGreaterThanOrEqualTo", ">=")
           .build();
 
+  private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
+      ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
+
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
 
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
@@ -136,6 +139,19 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     if (jsonOperator == null) {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary comparison operator: " + operator);
+    }
+    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    return this;
+  }
+
+  @Override
+  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    String jsonOperator = BINARY_TEMPORAL_MAPPING.get(operator);
+    if (jsonOperator == null) {
+      throw new IllegalArgumentException(
+          "Cannot find mapping for binary temporal operator: " + operator);
     }
     nodeInProgress = new FilterNodeImpl(jsonOperator);
     return this;
