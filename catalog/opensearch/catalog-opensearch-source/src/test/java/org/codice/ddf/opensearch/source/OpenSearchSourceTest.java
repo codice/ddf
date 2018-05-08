@@ -902,10 +902,5 @@ public class OpenSearchSourceTest {
         String url, String username, String password) {
       return factory;
     }
-
-    @Override
-    protected SecureCxfClientFactory getClientFactory() {
-      return factory;
-    }
   }
 }

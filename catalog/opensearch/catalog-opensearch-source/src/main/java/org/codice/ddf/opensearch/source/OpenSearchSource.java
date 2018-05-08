@@ -123,8 +123,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected final EncryptionService encryptionService;
 
-  @Nullable
-  private SecureCxfClientFactory<OpenSearch> factory;
+  @Nullable private SecureCxfClientFactory<OpenSearch> factory;
 
   // service properties
   protected String shortname;
@@ -212,8 +211,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   // lazy init
-  @VisibleForTesting
-  protected SecureCxfClientFactory<OpenSearch> getClientFactory() {
+  private SecureCxfClientFactory<OpenSearch> getClientFactory() {
     if (factory == null) {
       factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
     }
