@@ -96,7 +96,7 @@ public class OverlayActionProvider implements ActionProvider {
         LOGGER.debug("Error constructing URL", e);
       }
     } else {
-      LOGGER.debug("Cannot handle the input [{}]", subject);
+      LOGGER.debug("Cannot handle the input");
     }
 
     return null;
