@@ -76,7 +76,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitBinaryTemporalType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    visitObjects(visitable);
+    throw new UnsupportedOperationException("BinaryTemporalType currently is not supported");
   }
 
   @Override
@@ -88,13 +88,13 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitDistanceBufferType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    visitObjects(visitable);
+    throw new UnsupportedOperationException("DistanceBufferType currently is not supported");
   }
 
   @Override
   public void visitBoundingBoxType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    visitObjects(visitable);
+    throw new UnsupportedOperationException("BoundingBoxType currently is not supported");
   }
 
   @Override
@@ -106,19 +106,21 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
-    visitable.getValue().forEach(v -> v.accept(this));
+    throw new UnsupportedOperationException("PropertyIsLikeType currently is not supported");
   }
 
   @Override
   public void visitPropertyIsNullType(VisitableElement<VisitableElement<?>> visitable) {
     traceName(visitable);
-    // Verify result of visiting embedded entity
+    throw new UnsupportedOperationException("PropertyIsNullType currently is not supported");
+    // When support is added, verify result of visiting embedded entity (might be null)
   }
 
   @Override
   public void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable) {
     traceName(visitable);
-    // Verify result of visiting embedded entity
+    throw new UnsupportedOperationException("PropertyIsNilType currently is not supported");
+    // When support is added, verify result of visiting embedded entity (might be null)
   }
 
   @Override

@@ -318,7 +318,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       }
 
       throw new UnsupportedOperationException(
-          "Unsupported type on filter: " + root.getDeclaredType().getName());
+          "Attempting to build XML filter with unsupported element: "
+              + root.getDeclaredType().getName());
     }
 
     private static JAXBElement<BinaryLogicOpType> and(List<JAXBElement<?>> children) {

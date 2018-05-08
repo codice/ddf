@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
+import net.opengis.filter.v_2_0.AbstractIdType;
 import net.opengis.filter.v_2_0.BBOXType;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
@@ -154,7 +155,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
     handleUnsupported(unaryLogicOpType.getId());
     handleUnsupported(unaryLogicOpType.getExtensionOps());
 
-    // Functions are supported but not as the FIRST element of a document
+    // Functions are supported but not immediately after a Unary operator
     handleUnsupported(unaryLogicOpType.getFunction());
 
     throw new FilterProcessingException("No valid starting element for the unary op was found");
@@ -163,14 +164,15 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
   private static void handleUnsupported(Object type) {
     if (type != null) {
       throw new UnsupportedOperationException(
-          "Encountered filter with unsupported element: " + type.getClass().getName());
+          "Encountered XML filter with unsupported element: " + type.getClass().getName());
     }
   }
 
-  private static void handleUnsupported(List type) {
-    if (!type.isEmpty()) {
+  private static void handleUnsupported(List<JAXBElement<? extends AbstractIdType>> list) {
+    if (!list.isEmpty()) {
       throw new UnsupportedOperationException(
-          "Encountered filter with unsupported element: " + type.get(0).getClass().getName());
+          "Encountered XML filter with unsupported element: "
+              + list.get(0).getDeclaredType().getName());
     }
   }
 
