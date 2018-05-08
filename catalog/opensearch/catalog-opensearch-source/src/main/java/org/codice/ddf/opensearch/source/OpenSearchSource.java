@@ -123,6 +123,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected final EncryptionService encryptionService;
 
+  @Nullable
   private SecureCxfClientFactory<OpenSearch> factory;
 
   // service properties
