@@ -106,7 +106,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
   @Test(expected = URISyntaxException.class)
   public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
     String invalidHost = "23^&*#";
-    System.setProperty(SystemBaseUrl.HOST, invalidHost);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
     actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
   }

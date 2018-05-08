@@ -87,7 +87,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
 
   private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
     return new URI(
-            SystemBaseUrl.constructUrl(
+            SystemBaseUrl.EXTERNAL.constructUrlString(
                 String.format(
                     "%s?%s=%s&%s=%s",
                     CONTEXT_PATH, SOURCE_PARAM, metacardSource, METACARD_PARAM, metacardId),

@@ -106,7 +106,7 @@ public class ResourceDownloadActionProviderTest {
   @Test(expected = URISyntaxException.class)
   public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
     String invalidHost = "23^&*#";
-    System.setProperty(SystemBaseUrl.HOST, invalidHost);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
     setupMockBasicMetacard(REMOTE_SITE_NAME, REMOTE_RESOURCE_URI, DEFAULT_METACARD_ID);
     actionProvider.getMetacardActionUrl(REMOTE_SITE_NAME, mockMetacard);

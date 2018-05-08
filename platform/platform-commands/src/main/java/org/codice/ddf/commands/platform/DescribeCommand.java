@@ -28,12 +28,13 @@ public class DescribeCommand extends PlatformCommands {
 
   @Override
   public Object execute() throws Exception {
-    System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.getProtocol());
-    System.out.printf("%s=%s%n", "Host", SystemBaseUrl.getHost());
-    System.out.printf("%s=%s%n", "Port", SystemBaseUrl.getPort());
-    System.out.printf("%s=%s%n", "Root Context", SystemBaseUrl.getRootContext());
-    System.out.printf("%s=%s%n", "External Http Port", SystemBaseUrl.getHttpPort());
-    System.out.printf("%s=%s%n", "External Https Port", SystemBaseUrl.getHttpsPort());
+    System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.EXTERNAL.getProtocolString());
+    System.out.printf("%s=%s%n", "Host", SystemBaseUrl.EXTERNAL.getHostString());
+    System.out.printf("%s=%s%n", "Port", SystemBaseUrl.EXTERNAL.getPortString());
+    System.out.printf("%s=%s%n", "Root Context", SystemBaseUrl.EXTERNAL.getRootContextString());
+    System.out.printf("%s=%s%n", "External Http Port", SystemBaseUrl.EXTERNAL.getHttpPortString());
+    System.out.printf(
+        "%s=%s%n", "External Https Port", SystemBaseUrl.EXTERNAL.getHttpsPortString());
     System.out.printf(
         "%s=%s%n",
         "Internal Http Port", System.getProperty("org.codice.ddf.system.internalHttpPort"));

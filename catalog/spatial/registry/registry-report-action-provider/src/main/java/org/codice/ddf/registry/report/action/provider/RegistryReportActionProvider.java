@@ -163,7 +163,7 @@ public class RegistryReportActionProvider implements MultiActionProvider {
 
       URI uri =
           new URI(
-              SystemBaseUrl.constructUrl(
+              SystemBaseUrl.EXTERNAL.constructUrlString(
                   String.format(
                       "%s/%s%s%s%s", REGISTRY_PATH, metacardId, REPORT_PATH, FORMAT, sourceId),
                   true));

@@ -193,7 +193,7 @@ public class AbstractMetacardActionProviderTest {
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
     when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
-    System.clearProperty(SystemBaseUrl.HOST);
+    System.clearProperty(SystemBaseUrl.EXTERNAL_HOST);
 
     Action action = actionProvider.getAction(metacard);
 
@@ -208,7 +208,7 @@ public class AbstractMetacardActionProviderTest {
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
     when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
-    System.setProperty(SystemBaseUrl.HOST, "0.0.0.0");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "0.0.0.0");
 
     Action action = actionProvider.getAction(metacard);
 
