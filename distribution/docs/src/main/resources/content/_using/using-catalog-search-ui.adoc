@@ -263,7 +263,7 @@ Bookmarked results are denoted with a yellow *star* (image:bookmarked-icon.png[]
 
 Visuals are different ways to view search results.
 
-. Click the *[ + ]* icon in the top right corner of ${catalog-ui}.
+. Click the *Add Visual* (image:add-visual-icon.png[add visual icon]) icon in the top right corner of ${catalog-ui}.
 . Select a visual to add.
 .. *2D Map*: A 2 dimensional map view.
 .. *3D Map*: A 3 dimensional map view.
