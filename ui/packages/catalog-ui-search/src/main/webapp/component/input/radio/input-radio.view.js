@@ -56,12 +56,14 @@ define([
                         if (value.label) {
                             return {
                                 label: value.label,
-                                value: value.value
+                                value: value.value,
+                                title: value.title
                             };
                         } else {
                             return {
                                 label: value,
-                                value: value
+                                value: value,
+                                title: value.title
                             };
                         }
                     }),

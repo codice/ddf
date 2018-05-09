@@ -31,12 +31,13 @@ define([
     'component/loading/loading.view',
     'component/dropdown/popout/dropdown.popout.view',
     'component/result-add/result-add.view',
-    'component/export-actions/export-actions.view'
-], function (wreqr, Marionette, _, $, template, 
-    CustomElements, store, router, user, sources, Query, wkx, 
-    CQLUtils, QueryConfirmationView, LoadingView, PopoutView, ResultAddView, ExportActionsView) {
+    'component/export-actions/export-actions.view',
+    'plugins/metacard-interactions'
+], function (wreqr, Marionette, _, $, template,
+    CustomElements, store, router, user, sources, Query, wkx,
+    CQLUtils, QueryConfirmationView, LoadingView, PopoutView, ResultAddView, ExportActionsView, plugin) {
 
-    return Marionette.LayoutView.extend({
+    return plugin(Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('metacard-interactions'),
         className: 'composed-menu',
@@ -45,7 +46,8 @@ define([
         },
         regions: {
             resultAdd: '.interaction-add',
-            resultActionsExport: '.interaction-actions-export'
+            resultActionsExport: '.interaction-actions-export',
+            extensions: '.interaction-extensions'
         },
         events: {
             'click .interaction-add': 'handleAdd',
@@ -75,7 +77,12 @@ define([
             this.checkHasLocation();
             this.setupResultAdd();
             this.setupResultActionsExport();
+            const extensions = this.getExtensions();
+            if (extensions !== undefined) {
+                this.extensions.show(extensions);
+            }
         },
+        getExtensions: function () {},
         setupResultActionsExport() {
             this.resultActionsExport.show(PopoutView.createSimpleDropdown({
                 componentToShow: ExportActionsView,
@@ -277,5 +284,5 @@ define([
                 workspace: workspaceJSON
             }
         }
-    });
+    }));
 });
