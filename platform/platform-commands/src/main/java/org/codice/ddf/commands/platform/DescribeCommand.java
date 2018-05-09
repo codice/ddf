@@ -37,10 +37,10 @@ public class DescribeCommand extends PlatformCommands {
         "%s=%s%n", "External Https Port", SystemBaseUrl.EXTERNAL.getHttpsPortString());
     System.out.printf(
         "%s=%s%n",
-        "Internal Http Port", System.getProperty("org.codice.ddf.system.internalHttpPort"));
+        "Internal Http Port", System.getProperty(SystemBaseUrl.getHttpPort()));
     System.out.printf(
         "%s=%s%n",
-        "Internal Https Port", System.getProperty("org.codice.ddf.system.internalHttpsPort"));
+        "Internal Https Port", System.getProperty(SystemBaseUrl.getHttpsPort()));
 
     System.out.printf("%s=%s%n", "Site Name", SystemInfo.getSiteName());
     System.out.printf("%s=%s%n", "Organization", SystemInfo.getOrganization());
