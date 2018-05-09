@@ -106,18 +106,15 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that will actually proceed through Solr"
-      def createController = new FailsafeController('SolrClient Creation')
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doProceed())
-
-      if (return_or_throw == SolrClient) {
-        createController.onNextExecution(doProceed())
-      } else {
-        // null or exception
-        createController.onNextExecution {
-          doThrowOrReturn(return_or_throw)
-              .then().doProceed()
+      def createController = new FailsafeController('SolrClient Creation') >> {
+        if (return_or_throw == SolrClient) {
+          doProceed()
+        } else {
+          // null or exception
+          doThrowOrReturn(return_or_throw).then().doProceed()
         }
       }
+      def pingController = new FailsafeController('SolrClient Ping') >> doProceed()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -176,10 +173,11 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that will actually proceed through Solr"
-      def createController = new FailsafeController('SolrClient Creation')
-          .onNextExecution(doThrow(exception))
-          .and().onNextExecution(doProceed())
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doProceed())
+      def createController = new FailsafeController('SolrClient Creation') >>> [
+          doThrow(exception),
+          doProceed()
+      ]
+      def pingController = new FailsafeController('SolrClient Ping') >> doProceed()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -230,11 +228,11 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> {
         waitTo('create').onlyIf(blocking_create)
             .then().doReturn(client)
       }
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+      def pingController = new FailsafeController('SolrClient Ping') >> {
         waitTo('ping').onlyIf(blocking_ping)
             .then().doReturn()
       }
@@ -300,8 +298,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> {
         waitToBeCancelled()
             .before().throwing(new CancellationException("was cancelled"))
       }
@@ -358,14 +356,13 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping')
-          .onNextExecution(doReturn())
-          .and().onNextExecution {
-        doThrow(pingError)
-            .then().doThrow(pingFail).untilNotifiedTo('connect') // simulating a connection that is not yet ready
-            .then().doReturn()
-      }
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >>> [
+          doReturn(),
+          doThrow(pingError)
+              .then().doThrow(pingFail).untilNotifiedTo('connect') // simulating a connection that is not yet ready
+              .then().doReturn()
+      ]
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -434,8 +431,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def client = Mock(SolrClient)
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     and:
       def exception = new RuntimeException()
@@ -478,8 +475,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def client = Mock(SolrClient)
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -533,8 +530,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def client = Mock(SolrClient)
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -579,8 +576,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def client = Mock(SolrClient)
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -636,7 +633,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test closing just before we finally create a client'() {
     given: "a create controller that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> {
         doNotify('creating')
             .then().waitToBeCancelled().before().returning(client)
       }
@@ -678,8 +675,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test closing just before we finally connect to the client'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> {
         doNotify('connecting')
             .then().waitToBeCancelled().before().returning()
       }
@@ -719,8 +716,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test that getting the actual SolrClient should still return the adapter'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -746,8 +743,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() will not register the listener if the adapter is already closed but will call it once'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -795,8 +792,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() with timeout when the adapter is already available'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -822,11 +819,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() with timeout as the adapter becomes available'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
-        waitTo('connect')
-            .before().returning()
-      }
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> waitTo('connect').before().returning()
 
     and: "a waiter that verifies the adapter should be waiting for its client to become available and trigger the client connection"
       def waitCalled = new AtomicInteger()
@@ -868,8 +862,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() with a timeout is interrupted if the thread is interrupted'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> {
         doNotify('connecting')
             .then().waitTo('connect').before().returning()
       }
@@ -914,8 +908,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
   @Unroll
   def 'test isAvailable() with a #with_a_timeout_of timeout as it times out'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> {
         doThrow(pingFail)
             .then().waitTo('connect').before().returning()
       }
@@ -972,10 +966,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() with a listener as the adapter changes states'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
-        waitTo('connect').before().returning()
-      }
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> waitTo('connect').before().returning()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1035,8 +1027,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test isAvailable() with a listener as the adapter is closed'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter"
       def adapter = new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1099,10 +1091,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test whenAvailable() as the adapter becomes available'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution {
-        waitTo('connect').before().returning()
-      }
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> waitTo('connect').before().returning()
 
     and:
       def testThread = Thread.currentThread()
@@ -1158,8 +1148,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test whenAvailable() when the adapter is already available'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     and:
       def testThread = Thread.currentThread()
@@ -1203,7 +1193,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test whenAvailable() when the adapter never becomes available and gets closed'() {
     given: "a create controller that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution {
+      def createController = new FailsafeController('SolrClient Creation') >> {
         doNotify('creating')
             .then().waitToBeCancelled().before().throwing(new CancellationException("was cancelled"))
       }
@@ -1256,8 +1246,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
       def client = Mock(SolrClient)
 
     and: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     and:
       def initializer = Mock(Initializer) {
@@ -1352,8 +1342,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
   @Unroll
   def 'test client creation retry policy will #policy_will when #when_what'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1394,8 +1384,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test client creation retry policy will delay in between attempts'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1420,8 +1410,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test client creation retry policy will never stop unless aborted'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1445,8 +1435,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
   @Unroll
   def 'test client connection retry policy will #policy_will when #when_what'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1487,8 +1477,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test client connection retry policy will delay in between attempts'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
@@ -1513,8 +1503,8 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
   def 'test client connection retry policy will never stop unless aborted'() {
     given: "controllers that mocks every execution/attempts"
-      def createController = new FailsafeController('SolrClient Creation').onNextExecution(doReturn(client))
-      def pingController = new FailsafeController('SolrClient Ping').onNextExecution(doReturn())
+      def createController = new FailsafeController('SolrClient Creation') >> doReturn(client)
+      def pingController = new FailsafeController('SolrClient Ping') >> doReturn()
 
     when: "creating an adapter that initializes failsafe"
       new SolrClientAdapter(CORE, creator, createController.&with, pingController.&with)
