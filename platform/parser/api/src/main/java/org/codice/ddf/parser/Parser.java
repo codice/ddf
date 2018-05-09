@@ -21,9 +21,9 @@ import org.w3c.dom.Node;
 
 /**
  * Defines a service interface for converting between Objects and external representations of them.
- * Objects can be represented in myriad ways for transport and interoperability with other systems;
- * this service is intended to isolate some of the more particular needs of various converision
- * libraries.
+ * Objects can be represented in a myriad of ways for transport and interoperability with other
+ * systems; this service is intended to isolate some of the more particular needs of various
+ * conversion libraries.
  */
 public interface Parser {
 
