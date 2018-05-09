@@ -27,6 +27,8 @@ define([
 
             // subclasses must implement reIndexLayers()
             this.listenTo(this.collection, 'sort', this.reIndexLayers);
+            this.listenTo(this.collection, 'add', this.addLayer);
+            this.listenTo(this.collection, 'remove', this.removeLayer);
         }
     });
 

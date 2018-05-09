@@ -31,12 +31,17 @@ module.exports = Marionette.ItemView.extend({
         'click .layer-show': 'updateLayerShow',
         'change .layer-alpha': 'updateLayerAlpha',
         'click .layer-rearrange-down': 'moveDown',
-        'click .layer-rearrange-up': 'moveUp'
+        'click .layer-rearrange-up': 'moveUp',
+        'click .layer-remove': 'onRemove'
     },
     initialize: function () {
         this.listenTo(this.model, 'change:show', this.handleShow);
         this.listenTo(this.model, 'change:alpha', this.handleAlpha);
         this.listenTo(this.model, 'change:order', this.handleOrder);
+        this.$el.toggleClass('user-can-remove', !!this.model.get('userRemovable'));
+    },
+    onRemove: function () {
+        this.model.collection.remove(this.model);
     },
     moveDown: function(e) {
         const order = this.options.sortable.toArray();

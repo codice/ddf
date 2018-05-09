@@ -42,6 +42,10 @@
         top: 0px;
     }
 
+    .layer-remove {
+        display: none;
+    }
+
     .layer-rearrange-up:hover,
     .layer-rearrange-up:focus,
     .layer-rearrange-down:hover,
@@ -127,5 +131,21 @@
     .layer-name,
     input {
         opacity: 1;
+    }
+}
+
+@{customElementNamespace}layer-item.user-can-remove {
+     .layer-properties {
+        margin-right: @minimumButtonSize;
+        width: ~'calc(100% - 2*@{minimumButtonSize})';
+    }
+
+    .layer-remove {
+        display: block;
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        height: 100%;
+        width: @minimumButtonSize;
     }
 }
