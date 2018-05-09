@@ -1,0 +1,40 @@
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<sf:roads
+  xmlns:sf="http://www.openplans.org/spearfish"
+  xmlns:gml="http://www.opengis.net/gml"
+  gml:id="roads.2">
+  <sf:the_geom>
+    <gml:MultiLineString srsName="urn:x-ogc:def:crs:EPSG:26713" srsDimension="2">
+      <gml:lineStringMember>
+        <gml:LineString gml:id="null.1">
+          <gml:posList>598576.84589417 4915259.42699958 598570.11829199 4915276.49062597
+            598529.91614234 4915308.7347222 598500.61786952 4915358.07769195 598491.3176185
+            4915435.51583533 598469.40467964 4915446.45014913 598467.54661943 4915461.08392801
+            598475.37931483 4915491.59436414 598444.95747032 4915501.29187665 598420.00319987
+            4915512.83000607 598420.57138211 4915529.90821747 598419.88237907 4915564.67088674
+            598391.83560586 4915598.76896948 598397.17240916 4915656.71971606 598386.18466846
+            4915675.60451266 598361.79147315 4915707.27031706 598343.41981991 4915763.9538769
+            598299.93469705 4915900.48355011 598293.75111295 4915944.99356404 598290.63160318
+            4915979.14147892 598288.09306845 4916024.87857079 598325.02645911 4916090.82112439
+            598301.87054918 4916113.34096891 598266.57916271 4916125.46832894 598216.10528241
+            4916130.24659094 598189.25315195 4916173.49549522 598056.51691213 4916257.39572858
+            598029.04827111 4916304.30277372 598018.6045485 4916350.63395787 598027.60772248
+            4916400.66339167 598050.58169049 4916456.20981452 598085.09452438 4916517.26836474
+          </gml:posList>
+        </gml:LineString>
+      </gml:lineStringMember>
+    </gml:MultiLineString>
+  </sf:the_geom>
+  <sf:cat>2</sf:cat>
+  <sf:label>unimproved road</sf:label>
+</sf:roads>

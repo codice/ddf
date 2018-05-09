@@ -15,6 +15,11 @@ package ddf.test.itests.catalog;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
+import static com.xebialabs.restito.semantics.Condition.get;
+import static com.xebialabs.restito.semantics.Condition.parameter;
+import static com.xebialabs.restito.semantics.Condition.post;
+import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
 import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
@@ -26,8 +31,12 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.specification.RequestSpecification;
+import com.xebialabs.restito.semantics.Action;
+import com.xebialabs.restito.server.StubServer;
 import ddf.catalog.data.types.Location;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -80,6 +89,18 @@ public class TestSpatial extends AbstractIntegrationTest {
   private static final String PLAINXML_FAR_METACARD = "PlainXml far";
 
   private static final String TEXT_XML_UTF_8 = "text/xml;charset=UTF-8";
+
+  private static final String WFS_11_SYMBOLIC_NAME = "spatial-wfs-v1_1_0-source";
+
+  private static final String WFS_11_FACTORY_PID = "Wfs_v110_Federated_Source";
+
+  private static final String WFS_11_SOURCE_ID = "WFS 1.1 Source";
+
+  private static final String WFS_11_CONTEXT = "/mockWfs/11";
+
+  private String restitoStubServerPath;
+
+  private StubServer server;
 
   private static Map<String, String> savedCswQueries = new HashMap<>();
 
@@ -237,12 +258,101 @@ public class TestSpatial extends AbstractIntegrationTest {
   public void beforeExam() throws Exception {
     try {
       waitForSystemReady();
+
+      setupMockServer();
+
+      getCatalogBundle().waitForFederatedSource(WFS_11_SOURCE_ID);
+      //      getServiceManager().waitForSourcesToBeAvailable();
+
       loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
       getServiceManager().startFeature(true, "spatial-wps");
       getServiceManager().startFeature(true, "sample-process");
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
     }
+  }
+
+  private void setupMockServer() throws IOException {
+    DynamicPort restitoStubServerPort =
+        new DynamicPort("org.codice.ddf.system.restito_stub_server_port", 6);
+    restitoStubServerPath = DynamicUrl.INSECURE_ROOT + restitoStubServerPort.getPort();
+    server = new StubServer(Integer.parseInt(restitoStubServerPort.getPort())).run();
+    setupWfs11(restitoStubServerPort.getPort());
+  }
+
+  private void setupWfs11(String mockServerPort) throws IOException {
+    FederatedSourceProperties wfs11SourceProperties =
+        new FederatedSourceProperties(
+            WFS_11_SOURCE_ID, WFS_11_CONTEXT, WFS_11_SYMBOLIC_NAME, WFS_11_FACTORY_PID, "wfsUrl");
+
+    String wfs11GetCapabilities =
+        getFileContent("/TestSpatial/xml/WFS_11_GetCapabilities.xml")
+            .replaceAll("\\$\\{PORT}", mockServerPort);
+    String wfs11sfRoadsFeatureType =
+        getFileContent("/TestSpatial/xml/WFS_11_sfRoadsFeatureType.xsd");
+    String sfRoad1 = getFileContent("/TestSpatial/xml/sfRoad1.xml");
+    String sfRoad2 = getFileContent("/TestSpatial/xml/sfRoad2.xml");
+    String sfRoad3 = getFileContent("/TestSpatial/xml/sfRoad3.xml");
+
+    whenHttp(server)
+        .match(
+            get(WFS_11_CONTEXT),
+            parameter("service", "WFS"),
+            parameter("version", "1.1.0"),
+            parameter("request", "GetCapabilities"))
+        .then(Action.success(), Action.stringContent(wfs11GetCapabilities));
+    whenHttp(server)
+        .match(
+            get(WFS_11_CONTEXT),
+            parameter("service", "WFS"),
+            parameter("version", "1.1.0"),
+            parameter("request", "DescribeFeatureType"))
+        .then(Action.success(), Action.stringContent(wfs11sfRoadsFeatureType));
+
+    // wildcard
+    whenHttp(server)
+        .match(
+            post(WFS_11_CONTEXT),
+            withPostBodyContaining("GetFeature"),
+            withPostBodyContaining("sf:roads"),
+            withPostBodyContaining("Literal>*"))
+        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1, sfRoad2, sfRoad3)));
+
+    // keyword
+    whenHttp(server)
+        .match(
+            post(WFS_11_CONTEXT),
+            withPostBodyContaining("GetFeature"),
+            withPostBodyContaining("sf:roads"),
+            withPostBodyContaining(">roads.1"))
+        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
+
+    // boolean
+    whenHttp(server)
+        .match(
+            post(WFS_11_CONTEXT),
+            withPostBodyContaining("GetFeature"),
+            withPostBodyContaining("And>"),
+            withPostBodyContaining("sf:roads"))
+        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad2, sfRoad3)));
+
+    // geometry
+    whenHttp(server)
+        .match(
+            post(WFS_11_CONTEXT),
+            withPostBodyContaining("GetFeature"),
+            withPostBodyContaining("coordinates>"),
+            withPostBodyContaining("sf:roads"))
+        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
+
+    // ID Search
+    whenHttp(server)
+        .match(post(WFS_11_CONTEXT), withPostBodyContaining("FeatureId"))
+        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
+
+    getServiceManager().createManagedService(WFS_11_FACTORY_PID, wfs11SourceProperties);
+
+    String s = "as";
   }
 
   @After
@@ -511,11 +621,88 @@ public class TestSpatial extends AbstractIntegrationTest {
                 "count(/*[local-name()='Result']/*[local-name()='Output'])", Matchers.is("1")));
   }
 
+  @Test
+  public void testWfs11Wildcard() {
+    String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + WFS_11_SOURCE_ID;
+    String responseXml = given().request().get(queryUrl).andReturn().body().asString();
+    assertMetacards(responseXml, 3, WFS_11_SOURCE_ID, "roads");
+  }
+
+  @Test
+  public void testWfs11Keyword() {
+    String queryUrl = OPENSEARCH_PATH + "?q=roads.1&format=xml&src=" + WFS_11_SOURCE_ID;
+    String responseXml = given().request().get(queryUrl).andReturn().body().asString();
+    assertMetacards(responseXml, 1, WFS_11_SOURCE_ID, "roads");
+  }
+
+  @Test
+  public void testWfs11Boolean() {
+    String queryUrl = OPENSEARCH_PATH + "?q=roads.2 AND roads.3&format=xml&src=" + WFS_11_SOURCE_ID;
+    String responseXml = given().request().get(queryUrl).andReturn().body().asString();
+    assertMetacards(responseXml, 2, WFS_11_SOURCE_ID, "roads");
+  }
+
+  @Test
+  public void testWfs11Id() {
+    String queryUrl = REST_PATH.getUrl() + "sources/" + WFS_11_SOURCE_ID + "/roads.1";
+    String responseXml = given().request().get(queryUrl).andReturn().body().asString();
+    assertMetacard(responseXml, WFS_11_SOURCE_ID, "roads");
+  }
+
+  @Test
+  public void testWfs11Geo() {
+    String queryUrl =
+        OPENSEARCH_PATH + "?lat=90&lon=90&radius=1000&format=xml&src=" + WFS_11_SOURCE_ID;
+    String responseXml = given().request().get(queryUrl).andReturn().body().asString();
+    assertMetacards(responseXml, 1, WFS_11_SOURCE_ID, "roads");
+  }
+
+  private String wfsResponse(String... featureMembers) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        .append("<wfs:FeatureCollection\n")
+        .append("  xmlns:sf=\"http://www.openplans.org/spearfish\"\n")
+        .append("  xmlns:wfs=\"http://www.opengis.net/wfs\"\n")
+        .append("  xmlns:gml=\"http://www.opengis.net/gml\"\n")
+        .append("  numberOfFeatures=\"")
+        .append(featureMembers.length)
+        .append("\"\n")
+        .append("  timeStamp=\"2018-05-11T00:11:44.120Z\">\n")
+        .append("  <gml:featureMembers>\n");
+
+    for (String featureMember : featureMembers) {
+      sb.append(featureMember).append("\n");
+    }
+
+    sb.append("</gml:featureMembers>\n").append("</wfs:FeatureCollection>");
+
+    return sb.toString();
+  }
+
+  private void assertMetacard(String responseXml, String expectedSource, String expectedType) {
+    XmlPath xmlPath = new XmlPath(responseXml);
+    int numMetacards = xmlPath.get("metacard.size()");
+    assertThat(numMetacards, equalTo(1));
+    assertThat(xmlPath.get("metacard.type"), equalTo(expectedType));
+    assertThat(xmlPath.get("metacard.source"), equalTo(expectedSource));
+  }
+
+  private void assertMetacards(
+      String responseXml, int expectedNumMetacards, String expectedSource, String expectedType) {
+    XmlPath xmlPath = new XmlPath(responseXml);
+    int numMetacards = xmlPath.get("metacards.metacard.size()");
+    assertThat(numMetacards, equalTo(expectedNumMetacards));
+
+    for (int i = 0; i < numMetacards; i++) {
+      assertThat(xmlPath.get("metacards.metacard[" + i + "].type"), equalTo(expectedType));
+      assertThat(xmlPath.get("metacards.metacard[" + i + "].source"), equalTo(expectedSource));
+    }
+  }
+
   /**
    * Ingests data, performs and validates the query returns the correct results.
    *
    * @param queryType - The query that is performed
-   * @throws Exception
    */
   private void performQueryAndValidateExpectedResults(String queryType) throws Exception {
     ingestMetacards(metacardIds);
@@ -553,7 +740,6 @@ public class TestSpatial extends AbstractIntegrationTest {
    *
    * @param queryResult - The result obtained from sending the query
    * @param expectedValues - The values expected within the results
-   * @throws Exception
    */
   private void hasExpectedResults(String queryResult, ExpectedResultPair[] expectedValues)
       throws Exception {
@@ -574,8 +760,6 @@ public class TestSpatial extends AbstractIntegrationTest {
    *
    * @param queryResult - The result obtained from sending the query
    * @param expectedValues - The values expected within the result
-   * @return
-   * @throws Exception
    */
   private boolean hasExpectedMetacardsReturned(
       String queryResult, ExpectedResultPair[] expectedValues) throws Exception {
@@ -663,6 +847,7 @@ public class TestSpatial extends AbstractIntegrationTest {
   }
 
   public class ExpectedResultPair {
+
     String value;
 
     ResultType type;
@@ -670,6 +855,22 @@ public class TestSpatial extends AbstractIntegrationTest {
     public ExpectedResultPair(ResultType type, String value) {
       this.value = value;
       this.type = type;
+    }
+  }
+
+  public class FederatedSourceProperties extends HashMap<String, Object> {
+
+    public FederatedSourceProperties(
+        String sourceId,
+        String context,
+        String symbolicName,
+        String factoryPid,
+        String urlPropName) {
+      this.putAll(getServiceManager().getMetatypeDefaults(symbolicName, factoryPid));
+
+      this.put("id", sourceId);
+      this.put(urlPropName, restitoStubServerPath + context);
+      this.put("pollInterval", 1);
     }
   }
 }
