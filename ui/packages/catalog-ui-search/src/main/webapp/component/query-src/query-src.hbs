@@ -18,19 +18,19 @@
 </div>
 {{#each this}}
     <div class="choice is-specific {{#if available}}is-available{{/if}}" data-value="{{id}}">
-        {{#unless available}}
-            <span class="fa fa-exclamation-triangle">
-
-            </span>
-        {{/unless}}
-        {{#if local}}
-            <span class="fa source-icon fa-home">
-            </span>
-        {{else}}
-            <span class="fa source-icon fa-cloud">
-            </span>
-        {{/if}}
         <span class="choice-text">
+            {{#unless available}}
+                <span class="fa fa-exclamation-triangle">
+
+                </span>
+            {{/unless}}
+            {{#if local}}
+                <span class="fa source-icon fa-home">
+                </span>
+            {{else}}
+                <span class="fa source-icon fa-cloud">
+                </span>
+            {{/if}}
             {{id}}
         </span>
     </div>

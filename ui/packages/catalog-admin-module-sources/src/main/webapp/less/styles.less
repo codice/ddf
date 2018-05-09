@@ -2,11 +2,11 @@
 @highlightColor: lighten(@activeColor, 35);
 
 table {
-    width: 100%;
+  width: 100%;
 }
 
 table.align-middle {
-  td {
+  td, th {
     vertical-align: middle !important;
   }
 }
@@ -35,11 +35,26 @@ table.align-middle {
 }
 
 #sourcesRegion {
-  table-layout: fixed;
-  width: 100%;
+  table {
+    table-layout: fixed;
 
-  a {
-    text-decoration: none;
+    th {
+      &.name {
+        width: 25%;
+      }
+
+      &.active-binding {
+        width: 35%;
+      }
+
+      &.binding-url {
+        width: 25%;
+      }
+
+      &.status {
+        width: 15%;
+      }
+    }
   }
   .table-striped > tbody {
     tr.highlight-on-hover:hover td {
@@ -60,11 +75,29 @@ table.align-middle {
       }
     }
   }
+  a {
+    text-decoration: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .configurationSelect {
+    width: 100%;
+  }
   .bindingUrl {
     max-width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .sourceStatus {
+    span {
+      display: block;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 
@@ -78,6 +111,9 @@ table.align-middle {
   }
   .modal {
     overflow-y: auto;
+  }
+  .modal-title {
+    word-break: break-all;
   }
   .endpointUrl {
     width: 100%;
@@ -113,6 +149,7 @@ table.align-middle {
     color: @activeColor;
     width: 100%;
     font-weight: 700;
+    word-break: break-all;
   }
   .delete-source-config {
     padding: 4px 10px 4px 10px;

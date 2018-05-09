@@ -35,9 +35,10 @@ define([
         },
         isCentered: true,
         getCenteringElement: function(){
-            return this.el.querySelector('.dropdown-text');
+            return this.el.querySelector('.dropdown-container');
         },
         hasTail: true,
+        hasLimitedWidth: true,
         serializeData: function(){
             var srcs = this.model.get('value');
             return {

@@ -12,14 +12,12 @@
         vertical-align: top;
         .is-large-font;
         line-height: @minimumButtonSize;
-        vertical-align: middle;
     }
 
     .source-name {
         padding: 0px @minimumSpacing;
         max-width: ~'calc(100% - @{minimumButtonSize})';
-        overflow: hidden;
-        text-overflow: ellipsis;
+        word-wrap: break-word;
     }
 
     .source-actions {

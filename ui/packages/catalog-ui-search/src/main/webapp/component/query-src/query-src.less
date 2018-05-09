@@ -1,8 +1,9 @@
 @{customElementNamespace}query-src {
   display: block;
+  overflow: hidden;
 
   .choice {
-    padding: 0px 20px;
+    padding: 0px @minimumSpacing;
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
     cursor: pointer;
@@ -10,7 +11,12 @@
   }
 
   .choice-text {
-    padding-right: 30px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative;
+    max-width: ~'calc(100% - @{minimumButtonSize})';
   }
 
   .choice-selected {
@@ -31,7 +37,7 @@
     text-align: center;
   }
 
-  .choice.is-selected .choice-text{
+  .choice.is-selected .choice-text {
     .is-bold();
   }
 
