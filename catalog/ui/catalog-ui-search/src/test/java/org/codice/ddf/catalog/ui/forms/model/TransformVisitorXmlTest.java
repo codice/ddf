@@ -30,6 +30,7 @@ import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.FilterType;
+import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableElement;
@@ -115,7 +116,12 @@ public class TransformVisitorXmlTest {
                             forElement(k)
                                 .withBinding(BinaryTemporalOpType.class)
                                 .verifyExpressionOrAny(BinaryTemporalOpType::getExpressionOrAny)
-                                .withData("created", EXPECTED_DATE)));
+                                .withData("created", EXPECTED_DATE),
+                        k ->
+                            forElement(k)
+                                .withBinding(PropertyIsLikeType.class)
+                                .verifyExpression(PropertyIsLikeType::getExpression)
+                                .withData("name", "Bob")));
   }
 
   private static VisitableElement getRootJsonFilterNode(String... resourceRoute) throws Exception {

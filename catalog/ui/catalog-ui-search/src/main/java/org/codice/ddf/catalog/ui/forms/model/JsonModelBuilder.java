@@ -51,6 +51,12 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
           .put("PropertyIsGreaterThanOrEqualTo", ">=")
           .build();
 
+  private static final String PROPERTY_IS_LIKE = "PropertyIsLike";
+
+  private static final String ILIKE = "ILIKE";
+
+  private static final String LIKE = "LIKE";
+
   private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
       ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
 
@@ -140,6 +146,19 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary comparison operator: " + operator);
     }
+    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    return this;
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    if (!PROPERTY_IS_LIKE.equals(operator)) {
+      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
+    }
+    // For now, will always choose ILIKE
+    String jsonOperator = (matchCase) ? LIKE : ILIKE;
     nodeInProgress = new FilterNodeImpl(jsonOperator);
     return this;
   }

@@ -18,6 +18,11 @@
           "type": "BEFORE",
           "property": "created",
           "value": "2018-02-08T23:24:12.709Z"
+        },
+        {
+          "type": "ILIKE",
+          "property": "name",
+          "value" : "Bob"
         }
       ]
     }

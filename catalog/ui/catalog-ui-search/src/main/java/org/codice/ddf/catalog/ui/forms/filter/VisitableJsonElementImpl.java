@@ -72,6 +72,8 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           .put("ILIKE", FilterVisitor2::visitPropertyIsLikeType)
           .build();
 
+  private static final String LIKE = "LIKE";
+
   private final BiConsumer<FilterVisitor2, VisitableElement> visitMethod;
   private final String name;
   private final Object value;
@@ -81,6 +83,9 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private VisitableJsonElementImpl(final FilterNode node) {
+    if (LIKE.equals(node.getOperator())) {
+      throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
+    }
     this.name = node.getOperator();
     if (node.isTemplated()) {
       this.value = node.getTemplateProperties();

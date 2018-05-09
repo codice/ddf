@@ -106,7 +106,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
-    throw new UnsupportedOperationException("PropertyIsLikeType currently is not supported");
+    visitable.getValue().forEach(v -> v.accept(this));
   }
 
   @Override

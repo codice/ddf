@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlAttribute;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
@@ -35,6 +36,7 @@ import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
 import net.opengis.filter.v_2_0.LogicOpsType;
 import net.opengis.filter.v_2_0.ObjectFactory;
+import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
 
@@ -58,6 +60,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put(">=", Mapper::greaterThanOrEqualTo)
           .put("<", Mapper::lessThan)
           .put("<=", Mapper::lessThanOrEqualTo)
+          .put("ILIKE", Mapper::like)
+          .put("LIKE", Mapper::likeMatchCase) // For now, will never be selected
           .put("INTERSECTS", Mapper::intersects)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
@@ -140,6 +144,18 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     if (comparisonMapping == null) {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary comparison operator: " + operator);
+    }
+    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
+    return this;
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
+    if (comparisonMapping == null) {
+      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
     }
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
@@ -340,65 +356,112 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
 
     private static JAXBElement<BinaryLogicOpType> and(List<JAXBElement<?>> children) {
-      return FACTORY.createAnd(binaryLogic(children));
+      return FACTORY.createAnd(binaryLogicType(children));
     }
 
     private static JAXBElement<BinaryLogicOpType> or(List<JAXBElement<?>> children) {
-      return FACTORY.createOr(binaryLogic(children));
+      return FACTORY.createOr(binaryLogicType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> equalTo(List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsEqualTo(binaryComparison(children));
+      return FACTORY.createPropertyIsEqualTo(binaryComparisonType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> notEqualTo(List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsNotEqualTo(binaryComparison(children));
+      return FACTORY.createPropertyIsNotEqualTo(binaryComparisonType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> greaterThan(List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsGreaterThan(binaryComparison(children));
+      return FACTORY.createPropertyIsGreaterThan(binaryComparisonType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> greaterThanOrEqualTo(
         List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsGreaterThanOrEqualTo(binaryComparison(children));
+      return FACTORY.createPropertyIsGreaterThanOrEqualTo(binaryComparisonType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> lessThan(List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsLessThan(binaryComparison(children));
+      return FACTORY.createPropertyIsLessThan(binaryComparisonType(children));
     }
 
     private static JAXBElement<BinaryComparisonOpType> lessThanOrEqualTo(
         List<JAXBElement<?>> children) {
-      return FACTORY.createPropertyIsLessThanOrEqualTo(binaryComparison(children));
+      return FACTORY.createPropertyIsLessThanOrEqualTo(binaryComparisonType(children));
+    }
+
+    private static JAXBElement<PropertyIsLikeType> like(List<JAXBElement<?>> children) {
+      return FACTORY.createPropertyIsLike(likeType(children, false));
+    }
+
+    private static JAXBElement<PropertyIsLikeType> likeMatchCase(List<JAXBElement<?>> children) {
+      return FACTORY.createPropertyIsLike(likeType(children, true));
     }
 
     private static JAXBElement<BinaryTemporalOpType> before(List<JAXBElement<?>> children) {
-      return FACTORY.createBefore(binaryTemporal(children));
+      return FACTORY.createBefore(binaryTemporalType(children));
     }
 
     private static JAXBElement<BinaryTemporalOpType> after(List<JAXBElement<?>> children) {
-      return FACTORY.createAfter(binaryTemporal(children));
+      return FACTORY.createAfter(binaryTemporalType(children));
     }
 
     private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {
-      return FACTORY.createIntersects(binarySpatial(children));
+      return FACTORY.createIntersects(binarySpatialType(children));
     }
 
-    private static BinaryLogicOpType binaryLogic(List<JAXBElement<?>> ops) {
+    private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
     }
 
-    private static BinaryComparisonOpType binaryComparison(List<JAXBElement<?>> children) {
+    private static BinaryComparisonOpType binaryComparisonType(List<JAXBElement<?>> children) {
       return new BinaryComparisonOpType().withExpression(children);
     }
 
-    private static BinaryTemporalOpType binaryTemporal(List<JAXBElement<?>> children) {
+    private static PropertyIsLikeType likeType(List<JAXBElement<?>> children, boolean matchCase) {
+      return new PropertyIsLikeTypeWithMatchCase()
+          .withMatchCase(matchCase)
+          .withEscapeChar("\\")
+          .withWildCard("%")
+          .withSingleChar("_")
+          .withExpression(children);
+    }
+
+    private static BinaryTemporalOpType binaryTemporalType(List<JAXBElement<?>> children) {
       return new BinaryTemporalOpType().withExpressionOrAny(new ArrayList<>(children));
     }
 
-    private static BinarySpatialOpType binarySpatial(List<JAXBElement<?>> children) {
+    private static BinarySpatialOpType binarySpatialType(List<JAXBElement<?>> children) {
       return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
+    }
+  }
+
+  private static class PropertyIsLikeTypeWithMatchCase extends PropertyIsLikeType {
+    @XmlAttribute(name = "matchCase")
+    protected Boolean matchCase;
+
+    public boolean isMatchCase() {
+      if (matchCase == null) {
+        return true;
+      } else {
+        return matchCase;
+      }
+    }
+
+    public void setMatchCase(boolean value) {
+      this.matchCase = value;
+    }
+
+    public boolean isSetMatchCase() {
+      return (this.matchCase != null);
+    }
+
+    public void unsetMatchCase() {
+      this.matchCase = null;
+    }
+
+    public PropertyIsLikeTypeWithMatchCase withMatchCase(boolean value) {
+      setMatchCase(value);
+      return this;
     }
   }
 }

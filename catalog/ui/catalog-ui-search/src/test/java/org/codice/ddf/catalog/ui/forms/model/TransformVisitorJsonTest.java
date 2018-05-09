@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.model;
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertLeafNode;
+import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
 
 import java.io.File;
@@ -88,6 +89,13 @@ public class TransformVisitorJsonTest {
   public void testVisitIntersectsWithFunction() throws Exception {
     getRootXmlFilterNode("function-ops", "Intersects.xml").accept(visitor);
     assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
+  }
+
+  @Test
+  public void testVariety2() throws Exception {
+    getRootXmlFilterNode("hybrid", "hybrid-example-2.xml").accept(visitor);
+    assertParentNode(visitor.getResult(), "AND", 6);
+    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
   }
 
   private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {
