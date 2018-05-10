@@ -26,7 +26,13 @@
             org.apache.cxf:cxf-rt-rs-security-sso-saml/ehcache-2.10.4/jackson-databind-2.6.3.
             This suppression can be removed when DDF-3593 has been completed.
         </notes>
+        <cve>CVE-2016-3720</cve>
+        <cve>CVE-2016-7051</cve>
+        <cve>CVE-2017-7525</cve>
+        <cve>CVE-2017-15095</cve>
         <cve>CVE-2017-17485</cve>
+        <cve>CVE-2018-5968</cve>
+        <cve>CVE-2018-7489</cve>
     </suppress>
     <suppress>
         <notes>
