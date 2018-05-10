@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -38,10 +39,11 @@ import ddf.security.SubjectIdentity;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -267,7 +269,8 @@ public class SearchFormsApplication implements SparkApplication {
       response.status(400);
       return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
     }
-    Set<String> allTemplateIds =
+
+    Map<String, Metacard> allTemplateMetacards =
         Stream.concat(
                 util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
                     .values()
@@ -279,13 +282,15 @@ public class SearchFormsApplication implements SparkApplication {
                     .stream()
                     .map(Result::getMetacard)
                     .filter(Objects::nonNull))
-            .map(Metacard::getId)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+
     try {
       String id = metacard.getId();
+      Metacard oldMetacard = allTemplateMetacards.get(id);
       // The UI should not send an ID during a PUT unless the metacard already exists
-      if (id != null && allTemplateIds.contains(id)) {
+      if (id != null && oldMetacard != null) {
+        metacard.setAttribute(new AttributeImpl(Core.CREATED, oldMetacard.getCreatedDate()));
+        metacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
         catalogFramework.update(new UpdateRequestImpl(id, metacard));
         return ImmutableMap.of(RESP_MSG, "Successfully updated");
       } else {

@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -85,8 +84,6 @@ public class TemplateTransformer {
 
       String filterXml = writer.marshal(filter);
       metacard.setFormsFilter(filterXml);
-
-      metacard.setCreatedDate(new Date());
       return metacard;
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
@@ -152,6 +149,7 @@ public class TemplateTransformer {
     return null;
   }
 
+  /* PUT */
   @Nullable
   public Metacard toAttributeGroupMetacard(Map<String, Object> resultTemplateMap) {
     FieldFilter fieldFilter = new FieldFilter(resultTemplateMap);
@@ -162,7 +160,6 @@ public class TemplateTransformer {
             ? new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription())
             : new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription(), id);
 
-    metacard.setCreatedDate(fieldFilter.getCreated());
     metacard.setGroupDescriptors(fieldFilter.getDescriptors());
     return metacard;
   }

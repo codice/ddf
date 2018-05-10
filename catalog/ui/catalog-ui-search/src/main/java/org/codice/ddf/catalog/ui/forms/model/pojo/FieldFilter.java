@@ -41,11 +41,12 @@ public class FieldFilter extends CommonTemplate {
     this.descriptors = descriptors;
   }
 
+  @SuppressWarnings("unchecked")
   public FieldFilter(Map<String, Object> input) {
     super(input);
-    List<String> descriptors = (List<String>) input.get("descriptors");
-    notEmpty(descriptors);
-    this.descriptors = new HashSet<>(descriptors);
+    List<String> des = (List<String>) input.get("descriptors");
+    notEmpty(des);
+    this.descriptors = new HashSet<>(des);
   }
 
   public Set<String> getDescriptors() {
