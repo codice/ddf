@@ -123,9 +123,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected final EncryptionService encryptionService;
 
-  protected SecureCxfClientFactory<OpenSearch> factory;
-
-  protected boolean isInitialized = false;
+  @Nullable private SecureCxfClientFactory<OpenSearch> factory;
 
   // service properties
   protected String shortname;
@@ -209,9 +207,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    * called for each property specified in the metatype.xml file.
    */
   public void init() {
-    factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
     configureXmlInputFactory();
-    isInitialized = true;
+  }
+
+  // lazy init
+  private SecureCxfClientFactory<OpenSearch> getClientFactory() {
+    if (factory == null) {
+      factory = createClientFactory(endpointUrl.getResolvedString(), username, password);
+    }
+    return factory;
   }
 
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
@@ -261,7 +265,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       Response response;
 
       try {
-        client = factory.getWebClient();
+        client = getClientFactory().getWebClient();
         response = client.head();
       } catch (Exception e) {
         LOGGER.debug("Web Client was unable to connect to endpoint.", e);
@@ -343,7 +347,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             idSearch);
       }
 
-      final WebClient restWebClient = factory.getWebClientForSubject(subject);
+      final WebClient restWebClient = getClientFactory().getWebClientForSubject(subject);
       if (restWebClient == null) {
         throw new UnsupportedQueryException("Unable to create restWebClient");
       }
@@ -626,9 +630,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
    */
   public void setEndpointUrl(String endpointUrl) {
     this.endpointUrl = new PropertyResolver(endpointUrl);
-    if (isInitialized) {
-      factory = createClientFactory(endpointUrl, username, password);
-    }
+    factory = null;
   }
 
   @Override
@@ -838,6 +840,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setUsername(String username) {
     this.username = username;
+    factory = null;
   }
 
   public String getPassword() {
@@ -846,6 +849,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setPassword(String password) {
     this.password = encryptionService.decryptValue(password);
+    factory = null;
   }
 
   public Boolean getDisableCnCheck() {
@@ -854,6 +858,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setDisableCnCheck(Boolean disableCnCheck) {
     this.disableCnCheck = disableCnCheck;
+    factory = null;
   }
 
   public Boolean getAllowRedirects() {
@@ -862,6 +867,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setAllowRedirects(Boolean allowRedirects) {
     this.allowRedirects = allowRedirects;
+    factory = null;
   }
 
   public Integer getConnectionTimeout() {
@@ -870,6 +876,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setConnectionTimeout(Integer connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
+    factory = null;
   }
 
   public Integer getReceiveTimeout() {
@@ -878,6 +885,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setReceiveTimeout(Integer receiveTimeout) {
     this.receiveTimeout = receiveTimeout;
+    factory = null;
   }
 
   private WebClient newRestClient(

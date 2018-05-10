@@ -65,5 +65,32 @@
 |true
 |true
 
-|===
+|Disable CN Check
+|[[disableCnCheck]]disableCnCheck
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|true
 
+|Connection Timeout
+|[[connectionTimeout]]connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|30000
+|true
+
+|Receive Timeout
+|[[receiveTimeout]]receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|true
+
+|Entry XML Element
+|[[markUpSet]]markUpSet
+|String
+|XML Element from the Response Entry to transform into a Metacard.
+|
+|false
+
+|===

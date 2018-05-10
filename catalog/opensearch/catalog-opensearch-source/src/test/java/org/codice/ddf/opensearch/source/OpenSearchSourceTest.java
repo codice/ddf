@@ -131,6 +131,7 @@ public class OpenSearchSourceTest {
   private static final String NOT_ID_ATTRIBUTE_NAME = "this attribute name is ignored";
 
   private final WebClient webClient = mock(WebClient.class);
+  private final SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
   private final EncryptionService encryptionService = mock(EncryptionService.class);
   private final OpenSearchParser openSearchParser = new OpenSearchParserImpl();
   private final OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
@@ -399,7 +400,6 @@ public class OpenSearchSourceTest {
     when(response.getHeaderString(eq("Accept-Ranges"))).thenReturn("bytes");
     when(webClient.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(webClient);
 
-    final SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
     doReturn(webClient)
         .when(factory)
         .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
@@ -413,7 +413,6 @@ public class OpenSearchSourceTest {
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
     source.init();
     source.setParameters(DEFAULT_PARAMETERS);
-    source.factory = factory;
   }
 
   /** Tests the proper query is sent to the remote source for query by id. */
@@ -901,7 +900,7 @@ public class OpenSearchSourceTest {
     @Override
     protected SecureCxfClientFactory createClientFactory(
         String url, String username, String password) {
-      return this.factory;
+      return factory;
     }
   }
 }
