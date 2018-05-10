@@ -342,18 +342,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     // 1 is added to the row size, so we can still determine whether we found more metacards than
     // updated metacards provided
     query.setRows(updates.size() + 1);
-
     QueryResponse idResults = null;
 
-    /* 1b. Execute Query */
     try {
       idResults = solr.query(query, METHOD.POST);
     } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to query for metacard(s) before update.", e);
     }
-
     // map of old metacards to be populated
-    /* 1c. Populate list of old metacards */
     final Map<Serializable, Metacard> idToMetacardMap =
         computeOldMetacardIds(attributeName, updates, idResults);
 
@@ -362,12 +358,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
     if (idToMetacardMap.isEmpty()) {
       LOGGER.debug("No results found for given attribute values.");
-
       // return an empty list
       return new UpdateResponseImpl(updateRequest, null, new ArrayList<>());
     }
-
-    /* 2. Update the cards */
     List<Metacard> newMetacards = computeMetacardsToUpdate(updates, idToMetacardMap, updateList);
 
     try {
@@ -376,7 +369,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       LOGGER.info("Failed to update metacard(s) with Solr.", e);
       throw new IngestException("Failed to update metacard(s).");
     }
-
     pendingNrtIndex.putAll(
         updateList
             .stream()
@@ -447,8 +439,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     for (Entry<Serializable, Metacard> updateEntry : updates) {
       String localKey = updateEntry.getKey().toString();
-
-      /* 2a. Prepare new Metacard */
       MetacardImpl newMetacard = new MetacardImpl(updateEntry.getValue());
       // Find the exact oldMetacard that corresponds with this newMetacard
       Metacard oldMetacard = idToMetacardMap.get(localKey);
@@ -458,9 +448,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       if (oldMetacard != null) {
         // overwrite the id, in case it has not been done properly/already
         newMetacard.setId(oldMetacard.getId());
-
         newMetacard.setSourceId(getId());
-
         newMetacards.add(newMetacard);
         updateList.add(new UpdateImpl(newMetacard, oldMetacard));
       }

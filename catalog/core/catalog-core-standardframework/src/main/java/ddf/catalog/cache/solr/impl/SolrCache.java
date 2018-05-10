@@ -43,6 +43,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -81,6 +82,8 @@ public class SolrCache implements SolrCacheMBean {
 
   private final AtomicBoolean dirty = new AtomicBoolean(false);
 
+  private final Supplier<ScheduledExecutorService> schedulerCreator;
+
   private ScheduledExecutorService scheduler;
 
   private long expirationIntervalInMinutes = 10;
@@ -105,11 +108,18 @@ public class SolrCache implements SolrCacheMBean {
 
   @VisibleForTesting
   SolrCache(SolrClient client, CacheSolrMetacardClient metacardClient) {
+    this(client, metacardClient, SolrCache::createScheduler);
+  }
+
+  @VisibleForTesting
+  SolrCache(
+      SolrClient client,
+      CacheSolrMetacardClient metacardClient,
+      Supplier<ScheduledExecutorService> schedulerCreator) {
     this.client = client;
     this.metacardClient = metacardClient;
-
+    this.schedulerCreator = schedulerCreator;
     configureCacheExpirationScheduler();
-
     configureMBean();
   }
 
@@ -182,15 +192,12 @@ public class SolrCache implements SolrCacheMBean {
     this.expirationAgeInMinutes = expirationAgeInMinutes;
   }
 
-  @VisibleForTesting
-  void configureCacheExpirationScheduler() {
+  private void configureCacheExpirationScheduler() {
     shutdownCacheExpirationScheduler();
     LOGGER.debug(
         "Configuring cache expiration scheduler with an expiration interval of {} minute(s).",
         expirationIntervalInMinutes);
-    scheduler =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("solrCacheThread"));
+    this.scheduler = schedulerCreator.get();
     scheduler.scheduleAtFixedRate(
         new ExpirationRunner(), 0, expirationIntervalInMinutes, TimeUnit.MINUTES);
   }
@@ -300,8 +307,12 @@ public class SolrCache implements SolrCacheMBean {
     return Collections.emptyList();
   }
 
-  private class ExpirationRunner implements Runnable {
+  private static ScheduledExecutorService createScheduler() {
+    return Executors.newSingleThreadScheduledExecutor(
+        StandardThreadFactoryBuilder.newThreadFactory("solrCacheThread"));
+  }
 
+  private class ExpirationRunner implements Runnable {
     @Override
     public void run() {
       try {

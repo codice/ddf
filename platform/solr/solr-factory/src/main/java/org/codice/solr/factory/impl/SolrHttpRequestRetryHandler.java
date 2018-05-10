@@ -25,7 +25,12 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SolrHttpRequestRetryHandler implements HttpRequestRetryHandler {
+/**
+ * Retry handler for Solr Http requests sent through Http clients.
+ *
+ * <p>This retry handler will attempt to retry for a maximum of about 2 minutes before failing.
+ */
+class SolrHttpRequestRetryHandler implements HttpRequestRetryHandler {
   // 30 with 11 retries will make the total attempt last around 2 minutes
   private static final long TIME_FACTOR = 30L;
 

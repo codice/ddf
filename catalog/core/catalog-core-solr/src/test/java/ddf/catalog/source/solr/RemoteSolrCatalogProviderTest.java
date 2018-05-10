@@ -78,7 +78,7 @@ public class RemoteSolrCatalogProviderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullCl() {
+  public void testNullSolrClient() {
     new RemoteSolrCatalogProvider(
         mock(FilterAdapter.class),
         null,
@@ -116,7 +116,7 @@ public class RemoteSolrCatalogProviderTest {
   }
 
   @Test
-  public void testAvailability() throws Exception {
+  public void testIsAvailableWhenSolrClientStatusNotOk() throws Exception {
     final SolrClient client = givenSolrClient(false);
     CatalogProvider provider = new MockedRemoteSolrCatalogProvider(client);
 

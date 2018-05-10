@@ -65,6 +65,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
   private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
+  private static final String SOLR_HTTP_URL = "solr.http.url";
   private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
@@ -100,17 +101,15 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     String solrUrl =
         StringUtils.defaultIfBlank(
             AccessController.doPrivileged(
-                (PrivilegedAction<String>) () -> System.getProperty("solr.http.url")),
+                (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
             getDefaultHttpsAddress());
     final String coreUrl = solrUrl + "/" + core;
+    final String solrDataDir =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
 
-    if (AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR))
-        != null) {
-      ConfigurationStore.getInstance()
-          .setDataDirectoryPath(
-              AccessController.doPrivileged(
-                  (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR)));
+    if (solrDataDir != null) {
+      ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
     }
     LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
     return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
