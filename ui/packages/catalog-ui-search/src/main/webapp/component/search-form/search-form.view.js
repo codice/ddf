@@ -52,9 +52,9 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     changeView: function() {
+        let oldType = this.options.queryModel.get('type');
         switch(this.model.get('type')) {
             case 'new-form':
-                let oldType = this.options.queryModel.get('type');
                 this.options.queryModel.set({
                     type: 'new-form',
                     associatedFormModel: this.model, //TODO: Compare this with the old approach of storing just the query id (for better or worse...)
@@ -77,11 +77,18 @@ module.exports = Marionette.LayoutView.extend({
                 user.getQuerySettings().set('type', 'text');
                 break;
             case 'custom':
-                var oldType = this.options.queryModel.get('type');
+                let sorts = this.model.get('querySettings') && this.model.get('querySettings').sorts;
+                if (sorts) {
+                    sorts = sorts.map(sort => ({ attribute: sort.split(',')[0], direction: sort.split(',')[1] }));
+                }
                 this.options.queryModel.set({
                     type: 'custom',
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
+                    src: (this.model.get('querySettings') && this.model.get('querySettings').src) || '',
+                    federation: (this.model.get('querySettings') && this.model.get('querySettings').federation) || 'enterprise',
+                    sorts: sorts,
+                    'detail-level': (this.model.get('querySettings') && this.model.get('querySettings')['detail-level']) || 'allFields',
                     accessGroups: this.model.get('accessGroups'),
                     accessIndividuals: this.model.get('accessIndividuals')
                 });

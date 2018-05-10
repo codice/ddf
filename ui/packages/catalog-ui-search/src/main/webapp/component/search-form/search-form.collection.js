@@ -105,11 +105,14 @@ module.exports = Backbone.AssociatedModel.extend({
                         createdOn: Common.getHumanReadableDate(d),
                         id: value.id,
                         name: value.title,
+                        description: value.description,
                         type: 'custom',
                         filterTemplate: JSON.stringify(value.filterTemplate),
                         accessIndividuals: value.accessIndividuals,
                         accessGroups: value.accessGroups,
-                        createdBy: value.creator
+                        createdBy: value.creator,
+                        owner: value.owner,
+                        querySettings: value.querySettings
                     }));
                 }
             }.bind(this));
