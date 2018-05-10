@@ -216,12 +216,7 @@ public class ThreadMonitor {
    * @return a new scheduler that uses this thread monitor to monitor all scheduled tasks
    */
   public Scheduler monitor(Scheduler scheduler) {
-    return new Scheduler() {
-      @Override
-      public ScheduledFuture<?> schedule(Callable<?> callable, long delay, TimeUnit unit) {
-        return monitor(callable, scheduler, delay, unit);
-      }
-    };
+    return (callable, delay, unit) -> monitor(callable, scheduler, delay, unit);
   }
 
   protected Object register(Object lock) {

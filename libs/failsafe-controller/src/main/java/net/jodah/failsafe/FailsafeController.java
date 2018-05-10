@@ -127,6 +127,8 @@ public class FailsafeController<R> {
    * @throws IllegalStateException if any of the <code>retry()</code> methods have been called
    *     already
    */
+  @SuppressWarnings(
+      "squid:CommentedOutCodeLine" /* currently not supported, will be uncommented once we support it */)
   public synchronized SyncFailsafe<R> with(CircuitBreaker circuitBreaker) {
     Assert.state(sync == null, "with() was already called once");
     throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
