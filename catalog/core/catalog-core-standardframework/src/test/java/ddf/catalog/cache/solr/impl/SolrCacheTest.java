@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,11 +69,11 @@ public class SolrCacheTest {
   @Before
   public void setUp() {
     solrCache =
-        new SolrCache(mockSolrClient, mockCacheSolrMetacardClient) {
-          @Override
-          void configureCacheExpirationScheduler() { // to disable configuration of the scheduler
-          }
-        };
+        new SolrCache(
+            mockSolrClient,
+            mockCacheSolrMetacardClient,
+            () -> mock(ScheduledExecutorService.class) // to disable configuration of the scheduler
+            );
   }
 
   @Test

@@ -53,11 +53,11 @@ import org.slf4j.LoggerFactory;
  * Uses the following system properties when creating an instance:
  *
  * <ul>
- * <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
- * <li>solr.http.url: Solr server URL
- * <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
- * <li>https.protocols: Secure protocols supported by the Solr server
- * <li>https.cipherSuites: Cipher suites supported by the Solr server
+ *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
+ *   <li>solr.http.url: Solr server URL
+ *   <li>org.codice.ddf.system.threadPoolSize: Solr query thread pool size
+ *   <li>https.protocols: Secure protocols supported by the Solr server
+ *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  */
 public final class HttpSolrClientFactory implements SolrClientFactory {
@@ -65,6 +65,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
   private static final String SOLR_CONTEXT = "/solr";
   private static final String SOLR_DATA_DIR = "solr.data.dir";
+  private static final String SOLR_HTTP_URL = "solr.http.url";
   private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
   private static final String TRUST_STORE = "javax.net.ssl.trustStore";
   private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
@@ -100,17 +101,15 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     String solrUrl =
         StringUtils.defaultIfBlank(
             AccessController.doPrivileged(
-                (PrivilegedAction<String>) () -> System.getProperty("solr.http.url")),
+                (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
             getDefaultHttpsAddress());
     final String coreUrl = solrUrl + "/" + core;
+    final String solrDataDir =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR));
 
-    if (AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR))
-        != null) {
-      ConfigurationStore.getInstance()
-          .setDataDirectoryPath(
-              AccessController.doPrivileged(
-                  (PrivilegedAction<String>) () -> System.getProperty(SOLR_DATA_DIR)));
+    if (solrDataDir != null) {
+      ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
     }
     LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
     return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
@@ -158,7 +157,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static String[] getProtocols() {
     if (AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS))
+            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_PROTOCOLS))
         != null) {
       return StringUtils.split(
           AccessController.doPrivileged(
@@ -171,7 +170,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
   private static String[] getCipherSuites() {
     if (AccessController.doPrivileged(
-        (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES))
+            (PrivilegedAction<String>) () -> System.getProperty(HTTPS_CIPHER_SUITES))
         != null) {
       return StringUtils.split(
           AccessController.doPrivileged(
@@ -218,7 +217,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
               .loadKeyMaterial(
                   keyStore[0],
                   AccessController.doPrivileged(
-                      (PrivilegedAction<String>) () -> System.getProperty(KEY_STORE_PASS))
+                          (PrivilegedAction<String>) () -> System.getProperty(KEY_STORE_PASS))
                       .toCharArray())
               .loadTrustMaterial(trustStore[0])
               .useTLS()
@@ -281,10 +280,10 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
           } else {
             solrDir =
                 Paths.get(
-                    AccessController.doPrivileged(
-                        (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
-                    "data",
-                    "solr")
+                        AccessController.doPrivileged(
+                            (PrivilegedAction<String>) () -> System.getProperty("karaf.home")),
+                        "data",
+                        "solr")
                     .toString();
           }
 

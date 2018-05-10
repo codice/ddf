@@ -39,7 +39,7 @@ import org.apache.solr.common.util.NamedList;
  *
  * <ul>
  *   <li>{@link #getBinder()}, {@link #toString()}, and {@link #close()} delegate directly to the
- *       Solr client return from {@link #getProxiedClient}. It is therefore required to override
+ *       Solr client returned from {@link #getProxiedClient}. It is therefore required to override
  *       these methods in order to intercept the delegation
  *   <li>{@link #clone} is not supported and throws {@link CloneNotSupportedException}
  *   <li>all other methods will be handled through the {@link #handle} method giving one place to
