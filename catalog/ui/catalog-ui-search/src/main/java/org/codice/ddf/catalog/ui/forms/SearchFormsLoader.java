@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static java.util.AbstractMap.SimpleEntry;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 
@@ -171,6 +172,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     String title = safeGet(map, Core.TITLE, String.class);
     String description = safeGet(map, Core.DESCRIPTION, String.class);
     String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
+    Map<String, Object> querySettings = safeGetMap(map, "querySettings", Object.class);
 
     if (anyNull(title, description, filterTemplateFile)) {
       return null;
@@ -189,6 +191,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
     QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
     metacard.setFormsFilter(filterXml);
+    if (querySettings != null) {
+      metacard.setQuerySettings(querySettings);
+    }
 
     // Validation so the catalog is not contaminated on startup, which would impact every request
     if (TemplateTransformer.invalidFormTemplate(metacard)) {
@@ -226,10 +231,30 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return null;
   }
 
-  @SuppressWarnings({"unchecked", "squid:S1168" /* We want to return null */})
+  private static <T> Map<String, T> safeGetMap(Map map, String key, Class<T> valueType) {
+    Map<?, ?> unchecked = safeGet(map, key, Map.class);
+    if (unchecked == null) {
+      return null;
+    }
+    try {
+      return unchecked
+          .entrySet()
+          .stream()
+          .map(e -> new SimpleEntry<>(String.class.cast(e.getKey()), e.getValue()))
+          .map(e -> new SimpleEntry<>(e.getKey(), valueType.cast(e.getValue())))
+          .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+    } catch (ClassCastException e) {
+      LOGGER.warn(
+          "Form configuration field {} was malformed, expected a querySettings Map containing type {}",
+          key,
+          valueType.getName());
+    }
+    return null;
+  }
+
   @Nullable
   private static <T> List<T> safeGetList(Map map, String key, Class<T> type) {
-    List unchecked = safeGet(map, key, List.class);
+    List<?> unchecked = safeGet(map, key, List.class);
     if (unchecked == null) {
       return null;
     }
