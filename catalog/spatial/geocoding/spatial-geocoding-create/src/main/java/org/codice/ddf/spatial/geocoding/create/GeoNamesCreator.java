@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.spatial.geocoding.create;
 
-import java.util.Optional;
-import org.codice.countrycode.standard.CountryCode;
 import org.codice.countrycode.standard.StandardProvider;
 import org.codice.countrycode.standard.StandardRegistry;
 import org.codice.countrycode.standard.StandardRegistryImpl;
@@ -38,17 +36,14 @@ public class GeoNamesCreator implements GeoEntryCreator {
     // Passing a negative value to preserve empty fields.
     final String[] fields = line.split("\\t", -1);
 
-    Optional<CountryCode> optionalCountryCode =
+    String countryCode =
         isoStandard
             .getStandardEntries()
             .stream()
             .filter(c -> c.getAsFormat("alpha2").equals(fields[8]))
-            .findFirst();
-
-    String countryCode = fields[8];
-    if (optionalCountryCode.isPresent()) {
-      countryCode = optionalCountryCode.get().getAsFormat("alpha3");
-    }
+            .findFirst()
+            .map(cc -> cc.getAsFormat("alpha3"))
+            .orElse(fields[8]);
 
     return new GeoEntry.Builder()
         .name(fields[1])
