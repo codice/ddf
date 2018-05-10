@@ -78,6 +78,8 @@ module.exports = Marionette.LayoutView.extend({
         this.queryAdvanced.currentView.turnOnEditing();
         if (this.options.isForm === true && this.options.isFormBuilder !== true) {
             this.queryAdvanced.currentView.turnOffEditing();
+            //TODO: Deal with the oddities in turning off editing in that view
+            //this.querySettings.currentView.turnOffEditing();
         }
     },
     cancel: function(){
@@ -96,7 +98,10 @@ module.exports = Marionette.LayoutView.extend({
     setDefaultTitle: function() {
         this.model.set('title', this.model.get('cql'));
     },
-    getFilterTree: function() {
-        return this.queryAdvanced.currentView.getFilters();
+    serializeTemplateParameters: function() {
+        return {
+            filterTree: this.queryAdvanced.currentView.getFilters(),
+            filterSettings: this.querySettings.currentView.toJSON()
+        }
     }
 });

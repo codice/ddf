@@ -16,12 +16,15 @@
  module.exports = Backbone.Model.extend({
     defaults: {
         name: "A Search Form",
+        description: "",
         createdBy: "admin",
+        owner: "admin",
         createdOn: "",
         type: "custom",
         id: undefined,
         filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
         accessIndividuals: [],
-        accessGroups: []
+        accessGroups: [],
+        querySettings: {}
     }
  });

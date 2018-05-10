@@ -57,7 +57,7 @@ module.exports = Marionette.LayoutView.extend({
                 let oldType = this.options.queryModel.get('type');
                 this.options.queryModel.set({
                     type: 'new-form',
-                    formId: this.model.get('id'), //TODO: Compare this with old approach of changing query id to form id (for better or worse)
+                    associatedFormModel: this.model, //TODO: Compare this with the old approach of storing just the query id (for better or worse...)
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
                     accessGroups: this.model.get('accessGroups'),

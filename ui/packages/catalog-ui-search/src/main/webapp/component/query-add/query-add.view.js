@@ -30,6 +30,10 @@ const wreqr = require('wreqr');
 const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
 const announcement = require('component/announcement');
+const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
+const SearchFormModel = require('component/search-form/search-form.js');
+const lightboxInstance = lightboxResultInstance.generateNewLightbox();
+
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -179,16 +183,27 @@ module.exports = Marionette.LayoutView.extend({
                 }.bind(this));
         }
     },
-    getFilterTreeAsTemplate: function() {
-        let filterTree = cql.simplify(this.queryContent.currentView.getFilterTree());
+    getQueryAsQueryTemplate: function() {
+        let formParameters = this.queryContent.currentView.serializeTemplateParameters();
+        let filterTree = cql.simplify(formParameters.filterTree || {});
+        let filterSettings = formParameters.filterSettings || {};
+        let formModel = this.model.get('associatedFormModel') || new SearchFormModel();
         if (filterTree.filters && filterTree.filters.length === 1) {
             filterTree = filterTree.filters[0];
         }
+        filterSettings.sorts = filterSettings.sorts.filter(sort => sort.attribute && sort.direction)
+            .map(sort => sort.attribute + ',' + sort.direction);
         let filterTemplate = {
-            title: this.model.get('title'),
-            description: "",
             filterTemplate: filterTree,
-            id: this.model.get('formId')
+            accessIndividuals: formModel.get('accessIndividuals'),
+            accessGroups: formModel.get('accessGroups'),
+            creator: formModel.get('createdBy'),
+            id: formModel.get('id'),
+            title: this.model.get('title'),
+            description: formModel.get('description'),
+            created: formModel.get('createdOn'),
+            owner: formModel.get('owner'),
+            querySettings: filterSettings
         }
         return filterTemplate;
     },
@@ -196,7 +211,7 @@ module.exports = Marionette.LayoutView.extend({
         let loadingView = new LoadingView();
         $.ajax({
             url: '/search/catalog/internal/forms/query',
-            data: JSON.stringify(this.getFilterTreeAsTemplate()),
+            data: JSON.stringify(this.getQueryAsQueryTemplate()),
             method: 'PUT',
             contentType: 'application/json',
             customErrorHandling: true
