@@ -15,11 +15,21 @@ package org.codice.ddf.catalog.ui.forms.data;
 
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_FILTER;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.DETAIL_LEVEL;
+import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_FEDERATION;
+import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_SORTS;
+import static org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl.QUERY_SOURCES;
+import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
+import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
 
 /**
@@ -79,5 +89,33 @@ public class QueryTemplateMetacard extends ShareableMetacardImpl {
 
   public void setFormsFilter(String filterXml) {
     setAttribute(QUERY_TEMPLATE_FILTER, filterXml);
+  }
+
+  public Map<String, Object> getQuerySettings() {
+    Map<String, Object> querySettings = new HashMap<>();
+    querySettings.put(QUERY_SORTS, safeGetList(this, QUERY_SORTS, String.class));
+    querySettings.put("src", safeGetList(this, QUERY_SOURCES, String.class));
+    querySettings.put(QUERY_FEDERATION, safeGet(this, QUERY_FEDERATION, String.class));
+    querySettings.put(DETAIL_LEVEL, safeGet(this, DETAIL_LEVEL, String.class));
+    return querySettings;
+  }
+
+  public void setQuerySettings(Map<String, Object> json) {
+    List<Serializable> sorts = safeGetList(json, QUERY_SORTS, Serializable.class);
+    if (sorts != null) {
+      setAttribute(new AttributeImpl(QUERY_SORTS, sorts));
+    }
+    List<Serializable> sources = safeGetList(json, "src", Serializable.class);
+    if (sources != null) {
+      setAttribute(new AttributeImpl(QUERY_SOURCES, sources));
+    }
+    String federation = safeGet(json, QUERY_FEDERATION, String.class);
+    if (federation != null) {
+      setAttribute(QUERY_FEDERATION, federation);
+    }
+    String detailLevel = safeGet(json, DETAIL_LEVEL, String.class);
+    if (detailLevel != null) {
+      setAttribute(DETAIL_LEVEL, detailLevel);
+    }
   }
 }

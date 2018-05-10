@@ -17,6 +17,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -85,5 +86,40 @@ public class AccessUtil {
       return null;
     }
     return serializables.stream().map(type::cast).collect(Collectors.toList());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public static <T> List<T> safeGetList(Map map, String key, Class<T> type) {
+    List unchecked = safeGet(map, key, List.class);
+    if (unchecked == null) {
+      return null;
+    }
+    try {
+      return (List<T>) unchecked.stream().map(type::cast).collect(Collectors.toList());
+    } catch (ClassCastException e) {
+      LOGGER.debug(
+          "Unexpected type for key = {}, expected a List containing type {}", key, type.getName());
+    }
+    return null;
+  }
+
+  @Nullable
+  public static <T> T safeGet(Map map, String key, Class<T> type) {
+    Object value = map.get(key);
+    if (value == null) {
+      LOGGER.debug("Unexpected null entry: {}", key);
+      return null;
+    }
+    try {
+      return type.cast(value);
+    } catch (ClassCastException e) {
+      LOGGER.debug(
+          "Unexpected type for key = {}, expected a {} but got {}",
+          key,
+          type.getName(),
+          value.getClass().getName());
+    }
+    return null;
   }
 }

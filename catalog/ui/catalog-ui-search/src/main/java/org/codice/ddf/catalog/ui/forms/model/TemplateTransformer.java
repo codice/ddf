@@ -84,6 +84,10 @@ public class TemplateTransformer {
 
       String filterXml = writer.marshal(filter);
       metacard.setFormsFilter(filterXml);
+      Map<String, Object> querySettings = (Map<String, Object>) formTemplate.get("querySettings");
+      if (querySettings != null) {
+        metacard.setQuerySettings(querySettings);
+      }
       return metacard;
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
@@ -129,7 +133,12 @@ public class TemplateTransformer {
               new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
-          wrapped, visitor.getResult(), accessIndividuals, accessGroups, metacardOwner);
+          wrapped,
+          visitor.getResult(),
+          accessIndividuals,
+          accessGroups,
+          metacardOwner,
+          wrapped.getQuerySettings());
     } catch (JAXBException | UnsupportedEncodingException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "

@@ -22,6 +22,7 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Set;
 import org.codice.ddf.catalog.ui.forms.model.TransformVisitor;
+import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
 
 /**
  * Represents a data structure for storing a query template. The {@code template.query.filter} field
@@ -59,6 +60,7 @@ public class QueryTemplateType extends MetacardTypeImpl {
         ImmutableSet.<AttributeDescriptor>builder()
             .addAll(new CoreAttributes().getAttributeDescriptors())
             .addAll(new SecurityAttributes().getAttributeDescriptors())
+            .addAll(new QueryMetacardTypeImpl().getAttributeDescriptors())
             .addAll(QUERY_TEMPLATE_ATTRIBUTES)
             .build());
   }
