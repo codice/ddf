@@ -167,25 +167,18 @@
 
     <feature name="security-cas-client" version="${project.version}"
              description="Security CAS Client.">
-        <!--opensaml-->
-        <feature>guava</feature>
-        <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
-        <bundle>mvn:org.apache.santuario/xmlsec/2.0.9</bundle>
-        <feature>cxf-bindings-soap</feature>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/3.1.1_3
-        </bundle>
+        <feature>security-sts-realm</feature>
+        <feature>security-core-api</feature>
+        <feature>action-core-impl</feature>
 
         <bundle>wrap:mvn:org.jasig.cas.client/cas-client-core/${cas.client.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
-        <feature>security-handler-api</feature>
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}</bundle>
     </feature>
 
     <feature name="security-cas-tokenvalidator" version="${project.version}"
              description="Security CAS Validator for the STS.">
-        <feature>javax-validation</feature>
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+        <feature>security-sts-server</feature>
         <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
