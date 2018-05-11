@@ -2040,6 +2040,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
+  @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2743
   public void testDefaultValuesCreate() throws Exception {
     final String customMetacardTypeName = "custom";
     File file =
