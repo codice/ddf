@@ -18,13 +18,13 @@
 
         <AD name="Server Name:" id="serverName" required="true" type="String"
             default="https://localhost:8993"
-            description="Base URL of the ${branding.upper} server. This URL is sent to CAS so it can
-            			      redirect users back to ${branding.upper}.">
+            description="Base URL of the ${branding} server. This URL is sent to CAS so it can
+            			      redirect users back to ${branding}.">
         </AD>
 
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
             default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas"
-            description="URL of the CAS server (generally ends in /cas). ${branding.upper} will use
+            description="URL of the CAS server (generally ends in /cas). ${branding} will use
                         this for service ticket validation.">
         </AD>
 

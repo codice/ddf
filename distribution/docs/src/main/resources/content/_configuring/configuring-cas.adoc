@@ -129,8 +129,8 @@ correctly.
 . Enter the following commands to install the features used by the STS server:
 +
 ----
-features:install security-cas-tokenvalidator
-features:install security-sts-casclaimshandler
+feature:install security-cas-tokenvalidator
+feature:install security-sts-casclaimshandler
 ----
 . Open the Admin Console and navigate to the System tab. The default admin credentials are:
 `username=admin`, `password=admin`

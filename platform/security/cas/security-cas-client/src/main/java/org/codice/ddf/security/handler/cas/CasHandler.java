@@ -91,8 +91,7 @@ public class CasHandler implements AuthenticationHandler {
           LOGGER.debug(
               "Adding new CAS assertion for session {}",
               Hashing.sha256()
-                  .hashString(httpRequest.getSession(false).getId(), StandardCharsets.UTF_8)
-                  .toString());
+                  .hashString(httpRequest.getSession(false).getId(), StandardCharsets.UTF_8));
         }
         httpRequest
             .getSession(false)
@@ -167,11 +166,9 @@ public class CasHandler implements AuthenticationHandler {
    */
   private Assertion getAssertion(HttpServletRequest request) {
     HttpSession session = request.getSession(false);
-    if (session != null) {
-      if (session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION) != null) {
-        LOGGER.debug("Found CAS assertion in session.");
-        return (Assertion) session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
-      }
+    if (session != null && session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION) != null) {
+      LOGGER.debug("Found CAS assertion in session.");
+      return (Assertion) session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
     }
     return null;
   }
@@ -207,7 +204,7 @@ public class CasHandler implements AuthenticationHandler {
     public void onRemoval(RemovalNotification<String, Assertion> notification) {
       if (notification.getCause().equals(RemovalCause.EXPIRED)) {
         LOGGER.debug(
-            "Cached CAS assertion for session with id {} has expired.",
+            "Cached CAS assertion for session with id {} has expired: {}",
             notification.getKey(),
             notification.getValue());
       }
