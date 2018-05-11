@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
 import ddf.catalog.data.types.Security;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
@@ -37,17 +38,19 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
   }
 
   @Override
-  public List metacardValueToJsonValue(WorkspaceTransformer transformer, List metacardValue) {
-    return ((List<Object>) metacardValue)
-        .stream()
-        .filter(String.class::isInstance)
-        .map(String.class::cast)
-        .filter(StringUtils::isNotBlank)
-        .collect(Collectors.toList());
+  public Optional<List> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, List metacardValue) {
+    return Optional.of(
+        ((List<Object>) metacardValue)
+            .stream()
+            .filter(String.class::isInstance)
+            .map(String.class::cast)
+            .filter(StringUtils::isNotBlank)
+            .collect(Collectors.toList()));
   }
 
   @Override
-  public List jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
-    return jsonValue;
+  public Optional<List> jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
+    return Optional.of(jsonValue);
   }
 }

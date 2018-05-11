@@ -207,13 +207,13 @@
              interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
 
     <bean id="queryMetacardsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.QueryMetacardsHandler"/>
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedMetacardsHandler" factory-method="newQueryMetacardHandler"/>
 
     <service ref="queryMetacardsTransformation"
              interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
 
     <bean id="listMetacardsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.ListMetacardsHandler"/>
+          class="org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedMetacardsHandler" factory-method="newListMetacardHandler"/>
 
     <service ref="listMetacardsTransformation"
              interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>

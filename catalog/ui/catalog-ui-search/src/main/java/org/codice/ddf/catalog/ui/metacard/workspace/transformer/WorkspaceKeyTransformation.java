@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
+import java.util.Optional;
+
 /**
  * This partial implementation of {@link WorkspaceTransformation} contains default implementations
  * of value transformation related interface methods that accept any Objects and return the same
@@ -34,12 +36,14 @@ public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Obje
   }
 
   @Override
-  default Object metacardValueToJsonValue(WorkspaceTransformer transformer, Object metacardValue) {
-    return metacardValue;
+  default Optional<Object> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, Object metacardValue) {
+    return Optional.of(metacardValue);
   }
 
   @Override
-  default Object jsonValueToMetacardValue(WorkspaceTransformer transformer, Object jsonValue) {
-    return jsonValue;
+  default Optional<Object> jsonValueToMetacardValue(
+      WorkspaceTransformer transformer, Object jsonValue) {
+    return Optional.of(jsonValue);
   }
 }

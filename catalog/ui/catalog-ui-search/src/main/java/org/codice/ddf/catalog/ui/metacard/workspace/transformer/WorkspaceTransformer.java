@@ -65,10 +65,10 @@ public class WorkspaceTransformer {
       final Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
     if (transformation.getMetacardValueType().isInstance(entry.getValue())) {
       final String newKey = transformation.getJsonKey();
-      final Object newValue =
-          transformation.metacardValueToJsonValue(
-              this, transformation.getMetacardValueType().cast(entry.getValue()));
-      return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
+      return transformation
+          .metacardValueToJsonValue(
+              this, transformation.getMetacardValueType().cast(entry.getValue()))
+          .map(newValue -> new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.warn(
           "A workspace transformation expected a value of type {} for metacard attribute \"{}\", but instead found a value of type {}!",
@@ -79,24 +79,23 @@ public class WorkspaceTransformer {
     }
   }
 
-  private Map.Entry<String, Object> metacardEntryToJsonEntry(
+  private Optional<Map.Entry<String, Object>> metacardEntryToJsonEntry(
       final Map.Entry<String, Object> entry) {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getMetacardKey()))
         .findAny()
-        .flatMap(transformation -> metacardEntryToJsonEntry(entry, transformation))
-        .orElse(entry);
+        .map(transformation -> metacardEntryToJsonEntry(entry, transformation))
+        .orElse(Optional.of(entry));
   }
 
   private Optional<Map.Entry<String, Object>> jsonEntryToMetacardEntry(
       Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
     if (transformation.getJsonValueType().isInstance(entry.getValue())) {
       final String newKey = transformation.getMetacardKey();
-      final Object newValue =
-          transformation.jsonValueToMetacardValue(
-              this, transformation.getJsonValueType().cast(entry.getValue()));
-      return Optional.of(new AbstractMap.SimpleEntry<>(newKey, newValue));
+      return transformation
+          .jsonValueToMetacardValue(this, transformation.getJsonValueType().cast(entry.getValue()))
+          .map(newValue -> new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.debug(
           "A workspace transformation expected a value of type {} for JSON key \"{}\", but instead found a value of type {}!",
@@ -107,13 +106,14 @@ public class WorkspaceTransformer {
     }
   }
 
-  private Map.Entry<String, Object> jsonEntryToMetacardEntry(Map.Entry<String, Object> entry) {
+  private Optional<Map.Entry<String, Object>> jsonEntryToMetacardEntry(
+      Map.Entry<String, Object> entry) {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getJsonKey()))
         .findAny()
-        .flatMap(transformation -> jsonEntryToMetacardEntry(entry, transformation))
-        .orElse(entry);
+        .map(transformation -> jsonEntryToMetacardEntry(entry, transformation))
+        .orElse(Optional.of(entry));
   }
 
   private void addAttributeValue(Metacard metacard, Map.Entry<String, Object> entry) {
@@ -137,6 +137,8 @@ public class WorkspaceTransformer {
     json.entrySet()
         .stream()
         .map(this::jsonEntryToMetacardEntry)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .map(endpointUtil::convertDateEntries)
         .filter(Objects::nonNull)
         .forEach(entry -> addAttributeValue(init, entry));
@@ -170,7 +172,10 @@ public class WorkspaceTransformer {
         .map(descriptor -> getEntryFromDescriptor(metacard, descriptor))
         .filter(Objects::nonNull)
         .map(this::metacardEntryToJsonEntry)
-        .filter(e -> e.getKey() != null && e.getValue() != null)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .filter(entry -> entry.getKey() != null)
+        .filter(entry -> entry.getValue() != null)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (left, right) -> left));
   }
 

@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * A representation of one key-value transformation for the {@link WorkspaceTransformer}.
@@ -23,11 +23,12 @@ import javax.annotation.Nullable;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  *
- * @param <M> the expected type of metacard values handled by this {@link WorkspaceTransformation}
- * @param <J> the expected type of JSON-style key-value pair values handled by this {@link
+ * @param <MetacardType> the expected type of metacard values handled by this {@link
+ *     WorkspaceTransformation}
+ * @param <JsonType> the expected type of JSON-style key-value pair values handled by this {@link
  *     WorkspaceTransformation}
  */
-public interface WorkspaceTransformation<M, J> {
+public interface WorkspaceTransformation<MetacardType, JsonType> {
   /**
    * @return the metacard attribute name associated with both the metacard value passed into {@link
    *     #metacardValueToJsonValue(WorkspaceTransformer, Object) metacardValueToJsonValue} and the
@@ -47,19 +48,19 @@ public interface WorkspaceTransformation<M, J> {
   /**
    * @return the class that the given and returned metacard values are expected to be an instance of
    */
-  Class<M> getMetacardValueType();
+  Class<MetacardType> getMetacardValueType();
 
   /**
    * @return the class that the given and returned JSON-style values are expected to be an instance
    *     of
    */
-  Class<J> getJsonValueType();
+  Class<JsonType> getJsonValueType();
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms a metacard attribute value
-   * into a corresponding value for a key-value pair for a JSON-style data map. Returning
-   * <b><tt>null</tt></b> will result in no corresponding JSON-style key-value pair being added to
-   * the final JSON-style data map transformation product.
+   * into a corresponding value for a key-value pair for a JSON-style data map. Returning {@link
+   * Optional#empty()} will result in no corresponding JSON-style key-value pair being added to the
+   * final JSON-style data map transformation product.
    *
    * @param transformer the {@link WorkspaceTransformer} that is transforming the given metacard
    *     value
@@ -68,17 +69,18 @@ public interface WorkspaceTransformation<M, J> {
    *     type} and will come from a metacard's attribute with the given {@link #getMetacardKey()
    *     expected metacard key}.
    * @return a new value to be used as the value in a JSON-style data map with this {@link
-   *     WorkspaceTransformation}'s {@link #getJsonKey() JSON key}; this will be an instance of this
-   *     {@link WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
+   *     WorkspaceTransformation}'s {@link #getJsonKey() JSON key} or {@link Optional#empty()}; the
+   *     value inside a non-empty {@link Optional} will be an instance of this {@link
+   *     WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
    */
-  @Nullable
-  J metacardValueToJsonValue(WorkspaceTransformer transformer, M metacardValue);
+  Optional<JsonType> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, MetacardType metacardValue);
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms the value of a JSON-style
-   * key-value pair into a corresponding a metacard attribute value. Returning <b><tt>null</tt></b>
-   * will result in no corresponding metacard attribute being added to the final metacard
-   * transformation product.
+   * key-value pair into a corresponding a metacard attribute value. Returning {@link
+   * Optional#empty()} will result in no corresponding metacard attribute being added to the final
+   * metacard transformation product.
    *
    * @param transformer the {@link WorkspaceTransformer} that is transforming the given JSON-style
    *     value
@@ -87,10 +89,11 @@ public interface WorkspaceTransformation<M, J> {
    *     come from a JSON-style data map's key-value pair with the given {@link #getJsonKey()
    *     expected JSON key}.
    * @return a new value to be used as the value in a metacard attribute with this {@link
-   *     WorkspaceTransformation}'s {@link #getMetacardKey() metacard key}; this will be an instance
-   *     of this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
+   *     WorkspaceTransformation}'s {@link #getMetacardKey() metacard key} or {@link
+   *     Optional#empty()}; the value inside a non-empty {@link Optional} will be an instance of
+   *     this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
    *     type}
    */
-  @Nullable
-  M jsonValueToMetacardValue(WorkspaceTransformer transformer, J jsonValue);
+  Optional<MetacardType> jsonValueToMetacardValue(
+      WorkspaceTransformer transformer, JsonType jsonValue);
 }

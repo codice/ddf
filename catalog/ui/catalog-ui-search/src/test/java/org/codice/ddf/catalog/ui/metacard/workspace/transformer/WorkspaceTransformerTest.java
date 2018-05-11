@@ -44,7 +44,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.Before;
@@ -95,15 +95,15 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        public Double metacardValueToJsonValue(
+        public Optional<Double> metacardValueToJsonValue(
             WorkspaceTransformer transformer, Integer metacardValue) {
-          return VALUE_TRANSFORMATION_JSON_VALUE;
+          return Optional.of(VALUE_TRANSFORMATION_JSON_VALUE);
         }
 
         @Override
-        public Integer jsonValueToMetacardValue(
+        public Optional<Integer> jsonValueToMetacardValue(
             WorkspaceTransformer transformer, Double jsonValue) {
-          return VALUE_TRANSFORMATION_METACARD_VALUE;
+          return Optional.of(VALUE_TRANSFORMATION_METACARD_VALUE);
         }
       };
 
@@ -113,7 +113,7 @@ public class WorkspaceTransformerTest {
 
   private final String METACARD_KEY_TO_REMOVE = "unwantedMetacardKey";
 
-  private final WorkspaceValueTransformation<Object, Object> METACARD_KEY_REMOVER =
+  private final WorkspaceValueTransformation<Object, Object> METACARD_ATTRIBUTE_REMOVER =
       new WorkspaceValueTransformation<Object, Object>() {
         @Override
         public String getKey() {
@@ -131,25 +131,25 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        @Nullable
-        public Object metacardValueToJsonValue(
+        public Optional<Object> metacardValueToJsonValue(
             WorkspaceTransformer transformer, Object metacardValue) {
-          return null; // remove the metacard key
+          return Optional.empty(); // remove the metacard attribute
         }
 
         @Override
-        public Object jsonValueToMetacardValue(WorkspaceTransformer transformer, Object jsonValue) {
-          return jsonValue;
+        public Optional<Object> jsonValueToMetacardValue(
+            WorkspaceTransformer transformer, Object jsonValue) {
+          return Optional.of(jsonValue);
         }
       };
 
   private final String JSON_KEY_TO_REMOVE = "unwantedJsonKey";
 
-  private final WorkspaceValueTransformation<Object, Object> JSON_KEY_REMOVER =
+  private final WorkspaceValueTransformation<Object, Object> JSON_KEY_VALUE_REMOVER =
       new WorkspaceValueTransformation<Object, Object>() {
         @Override
         public String getKey() {
-          return JSON_KEY_TO_REMOVE; // For WorkspaceValueTransformations, metacard key = JSON key.
+          return JSON_KEY_TO_REMOVE;
         }
 
         @Override
@@ -163,15 +163,15 @@ public class WorkspaceTransformerTest {
         }
 
         @Override
-        public Object metacardValueToJsonValue(
+        public Optional<Object> metacardValueToJsonValue(
             WorkspaceTransformer transformer, Object metacardValue) {
-          return metacardValue;
+          return Optional.of(metacardValue);
         }
 
         @Override
-        @Nullable
-        public Object jsonValueToMetacardValue(WorkspaceTransformer transformer, Object jsonValue) {
-          return null; // remove the JSON value
+        public Optional<Object> jsonValueToMetacardValue(
+            WorkspaceTransformer transformer, Object jsonValue) {
+          return Optional.empty(); // remove the JSON key-value pair
         }
       };
 
@@ -220,7 +220,10 @@ public class WorkspaceTransformerTest {
             mockInputTransformer,
             mockEndpointUtils,
             ImmutableList.of(
-                KEY_TRANSFORMATION, VALUE_TRANSFORMATION, METACARD_KEY_REMOVER, JSON_KEY_REMOVER));
+                KEY_TRANSFORMATION,
+                VALUE_TRANSFORMATION,
+                METACARD_ATTRIBUTE_REMOVER,
+                JSON_KEY_VALUE_REMOVER));
   }
 
   // test metacard -> map
@@ -252,7 +255,6 @@ public class WorkspaceTransformerTest {
     metacard.setAttribute(METACARD_KEY_TO_REMOVE, KEY_TRANSFORMATION_VALUE);
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
     assertThat(json, not(hasKey(METACARD_KEY_TO_REMOVE)));
-    assertThat(json, not(hasKey(JSON_KEY_TO_REMOVE)));
   }
 
   // test map -> metacard
