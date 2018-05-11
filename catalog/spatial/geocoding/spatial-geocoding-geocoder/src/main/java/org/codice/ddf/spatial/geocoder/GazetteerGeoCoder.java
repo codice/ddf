@@ -15,8 +15,6 @@ package org.codice.ddf.spatial.geocoder;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
@@ -75,19 +73,10 @@ public class GazetteerGeoCoder implements GeoCoder {
   @Override
   public Optional<String> getCountryCode(String locationWKT, int radius) {
     try {
-      Optional<String> alpha2CountryCode = geoEntryQueryable.getCountryCode(locationWKT, radius);
+      Optional<String> alpha3CountryCode = geoEntryQueryable.getCountryCode(locationWKT, radius);
 
-      if (alpha2CountryCode.isPresent()) {
-        try {
-          String alpha3CountryCode =
-              new Locale(Locale.ENGLISH.getLanguage(), alpha2CountryCode.get()).getISO3Country();
-          return Optional.of(alpha3CountryCode);
-        } catch (MissingResourceException e) {
-          LOGGER.debug(
-              "Failed to convert country code {} to alpha-3 format. Returning empty value",
-              alpha2CountryCode.get(),
-              e);
-        }
+      if (alpha3CountryCode.isPresent()) {
+        return alpha3CountryCode;
       }
     } catch (GeoEntryQueryException e) {
       LOGGER.debug("Error querying GeoNames", e);
