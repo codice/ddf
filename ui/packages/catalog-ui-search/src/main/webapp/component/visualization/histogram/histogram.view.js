@@ -20,7 +20,6 @@ define([
     'marionette',
     'js/CustomElements',
     './histogram.hbs',
-    'plotly.js',
     'component/property/property',
     'component/property/property.view',
     'component/singletons/metacard-definitions',
@@ -28,7 +27,7 @@ define([
     'properties',
     'moment',
     'component/singletons/user-instance'
-], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment, user) {
+], function (wreqr, $, _, Marionette, CustomElements, template, Property, PropertyView, metacardDefinitions, Common, properties, moment, user) {
 
     var zeroWidthSpace = "\u200B";
     var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS';
@@ -235,29 +234,33 @@ define([
                     this.el.querySelector('.histogram-container').innerHTML = '';
                 } else {
                     this.$el.removeClass('no-matching-data');
-                    Plotly.newPlot(histogramElement, initialData, getLayout(), {
-                    displayModeBar: false
-                    }).then(function(plot){
-                        Plotly.newPlot(histogramElement, this.determineData(plot), getLayout(plot), {
-                            displayModeBar: false
-                        });
-                        this.handleResize();
-                        this.listenToHistogram();
-                    }.bind(this));
+                    require(['plotly.js'], (Plotly) => {
+                        Plotly.newPlot(histogramElement, initialData, getLayout(), {
+                        displayModeBar: false
+                        }).then(function(plot){
+                            Plotly.newPlot(histogramElement, this.determineData(plot), getLayout(plot), {
+                                displayModeBar: false
+                            });
+                            this.handleResize();
+                            this.listenToHistogram();
+                        }.bind(this));
+                    });
                 }
             } else {
                 this.el.querySelector('.histogram-container').innerHTML = '';
             }
         },
         updateHistogram: function(){
-            var histogramElement = this.el.querySelector('.histogram-container');
-            if (histogramElement.children.length !== 0 && this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
-                Plotly.deleteTraces(histogramElement, 1);
-                Plotly.addTraces(histogramElement, this.determineData(histogramElement)[1]);     
-                this.handleResize();
-            } else {
-                this.el.querySelector('.histogram-container').innerHTML = '';
-            }
+            require(['plotly.js'], (Plotly) => {
+                var histogramElement = this.el.querySelector('.histogram-container');
+                if (histogramElement.children.length !== 0 && this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
+                    Plotly.deleteTraces(histogramElement, 1);
+                    Plotly.addTraces(histogramElement, this.determineData(histogramElement)[1]);
+                    this.handleResize();
+                } else {
+                    this.el.querySelector('.histogram-container').innerHTML = '';
+                }
+            });
         },
         updateTheme: function(e){
             var histogramElement = this.el.querySelector('.histogram-container');
@@ -355,16 +358,18 @@ define([
             this.$el.toggleClass('is-empty', this.options.selectionInterface.getCompleteActiveSearchResults().length === 0);
         },
         handleResize: function(){
-            var histogramElement = this.el.querySelector('.histogram-container');
-            this.$el.find('rect.drag').off('mousedown');
-            if (histogramElement._context) {
-                Plotly.Plots.resize(histogramElement);
-            }
-            this.$el.find('rect.drag').on('mousedown', function(event){
-                this.shiftKey = event.shiftKey;
-                this.metaKey = event.metaKey;
-                this.ctrlKey = event.ctrlKey;
-            }.bind(this));
+            require(['plotly.js'], (Plotly) => {
+                var histogramElement = this.el.querySelector('.histogram-container');
+                this.$el.find('rect.drag').off('mousedown');
+                if (histogramElement._context) {
+                    Plotly.Plots.resize(histogramElement);
+                }
+                this.$el.find('rect.drag').on('mousedown', function(event){
+                    this.shiftKey = event.shiftKey;
+                    this.metaKey = event.metaKey;
+                    this.ctrlKey = event.ctrlKey;
+                }.bind(this));
+            });
         },
         addResizeHandler: function(){
             this.listenTo(wreqr.vent, 'resize', this.handleResize);
