@@ -12,8 +12,8 @@
 var Backbone = require('backbone');
 require('backbone-associations');
 const URITemplate = require('urijs/src/URITemplate');
-const ENCODED_QUERY_ID_TEMPLATE = '%7B%26queryId%7D';
 const DECODED_QUERY_ID_TEMPLATE = '{&queryId}';
+const ENCODED_QUERY_ID_TEMPLATE = encodeURIComponent(DECODED_QUERY_ID_TEMPLATE);
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: function() {
@@ -44,9 +44,11 @@ module.exports = Backbone.AssociatedModel.extend({
             // So that's why the string replace "decoding" is currently being done
             const url = this.get('url');
             const replacedUrl = url.replace(ENCODED_QUERY_ID_TEMPLATE, DECODED_QUERY_ID_TEMPLATE);
-            const expandedUrl = URITemplate(replacedUrl).expand({
+            const replacedUrlTemplate = new URITemplate(replacedUrl);
+            const expandedUrl = replacedUrlTemplate.expand({
                 queryId: this.get('queryId')
             });
+
             this.set('url', expandedUrl);
         }
     }
