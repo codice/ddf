@@ -16,7 +16,7 @@
   "dependencies": {
     "es6-promise": "3.2.1",
     "isomorphic-fetch": "2.2.1",
-    "moment": "2.20.1",
+    "moment": "2.22.0",
     "react": "0.14.8",
     "react-dom": "0.14.8",
     "react-redux": "4.4.5",
@@ -33,7 +33,6 @@
     "hotreloadify": "0.0.5",
     "minifyify": "7.3.3",
     "mkdirp": "0.5.1",
-    "moment": "2.20.1",
     "node-lessify": "0.1.4",
     "standard": "8.6.0",
     "tap": "5.7.2",

@@ -18,9 +18,38 @@ define([
     'js/requestAnimationFramePolyfill'
 ], function ($, moment, _) {
 
+    var timeZones = {
+        UTC: 'Etc/UTC',
+        '-12': 'Etc/GMT+12',
+        '-11': 'Etc/GMT+11',
+        '-10': 'Etc/GMT+10',
+        '-9' : 'Etc/GMT+9',
+        '-8' : 'Etc/GMT+8',
+        '-7' : 'Etc/GMT+7',
+        '-6' : 'Etc/GMT+6',
+        '-5' : 'Etc/GMT+5',
+        '-4' : 'Etc/GMT+4',
+        '-3' : 'Etc/GMT+3',
+        '-2' : 'Etc/GMT+2',
+        '-1' : 'Etc/GMT+1',
+        '1'  : 'Etc/GMT-1',
+        '2'  : 'Etc/GMT-2',
+        '3'  : 'Etc/GMT-3',
+        '4'  : 'Etc/GMT-4',
+        '5'  : 'Etc/GMT-5',
+        '6'  : 'Etc/GMT-6',
+        '7'  : 'Etc/GMT-7',
+        '8'  : 'Etc/GMT-8',
+        '9'  : 'Etc/GMT-9',
+        '10' : 'Etc/GMT-10',
+        '11' : 'Etc/GMT-11',
+        '12' : 'Etc/GMT-12'
+    };
+
     var timeFormats = {
-        24: 'DD MMM YYYY HH:mm:ss.SSS',
-        12: 'DD MMM YYYY h:mm:ss.SSS a'
+        ISO: 'YYYY-MM-DD[T]HH:mm:ss.SSSZ',
+        24: 'DD MMM YYYY HH:mm:ss.SSS Z',
+        12: 'DD MMM YYYY h:mm:ss.SSS a Z'
     };
 
     return {
@@ -164,8 +193,11 @@ define([
         getHumanReadableDate: function(date) {
             return moment(date).format(timeFormats['24']);
         },
-        getTimeFormats: function(){
+        getTimeFormats(){
             return timeFormats;
+        },
+        getTimeZones(){
+            return timeZones;
         },
         getMomentDate: function(date){
            return moment(date).fromNow();
