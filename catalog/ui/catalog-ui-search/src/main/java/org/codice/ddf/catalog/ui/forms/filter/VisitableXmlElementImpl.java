@@ -122,11 +122,12 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             .orElse(null);
 
     if (root != null) {
-      LOGGER.trace("Valid root found, beginning traversal...");
+      LOGGER.trace("Valid root found, beginning traversal");
       return root;
     }
 
     // Support can be enhanced in the future, but currently these components aren't needed
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     handleUnsupported(filterType.getId());
     handleUnsupported(filterType.getExtensionOps());
 
@@ -154,6 +155,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
     }
 
     // Support can be enhanced in the future, but currently these components aren't needed
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     handleUnsupported(unaryLogicOpType.getId());
     handleUnsupported(unaryLogicOpType.getExtensionOps());
 
@@ -386,6 +388,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
                 .map(SubtypeFactory::createElement)
                 .collect(Collectors.toList());
       } catch (ClassCastException e) {
+        // Ticket to add support: https://codice.atlassian.net/browse/DDF-3830
         throw new UnsupportedOperationException("GML or ANY XML is currently not supported", e);
       }
     }

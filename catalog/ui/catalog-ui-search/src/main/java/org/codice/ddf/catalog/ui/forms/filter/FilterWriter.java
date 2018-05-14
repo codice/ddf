@@ -57,7 +57,7 @@ public class FilterWriter {
   public FilterWriter(boolean validationEnabled) throws JAXBException {
     this.marshaller = JAXBContext.newInstance(FilterType.class).createMarshaller();
     if (validationEnabled) {
-      LOGGER.info("Loading filter schemas...");
+      LOGGER.info("Loading filter schemas");
       URL schemaLocation = FilterWriter.class.getResource(FILTER_XSD_RESOURCE_PATH);
       SchemaFactory schemaFactory = SchemaFactory.newInstance(SCHEMA_LANGUAGE);
       try {

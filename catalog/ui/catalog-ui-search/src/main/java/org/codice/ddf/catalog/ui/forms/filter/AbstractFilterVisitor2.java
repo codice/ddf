@@ -91,12 +91,14 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitDistanceBufferType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
     throw new UnsupportedOperationException("DistanceBufferType currently is not supported");
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
   }
 
   @Override
   public void visitBoundingBoxType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
     throw new UnsupportedOperationException("BoundingBoxType currently is not supported");
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
   }
 
   @Override
@@ -115,6 +117,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitPropertyIsNullType(VisitableElement<VisitableElement<?>> visitable) {
     traceName(visitable);
     throw new UnsupportedOperationException("PropertyIsNullType currently is not supported");
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     // When support is added, verify result of visiting embedded entity (might be null)
   }
 
@@ -122,6 +125,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable) {
     traceName(visitable);
     throw new UnsupportedOperationException("PropertyIsNilType currently is not supported");
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     // When support is added, verify result of visiting embedded entity (might be null)
   }
 
@@ -129,6 +133,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   public void visitPropertyIsBetweenType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
     throw new UnsupportedOperationException("PropertyIsBetweenType currently is not supported");
+    // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
   }
 
   private void visitObjects(VisitableElement<List<Object>> visitable) {

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 public class FilterNodeMapImpl implements FilterNode {
@@ -75,16 +76,27 @@ public class FilterNodeMapImpl implements FilterNode {
   @Override
   @SuppressWarnings("unchecked")
   public Map<String, Object> getTemplateProperties() {
+    if (!isTemplated()) {
+      throw new IllegalStateException("Non-templated nodes do not have template properties");
+    }
     return (Map<String, Object>) json.get(TEMPLATE_PROPERTIES);
   }
 
   @Override
+  @Nullable
   public String getProperty() {
+    if (!isLeaf()) {
+      throw new IllegalStateException("No property value exists for a logical operator");
+    }
     return (String) json.get(PROPERTY);
   }
 
   @Override
+  @Nullable
   public String getValue() {
+    if (!isLeaf()) {
+      throw new IllegalStateException("No target value exists for a logical operator");
+    }
     return Objects.toString(json.get(VALUE));
   }
 

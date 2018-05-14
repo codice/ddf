@@ -62,7 +62,7 @@ public class TemplateTransformer {
     return TemplateTransformer.toFormTemplate(metacard) == null;
   }
 
-  /* PUT */
+  /** Convert the JSON representation of a FormTemplate to a QueryTemplateMetacard. */
   @Nullable
   public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
     Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
@@ -102,9 +102,7 @@ public class TemplateTransformer {
     return null;
   }
 
-  /**
-   * Convert a query template metacard into the JSON representation of FormTemplate. Used for GET.
-   */
+  /** Convert a query template metacard into the JSON representation of FormTemplate. */
   @Nullable
   public static FormTemplate toFormTemplate(Metacard metacard) {
     if (!QueryTemplateMetacard.isQueryTemplateMetacard(metacard)) {
@@ -163,7 +161,7 @@ public class TemplateTransformer {
     return null;
   }
 
-  /* PUT */
+  /** Convert the JSON representation of FieldFilter to an AttributeGroupMetacard. */
   @Nullable
   public Metacard toAttributeGroupMetacard(Map<String, Object> resultTemplateMap) {
     FieldFilter fieldFilter = new FieldFilter(resultTemplateMap);

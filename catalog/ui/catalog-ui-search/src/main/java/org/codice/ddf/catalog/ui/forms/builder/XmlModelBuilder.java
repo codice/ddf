@@ -246,7 +246,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     return this;
   }
 
-  // CanModify
   private void verifyResultNotYetRetrieved() {
     if (complete) {
       throw new IllegalStateException(
@@ -254,35 +253,33 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
-  // CanSetField
   private void verifyTerminalNodeInProgress() {
     if (supplierInProgress == null) {
       throw new IllegalStateException("Cannot complete operation, no leaf node in progress");
     }
   }
 
-  // ~
+  // Verify coverage: https://codice.atlassian.net/browse/DDF-3832
   private void verifyLogicalNodeInProgress() {
     if (depth.isEmpty()) {
       throw new IllegalStateException("Cannot end the logic node, no node in progress");
     }
   }
 
-  // ~
+  // Verify coverage: https://codice.atlassian.net/browse/DDF-3832
   private void verifyLogicalNodeNotInProgress() {
     if (!depth.isEmpty()) {
       throw new IllegalStateException("Logic node in progress, results not ready for return");
     }
   }
 
-  // ~
+  // Verify coverage: https://codice.atlassian.net/browse/DDF-3832
   private void verifyLogicalNodeHasChildren() {
     if (!depth.isEmpty() && depth.peek().isEmpty()) {
       throw new IllegalStateException("Cannot end the logic node, no children provided");
     }
   }
 
-  // CanReturn
   private void verifyResultNotNull() {
     if (rootNode == null) {
       throw new IllegalStateException(
@@ -290,8 +287,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
-  // CanStartNew
-  // CanEnd
   private void verifyTerminalNodeNotInProgress() {
     if (supplierInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");

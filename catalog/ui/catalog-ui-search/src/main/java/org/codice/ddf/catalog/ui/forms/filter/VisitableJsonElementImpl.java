@@ -91,6 +91,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private VisitableJsonElementImpl(final FilterNode node) {
     if (LIKE.equals(node.getOperator())) {
       throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
+      // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     }
 
     this.visitMethod = VISIT_METHODS.get(node.getOperator());

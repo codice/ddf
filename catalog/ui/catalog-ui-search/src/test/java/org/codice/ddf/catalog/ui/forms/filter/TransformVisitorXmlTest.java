@@ -77,13 +77,13 @@ public class TransformVisitorXmlTest {
         .withBinding(BinaryLogicOpType.class)
         .withExpression(BinaryLogicOpType::getOps)
         .satisfies(
-            j ->
-                forElement(j)
+            child1 ->
+                forElement(child1)
                     .withBinding(BinaryComparisonOpType.class)
                     .verifyExpression(BinaryComparisonOpType::getExpression)
                     .withData(DEPTH_PROP, DEPTH_VAL),
-            j ->
-                forElement(j)
+            child2 ->
+                forElement(child2)
                     .withBinding(BinarySpatialOpType.class)
                     .verifyExpressionOrAny(BinarySpatialOpType::getExpressionOrAny)
                     .withData("anyGeo", "WKT()"));
@@ -98,28 +98,28 @@ public class TransformVisitorXmlTest {
         .withBinding(BinaryLogicOpType.class)
         .withExpression(BinaryLogicOpType::getOps)
         .satisfies(
-            j ->
-                forElement(j)
+            depth1Child1 ->
+                forElement(depth1Child1)
                     .withBinding(BinaryComparisonOpType.class)
                     .verifyExpression(BinaryComparisonOpType::getExpression)
                     .withData(DEPTH_PROP, DEPTH_VAL),
-            j ->
-                forElement(j)
+            depth1Child2 ->
+                forElement(depth1Child2)
                     .withBinding(BinaryLogicOpType.class)
                     .withExpression(BinaryLogicOpType::getOps)
                     .satisfies(
-                        k ->
-                            forElement(k)
+                        depth2Child1 ->
+                            forElement(depth2Child1)
                                 .withBinding(BinaryComparisonOpType.class)
                                 .verifyExpression(BinaryComparisonOpType::getExpression)
                                 .withData(DEPTH_PROP, DEPTH_VAL),
-                        k ->
-                            forElement(k)
+                        depth2Child2 ->
+                            forElement(depth2Child2)
                                 .withBinding(BinaryTemporalOpType.class)
                                 .verifyExpressionOrAny(BinaryTemporalOpType::getExpressionOrAny)
                                 .withData("created", EXPECTED_DATE),
-                        k ->
-                            forElement(k)
+                        depth2Child3 ->
+                            forElement(depth2Child3)
                                 .withBinding(PropertyIsLikeType.class)
                                 .verifyExpression(PropertyIsLikeType::getExpression)
                                 .withData("name", "Bob")));
