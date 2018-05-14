@@ -127,9 +127,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
-            <version>${cas.client.bundle.version}</version>
+            <version>${cas.client.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.cas</groupId>
@@ -140,16 +140,10 @@
             <groupId>ddf.security.cas</groupId>
             <artifactId>security-cas-client</artifactId>
             <version>${project.version}</version>
-            <type>war</type>
         </dependency>
         <dependency>
             <groupId>ddf.security.cas</groupId>
             <artifactId>security-cas-tokenvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-cxfservletfilter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

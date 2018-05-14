@@ -167,36 +167,32 @@
 
     <feature name="security-cas-client" version="${project.version}"
              description="Security CAS Client.">
-        <!--opensaml-->
-        <feature>guava</feature>
-        <bundle>mvn:joda-time/joda-time/2.9.4</bundle>
-        <bundle>mvn:org.apache.santuario/xmlsec/2.0.9</bundle>
-        <feature>cxf-bindings-soap</feature>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/3.1.1_3
-        </bundle>
+        <feature>security-sts-realm</feature>
+        <feature>security-core-api</feature>
+        <feature>action-core-impl</feature>
 
-        <bundle>mvn:org.codice.thirdparty/cas-client-core/${cas.client.bundle.version}</bundle>
+        <bundle>wrap:mvn:org.jasig.cas.client/cas-client-core/${cas.client.version}</bundle>
         <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
-        <feature>security-handler-api</feature>
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/3.1.1_3
-        </bundle>
-        <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}/war</bundle>
+        <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}</bundle>
     </feature>
 
     <feature name="security-cas-tokenvalidator" version="${project.version}"
              description="Security CAS Validator for the STS.">
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
-        <feature>javax-validation</feature>
-        <bundle>mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+        <feature>security-sts-server</feature>
         <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
     </feature>
 
-    <feature name="security-cas-cxfservletfilter" version="${project.version}"
-             description="Security CAS Servlet Filter for CXF.">
+    <feature name="security-sts-casclaimshandler" version="${project.version}"
+             description="Retrieves a user's claims from a CAS server.">
+        <feature>security-sts-server</feature>
+        <bundle>mvn:ddf.security.sts/security-sts-casclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-cas" version="${project.version}"
+        description="CAS client, token validator, and claims handler">
         <feature>security-cas-client</feature>
-        <feature>cxf-http-client</feature>
-        <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
+        <feature>security-cas-tokenvalidator</feature>
+        <feature>security-sts-casclaimshandler</feature>
     </feature>
 
     <feature name="security-pdp-authz" version="${project.version}"

@@ -24,7 +24,6 @@ import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTes
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
-import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import org.apache.karaf.features.FeaturesService;
@@ -45,11 +44,6 @@ public class ITSecurityFeatures {
 
   private static final String FEATURE_REPO_PATH = getTestResource("/features.xml");
 
-  // DDF-3767
-  private static final List<String> IGNORED_FEATURES =
-      Arrays.asList(
-          "security-cas-client", "security-cas-tokenvalidator", "security-cas-cxfservletfilter");
-
   @Configuration
   public static Option[] examConfiguration() {
     return options(
@@ -65,7 +59,7 @@ public class ITSecurityFeatures {
 
   @Parameterized.Parameters
   public static List<Object[]> getParameters() {
-    return FeatureUtilities.featureRepoToFeatureParameters(FEATURE_REPO_PATH, IGNORED_FEATURES);
+    return FeatureUtilities.featureRepoToFeatureParameters(FEATURE_REPO_PATH);
   }
 
   @Inject private FeaturesService featuresService;
