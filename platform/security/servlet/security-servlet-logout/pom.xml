@@ -120,7 +120,6 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            boon,
                             commons-lang3,
                             ddf-security-common,
                             httpclient,

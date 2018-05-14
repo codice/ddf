@@ -69,7 +69,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            boon,
                             catalog-core-api-impl,
                             platform-util
                         </Embed-Dependency>

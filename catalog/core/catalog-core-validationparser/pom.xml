@@ -140,7 +140,6 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             platform-util,
-                            boon
                         </Embed-Dependency>
                         <Import-Package>
                             !com.sun.management,

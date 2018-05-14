@@ -27,6 +27,7 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="search-ui" version="${project.version}" description="Search UI">
@@ -36,6 +37,7 @@
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="simple-search-ui" version="${project.version}">

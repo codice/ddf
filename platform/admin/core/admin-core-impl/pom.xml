@@ -122,8 +122,7 @@
                         <Embed-Dependency>
                             platform-util,
                             org.apache.felix.utils,
-                            alerts,
-                            boon
+                            alerts
                         </Embed-Dependency>
                         <Private-Package>
                             com.github.drapostolos.typeparser,

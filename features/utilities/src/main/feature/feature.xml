@@ -59,6 +59,7 @@
              description="Platform error handler.">
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="mime-core-api" version="${project.version}"

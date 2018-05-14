@@ -142,7 +142,6 @@
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             commons-lang3,
-                            boon,
                             security-core-impl
                         </Embed-Dependency>
                         <Import-Package>

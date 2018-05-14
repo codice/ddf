@@ -162,6 +162,7 @@
              description="Confluence source and transformer">
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <bundle>mvn:ddf.catalog.confluence/catalog-confluence-source/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="abdera" version="${project.version}"
@@ -232,6 +233,7 @@
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}
         </bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-atom" version="${project.version}"
@@ -376,6 +378,7 @@
              description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
         <feature>catalog-core-validator</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-pdf" version="${project.version}"

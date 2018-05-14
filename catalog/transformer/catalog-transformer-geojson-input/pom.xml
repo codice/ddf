@@ -60,7 +60,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            boon,
                             catalog-core-api-impl
                         </Embed-Dependency>
                         <Import-Package>

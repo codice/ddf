@@ -497,6 +497,7 @@
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="security-servlet-session-expiry" version="${project.version}"
@@ -541,6 +542,7 @@
         <feature>security-handler-basic</feature>
         <feature>security-filter-login</feature>
         <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
+        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
     </feature>
 
     <feature name="security-command-listener" version="${project.version}"

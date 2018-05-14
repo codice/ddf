@@ -155,8 +155,7 @@
                         <Embed-Dependency>
                             commons-lang,
                             platform-util,
-                            org.apache.felix.utils,
-                            boon
+                            org.apache.felix.utils
                         </Embed-Dependency>
                         <Import-Package>
                             !com.sun.management,

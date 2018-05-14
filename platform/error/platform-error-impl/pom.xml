@@ -73,7 +73,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            boon,
                             commons-io
                         </Embed-Dependency>
                         <Export-Package/>

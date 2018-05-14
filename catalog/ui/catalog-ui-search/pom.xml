@@ -300,7 +300,6 @@
                     <instructions>
                         <Embed-Dependency>
                             antlr4-runtime,
-                            boon,
                             c3p0,
                             camel-core-osgi,
                             camel-http,

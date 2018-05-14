@@ -148,7 +148,6 @@
                         <Embed-Dependency>
                             platform-util,
                             ddf-security-common,
-                            boon
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,
