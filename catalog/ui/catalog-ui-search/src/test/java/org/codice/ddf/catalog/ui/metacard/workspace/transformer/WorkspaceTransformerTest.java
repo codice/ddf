@@ -226,8 +226,6 @@ public class WorkspaceTransformerTest {
                 JSON_KEY_VALUE_REMOVER));
   }
 
-  // test metacard -> map
-
   @Test
   public void testMetacardToMapDirectMapping() {
     metacard.setAttribute(UNTRANSFORMED_KEY, UNTRANSFORMED_VALUE);
@@ -256,8 +254,6 @@ public class WorkspaceTransformerTest {
     final Map<String, Object> json = workspaceTransformer.transform(metacard);
     assertThat(json, not(hasKey(METACARD_KEY_TO_REMOVE)));
   }
-
-  // test map -> metacard
 
   @Test
   public void testMapToMetacardDirectMapping() {

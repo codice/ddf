@@ -71,7 +71,7 @@ public class WorkspaceTransformer {
           .map(newValue -> new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.warn(
-          "A workspace transformation expected a value of type {} for metacard attribute \"{}\", but instead found a value of type {}!",
+          "A workspace transformation expected a value of type {} for metacard attribute \"{}\", but instead found a value of type {}.",
           transformation.getMetacardValueType().getName(),
           entry.getKey(),
           entry.getValue().getClass().getName());
@@ -98,7 +98,7 @@ public class WorkspaceTransformer {
           .map(newValue -> new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.debug(
-          "A workspace transformation expected a value of type {} for JSON key \"{}\", but instead found a value of type {}!",
+          "A workspace transformation expected a value of type {} for JSON key \"{}\", but instead found a value of type {}.",
           transformation.getJsonValueType().getName(),
           entry.getKey(),
           entry.getValue().getClass().getName());
@@ -129,7 +129,7 @@ public class WorkspaceTransformer {
     } else if (value instanceof List) {
       metacard.setAttribute(new AttributeImpl(entry.getKey(), (List<Serializable>) value));
     } else {
-      LOGGER.debug("The value was not a Serializable or List and will be discarded.");
+      LOGGER.debug("The value was expected to be Serializable or a list of Serializable items.");
     }
   }
 
