@@ -90,7 +90,21 @@ define(function (require) {
             this.handleFeedback();
             this.handleExperimental();
             this.handleUpload();
+            this.handleListTemplates();
             return props;
+        },
+        handleListTemplates() {
+            try {
+                this.listTemplates = this.listTemplates.map(JSON.parse);
+            }
+            catch (error) {
+                /*
+                    would be a good to start reporting errors like this to a log that can alert admins
+                    or update the admin interface to include validation that prevents errors like this
+                    ideally both
+                */
+               this.listTemplates = [];
+            }
         },
         handleEditing: function(){
             $('html').toggleClass('is-editing-restricted', this.isEditingRestricted());

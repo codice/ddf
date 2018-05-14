@@ -25,6 +25,7 @@ var Property = require('component/property/property');
 var List = require('js/model/List');
 var DropdownView = require('component/dropdown/popout/dropdown.popout.view');
 var ListFilterView = require('component/result-filter/list/result-filter.list.view');
+const properties = require('properties');
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-editor'),
@@ -35,12 +36,15 @@ module.exports = Marionette.LayoutView.extend({
   },
   regions: {
     listTitle: '.list-title',
+    listTemplate: '.list-template',
     listCQLSwitch: '.list-limiting-switch',
     listCQL: '.list-limiting',
     listIcon: '.list-icon'
   },
+  listTemplateId: 'custom',
   onBeforeShow: function() {
     this.showListTitle();
+    this.showListTemplate();
     this.showCQLSwitch();
     this.showCQL();
     this.showIcon();
@@ -54,6 +58,36 @@ module.exports = Marionette.LayoutView.extend({
         type: 'TEXT'
       })
     );
+  },
+  handleListTemplate() {
+    this.$el.toggleClass('is-template', this.listTemplateId !== 'custom');
+  },
+  showListTemplate() {
+    if (this.options.showListTemplates === true) {
+      const propertyModel = new Property({
+          label: 'Template',
+          value: [this.listTemplateId],
+          enum: [{
+            label: 'Custom',
+            value: 'custom'
+          }].concat(properties.listTemplates.map(template =>
+            ({
+              label: template.id,
+              value: template.id,
+              class: List.getIconMapping()[template['list.icon']]
+            })
+          )),
+          id: 'Template'
+      });
+      this.listTemplate.show(new PropertyView({
+          model: propertyModel
+      }));
+      this.listTemplate.currentView.turnOnEditing();
+      this.listenTo(propertyModel, 'change:value', () => {
+        this.listTemplateId = propertyModel.getValue()[0];
+        this.handleListTemplate();
+      });
+    }
   },
   showCQLSwitch: function() {
     this.listCQLSwitch.show(
@@ -120,18 +154,23 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
   },
   saveIcon: function() {
-    this.model.set('list.icon', this.listIcon.currentView.model.getValue()[0]);
+    const icon = this.listTemplateId === 'custom' ?
+      this.listIcon.currentView.model.getValue()[0] :
+      properties.listTemplates.filter((template) => template.id === this.listTemplateId)[0]['list.icon'];
+    this.model.set('list.icon', icon);
   },
   saveTitle: function() {
     this.model.set('title', this.listTitle.currentView.model.getValue()[0]);
   },
   saveCQL: function() {
-    var shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0];
-    if (shouldLimit) {
-      this.model.set('list.cql', this.listCQL.currentView.model.getValue());
-    } else {
-      this.model.set('list.cql', '');
+    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0];
+    let cql = '';
+    if (this.listTemplateId !== 'custom') {
+      cql = properties.listTemplates.filter((template) => template.id === this.listTemplateId)[0]['list.cql'];
+    } else if (shouldLimit === true) {
+      cql = this.listCQL.currentView.model.getValue();
     }
+    this.model.set('list.cql', cql);
   },
   save: function() {
     this.saveTitle();
