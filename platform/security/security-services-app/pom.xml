@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform.security</groupId>
@@ -155,9 +157,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
+            <groupId>org.jasig.cas.client</groupId>
             <artifactId>cas-client-core</artifactId>
-            <version>${cas.client.bundle.version}</version>
+            <version>${cas.client.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.cas</groupId>
@@ -168,16 +170,10 @@
             <groupId>ddf.security.cas</groupId>
             <artifactId>security-cas-client</artifactId>
             <version>${project.version}</version>
-            <type>war</type>
         </dependency>
         <dependency>
             <groupId>ddf.security.cas</groupId>
             <artifactId>security-cas-tokenvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-cxfservletfilter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -393,6 +389,11 @@
         <dependency>
             <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-casclaimshandler</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

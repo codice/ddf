@@ -20,7 +20,6 @@ State         Version            Name                                     Reposi
 [uninstalled] [${project.version}  ] security-expansion                       security-services-app-${project.version} DDF Security Expansion
 [uninstalled] [${project.version}  ] security-cas-client                      security-services-app-${project.version} DDF Security CAS Client.
 [uninstalled] [${project.version}  ] security-cas-tokenvalidator              security-services-app-${project.version} DDF Security CAS Validator for the STS.
-[uninstalled] [${project.version}  ] security-cas-cxfservletfilter            security-services-app-${project.version} DDF Security CAS Servlet Filter for CXF.
 [installed  ] [${project.version}  ] security-pdp-authz                       security-services-app-${project.version} DDF Security PDP.
 [uninstalled] [${project.version}  ] security-pep-serviceauthz                security-services-app-${project.version} DDF Security PEP Service AuthZ
 [uninstalled] [${project.version}  ] security-expansion-user-attributes       security-services-app-${project.version} DDF Security Expansion User Attributes Expansion

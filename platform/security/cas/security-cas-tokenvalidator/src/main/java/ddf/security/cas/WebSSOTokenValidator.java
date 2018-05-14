@@ -13,9 +13,9 @@
  */
 package ddf.security.cas;
 
-import ddf.security.encryption.EncryptionService;
 import java.nio.charset.Charset;
 import java.util.Base64;
+import java.util.Map;
 import javax.security.auth.callback.CallbackHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -53,18 +53,12 @@ public class WebSSOTokenValidator implements TokenValidator {
 
   private PropertyResolver casServerUrl;
 
-  private EncryptionService encryptionService;
-
   public String getCasServerUrl() {
     return casServerUrl.getResolvedString();
   }
 
   public void setCasServerUrl(String casServerUrl) {
     this.casServerUrl = new PropertyResolver(casServerUrl);
-  }
-
-  public void setEncryptionService(EncryptionService encryptionService) {
-    this.encryptionService = encryptionService;
   }
 
   /*
@@ -87,11 +81,11 @@ public class WebSSOTokenValidator implements TokenValidator {
     if ((token instanceof BinarySecurityTokenType)) {
       if (CAS_TYPE.equalsIgnoreCase(((BinarySecurityTokenType) token).getValueType())) {
         LOGGER.debug(
-            "Can handle token type of: " + ((BinarySecurityTokenType) token).getValueType());
+            "Can handle token type of: {}", ((BinarySecurityTokenType) token).getValueType());
         return true;
       }
       LOGGER.debug(
-          "Cannot handle token type of: " + ((BinarySecurityTokenType) token).getValueType());
+          "Cannot handle token type of: {}", ((BinarySecurityTokenType) token).getValueType());
     }
     return false;
   }
@@ -175,6 +169,16 @@ public class WebSSOTokenValidator implements TokenValidator {
       LOGGER.debug("User name retrieved from CAS: {}", principal.getName());
 
       response.setPrincipal(principal);
+      Map<String, Object> additionalProperties = principal.getAttributes();
+
+      if (additionalProperties != null) {
+        response.setAdditionalProperties(additionalProperties);
+        LOGGER.debug("Added additional CAS attributes to response.");
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("CAS attributes retrieved: {}", attributesToString(additionalProperties));
+        }
+      }
+
       LOGGER.debug("CAS ticket successfully validated, setting state to valid.");
       validateTarget.setState(STATE.VALID);
 
@@ -183,6 +187,21 @@ public class WebSSOTokenValidator implements TokenValidator {
     }
 
     return response;
+  }
+
+  private String attributesToString(Map<String, Object> attributes) {
+    StringBuilder output = new StringBuilder();
+    String prefix = "\n";
+    output.append("{");
+    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+      output.append(prefix);
+      prefix = ", \n";
+      output.append(entry.getKey());
+      output.append("=");
+      output.append(entry.getValue());
+    }
+    output.append("\n}");
+    return output.toString();
   }
 
   /**

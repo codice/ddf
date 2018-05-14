@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Base64;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +27,10 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
   private static final String SEP_CHAR = "|";
 
+  public static final String REALM = "cas";
+
   public CASAuthenticationToken(Principal principal, String proxyTicket, String serviceUrl) {
-    this(principal, proxyTicket, serviceUrl, BaseAuthenticationToken.DEFAULT_REALM);
+    this(principal, proxyTicket, serviceUrl, REALM);
   }
 
   public CASAuthenticationToken(

@@ -37,7 +37,9 @@ public class CasProxyTicketValidator implements TicketValidator {
   public void setCasServerUrl(String serverUrl) {
     proxyTicketValidator =
         new Cas20ProxyTicketValidator(PropertyResolver.resolveProperties(serverUrl));
-    proxyTicketValidator.setProxyCallbackUrl(proxyCallbackUrl.getResolvedString());
+    if (proxyCallbackUrl != null) {
+      proxyTicketValidator.setProxyCallbackUrl(proxyCallbackUrl.getResolvedString());
+    }
     proxyTicketValidator.setAcceptAnyProxy(acceptAnyProxy);
     proxyTicketValidator.setProxyGrantingTicketStorage(proxyGrantingTicketStorage);
   }

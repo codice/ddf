@@ -254,6 +254,8 @@
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
         <gib.failOnError>false</gib.failOnError>
+
+        <cas.client.version>3.4.1</cas.client.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
