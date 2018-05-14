@@ -51,7 +51,6 @@
          let d = new Date(0)
          d.setUTCSeconds(utcSeconds)
          this.addResultForm(new ResultForm({
-          //TODO: I think this datetime is wrong. Does this change the "createdOn" every time a form is fetched and/or added?
            createdOn: Common.getHumanReadableDate(d),
            id: element.id,
            name: element.label,

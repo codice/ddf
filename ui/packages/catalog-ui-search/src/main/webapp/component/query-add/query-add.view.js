@@ -30,9 +30,7 @@ const wreqr = require('wreqr');
 const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
 const announcement = require('component/announcement');
-const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
 const SearchFormModel = require('component/search-form/search-form.js');
-const lightboxInstance = lightboxResultInstance.generateNewLightbox();
 
 
 module.exports = Marionette.LayoutView.extend({

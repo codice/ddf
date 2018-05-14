@@ -20,6 +20,7 @@ const CustomElements = require('js/CustomElements');
 const user = require('../singletons/user-instance');
 const DropdownModel = require('../dropdown/dropdown');
 const SearchFormInteractionsDropdownView = require('../dropdown/search-form-interactions/dropdown.search-form-interactions.view');
+const properties = require('properties');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -29,7 +30,7 @@ module.exports = Marionette.LayoutView.extend({
         'click': 'changeView'
     },
     regions: {
-        workspaceActions: '.choice-actions'
+        searchFormActions: '.choice-actions'
     },
     initialize: function() {
         //TODO Fix this hack
@@ -39,8 +40,8 @@ module.exports = Marionette.LayoutView.extend({
         if (this.model.get('type') === 'basic' || this.model.get('type') === 'text' || this.model.get('type') === 'new-form') {
             this.$el.addClass('is-static');
         }
-        else {
-            this.workspaceActions.show(new SearchFormInteractionsDropdownView({
+        else if (properties.hasExperimentalEnabled()) {
+            this.searchFormActions.show(new SearchFormInteractionsDropdownView({
                 model: new DropdownModel(),
                 modelForComponent: this.model,
                 collectionWrapperModel: this.options.collectionWrapperModel,

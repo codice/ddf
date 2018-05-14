@@ -13,12 +13,15 @@
  var Tabs = require('component/tabs/tabs');
  var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
  var MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
+ const properties = require('properties');
 
  module.exports = Tabs.extend({
     defaults: {
-        tabs: {
+        tabs: properties.hasExperimentalEnabled() ? {
             'My Search Forms': MySearchFormCollectionView,
             'Shared Templates': MySearchSharingFormCollectionView
+         } : {
+            'My Search Forms': MySearchFormCollectionView
          }
     }
  });

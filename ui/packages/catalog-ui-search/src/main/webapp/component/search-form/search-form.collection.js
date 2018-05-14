@@ -19,6 +19,7 @@ const Backbone = require('backbone');
 const SearchForm = require('./search-form');
 const Common = require('js/Common');
 const user = require('component/singletons/user-instance');
+const properties = require('properties');
 
 const fixFilter = function(filter) {
     if (filter.filters) {
@@ -67,8 +68,11 @@ let bootstrapPromise = templatePromiseSupplier();
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
         doneLoading: false,
-        searchForms: [
+        searchForms: properties.hasExperimentalEnabled() ? [
             new SearchForm({type: 'new-form'}), 
+            new SearchForm({type: 'basic'}), 
+            new SearchForm({type: 'text'})
+        ] : [
             new SearchForm({type: 'basic'}), 
             new SearchForm({type: 'text'})
         ]
