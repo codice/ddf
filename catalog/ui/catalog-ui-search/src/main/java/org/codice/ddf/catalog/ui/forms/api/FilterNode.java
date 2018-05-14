@@ -11,31 +11,28 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.api;
 
+import java.util.List;
 import java.util.Map;
 
-public interface FlatFilterBuilder<T> {
+public interface FilterNode {
 
-  T getResult();
+  boolean isLeaf();
 
-  FlatFilterBuilder beginBinaryLogicType(String operator);
+  boolean isTemplated();
 
-  FlatFilterBuilder endBinaryLogicType();
+  String getOperator();
 
-  FlatFilterBuilder beginBinaryComparisonType(String operator);
+  List<FilterNode> getChildren();
 
-  FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase);
+  Map<String, Object> getTemplateProperties();
 
-  FlatFilterBuilder beginBinaryTemporalType(String operator);
+  String getProperty();
 
-  FlatFilterBuilder beginBinarySpatialType(String operator);
+  String getValue();
 
-  FlatFilterBuilder endTerminalType();
+  void setProperty(String property);
 
-  FlatFilterBuilder setProperty(String property);
-
-  FlatFilterBuilder setValue(String value);
-
-  FlatFilterBuilder setTemplatedValues(Map<String, Object> templateProps);
+  void setValue(String value);
 }

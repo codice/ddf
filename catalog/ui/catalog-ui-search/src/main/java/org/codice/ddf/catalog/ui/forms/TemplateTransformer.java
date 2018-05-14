@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
@@ -26,13 +26,18 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.filter.v_2_0.FilterType;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
+import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
 import org.codice.ddf.catalog.ui.forms.filter.FilterProcessingException;
 import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
 import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
+import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
+import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
 import org.slf4j.Logger;

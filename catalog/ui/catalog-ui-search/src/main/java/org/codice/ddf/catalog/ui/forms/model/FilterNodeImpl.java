@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.util.List;
 import java.util.Map;
 import org.boon.json.annotations.JsonProperty;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 public class FilterNodeImpl implements FilterNode {
   @JsonProperty("type")

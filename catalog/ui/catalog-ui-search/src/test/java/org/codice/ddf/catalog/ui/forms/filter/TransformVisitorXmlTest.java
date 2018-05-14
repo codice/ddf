@@ -11,11 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.filter;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.forElement;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.forElement;
 
 import java.io.File;
 import java.net.URL;
@@ -33,8 +33,9 @@ import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableElement;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
+import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
 import org.junit.Before;
 import org.junit.Test;
 

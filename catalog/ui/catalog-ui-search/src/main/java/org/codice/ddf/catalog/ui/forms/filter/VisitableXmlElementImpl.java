@@ -42,6 +42,8 @@ import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.PropertyIsNilType;
 import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
+import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

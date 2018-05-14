@@ -11,14 +11,16 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.filter;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
-import org.codice.ddf.catalog.ui.forms.filter.AbstractFilterVisitor2;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
+import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>To get started, load XML using JAXB, create a {@link VisitableElement} from the root {@link
  * JAXBElement}, and pass an instance of {@link TransformVisitor} into {@link
- * VisitableElement#accept(org.codice.ddf.catalog.ui.forms.filter.FilterVisitor2)}.
+ * VisitableElement#accept(FilterVisitor2)}.
  *
  * <p>While trying to wrap one's head around visitors, it would be helpful to set a breakpoint on
  * {@link #visitLiteralType(VisitableElement)} and take some time analyzing the stack.

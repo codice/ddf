@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.boon.json.annotations.JsonProperty;
-import org.codice.ddf.catalog.ui.forms.model.FilterNode;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.

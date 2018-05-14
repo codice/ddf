@@ -11,20 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.api;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.function.Supplier;
+import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
+import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /**
- * Conformance test suite for implementations of {@link FlatFilterBuilder}s to ensure their states
- * are being managed correctly. This test suite validates correct use, not necessarily expected
- * results.
+ * Conformance test suite for implementations of {@link
+ * org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder}s to ensure their states are being managed
+ * correctly. This test suite validates correct use, not necessarily expected results.
  *
  * <p>The below test names follow a simple convention: (builder method) + (validation method)
  *

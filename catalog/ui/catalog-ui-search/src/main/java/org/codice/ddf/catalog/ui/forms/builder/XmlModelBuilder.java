@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.builder;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
@@ -39,6 +39,7 @@ import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
+import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();

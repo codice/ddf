@@ -26,7 +26,9 @@ import net.opengis.filter.v_2_0.PropertyIsBetweenType;
 import net.opengis.filter.v_2_0.PropertyIsNilType;
 import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
-import org.codice.ddf.catalog.ui.forms.model.FilterNode;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 
 /**
  * Notes on the JSON to XML mapping representation.

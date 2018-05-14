@@ -11,11 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.filter;
+package org.codice.ddf.catalog.ui.forms.api;
 
 /**
- * Can be visited by a {@link FilterVisitor2}. Currently visitability is coupled to JAXB as a result
- * of the Filter 2.0 binding implementation used.
+ * Can be visited by a {@link org.codice.ddf.catalog.ui.forms.api.FilterVisitor2}. Currently
+ * visitability is coupled to JAXB as a result of the Filter 2.0 binding implementation used.
  *
  * <p><i>This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library.</i>

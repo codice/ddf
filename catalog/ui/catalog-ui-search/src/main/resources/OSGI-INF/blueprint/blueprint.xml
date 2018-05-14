@@ -374,7 +374,7 @@
     </bean>
 
     <bean id="templateTransformer"
-          class="org.codice.ddf.catalog.ui.forms.model.TemplateTransformer">
+          class="org.codice.ddf.catalog.ui.forms.TemplateTransformer">
         <argument ref="filterWriter"/>
     </bean>
 

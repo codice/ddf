@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 public class FilterNodeMapImpl implements FilterNode {
   private static final String CHILDREN = "filters";

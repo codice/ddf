@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -31,23 +31,25 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.LiteralType;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 /** As more test cases are added, more support functions will be needed. */
-class FilterNodeAssertionSupport {
+public class FilterNodeAssertionSupport {
   private FilterNodeAssertionSupport() {}
 
-  static void assertParentNode(FilterNode node, String expectedType, int expectedChildCount) {
+  public static void assertParentNode(
+      FilterNode node, String expectedType, int expectedChildCount) {
     assertParentNode(node, expectedType);
     assertThat(node.getChildren(), hasSize(expectedChildCount));
   }
 
-  static void assertParentNode(FilterNode node, String expectedType) {
+  public static void assertParentNode(FilterNode node, String expectedType) {
     assertThat(node.getOperator(), is(expectedType));
     assertThat(node.getChildren(), notNullValue());
     assertThat(node.isLeaf(), is(false));
   }
 
-  static void assertLeafNode(
+  public static void assertLeafNode(
       FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
     assertThat(node.getOperator(), is(expectedType));
     assertThat(node.isLeaf(), is(true));
@@ -57,7 +59,7 @@ class FilterNodeAssertionSupport {
     assertThat(node.isTemplated(), is(false));
   }
 
-  static void assertTemplatedNode(
+  public static void assertTemplatedNode(
       FilterNode node,
       String expectedType,
       String expectedProperty,
@@ -99,11 +101,11 @@ class FilterNodeAssertionSupport {
    * @param element root {@link JAXBElement} to validate.
    * @return the next stage of validation options.
    */
-  static JAXBValidationStarter forElement(JAXBElement<?> element) {
+  public static JAXBValidationStarter forElement(JAXBElement<?> element) {
     return new JAXBValidationStarter(element);
   }
 
-  static class JAXBValidationStarter {
+  public static class JAXBValidationStarter {
     private JAXBElement<?> element;
 
     private JAXBValidationStarter(JAXBElement<?> element) {
@@ -123,7 +125,7 @@ class FilterNodeAssertionSupport {
     }
   }
 
-  static class JAXBClassBindingAssertion<T> {
+  public static class JAXBClassBindingAssertion<T> {
     private final T elementValue;
 
     private Function<? super T, JAXBElement<?>> nextElement;
@@ -201,7 +203,7 @@ class FilterNodeAssertionSupport {
     }
   }
 
-  static class JAXBPropertyValueAssertion {
+  public static class JAXBPropertyValueAssertion {
     private final BiConsumer<String, Serializable> assertion;
 
     private JAXBPropertyValueAssertion(BiConsumer<String, Serializable> assertion) {
@@ -220,7 +222,7 @@ class FilterNodeAssertionSupport {
     }
   }
 
-  static class JAXBCollectionAssertion {
+  public static class JAXBCollectionAssertion {
     private final List<JAXBElement<?>> elements;
 
     private JAXBCollectionAssertion(List<JAXBElement<?>> elements) {

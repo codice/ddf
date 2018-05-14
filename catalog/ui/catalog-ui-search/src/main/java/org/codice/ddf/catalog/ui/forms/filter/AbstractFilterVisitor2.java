@@ -16,6 +16,8 @@ package org.codice.ddf.catalog.ui.forms.filter;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

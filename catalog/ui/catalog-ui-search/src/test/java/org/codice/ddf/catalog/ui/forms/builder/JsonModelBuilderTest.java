@@ -11,13 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.builder;
 
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertLeafNode;
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertParentNode;
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
 
 import com.google.common.collect.ImmutableMap;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.junit.Before;
 import org.junit.Test;
 
