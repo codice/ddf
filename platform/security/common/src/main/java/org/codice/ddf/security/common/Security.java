@@ -337,7 +337,7 @@ public class Security {
   }
 
   private String getCertificateAlias() {
-    return System.getProperty("org.codice.ddf.system.hostname");
+    return System.getProperty("org.codice.ddf.external.hostname");
   }
 
   private KeyStore getSystemKeyStore() {

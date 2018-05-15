@@ -449,7 +449,7 @@ public class SecureCxfClientFactory<T> {
     } catch (NoSuchAlgorithmException | KeyStoreException e) {
       LOGGER.debug("Unable to initialize TrustManagerFactory.", e);
     }
-    tlsParams.setCertAlias(SystemBaseUrl.getHost());
+    tlsParams.setCertAlias(SystemBaseUrl.EXTERNAL.getHost());
 
     httpConduit.setTlsClientParameters(tlsParams);
   }

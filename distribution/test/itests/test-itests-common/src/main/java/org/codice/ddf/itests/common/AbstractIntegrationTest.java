@@ -272,12 +272,13 @@ public abstract class AbstractIntegrationTest {
 
   public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort", 0);
 
-  public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
+  public static final DynamicPort HTTP_PORT =
+      new DynamicPort("org.codice.ddf.external.httpPort", 1);
 
   public static final DynamicPort HTTPS_PORT =
-      new DynamicPort("org.codice.ddf.system.httpsPort", 2);
+      new DynamicPort("org.codice.ddf.external.httpsPort", 2);
 
-  public static final DynamicPort DEFAULT_PORT = new DynamicPort("org.codice.ddf.system.port", 2);
+  public static final DynamicPort DEFAULT_PORT = new DynamicPort("org.codice.ddf.external.port", 2);
 
   public static final DynamicPort SSH_PORT = new DynamicPort(3);
 

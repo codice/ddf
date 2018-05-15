@@ -592,7 +592,7 @@ public class MetricsEndpoint {
          */
 
         String metricsUrl =
-            SystemBaseUrl.EXTERNAL.getRootContextString()
+            SystemBaseUrl.EXTERNAL.getRootContext()
                 + METRICS_SERVICE_BASE_URL
                 + "/"
                 + metricsName

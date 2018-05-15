@@ -19,7 +19,7 @@
         <cm:managed-properties persistent-id="ddf.security.cas.webSSOTokenValidator"
                                update-strategy="container-managed"/>
         <property name="casServerUrl"
-                  value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/"/>
+                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8443/cas/"/>
     </bean>
 
     <service ref="webSsoTokenValidator">

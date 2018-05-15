@@ -63,11 +63,12 @@ public class IdpLogoutActionProvider implements ActionProvider {
         nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
         logoutUrl =
             new URL(
-                SystemBaseUrl.constructUrl(
+                SystemBaseUrl.EXTERNAL.constructUrl(
                     "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true));
 
       } catch (MalformedURLException e) {
-        LOGGER.info("Unable to resolve URL: {}", SystemBaseUrl.constructUrl("/logout/local"));
+        LOGGER.info(
+            "Unable to resolve URL: {}", SystemBaseUrl.EXTERNAL.constructUrl("/logout/local"));
       } catch (ClassCastException e) {
         LOGGER.debug("Unable to cast parameter to Map<String, Subject>, {}", realmSubjectMap, e);
       }

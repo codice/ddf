@@ -560,7 +560,9 @@ public class IdpHandler implements AuthenticationHandler {
   private String getSpIssuerId() {
     return String.format(
         "https://%s:%s%s/saml",
-        SystemBaseUrl.getHost(), SystemBaseUrl.getHttpsPort(), SystemBaseUrl.getRootContext());
+        SystemBaseUrl.EXTERNAL.getHost(),
+        SystemBaseUrl.EXTERNAL.getHttpsPort(),
+        SystemBaseUrl.EXTERNAL.getRootContext());
   }
 
   private String serializeAndSign(boolean isPost, boolean wantSigned, AuthnRequest authnRequest)
@@ -627,7 +629,7 @@ public class IdpHandler implements AuthenticationHandler {
 
   private X509Certificate getTlsCertificate()
       throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-    String host = SystemBaseUrl.getHost();
+    String host = SystemBaseUrl.EXTERNAL.getHost();
     Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
     String keyStorePassword = SecurityConstants.getKeystorePassword();
     KeyStore keyStore = SecurityConstants.newKeystore();

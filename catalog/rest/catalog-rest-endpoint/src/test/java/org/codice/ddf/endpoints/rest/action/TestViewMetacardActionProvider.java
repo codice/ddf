@@ -108,6 +108,6 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     String urlString =
         String.format(
             "%s%s/%s/%s", CONTEXT_ROOT, SOURCES_PATH, REMOTE_SOURCE_ID, encodedMetacardId);
-    return new URL(SystemBaseUrl.constructUrl(urlString, true));
+    return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
 }

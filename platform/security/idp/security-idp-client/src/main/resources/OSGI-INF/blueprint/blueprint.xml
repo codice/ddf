@@ -30,7 +30,7 @@
     <bean id="idpMetadata" class="org.codice.ddf.security.idp.client.IdpMetadata">
         <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.IdpMetadata"
                                update-strategy="container-managed"/>
-        <property name="metadata" value="https://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/services/idp/login/metadata" />
+        <property name="metadata" value="https://${org.codice.ddf.external.hostname}:${org.codice.ddf.external.httpsPort}/services/idp/login/metadata" />
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>

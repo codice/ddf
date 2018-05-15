@@ -169,7 +169,9 @@ public class RegistryPublicationActionProviderTest {
         actions.get(0).getId(), equalTo("catalog.source.operation.registry.publish.HTTP_POST"));
     assertThat(
         actions.get(0).getUrl().toString(),
-        equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
+        equalTo(
+            SystemBaseUrl.EXTERNAL.constructUrl(
+                "internal/registries/regId1/publication/regId2", true)));
   }
 
   @Test
@@ -187,7 +189,9 @@ public class RegistryPublicationActionProviderTest {
         actions.get(0).getId(), equalTo("catalog.source.operation.registry.unpublish.HTTP_DELETE"));
     assertThat(
         actions.get(0).getUrl().toString(),
-        equalTo(SystemBaseUrl.constructUrl("internal/registries/regId1/publication/regId2", true)));
+        equalTo(
+            SystemBaseUrl.EXTERNAL.constructUrl(
+                "internal/registries/regId1/publication/regId2", true)));
   }
 
   private Metacard getRegistryMetacard(String regId) {

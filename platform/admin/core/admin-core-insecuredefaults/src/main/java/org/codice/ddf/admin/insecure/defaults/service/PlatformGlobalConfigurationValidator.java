@@ -39,7 +39,7 @@ public class PlatformGlobalConfigurationValidator implements Validator {
   }
 
   private void validateHttpIsDisabled() {
-    String protocol = SystemBaseUrl.getProtocol();
+    String protocol = SystemBaseUrl.EXTERNAL.getProtocol();
 
     if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
       alerts.add(new Alert(Level.WARN, PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));

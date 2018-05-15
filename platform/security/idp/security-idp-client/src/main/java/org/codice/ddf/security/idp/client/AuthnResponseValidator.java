@@ -85,6 +85,8 @@ public class AuthnResponseValidator {
   private String getSpIssuerId() {
     return String.format(
         "https://%s:%s%s/saml",
-        SystemBaseUrl.getHost(), SystemBaseUrl.getHttpsPort(), SystemBaseUrl.getRootContext());
+        SystemBaseUrl.EXTERNAL.getHost(),
+        SystemBaseUrl.EXTERNAL.getHttpsPort(),
+        SystemBaseUrl.EXTERNAL.getRootContext());
   }
 }

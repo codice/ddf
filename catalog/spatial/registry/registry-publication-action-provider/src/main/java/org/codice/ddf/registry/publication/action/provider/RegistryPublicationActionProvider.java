@@ -126,7 +126,7 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
           String.format(
               "%s/%s/%s/%s",
               REGISTRY_PATH, regId, PUBLICATION_PATH, URLEncoder.encode(destinationId, "UTF-8"));
-      URI uri = new URI(SystemBaseUrl.EXTERNAL.constructUrlString(path, true));
+      URI uri = new URI(SystemBaseUrl.EXTERNAL.constructUrl(path, true));
       url = uri.toURL();
 
     } catch (MalformedURLException | URISyntaxException | UnsupportedEncodingException e) {

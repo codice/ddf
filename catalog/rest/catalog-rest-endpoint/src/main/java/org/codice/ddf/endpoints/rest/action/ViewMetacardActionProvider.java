@@ -50,7 +50,7 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
   private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
     return new URI(
-            SystemBaseUrl.EXTERNAL.constructUrlString(
+            SystemBaseUrl.EXTERNAL.constructUrl(
                 String.format("%s%s/%s/%s", CONTEXT_ROOT, SOURCES_PATH, metacardSource, metacardId),
                 true))
         .toURL();

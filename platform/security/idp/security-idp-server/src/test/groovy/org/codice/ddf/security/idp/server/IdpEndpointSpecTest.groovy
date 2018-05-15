@@ -69,7 +69,7 @@ class IdpEndpointSpecTest extends Specification {
     }
 
     void setup() {
-        System.setProperty("org.codice.ddf.system.hostname", "localhost")
+        System.setProperty("org.codice.ddf.external.hostname", "localhost")
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit")
         File jksFile = temporaryFolder.newFile("serverKeystore.jks")
         copyResourceToFile(jksFile, "/serverKeystore.jks")

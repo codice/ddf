@@ -394,9 +394,9 @@ public class AssertionConsumerService {
     X509Certificate encryptionCert =
         findCertificate(systemCrypto.getEncryptionAlias(), systemCrypto.getEncryptionCrypto());
 
-    String hostname = SystemBaseUrl.getHost();
-    String port = SystemBaseUrl.getPort();
-    String rootContext = SystemBaseUrl.getRootContext();
+    String hostname = SystemBaseUrl.EXTERNAL.getHost();
+    String port = SystemBaseUrl.EXTERNAL.getPort();
+    String rootContext = SystemBaseUrl.EXTERNAL.getRootContext();
 
     String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
 

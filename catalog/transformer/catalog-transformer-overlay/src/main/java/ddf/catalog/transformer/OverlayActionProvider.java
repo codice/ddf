@@ -76,7 +76,7 @@ public class OverlayActionProvider implements ActionProvider {
 
         final URI uri =
             new URI(
-                SystemBaseUrl.EXTERNAL.constructUrlString(
+                SystemBaseUrl.EXTERNAL.constructUrl(
                     "/catalog/sources/"
                         + sourceId
                         + "/"

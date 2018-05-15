@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
+import org.codice.ddf.configuration.SystemBaseUrl;
+
 public class AbstractActionProviderTest {
 
   protected static final String SAMPLE_PATH = "/catalog/sources/";
@@ -53,11 +55,11 @@ public class AbstractActionProviderTest {
   protected void configureActionProvider(
       String protocol, String host, String port, String contextRoot, String siteName) {
 
-    setProperty("org.codice.ddf.system.hostname", host);
-    setProperty("org.codice.ddf.system.httpPort", port);
-    setProperty("org.codice.ddf.system.httpsPort", port);
-    setProperty("org.codice.ddf.system.protocol", protocol);
-    setProperty("org.codice.ddf.system.rootContext", contextRoot);
+    setProperty(SystemBaseUrl.EXTERNAL_HOST, host);
+    setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, protocol);
+    setProperty(SystemBaseUrl.ROOT_CONTEXT, contextRoot);
     setProperty("org.codice.ddf.system.siteName", siteName);
   }
 

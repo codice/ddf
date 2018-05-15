@@ -117,7 +117,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String.format(
             "%s%s/%s/%s?transform=%s",
             CONTEXT_ROOT, SOURCES_PATH, REMOTE_SOURCE_ID, encodedMetacardId, SAMPLE_TRANSFORMER_ID);
-    return new URL(SystemBaseUrl.EXTERNAL.constructUrlString(urlString, true));
+    return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
 
   private String expectedDefaultAddressWith(String id, String sourceName, String transformerName) {

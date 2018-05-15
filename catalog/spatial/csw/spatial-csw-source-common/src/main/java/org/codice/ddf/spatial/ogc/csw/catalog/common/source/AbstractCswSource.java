@@ -1869,7 +1869,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     getRecordsType.setOutputSchema("urn:catalog:metacard");
     getRecordsType
         .getResponseHandler()
-        .add(SystemBaseUrl.EXTERNAL.constructUrlString("csw/subscription/event", true));
+        .add(SystemBaseUrl.EXTERNAL.constructUrl("csw/subscription/event", true));
     QueryType queryType = new QueryType();
     queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
     ObjectFactory objectFactory = new ObjectFactory();

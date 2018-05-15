@@ -81,7 +81,7 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
   private URL getActionUrl(String metacardSource, String metacardId)
       throws URISyntaxException, MalformedURLException {
     return new URI(
-            SystemBaseUrl.EXTERNAL.constructUrlString(
+            SystemBaseUrl.EXTERNAL.constructUrl(
                 String.format(
                     "%s%s/%s/%s?transform=preview",
                     CONTEXT_ROOT, SOURCES_PATH, metacardSource, metacardId),

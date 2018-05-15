@@ -232,7 +232,7 @@ public class AbstractMetacardActionProviderTest {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
 
     Action action = actionProvider.getAction(metacard);
 
@@ -251,7 +251,7 @@ public class AbstractMetacardActionProviderTest {
           }
         };
 
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
     Action action = actionProvider.getAction(metacard);
     assertThat(action, is(nullValue()));
   }
@@ -260,7 +260,7 @@ public class AbstractMetacardActionProviderTest {
   public void getActionsWhenMetacardSourceIdIsNull() throws Exception {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(metacard.getSourceId()).thenReturn(null);
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
     System.setProperty(SystemInfo.SITE_NAME, "ddf");
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);

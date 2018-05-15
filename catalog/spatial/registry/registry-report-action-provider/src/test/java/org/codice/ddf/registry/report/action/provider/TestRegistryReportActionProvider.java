@@ -428,8 +428,8 @@ public class TestRegistryReportActionProvider {
       String protocol, String host, String port, String contextRoot) {
 
     setProperty(SystemBaseUrl.EXTERNAL_HOST, host);
-    setProperty(SystemBaseUrl.HTTP_PORT, port);
-    setProperty(SystemBaseUrl.HTTPS_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, port);
     setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, protocol);
     setProperty(SystemBaseUrl.ROOT_CONTEXT, contextRoot);
   }

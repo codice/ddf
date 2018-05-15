@@ -380,9 +380,9 @@ public class LogoutRequestService {
   }
 
   private String getEntityId() {
-    String hostname = SystemBaseUrl.getHost();
-    String port = SystemBaseUrl.getPort();
-    String rootContext = SystemBaseUrl.getRootContext();
+    String hostname = SystemBaseUrl.EXTERNAL.getHost();
+    String port = SystemBaseUrl.EXTERNAL.getPort();
+    String rootContext = SystemBaseUrl.EXTERNAL.getRootContext();
 
     return String.format("https://%s:%s%s/saml", hostname, port, rootContext);
   }
@@ -471,7 +471,7 @@ public class LogoutRequestService {
   }
 
   private Response buildLogoutResponse(String message) {
-    UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.getBaseUrl());
+    UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.EXTERNAL.getBaseUrl());
     uriBuilder.path("logout/logout-response.html");
     uriBuilder.queryParam("msg", message);
     return Response.seeOther(uriBuilder.build()).build();
