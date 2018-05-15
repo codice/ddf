@@ -26,6 +26,7 @@ module.exports = Marionette.ItemView.extend({
         'click .interaction-stop': 'triggerCancel',
         'click .interaction-delete': 'triggerDelete',
         'click .interaction-duplicate': 'triggerDuplicate',
+        'click .interaction-action': 'triggerAction',
         'click': 'triggerClick'
     },
     modelEvents: {
@@ -61,6 +62,10 @@ module.exports = Marionette.ItemView.extend({
         delete copyAttributes.query;
         var newList = new this.model.constructor(copyAttributes);
         this.model.collection.add(newList);
+    },
+    triggerAction: function(event){
+       var url = event.currentTarget.getAttribute('data-url');
+       window.open(url, '_blank');
     },
     handleResult: function(){
         this.$el.toggleClass('has-results', this.model.get('query').get('result') !== undefined);

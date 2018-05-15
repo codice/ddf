@@ -14,8 +14,6 @@
 package org.codice.ddf.catalog.ui.metacard;
 
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
