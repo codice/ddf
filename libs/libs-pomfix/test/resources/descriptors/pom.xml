@@ -38,7 +38,7 @@
                             <descriptors>
                                 <!-- this descriptor should be listed in the dependency section of the pom -->
                                 <descriptor>
-                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
+                                    mvn:ddf.features/install-profiles/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>

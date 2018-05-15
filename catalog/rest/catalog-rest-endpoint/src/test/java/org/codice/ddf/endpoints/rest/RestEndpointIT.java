@@ -200,12 +200,14 @@ public class RestEndpointIT extends AbstractComponentTest {
         };
 
         final String[] cxfFeatures = {"cxf", "cxf-commands"};
-        final String[] platformFeatures = {"action-core-impl", "commons"};
+        final String[] utilitiesFeatures = {"action-core-impl"};
+        final String[] kernelFeatures = {"apache-commons"};
 
         return super.getFeatureOptions()
             .addFeatures("org.apache.karaf.features", "spring", springFeatures)
             .addFeatures("org.apache.cxf.karaf", "apache-cxf", cxfFeatures)
-            .addFeatures("ddf.platform", "platform-app", platformFeatures)
+            .addFeatures("ddf.features", "utilities", utilitiesFeatures)
+            .addFeatures("ddf.features", "kernel", kernelFeatures)
             .addFeatureFrom("ddf.thirdparty", "rest-assured", "feature", "rest-assured")
             .addFeatureFrom(
                 "ddf.platform.util", "util-uuidgenerator-api", "feature", "uuidgenerator-api")
