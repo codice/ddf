@@ -57,14 +57,14 @@ module.exports = Marionette.ItemView.extend({
         this.model.collection.remove(this.model);
     },
     triggerDuplicate: function(){
-        var copyAttributes = JSON.parse(JSON.stringify(this.model.attributes));
+        const copyAttributes = JSON.parse(JSON.stringify(this.model.attributes));
         delete copyAttributes.id;
         delete copyAttributes.query;
-        var newList = new this.model.constructor(copyAttributes);
+        const newList = new this.model.constructor(copyAttributes);
         this.model.collection.add(newList);
     },
     triggerAction: function(event){
-       var url = event.currentTarget.getAttribute('data-url');
+       const url = event.currentTarget.getAttribute('data-url');
        window.open(url, '_blank');
     },
     handleResult: function(){

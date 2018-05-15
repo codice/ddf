@@ -201,12 +201,11 @@ public class WorkspaceTransformerTest {
     }
 
     private ActionMatcher(String id, String title, String description, URL url) {
-      final Matcher<Map<? extends String, ?>> idMatcher = hasEntry("id", id);
-      final Matcher<Map<? extends String, ?>> titleMatcher = hasEntry("title", title);
-      final Matcher<Map<? extends String, ?>> descriptionMatcher =
-          hasEntry("description", description);
-      final Matcher<Map<? extends String, ?>> urlMatcher = hasEntry("url", url.toString());
-      matcher = Matchers.allOf(idMatcher, titleMatcher, descriptionMatcher, urlMatcher);
+      final Matcher<Map<? extends String, ?>> hasId = hasEntry("id", id);
+      final Matcher<Map<? extends String, ?>> hasTitle = hasEntry("title", title);
+      final Matcher<Map<? extends String, ?>> hasDescription = hasEntry("description", description);
+      final Matcher<Map<? extends String, ?>> hasUrl = hasEntry("url", url.toString());
+      matcher = Matchers.allOf(hasId, hasTitle, hasDescription, hasUrl);
     }
 
     @Override
