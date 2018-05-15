@@ -6,8 +6,7 @@ include::${ui.file}[]
 
 <#assign count=0>
 <#list usings?sort_by("order") as userInterface>
-<#if (userInterface.status == "published")>
-<#assign count++>
+<#if (userInterface.status == "published" && userInterface.summary != "")>
 <<${userInterface.link?lower_case},${userInterface.title}>>:: ${userInterface.summary}
 </#if>
 </#list>

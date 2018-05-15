@@ -1,4 +1,6 @@
 :type: coreConcept
+:priority: 00
+:section: Core Concepts
 :status: published
 :title: Introduction to High Availability
 :order: 10
@@ -57,4 +59,4 @@ See the below diagrams for more detail.
                                     \-------------/
 ....
 
-There are special procedures for initial setup and configuration of a highly available ${branding}. See <<_high_availability_initial_setup,High Availability Initial Setup>> and <<_configuring_for_a_highly_available_cluster,High Availability Configuration>> for those procedures.
+There are special procedures for initial setup and configuration of a highly available ${branding}. See <<{managing-prefix}high_availability_initial_setup,High Availability Initial Setup>> and <<{managing-prefix}configuring_for_a_highly_available_cluster,High Availability Configuration>> for those procedures.

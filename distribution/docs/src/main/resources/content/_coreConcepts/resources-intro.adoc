@@ -1,4 +1,6 @@
 :type: coreConcept
+:priority: 00
+:section: Core Concepts
 :status: published
 :title: Introduction to Resources
 :order: 04
@@ -14,4 +16,4 @@ Storage plugins provide pluggable functionality that can be executed either imme
 
 Storage providers provide the capability to the Catalog Framework to create, read, update, and delete resources in the content repository.
 
-See <<_data_management,Data Management>> for more information on specific file types supported by ${branding}.
+See <<{managing-prefix}data_management,Data Management>> for more information on specific file types supported by ${branding}.

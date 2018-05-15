@@ -1,4 +1,5 @@
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :title: High Availability Supported Capabilities
 :parent: Introduction to High Availability

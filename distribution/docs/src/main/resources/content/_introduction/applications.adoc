@@ -1,7 +1,11 @@
 :type: introduction
 :status: published
-:title: Applications
+:title: Component Applications
+:section: Applications
 :priority: 1
+:order: 00
+
+== {title}
 
 ${branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 

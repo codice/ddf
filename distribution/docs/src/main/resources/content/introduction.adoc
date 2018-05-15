@@ -1,0 +1,11 @@
+:type: introduction
+:status: published
+:section: na
+:priority: 01
+:order: na
+:title: Demo of the intro
+:toc: left
+
+= {title}
+
+You can put whatever you want in here and it'll get replaced with whatever is in the template!

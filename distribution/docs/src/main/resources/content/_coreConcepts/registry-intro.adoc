@@ -1,4 +1,6 @@
 :type: coreConcept
+:priority: 00
+:section: Core Concepts
 :status: published
 :title: Introduction to Registries
 :order: 08

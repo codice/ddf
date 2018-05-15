@@ -1,5 +1,6 @@
 :title: Catalog Service Standards
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :parent: Standards Supported by ${branding}
 :order: 00
@@ -20,32 +21,32 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |Status
 
 |http://www.opengeospatial.org/standards/cat[Open Geospatial Consortium Catalog Service for the Web (OGC CSW) 2.0.1/2.0.2]
-|<<CSW Endpoint>>
-|<<_gmd_csw_source,Geographic MetaData extensible markup language (GMD) CSW Source>>, <<CSW Connected Source>>, <<CSW Federated Source>>
+|<<{integrating-prefix}csw_endpoint,CSW Endpoint>>
+|<<{managing-prefix}gmd_csw_source,Geographic MetaData extensible markup language (GMD) CSW Source>>
 |Supported
 
 |http://www.opengeospatial.org/standards/wfs[OGC Web Feature Service WFS 1.0/2.0]
 |
-|<<_wfs_1_0_source,WFS 1.0 Source>>, <<_wfs_2_0_source,WFS 2.0 Source>>
+|<<{managing-prefix}wfs_1_0_source,WFS 1.0 Source>>, <<{managing-prefix}wfs_2_0_source,WFS 2.0 Source>>
 |Supported
 
 |http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] Web Processing Service
-|<<WPS Endpoint>>
+|<<{integrating-prefix}wps_endpoint,WPS Endpoint>>
 |
 |Experimental
 
 |http://www.opensearch.org/Home[OpenSearch]
-|<<OpenSearch Endpoint>>
-|<<OpenSearch Source>>
+|<<{integrating-prefix}opensearch_endpoint,OpenSearch Endpoint>>
+|<<{managing-prefix}opensearch_source,OpenSearch Source>>
 |Supported
 
 |https://tools.ietf.org/html/rfc959[File Transfer Protocol (FTP)]
-|<<FTP Endpoint>>
+|<<{integrating-prefix}ftp_endpoint,FTP Endpoint>>
 |
 |Supported
 
 |Atlassian Confluence®
 |
-|<<_federated_source_for_atlassian_confluence_r,Atlassian Confluence® Federated Source>>
+|<<{managing-prefix}federated_source_for_atlassian_confluence_r,Atlassian Confluence® Federated Source>>
 |Supported
 |===

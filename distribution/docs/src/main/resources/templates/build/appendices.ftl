@@ -11,6 +11,7 @@ include::${appendix.file}[leveloffset=+1]
 <#if (subAppendix.parent == appendix.title && subAppendix.status == "published")>
 
 include::${subAppendix.file}[leveloffset=+2]
+
 </#if>
 </#list>
 </#if>

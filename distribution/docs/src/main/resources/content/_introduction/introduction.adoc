@@ -1,7 +1,9 @@
 :type: introduction
 :status: published
+:section: Introduction
 :title: Introduction
 :priority: 1
+:order: 00
 
 === Introducing ${ddf-branding}
 
