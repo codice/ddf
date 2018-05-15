@@ -17,7 +17,12 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-/** Represents a single node in a filter data structure. */
+/**
+ * Represents a single node in a filter data structure.
+ *
+ * <p><i>This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library.</i>
+ */
 public interface FilterNode {
 
   /**

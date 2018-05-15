@@ -98,6 +98,7 @@ public class AccessUtil {
     try {
       return (List<T>) unchecked.stream().map(type::cast).collect(Collectors.toList());
     } catch (ClassCastException e) {
+      // Improve tests & don't catch - https://codice.atlassian.net/browse/DDF-3834
       LOGGER.debug(
           "Unexpected type for key = {}, expected a List containing type {}", key, type.getName());
     }
@@ -114,6 +115,7 @@ public class AccessUtil {
     try {
       return type.cast(value);
     } catch (ClassCastException e) {
+      // Improve tests & don't catch - https://codice.atlassian.net/browse/DDF-3834
       LOGGER.debug(
           "Unexpected type for key = {}, expected a {} but got {}",
           key,
