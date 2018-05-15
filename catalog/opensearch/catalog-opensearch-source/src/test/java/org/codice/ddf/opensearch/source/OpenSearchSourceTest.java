@@ -776,6 +776,22 @@ public class OpenSearchSourceTest {
     assertThat(foreignMarkupConsumer.getTotalResults(), is(1L));
   }
 
+  @Test
+  public void testForeignMarkupWithBadTransformer()
+      throws UnsupportedQueryException, IOException, CatalogTransformerException,
+          InvalidSyntaxException {
+
+    InputTransformer inputTransformer = mock(InputTransformer.class);
+    when(inputTransformer.transform(isA(InputStream.class)))
+        .thenThrow(new CatalogTransformerException());
+    when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
+        .thenThrow(new CatalogTransformerException());
+
+    source.setBundle(getMockBundleContext(inputTransformer));
+
+    testForeignMarkupExample();
+  }
+
   /** Test to make sure the foreign markup consumer is called as expected. */
   @Test
   public void testForeignMarkupConsumer() throws UnsupportedQueryException {

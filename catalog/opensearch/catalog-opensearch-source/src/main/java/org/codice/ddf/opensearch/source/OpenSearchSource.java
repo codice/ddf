@@ -598,6 +598,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return results;
   }
 
+  @Nullable
   private Metacard parseContent(String content, String id) throws UnsupportedQueryException {
     if (StringUtils.isNotEmpty(content)) {
       InputTransformer inputTransformer =
@@ -699,6 +700,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         "Unable to find applicable InputTransformer for metacard content from Atom feed.");
   }
 
+  @Nullable
   protected InputTransformer lookupTransformerReference(String namespaceUri)
       throws InvalidSyntaxException {
     LOGGER.trace("Looking up Input Transformer by schema : {}", namespaceUri);
@@ -967,7 +969,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     if (CollectionUtils.isNotEmpty(markUpSet) && markUpSet.contains(element.getName())) {
       XMLOutputter xmlOutputter = new XMLOutputter();
       Metacard metacard = parseContent(xmlOutputter.outputString(element), id);
-      metacards.add(metacard);
+      if (metacard != null) {
+        metacards.add(metacard);
+      }
     }
     return metacards;
   }
