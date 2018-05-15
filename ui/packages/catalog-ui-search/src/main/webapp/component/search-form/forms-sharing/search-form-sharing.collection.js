@@ -24,7 +24,7 @@
  const templatePromise = $.ajax({
     type: 'GET',
     context: this,
-    url: '/search/catalog/internal/forms/query',
+    url: '/search/catalog/internal/forms/query-template/shared',
     contentType: 'application/json',
     success: function (data) {
         sharedTemplates = data;
@@ -52,47 +52,23 @@
        templatePromise.then(() => {
             if (!this.isDestroyed){
                 $.each(sharedTemplates, (index, value) => {
-                    if (this.checkIfShareable(value)) {
-                        let utcSeconds = value.created / 1000;
-                        let d = new Date(0);
-                        d.setUTCSeconds(utcSeconds);
-                        this.addSearchForm(new SearchForm({
-                            createdOn: Common.getHumanReadableDate(d),
-                            id: value.id,
-                            name: value.title,
-                            type: 'custom',
-                            filterTemplate: value.filterTemplate,
-                            accessIndividuals: value.accessIndividuals,
-                            accessGroups: value.accessGroups,
-                            createdBy: value.creator
-                        }));
-                    }
+                    let utcSeconds = value.created / 1000;
+                    let d = new Date(0);
+                    d.setUTCSeconds(utcSeconds);
+                    this.addSearchForm(new SearchForm({
+                        createdOn: Common.getHumanReadableDate(d),
+                        id: value.id,
+                        name: value.title,
+                        type: 'custom',
+                        filterTemplate: value.filterTemplate,
+                        accessIndividuals: value.accessIndividuals,
+                        accessGroups: value.accessGroups,
+                        createdBy: value.creator
+                    }));
                 });
                 this.doneLoading();
             }
        });
-   },
-   checkIfShareable: function(template) {
-       if (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) {
-           return true;
-       }
-       return false;
-   },
-   checkIfInGroup: function(template) {
-       let myGroups = user.get('user').get('roles');
-       let roleIntersection = myGroups.filter(function(n) {
-        return template.accessGroups.indexOf(n) !== -1;
-       });
-
-       return !_.isEmpty(roleIntersection);
-   },
-   checkIfInIndividiuals: function(template) {
-       let myEmail = [user.get('user').get('email')];
-       let accessIndividualIntersection = myEmail.filter(function(n) {
-        return template.accessIndividuals.indexOf(n) !== -1;
-       });
-
-       return !_.isEmpty(accessIndividualIntersection);
    },
     addSearchForm: function(searchForm) {
         this.get('sharedSearchForms').add(searchForm);

@@ -19,6 +19,7 @@ import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPL
 import static spark.Spark.delete;
 import static spark.Spark.get;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -27,9 +28,11 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.security.SubjectUtils;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -39,9 +42,11 @@ import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
+import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Request;
 import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
@@ -96,7 +101,11 @@ public class SearchFormsApplication implements SparkApplication {
                 .values()
                 .stream()
                 .map(Result::getMetacard)
+                .map(ShareableMetacardImpl::clone)
                 .filter(Objects::nonNull)
+                .filter(
+                    metacard ->
+                        !(sharedByGroup().test(metacard) && sharedByIndividual().test(metacard)))
                 .map(transformer::toFormTemplate)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()),
@@ -109,7 +118,11 @@ public class SearchFormsApplication implements SparkApplication {
                 .values()
                 .stream()
                 .map(Result::getMetacard)
+                .map(ShareableMetacardImpl::clone)
                 .filter(Objects::nonNull)
+                .filter(
+                    metacard ->
+                        !(sharedByGroup().test(metacard) && sharedByIndividual().test(metacard)))
                 .map(transformer::toFieldFilter)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()),
@@ -120,15 +133,12 @@ public class SearchFormsApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-
-          Subject subject = SecurityUtils.getSubject();
-          String currentUser = SubjectUtils.getName(subject);
-
-          Map<String, Object> originalMetacardOwner =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+          String currentUser = getRequesterEmail();
+          Map<String, Object> originalMetacardOwner = getOriginalMetacardOwner(req);
 
           if (!originalMetacardOwner.get(Core.METACARD_OWNER).equals(currentUser)) {
             res.status(500);
+            res.body("error");
             LOGGER.debug("Failed to Delete Form {}", id);
             return ImmutableMap.of(RESP_MSG, "Failed to delete.");
           }
@@ -139,8 +149,95 @@ public class SearchFormsApplication implements SparkApplication {
             LOGGER.debug("Failed to Delete Form {}", id);
             return ImmutableMap.of(RESP_MSG, "Failed to delete.");
           }
+          res.body("Deleted");
           return ImmutableMap.of(RESP_MSG, "Successfully deleted.");
+        });
+
+    /**
+     * Filters metacards based on:
+     *
+     * <ul>
+     *   <li>{@link org.codice.ddf.catalog.ui.forms.data.AttributeGroupType#ATTRIBUTE_GROUP_TAG}
+     *   <li>{@link org.codice.ddf.catalog.ui.forms.data.QueryTemplateType#QUERY_TEMPLATE_TAG}
+     * </ul>
+     *
+     * that are explicitly shared with the requesting subject via {@link
+     * ddf.catalog.data.impl.types.SecurityAttributes.ACCESS_INDIVIDUALS} or that are implicitly
+     * available via association by roles in {@link
+     * ddf.catalog.data.impl.types.SecurityAttributes.ACCESS_GROUPS}
+     */
+    get(
+        "/forms/:formType/shared",
+        (req, res) -> {
+          final String REQUESTED_FORM = req.params(":formType");
+
+          if (!(REQUESTED_FORM.equals(QUERY_TEMPLATE_TAG)
+              || REQUESTED_FORM.equals(ATTRIBUTE_GROUP_TAG))) {
+            res.status(400);
+            LOGGER.debug("Invalid form type requested {}", REQUESTED_FORM);
+            return ImmutableMap.of("Error", "The requested form type is invalid");
+          }
+
+          return util.getMetacardsByFilter(REQUESTED_FORM)
+              .values()
+              .stream()
+              .map(Result::getMetacard)
+              .map(ShareableMetacardImpl::clone)
+              .filter(Objects::nonNull)
+              .filter(
+                  metacard -> sharedByGroup().test(metacard) || sharedByIndividual().test(metacard))
+              .map(transformer::toFormTemplate)
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
         },
-        util::getJson);
+        MAPPER::toJson);
+  }
+
+  /**
+   * List intersection between current {@link Subject} and {@link
+   * ddf.catalog.data.impl.types.SecurityAttributes#ACCESS_GROUPS} to see if related
+   */
+  @VisibleForTesting
+  Predicate<ShareableMetacardImpl> sharedByGroup() {
+    return metacard ->
+        !metacard
+            .getAccessGroups()
+            .stream()
+            .filter(getRequesterGroups()::contains)
+            .collect(Collectors.toList())
+            .isEmpty();
+  }
+
+  /**
+   * Comparison between {@link Subject} email-address and list of {@link
+   * ddf.catalog.data.impl.types.SecurityAttributes#ACCESS_INDIVIDUALS} present on the {@link
+   * ShareableMetacardImpl}
+   */
+  @VisibleForTesting
+  Predicate<ShareableMetacardImpl> sharedByIndividual() {
+    return metacard ->
+        metacard
+            .getAccessIndividuals()
+            .stream()
+            .anyMatch(accessIndividual -> accessIndividual.trim().equals(getRequesterEmail()));
+  }
+
+  /** Simple subject utility method to grab email associated with current {@link Subject} */
+  @VisibleForTesting
+  String getRequesterEmail() {
+    Subject subject = SecurityUtils.getSubject();
+    return SubjectUtils.getEmailAddress(subject);
+  }
+
+  @VisibleForTesting
+  Map<String, Object> getOriginalMetacardOwner(Request req) throws IOException {
+    return JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+  }
+
+  /** Simple subject utility method to grab roles associated with current {@link Subject} */
+  @VisibleForTesting
+  List<String> getRequesterGroups() {
+    Subject subject = SecurityUtils.getSubject();
+    return SubjectUtils.getAttribute(subject, SubjectUtils.ROLE_CLAIM_URI);
   }
 }
