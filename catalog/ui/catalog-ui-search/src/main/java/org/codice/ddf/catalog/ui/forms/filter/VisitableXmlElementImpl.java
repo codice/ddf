@@ -430,10 +430,17 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
    * Represents a node containing the value of a property. In Filter XML it corresponds to a {@code
    * <Literal/>} type.
    *
-   * <p>TODO: Seek Clarification on the following:
+   * <p>When a series of {@code <Literal/>} elements are encountered by the Filter JAXB binding,
+   * they are each read as their own {@link LiteralType} <b>in order of appearance</b> with the data
+   * of each element being populated into their own list of serializables, which can be obtained
+   * using {@link LiteralType#getContent()}. So, for the following series:
    *
-   * <p>Does a single LiteralType support a collection of <Literal/> tags, since it's a list of
-   * serializable? How does that interact when Functions are thrown into the mix?
+   * <p>{@code <Literal>0.78</Literal> <Literal>my value</Literal> <Literal>true</Literal> }
+   *
+   * <p>The result would be a list of {@link LiteralType}s, each with a list of serializables of
+   * size one. The corresponding entry in each list on each {@link LiteralType} would be String
+   * values in the order of "0.78", "my value", and "true". Additional parsing is necessary to
+   * hydrate a primitive type.
    */
   private static class LiteralElement extends VisitableXmlElementImpl<List<Serializable>> {
     private final List<Serializable> value;

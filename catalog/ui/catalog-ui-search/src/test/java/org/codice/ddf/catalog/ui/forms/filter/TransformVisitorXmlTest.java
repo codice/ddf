@@ -144,7 +144,7 @@ public class TransformVisitorXmlTest {
       fail("File was not found " + jsonFile.getAbsolutePath());
     }
 
-    return VisitableJsonElementImpl.create(
-        new FilterNodeMapImpl(Boon.resourceMap(jsonFile.getPath())));
+    FilterNodeMapImpl node = new FilterNodeMapImpl(Boon.resourceMap(jsonFile.getPath()));
+    return VisitableJsonElementImpl.create(node);
   }
 }

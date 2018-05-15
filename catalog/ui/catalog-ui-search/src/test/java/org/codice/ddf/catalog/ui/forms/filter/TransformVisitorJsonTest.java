@@ -25,6 +25,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import javax.xml.bind.JAXBElement;
+import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
@@ -117,7 +119,8 @@ public class TransformVisitorJsonTest {
       fail("File was not found " + xmlFile.getAbsolutePath());
     }
 
-    return VisitableXmlElementImpl.create(
-        new FilterReader().unmarshalFilter(new FileInputStream(xmlFile)));
+    JAXBElement<FilterType> filter =
+        new FilterReader().unmarshalFilter(new FileInputStream(xmlFile));
+    return VisitableXmlElementImpl.create(filter);
   }
 }

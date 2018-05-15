@@ -431,6 +431,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
+  @SuppressWarnings("squid:S2160" /* Not being used in comparisons */)
   private static class PropertyIsLikeTypeWithMatchCase extends PropertyIsLikeType {
     @XmlAttribute(name = "matchCase")
     protected Boolean matchCase;
@@ -447,15 +448,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       this.matchCase = value;
     }
 
-    public boolean isSetMatchCase() {
-      return (this.matchCase != null);
-    }
-
-    public void unsetMatchCase() {
-      this.matchCase = null;
-    }
-
-    public PropertyIsLikeTypeWithMatchCase withMatchCase(boolean value) {
+    PropertyIsLikeTypeWithMatchCase withMatchCase(boolean value) {
       setMatchCase(value);
       return this;
     }

@@ -43,6 +43,7 @@ public class FormTemplate extends CommonTemplate {
   @JsonProperty("creator")
   private String creator;
 
+  @JsonProperty("querySettings")
   private Map<String, Object> querySettings;
 
   public FormTemplate(
