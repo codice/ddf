@@ -65,6 +65,10 @@ define([
                 id: Common.generateUUID()
             };
         },
+        blacklist: ['warning'],
+        toJSON: function(options) {
+            return _.omit(this.attributes, this.blacklist);
+        },
         shouldShowLayer: function() {
             return this.get('show') && this.get('alpha') > 0;
         },

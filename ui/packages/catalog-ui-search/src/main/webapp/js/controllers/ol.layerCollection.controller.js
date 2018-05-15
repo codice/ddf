@@ -58,22 +58,24 @@ const WMT = async (opts) => {
     const result = parser.read(text);
 
     if (result.Contents.Layer.length  === 0) {
-        console.warn(`WMT map layer source ${url} has no layers.`);
-        return;
+        throw new Error('WMT map layer source has no layers.');
     }
 
     let { layer, matrixSet } = opts;
 
-    if (layer === undefined) {
-        layer = result.Contents.Layer[0].Identifier;
-        console.warn(`WMT map layer source ${url}, defaulting to ${layer}.`);
+    /* If tileMatrixSetID is present (Cesium WMTS keyword) set matrixSet (OpenLayers WMTS keyword) */
+    if (opts.tileMatrixSetID !== undefined) {
+        matrixSet = opts.tileMatrixSetID;
     }
 
-    const options = ol.source.WMTS.optionsFromCapabilities(result, { layer, matrixSet });
+    if (layer === undefined) {
+        layer = result.Contents.Layer[0].Identifier;
+    }
+
+    const options = ol.source.WMTS.optionsFromCapabilities(result, { layer, matrixSet, ...opts });
 
     if (options === null) {
-        console.warn(`WMT map layer source ${url}, ${layer} could not be setup.`);
-        return;
+        throw new Error('WMT map layer source could not be setup.');
     }
 
     return createTile(opts, () => new ol.source.WMTS(options));
@@ -98,11 +100,12 @@ const sources = { OSM, BM, WMS, WMT, AGM, SI }
 
 const createLayer = (type, opts) => {
     const fn = sources[type];
-    if (fn !== undefined) {
-        return fn(opts);
-    } else {
-        console.warn(`Unknown map layer type ${type}`);
+
+    if (fn === undefined) {
+        throw new Error(`Unsupported map layer type ${type}`);
     }
+
+    return fn(opts);
 }
 
 const Controller = CommonLayerController.extend({
@@ -146,12 +149,13 @@ const Controller = CommonLayerController.extend({
         const opts = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
         opts.show = model.shouldShowLayer();
 
-        const layer = await Promise.resolve(createLayer(type, opts));
-
-        if (layer !== undefined) {
+        try {
+            const layer = await Promise.resolve(createLayer(type, opts));
             this.map.addLayer(layer);
             this.layerForCid[id] = layer;
             this.reIndexLayers();
+        } catch (e) {
+            model.set('warning', e.message);
         }
     },
     removeLayer: function (model) {
