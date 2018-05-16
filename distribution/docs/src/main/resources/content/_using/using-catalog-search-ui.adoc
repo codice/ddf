@@ -259,12 +259,12 @@ Bookmarked results are denoted with a yellow *star* (image:bookmarked-icon.png[]
 
 === Viewing Search Results
 
-==== Adding Visuals
+==== Adding Panels
 
-Visuals are different ways to view search results.
+Panels are different ways to view search results.
 
-. Click the *Add Visual* (image:add-visual-icon.png[add visual icon]) icon in the top right corner of ${catalog-ui}.
-. Select a visual to add.
+. Click the *Add Panel* (image:add-visual-icon.png[add visual icon]) icon in the top right corner of ${catalog-ui}.
+. Select a panel to add.
 .. *2D Map*: A 2 dimensional map view.
 .. *3D Map*: A 3 dimensional map view.
 .. *Inspector*: In depth details and actions for the results of a search.
@@ -272,7 +272,7 @@ Visuals are different ways to view search results.
 .. *Table*: A configurable table view for the results of a search.
 
 The *Search* tab displays a list of all of the search results for the selected search.
-The *Inspector* visual provides in depth information and actions for each search result.
+The *Inspector* panel provides in depth information and actions for each search result.
 
 Summary:: A summarized view of the result.
 Details:: A detailed view of the result.
@@ -285,18 +285,18 @@ Details:: A detailed view of the result.
 
 ==== Editing Records
 
-Results can be edited from the *Summary* or *Details* tabs in the *Inspector* visual.
+Results can be edited from the *Summary* or *Details* tabs in the *Inspector* panel.
 
 ==== Viewing Text Previews
 
-If a preview for a result is available, an extra tab will appear in the *Inspector* visual that allows you to see a preview of the resource.
+If a preview for a result is available, an extra tab will appear in the *Inspector* panel that allows you to see a preview of the resource.
 
 ==== Editing Associations on a Record
 
 Update relationships between records through *Associations*.
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *Associations* tab.
 . Select *Edit*.
 . For a new association, select *Add Association*. Only items in the current result set can be added as associations.
@@ -315,7 +315,7 @@ image::associations-menu-icon.png[associations menu]
 View the complete revision history of a record.
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *History* tab.
 .. Select a previous version from the list.
 .. Select *Revert to Selected Version* to undo changes made after that revision.
@@ -330,7 +330,7 @@ Correcting metadata issues may require administrative permissions.
 ====
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *Quality* tab.
 . A report is displayed showing any issues:
 .. Metacard Validation Issues.
@@ -341,7 +341,7 @@ Correcting metadata issues may require administrative permissions.
 Export a result's metadata and/or resource.
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select *Actions* tab.
 . Select the desired export format.
 . Export opens in a new browser tab. Save, if desired.
@@ -351,7 +351,7 @@ Export a result's metadata and/or resource.
 To remove a result from the active search results, archive it.
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *Archive* tab.
 . Select *Archive item(s)*.
 . Select *Archive*.
@@ -362,7 +362,7 @@ Restore an archived result to return it to the active search results.
 
 . Select the *Search Archived* option from the *Search Results Options* menu.
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *Archive* tab.
 . Select *Restore item(s)*.
 . Select *Restore*.
@@ -381,7 +381,7 @@ image::unhide-blacklist.png[unhide blacklist]
 Replace a resource.
 
 . Select the desired result from the *Search* tab.
-. Select the *Inspector* visual.
+. Select the *Inspector* panel.
 . Select the *Overwrite* tab.
 . Select *Overwrite content*.
 . Select *Overwrite*

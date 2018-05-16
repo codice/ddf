@@ -8,22 +8,22 @@
 == {title}
 
 ${catalog-ui} includes several options for users to display search results.
-By default, users start with a *3D map* and an *Inspector* to view details of results or groups of results.
+By default, users start with a *3D map* panel and an *Inspector* panel to view details of results or groups of results.
 Add or remove additional *visualizations* to the default view through the *Default Layout UI*.
-Users can customize their individual views as well.
+Users can customize their individual panels as well.
 
-.Available Visualizations
+.Available Panels
 3D Map _(Default)_:: Display a fully-interactive three-dimensional globe.
 2D Map:: Display a less resource-intensive two-dimensional map.
 Inspector _(Default)_:: Display a view of detailed information about a search result.
 Histogram:: Compare attributes of items in a search result set as a histogram.
 Table:: Compare attributes of items in a search result set as a table.
 
-.Configuring Visualizations
+.Configuring Default Panels
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Default Layout* tab.
-. *Add* or *Remove* visualizations as desired.
-.. To add a visualization, select the *Add* icon.
-.. To remove a visualization, select the *Delete* icon on the tab for that visualization.
+. *Add* or *Remove* panels as desired.
+.. To add a panel, select the *Add* icon.
+.. To remove a panel, select the *Delete* icon on the tab for that panel.
 . Select *Save* to complete.

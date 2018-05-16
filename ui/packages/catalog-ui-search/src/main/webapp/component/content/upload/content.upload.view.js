@@ -20,70 +20,23 @@ define([
     'jquery',
     'js/CustomElements',
     '../content.view',
-    'component/navigation/workspace/navigation.workspace.view',
-    'properties',
-    'component/tabs/workspace-content/tabs-workspace-content',
-    'component/tabs/workspace-content/tabs-workspace-content.view',
-    'component/tabs/query/tabs-query.view',
     'js/store',
-    'component/tabs/metacard/tabs-metacard.view',
-    'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
-    'component/metacard-title/metacard-title.view',
     'component/upload/upload',
-    'component/result-selector/result-selector.view',
-    'component/golden-layout/golden-layout.view',
-    'component/toolbar/toolbar.view'
-], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
-             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, uploadInstance,
-            ResultSelectorView, VisualizationView, ToolbarView) {
-
-    var debounceTime = 25;
+    'component/result-selector/result-selector.view'
+], function (wreqr, Marionette, _, $, CustomElements, ContentView, store, Common,
+             uploadInstance, ResultSelectorView) {
 
     return ContentView.extend({
         className: 'is-upload',
-        modelEvents: {
-        },
-        events: {
-            'click .content-panelTwo-close': 'unselectQueriesAndResults'
-        },
-        ui: {
-        },
-        regions: {
-            'menu': '.content-menu',
-            'toolbar': '.content-toolbar',
-            'panelOne': '.content-panelOne',
-            'panelTwo': '.content-panelTwo-content',
-            'panelTwoTitle': '.content-panelTwo-title',
-            'panelThree': '.content-panelThree'
-        },
-        initialize: function(){
-            this._mapView = new VisualizationView({
-                selectionInterface: uploadInstance,
-                configName: 'goldenLayoutUpload'
-            });
+        setupListener: function () {
             this.listenTo(uploadInstance, 'change:currentUpload', this.updatePanelOne);
-        },
-        onRender: function(){
-            this.updatePanelOne();
-            this.hidePanelTwo();
-            if (this._mapView){
-                this.panelThree.show(this._mapView);
-                this.toolbar.show(new ToolbarView({goldenLayout: this._mapView.goldenLayout}));
-            }
         },
         updatePanelOne: function(){
             this.panelOne.show(new ResultSelectorView({
                 model: uploadInstance.get('currentQuery'),
                 selectionInterface: uploadInstance
             }));
-            this.hidePanelTwo();
-        },
-        updatePanelTwo: function(){
-        },
-        unselectQueriesAndResults: function(){
-            uploadInstance.clearSelectedResults();
         },
         _mapView: undefined
     });

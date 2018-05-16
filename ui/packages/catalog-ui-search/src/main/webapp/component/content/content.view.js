@@ -20,131 +20,62 @@ define([
     'jquery',
     './content.hbs',
     'js/CustomElements',
-    'component/navigation/workspace/navigation.workspace.view',
     'component/toolbar/toolbar.view',
-    'properties',
-    'component/tabs/workspace-content/tabs-workspace-content',
-    'component/tabs/workspace-content/tabs-workspace-content.view',
-    'component/tabs/query/tabs-query.view',
     'js/store',
-    'component/tabs/metacard/tabs-metacard.view',
-    'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
-    'component/metacard-title/metacard-title.view',
-    'component/router/router',
-    'component/visualization/visualization.view',
-    'component/query-title/query-title.view',
-    'component/golden-layout/golden-layout.view'
-], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, ToolbarView, properties,
-             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, VisualizationView,
-            QueryTitleView, GoldenLayoutView) {
-
-    var debounceTime = 25;
+    'component/golden-layout/golden-layout.view',
+    'component/visualization-selector/visualization-selector.view'
+], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, ToolbarView,
+              store, Common, GoldenLayoutView, VisualizationSelector) {
 
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
         tagName: CustomElements.register('content'),
-        modelEvents: {
-        },
-        events: {
-            'click .content-panelTwo-close': 'unselectQueriesAndResults'
-        },
-        ui: {
-        },
         regions: {
-            'menu': '.content-menu',
             'toolbar': '.content-toolbar',
             'panelOne': '.content-panelOne',
-            'panelTwo': '.content-panelTwo-content',
-            'panelTwoTitle': '.content-panelTwo-title',
+            'panelTwo': '.content-panelTwo',
             'panelThree': '.content-panelThree'
         },
+        childEvents: {
+            'content:togglePanelOne': 'togglePanelOne',
+            'content:togglePanelTwo': 'togglePanelTwo'
+        },
         initialize: function(){
+            this.$el.addClass('panel-one-is-open');
             this._mapView = new GoldenLayoutView({
                 selectionInterface: store.get('content'),
                 configName: 'goldenLayout'
             });
-            this.listenTo(router, 'change', this.handleRoute);
-            this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);
-            var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
-            this.listenTo(store.get('content'), 'change:query', debouncedUpdatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'update',debouncedUpdatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'add', debouncedUpdatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'remove', debouncedUpdatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'reset', debouncedUpdatePanelTwo);
-            this.handleRoute();
+            this.setupListener();
         },
-        handleRoute: function(){
-            if (router.toJSON().name==='openWorkspace'){
-                this.$el.removeClass('is-hidden');
-            } else {
-                this.$el.addClass('is-hidden');
-            }
+        setupListener: function () {
+            //override in extended views
         },
         onRender: function(){
             this.updatePanelOne();
-            this.hidePanelTwo();
-            this.menu.show(new MenuView());
             if (this._mapView){
                 this.panelThree.show(this._mapView);
-                this.toolbar.show(new ToolbarView({goldenLayout: this._mapView.goldenLayout}));
+                this.toolbar.show(new ToolbarView());
+                this.panelTwo.show(new VisualizationSelector({goldenLayout: this._mapView.goldenLayout}));
             }
         },
         updatePanelOne: function(workspace){
-            if (workspace){
-                if (Object.keys(workspace.changedAttributes())[0] === 'currentWorkspace'){
-                    this.updatePanelOne();
-                    store.clearSelectedResults();
-                }
-            } else {
-                this.panelOne.show(new WorkspaceContentTabsView({
-                    model: new WorkspaceContentTabs(),
-                    selectionInterface: store.get('content')
-                }));
-                this.hidePanelTwo();
-            }
+            //override in extended views
         },
-        updatePanelTwo: function(){
-            var queryRef = store.getQuery();
-            if (queryRef === undefined){
-                this.hidePanelTwo();
-            } else {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== QueryTabsView) {
-                    this.panelTwo.show(new QueryTabsView());
-                }
-                this.panelTwoTitle.show(new QueryTitleView({
-                    model: store.getQuery()
-                }));
-            }
-            Common.repaintForTimeframe(500, function(){
-                wreqr.vent.trigger('resize');
+        togglePanelOne: function(){
+            this.$el.toggleClass('panel-one-is-open');
+            setTimeout(function() {
                 $(window).trigger('resize');
-            });
+            }.bind(this), Common.coreTransitionTime*.6);
         },
-        updatePanelTwoQueryTitle: function(){
-            var queryRef = store.getQuery();
-            var title = queryRef._cloneOf === undefined ? 'New Search' : queryRef.escape('title');
-            this.$el.find('.content-panelTwo-title').html(title);
-        },
-        hidePanelTwo: function(){
-            this.panelTwo.empty();
-            this.$el.addClass('hide-panelTwo');
-            Common.repaintForTimeframe(500, function(){
-                wreqr.vent.trigger('resize');
+        togglePanelTwo: function(){
+            this.$el.toggleClass('panel-two-is-open');
+            setTimeout(function() {
                 $(window).trigger('resize');
-            });
-        },
-        showPanelTwo: function(){
-            this.$el.removeClass('hide-panelTwo');
-        },
-        unselectQueriesAndResults: function(){
-            store.get('content').set('query', undefined);
-            store.clearSelectedResults();
+            }.bind(this), Common.coreTransitionTime*.6);
         },
         _mapView: undefined
-
     });
 
     return ContentView;

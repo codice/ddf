@@ -1,0 +1,29 @@
+@{customElementNamespace}workspace {
+  .customElement;
+  overflow: hidden;
+
+  > .workspace-menu {
+    margin: auto;
+    height: 2*@minimumLineSize;
+  }
+
+  > .workspace-details {
+    height: ~'calc(100% - 2*@{minimumLineSize})';
+  }
+
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}workspace {
+    > .metacard-menu,
+    > .metacard-details {
+      max-width: 100%;
+    }
+    > .metacard-menu {
+      padding: 0px 20px;
+    }
+    > .metacard-details {
+      padding: 0px 0px;
+    }
+  }
+}

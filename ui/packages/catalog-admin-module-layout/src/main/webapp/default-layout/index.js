@@ -123,7 +123,7 @@ const LayoutMenu = () => (
   <Toolbar>
     <ToolbarGroup firstChild />
     <ToolbarGroup>
-      <ToolbarTitle text='Visualizations' />
+      <ToolbarTitle text='Panels' />
       <div id='layoutMenu' />
     </ToolbarGroup>
   </Toolbar>

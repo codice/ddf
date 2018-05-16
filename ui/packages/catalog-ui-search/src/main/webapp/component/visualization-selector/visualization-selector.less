@@ -1,9 +1,13 @@
 @{customElementNamespace}visualization-selector {
+  font-size: @largeFontSize;
 
   .visualization-choice {
     white-space: nowrap;
-    padding: @largeSpacing;
+    padding: @minimumSpacing;
+    margin: @largeSpacing 0;
+    border: 1px dashed contrast(@backgroundNavigation);
     .grab-cursor;
+
   }
   .visualization-icon {
       text-align: center;

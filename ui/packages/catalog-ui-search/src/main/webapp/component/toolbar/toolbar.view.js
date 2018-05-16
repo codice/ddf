@@ -16,22 +16,25 @@
 var Marionette = require('marionette');
 var template = require('./toolbar.hbs');
 var CustomElements = require('CustomElements');
-var SlideoutViewInstance = require('component/singletons/slideout.view-instance.js');
-var VisualizationSelector = require('component/visualization-selector/visualization-selector.view');
+var $ = require('jquery');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('toolbar'),
     events: {
-        'click .item-add-visual': 'toggleAddVisual'
+        'click #item-add-visual': 'toggleAddVisual',
+        'click #item-toggle-search': 'toggleSearchPanel'
     },
     initialize: function() {
     },
     onBeforeShow: function(){
     },
-    toggleAddVisual: function(e){
-        SlideoutViewInstance.$el.addClass("top-toolbar");
-        SlideoutViewInstance.updateContent(new VisualizationSelector(this.options));
-        SlideoutViewInstance.open();
+    toggleSearchPanel: function(){
+        $('#item-toggle-search').toggleClass('is-open');
+        this.triggerMethod('content:togglePanelOne');
+    },
+    toggleAddVisual: function(){
+        $('#item-add-visual').toggleClass('is-open');
+        this.triggerMethod('content:togglePanelTwo');
     }
 });

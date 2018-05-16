@@ -20,7 +20,7 @@ define([
     'js/store',
     'component/confirmation/confirmation.view',
     'application',
-    'component/content/content.view',
+    'component/workspace/workspace.view',
     'component/workspaces/workspaces.view',
     'component/metacard/metacard.view',
     'component/metacard/metacard',
@@ -39,7 +39,7 @@ define([
     'component/notfound/notfound.view',
     'properties',
     'component/announcement'
-], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
+], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, WorkspaceView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
             IngestView, router, user, uploadInstance, UploadView,
             NavigatorView, SourcesView, AboutView, 
@@ -112,7 +112,7 @@ define([
                     var workspaceId = args[0];
                     if (store.get('workspaces').get(workspaceId)!==undefined) {
                         if (Application.App.workspaceRegion.currentView===undefined) {
-                            Application.App.workspaceRegion.show(new ContentView());
+                            Application.App.workspaceRegion.show(new WorkspaceView());
                         }
                         store.setCurrentWorkspaceById(workspaceId);
                         Application.App.workspaceRegion.$el.removeClass('is-hidden');
