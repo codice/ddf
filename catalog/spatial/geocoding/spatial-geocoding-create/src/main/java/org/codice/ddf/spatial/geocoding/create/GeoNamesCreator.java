@@ -36,14 +36,15 @@ public class GeoNamesCreator implements GeoEntryCreator {
     // Passing a negative value to preserve empty fields.
     final String[] fields = line.split("\\t", -1);
 
-    String countryCode =
+    final String countryCodeAlpha2 = fields[8];
+    String countryCodeAlpha3 =
         isoStandard
             .getStandardEntries()
             .stream()
-            .filter(c -> c.getAsFormat("alpha2").equals(fields[8]))
+            .filter(c -> c.getAsFormat("alpha2").equals(countryCodeAlpha2))
             .findFirst()
             .map(cc -> cc.getAsFormat("alpha3"))
-            .orElse(fields[8]);
+            .orElse(countryCodeAlpha2);
 
     return new GeoEntry.Builder()
         .name(fields[1])
@@ -52,7 +53,7 @@ public class GeoNamesCreator implements GeoEntryCreator {
         .featureCode(fields[7])
         .population(Long.parseLong(fields[14]))
         .alternateNames(fields[3])
-        .countryCode(countryCode)
+        .countryCode(countryCodeAlpha3)
         .importLocation(entryResource)
         .build();
   }
