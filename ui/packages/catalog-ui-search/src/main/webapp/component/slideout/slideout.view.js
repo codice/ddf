@@ -61,8 +61,6 @@ module.exports = Marionette.LayoutView.extend({
     emptyContent: function(){
         setTimeout(function() {
             this.slideoutContent.empty();
-            this.$el.toggleClass('top-nav', false);
-            this.$el.toggleClass('top-toolbar', false);
         }.bind(this), Common.coreTransitionTime*1.1);
     },
     updateContent: function(view) {

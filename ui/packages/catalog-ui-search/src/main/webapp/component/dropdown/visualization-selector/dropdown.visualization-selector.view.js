@@ -14,24 +14,14 @@
  **/
 /*global require*/
 var Marionette = require('marionette');
-var template = require('./toolbar.hbs');
-var CustomElements = require('CustomElements');
-var SlideoutViewInstance = require('component/singletons/slideout.view-instance.js');
-var VisualizationSelector = require('component/visualization-selector/visualization-selector.view');
+var _ = require('underscore');
+var $ = require('jquery');
+var template = require('./dropdown.visualization-selector.hbs');
+var DropdownView = require('../dropdown.view');
+var ComponentView = require('component/visualization-selector/visualization-selector.view');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = DropdownView.extend({
     template: template,
-    tagName: CustomElements.register('toolbar'),
-    events: {
-        'click .item-add-visual': 'toggleAddVisual'
-    },
-    initialize: function() {
-    },
-    onBeforeShow: function(){
-    },
-    toggleAddVisual: function(e){
-        SlideoutViewInstance.$el.addClass("top-toolbar");
-        SlideoutViewInstance.updateContent(new VisualizationSelector(this.options));
-        SlideoutViewInstance.open();
-    }
+    className: 'is-visualizationSelector is-button',
+    componentToShow: ComponentView
 });
