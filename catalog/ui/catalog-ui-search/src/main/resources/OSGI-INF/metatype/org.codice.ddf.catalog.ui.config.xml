@@ -216,6 +216,12 @@
             type="Integer"
             default="25"/>
 
+        <AD id="webSocketsEnabled"
+            name="Enable Web Sockets"
+            description="Enables use of Web Sockets"
+            type="Boolean"
+            default="true"/>
+
         <AD id="disableLocalCatalog"
             name="Disable Local Catalog"
             description="Disables queries to the local catalog."

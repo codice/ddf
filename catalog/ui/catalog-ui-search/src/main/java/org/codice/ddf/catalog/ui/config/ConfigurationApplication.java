@@ -125,6 +125,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer autoMergeTime = 1000;
 
+  private Boolean webSocketsEnabled = true;
+
   private String mapHome = "";
 
   private ObjectMapper objectMapper =
@@ -386,6 +388,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("defaultLayout", getDefaultLayoutConfig());
     config.put("isExperimental", isExperimental);
     config.put("autoMergeTime", autoMergeTime);
+    config.put("webSocketsEnabled", webSocketsEnabled);
     config.put("mapHome", mapHome);
     config.put("product", uiName);
     config.put("showRelevanceScores", showRelevanceScores);
@@ -905,6 +908,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setAutoMergeTime(Integer autoMergeTime) {
     this.autoMergeTime = autoMergeTime;
+  }
+
+  public Boolean getWebSocketsEnabled() {
+    return webSocketsEnabled;
+  }
+
+  public void setWebSocketsEnabled(Boolean webSocketsEnabled) {
+    this.webSocketsEnabled = webSocketsEnabled;
   }
 
   public Boolean getIsExperimental() {
