@@ -27,6 +27,7 @@ import org.apache.camel.component.file.GenericFileOperations;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.content.monitor.synchronizations.DeletionSynchronization;
+import org.codice.ddf.catalog.content.monitor.synchronizations.FileDeletionSynchonization;
 import org.codice.ddf.catalog.content.monitor.synchronizations.FileToMetacardMappingSynchronization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,14 +105,17 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileCreate(DavEntry entry) {
+      final File davFile = getDavFile(entry);
+
       Exchange exchange =
-          new ExchangeHelper(getDavFile(entry), endpoint)
+          new ExchangeHelper(davFile, endpoint)
               .addHeader(CATALOG_OPERATION_HEADER_KEY, "CREATE")
               .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
               .addHeader(Core.RESOURCE_URI, entry.getLocation())
               .addSynchronization(
                   new FileToMetacardMappingSynchronization(
                       entry.getLocation(), productToMetacardIdMap))
+              .addSynchronization(new FileDeletionSynchonization(davFile.getParentFile()))
               .getExchange();
 
       submitExchange(exchange);
@@ -132,14 +136,17 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
         return;
       }
 
+      final File davFile = getDavFile(entry);
+
       Exchange exchange =
-          new ExchangeHelper(getDavFile(entry), endpoint)
+          new ExchangeHelper(davFile, endpoint)
               .addHeader(CATALOG_OPERATION_HEADER_KEY, "UPDATE")
               .addHeader("org.codice.ddf.camel.transformer.MetacardUpdateId", metacardId)
               .addHeader(FILE_EXTENSION_HEADER, FilenameUtils.getExtension(entry.getLocation()))
               .addHeader(Core.RESOURCE_URI, entry.getLocation())
               .addSynchronization(
                   new FileToMetacardMappingSynchronization(referenceKey, productToMetacardIdMap))
+              .addSynchronization(new FileDeletionSynchonization(davFile.getParentFile()))
               .getExchange();
 
       submitExchange(exchange);
