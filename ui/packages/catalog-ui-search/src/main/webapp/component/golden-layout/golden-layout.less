@@ -205,15 +205,114 @@
     background: inherit !important;
     position: relative;
 
+    > .golden-layout-toolbar { 
+        position: absolute;
+        left: 0px;
+        bottom: 0%;
+        width: 100%;
+        white-space: nowrap;
+        height: @minimumButtonSize;
+        line-height: @minimumButtonSize;
+        text-align: center;
+         .dropshadow;
+        > * {
+            display: inline-block;
+        }
+        > span {
+            padding: 0px @minimumSpacing;
+            font-size: @largeFontSize;
+        }
+        button {
+            padding: 0px @minimumSpacing;
+        }
+
+
+    }
+
     > .golden-layout-container {
         height: ~'calc(100% - @{minimumButtonSize})';
         background: inherit;
         overflow: hidden;
     }
 
+    > .golden-layout-toolbar {
+        .toolbar-actions {
+            position: absolute;
+            right: 0px;
+            z-index: @zIndexContent;
+        }
+
+        .toolbar-actions > div {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .to-toggle-size {
+            min-width: @minimumButtonSize;
+            vertical-align: top;
+            display: none;
+        }
+
+        .to-toggle-size {
+            .fa-chevron-down {
+                display: inline;
+            }
+            .fa-chevron-up {
+                display: none;
+            }
+        }
+    }
 }
 
 @{customElementNamespace}golden-layout.is-minimised {
+    > .golden-layout-toolbar {
+        z-index: @zIndexContent;
+        background: inherit;
+        transform: translateY(100%);
+
+        > span {
+            display: none;
+        }
+
+        .toolbar-actions {
+           background: inherit;
+           transform: translateY(-100%);
+        }
+        .toolbar-actions > :not(.to-toggle-size):not(.to-add) {
+            display: none;
+        }
+        .to-toggle-size,
+        .to-show {
+            background: @backgroundDropdown;
+            display: inline-block;
+            opacity: 1;
+            .dropshadow;
+        }
+        .to-toggle-size {
+            .fa-chevron-down {
+                display: none;
+            }
+            .fa-chevron-up {
+                display: inline;
+            }
+        }
+        .to-toggle-size > span {
+            opacity: @minimumOpacity;
+        }
+        .to-toggle-size:hover > span {
+            opacity: 1;
+        }
+
+        .to-add .dropdown-label {
+            display: none;
+        }
+
+        .to-toggle-size,
+        .to-add {
+            background: inherit;
+            .dropshadow;
+        }
+    }
 
     > .golden-layout-container {
         height: ~'calc(100%)';
@@ -226,4 +325,20 @@
 
 @{customElementNamespace}golden-layout.is-empty {
     // might be useful to make it clearer to the user in the future when they're in this mode
+}
+
+
+//interim styles (delete me later, after we add layout switching etc.)
+@{customElementNamespace}golden-layout.is-minimised {
+    > .golden-layout-toolbar {
+        .to-add .dropdown-label {
+            display: inline !important;
+        } 
+    }
+}
+
+@{customElementNamespace}golden-layout {
+    .to-toggle-size {
+        display: none !important;
+    }
 }
