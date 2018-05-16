@@ -320,6 +320,11 @@ are essentially embedding a slightly modified version of felix -->
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.fastjson</groupId>
+                <artifactId>boon</artifactId>
+                <version>${boon.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <distributionManagement>

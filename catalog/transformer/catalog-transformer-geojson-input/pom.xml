@@ -37,7 +37,6 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>${boon.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
