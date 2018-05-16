@@ -26,6 +26,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.impl.filter.TemporalFilter;
@@ -56,11 +58,16 @@ public class OpenSearchParserImplTest {
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
+  private static final WKTReader WKT_READER = new WKTReader();
+
   private static final String MAX_RESULTS = "2000";
 
   private static final String TIMEOUT = "30000";
 
   private static final String DESCENDING_TEMPORAL_SORT = "date:desc";
+
+  private static final String WKT_GEOMETRY =
+      "GEOMETRYCOLLECTION (POINT (-105.2071712 40.0160994), LINESTRING (4 6, 7 10))";
 
   private OpenSearchParser openSearchParser;
 
@@ -378,17 +385,21 @@ public class OpenSearchParserImplTest {
 
   // {@link OpenSearchParser#populateSpatial(WebClient, SpatialSearch, List)} tests
 
-  @Test(expected = IllegalArgumentException.class)
-  public void populateSpatialGeometry() {
+  @Test
+  public void populateSpatialGeometry() throws ParseException {
+
+    Geometry geometry = WKT_READER.read(WKT_GEOMETRY);
     openSearchParser.populateSpatial(
         webClient,
-        mock(Geometry.class),
+        geometry,
         null,
         null,
         null,
         Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
+
+    assertQueryParameterPopulated(OpenSearchConstants.GEOMETRY, WKT_GEOMETRY);
   }
 
   @Test

@@ -16,6 +16,7 @@ package org.codice.ddf.opensearch.source;
 import com.google.common.annotations.VisibleForTesting;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
@@ -45,6 +46,8 @@ import org.slf4j.LoggerFactory;
 public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImpl.class);
+
+  private static final WKTWriter WKT_WRITER = new WKTWriter();
 
   @VisibleForTesting static final String USER_DN = "dn";
 
@@ -158,10 +161,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     }
 
     if (geometry != null) {
-      throw new IllegalArgumentException(
-          "Setting the "
-              + OpenSearchConstants.GEOMETRY
-              + " query parameter is currently not supported by the OpenSearchSource");
+      checkAndReplace(client, WKT_WRITER.write(geometry), OpenSearchConstants.GEOMETRY, parameters);
     } else if (boundingBox != null) {
       checkAndReplace(
           client,
