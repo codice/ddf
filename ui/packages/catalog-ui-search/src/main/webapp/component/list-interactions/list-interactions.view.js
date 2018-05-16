@@ -32,45 +32,45 @@ module.exports = Marionette.ItemView.extend({
     modelEvents: {
       'change:actions': 'render'
     },
-    onRender: function() {
+    onRender(){
       this.handleResult();
     },
-    initialize: function(){
+    initialize(){
         if (!this.model.get('query').get('result')) {
             this.startListeningToSearch();
         }
         this.handleResult();
     },
-    startListeningToSearch: function(){
+    startListeningToSearch(){
         this.listenToOnce(this.model.get('query'), 'change:result', this.startListeningForResult);
     },
-    startListeningForResult: function(){
+    startListeningForResult(){
         this.listenToOnce(this.model.get('query').get('result'), 'sync error', this.handleResult);
     },
-    triggerRun: function(){
+    triggerRun(){
         this.model.get('query').startSearch();
     },
-    triggerCancel: function(){
+    triggerCancel(){
         this.model.get('query').cancelCurrentSearches();
     },
-    triggerDelete: function(){
+    triggerDelete(){
         this.model.collection.remove(this.model);
     },
-    triggerDuplicate: function(){
+    triggerDuplicate(){
         const copyAttributes = JSON.parse(JSON.stringify(this.model.attributes));
         delete copyAttributes.id;
         delete copyAttributes.query;
         const newList = new this.model.constructor(copyAttributes);
         this.model.collection.add(newList);
     },
-    triggerAction: function(event){
+    triggerAction(event){
        const url = event.currentTarget.getAttribute('data-url');
        window.open(url, '_blank');
     },
-    handleResult: function(){
+    handleResult(){
         this.$el.toggleClass('has-results', this.model.get('query').get('result') !== undefined);
     },
-    triggerClick: function(){
+    triggerClick(){
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
     }
 });

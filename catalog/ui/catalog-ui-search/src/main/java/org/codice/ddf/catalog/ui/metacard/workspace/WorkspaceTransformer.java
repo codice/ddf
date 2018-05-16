@@ -91,7 +91,7 @@ public class WorkspaceTransformer {
                   .stream()
                   .map(query -> transformIntoMetacard(new QueryMetacardImpl()).apply(query))
                   .map(this::toMetacardXml)
-                  .collect(Collectors.toList());
+                  .collect(toList());
             }));
     metacardToJsonEntryMapper.put(
         WorkspaceAttributes.WORKSPACE_LISTS,
@@ -103,7 +103,7 @@ public class WorkspaceTransformer {
                   .peek(this::removeExternalListAttributes)
                   .map(transformIntoMetacard(new ListMetacardImpl()))
                   .map(this::toMetacardXml)
-                  .collect(Collectors.toList());
+                  .collect(toList());
             }));
     metacardToJsonEntryMapper.put(
         Security.ACCESS_INDIVIDUALS,
@@ -127,7 +127,7 @@ public class WorkspaceTransformer {
                     .map(
                         lazyValueMap ->
                             lazyValueMap.get("attribute") + "," + lazyValueMap.get("direction"))
-                    .collect(Collectors.toList())));
+                    .collect(toList())));
   }
 
   // for use during mapping keys/value from a metacard to a json map (metacard -> json)
@@ -148,7 +148,7 @@ public class WorkspaceTransformer {
                   .stream()
                   .map(this::toMetacardFromXml)
                   .map(this::transform)
-                  .collect(Collectors.toList());
+                  .collect(toList());
             }));
     jsonToMetacardEntryMapper.put(
         QueryMetacardTypeImpl.QUERY_SORTS,
@@ -166,7 +166,7 @@ public class WorkspaceTransformer {
                         map.put("direction", split[1]);
                         return map;
                       })
-                  .collect(Collectors.toList());
+                  .collect(toList());
             }));
     jsonToMetacardEntryMapper.put(
         WorkspaceAttributes.WORKSPACE_LISTS,
@@ -178,7 +178,7 @@ public class WorkspaceTransformer {
                   .stream()
                   .map(this::toMetacardFromXml)
                   .map(this::transform)
-                  .collect(Collectors.toList());
+                  .collect(toList());
             }));
   }
 
@@ -267,7 +267,7 @@ public class WorkspaceTransformer {
   }
 
   public List<Map<String, Object>> transform(List<Metacard> metacards) {
-    return metacards.stream().map(this::transform).collect(Collectors.toList());
+    return metacards.stream().map(this::transform).collect(toList());
   }
 
   public String toMetacardXml(Metacard m) {
