@@ -63,7 +63,7 @@ test('catch descriptor errors', function (t) {
       t.equal(data.deps.length, 1)
 
       var dep = data.deps[0]
-      t.equal(dep.group, 'ddf.distribution')
+      t.equal(dep.group, 'ddf.features')
       t.equal(dep.artifact, 'install-profiles')
     })
 })

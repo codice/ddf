@@ -186,8 +186,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-app</artifactId>
+            <groupId>ddf.features</groupId>
+            <artifactId>utilities</artifactId>
+            <classifier>features</classifier>
+            <type>xml</type>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.features</groupId>
+            <artifactId>kernel</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
             <version>${project.version}</version>
