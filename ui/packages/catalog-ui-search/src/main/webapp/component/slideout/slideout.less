@@ -46,23 +46,80 @@
     }
 }
 
-body.has-header @{customElementNamespace}slideout {
+@{customElementNamespace}slideout.top-nav {
     > .slideout-content {
-        top: ~'calc(2*@{minimumLineSize} + 1.5rem)';
-        height: ~'calc(100% - 2*@{minimumLineSize} - 1.5rem)';
+        top: ~'calc(@{navSize})';
+        height: ~'calc(100% - @{navSize})';
     }
 }
 
-body.has-footer @{customElementNamespace}slideout {
+@{customElementNamespace}slideout.top-toolbar {
     > .slideout-content {
-        top: ~'calc(2*@{minimumLineSize})';
-        height: ~'calc(100% - 2*@{minimumLineSize} - 1.5rem)';
+        top: ~'calc(@{navSize} + @{toolbarSize})';
+        height: ~'calc(100% - @{navSize} - @{toolbarSize})';
     }
 }
 
-body.has-header.has-footer @{customElementNamespace}slideout {
-    > .slideout-content {
-        top: ~'calc(2*@{minimumLineSize} + 1.5rem)';
-        height: ~'calc(100% - 2*@{minimumLineSize} - 3rem)';
+body.has-header {
+    @{customElementNamespace}slideout {
+        > .slideout-content {
+            top: 1.5rem;
+            height: ~'calc(100% - 1.5rem)';
+        }
+    }
+
+    @{customElementNamespace}slideout.top-nav {
+        > .slideout-content {
+            top: ~'calc(@{navSize} + 1.5rem)';
+            height: ~'calc(100% - @{navSize} - 1.5rem)';
+        }
+    }
+
+    @{customElementNamespace}slideout.top-toolbar {
+        > .slideout-content {
+            top: ~'calc(@{navSize} + @{toolbarSize} + 1.5rem)';
+            height: ~'calc(100% - @{navSize} - @{toolbarSize} - 1.5rem)';
+        }
+    }
+}
+
+body.has-footer {
+    @{customElementNamespace}slideout {
+        > .slideout-content {
+            height: ~'calc(100% - 1.5rem)';
+        }
+
+    }
+
+    @{customElementNamespace}.top-nav {
+        > .slideout-content {
+            height: ~'calc(100% - @{navSize} - 1.5rem)';
+        }
+    }
+
+    @{customElementNamespace}.top-toolbar {
+        > .slideout-content {
+            height: ~'calc(100% - @{navSize} - @{toolbarSize} - 1.5rem)';
+        }
+    }
+}
+
+body.has-header.has-footer {
+    @{customElementNamespace}slideout {
+        > .slideout-content {
+            height: ~'calc(100% - 3rem)';
+        }
+    }
+
+    @{customElementNamespace}.top-nav {
+        > .slideout-content {
+            height: ~'calc(100% - @{navSize} - 3rem)';
+        }
+    }
+
+    @{customElementNamespace}.top-toolbar {
+        > .slideout-content {
+            height: ~'calc(100% - @{navSize} - @{toolbarSize} - 3rem)';
+        }
     }
 }

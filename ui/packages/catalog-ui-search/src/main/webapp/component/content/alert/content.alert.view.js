@@ -32,11 +32,12 @@ define([
     'component/metacard-title/metacard-title.view',
     'component/alert/alert',
     'component/result-selector/result-selector.view',
-    'component/golden-layout/golden-layout.view'
+    'component/golden-layout/golden-layout.view',
+    'component/toolbar/toolbar.view'
 ], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, alertInstance,
-            ResultSelectorView, VisualizationView) {
+            ResultSelectorView, VisualizationView, ToolbarView) {
 
     var debounceTime = 25;
 
@@ -51,6 +52,7 @@ define([
         },
         regions: {
             'menu': '.content-menu',
+            'toolbar': '.content-toolbar',
             'panelOne': '.content-panelOne',
             'panelTwo': '.content-panelTwo-content',
             'panelTwoTitle': '.content-panelTwo-title',
@@ -68,6 +70,7 @@ define([
             this.hidePanelTwo();
             if (this._mapView){
                 this.panelThree.show(this._mapView);
+                this.toolbar.show(new ToolbarView({goldenLayout: this._mapView.goldenLayout}));
             }
         },
         updatePanelOne: function(){
