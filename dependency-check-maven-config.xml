@@ -531,4 +531,11 @@
         <notes>This CVE is related to a PHP script. There are no PHP scripts in the DDF.</notes>
         <cve>CVE-2006-6460</cve>
     </suppress>
+
+    <suppress>
+        <notes>
+            This CVE is not an issue since the software is not exposing STOMP over WebSocket endpoints.
+        </notes>
+        <cve>CVE-2018-1270</cve>
+    </suppress>
 </suppressions>
