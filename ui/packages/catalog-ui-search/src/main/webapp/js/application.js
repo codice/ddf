@@ -32,10 +32,6 @@ define([
     Application.AppModel = new Backbone.Model(properties);
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({
-        favicon: '#favicon',
-        loadingRegion: '#loading',
-        headerRegion: 'header',
-        footerRegion: 'footer',
         workspacesRegion: '#workspaces',
         workspaceRegion: '#workspace',
         metacardRegion: '#metacard',
@@ -43,10 +39,13 @@ define([
         alertRegion: '#alert',
         ingestRegion: '#ingest',
         uploadRegion: '#upload',
-        controlPanelRegion: '#controlPanel',
         aboutRegion: '#about',
         notFoundRegion: '#notfound'
     });
+    const $faviconElement = $('#favicon');
+    const $loadingElement = $('#loading');
+    const $header = $('header');
+    const $footer = $('footer');
 
     const BannerView = Marionette.ItemView.extend({
         tagName: 'header',
@@ -76,29 +75,27 @@ define([
 
     //setup the header
     Application.App.addInitializer(function () {
-        Application.App.headerRegion.show(new BannerView(), {
-            replaceElement: true
-        });
+        const headerView = new BannerView();
+        headerView.render();
+        $header.append(headerView.el);
         if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== "")) {
             $('body').addClass('has-header');
         }
     });
     //setup the footer
     Application.App.addInitializer(function () {
-        Application.App.footerRegion.show(new (BannerView.extend({
-            tagName: 'footer'
-        }))(), {
-            replaceElement: true
-        });
+        const footerView = new BannerView();
+        footerView.render();
+        $footer.append(footerView.el);
         if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').footer && Application.AppModel.get('ui').footer !== "")) {
             $('body').addClass('has-footer');
         }
     });
 
-    Application.App.favicon.$el.attr('href', 'data:image/png;base64,' + properties.ui.favIcon);
-    Application.App.loadingRegion.$el.find('.welcome-branding').text(properties.branding);
-    Application.App.loadingRegion.$el.find('.welcome-branding-name').text(properties.product);
-    Application.App.loadingRegion.$el.addClass('show-welcome');
+    $faviconElement.attr('href', 'data:image/png;base64,' + properties.ui.favIcon);
+    $loadingElement.find('.welcome-branding').text(properties.branding);
+    $loadingElement.find('.welcome-branding-name').text(properties.product);
+    $loadingElement.addClass('show-welcome');
 
     //load all modules
     Application.App.addInitializer(function () {
@@ -106,7 +103,7 @@ define([
             'js/router'
         ], function(){
             setTimeout(function(){
-                Application.App.loadingRegion.$el.removeClass('is-open');
+                $loadingElement.removeClass('is-open');
             }, 0);
         });
     });
