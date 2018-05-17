@@ -34,13 +34,17 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.xebialabs.restito.semantics.Action;
+import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
 import ddf.catalog.data.types.Location;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -294,56 +298,19 @@ public class TestSpatial extends AbstractIntegrationTest {
     String sfRoad2 = getFileContent("/TestSpatial/xml/sfRoad2.xml");
     String sfRoad3 = getFileContent("/TestSpatial/xml/sfRoad3.xml");
 
-    whenHttp(server)
-        .match(
-            get(WFS_11_CONTEXT),
-            parameter("service", "WFS"),
-            parameter("version", "1.1.0"),
-            parameter("request", "GetCapabilities"))
-        .then(Action.success(), Action.stringContent(wfs11GetCapabilities));
-    whenHttp(server)
-        .match(
-            get(WFS_11_CONTEXT),
-            parameter("service", "WFS"),
-            parameter("version", "1.1.0"),
-            parameter("request", "DescribeFeatureType"))
-        .then(Action.success(), Action.stringContent(wfs11sfRoadsFeatureType));
-
+    setupWfs11GetCapabilities(wfs11GetCapabilities);
+    setupWfs11DescribeFeature(wfs11sfRoadsFeatureType);
     // wildcard
-    whenHttp(server)
-        .match(
-            post(WFS_11_CONTEXT),
-            withPostBodyContaining("GetFeature"),
-            withPostBodyContaining("sf:roads"),
-            withPostBodyContaining("Literal>*"))
-        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1, sfRoad2, sfRoad3)));
+    setupWfs11Query(wfsResponse(sfRoad1, sfRoad2, sfRoad3), withPostBodyContaining("Literal>*"));
 
     // keyword
-    whenHttp(server)
-        .match(
-            post(WFS_11_CONTEXT),
-            withPostBodyContaining("GetFeature"),
-            withPostBodyContaining("sf:roads"),
-            withPostBodyContaining(">roads.1"))
-        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
+    setupWfs11Query(wfsResponse(sfRoad1), withPostBodyContaining(">roads.1"));
 
     // boolean
-    whenHttp(server)
-        .match(
-            post(WFS_11_CONTEXT),
-            withPostBodyContaining("GetFeature"),
-            withPostBodyContaining("And>"),
-            withPostBodyContaining("sf:roads"))
-        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad2, sfRoad3)));
+    setupWfs11Query(wfsResponse(sfRoad2, sfRoad3), withPostBodyContaining("And>"));
 
     // geometry
-    whenHttp(server)
-        .match(
-            post(WFS_11_CONTEXT),
-            withPostBodyContaining("GetFeature"),
-            withPostBodyContaining("coordinates>"),
-            withPostBodyContaining("sf:roads"))
-        .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
+    setupWfs11Query(wfsResponse(sfRoad1), withPostBodyContaining("coordinates>"));
 
     // ID Search
     whenHttp(server)
@@ -351,8 +318,38 @@ public class TestSpatial extends AbstractIntegrationTest {
         .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
 
     getServiceManager().createManagedService(WFS_11_FACTORY_PID, wfs11SourceProperties);
+  }
 
-    String s = "as";
+  private void setupWfs11GetCapabilities(String getCapabilities) {
+    whenHttp(server)
+        .match(
+            get(WFS_11_CONTEXT),
+            parameter("service", "WFS"),
+            parameter("version", "1.1.0"),
+            parameter("request", "GetCapabilities"))
+        .then(Action.success(), Action.stringContent(getCapabilities));
+  }
+
+  private void setupWfs11DescribeFeature(String featureDescription) {
+    whenHttp(server)
+        .match(
+            get(WFS_11_CONTEXT),
+            parameter("service", "WFS"),
+            parameter("version", "1.1.0"),
+            parameter("request", "DescribeFeatureType"))
+        .then(Action.success(), Action.stringContent(featureDescription));
+  }
+
+  private void setupWfs11Query(String response, Condition... conditions) {
+    List<Condition> queryConditions = new ArrayList<>();
+    queryConditions.add(post(WFS_11_CONTEXT));
+    queryConditions.add(withPostBodyContaining("GetFeature"));
+    queryConditions.add(withPostBodyContaining("sf:roads"));
+    queryConditions.addAll(Arrays.asList(conditions));
+
+    whenHttp(server)
+        .match(queryConditions.toArray(new Condition[0]))
+        .then(Action.success(), Action.stringContent(response));
   }
 
   @After
