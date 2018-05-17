@@ -51,7 +51,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
+import ddf.security.SubjectIdentity;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,6 +110,8 @@ public class Historian {
 
   private UuidGenerator uuidGenerator;
 
+  private SubjectIdentity subjectIdentity;
+
   public void init() {
     Bundle bundle = FrameworkUtil.getBundle(Historian.class);
     BundleContext context = bundle == null ? null : bundle.getBundleContext();
@@ -164,7 +166,7 @@ public class Historian {
     final Map<String, Metacard> versionedMetacards =
         getVersionMetacards(
             inputMetacards,
-            (id) -> Action.VERSIONED,
+            id -> Action.VERSIONED,
             (Subject)
                 updateResponse
                     .getRequest()
@@ -248,7 +250,7 @@ public class Historian {
     }
 
     Function<String, Action> getAction =
-        (id) -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
+        id -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
 
     Map<String, Metacard> versionMetacards =
         getVersionMetacards(
@@ -330,7 +332,7 @@ public class Historian {
     }
 
     Function<String, Action> getAction =
-        (id) -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
+        id -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
     // VERSION_OF_ID is equivalent to the Original Metacard ID
     // [MetacardVersion.VERSION_OF_ID: versioned metacard]
     Map<String, Metacard> versionedMap =
@@ -377,8 +379,8 @@ public class Historian {
           versionedMap.values().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
-    String emailAddress =
-        SubjectUtils.getEmailAddress(
+    String userid =
+        subjectIdentity.getUniqueIdentifier(
             (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
     List<Metacard> deletionMetacards =
         versionedMap
@@ -389,7 +391,7 @@ public class Historian {
                     new DeletedMetacardImpl(
                         uuidGenerator.generateUuid(),
                         s.getKey(),
-                        emailAddress,
+                        userid,
                         s.getValue().getId(),
                         originalMetacardsMap.get(s.getKey())))
             .collect(Collectors.toList());
@@ -443,6 +445,10 @@ public class Historian {
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
+  }
+
+  public void setSubjectIdentity(SubjectIdentity subjectIdentity) {
+    this.subjectIdentity = subjectIdentity;
   }
 
   public void setSkipFlag(@Nullable Operation op) {

@@ -258,6 +258,7 @@
         <argument ref="attributeRegistry"/>
         <argument ref="configurationApplication"/>
         <argument ref="noteUtil"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

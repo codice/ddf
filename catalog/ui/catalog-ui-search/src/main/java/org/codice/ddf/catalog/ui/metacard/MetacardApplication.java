@@ -75,6 +75,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
@@ -170,6 +171,7 @@ public class MetacardApplication implements SparkApplication {
   private final List<MetacardType> types;
   private final Associated associated;
   private final QueryResponseTransformer csvQueryResponseTransformer;
+  private final SubjectIdentity subjectIdentity;
 
   private final AttributeRegistry attributeRegistry;
 
@@ -190,7 +192,8 @@ public class MetacardApplication implements SparkApplication {
       QueryResponseTransformer csvQueryResponseTransformer,
       AttributeRegistry attributeRegistry,
       ConfigurationApplication configuration,
-      NoteUtil noteUtil) {
+      NoteUtil noteUtil,
+      SubjectIdentity subjectIdentity) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -204,19 +207,20 @@ public class MetacardApplication implements SparkApplication {
     this.attributeRegistry = attributeRegistry;
     this.configuration = configuration;
     this.noteUtil = noteUtil;
+    this.subjectIdentity = subjectIdentity;
   }
 
   private String getSubjectEmail() {
     return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
   }
 
+  private String getSubjectIdentifier() {
+    return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
+  }
+
   @Override
   public void init() {
-    get(
-        "/metacardtype",
-        (req, res) -> {
-          return util.getJson(util.getMetacardTypeMap());
-        });
+    get("/metacardtype", (req, res) -> util.getJson(util.getMetacardTypeMap()));
 
     get(
         "/metacard/:id",
@@ -387,9 +391,11 @@ public class MetacardApplication implements SparkApplication {
     post(
         "/subscribe/:id",
         (req, res) -> {
+          String userid = getSubjectIdentifier();
           String email = getSubjectEmail();
           if (isEmpty(email)) {
-            throw new NotFoundException("Login to subscribe to workspace.");
+            throw new NotFoundException(
+                "Unable to subscribe to workspace, " + userid + " has no email address.");
           }
           String id = req.params(":id");
           subscriptions.addEmail(id, email);
@@ -401,9 +407,11 @@ public class MetacardApplication implements SparkApplication {
     post(
         "/unsubscribe/:id",
         (req, res) -> {
+          String userid = getSubjectIdentifier();
           String email = getSubjectEmail();
           if (isEmpty(email)) {
-            throw new NotFoundException("Login to un-subscribe from workspace.");
+            throw new NotFoundException(
+                "Unable to un-subscribe from workspace, " + userid + " has no email address.");
           }
           String id = req.params(":id");
           subscriptions.removeEmail(id, email);
@@ -632,7 +640,7 @@ public class MetacardApplication implements SparkApplication {
           String workspaceId = incoming.get("workspace").toString();
           String queryId = incoming.get("parent").toString();
           String annotation = incoming.get("note").toString();
-          String user = getSubjectEmail();
+          String user = getSubjectIdentifier();
           if (user == null) {
             res.status(401);
             return util.getResponseWrapper(
@@ -903,7 +911,7 @@ public class MetacardApplication implements SparkApplication {
     try {
       Thread.sleep(millis);
     } catch (InterruptedException e) {
-      // Do nothing
+      Thread.currentThread().interrupt();
     }
   }
 
