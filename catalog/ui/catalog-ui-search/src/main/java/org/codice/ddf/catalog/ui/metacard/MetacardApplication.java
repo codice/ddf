@@ -423,8 +423,10 @@ public class MetacardApplication implements SparkApplication {
           boolean isSubscribed =
               !isEmpty(email) && subscriptions.getEmails(metacard.getId()).contains(email);
 
+          Map<String, Object> workspaceAsMap = transformer.transform(metacard);
+          transformer.addListActions(metacard, workspaceAsMap);
           return ImmutableMap.builder()
-              .putAll(transformer.transform(metacard))
+              .putAll(workspaceAsMap)
               .put("subscribed", isSubscribed)
               .build();
         },
@@ -450,8 +452,10 @@ public class MetacardApplication implements SparkApplication {
                   metacard -> {
                     boolean isSubscribed = ids.contains(metacard.getId());
                     try {
+                      Map<String, Object> workspaceAsMap = transformer.transform(metacard);
+                      transformer.addListActions(metacard, workspaceAsMap);
                       return ImmutableMap.builder()
-                          .putAll(transformer.transform(metacard))
+                          .putAll(workspaceAsMap)
                           .put("subscribed", isSubscribed)
                           .build();
                     } catch (RuntimeException e) {
@@ -476,7 +480,7 @@ public class MetacardApplication implements SparkApplication {
               JsonFactory.create().parser().parseMap(util.safeGetBody(req));
           Metacard saved = saveMetacard(transformer.transform(incoming));
           Map<String, Object> response = transformer.transform(saved);
-
+          transformer.addListActions(saved, response);
           res.status(201);
           return util.getJson(response);
         });
@@ -525,7 +529,9 @@ public class MetacardApplication implements SparkApplication {
           metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
 
           Metacard updated = updateMetacard(id, metacard);
-          return util.getJson(transformer.transform(updated));
+          Map<String, Object> response = transformer.transform(updated);
+          transformer.addListActions(updated, response);
+          return util.getJson(response);
         });
 
     delete(
