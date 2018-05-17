@@ -86,7 +86,7 @@ public class ShareableMetacardPreIngestPlugin implements PreIngestPlugin {
       throw new StopProcessingException("Guest user not allowed to create shareable resources");
     }
 
-    shareableMetacards.stream().forEach(shareableMetacard -> shareableMetacard.setOwner(owner));
+    shareableMetacards.forEach(shareableMetacard -> shareableMetacard.setOwner(owner));
 
     return request;
   }

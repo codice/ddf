@@ -42,7 +42,7 @@ public class ShareableMetacardSharingPolicyPlugin implements PolicyPlugin {
 
   private static Map<String, Set<String>> getShareablePermissions() {
     ImmutableMap.Builder<String, Set<String>> builder = new ImmutableMap.Builder<>();
-    Constants.SHAREABLE_TAGS.stream().forEach(t -> builder.put(t, ImmutableSet.of(t)));
+    Constants.SHAREABLE_TAGS.forEach(t -> builder.put(t, ImmutableSet.of(t)));
     return builder.build();
   }
 

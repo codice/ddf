@@ -115,7 +115,6 @@ public class TemplateTransformer {
 
     List<Serializable> accessIndividuals = new ArrayList<>();
     List<Serializable> accessGroups = new ArrayList<>();
-    String metacardOwner = "System Template";
 
     if (metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS) != null) {
       accessIndividuals = metacard.getAttribute(SecurityAttributes.ACCESS_INDIVIDUALS).getValues();
@@ -125,6 +124,7 @@ public class TemplateTransformer {
       accessGroups = metacard.getAttribute(SecurityAttributes.ACCESS_GROUPS).getValues();
     }
 
+    String metacardOwner = "system";
     if (metacard.getAttribute(Core.METACARD_OWNER) != null) {
       metacardOwner = metacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
     }

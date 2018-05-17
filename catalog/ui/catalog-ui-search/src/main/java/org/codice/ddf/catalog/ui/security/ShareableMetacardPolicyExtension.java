@@ -111,7 +111,8 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
     Predicate<CollectionPermission> hasAccessIndividuals = individuals(grouped);
     Predicate<CollectionPermission> hasAccessGroups = groups(grouped);
 
-    // get all permissions implied by the subject
+    // get all permissions implied by the subject, this function returns what permissions
+    // to filter from the key-value permission collection
     Supplier<Set<String>> impliedPermissions =
         () -> {
           if (isSystem.test(subject) || isOwner.test(subject)) {

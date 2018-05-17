@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms;
 import static java.util.AbstractMap.SimpleEntry;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -107,7 +108,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
             .collect(Collectors.toList());
 
     if (!dedupedTemplateMetacards.isEmpty()) {
-      saveMetacards(framework, dedupedTemplateMetacards);
+      saveMetacardsAsAdmin(framework, dedupedTemplateMetacards);
     }
   }
 
@@ -189,6 +190,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     }
 
     QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
+    Set<String> newTags = new HashSet<>(metacard.getTags());
+    newTags.add(SYSTEM_TEMPLATE);
+    metacard.setTags(newTags);
     metacard.setFormsFilter(filterXml);
     if (querySettings != null) {
       metacard.setQuerySettings(querySettings);
@@ -215,6 +219,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     }
 
     AttributeGroupMetacard metacard = new AttributeGroupMetacard(title, description);
+    Set<String> newTags = new HashSet<>(metacard.getTags());
+    newTags.add(SYSTEM_TEMPLATE);
+    metacard.setTags(newTags);
     metacard.setGroupDescriptors(new HashSet<>(descriptors));
     return metacard;
   }
@@ -313,7 +320,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   /**
    * Results from this method call should not be directly returned to clients or cached in some
-   * intermediate block of memory.
+   * intermediate block of memory. This is only done in this class for system templates. Do not
+   * duplicate elsewhere unless you know what you're doing.
    */
   private static Set<String> queryAsAdmin(
       EndpointUtil util, String tag, Function<Map<String, Result>, Set<String>> transform) {
@@ -322,26 +330,34 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
           try {
             return SECURITY.runWithSubjectOrElevate(
                 () -> transform.apply(util.getMetacardsByFilter(tag)));
-          } catch (SecurityServiceException | InvocationTargetException e) {
+          } catch (SecurityServiceException e) {
             LOGGER.warn(
                 "Can't query the catalog while trying to initialize system search templates, was "
                     + "unable to elevate privileges",
                 e);
+          } catch (InvocationTargetException e) {
+            LOGGER.warn("An exception was thrown while trying to query as admin", e);
           }
           return Collections.emptySet();
         });
   }
 
-  private static void saveMetacards(CatalogFramework framework, List<Metacard> metacards) {
+  /**
+   * This is only done in this class for system templates. Do not duplicate elsewhere unless you
+   * know what you're doing.
+   */
+  private static void saveMetacardsAsAdmin(CatalogFramework framework, List<Metacard> metacards) {
     SECURITY.runAsAdmin(
         () -> {
           try {
             return SECURITY.runWithSubjectOrElevate(
                 () -> framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards());
-          } catch (SecurityServiceException | InvocationTargetException e) {
+          } catch (SecurityServiceException e) {
             LOGGER.warn(
                 "Can't create metacard for system search template, was unable to elevate privileges",
                 e);
+          } catch (InvocationTargetException e) {
+            LOGGER.warn("An exception was thrown while trying to save as admin", e);
           }
           return null;
         });
