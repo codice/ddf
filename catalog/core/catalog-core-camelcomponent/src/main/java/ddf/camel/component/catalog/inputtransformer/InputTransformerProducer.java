@@ -61,6 +61,7 @@ public class InputTransformerProducer extends TransformerProducer {
     super(endpoint);
   }
 
+  @SuppressWarnings("squid:S2095" /* The TFBOS is in a try-with-resources and will be closed */)
   protected Object transform(
       Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, CatalogTransformerException {
@@ -185,7 +186,8 @@ public class InputTransformerProducer extends TransformerProducer {
       return ((CatalogEndpoint) getEndpoint()).getMimeTypeMapper().guessMimeType(is, fileExtension);
     } catch (MimeTypeResolutionException e) {
       LOGGER.debug(
-          "Failed to get mimeType for file extension [{}] received from exchange headers.");
+          "Failed to get mimeType for file extension [{}] received from exchange headers.",
+          fileExtension);
       return null;
     }
   }
@@ -194,7 +196,9 @@ public class InputTransformerProducer extends TransformerProducer {
     String value = message.getHeader(key, String.class);
     if (value != null) {
       LOGGER.trace(
-          "Retrieved and removed header [{}] from exchange message [{}]", message.getMessageId());
+          "Retrieved and removed header [{}] from exchange message [{}]",
+          key,
+          message.getMessageId());
       message.removeHeader(key);
       return value;
     }
