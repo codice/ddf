@@ -81,6 +81,8 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final SubjectIdentity subjectIdentity;
 
+  private final boolean readOnly;
+
   private static final String RESP_MSG = "message";
 
   private static final String SOMETHING_WENT_WRONG = "Something went wrong";
@@ -96,6 +98,7 @@ public class SearchFormsApplication implements SparkApplication {
     this.transformer = transformer;
     this.util = util;
     this.subjectIdentity = subjectIdentity;
+    this.readOnly = !SearchFormsLoader.enabled();
   }
 
   /**
@@ -111,7 +114,10 @@ public class SearchFormsApplication implements SparkApplication {
     SearchFormsLoader.bootstrap(catalogFramework, util, systemTemplates);
   }
 
-  /** Spark's API-mandated init (not OSGi related) for registering REST functions. */
+  /**
+   * Spark's API-mandated init (not OSGi related) for registering REST functions. If no forms
+   * directory exists, no PUT/DELETE routes will be registered. The feature is effectively "off".
+   */
   @Override
   public void init() {
     get(
@@ -141,6 +147,10 @@ public class SearchFormsApplication implements SparkApplication {
                 .sorted(Comparator.comparing(CommonTemplate::getTitle))
                 .collect(Collectors.toList()),
         MAPPER::toJson);
+
+    if (readOnly) {
+      return;
+    }
 
     put(
         "/forms/query",

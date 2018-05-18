@@ -85,6 +85,10 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return new SearchFormsLoader();
   }
 
+  public static boolean enabled() {
+    return new SearchFormsLoader().configDirectory.exists();
+  }
+
   public static void bootstrap(
       CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
 

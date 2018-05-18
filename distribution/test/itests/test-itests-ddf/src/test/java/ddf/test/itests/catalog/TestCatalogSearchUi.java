@@ -45,6 +45,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -291,6 +292,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     assertThat(body.get(WORKSPACE_QUERIES), is(queries));
   }
 
+  @SuppressWarnings("squid:S1607" /* Feature is off by default */)
+  @Ignore
   @Test
   public void testGetSystemTemplates() {
     Set<String> expectedQueryTemplateTitles =
