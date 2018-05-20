@@ -17,7 +17,7 @@
  const $ = require('jquery')
  const template = require('component/search-form/search-form.collection.hbs')
  const ResultFormCollectionView = require('./result-form.collection.view')
- const ResultFormCollection = require('./result-form.collection')
+ const ResultForm = require('./result-form')
  const CustomElements = require('js/CustomElements')
  const LoadingView = require('component/loading/loading.view')
 
@@ -29,10 +29,11 @@
      loadingView: '.loading'
    },
    initialize: function() {
-    this.resultFormCollection = new ResultFormCollection()
+    this.resultFormCollection = ResultForm.getResultCollection();
     this.listenTo(this.resultFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
   },
    onRender: function () {
+     this.resultFormCollection.addResultForms()
      this.collectionView.show(new ResultFormCollectionView({
        collection: this.resultFormCollection.getCollection(),
        collectionWrapperModel: this.resultFormCollection,
@@ -45,5 +46,5 @@
     if(this.resultFormCollection.getDoneLoading()) {
         this.loadingView.currentView.remove();
     }
-}
+  }
  })

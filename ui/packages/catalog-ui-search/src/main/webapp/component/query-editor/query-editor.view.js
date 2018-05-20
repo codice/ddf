@@ -141,9 +141,6 @@ module.exports = Marionette.LayoutView.extend({
             case 'custom':
                 this.showCustom();
                 break;
-            case 'result':
-                this.showResult();
-                break;
         }
         this.edit();
     },
@@ -180,14 +177,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     showAdvanced: function () {
         this.queryContent.show(new QueryAdvanced({
-            model: this.model
-        }));
-    },
-    showResult: function () {
-        this.model.set({
-            title: user.getQuerySettings().get('template').name
-        });
-        this.queryContent.show(new QueryResult({
             model: this.model
         }));
     },

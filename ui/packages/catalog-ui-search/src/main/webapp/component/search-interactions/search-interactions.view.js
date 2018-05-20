@@ -13,19 +13,20 @@
  *
  **/
 /*global define*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var template = require('./search-interactions.hbs');
-var CustomElements = require('js/CustomElements');
-var lightboxInstance = require('component/lightbox/lightbox.view.instance');
-var SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
-var DropdownModel = require('component/dropdown/dropdown');
-var SearchFormSelectorDropdownView = require('component/dropdown/search-form-selector/dropdown.search-form-selector.view');
-var ResultFormSelectorDropdownView = require('component/dropdown/result-form-selector/dropdown.result-form-selector.view');
-var _merge = require('lodash/merge');
-var ConfirmationView = require('component/confirmation/confirmation.view');
-var user = require('component/singletons/user-instance');
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const template = require('./search-interactions.hbs');
+const CustomElements = require('js/CustomElements');
+const lightboxInstance = require('component/lightbox/lightbox.view.instance');
+const SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
+const DropdownModel = require('component/dropdown/dropdown');
+const SearchFormSelectorDropdownView = require('component/dropdown/search-form-selector/dropdown.search-form-selector.view');
+const _merge = require('lodash/merge');
+const ConfirmationView = require('component/confirmation/confirmation.view');
+const user = require('component/singletons/user-instance');
+const properties = require('properties');
+const ResultFormSelectorDropdownView = properties.hasExperimentalEnabled() ? require('component/dropdown/result-form-selector/dropdown.result-form-selector.view') : '';
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -44,7 +45,9 @@ module.exports = Marionette.LayoutView.extend({
     onRender: function(){
         this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
         this.generateSearchFormSelector();
-        this.generateResultFormSelector();
+        if(properties.hasExperimentalEnabled()) { 
+            this.generateResultFormSelector() 
+        }
         this.generateSearchSettings();
     },
     generateResultFormSelector: function() {
@@ -101,5 +104,9 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'advanced');
         user.savePreferences();
         this.triggerCloseDropdown();
+    serializeData() {
+        return {
+            experimental: properties.hasExperimentalEnabled()
+        };
     }
 });

@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,9 +9,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="interaction-icon fa fa-file">
-</div>
-<div class="interaction-text">
-    Result Forms
-</div>
+var Backbone = require('backbone');
+require('backbone-associations');
+
+module.exports = Backbone.AssociatedModel.extend({
+    idAttribute: 'userId',
+    defaults: function () {
+        return {
+            userId: '',
+            isScheduled: false,
+            scheduleAmount: 1,
+            scheduleUnit: 'weeks',
+            scheduleStart: '',
+            scheduleEnd: '',
+            deliveryIds: []
+        };
+    }
+});

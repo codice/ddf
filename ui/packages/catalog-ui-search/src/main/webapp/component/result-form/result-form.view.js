@@ -24,6 +24,9 @@ const metacardDefinitions = require('component/singletons/metacard-definitions')
 const Loading = require('component/loading-companion/loading-companion.view')
 const _ = require('underscore')
 const announcement = require('component/announcement')
+const ResultFormCollection = require('component/result-form/result-form')
+const Common = require('js/Common')
+const ResultForm = require('component/search-form/search-form')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -56,7 +59,7 @@ module.exports = Marionette.LayoutView.extend({
     this.basicAttributeSpecific.show(new PropertyView({
       model: new Property({
         enumFiltering: true,
-        showValidationIssues: false,
+        showValidationIssues: true,
         enumMulti: true,
         enum: _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
           return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
@@ -75,7 +78,7 @@ module.exports = Marionette.LayoutView.extend({
     }))
   },
   setupTitleInput: function () {
-    let currentValue = this.model.get('title') ? this.model.get('title') : ''
+    let currentValue = this.model.get('resultTitle') ? this.model.get('resultTitle') : ''
     this.basicTitle.show(new PropertyView({
       model: new Property({
         value: [currentValue],
@@ -117,6 +120,12 @@ module.exports = Marionette.LayoutView.extend({
     Loading.beginLoading(view)
     let descriptors = this.basicAttributeSpecific.currentView.model.get('value')
     let title = this.basicTitle.currentView.model.getValue()[0]
+    if(title === '')
+    {
+      this.message('Error!', 'Result Form must have a Title', 'error')
+      Loading.endLoading(view)
+      return 
+    }
     let description = this.basicDescription.currentView.model.getValue()[0]
     let id = this.model.get('formId')
     let templatePerms = {
@@ -138,7 +147,19 @@ module.exports = Marionette.LayoutView.extend({
       context: this,
       success: function (data) {
         this.message('Success!', 'Saved Result Form', 'success')
-        this.cleanup()
+        ResultFormCollection.getResultCollection().filteredList = _.filter(ResultFormCollection.getResultCollection().filteredList, function(template) {
+          return template.id !== templatePerms.id
+        })
+        ResultFormCollection.getResultCollection().filteredList.push({
+            id: templatePerms.id,
+            label: templatePerms.title,
+            value: templatePerms.title,
+            type: 'result',
+            descriptors: templatePerms.descriptors,
+            description: templatePerms.description
+          })
+          ResultFormCollection.getResultCollection().toggleUpdate()
+          this.cleanup()
       },
       error: this.cleanup()
     })

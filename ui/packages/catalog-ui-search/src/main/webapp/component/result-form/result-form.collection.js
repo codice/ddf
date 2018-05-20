@@ -17,8 +17,6 @@
  const ResultForm = require('component/search-form/search-form')
  const Common = require('js/Common')
  const user = require('component/singletons/user-instance')
- const Results = require('component/result-form/result-form')
- const wreqr = require('wreqr')
  const $ = require('jquery')
  const _ = require('underscore')
 
@@ -51,6 +49,7 @@
    model: ResultForm,
    defaults: {
      doneLoading: false,
+     added: false,
      resultForms: []
    },
    initialize: function () {
@@ -69,35 +68,33 @@
      })
    }],
    addResultForms: function () {
+    this.set('doneLoading',false)
+    this.set('added', false)
      if (!this.isDestroyed) {
       if (promiseIsResolved === true) {
         promiseIsResolved = false;
         bootstrapPromise = new resultTemplatePromise();
       }
       bootstrapPromise.then(() => {
-            const customResultTemplates = _.map(resultTemplates, function(resultForm) {
-                return {
-                    label: resultForm.title,
-                    value:resultForm.title,
-                    id: resultForm.id,
-                    descriptors: resultForm.descriptors,
-                    description: resultForm.description,
-                    created: resultForm.created,
-                    creator: resultForm.creator,
-                    accessGroups: resultForm.accessGroups,
-                    accessIndividuals: resultForm.accessIndividuals
-                };
+            this.filteredList = _.map(resultTemplates, function(resultForm) {
+              return {
+                  label: resultForm.title,
+                  value:resultForm.title,
+                  id: resultForm.id,
+                  descriptors: resultForm.descriptors,
+                  description: resultForm.description,
+                  created: resultForm.created,
+                  creator: resultForm.creator,
+                  createdBy: resultForm.owner,
+                  accessGroups: resultForm.accessGroups,
+                  accessIndividuals: resultForm.accessIndividuals
+              };
             });
-            customResultTemplates.push({
-                label: 'All Fields',
-                value: 'All Fields',
-                id: 'allFields',
-                descriptors: [],
-                description: 'All Fields'
-            });
-            this.filteredList = customResultTemplates.filter(function (resultField) {
-              return resultField.id !== 'allFields'
-            });
+            this.resetResultForm()
+            this.addResultForm(new ResultForm({
+              name: 'Create New Data View',
+              type: 'newResult'
+            }))
             this.filteredList.forEach(element => {
               let utcSeconds = element.created / 1000
               let d = new Date(0)
@@ -110,13 +107,13 @@
                 descriptors: element.descriptors,
                 accessIndividuals: element.accessIndividuals,
                 accessGroups: element.accessGroups,
+                createdBy: element.createdBy,
                 description: element.description
               }))
             });
-            Results.updatesResultTemplates(resultTemplates);
+            this.doneLoading();
         });
       }
-     this.doneLoading();
    },
    checkIfOwnerOrSystem: function (template) {
      let myEmail = user.get('user').get('email')
@@ -126,8 +123,14 @@
    addResultForm: function (newForm) {
      this.get('resultForms').add(newForm)
    },
+   resetResultForm: function () {
+    this.get('resultForms').reset()
+   },
    getDoneLoading: function () {
      return this.get('doneLoading')
+   },
+   toggleUpdate: function(){
+    this.set('added', !this.get('added'))
    },
    doneLoading: function () {
      this.set('doneLoading', true)
@@ -136,7 +139,17 @@
      return this.get('resultForms')
    },
    deleteCachedTemplateById: function (id) {
+    if(this.filteredList)
+    {
+      this.filteredList = _.filter(this.filteredList, function(template) {
+        return template.id !== id
+      })
+      this.toggleUpdate()
+    }
+    if(resultTemplates)
+    {
     resultTemplates = _.filter(resultTemplates, function(template) {
       return template.id !== id
     })}
+  }
  })

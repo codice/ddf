@@ -14,63 +14,17 @@
  **/
 /*global define,window*/
 
-define([
-    'jquery',
-    'backbone', 
-    'component/singletons/user-instance'
-], function($, Backbone, user) {
-    let resultTemplates = [];
-    let resultTemplateProperties = [];
-    let resultTemplatePromise = $.ajax({
-        type: 'GET',
-        url: '/search/catalog/internal/forms/result',
-        contentType: 'application/json',
-        success: function(data) {
-            resultTemplates = data;
-        },
-    });
+ define([
+     'backbone',
+     './result-form.collection'
+ ], function (Backbone, ResultFormCollection) {
 
+  let resultFormCollection = new ResultFormCollection();
   return new (Backbone.Model.extend({
       initialize: function () {
-          resultTemplatePromise.then(() => {
-              if (!this.isDestroyed) {
-                  const customResultTemplates = this.getArrayMap(resultTemplates);
-                  resultTemplateProperties = customResultTemplates;
-              }
-          });
       },
-      getArrayMap: function (resultList){
-        let resultFormTemplates = _.map(resultList, function(resultForm) {
-            return {
-              label: resultForm.title,
-              value:resultForm.title,
-              id: resultForm.id,
-              descriptors: resultForm.descriptors,
-              description: resultForm.description,
-              created: resultForm.created,
-              creator: resultForm.creator,
-              accessGroups: resultForm.accessGroups,
-              accessIndividuals: resultForm.accessIndividuals
-            };
-        });
-        resultFormTemplates.push({
-            label: 'All Fields',
-            value: 'All Fields',
-            id: 'allFields',
-            descriptors: [],
-            description: 'All Fields'
-          });
-        return resultFormTemplates;
-      },
-      getResultTemplatesProperties: function() {
-          return resultTemplateProperties;
-      },
-      deleteResultTemplateById: function(id) {
-        resultTemplateProperties = _.filter(resultTemplateProperties, function(template) {
-            return template.id !== id
-     })},
-     updatesResultTemplates: function(newForms){
-        resultTemplateProperties = this.getArrayMap(newForms);
-     }
+      getResultCollection: function() {
+        return resultFormCollection;
+    }
     }));
 })

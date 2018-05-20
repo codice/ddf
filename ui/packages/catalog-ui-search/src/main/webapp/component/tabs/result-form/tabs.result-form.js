@@ -16,7 +16,7 @@
  module.exports = Tabs.extend({
    defaults: {
      tabs: {
-       'Data View': ResultFormCollectionView
+       'Result Forms': ResultFormCollectionView
      }
    }
  })

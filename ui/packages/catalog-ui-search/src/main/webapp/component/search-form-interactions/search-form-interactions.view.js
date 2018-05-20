@@ -27,9 +27,9 @@ module.exports =  Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('search-form-interactions'),
         className: 'composed-menu',
-        modelEvents: { 
-            'change': 'render' 
-        }, 
+        modelEvents: {
+            'change': 'render'
+        },
         events: {
             'click .interaction-default': 'handleMakeDefault',
             'click .interaction-clear': 'handleClearDefault',
@@ -45,6 +45,7 @@ module.exports =  Marionette.ItemView.extend({
         onRender: function() {
             this.checkIfSubscribed();
             this.checkIfDefaultSearchForm();
+            this.checkIfResultForm();
             this.isSystemTemplate();
         },
         checkIfSubscribed: function() {
@@ -94,6 +95,9 @@ module.exports =  Marionette.ItemView.extend({
             }
             this.trigger("doneLoading");
         },
+        checkIfResultForm() {
+            this.$el.toggleClass('is-result-form-template', this.model.get('type') === 'result');
+        },
         handleMakeDefault: function() {
             user.getQuerySettings().set({
                 type: 'custom',
@@ -129,10 +133,14 @@ module.exports =  Marionette.ItemView.extend({
             });
         },
         handleShare: function() {
-            lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle);
+            lightboxInstance.model.updateTitle('Query Template Sharing');
             lightboxInstance.model.open();
             lightboxInstance.lightboxContent.show(new QueryTemplateSharing({
-                model: this.options.modelForComponent
+                model: this.model,
+                permissions: {
+                    'accessIndividuals': this.model.get('accessIndividuals'),
+                    'accessGroups': this.model.get('accessGroups')
+                }
             }));
             this.handleClick();
         },
