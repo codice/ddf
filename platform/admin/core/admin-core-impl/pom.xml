@@ -80,7 +80,6 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.33</version>
         </dependency>
         <dependency>
             <groupId>org.apache.shiro</groupId>
@@ -122,8 +121,7 @@
                         <Embed-Dependency>
                             platform-util,
                             org.apache.felix.utils,
-                            alerts,
-                            boon
+                            alerts
                         </Embed-Dependency>
                         <Private-Package>
                             com.github.drapostolos.typeparser,

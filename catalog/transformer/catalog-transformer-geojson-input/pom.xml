@@ -37,7 +37,6 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.33</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -60,7 +59,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            boon,
                             catalog-core-api-impl
                         </Embed-Dependency>
                         <Import-Package>

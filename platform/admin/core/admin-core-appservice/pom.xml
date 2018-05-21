@@ -105,7 +105,6 @@
         <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
-            <version>0.33</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -148,7 +147,6 @@
                         <Embed-Dependency>
                             platform-util,
                             ddf-security-common,
-                            boon
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,
