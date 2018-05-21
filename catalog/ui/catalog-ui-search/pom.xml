@@ -276,6 +276,11 @@
             <artifactId>jts</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-impl</artifactId>
             <version>${project.version}</version>

@@ -122,7 +122,7 @@ import org.codice.ddf.catalog.ui.metacard.notes.NoteUtil;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.security.common.Security;

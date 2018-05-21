@@ -39,7 +39,7 @@ import java.util.List;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
@@ -235,7 +235,7 @@ public class WorkspaceServiceImplTest {
 
     String xml = "<xml/>";
 
-    when(workspaceTransformer.toMetacardFromXml(xml)).thenReturn(metacard);
+    when(workspaceTransformer.xmlToMetacard(xml)).thenReturn(metacard);
 
     WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);
     when(workspaceMetacard.getQueries()).thenReturn(Collections.singletonList(xml));

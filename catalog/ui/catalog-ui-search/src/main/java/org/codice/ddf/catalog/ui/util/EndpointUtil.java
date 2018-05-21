@@ -405,7 +405,7 @@ public class EndpointUtil {
   }
 
   public Map.Entry<String, Object> convertDateEntries(Map.Entry<String, Object> entry) {
-    if (entry.getKey() == null || entry.getValue() == null) {
+    if (entry == null || entry.getKey() == null || entry.getValue() == null) {
       return entry;
     }
 
