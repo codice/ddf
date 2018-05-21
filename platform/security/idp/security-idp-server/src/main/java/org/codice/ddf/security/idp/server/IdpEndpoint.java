@@ -1409,9 +1409,11 @@ public class IdpEndpoint implements Idp, SessionHandler {
       }
       switch (entityServiceInfo.getBinding()) {
         case HTTP_REDIRECT:
-          return getSamlRedirectResponse(logoutObject, entityServiceInfo.getUrl(), relay, samlType);
+          return getSamlRedirectLogoutResponse(
+              logoutObject, entityServiceInfo.getUrl(), relay, samlType);
         case HTTP_POST:
-          return getSamlPostResponse(logoutObject, entityServiceInfo.getUrl(), relay, samlType);
+          return getSamlPostLogoutResponse(
+              logoutObject, entityServiceInfo.getUrl(), relay, samlType);
         default:
           LOGGER.debug("No supported binding available for SP [{}].", entityId);
           logoutState.setPartialLogout(true);
@@ -1429,7 +1431,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     return cookieCache.getActiveSpSet(cacheId);
   }
 
-  private Response getSamlRedirectResponse(
+  private Response getSamlRedirectLogoutResponse(
       XMLObject samlResponse, String targetUrl, String relayState, SamlProtocol.Type samlType)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.debug("Signing SAML response for redirect.");
@@ -1450,10 +1452,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
     uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
     new SimpleSign(systemCrypto).signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
-    return Response.ok(HtmlResponseTemplate.getRedirectPage(uriBuilder.build().toString())).build();
+    return Response.temporaryRedirect(uriBuilder.build()).status(303).build();
   }
 
-  private Response getSamlPostResponse(
+  private Response getSamlPostLogoutResponse(
       SignableSAMLObject samlObject,
       String targetUrl,
       String relayState,

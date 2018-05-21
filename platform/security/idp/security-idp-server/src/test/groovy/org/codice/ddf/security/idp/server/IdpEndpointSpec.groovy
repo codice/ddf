@@ -239,6 +239,8 @@ class IdpEndpointSpec extends Specification {
 
         then:
         notThrown(Exception)
+        response.status == 303
+        (response.location as String).contains(targetSp)
     }
 
     def "process redirect logout initial with one other sp partial logout"() {
