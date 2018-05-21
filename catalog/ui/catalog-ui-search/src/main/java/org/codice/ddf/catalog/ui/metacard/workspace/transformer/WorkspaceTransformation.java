@@ -23,12 +23,12 @@ import java.util.Optional;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  *
- * @param <MetacardType> the expected type of metacard values handled by this {@link
+ * @param <M> the expected type of metacard values handled by this {@link
  *     WorkspaceTransformation}
- * @param <JsonType> the expected type of JSON-style key-value pair values handled by this {@link
+ * @param <J> the expected type of JSON-style key-value pair values handled by this {@link
  *     WorkspaceTransformation}
  */
-public interface WorkspaceTransformation<MetacardType, JsonType> {
+public interface WorkspaceTransformation<M, J> {
   /**
    * @return the metacard attribute name associated with both the metacard value passed into {@link
    *     #metacardValueToJsonValue(WorkspaceTransformer, Object) metacardValueToJsonValue} and the
@@ -48,13 +48,13 @@ public interface WorkspaceTransformation<MetacardType, JsonType> {
   /**
    * @return the class that the given and returned metacard values are expected to be an instance of
    */
-  Class<MetacardType> getMetacardValueType();
+  Class<M> getMetacardValueType();
 
   /**
    * @return the class that the given and returned JSON-style values are expected to be an instance
    *     of
    */
-  Class<JsonType> getJsonValueType();
+  Class<J> getJsonValueType();
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms a metacard attribute value
@@ -73,8 +73,8 @@ public interface WorkspaceTransformation<MetacardType, JsonType> {
    *     value inside a non-empty {@link Optional} will be an instance of this {@link
    *     WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
    */
-  Optional<JsonType> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, MetacardType metacardValue);
+  Optional<J> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, M metacardValue);
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms the value of a JSON-style
@@ -94,6 +94,6 @@ public interface WorkspaceTransformation<MetacardType, JsonType> {
    *     this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
    *     type}
    */
-  Optional<MetacardType> jsonValueToMetacardValue(
-      WorkspaceTransformer transformer, JsonType jsonValue);
+  Optional<M> jsonValueToMetacardValue(
+      WorkspaceTransformer transformer, J jsonValue);
 }
