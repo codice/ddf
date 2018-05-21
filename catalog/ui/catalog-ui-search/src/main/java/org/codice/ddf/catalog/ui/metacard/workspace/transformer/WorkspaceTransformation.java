@@ -23,8 +23,7 @@ import java.util.Optional;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  *
- * @param <M> the expected type of metacard values handled by this {@link
- *     WorkspaceTransformation}
+ * @param <M> the expected type of metacard values handled by this {@link WorkspaceTransformation}
  * @param <J> the expected type of JSON-style key-value pair values handled by this {@link
  *     WorkspaceTransformation}
  */
@@ -73,8 +72,7 @@ public interface WorkspaceTransformation<M, J> {
    *     value inside a non-empty {@link Optional} will be an instance of this {@link
    *     WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
    */
-  Optional<J> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, M metacardValue);
+  Optional<J> metacardValueToJsonValue(WorkspaceTransformer transformer, M metacardValue);
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms the value of a JSON-style
@@ -94,6 +92,5 @@ public interface WorkspaceTransformation<M, J> {
    *     this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
    *     type}
    */
-  Optional<M> jsonValueToMetacardValue(
-      WorkspaceTransformer transformer, J jsonValue);
+  Optional<M> jsonValueToMetacardValue(WorkspaceTransformer transformer, J jsonValue);
 }
