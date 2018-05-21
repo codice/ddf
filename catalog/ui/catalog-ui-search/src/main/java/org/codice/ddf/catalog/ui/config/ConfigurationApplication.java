@@ -164,6 +164,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Map<String, String> attributeDescriptions = Collections.emptyMap();
 
+  private List<String> listTemplates = Collections.emptyList();
+
   private int sourcePollInterval = 60000;
 
   private String uiName;
@@ -238,6 +240,10 @@ public class ConfigurationApplication implements SparkApplication {
     return hiddenAttributes;
   }
 
+  public List<String> getListTemplates() {
+    return listTemplates;
+  }
+
   public List<String> getAttributeDescriptions() {
     return attributeDescriptions
         .entrySet()
@@ -276,6 +282,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setHiddenAttributes(List<String> hiddenAttributes) {
     this.hiddenAttributes = hiddenAttributes;
+  }
+
+  public void setListTemplates(List<String> listTemplates) {
+    this.listTemplates = listTemplates;
   }
 
   public void setAttributeDescriptions(List<String> attributeDescriptions) {
@@ -370,6 +380,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("summaryShow", summaryShow);
     config.put("resultShow", resultShow);
     config.put("hiddenAttributes", hiddenAttributes);
+    config.put("listTemplates", listTemplates);
     config.put("attributeDescriptions", attributeDescriptions);
     config.put("attributeAliases", attributeAliases);
     config.put("sourcePollInterval", sourcePollInterval);
