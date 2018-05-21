@@ -14,7 +14,7 @@
  **/
 /*global define*/
 /* jshint -W024*/
-define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
+define(['backbone', 'jquery', 'js/ServiceFactoryNameRegistry', 'js/MetatypeRegistry', 'backboneassociations'],function (Backbone, $, ServiceFactoryNameRegistry, MetatypeRegistry) {
 
     function isServiceFactory(properties){
         return properties.get('service.factoryPid');
@@ -25,7 +25,22 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
     var Service = {};
 
     Service.Metatype = Backbone.AssociatedModel.extend({
-
+        initialize: function() {
+            this.transformOptions();
+        },
+        transformOptions: function() {
+            var optionLabels = this.get('optionLabels');
+            var optionValues = this.get('optionValues');
+            if (optionValues) {
+                this.set('options', optionValues.reduce(function(blob, value, index) {
+                    blob[value] = {
+                        label: optionLabels[index],
+                        value: value
+                    };
+                    return blob;
+                }, {}));
+            }
+        }
     });
 
     Service.Properties = Backbone.AssociatedModel.extend({
@@ -220,7 +235,7 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             var displayName = this.get('id');
             var properties = this.get('properties');
             if (isServiceFactory(properties)) {
-                displayName = properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
+                displayName = ServiceFactoryNameRegistry.getName(properties) || properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
             } else if (displayName === undefined && properties !== undefined) {
                 displayName = properties.get('service.pid');
             } else if (displayName === undefined) {
@@ -268,6 +283,7 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             if(options && options.id) {
                 this.set({"uuid": options.id.replace(/\./g, '')});
             }
+            MetatypeRegistry.add(this.id, this.get('metatype'));
         },
 
         hasConfiguration: function() {
