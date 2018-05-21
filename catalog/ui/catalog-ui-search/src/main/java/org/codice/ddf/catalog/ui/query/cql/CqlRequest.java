@@ -61,6 +61,8 @@ public class CqlRequest {
 
   private String cql;
 
+  private String queryType;
+
   private List<Sort> sorts = Collections.emptyList();
 
   private boolean normalize = false;
@@ -69,6 +71,14 @@ public class CqlRequest {
 
   public String getSrc() {
     return src;
+  }
+
+  public void setQueryType(String queryType) {
+    this.queryType = queryType;
+  }
+
+  public String getQueryType() {
+    return queryType;
   }
 
   public void setSrc(String src) {
@@ -160,6 +170,10 @@ public class CqlRequest {
       queryRequest
           .getProperties()
           .put(ADDITIONAL_SORT_BYS, sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
+    }
+
+    if (StringUtils.isNotEmpty(queryType)) {
+      queryRequest.getProperties().put("queryType", queryType);
     }
 
     return queryRequest;
