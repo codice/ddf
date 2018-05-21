@@ -101,15 +101,20 @@ public class SystemTemplateAccessPlugin implements AccessPlugin {
   }
 
   /**
-   * No one is allowed to delete system templates.
+   * Only an admin can delete system templates. This is an extra layer of protection in case the
+   * policy for shareable metacards changes or malicious users try to use a different endpoint.
    *
    * @param input the {@link DeleteRequest} to process.
-   * @return the same {@link DeleteRequest} if none of the metacard IDs point to system templates.
+   * @return the same {@link DeleteRequest} if none of the metacard IDs point to system templates,
+   *     or if the current subject is an admin.
    * @throws StopProcessingException if any of the metacard IDs on the {@link DeleteRequest} point
-   *     to system templates.
+   *     to system templates and the current subject is not an admin.
    */
   @Override
   public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
+    if (subjectHasAdmin.get()) {
+      return input;
+    }
     if (!Metacard.ID.equals(input.getAttributeName())) {
       return input;
     }
