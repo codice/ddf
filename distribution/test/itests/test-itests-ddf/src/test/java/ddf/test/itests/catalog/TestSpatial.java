@@ -266,7 +266,7 @@ public class TestSpatial extends AbstractIntegrationTest {
       setupMockServer();
 
       getCatalogBundle().waitForFederatedSource(WFS_11_SOURCE_ID);
-      //      getServiceManager().waitForSourcesToBeAvailable();
+      getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(), WFS_11_SOURCE_ID);
 
       loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
       getServiceManager().startFeature(true, "spatial-wps");
