@@ -57,9 +57,7 @@ define([
                 format: getDateFormat(),
                 timeZone: getTimeZone(),
                 widgetParent: 'body',
-                keyBinds: {
-                    t: null
-                }
+                keyBinds: null
             });
         },
         handleReadOnly: function () {
