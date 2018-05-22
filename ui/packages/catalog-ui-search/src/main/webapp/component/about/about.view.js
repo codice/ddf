@@ -33,17 +33,6 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         aboutMenu: '.about-menu'
     },
-    initialize: function() {
-        this.listenTo(router, 'change', this.handleRoute);
-        this.handleRoute();
-    },
-    handleRoute: function() {
-        if (router.toJSON().name === 'openAbout') {
-            this.$el.removeClass('is-hidden');
-        } else {
-            this.$el.addClass('is-hidden');
-        }
-    },
     onBeforeShow: function() {
         this.aboutMenu.show(new NavigationView());
     },

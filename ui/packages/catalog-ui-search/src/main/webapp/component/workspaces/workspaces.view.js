@@ -51,15 +51,11 @@ define([
             this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
             this.handleSaved();
-            this.handleRoute();
         },
         handleRoute: function(){
             var routerName = router.toJSON().name;
             if (routerName=== 'home' || routerName === 'workspaces'){
-                this.$el.removeClass('is-hidden');
                 this.focus();
-            } else {
-                this.$el.addClass('is-hidden');
             }
         },
         focus: function(){
@@ -69,6 +65,7 @@ define([
             this.menu.show(new WorkspacesMenuView());
             this.templates.show(new WorkspacesTemplatesView());
             this.items.show(new WorkspacesItemsView());
+            this.handleRoute();
         },
         handleTemplatesExpand: function(){
             this.$el.addClass('has-templates-expanded');
