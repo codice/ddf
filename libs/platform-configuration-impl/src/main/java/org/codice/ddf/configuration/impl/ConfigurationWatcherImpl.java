@@ -33,7 +33,7 @@ public class ConfigurationWatcherImpl {
   /**
    * Helper method to get the hostname or IP from the configuration
    *
-   * @return the value associated with {@link SystemBaseUrl#INTERNAL_HOST} property name
+   * @return the value associated with {@link SystemBaseUrl#EXTERNAL_HOST} property name
    */
   public String getHostname() {
     return SystemBaseUrl.EXTERNAL.getHost();
@@ -42,8 +42,8 @@ public class ConfigurationWatcherImpl {
   /**
    * Helper method to get the port from the configuration
    *
-   * @return the Integer value associated with the {@link SystemBaseUrl#INTERNAL_HTTP_PORT} or
-   *     {@link SystemBaseUrl#INTERNAL_HTTPS_PORT} property depending on the protocol
+   * @return the Integer value associated with the {@link SystemBaseUrl#EXTERNAL_HTTP_PORT} or
+   *     {@link SystemBaseUrl#EXTERNAL_HTTPS_PORT} property depending on the protocol
    */
   public Integer getPort() {
     return Integer.parseInt(SystemBaseUrl.EXTERNAL.getPort());
@@ -52,7 +52,7 @@ public class ConfigurationWatcherImpl {
   /**
    * Helper method to get the Protocol which includes the slashes (e.g. http:// or https://)
    *
-   * @return the value associated with the {@link SystemBaseUrl#INTERNAL_PROTOCOL} property name
+   * @return the value associated with the {@link SystemBaseUrl#EXTERNAL_PROTOCOL} property name
    */
   public String getProtocol() {
     return SystemBaseUrl.EXTERNAL.getProtocol();
@@ -63,7 +63,7 @@ public class ConfigurationWatcherImpl {
    * the first ':' (e.g. http or https)
    *
    * @return the String value before the first ':' character associated with the {@link
-   *     SystemBaseUrl#INTERNAL_PROTOCOL} property name
+   *     SystemBaseUrl#EXTERNAL_PROTOCOL} property name
    */
   public String getSchemeFromProtocol() {
     return SystemBaseUrl.EXTERNAL.getProtocol().split(":")[0];

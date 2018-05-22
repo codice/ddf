@@ -64,7 +64,7 @@
         <property name="logoutStates" ref="logoutStates" />
         <property name="spMetadata">
             <list>
-                <value>https://${org.codice.ddf.external.hostname}:${org.codice.ddf.external.httpsPort}/services/saml/sso/metadata</value>
+                <value>https://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/services/saml/sso/metadata</value>
             </list>
         </property>
     </bean>

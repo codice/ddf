@@ -555,7 +555,7 @@ public class LoginFilter implements SecurityFilter {
           new SecurityAssertionImpl(((SecurityToken) savedToken.getCredentials()));
 
       if (savedAssertion.getIssuer() != null
-          && !savedAssertion.getIssuer().equals(SystemBaseUrl.EXTERNAL.getHost())) {
+          && !savedAssertion.getIssuer().equals(SystemBaseUrl.INTERNAL.getHost())) {
         return null;
       }
 

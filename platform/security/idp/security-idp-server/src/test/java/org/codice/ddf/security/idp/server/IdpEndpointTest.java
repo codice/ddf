@@ -192,7 +192,7 @@ public class IdpEndpointTest {
   @Before
   public void setup()
       throws IOException, SecurityServiceException, ParserConfigurationException, SAXException {
-    System.setProperty("org.codice.ddf.external.hostname", "localhost");
+    System.setProperty("org.codice.ddf.system.hostname", "localhost");
     System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
     File jksFile = temporaryFolder.newFile("serverKeystore.jks");
     FileOutputStream jksOutStream = new FileOutputStream(jksFile);

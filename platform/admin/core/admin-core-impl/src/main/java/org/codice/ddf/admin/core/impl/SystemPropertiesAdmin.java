@@ -174,12 +174,39 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     try {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
 
+      // Duplicate properties into the internal properties for legacy functionality
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HOST)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HOST));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_PROTOCOL)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_PROTOCOL,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_PROTOCOL));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTP_PORT)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HTTP_PORT,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTP_PORT));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTPS_PORT)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HTTPS_PORT,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTPS_PORT));
+      }
+
       updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
       updateProperty(
           SystemBaseUrl.EXTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(
           SystemBaseUrl.EXTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
+      updateProperty(SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties, systemDotProperties);
+      updateProperty(SystemBaseUrl.INTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.INTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.INTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.ORGANIZATION, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
