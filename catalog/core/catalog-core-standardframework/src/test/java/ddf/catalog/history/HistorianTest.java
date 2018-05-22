@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -207,6 +208,9 @@ public class HistorianTest {
     when(storageResponse.getProperties()).thenReturn(storageResponseProperties);
 
     UpdateResponse updateResponse = mock(UpdateResponse.class);
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
 
     storeMetacard(metacards.get(0));
 
@@ -246,6 +250,9 @@ public class HistorianTest {
     UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
     UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
     UpdateResponse updateResponse = mock(UpdateResponse.class);
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
 
     storeMetacard(metacards.get(0));
 
@@ -455,6 +462,10 @@ public class HistorianTest {
     UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
     UpdateResponse updateResponse = mock(UpdateResponse.class);
 
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
+
     // send a request to update the metacard
     updateMetacard(storageRequest, storageResponse, metacards.get(1));
 
@@ -492,6 +503,10 @@ public class HistorianTest {
     UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
     UpdateResponse updateResponse = mock(UpdateResponse.class);
 
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
+
     // send a request to update the metacard
     updateMetacard(storageRequest, storageResponse, metacards.get(1));
 
@@ -511,6 +526,10 @@ public class HistorianTest {
     UpdateStorageRequest storageRequest = mock(UpdateStorageRequest.class);
     UpdateStorageResponse storageResponse = mock(UpdateStorageResponse.class);
     UpdateResponse updateResponse = mock(UpdateResponse.class);
+
+    Update update1 = mock(Update.class);
+    when(update1.getOldMetacard()).thenReturn(metacards.get(0));
+    when(updateResponse.getUpdatedMetacards()).thenReturn(ImmutableList.of(update1));
 
     storeMetacard(metacards.get(0));
 
