@@ -233,7 +233,15 @@ public class Historian {
     }
 
     Map<String, Metacard> originalMetacards =
-        query(forIds(updatedMetacards.stream().map(Metacard::getId).collect(Collectors.toList())));
+        updateResponse
+            .getUpdatedMetacards()
+            .stream()
+            .map(Update::getOldMetacard)
+            .collect(
+                Collectors.toMap(
+                    Metacard::getId,
+                    Function.identity(),
+                    (oldMetacard, newMetacard) -> oldMetacard));
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
@@ -464,15 +472,6 @@ public class Historian {
         .map(Result::getMetacard)
         .filter(Objects::nonNull)
         .collect(Collectors.toMap(Metacard::getId, Function.identity()));
-  }
-
-  private Filter forIds(List<String> ids) {
-    List<Filter> idFilters =
-        ids.stream()
-            .map(id -> filterBuilder.attribute(Metacard.ID).is().equalTo().text(id))
-            .collect(Collectors.toList());
-
-    return filterBuilder.anyOf(idFilters);
   }
 
   /*
