@@ -1449,7 +1449,9 @@ public class IdpEndpoint implements Idp, SessionHandler {
     }
     UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
     uriBuilder.queryParam(samlType.getKey(), encodedResponse);
-    uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
+    if (relayState != null) {
+      uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState);
+    }
     new SimpleSign(systemCrypto).signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
     return Response.temporaryRedirect(uriBuilder.build()).status(303).build();
