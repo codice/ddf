@@ -51,8 +51,6 @@ define([
         modelEvents: {
         },
         events: {
-            'click .result-save': 'handleSave',
-            'click .result-unsave': 'handleUnsave',
             'click .result-download': 'triggerDownload'
         },
         regions: {
@@ -70,17 +68,11 @@ define([
             }
             this.checkDisplayType();
             this.checkTags();
-            this.checkIfSaved();
             this.checkIsInWorkspace();
             this.checkIfDownloadable();
             this.checkIfBlacklisted();
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
-            }
             this.listenTo(this.model, 'change:metacard>properties change:metacard', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
-            this.listenTo(router, 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
                 'add remove update reset', this.checkIfBlacklisted);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.handleSelectionChange);
@@ -92,16 +84,10 @@ define([
             this.$el.toggleClass('is-selected', Boolean(isSelected));
         },
         handleMetacardUpdate: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                this.stopListening(currentWorkspace);
-                this.listenTo(currentWorkspace, 'change:metacards', this.handleMetacardUpdate);
-            }
             this.$el.attr(this.attributes());
             this.render();
             this.onBeforeShow();
             this.checkDisplayType();
-            this.checkIfSaved();
             this.checkTags();
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
@@ -211,16 +197,6 @@ define([
         checkIfDownloadable: function() {
             this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
         },
-        checkIfSaved: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var isSaved = true;
-                if (currentWorkspace.get('metacards').indexOf(this.model.get('metacard').get('properties').get('id')) === -1) {
-                    isSaved = false;
-                }
-                this.$el.toggleClass('is-saved', isSaved);
-            }
-        },
         checkDisplayType: function() {
             var displayType = user.get('user').get('preferences').get('resultDisplay');
             switch(displayType){
@@ -241,26 +217,6 @@ define([
         },
         triggerDownload: function(e) {
             window.open(this.model.get('metacard').get('properties').get('resource-download-url'));
-        },
-        handleSave: function(e){
-            e.preventDefault();
-            e.stopPropagation();
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                currentWorkspace.set('metacards', _.union(currentWorkspace.get('metacards'), [this.model.get('metacard').get('properties').get('id')]));
-            } else {
-                //bring up modal to select workspace(s) to save to
-            }
-            this.checkIfSaved();
-        },
-        handleUnsave: function(e){
-            e.preventDefault();
-            e.stopPropagation();
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), [this.model.get('metacard').get('properties').get('id')]));
-            }
-            this.checkIfSaved();
         }
     });
 });

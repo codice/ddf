@@ -125,7 +125,7 @@ module.exports = Marionette.LayoutView.extend({
                     this.listResults.currentView.model.id !== selectedListId)) {
                 this.listResults.show(new ResultSelectorView({
                     model: this.model.get(selectedListId).get('query'),
-                    selectionInterface: store
+                    selectionInterface: this.options.selectionInterface
                 }));
             }
         } else {

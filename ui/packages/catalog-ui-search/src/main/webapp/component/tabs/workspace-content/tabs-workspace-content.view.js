@@ -25,7 +25,6 @@ define([
     var WorkspaceContentTabsView = TabsView.extend({
         initialize: function(){
             TabsView.prototype.initialize.call(this);
-         //   this.listenTo(this.model, 'change:activeTab', this.closePanelTwo);
            this.listenTo(this.options.selectionInterface, 'change:currentQuery', this.handleQuery);
         },
         closePanelTwo: function(){
@@ -43,6 +42,12 @@ define([
                 this.options.selectionInterface.clearSelectedResults();
                 this.options.selectionInterface.setCompleteActiveSearchResults([]);
             }
+        },
+        determineContent: function () {
+            var activeTab = this.model.getActiveView();
+            this.tabsContent.show(new activeTab({
+                selectionInterface: store
+            }));
         },
         onDestroy: function(){
             this.closePanelTwo();
