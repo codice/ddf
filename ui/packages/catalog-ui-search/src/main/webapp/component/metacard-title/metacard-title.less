@@ -17,47 +17,11 @@
     white-space: nowrap;
   }
 
-  > .metacard-interactions,
-  > .metacard-save,
-  > .metacard-unsave {
+  > .metacard-interactions {
     width: @minimumButtonSize;
     height: @minimumButtonSize;
     cursor: pointer;
     text-align: center;
     line-height: @minimumButtonSize;
-  }
-
-  > .metacard-unsave {
-    display: none;
-  }
-  > .metacard-save {
-    display: none;
-  }
-}
-
-@{customElementNamespace}metacard-title.is-saved.in-workspace {
-
-  > .metacard-title {
-    max-width: ~'calc(100% - 2*@{minimumButtonSize} - 30px)';
-  }
-
-  > .metacard-unsave {
-    display: inline-block;
-  }
-
-  > .metacard-save {
-    display: none;
-  }
-}
-
-@{customElementNamespace}metacard-title.in-workspace {
-
-  > .metacard-title {
-    max-width: ~'calc(100% - 2*@{minimumButtonSize} - 30px)';
-  }
-
-
-  > .metacard-save {
-    display: inline-block;
   }
 }
