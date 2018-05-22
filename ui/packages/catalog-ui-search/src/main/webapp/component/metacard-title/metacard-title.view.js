@@ -30,14 +30,6 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('metacard-title'),
-        modelEvents: {
-        },
-        events: {
-            'click .metacard-save': 'handleSave',
-            'click .metacard-unsave': 'handleUnsave'
-        },
-        ui: {
-        },
         regions: {
             metacardInteractions: '.metacard-interactions'
         },
@@ -55,25 +47,12 @@ define([
             if (this.model.length === 1){
                 this.listenTo(this.model.first().get('metacard').get('properties'), 'change', this.handleModelUpdates);
             }
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                this.listenTo(currentWorkspace, 'change:metacards', this.handleModelUpdates);
-            }
             this.checkTags();
-            this.checkIfSaved();
-            this.checkIsInWorkspace();
         },
         handleModelUpdates: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                this.stopListening(currentWorkspace);
-                this.listenTo(currentWorkspace, 'change:metacards', this.handleModelUpdates);
-            }
             this.render();
             this.onBeforeShow();
-            this.checkIfSaved();
             this.checkTags();
-            this.checkIsInWorkspace();
         },
         serializeData: function(){
             var title, icon;
@@ -87,25 +66,6 @@ define([
                 title: title,
                 icon: icon
             };
-        },
-        checkIfSaved: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                var isSaved = true;
-                ids.forEach(function(id){
-                    if (currentWorkspace.get('metacards').indexOf(id) === -1){
-                        isSaved = false;
-                    }
-                });
-                this.$el.toggleClass('is-saved', isSaved);
-            }
-        },
-        checkIsInWorkspace: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            this.$el.toggleClass('in-workspace', Boolean(currentWorkspace));
         },
         checkTags: function(){
             var types = {};
@@ -131,26 +91,6 @@ define([
             this.$el.toggleClass('is-revision', types.revision !== undefined);
             this.$el.toggleClass('is-deleted', types.deleted !== undefined);
             this.$el.toggleClass('is-remote', types.remote !== undefined);
-        },
-        handleSave: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                currentWorkspace.set('metacards', _.union(currentWorkspace.get('metacards'), ids));
-            }
-            this.checkIfSaved();
-        },
-        handleUnsave: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), ids));
-            }
-            this.checkIfSaved();
         }
     });
 });
