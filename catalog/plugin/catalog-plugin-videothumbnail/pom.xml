@@ -27,7 +27,7 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <ffmpeg.version>3.1.1_1</ffmpeg.version>
+        <ffmpeg.version>4.0_1</ffmpeg.version>
         <ffmpeg.unpackDirectory>target/ffmpeg</ffmpeg.unpackDirectory>
     </properties>
 

@@ -103,13 +103,11 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
       return "linux/ffmpeg";
     } else if (SystemUtils.IS_OS_MAC) {
       return "osx/ffmpeg";
-    } else if (SystemUtils.IS_OS_SOLARIS) {
-      return "solaris/ffmpeg";
     } else if (SystemUtils.IS_OS_WINDOWS) {
       return "windows/ffmpeg.exe";
     } else {
       throw new IllegalStateException(
-          "OS is not Linux, Mac, Solaris, or Windows."
+          "OS is not Linux, Mac, or Windows."
               + " No FFmpeg binary is available for this OS, so the plugin will not work.");
     }
   }

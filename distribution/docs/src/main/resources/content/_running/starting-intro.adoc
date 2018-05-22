@@ -217,23 +217,9 @@ root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-ser
 root${at-symbol}localhost# update-rc.d -f ${branding-lowercase}-service defaults
 ----
 +
-*Solaris*
-+
-----
-root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-service /etc/init.d/
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc0.d/K20${branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc1.d/K20${branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc2.d/K20${branding-lowercase}-service
-root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc3.d/S20${branding-lowercase}-service
-----
-+
 [NOTE]
 ====
 If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<_java_requirements_quick_install,Java Requirements (Quick Install)>>
-====
-[WARNING]
-====
-While it is not a necessary step, information on how to convert the System V init scripts to the Solaris System Management Facility can be found at http://www.oracle.com/technetwork/articles/servers-storage-admin/scripts-to-smf-1641705.html
 ====
 
 ===== Karaf Documentation

@@ -353,8 +353,6 @@ public class VideoThumbnailPluginTest {
       //      Skip unit tests on Windows. See DDF-3503.
       //    } else if (SystemUtils.IS_OS_WINDOWS) {
       //      ffmpegResourcePath = "windows/ffmpeg.exe";
-    } else if (SystemUtils.IS_OS_SOLARIS) {
-      ffmpegResourcePath = "solaris/ffmpeg";
     } else {
       fail(
           "Platform is not Linux, Mac, or Windows. No FFmpeg binaries are provided for this platform.");
