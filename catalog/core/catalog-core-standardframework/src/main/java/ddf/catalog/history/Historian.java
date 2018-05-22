@@ -31,6 +31,7 @@ import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
@@ -241,9 +242,7 @@ public class Historian {
             .map(Update::getOldMetacard)
             .collect(
                 Collectors.toMap(
-                    Metacard::getId,
-                    Function.identity(),
-                    (oldMetacard, newMetacard) -> oldMetacard));
+                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
@@ -327,7 +326,11 @@ public class Historian {
 
     // [OriginalMetacardId: Original Metacard]
     Map<String, Metacard> originalMetacardsMap =
-        originalMetacards.stream().collect(Collectors.toMap(Metacard::getId, Function.identity()));
+        originalMetacards
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
 
     // [ContentItem.getId: content items]
     Map<String, List<ContentItem>> contentItems =
@@ -477,7 +480,8 @@ public class Historian {
         .stream()
         .map(Result::getMetacard)
         .filter(Objects::nonNull)
-        .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+        .collect(
+            Collectors.toMap(Metacard::getId, Function.identity(), Historian::firstInWinsMerge));
   }
 
   /*
@@ -611,7 +615,11 @@ public class Historian {
                     metacard,
                     action.apply(metacard.getId()),
                     subject))
-        .collect(Collectors.toMap(MetacardVersionImpl::getVersionOfId, Function.identity()));
+        .collect(
+            Collectors.toMap(
+                MetacardVersionImpl::getVersionOfId,
+                Function.identity(),
+                Historian::firstInWinsMerge));
   }
 
   /**
@@ -698,6 +706,48 @@ public class Historian {
 
   private static String getList(Collection<String> set) {
     return set.stream().collect(TO_A_STRING);
+  }
+
+  private static Metacard firstInWinsMerge(Metacard oldMetacard, Metacard newMetacard) {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(
+          "While merging results into a map, there was a duplicate (conflict) of metacards with the same id ({}). For full metacard set logging to trace `log:set TRACE ddf.catalog.history`.",
+          oldMetacard.getId());
+    }
+
+    if (LOGGER.isTraceEnabled()) {
+      // TODO (DDF-3845) - This should be removed when we have a logging utility library.
+      Function<Metacard, String> metacardToString =
+          (metacard) ->
+              metacard
+                  .getMetacardType()
+                  .getAttributeDescriptors()
+                  .stream()
+                  .map(AttributeDescriptor::getName)
+                  .map(oldMetacard::getAttribute)
+                  .filter(Objects::nonNull)
+                  .map(
+                      (attribute) ->
+                          new StringBuilder()
+                              .append(attribute.getName())
+                              .append("=")
+                              .append(
+                                  attribute.getValues() == null
+                                      ? "null"
+                                      : attribute
+                                          .getValues()
+                                          .stream()
+                                          .map(Object::toString)
+                                          .collect(Collectors.joining(", ", "{", "}"))))
+                  .collect(Collectors.joining(", ", "{", "}"));
+      LOGGER.trace(
+          "Old Metacard: {}\nNew Metacard: {}",
+          metacardToString.apply(oldMetacard),
+          metacardToString.apply(newMetacard));
+    }
+
+    // return metacard already there (the first one or "old" metacard)
+    return oldMetacard;
   }
 
   public void setMetacardTypes(List<MetacardType> metacardTypes) {
