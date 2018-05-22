@@ -1,0 +1,20 @@
+<sf:roads
+  xmlns:sf="http://www.openplans.org/spearfish"
+  xmlns:gml="http://www.opengis.net/gml"
+  gml:id="roads.3">
+  <sf:the_geom>
+    <gml:MultiLineString srsName="urn:x-ogc:def:crs:EPSG:26713" srsDimension="2">
+      <gml:lineStringMember>
+        <gml:LineString gml:id="null.1">
+          <gml:posList>596176.63775691 4917296.55905796 596155.33137867 4917308.10447989
+            596101.73372434 4917348.86033492 596082.75835334 4917403.7130012 596086.1489683
+            4917514.11087491 596073.34296719 4917530.5524544 596034.95054943 4917568.89912403
+            596030.0767432 4917573.15864968
+          </gml:posList>
+        </gml:LineString>
+      </gml:lineStringMember>
+    </gml:MultiLineString>
+  </sf:the_geom>
+  <sf:cat>3</sf:cat>
+  <sf:label>unimproved road</sf:label>
+</sf:roads>
