@@ -62,12 +62,14 @@ public class WorkspaceTransformer {
   }
 
   private Optional<Map.Entry<String, Object>> metacardEntryToJsonEntry(
-      final Map.Entry<String, Object> entry, WorkspaceTransformation transformation) {
+      final Map.Entry<String, Object> entry,
+      WorkspaceTransformation transformation,
+      Metacard workspaceMetacard) {
     if (transformation.getMetacardValueType().isInstance(entry.getValue())) {
       final String newKey = transformation.getJsonKey();
       return transformation
           .metacardValueToJsonValue(
-              this, transformation.getMetacardValueType().cast(entry.getValue()))
+              this, transformation.getMetacardValueType().cast(entry.getValue()), workspaceMetacard)
           .map(newValue -> new AbstractMap.SimpleEntry<>(newKey, newValue));
     } else {
       LOGGER.warn(
@@ -80,12 +82,12 @@ public class WorkspaceTransformer {
   }
 
   private Optional<Map.Entry<String, Object>> metacardEntryToJsonEntry(
-      final Map.Entry<String, Object> entry) {
+      final Map.Entry<String, Object> entry, Metacard workspaceMetacard) {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getMetacardKey()))
         .findAny()
-        .map(transformation -> metacardEntryToJsonEntry(entry, transformation))
+        .map(transformation -> metacardEntryToJsonEntry(entry, transformation, workspaceMetacard))
         .orElse(Optional.of(entry));
   }
 
@@ -163,7 +165,7 @@ public class WorkspaceTransformer {
     }
   }
 
-  public Map<String, Object> transform(Metacard metacard) {
+  public Map<String, Object> transform(Metacard workspaceMetacard, Metacard metacard) {
     return Optional.of(metacard)
         .map(Metacard::getMetacardType)
         .map(MetacardType::getAttributeDescriptors)
@@ -171,12 +173,16 @@ public class WorkspaceTransformer {
         .stream()
         .map(descriptor -> getEntryFromDescriptor(metacard, descriptor))
         .filter(Objects::nonNull)
-        .map(this::metacardEntryToJsonEntry)
+        .map(entry -> this.metacardEntryToJsonEntry(entry, workspaceMetacard))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .filter(entry -> entry.getKey() != null)
         .filter(entry -> entry.getValue() != null)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (left, right) -> left));
+  }
+
+  public Map<String, Object> transform(Metacard workspaceMetacard) {
+    return transform(workspaceMetacard, workspaceMetacard);
   }
 
   public List<Map<String, Object>> transform(List<Metacard> metacards) {

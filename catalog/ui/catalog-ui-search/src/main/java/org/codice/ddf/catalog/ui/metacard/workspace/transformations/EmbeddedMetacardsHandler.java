@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation;
@@ -50,10 +49,6 @@ public class EmbeddedMetacardsHandler implements WorkspaceValueTransformation<Li
         WorkspaceAttributes.WORKSPACE_QUERIES, QueryMetacardImpl.TYPE);
   }
 
-  public static EmbeddedMetacardsHandler newListMetacardHandler() {
-    return new EmbeddedMetacardsHandler(WorkspaceAttributes.WORKSPACE_LISTS, ListMetacardImpl.TYPE);
-  }
-
   @Override
   public String getKey() {
     return key;
@@ -71,14 +66,14 @@ public class EmbeddedMetacardsHandler implements WorkspaceValueTransformation<Li
 
   @Override
   public Optional<List> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, List metacardXMLStrings) {
+      WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
     return Optional.of(
         ((List<Object>) metacardXMLStrings)
             .stream()
             .filter(String.class::isInstance)
             .map(String.class::cast)
             .map(transformer::xmlToMetacard)
-            .map(transformer::transform)
+            .map(metacard -> transformer.transform(workspaceMetacard, metacard))
             .collect(Collectors.toList()));
   }
 

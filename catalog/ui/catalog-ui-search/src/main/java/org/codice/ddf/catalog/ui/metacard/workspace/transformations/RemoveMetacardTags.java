@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.Optional;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
@@ -36,7 +37,7 @@ public class RemoveMetacardTags implements WorkspaceValueTransformation<Object, 
 
   @Override
   public Optional<Object> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, Object metacardValue) {
+      WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
     return Optional.of(metacardValue);
   }
 

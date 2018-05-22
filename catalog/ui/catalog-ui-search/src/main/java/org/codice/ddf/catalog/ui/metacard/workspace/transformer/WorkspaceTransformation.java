@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
+import ddf.catalog.data.Metacard;
 import java.util.Optional;
 
 /**
@@ -30,9 +31,9 @@ import java.util.Optional;
 public interface WorkspaceTransformation<M, J> {
   /**
    * @return the metacard attribute name associated with both the metacard value passed into {@link
-   *     #metacardValueToJsonValue(WorkspaceTransformer, Object) metacardValueToJsonValue} and the
-   *     metacard value returned from {@link #jsonValueToMetacardValue(WorkspaceTransformer, Object)
-   *     jsonValueToMetacardValue}
+   *     #metacardValueToJsonValue(WorkspaceTransformer, Object, Metacard) metacardValueToJsonValue}
+   *     and the metacard value returned from {@link #jsonValueToMetacardValue(WorkspaceTransformer,
+   *     Object) jsonValueToMetacardValue}
    */
   String getMetacardKey();
 
@@ -40,7 +41,7 @@ public interface WorkspaceTransformation<M, J> {
    * @return the JSON-style key associated with both the JSON-style value passed into {@link
    *     #jsonValueToMetacardValue(WorkspaceTransformer, Object) jsonValueToMetacardValue} and the
    *     JSON-style value returned from {@link #metacardValueToJsonValue(WorkspaceTransformer,
-   *     Object) metacardValueToJsonValue}
+   *     Object, Metacard) metacardValueToJsonValue}
    */
   String getJsonKey();
 
@@ -67,12 +68,14 @@ public interface WorkspaceTransformation<M, J> {
    *     of this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
    *     type} and will come from a metacard's attribute with the given {@link #getMetacardKey()
    *     expected metacard key}.
+   * @param workspaceMetacard
    * @return a new value to be used as the value in a JSON-style data map with this {@link
    *     WorkspaceTransformation}'s {@link #getJsonKey() JSON key} or {@link Optional#empty()}; the
    *     value inside a non-empty {@link Optional} will be an instance of this {@link
    *     WorkspaceTransformation}'s {@link #getJsonValueType() expected JSON type}
    */
-  Optional<J> metacardValueToJsonValue(WorkspaceTransformer transformer, M metacardValue);
+  Optional<J> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, M metacardValue, Metacard workspaceMetacard);
 
   /**
    * The method by which this {@link WorkspaceTransformation} transforms the value of a JSON-style

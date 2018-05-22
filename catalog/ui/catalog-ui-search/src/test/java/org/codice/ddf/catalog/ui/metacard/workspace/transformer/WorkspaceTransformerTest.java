@@ -96,7 +96,7 @@ public class WorkspaceTransformerTest {
 
         @Override
         public Optional<Double> metacardValueToJsonValue(
-            WorkspaceTransformer transformer, Integer metacardValue) {
+            WorkspaceTransformer transformer, Integer metacardValue, Metacard workspaceMetacard) {
           return Optional.of(VALUE_TRANSFORMATION_JSON_VALUE);
         }
 
@@ -132,7 +132,7 @@ public class WorkspaceTransformerTest {
 
         @Override
         public Optional<Object> metacardValueToJsonValue(
-            WorkspaceTransformer transformer, Object metacardValue) {
+            WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
           return Optional.empty(); // remove the metacard attribute
         }
 
@@ -164,7 +164,7 @@ public class WorkspaceTransformerTest {
 
         @Override
         public Optional<Object> metacardValueToJsonValue(
-            WorkspaceTransformer transformer, Object metacardValue) {
+            WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
           return Optional.of(metacardValue);
         }
 

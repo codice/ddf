@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Security;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
 
   @Override
   public Optional<List> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, List metacardValue) {
+      WorkspaceTransformer transformer, List metacardValue, Metacard workspaceMetacard) {
     return Optional.of(
         ((List<Object>) metacardValue)
             .stream()
