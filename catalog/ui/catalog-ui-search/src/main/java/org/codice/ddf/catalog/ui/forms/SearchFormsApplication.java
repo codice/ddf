@@ -35,7 +35,6 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
-import ddf.security.SubjectIdentity;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
@@ -44,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
@@ -79,25 +77,19 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final EndpointUtil util;
 
-  private final SubjectIdentity subjectIdentity;
-
   private final boolean readOnly;
 
   private static final String RESP_MSG = "message";
 
-  private static final String SOMETHING_WENT_WRONG = "Something went wrong";
+  private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
-      CatalogFramework catalogFramework,
-      TemplateTransformer transformer,
-      EndpointUtil util,
-      SubjectIdentity subjectIdentity) {
+      CatalogFramework catalogFramework, TemplateTransformer transformer, EndpointUtil util) {
     this.catalogFramework = catalogFramework;
     this.transformer = transformer;
     this.util = util;
-    this.subjectIdentity = subjectIdentity;
     this.readOnly = !SearchFormsLoader.enabled();
   }
 
@@ -148,6 +140,8 @@ public class SearchFormsApplication implements SparkApplication {
                 .collect(Collectors.toList()),
         MAPPER::toJson);
 
+    // If no forms directory was created, disable intrusive catalog operations
+    // Bailing out of this method early means the below routes will not be setup
     if (readOnly) {
       return;
     }
@@ -162,8 +156,7 @@ public class SearchFormsApplication implements SparkApplication {
                     doCreateOrUpdate(
                         res,
                         Stream.of(safeGetBody(req))
-                            .map(MAPPER::fromJson)
-                            .map(Map.class::cast)
+                            .map(MAPPER.parser()::parseMap)
                             .map(transformer::toQueryTemplateMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
@@ -180,8 +173,7 @@ public class SearchFormsApplication implements SparkApplication {
                     doCreateOrUpdate(
                         res,
                         Stream.of(safeGetBody(req))
-                            .map(MAPPER::fromJson)
-                            .map(Map.class::cast)
+                            .map(MAPPER.parser()::parseMap)
                             .map(transformer::toAttributeGroupMetacard)
                             .filter(Objects::nonNull)
                             .findFirst()
@@ -193,19 +185,6 @@ public class SearchFormsApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String id = req.params(":id");
-
-          Subject subject = (Subject) SecurityUtils.getSubject();
-          String currentUser = subjectIdentity.getUniqueIdentifier(subject);
-
-          Map<String, Object> originalMetacardOwner =
-              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
-
-          if (!originalMetacardOwner.get(Core.METACARD_OWNER).equals(currentUser)) {
-            res.status(500);
-            LOGGER.debug("Failed to Delete Form {}", id);
-            return ImmutableMap.of(RESP_MSG, "Failed to delete.");
-          }
-
           DeleteResponse deleteResponse = catalogFramework.delete(new DeleteRequestImpl(id));
           if (!deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
@@ -219,22 +198,43 @@ public class SearchFormsApplication implements SparkApplication {
     exception(
         IllegalArgumentException.class,
         (e, req, res) -> {
-          LOGGER.error("Template input was not valid", e);
+          LOGGER.debug("Template input was not valid", e);
           res.status(400);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
-          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid")));
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));
         });
 
     exception(
         UnsupportedOperationException.class,
         (e, req, res) -> {
-          LOGGER.error(
-              "Could not use filter JSON because it contains unsupported operations - {}",
-              e.getMessage());
+          LOGGER.debug("Could not use filter JSON because it contains unsupported operations", e);
+          res.status(400);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "This operation is not supported.")));
+        });
+
+    exception(
+        IngestException.class,
+        (ex, req, res) -> {
+          LOGGER.debug("Failed to persist form", ex);
+          res.status(404);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(
+              util.getJson(ImmutableMap.of(RESP_MSG, "Form is either restricted or not found.")));
+        });
+
+    exception(
+        SourceUnavailableException.class,
+        (ex, req, res) -> {
+          LOGGER.debug("Failed to persist form", ex);
           res.status(500);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
-          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "This operation is not supported")));
+          res.body(
+              util.getJson(
+                  ImmutableMap.of(RESP_MSG, "Source not available, please try again later.")));
         });
+
+    exception(UncheckedIOException.class, util::handleIOException);
 
     exception(
         RuntimeException.class,
@@ -256,11 +256,11 @@ public class SearchFormsApplication implements SparkApplication {
   }
 
   private Map<String, Object> runWhenNotGuest(
-      Response res, Supplier<Map<String, Object>> templateOperation) {
+      Response res, CheckedSupplier<Map<String, Object>> templateOperation) throws Exception {
     Subject subject = (Subject) SecurityUtils.getSubject();
     if (subject.isGuest()) {
-      res.status(401);
-      return ImmutableMap.of(RESP_MSG, "Unauthorized");
+      res.status(403);
+      return ImmutableMap.of(RESP_MSG, "Guests cannot perform this action.");
     }
     return templateOperation.get();
   }
@@ -273,7 +273,8 @@ public class SearchFormsApplication implements SparkApplication {
     }
   }
 
-  private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard) {
+  private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard)
+      throws IngestException, SourceUnavailableException {
     if (metacard == null) {
       response.status(400);
       return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
@@ -293,23 +294,22 @@ public class SearchFormsApplication implements SparkApplication {
                     .filter(Objects::nonNull))
             .collect(Collectors.toMap(Metacard::getId, Function.identity()));
 
-    try {
-      String id = metacard.getId();
-      Metacard oldMetacard = allTemplateMetacards.get(id);
-      // The UI should not send an ID during a PUT unless the metacard already exists
-      if (id != null && oldMetacard != null) {
-        metacard.setAttribute(new AttributeImpl(Core.CREATED, oldMetacard.getCreatedDate()));
-        metacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
-        catalogFramework.update(new UpdateRequestImpl(id, metacard));
-        return ImmutableMap.of(RESP_MSG, "Successfully updated");
-      } else {
-        catalogFramework.create(new CreateRequestImpl(metacard));
-        return ImmutableMap.of(RESP_MSG, "Successfully created");
-      }
-    } catch (IngestException | SourceUnavailableException e) {
-      LOGGER.error("Could not complete template request", e);
-      response.status(500);
-      return ImmutableMap.of(RESP_MSG, "Could not complete template request");
+    String id = metacard.getId();
+    Metacard oldMetacard = allTemplateMetacards.get(id);
+    // The UI should not send an ID during a PUT unless the metacard already exists
+    if (id != null && oldMetacard != null) {
+      metacard.setAttribute(new AttributeImpl(Core.CREATED, oldMetacard.getCreatedDate()));
+      metacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
+      catalogFramework.update(new UpdateRequestImpl(id, metacard));
+      return ImmutableMap.of(RESP_MSG, "Successfully updated");
     }
+    catalogFramework.create(new CreateRequestImpl(metacard));
+    return ImmutableMap.of(RESP_MSG, "Successfully created");
+  }
+
+  @FunctionalInterface
+  @SuppressWarnings("squid:S00112" /* Supplier to mimic Spark's routing API */)
+  private interface CheckedSupplier<T> {
+    T get() throws Exception;
   }
 }

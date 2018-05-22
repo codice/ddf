@@ -23,12 +23,11 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.security.service.SecurityServiceException;
+import ddf.security.Subject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -89,15 +89,23 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return new SearchFormsLoader().configDirectory.exists();
   }
 
+  /**
+   * Setup the catalog with system templates.
+   *
+   * <p>Caution should be exercised when executing code as system. Results from querying as system
+   * are never returned to the client or cached. This means there is no risk of data leak.
+   *
+   * @param framework the catalog framework, for creating system templates.
+   * @param util for querying the catalog.
+   * @param systemTemplates system templates loaded from config.
+   */
   public static void bootstrap(
       CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
-
-    // Note: Results from querying as admin are never returned to the client or cached
-    // This means there is no risk of data leak
+    Function<Map<String, Result>, Set<String>> transform = SearchFormsLoader::titlesTransform;
     Set<String> queryTitles =
-        queryAsAdmin(util, QUERY_TEMPLATE_TAG, SearchFormsLoader::titlesTransform);
+        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)));
     Set<String> resultTitles =
-        queryAsAdmin(util, ATTRIBUTE_GROUP_TAG, SearchFormsLoader::titlesTransform);
+        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)));
 
     List<Metacard> dedupedTemplateMetacards =
         Stream.concat(
@@ -112,7 +120,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
             .collect(Collectors.toList());
 
     if (!dedupedTemplateMetacards.isEmpty()) {
-      saveMetacardsAsAdmin(framework, dedupedTemplateMetacards);
+      executeAsSystem(() -> framework.create(new CreateRequestImpl(dedupedTemplateMetacards)));
     }
   }
 
@@ -323,47 +331,17 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   }
 
   /**
-   * Results from this method call should not be directly returned to clients or cached in some
-   * intermediate block of memory. This is only done in this class for system templates. Do not
-   * duplicate elsewhere unless you know what you're doing.
+   * Caution should be used with this, as it elevates the permissions to the System user.
+   *
+   * @param func What to execute as the System
+   * @param <T> Generic return type of func
+   * @return result of the callable func
    */
-  private static Set<String> queryAsAdmin(
-      EndpointUtil util, String tag, Function<Map<String, Result>, Set<String>> transform) {
-    return SECURITY.runAsAdmin(
-        () -> {
-          try {
-            return SECURITY.runWithSubjectOrElevate(
-                () -> transform.apply(util.getMetacardsByFilter(tag)));
-          } catch (SecurityServiceException e) {
-            LOGGER.warn(
-                "Can't query the catalog while trying to initialize system search templates, was "
-                    + "unable to elevate privileges",
-                e);
-          } catch (InvocationTargetException e) {
-            LOGGER.warn("An exception was thrown while trying to query as admin", e);
-          }
-          return Collections.emptySet();
-        });
-  }
-
-  /**
-   * This is only done in this class for system templates. Do not duplicate elsewhere unless you
-   * know what you're doing.
-   */
-  private static void saveMetacardsAsAdmin(CatalogFramework framework, List<Metacard> metacards) {
-    SECURITY.runAsAdmin(
-        () -> {
-          try {
-            return SECURITY.runWithSubjectOrElevate(
-                () -> framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards());
-          } catch (SecurityServiceException e) {
-            LOGGER.warn(
-                "Can't create metacard for system search template, was unable to elevate privileges",
-                e);
-          } catch (InvocationTargetException e) {
-            LOGGER.warn("An exception was thrown while trying to save as admin", e);
-          }
-          return null;
-        });
+  private static <T> T executeAsSystem(Callable<T> func) {
+    Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    if (systemSubject == null) {
+      throw new SecurityException("Could not get systemSubject to initialize system templates");
+    }
+    return systemSubject.execute(func);
   }
 }
