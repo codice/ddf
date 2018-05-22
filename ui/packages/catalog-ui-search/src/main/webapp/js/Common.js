@@ -259,6 +259,16 @@ define([
         wrapMapCoordinates: function(x, [min, max]) {
             const d = max - min;
             return ((x - min) % d + d) % d + min;
+        },
+        wrapMapCoordinatesArray: function(a) {
+            var out = [];
+            for (var i=0; i<a.length; i++) {
+              out.push([
+                  this.wrapMapCoordinates(a[i][0], [-180, 180]),
+                  this.wrapMapCoordinates(a[i][1], [-90, 90]),
+              ]);
+            }
+            return out;
         }
     };
 });
