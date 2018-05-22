@@ -1358,6 +1358,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       String relay = "";
       String entityId = "";
       SamlProtocol.Type samlType;
+      EntityInformation.ServiceInfo entityServiceInfo = null;
 
       Optional<String> nextTarget = logoutState.getNextTarget();
       if (nextTarget.isPresent()) {
@@ -1386,11 +1387,14 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 status,
                 logoutState.getOriginalRequestId());
 
+        entityServiceInfo =
+            getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
+
         ((LogoutResponse) logoutObject)
             .setDestination(
                 getServiceProvidersMap()
                     .get(entityId)
-                    .getLogoutService(SamlProtocol.Binding.HTTP_POST)
+                    .getLogoutService(entityServiceInfo.getBinding())
                     .getUrl());
 
         relay = logoutState.getInitialRelayState();
@@ -1401,8 +1405,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug(
           "Responding to [{}] with a [{}] and relay state [{}]", entityId, samlType, relay);
 
-      EntityInformation.ServiceInfo entityServiceInfo =
-          getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
+      if (entityServiceInfo == null) {
+        entityServiceInfo =
+            getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
+      }
       if (entityServiceInfo == null) {
         LOGGER.info("Could not find entity service info for {}", entityId);
         return continueLogout(logoutState, cookie, incomingBinding);
@@ -1445,7 +1451,9 @@ public class IdpEndpoint implements Idp, SessionHandler {
     StringBuilder requestToSign =
         new StringBuilder(samlType.getKey()).append("=").append(encodedResponse);
     if (relayState != null) {
-      requestToSign.append("&RelayState=").append(relayState);
+      requestToSign
+          .append("&RelayState=")
+          .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
     }
     UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
     uriBuilder.queryParam(samlType.getKey(), encodedResponse);
