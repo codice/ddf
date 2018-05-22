@@ -86,15 +86,58 @@ Changing these values without also changing the passwords of the JKS causes unde
 
 6+^h| Global URL Properties
 
-|Default Protocol
+|Internal Default Protocol
 |org.codice.ddf.system.protocol
 |String
 |Default protocol that should be used to connect to this machine.
 |https://
 |Yes
 
-|Host
-|org.codice.ddf.system.hostname
+|Internal Host
+|org.codice.ddf.internal.hostname
+|String
+a|The hostname or IP address this system runs on.
+
+If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
+|localhost
+|Yes
+
+|Internal HTTPS Port
+|org.codice.ddf.system.httpsPort
+|String
+|The https port that the system uses.
+
+NOTE: This *DOES* change the port the system runs on.
+|8993
+|Yes
+
+|Internal HTTP Port
+|org.codice.ddf.system.HttpPort
+|String
+|The http port that the system uses.
+
+NOTE: This *DOES* change the port the system runs on.
+|8181
+|Yes
+
+|Internal Default Port
+|org.codice.ddf.external.port
+|String
+|The default port that the system uses. This should match either the above http or https port.
+
+NOTE: This *DOES* change the port the system runs on.
+|8993
+|Yes
+
+|External Default Protocol
+|org.codice.ddf.external.protocol
+|String
+|Default protocol that should be used to connect to this machine.
+|https://
+|Yes
+
+|External Host
+|org.codice.ddf.external.hostname
 |String
 a|The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
@@ -107,7 +150,7 @@ Does not change the address the system runs on.
 |Yes
 
 |HTTPS Port
-|org.codice.ddf.system.httpsPort
+|org.codice.ddf.external.httpsPort
 |String
 |The https port used to advertise the system.
 
@@ -115,8 +158,8 @@ NOTE: This does not change the port the system runs on.
 |8993
 |Yes
 
-|HTTP Port
-|org.codice.ddf.system.httpPort
+|External HTTP Port
+|org.codice.ddf.external.httpPort
 |String
 |The http port used to advertise the system.
 
@@ -124,31 +167,13 @@ NOTE: This does not change the port the system runs on.
 |8181
 |Yes
 
-|Default Port
-|org.codice.ddf.system.port
+|External Default Port
+|org.codice.ddf.external.port
 |String
 |The default port used to advertise the system. This should match either the above http or https port.
 
 NOTE: Does not change the port the system runs on.
 |8993
-|Yes
-
-|Internal HTTPS Port
-|org.codice.ddf.system.internalHttpsPort
-|String
-|The https port that the system uses.
-
-NOTE: This *DOES* change the port the system runs on.
-|8993
-|Yes
-
-|Internal HTTP Port
-|org.codice.ddf.system.internalHttpPort
-|String
-|The http port that the system uses.
-
-NOTE: This *DOES* change the port the system runs on.
-|8181
 |Yes
 
 |Root Context
