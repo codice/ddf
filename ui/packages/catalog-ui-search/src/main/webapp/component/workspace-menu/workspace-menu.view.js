@@ -44,35 +44,36 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceInteractions);
-            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceSave);
-            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceQuery);
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateSubViews);
             this.listenTo(this.model, 'change:currentWorkspace', this.handleSaved);
         },
         onBeforeShow: function(){
             this.title.show(new TitleView());
-            this.updateWorkspaceSave();
-            this.updateWorkspaceInteractions();
-            this.updateWorkspaceQuery();
+            this.showSubViews();
             this.handleSaved();
         },
-        updateWorkspaceQuery: function(workspace){
-            if (workspace && workspace.changed.currentWorkspace){
+        showSubViews() {
+            this.showWorkspaceSave();
+            this.showWorkspaceQuery();
+            this.showWorkspaceInteractions();
+        },
+        showWorkspaceQuery() {
+            if (this.model.get('currentWorkspace')) {
                 this.workspaceQuery.show(new QueryView({
                     model: new DropdownModel(),
                     modelForComponent: this.model.get('currentWorkspace')
                 }));
             }
         },
-        updateWorkspaceSave: function(workspace){
-             if (workspace && workspace.changed.currentWorkspace) {
+        showWorkspaceSave() {
+            if (this.model.get('currentWorkspace')) {
                 this.workspaceSave.show(new SaveView({
                     model: this.model.get('currentWorkspace')
                 }));
             }
         },
-        updateWorkspaceInteractions: function(workspace) {
-            if (workspace && workspace.changed.currentWorkspace) {
+        showWorkspaceInteractions() {
+            if (this.model.get('currentWorkspace')) {
                 this.workspaceInteractions.show(new WorkspaceInteractionsView({
                     model: new DropdownModel(),
                     modelForComponent: this.model.get('currentWorkspace'),
@@ -80,6 +81,11 @@ define([
                         navigation: {}
                     }
                 }));
+            }
+        },
+        updateSubViews: function(workspace) {
+            if (workspace && workspace.changed.currentWorkspace){
+                this.showSubViews();
             }
         },
         handleSaved: function(){

@@ -71,16 +71,22 @@ define([
             this.listenTo(store.getSelectedResults(), 'add', debouncedUpdatePanelTwo);
             this.listenTo(store.getSelectedResults(), 'remove', debouncedUpdatePanelTwo);
             this.listenTo(store.getSelectedResults(), 'reset', debouncedUpdatePanelTwo);
-            this.handleRoute();
         },
         handleRoute: function(){
             if (router.toJSON().name==='openWorkspace'){
-                this.$el.removeClass('is-hidden');
+                const workspaceId = router.get('args')[0];
+                if (store.get('workspaces').get(workspaceId)!==undefined) {
+                    this.$el.parent().removeClass('is-hidden');
+                    store.setCurrentWorkspaceById(workspaceId);
+                } else {
+                    router.notFound();
+                }
             } else {
-                this.$el.addClass('is-hidden');
+                this.$el.parent().addClass('is-hidden');
             }
         },
         onRender: function(){
+            this.handleRoute();
             this.updatePanelOne();
             this.hidePanelTwo();
             this.menu.show(new MenuView());

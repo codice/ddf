@@ -22,6 +22,7 @@ var CustomElements = require('js/CustomElements');
 var router = require('component/router/router');
 var NavigationView = require('component/navigation/ingest/navigation.ingest.view');
 var IngestDetails = require('component/ingest-details/ingest-details.view');
+var properties = require('properties');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -35,14 +36,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
-        this.handleRoute();
     },
     handleRoute: function() {
-        if (router.toJSON().name === 'openIngest') {
-            this.$el.removeClass('is-hidden');
-        } else {
-            this.$el.addClass('is-hidden');
+        if (router.toJSON().name === 'openIngest' && !properties.isUploadEnabled()) {
+            router.notFound();
         }
+    },
+    onRender() {
+        this.handleRoute();
     },
     onBeforeShow: function() {
         this.ingestMenu.show(new NavigationView());

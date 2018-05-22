@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,28 +10,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, document*/
-define([
-    'jquery',
-    'underscore',
-    'backbone'
-], function ($, _, Backbone) {
-
-    return new (Backbone.Model.extend({
-        defaults: {
-            name: undefined,
-            path: undefined,
-            args: undefined,
-            lowBandwidth: false
-        },
-        initialize: function(){
-            this.listenTo(this, 'change:name', this.handleChangeName);
-        },
-        notFound: function() {
-            this.set('name', 'notFound');
-        },
-        handleChangeName: function(){
-            $('html').attr('data-route', this.get('name'));
-        }
-    }))();
-});
+ --}}
+<div class="router-component"></div>

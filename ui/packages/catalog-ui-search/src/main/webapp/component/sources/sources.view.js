@@ -36,17 +36,6 @@ module.exports = Marionette.LayoutView.extend({
         sourcesSummary: '.sources-summary',
         sourcesDetails: '.sources-details'
     },
-    initialize: function() {
-        this.listenTo(router, 'change', this.handleRoute);
-        this.handleRoute();
-    },
-    handleRoute: function() {
-        if (router.toJSON().name === 'openSources') {
-            this.$el.removeClass('is-hidden');
-        } else {
-            this.$el.addClass('is-hidden');
-        }
-    },
     onBeforeShow: function() {
         this.sourcesMenu.show(new NavigationView());
         this.sourcesSummary.show(new SourcesSummaryView());

@@ -14,7 +14,6 @@
  **/
 /*global define*/
 define([
-    'wreqr',
     'marionette',
     'underscore',
     'jquery',
@@ -22,9 +21,13 @@ define([
     'js/CustomElements',
     'component/router/router',
     'component/navigation/upload/navigation.upload.view',
-    'component/content/upload/content.upload.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, NavigationView,
-             uploadContentView) {
+    'component/content/upload/content.upload.view',
+    'js/model/Query',
+    'js/cql',
+    'component/singletons/user-instance',
+    'component/upload/upload'
+], function (Marionette, _, $, template, CustomElements, router, NavigationView,
+             uploadContentView, Query, cql, user, uploadInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,16 +44,56 @@ define([
         },
         initialize: function(){
             this.listenTo(router, 'change', this.handleRoute);
-            this.handleRoute();
+            this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow);
         },
         handleRoute: function(){
-            if (router.toJSON().name === 'openUpload'){
-                this.$el.removeClass('is-hidden');
-            } else {
-                this.$el.addClass('is-hidden');
+            const routerJSON = router.toJSON();
+            if (routerJSON.name === 'openUpload'){
+                var uploadId = routerJSON.args[0];
+                var upload = user.get('user').get('preferences').get('uploads').get(uploadId);
+                if (!upload) {
+                    router.notFound();
+                } else {
+                    const queryForMetacards = new Query.Model({
+                        cql: cql.write({
+                            type: 'OR',
+                            filters: upload.get('uploads').filter(function(file){
+                                return file.id;
+                            }).map(function(file){
+                                return {
+                                    type: '=',
+                                    value: file.id,
+                                    property: '"id"'
+                                };
+                            }).concat({
+                                type: '=',
+                                value: '-1',
+                                property: '"id"'
+                            })
+                        }),
+                        federation: 'enterprise'
+                    });
+                    if (uploadInstance.get('currentQuery')){
+                        uploadInstance.get('currentQuery').cancelCurrentSearches();
+                    }
+                    queryForMetacards.startSearch();
+                    uploadInstance.set({
+                        currentResult: queryForMetacards.get('result'),
+                        currentUpload: upload,
+                        currentQuery: queryForMetacards
+                    });
+                }
             }
         },
+        onRender: function() {
+            this.handleRoute();
+        },
         onBeforeShow: function(){
+            if (uploadInstance.get('currentUpload')) {
+                this.showSubViews();
+            }
+        },
+        showSubViews: function() {
             this.uploadMenu.show(new NavigationView());
             this.uploadDetails.show(new uploadContentView());
         }

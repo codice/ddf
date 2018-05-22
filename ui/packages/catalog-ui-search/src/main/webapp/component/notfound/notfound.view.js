@@ -30,17 +30,6 @@ module.exports = Marionette.LayoutView.extend({
         content: '> .content > .navigator',
         menu: '> .menu'
     },
-    initialize: function() {
-        this.listenTo(router, 'change', this.handleRoute);
-        this.handleRoute();
-    },
-    handleRoute: function() {
-        if (router.toJSON().name === 'notFound') {
-            this.$el.removeClass('is-hidden');
-        } else {
-            this.$el.addClass('is-hidden');
-        }
-    },
     onBeforeShow: function() {
         this.menu.show(new NavigationView({
             navigationMiddleText: 'Page Not Found',

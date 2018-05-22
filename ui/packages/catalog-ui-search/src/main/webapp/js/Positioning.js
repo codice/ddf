@@ -18,6 +18,8 @@ module.exports = {
     isEffectivelyHidden: function(element) {
         if (element === document){
             return false;
+        } else if (element === null) {
+            return true;
         } else {
             var computedStyle = window.getComputedStyle(element);
             if (computedStyle.transform === zeroScale || computedStyle.opacity === zeroOpacity || computedStyle.display === notDisplayed){
