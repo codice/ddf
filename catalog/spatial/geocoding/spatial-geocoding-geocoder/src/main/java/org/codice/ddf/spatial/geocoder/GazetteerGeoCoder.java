@@ -73,17 +73,12 @@ public class GazetteerGeoCoder implements GeoCoder {
   @Override
   public Optional<String> getCountryCode(String locationWKT, int radius) {
     try {
-      Optional<String> alpha3CountryCode = geoEntryQueryable.getCountryCode(locationWKT, radius);
-
-      if (alpha3CountryCode.isPresent()) {
-        return alpha3CountryCode;
-      }
+      return geoEntryQueryable.getCountryCode(locationWKT, radius);
     } catch (GeoEntryQueryException e) {
       LOGGER.debug("Error querying GeoNames", e);
     } catch (ParseException e) {
       LOGGER.debug("Error parsing WKT: {} ", locationWKT, e);
     }
-
     return Optional.empty();
   }
 }

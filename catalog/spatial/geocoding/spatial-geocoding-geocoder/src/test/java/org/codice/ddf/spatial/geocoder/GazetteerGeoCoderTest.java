@@ -179,13 +179,4 @@ public class GazetteerGeoCoderTest {
     countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
     assertThat(countryCode.isPresent(), is(false));
   }
-
-  @Test
-  public void testGetCountryCodeInvalidCountryCode() throws ParseException, GeoEntryQueryException {
-    when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.empty());
-
-    countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
-
-    assertThat(countryCode.isPresent(), is(false));
-  }
 }
