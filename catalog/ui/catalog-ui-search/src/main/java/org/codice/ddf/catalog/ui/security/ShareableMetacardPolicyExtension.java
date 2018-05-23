@@ -21,15 +21,14 @@ import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.MatchOneCollectionPermission;
 import ddf.security.policy.extension.PolicyExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.shiro.authz.Permission;
 
 public class ShareableMetacardPolicyExtension implements PolicyExtension {
 
@@ -52,7 +51,7 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
     this.subjectIdentity = subjectIdentity;
   }
 
-  private List<KeyValuePermission> getPermissions(KeyValueCollectionPermission collection) {
+  private static List<KeyValuePermission> getPermissions(KeyValueCollectionPermission collection) {
     return collection
         .getPermissionList()
         .stream()
@@ -61,7 +60,8 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
         .collect(Collectors.toList());
   }
 
-  private Map<String, Set<String>> groupPermissionsByKey(List<KeyValuePermission> permissions) {
+  private static Map<String, Set<String>> groupPermissionsByKey(
+      List<KeyValuePermission> permissions) {
     return permissions
         .stream()
         .collect(
@@ -69,74 +69,87 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
                 KeyValuePermission::getKey, KeyValuePermission::getValues, Sets::union));
   }
 
-  private Predicate<CollectionPermission> system() {
+  private boolean systemImplied(CollectionPermission subject) {
     Set<String> values = ImmutableSet.of(config.getSystemUserAttributeValue());
     KeyValuePermission perm = new KeyValuePermission(config.getSystemUserAttribute(), values);
-    return (subject) -> subject.implies(perm);
+    return subject.implies(perm);
   }
 
-  private Predicate<CollectionPermission> predicate(
-      Map<String, Set<String>> permissions, String k1, String k2) {
-    if (!permissions.containsKey(k1)) {
-      return (subject) -> false;
+  private static boolean subjectImplies(
+      CollectionPermission subject,
+      Map<String, Set<String>> permissions,
+      String permissionKey,
+      String attributeName) {
+    if (!permissions.containsKey(permissionKey)) {
+      return false;
     }
-    return (subject) -> subject.implies(new KeyValuePermission(k2, permissions.get(k1)));
+    return subject.implies(new KeyValuePermission(attributeName, permissions.get(permissionKey)));
   }
 
-  private Predicate<CollectionPermission> owner(Map<String, Set<String>> permissions) {
-    return predicate(permissions, Core.METACARD_OWNER, subjectIdentity.getIdentityAttribute());
+  private boolean ownerImplied(CollectionPermission subject, Map<String, Set<String>> permissions) {
+    return subjectImplies(
+        subject, permissions, Core.METACARD_OWNER, subjectIdentity.getIdentityAttribute());
   }
 
-  private Predicate<CollectionPermission> individuals(Map<String, Set<String>> permissions) {
-    return predicate(
-        permissions, SecurityAttributes.ACCESS_INDIVIDUALS, subjectIdentity.getIdentityAttribute());
+  private boolean individualsImplied(
+      CollectionPermission subject, Map<String, Set<String>> permissions) {
+    return subjectImplies(
+        subject,
+        permissions,
+        SecurityAttributes.ACCESS_INDIVIDUALS,
+        subjectIdentity.getIdentityAttribute());
   }
 
-  private Predicate<CollectionPermission> groups(Map<String, Set<String>> permissions) {
-    return predicate(permissions, SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
+  private boolean groupsImplied(
+      CollectionPermission subject, Map<String, Set<String>> permissions) {
+    return subjectImplies(
+        subject, permissions, SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
   }
 
   private KeyValueCollectionPermission isPermitted(
       CollectionPermission subject,
       KeyValueCollectionPermission match,
       KeyValueCollectionPermission allPerms) {
-    List<KeyValuePermission> permissions = getPermissions(allPerms);
+    List<KeyValuePermission> permissions = getPermissions(match);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
     if (Collections.disjoint(grouped.keySet(), SHARED_PERMISSIONS_IMPLIED)) {
       return match; // ignore all but shareable permissions
     }
 
-    Predicate<CollectionPermission> isSystem = system();
-    Predicate<CollectionPermission> isOwner = owner(grouped);
-    Predicate<CollectionPermission> hasAccessIndividuals = individuals(grouped);
-    Predicate<CollectionPermission> hasAccessGroups = groups(grouped);
+    boolean isSystem = systemImplied(subject);
+    boolean isOwner = ownerImplied(subject, grouped);
+    boolean hasAccessIndividuals = individualsImplied(subject, grouped);
+    boolean hasAccessGroups = groupsImplied(subject, grouped);
 
-    // get all permissions implied by the subject, this function returns what permissions
+    // Get all permissions implied by the subject, this function returns what permissions
     // to filter from the key-value permission collection
-    Supplier<Set<String>> impliedPermissions =
-        () -> {
-          if (isSystem.test(subject) || isOwner.test(subject)) {
-            return grouped.keySet(); // all permissions are implied
-          } else if (hasAccessIndividuals.test(subject) || hasAccessGroups.test(subject)) {
-            return SHARED_PERMISSIONS_IMPLIED;
-          } else {
-            return Constants.SHAREABLE_TAGS;
-          }
-        };
+    Set<String> impliedKeys = Constants.SHAREABLE_TAGS;
+    if (hasAccessIndividuals || hasAccessGroups) {
+      impliedKeys = SHARED_PERMISSIONS_IMPLIED;
+    }
+    if (isSystem || isOwner) {
+      impliedKeys = grouped.keySet();
+    }
 
-    // filter out all implied permissions
-    Function<Set<String>, KeyValueCollectionPermission> filterPermissions =
-        (implied) -> {
-          List<KeyValuePermission> values =
-              permissions
-                  .stream()
-                  .filter((permission) -> !implied.contains(permission.getKey()))
-                  .collect(Collectors.toList());
+    KeyValueCollectionPermission implied =
+        new KeyValueCollectionPermission(
+            match.getAction(),
+            impliedKeys
+                .stream()
+                .map(key -> new KeyValuePermission(key, grouped.get(key)))
+                .collect(Collectors.toList()));
 
-          return new KeyValueCollectionPermission(match.getAction(), values);
-        };
+    // Filter out all implied permissions
+    List<Permission> remaining =
+        match
+            .<Permission>getKeyValuePermissionList()
+            .stream()
+            .filter(p -> !implied.implies(p))
+            .collect(Collectors.toList());
 
-    return filterPermissions.apply(impliedPermissions.get());
+    KeyValueCollectionPermission collection = new KeyValueCollectionPermission(match.getAction());
+    collection.addAll(remaining);
+    return collection;
   }
 
   @Override
@@ -152,6 +165,9 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
       CollectionPermission subject,
       KeyValueCollectionPermission matchOne,
       KeyValueCollectionPermission allPermissionsCollection) {
-    return isPermitted(subject, matchOne, allPermissionsCollection);
+    return isPermitted(
+        new MatchOneCollectionPermission(subject.getPermissionList()),
+        matchOne,
+        allPermissionsCollection);
   }
 }
