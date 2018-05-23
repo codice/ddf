@@ -145,7 +145,7 @@ define([
             },
 
             handleRegionStop: function () {
-                var geometry = olUtils.wrapCoordinatesFromGeometry(this.primitive.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(this.primitive.getGeometry());
                 this.setModelFromGeometry(geometry);
                 this.updateGeometry(this.model);
                 this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);

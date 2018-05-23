@@ -260,15 +260,11 @@ define([
             const d = max - min;
             return ((x - min) % d + d) % d + min;
         },
-        wrapMapCoordinatesArray: function(a) {
-            var out = [];
-            for (var i=0; i<a.length; i++) {
-              out.push([
-                  this.wrapMapCoordinates(a[i][0], [-180, 180]),
-                  this.wrapMapCoordinates(a[i][1], [-90, 90]),
-              ]);
-            }
-            return out;
+        wrapMapCoordinatesArray: function(coodinates) {
+            return coodinates.map(([lon, lat]) => [
+                this.wrapMapCoordinates(lon, [-180, 180]),
+                this.wrapMapCoordinates(lat, [-90, 90])
+            ]);
         }
     };
 });

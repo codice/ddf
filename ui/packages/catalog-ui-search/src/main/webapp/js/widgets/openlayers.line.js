@@ -135,7 +135,7 @@ define([
             },
 
             handleRegionStop: function (sketchFeature) {
-                var geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
                 this.setModelFromGeometry(geometry);
                 this.drawBorderedPolygon(geometry);
                 this.listenTo(this.model, 'change:line', this.updateGeometry);

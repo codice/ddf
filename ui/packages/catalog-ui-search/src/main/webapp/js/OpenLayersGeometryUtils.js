@@ -9,47 +9,50 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-/*jshint bitwise: false*/
-define([
-    'openlayers',
-    'properties',
-    './Common'
-], function (ol, properties, Common) {
-    return {
-        wrapCoordinatesFromGeometry: function(geometry) {
-            var type = geometry.getType();
-            var coordinates = [];
-            switch (type) {
-                case 'LineString':
-                    coordinates = geometry.getCoordinates();
-                    break;
-                case 'Polygon':
-                    coordinates = geometry.getCoordinates()[0];
-                    break;
-                case 'Circle':
-                    coordinates = [geometry.getCenter()];
-                    break;
-                default:
-                    break;
-            }
-            coordinates = coordinates.map(function(p) { return ol.proj.transform(p, properties.projection, 'EPSG:4326'); });
-            coordinates = Common.wrapMapCoordinatesArray(coordinates);
-            coordinates = coordinates.map(function(p) { return ol.proj.transform(p, 'EPSG:4326', properties.projection); });
-            switch (type) {
-                case 'LineString':
-                    geometry.setCoordinates(coordinates);
-                    break;
-                case 'Polygon':
-                    geometry.setCoordinates([coordinates]);
-                    break;
-                case 'Circle':
-                    geometry.setCenter(coordinates[0]);
-                    break;
-                default:
-                    break;
-            }
-            return geometry;
+/*global require, module*/
+/*jshint esversion: 6, bitwise: false*/
+const ol = require('openlayers');
+const properties = require('properties');
+const Common = require('./Common');
+
+module.exports = {
+    getCoordinatesFromGeometry: geometry => {
+        const type = geometry.getType();
+        switch (type) {
+            case 'LineString':
+                return geometry.getCoordinates();
+            case 'Polygon':
+                return geometry.getCoordinates()[0];
+            case 'Circle':
+                return [geometry.getCenter()];
+            default:
+                return [];
         }
-    };
-});
+    },
+    setCoodinatesForGeometry: (geometry, coordinates) => {
+        const type = geometry.getType();
+        switch (type) {
+            case 'LineString':
+                geometry.setCoordinates(coordinates);
+                break;
+            case 'Polygon':
+                geometry.setCoordinates([coordinates]);
+                break;
+            case 'Circle':
+                geometry.setCenter(coordinates[0]);
+                break;
+            default:
+                break;
+        }
+    },
+    mapCoordinateToLonLat: point => ol.proj.transform(point, properties.projection, 'EPSG:4326'),
+    lonLatToMapCoordinate: point => ol.proj.transform(point, 'EPSG:4326', properties.projection),
+    wrapCoordinatesFromGeometry: geometry => {
+        let coordinates = module.exports.getCoordinatesFromGeometry(geometry)
+            .map(module.exports.mapCoordinateToLonLat);
+        coordinates = Common.wrapMapCoordinatesArray(coordinates)
+            .map(module.exports.lonLatToMapCoordinate);
+        module.exports.setCoodinatesForGeometry(geometry, coordinates);
+        return geometry;
+    }
+};
