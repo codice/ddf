@@ -36,8 +36,8 @@ import org.junit.Test;
 
 public class ShareableMetacardPolicyExtensionTest {
 
-  private static final Permission ADMIN_ROLE =
-      makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("admin"));
+  private static final Permission SYSTEM_ROLE =
+      makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("system-user"));
 
   private static final Set<String> VALUES = ImmutableSet.of("value1", "value2", "value3");
 
@@ -185,7 +185,7 @@ public class ShareableMetacardPolicyExtensionTest {
   public void testSystemShouldImplyAll() {
     List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
-    CollectionPermission subject = subjectFrom(ADMIN_ROLE);
+    CollectionPermission subject = subjectFrom(SYSTEM_ROLE);
 
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
