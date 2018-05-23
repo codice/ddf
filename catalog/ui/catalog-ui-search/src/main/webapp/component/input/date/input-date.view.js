@@ -51,7 +51,8 @@ define([
         initializeDatepicker: function(){
             this.$el.find('.input-group.date').datetimepicker({
                 format: getDateFormat(),
-                widgetParent: 'body'
+                widgetParent: 'body',
+                keyBinds: null
             });
         },
         handleReadOnly: function () {
