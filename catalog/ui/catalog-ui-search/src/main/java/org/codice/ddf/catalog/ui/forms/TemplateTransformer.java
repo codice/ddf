@@ -131,9 +131,15 @@ public class TemplateTransformer {
 
     try {
       FilterReader reader = new FilterReader();
+      String formsFilter = wrapped.getFormsFilter();
+      if (formsFilter == null) {
+        LOGGER.debug(
+            "Invalid form data was ingested for metacard [{}], no form filter present",
+            wrapped.getId());
+        return null;
+      }
       JAXBElement<FilterType> root =
-          reader.unmarshalFilter(
-              new ByteArrayInputStream(wrapped.getFormsFilter().getBytes("UTF-8")));
+          reader.unmarshalFilter(new ByteArrayInputStream(formsFilter.getBytes("UTF-8")));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
           wrapped,

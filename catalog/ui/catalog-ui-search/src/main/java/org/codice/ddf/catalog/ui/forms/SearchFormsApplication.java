@@ -205,15 +205,6 @@ public class SearchFormsApplication implements SparkApplication {
         });
 
     exception(
-        UnsupportedOperationException.class,
-        (e, req, res) -> {
-          LOGGER.debug("Could not use filter JSON because it contains unsupported operations", e);
-          res.status(400);
-          res.header(CONTENT_TYPE, APPLICATION_JSON);
-          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "This operation is not supported.")));
-        });
-
-    exception(
         IngestException.class,
         (ex, req, res) -> {
           LOGGER.debug("Failed to persist form", ex);
@@ -224,10 +215,19 @@ public class SearchFormsApplication implements SparkApplication {
         });
 
     exception(
+        UnsupportedOperationException.class,
+        (e, req, res) -> {
+          LOGGER.debug("Could not use filter JSON because it contains unsupported operations", e);
+          res.status(501);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "This operation is not supported.")));
+        });
+
+    exception(
         SourceUnavailableException.class,
         (ex, req, res) -> {
           LOGGER.debug("Failed to persist form", ex);
-          res.status(500);
+          res.status(503);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(
               util.getJson(
