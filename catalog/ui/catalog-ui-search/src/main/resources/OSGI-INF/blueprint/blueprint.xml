@@ -124,8 +124,14 @@
         <bean class="org.codice.ddf.catalog.ui.security.ShareableMetacardSharingPolicyPlugin"/>
     </service>
 
+    <service interface="ddf.catalog.plugin.AccessPlugin">
+        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplateAccessPlugin"/>
+    </service>
+
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplatePolicyPlugin"/>
+        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplatePolicyPlugin">
+            <argument ref="shareableMetacardSecurityConfiguration"/>
+        </bean>
     </service>
 
     <bean id="shareableMetacardSecurityConfiguration"

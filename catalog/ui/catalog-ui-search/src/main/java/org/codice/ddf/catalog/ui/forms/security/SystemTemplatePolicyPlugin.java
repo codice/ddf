@@ -16,11 +16,6 @@ package org.codice.ddf.catalog.ui.forms.security;
 import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
@@ -29,14 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import org.codice.ddf.catalog.ui.security.ShareableMetacardSecurityConfiguration;
 
-public class SystemTemplatePolicyPlugin implements PolicyPlugin {
-  private static final String TEMPLATES_ROLE = "system-templates";
-
-  private static final String NOT_IMPLIABLE = "not-impliable";
-
-  private static final String ROLE_CLAIM =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+public class SystemTemplatePolicyPlugin extends AbstractPolicyPlugin {
+  private final ShareableMetacardSecurityConfiguration config;
 
   private final Predicate<Metacard> isSystemTemplateMetacard =
       (metacard) ->
@@ -44,24 +35,19 @@ public class SystemTemplatePolicyPlugin implements PolicyPlugin {
               && metacard.getTags() != null
               && metacard.getTags().contains(SYSTEM_TEMPLATE);
 
+  public SystemTemplatePolicyPlugin(ShareableMetacardSecurityConfiguration config) {
+    this.config = config;
+  }
+
   @Override
   public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
       throws StopProcessingException {
     if (isSystemTemplateMetacard.test(input)) {
       return new PolicyResponseImpl(
-          Collections.singletonMap(ROLE_CLAIM, Collections.singleton(TEMPLATES_ROLE)),
+          Collections.singletonMap(
+              config.getSystemUserAttribute(),
+              Collections.singleton(config.getSystemUserAttributeValue())),
           Collections.emptyMap());
-    }
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPreUpdate(Metacard newMetacard, Map<String, Serializable> properties)
-      throws StopProcessingException {
-    if (isSystemTemplateMetacard.test(newMetacard)) {
-      return new PolicyResponseImpl(
-          Collections.singletonMap(NOT_IMPLIABLE, Collections.singleton(NOT_IMPLIABLE)),
-          Collections.singletonMap(NOT_IMPLIABLE, Collections.singleton(NOT_IMPLIABLE)));
     }
     return new PolicyResponseImpl();
   }
@@ -72,39 +58,11 @@ public class SystemTemplatePolicyPlugin implements PolicyPlugin {
       throws StopProcessingException {
     if (metacards.stream().anyMatch(isSystemTemplateMetacard)) {
       return new PolicyResponseImpl(
-          Collections.singletonMap(ROLE_CLAIM, Collections.singleton(TEMPLATES_ROLE)),
+          Collections.singletonMap(
+              config.getSystemUserAttribute(),
+              Collections.singleton(config.getSystemUserAttributeValue())),
           Collections.emptyMap());
     }
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
-      throws StopProcessingException {
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
-      throws StopProcessingException {
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
-      throws StopProcessingException {
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPreResource(ResourceRequest resourceRequest)
-      throws StopProcessingException {
-    return new PolicyResponseImpl();
-  }
-
-  @Override
-  public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
-      throws StopProcessingException {
     return new PolicyResponseImpl();
   }
 }
