@@ -260,8 +260,8 @@ define([
             const d = max - min;
             return ((x - min) % d + d) % d + min;
         },
-        wrapMapCoordinatesArray: function(coodinates) {
-            return coodinates.map(([lon, lat]) => [
+        wrapMapCoordinatesArray: function(coordinates) {
+            return coordinates.map(([lon, lat]) => [
                 this.wrapMapCoordinates(lon, [-180, 180]),
                 this.wrapMapCoordinates(lat, [-90, 90])
             ]);

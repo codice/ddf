@@ -29,7 +29,7 @@ module.exports = {
                 return [];
         }
     },
-    setCoodinatesForGeometry: (geometry, coordinates) => {
+    setCoordinatesForGeometry: (geometry, coordinates) => {
         const type = geometry.getType();
         switch (type) {
             case 'LineString':
@@ -52,7 +52,7 @@ module.exports = {
             .map(module.exports.mapCoordinateToLonLat);
         coordinates = Common.wrapMapCoordinatesArray(coordinates)
             .map(module.exports.lonLatToMapCoordinate);
-        module.exports.setCoodinatesForGeometry(geometry, coordinates);
+        module.exports.setCoordinatesForGeometry(geometry, coordinates);
         return geometry;
     }
 };
