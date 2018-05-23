@@ -158,7 +158,7 @@ public class SystemPropertiesAdminTest {
     Properties sysProps = new Properties();
     try (FileReader sysPropsReader = new FileReader(systemPropsFile)) {
       sysProps.load(sysPropsReader);
-      assertThat(sysProps.size(), is(2));
+      assertThat(sysProps.size(), is(3));
       assertThat(sysProps.getProperty(SystemBaseUrl.EXTERNAL_HOST), equalTo("newhost"));
     }
 

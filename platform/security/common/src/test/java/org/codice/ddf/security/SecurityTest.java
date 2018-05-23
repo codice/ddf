@@ -87,7 +87,7 @@ public class SecurityTest {
         "javax.net.ssl.keyStore", getClass().getResource("/secureKeystore.jks").toURI().getPath());
     System.setProperty("javax.net.ssl.keyStorePassword", "password");
     System.setProperty("ddf.home", "/ddf/home");
-    System.setProperty("org.codice.ddf.external.hostname", "localhost");
+    System.setProperty("org.codice.ddf.system.hostname", "localhost");
 
     security = Security.getInstance();
   }
@@ -301,7 +301,7 @@ public class SecurityTest {
   }
 
   private void configureMocksForBundleContext(String systemHostname) throws Exception {
-    System.setProperty("org.codice.ddf.external.hostname", systemHostname);
+    System.setProperty("org.codice.ddf.system.hostname", systemHostname);
     Bundle bundle = mock(Bundle.class);
     when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
     BundleContext bundleContext = mock(BundleContext.class);
