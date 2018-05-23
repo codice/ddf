@@ -248,7 +248,6 @@
     <feature name="catalog-transformer-csv" version="${project.version}"
              description="CSV Query Response Transformer and Common Library.">
         <bundle>mvn:ddf.catalog.transformer/csv-queryresponse-transformer/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-csv-common/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-geoformatter" version="${project.version}"
