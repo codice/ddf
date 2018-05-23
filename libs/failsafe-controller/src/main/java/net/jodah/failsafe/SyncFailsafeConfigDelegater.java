@@ -67,7 +67,7 @@ public class SyncFailsafeConfigDelegater<R> extends SyncFailsafe<R> {
     return super.withFallback(fallback);
   }
 
-  // override all async listeners in order to mkae them monitorable
+  // override all async listeners in order to make them monitorable
   @Override
   public SyncFailsafe<R> onAbortAsync(
       CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {

@@ -184,7 +184,7 @@ public class FailsafeController<R> {
   /**
    * Register expected actions for the next Failsafe execution.
    *
-   * <p>Syntax sugar for Spock users which allows you to right this:
+   * <p>Syntax sugar for Spock users which allows you to write this:
    *
    * <p><code><pre>
    *   new FailsafeController('test') >> {
