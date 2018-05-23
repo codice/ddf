@@ -12,197 +12,182 @@
 /*global define*/
 /*jshint newcap: false, bitwise: false */
 
-define(['underscore',
-    'jquery',
-    'marionette',
-    'openlayers',
-    'properties',
-    'js/controllers/common.layerCollection.controller'
-], function (_, $, Marionette, ol, properties, CommonLayerController) {
-    "use strict";
+const _ = require('underscore');
+const $ = require('jquery');
+const Marionette = require('marionette');
+const ol = require('openlayers');
+const properties = require('properties');
+const CommonLayerController = require('js/controllers/common.layerCollection.controller');
+const user = require('component/singletons/user-instance');
 
-    var imageryProviderTypes = {
-        OSM: ol.source.OSM,
-        BM: ol.source.BingMaps,
-        WMS: ol.source.TileWMS,
-        WMT: ol.source.WMTS,
-        MQ: ol.source.MapQuest,
-        AGM: ol.source.XYZ,
-        SI: ol.source.ImageStatic
+const createTile = ({ show, alpha, ...options }, Source, Layer = ol.layer.Tile) =>
+    new Layer({
+        visible: show,
+        preload: Infinity,
+        opacity: alpha,
+        source: new Source(options)
+    })
+
+const OSM = (opts) => {
+    const { url } = opts
+    return createTile({
+        ...opts,
+        url: url + (url.indexOf('/{z}/{x}/{y}') === -1 ? '/{z}/{x}/{y}.png' : '')
+    }, ol.source.OSM)
+}
+
+const BM = (opts) => {
+    const imagerySet = opts.imagerySet || opts.url;
+    return createTile({ ...opts, imagerySet }, ol.source.BingMaps);
+}
+
+const WMS = (opts) => {
+    const params = opts.params || {
+        LAYERS: opts.layers,
+        ...opts.parameters
     };
+    return createTile({ ...opts,  params }, ol.source.TileWMS);
+}
 
-    var mockTileGrid = {
-        getMinZoom: function(){
-            return 0;
-        },
-        getMatrixId: function(){
-            return 0;
-        },
-        getZForResolution: function(){
-            return 0;
-        },
-        getResolution: function(){
-            return 0;
-        },
-        getTileRangeForExtentAndResolution: function(){
-            return {
-                getWidth: function() {
-                    return 0;
-                },
-                getHeight: function(){
-                    return 0;
-                }
-            };
-        },
-        getTileRangeExtent: function(){
-            return 0;
-        },
-        getTileSize: function(){
-            return 0;
-        },
-        getTileRangeForExtentAndZ: function(){
-            return {
-                getWidth: function() {
-                    return 0;
-                },
-                getHeight: function(){
-                    return 0;
-                }
-            };
+const WMT = async (opts) => {
+    const { url } = opts
+    const parser = new ol.format.WMTSCapabilities();
+
+    const res = await window.fetch(url);
+    const text = await res.text();
+    const result = parser.read(text);
+
+    if (result.Contents.Layer.length  === 0) {
+        throw new Error('WMT map layer source has no layers.');
+    }
+
+    let { layer, matrixSet } = opts;
+
+    /* If tileMatrixSetID is present (Cesium WMTS keyword) set matrixSet (OpenLayers WMTS keyword) */
+    if (opts.tileMatrixSetID !== undefined) {
+        matrixSet = opts.tileMatrixSetID;
+    }
+
+    if (layer === undefined) {
+        layer = result.Contents.Layer[0].Identifier;
+    }
+
+    const options = ol.source.WMTS.optionsFromCapabilities(result, { layer, matrixSet, ...opts });
+
+    if (options === null) {
+        throw new Error('WMT map layer source could not be setup.');
+    }
+
+    return createTile(opts, () => new ol.source.WMTS(options));
+}
+
+const AGM = (opts) => {
+    const { url } = opts
+    if (url && url.indexOf('/tile/{z}/{y}/{x}') === -1) {
+        return createTile({ ...opts,
+            url: url + '/tile/{z}/{y}/{x}'
+        });
+    }
+    return createTile(opts, ol.source.XYZ);
+}
+
+const SI = (opts) => {
+    const imageExtent = opts.imageExtent || ol.proj.get(properties.projection).getExtent();
+    return createTile({ ...opts, imageExtent, ...opts.parameters }, ol.source.ImageStatic, ol.layer.Image);
+}
+
+const sources = { OSM, BM, WMS, WMT, AGM, SI }
+
+const createLayer = (type, opts) => {
+    const fn = sources[type];
+
+    if (fn === undefined) {
+        throw new Error(`Unsupported map layer type ${type}`);
+    }
+
+    return fn(opts);
+}
+
+const Controller = CommonLayerController.extend({
+    initialize: function () {
+        // there is no automatic chaining of initialize.
+        CommonLayerController.prototype.initialize.apply(this, arguments);
+    },
+    makeMap: function (options) {
+        this.collection.forEach((model) => {
+            this.addLayer(model);
+        })
+
+        const view = new ol.View({
+            projection: ol.proj.get(properties.projection),
+            center: ol.proj.transform([0, 0], 'EPSG:4326', properties.projection),
+            zoom: options.zoom
+        });
+
+        const config = {
+            target: options.element,
+            view: view,
+            interactions: ol.interaction.defaults({doubleClickZoom: false})
+        };
+
+        if (options.controls !== undefined) {
+            config.controls = options.controls;
         }
-    };
 
-    var Controller = CommonLayerController.extend({
-        initialize: function () {
-            // there is no automatic chaining of initialize.
-            CommonLayerController.prototype.initialize.apply(this, arguments);
-        },
-        makeMap: function (options) {
-            var layers = [];
+        this.map = new ol.Map(config);
+        this.isMapCreated = true;
+        return this.map;
+    },
+    onDestroy: function () {
+        if (this.isMapCreated) {
+            this.map.setTarget(null);
+            this.map = null;
+        }
+    },
+    addLayer: async function (model) {
+        const { id, type } = model.toJSON();
+        const opts = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid');
+        opts.show = model.shouldShowLayer();
 
-            this.collection.forEach(function (model, index) {
-                var widgetLayer = this.makeWidgetLayer(model);
-                layers.push(widgetLayer);
-                this.layerForCid[model.id] = widgetLayer;
-                widgetLayer.setZIndex(-(index + 1));
-            }, this);
-
-            var view = new ol.View({
-                projection: ol.proj.get(properties.projection),
-                center: ol.proj.transform([0, 0], 'EPSG:4326', properties.projection),
-                zoom: options.zoom
-            });
-            var mapConfig = {
-                layers: layers,
-                target: options.element,
-                view: view,
-                interactions: ol.interaction.defaults({doubleClickZoom: false})
-            };
-            if (options.controls !== undefined) {
-                mapConfig.controls = options.controls;
-            }
-
-            this.map = new ol.Map(mapConfig);
-            this.isMapCreated = true;
-            return this.map;
-        },
-        onDestroy: function () {
-            if (this.isMapCreated) {
-                this.map.setTarget(null);
-                this.map = null;
-            }
-        },
-        setAlpha: function (model) {
-            var layer = this.layerForCid[model.id];
+        try {
+            const layer = await Promise.resolve(createLayer(type, opts));
+            this.map.addLayer(layer);
+            this.layerForCid[id] = layer;
+            this.reIndexLayers();
+        } catch (e) {
+            model.set('warning', e.message);
+        }
+    },
+    removeLayer: function (model) {
+        const id = model.get('id');
+        const layer = this.layerForCid[id];
+        if (layer !== undefined) {
+            this.map.removeLayer(layer);
+        }
+        delete this.layerForCid[id];
+        this.reIndexLayers();
+    },
+    setAlpha: function (model) {
+        const layer = this.layerForCid[model.id];
+        if (layer !== undefined) {
             layer.setOpacity(model.get('alpha'));
-        },
-        setShow: function (model) {
-            var layer = this.layerForCid[model.id];
-            layer.setVisible(model.shouldShowLayer());
-        },
-        reIndexLayers: function () {
-            this.collection.forEach(function (model, index) {
-                var widgetLayer = this.layerForCid[model.id];
-                widgetLayer.setZIndex(-(index + 1));
-            }, this);
-        },
-        makeWidgetLayer: function (model) {
-            var typeStr = model.get('type');
-            var type = imageryProviderTypes[typeStr];
-            var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'show', 'alpha', 'modelCid');
-            var layerType = ol.layer.Tile;
-
-            if (typeStr === 'OSM') {
-                if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
-                    initObj.url = initObj.url + '/{z}/{x}/{y}.png';
-                }
-            } else if (typeStr === 'BM') {
-                if (!initObj.imagerySet) {
-                    initObj.imagerySet = initObj.url;
-                }
-            } else if (typeStr === 'WMS') {
-                if (!initObj.params) {
-                    initObj.params = {
-                        LAYERS: initObj.layers
-                    };
-                    _.extend(initObj.params, initObj.parameters);
-                }
-            } else if (typeStr === 'SI') {
-                layerType = ol.layer.Image;
-                if (!initObj.imageExtent) {
-                    initObj.imageExtent = ol.proj.get(properties.projection).getExtent();
-                }
-                if (initObj.parameters) {
-                    _.extend(initObj, initObj.parameters);
-                }
-            } else if (typeStr === 'AGM'){
-                if (initObj.url && initObj.url.indexOf('/tile/{z}/{y}/{x}') === -1) {
-                    initObj.url = initObj.url + '/tile/{z}/{y}/{x}';
-                }
-            } else if (typeStr === 'WMT') {
-                /* If tileMatrixSetID is present (Cesium WMTS keyword) set matrixSet (OpenLayers WMTS keyword) */
-                if (initObj.tileMatrixSetID) {
-                    initObj.matrixSet = initObj.tileMatrixSetID;
-                }
-
-                /* We must mock the tileGrid in order to prevent errors in OpenLayers before the GetCapabilities request returns */
-                initObj.tileGrid = mockTileGrid;
-
-                $.ajax({
-                  url : initObj.url + '?request=GetCapabilities',
-                  success : function(data)  {
-                      var parser = new ol.format.WMTSCapabilities();
-                      var result = parser.read(data);
-                      var options = ol.source.WMTS.optionsFromCapabilities(result, {layer: initObj.layer, matrixSet: initObj.matrixSet});
-                      /* Replace URL with Proxy URL */
-                      options.urls = [initObj.url];
-                      initObj = options;
-                      var layer = new layerType({
-                            visible: model.shouldShowLayer(),
-                            preload: Infinity,
-                            opacity: model.get('alpha'),
-                            source: new type(initObj)
-                        });
-                      var olMapLayers = this.map.getLayers();
-                      olMapLayers.forEach(function(existingLayer, index){
-                        if (existingLayer === this.layerForCid[model.id]){
-                            this.layerForCid[model.id] = layer;
-                            olMapLayers.setAt(index, this.layerForCid[model.id]);
-                        }
-                      }.bind(this));
-                  }.bind(this)
-                });
-            }
-
-            return new layerType({
-                visible: model.shouldShowLayer(),
-                preload: Infinity,
-                opacity: model.get('alpha'),
-                source: new type(initObj)
-            });
         }
-    });
-
-    return Controller;
-
+    },
+    setShow: function (model) {
+        const layer = this.layerForCid[model.id];
+        if (layer !== undefined) {
+            layer.setVisible(model.shouldShowLayer());
+        }
+    },
+    reIndexLayers: function () {
+        this.collection.forEach(function (model, index) {
+            const layer = this.layerForCid[model.id];
+            if (layer !== undefined) {
+                layer.setZIndex(-(index + 1));
+            }
+        }, this);
+        user.savePreferences();
+    }
 });
+
+module.exports = Controller;

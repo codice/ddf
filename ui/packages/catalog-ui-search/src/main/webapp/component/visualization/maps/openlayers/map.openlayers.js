@@ -42,7 +42,7 @@ var OpenLayerCollectionController = LayerCollectionController.extend({
 
 function createMap(insertionElement) {
     var layerPrefs = user.get('user>preferences>mapLayers');
-    User.updateMapLayers(layerPrefs, [], 0);
+    User.updateMapLayers(layerPrefs);
     var layerCollectionController = new OpenLayerCollectionController({ collection: layerPrefs });
     var map = layerCollectionController.makeMap({
         zoom: 3,

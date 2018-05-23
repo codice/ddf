@@ -28,11 +28,12 @@ define([
     'component/singletons/user-instance',
     'component/sort/sort.view',
     'js/Common',
-    'component/result-form/result-form'
+    'component/result-form/result-form',
+    'plugins/query-settings'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
-             QuerySrcView, PropertyView, Property, user, SortItemCollectionView, Common, ResultForm) {
+             QuerySrcView, PropertyView, Property, user, SortItemCollectionView, Common, ResultForm, plugin) {
 
-    return Marionette.LayoutView.extend({
+    return plugin(Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-settings'),
         modelEvents: {},
@@ -45,7 +46,8 @@ define([
         regions: {
             settingsSortField: '.settings-sorting-field',
             settingsSrc: '.settings-src',
-            resultForm: '.result-form'
+            resultForm: '.result-form',
+            extensions: '.query-extensions'
         },
         ui: {},
         focus: function () {
@@ -70,7 +72,13 @@ define([
                 }));
                 this.resultForm.currentView.turnOnEditing();
             }
+
+            const extensions = this.getExtensions()
+            if (extensions !== undefined) {
+                this.extensions.show(extensions)
+            }
         },
+        getExtensions: function () {},
         handleChangeDetailLevel: function (model, values) {
             $.each(model.get('enum'), (function (index, value) {
                 if (values[0] === value.value) {
@@ -151,5 +159,5 @@ define([
             store.setCurrentQuery(this.model);
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
-    });
+    }));
 });

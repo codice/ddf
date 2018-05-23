@@ -34,36 +34,27 @@ define([
 
     var User = {};
 
-    User.updateMapLayers = function(layerPrefs, layersToRemove, index) {
-        layerPrefs.each(function (layer) {
-            var found = false;
-            if (layer) {
-                for (var i = 0; i < properties.imageryProviders.length; i++) {
-                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
-                    var propProvider = _.omit(properties.imageryProviders[i], ['alpha', 'show', 'order']);
-                    if (_.isEqual(propProvider, layerObj)) {
-                        found = true;
-                    }
-                }
-            }
+    User.updateMapLayers = function(layers) {
+        const providers = properties.imageryProviders;
+        const exclude = ['id', 'label', 'alpha', 'show', 'order'];
+        const equal = (a, b) => _.isEqual(_.omit(a, exclude), _.omit(b, exclude));
+
+        const layersToRemove = layers.filter((model) => {
+            const found = providers
+                .some((provider) => equal(provider, model.toJSON()));
+            return !found && !model.get('userRemovable');
+        });
+
+        layers.remove(layersToRemove);
+
+        providers.forEach((provider) => {
+            const found = layers.toArray()
+                .some((model) => equal(provider, model.toJSON()));
+
             if (!found) {
-                layersToRemove[index++] = layer;
+                layers.add(new User.MapLayer(provider, {parse: true}));
             }
         });
-        layerPrefs.remove(layersToRemove);
-        for (var i = 0; i < properties.imageryProviders.length; i++) {
-            var found = false;
-            for (var j = 0; j < layerPrefs.models.length; j++) {
-                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
-                var propProvider = _.omit(properties.imageryProviders[i], ['show', 'alpha', 'order']);
-                if (_.isEqual(propProvider, layerObj)) {
-                    found = true;
-                }
-            }
-            if (!found) {
-                layerPrefs.add(new User.MapLayer(properties.imageryProviders[i], {parse: true}));
-            }
-        }
     };
 
     User.MapLayer = Backbone.AssociatedModel.extend({
@@ -73,6 +64,10 @@ define([
                 show: true,
                 id: Common.generateUUID()
             };
+        },
+        blacklist: ['warning'],
+        toJSON: function(options) {
+            return _.omit(this.attributes, this.blacklist);
         },
         shouldShowLayer: function() {
             return this.get('show') && this.get('alpha') > 0;

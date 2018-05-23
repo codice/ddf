@@ -37,7 +37,6 @@
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</repository>
-    <repository>mvn:org.codice.ddf/ui/${project.version}/xml/features</repository>
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
@@ -45,7 +44,6 @@
         <feature prerequisite="true">kernel</feature>
         <feature>secure-boot</feature>
         <feature>ddf-branding</feature>
-        <feature>ui</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
         <feature>admin-app</feature>

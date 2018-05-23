@@ -42,7 +42,7 @@ var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
 
 function createMap(insertionElement) {
     var layerPrefs = user.get('user>preferences>mapLayers');
-    User.updateMapLayers(layerPrefs, [], 0);
+    User.updateMapLayers(layerPrefs);
     var layerCollectionController = new CesiumLayerCollectionController({
         collection: layerPrefs
     });

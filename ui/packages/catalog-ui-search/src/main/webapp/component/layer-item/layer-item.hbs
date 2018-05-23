@@ -22,11 +22,25 @@
 </button>
 <div class="layer-properties">
     <div class="layer-name" title="{{name}}">{{name}}</div>
-    <div class="layer-visibility group">
-        <button class="is-button layer-show">
+    <div class="layer-visibility"><!--
+    --><input class="layer-alpha" value={{alpha}} min="0" max="1" step="0.01" type="range"/>
+    </div>
+    <div class="layer-interactions">
+        <button class="is-button layer-warning"
+                data-help="View map layer warnings."
+                title="{{warning}}">
+            <span class=" fa fa-warning"></span>
+        </button>
+        <button class="is-button layer-remove"
+                data-help="Remove map layer from user preferences."
+                title="Remove map layer from user preferences.">
+            <span class="fa fa-minus"></span>
+        </button>
+        <button class="is-button layer-show"
+                data-help="Toggle layer visibility."
+                title="Toggle layer visibility.">
             <span class="fa fa-eye"></span>
             <span class="fa fa-eye-slash"></span>
-        </button><!--
-    --><input class="layer-alpha" value={{alpha}} min="0" max="1" step="0.01" type="range"/>
+        </button>
     </div>
 </div>

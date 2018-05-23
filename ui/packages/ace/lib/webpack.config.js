@@ -200,6 +200,7 @@ const dev = (base, { main, auth }) => merge.smart(base, {
     hotOnly: true,
     inline: true,
     host: 'localhost',
+    disableHostCheck: true,
     historyApiFallback: true,
     contentBase: resolve('src/main/resources/'),
     proxy: {
@@ -284,7 +285,21 @@ const prod = (base, { main }) => merge.smart(base, {
 })
 
 module.exports = (opts) => {
-  const { env = 'development', main, alias, auth } = opts
+  const { env = 'development', main, auth } = opts
+  const alias = Object.keys(opts.alias || {}).reduce((o, key) => {
+    const [pkg, ...rest] = opts.alias[key].split('/')
+
+    if (pkg === '.') {
+      const dirname = path.dirname(require.resolve(pkg + '/package.json', {
+        paths: [process.cwd()]
+      }))
+      o[key] = path.join(dirname, ...rest)
+    } else {
+      o[key] = opts.alias[key]
+    }
+
+    return o
+  }, {})
   const b = base({ env, alias })
 
   switch (env) {

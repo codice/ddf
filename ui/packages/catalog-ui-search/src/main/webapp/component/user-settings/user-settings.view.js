@@ -23,7 +23,9 @@ var SearchSettings = require('component/search-settings/search-settings.view');
 var HiddenSettings = require('component/user-blacklist/user-blacklist.view');
 var TimeSettings = require('component/time-settings/time-settings.view');
 
-module.exports = Marionette.LayoutView.extend({
+const plugin = require('plugins/user-settings');
+
+module.exports = plugin(Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('user-settings'),
     modelEvents: {},
@@ -38,11 +40,17 @@ module.exports = Marionette.LayoutView.extend({
         'click > .user-settings-content > .content-header .header-back': 'handleBack'
     },
     regions: {
-        settingsContent: '> .user-settings-content > .content-settings'
+        settingsContent: '> .user-settings-content > .content-settings',
+        extensions: '.navigation-extensions'
     },
     ui: {},
     onBeforeShow: function() {
+        const extensions = this.getExtensions();
+        if (extensions !== undefined) {
+            this.extensions.show(extensions);
+        }
     },
+    getExtensions: function() {},
     handleBack: function(){
         this.$el.toggleClass('is-navigated', false);
         this.settingsContent.empty();
@@ -75,4 +83,4 @@ module.exports = Marionette.LayoutView.extend({
     repositionDropdown: function(){
         this.$el.trigger('repositionDropdown.'+CustomElements.getNamespace());
     }
-});
+}));

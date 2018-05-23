@@ -31,7 +31,8 @@ define([
         attributes: function(){
             return {
                 'data-id': this.model.get('id'),
-                'data-label': this.model.get('label') || this.model.get('id')
+                'data-label': this.model.get('label') || this.model.get('id'),
+                'title': this.model.get('title')
             }
         },
         events: {

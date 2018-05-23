@@ -12,7 +12,7 @@
     }
 
     .layer-properties {
-        padding: @mediumSpacing;
+        padding: 0 @mediumSpacing;
         margin-left: @minimumButtonSize;
         width: ~'calc(100% - @{minimumButtonSize})';
     }
@@ -40,6 +40,21 @@
 
     .layer-rearrange-up {
         top: 0px;
+    }
+
+    .layer-interactions {
+        text-align: right;
+    }
+
+    .layer-interactions > button {
+        vertical-align: top;
+    }
+
+    .layer-remove,
+    .layer-warning {
+        width: @minimumButtonSize;
+        height: @minimumButtonSize;
+        display: none;
     }
 
     .layer-rearrange-up:hover,
@@ -76,12 +91,8 @@
         vertical-align: middle;
     }
 
-    .layer-alpha {
-        width: ~'calc(100% - @{minimumButtonSize})' !important;
-    }
-
     .layer-name {
-        margin-bottom: @minimumSpacing;
+        line-height: @minimumButtonSize;
         overflow: hidden;
         text-overflow: ellipsis;
     }
@@ -127,5 +138,19 @@
     .layer-name,
     input {
         opacity: 1;
+    }
+}
+
+@{customElementNamespace}layer-item.is-removable {
+    .layer-remove {
+        display: inline-block;
+    }
+}
+
+@{customElementNamespace}layer-item.has-warning {
+    .layer-warning {
+        display: inline-block;
+        color: @warning-color;
+        cursor: default;
     }
 }

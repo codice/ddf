@@ -31,12 +31,18 @@ module.exports = Marionette.ItemView.extend({
         'click .layer-show': 'updateLayerShow',
         'change .layer-alpha': 'updateLayerAlpha',
         'click .layer-rearrange-down': 'moveDown',
-        'click .layer-rearrange-up': 'moveUp'
+        'click .layer-rearrange-up': 'moveUp',
+        'click .layer-remove': 'onRemove'
     },
     initialize: function () {
         this.listenTo(this.model, 'change:show', this.handleShow);
         this.listenTo(this.model, 'change:alpha', this.handleAlpha);
         this.listenTo(this.model, 'change:order', this.handleOrder);
+        this.$el.toggleClass('is-removable', this.model.has('userRemovable'));
+        this.$el.toggleClass('has-warning', this.model.has('warning'));
+    },
+    onRemove: function () {
+        this.model.collection.remove(this.model);
     },
     moveDown: function(e) {
         const order = this.options.sortable.toArray();
@@ -97,7 +103,8 @@ module.exports = Marionette.ItemView.extend({
     },
     serializeData: function() {
         return _.defaults(this.model.toJSON(), {
-            name: "Untitled"
+            name: "Untitled",
+            warning: this.model.get('warning')
         });
     }
 });
