@@ -122,7 +122,9 @@ module.exports = Marionette.LayoutView.extend({
     let title = this.basicTitle.currentView.model.getValue()[0]
     if(title === '')
     {
-      this.message('Error!', 'Result Form must have a Title', 'error')
+      let $validationElement = this.basicTitle.currentView.$el.find('> .property-label .property-validation')
+      $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error')
+      $validationElement.attr('title', "Name field cannot be blank")
       Loading.endLoading(view)
       return 
     }

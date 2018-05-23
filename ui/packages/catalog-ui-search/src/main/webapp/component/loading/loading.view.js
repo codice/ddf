@@ -26,14 +26,7 @@ define([
         tagName: CustomElements.register('loading'),
         initialize: function(){
             this.render();
-            //TODO: Get feedback on this since it might not be considered "grade A"
-            if (this.options.DOMHook !== undefined) {
-                this.$el.addClass("hasDOMHook");
-                this.options.DOMHook.append(this.el);
-            } else {
-                this.$el.removeClass("hasDOMHook");
-                $('body').append(this.el);
-            }
+            $('body').append(this.el);
             this.$el.animate({
                 opacity: .6
             }, 500, function(){
