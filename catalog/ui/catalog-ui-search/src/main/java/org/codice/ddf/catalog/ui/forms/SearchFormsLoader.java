@@ -36,12 +36,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
@@ -333,6 +336,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   /**
    * Caution should be used with this, as it elevates the permissions to the System user.
    *
+   * <p>Operations that throw an {@link Exception} will be tried (in total) a maximum of 3 times
+   * before actually failing.
+   *
    * @param func What to execute as the System
    * @param <T> Generic return type of func
    * @return result of the callable func
@@ -342,6 +348,11 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     if (systemSubject == null) {
       throw new SecurityException("Could not get systemSubject to initialize system templates");
     }
-    return systemSubject.execute(func);
+    return Failsafe.with(
+            new RetryPolicy()
+                .retryOn(Collections.singletonList(Exception.class))
+                .withMaxRetries(2)
+                .withBackoff(2, 10, TimeUnit.SECONDS))
+        .get(() -> systemSubject.execute(func));
   }
 }
