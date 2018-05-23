@@ -64,6 +64,8 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
+import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
+import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.SessionHandler;
@@ -477,6 +479,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   @Test
+  @ConditionalIgnoreRule.ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-3848
   public void testRedirectFlow() throws Exception {
 
     // Negative test to make sure we aren't admin yet
@@ -557,6 +560,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   @Test
+  @ConditionalIgnoreRule.ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-3848
   public void testLogout() throws Exception {
     Response acsResponse = loginUser("admin", "admin");
 
@@ -738,6 +742,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   @Test
+  @ConditionalIgnoreRule.ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-3848
   public void testSessionManagement() throws Exception {
     // logon a couple of users
     loginUser("tchalla", "password1");
