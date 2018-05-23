@@ -58,8 +58,6 @@ public class OpenSearchParserImplTest {
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-  private static final WKTReader WKT_READER = new WKTReader();
-
   private static final String MAX_RESULTS = "2000";
 
   private static final String TIMEOUT = "30000";
@@ -388,7 +386,7 @@ public class OpenSearchParserImplTest {
   @Test
   public void populateSpatialGeometry() throws ParseException {
 
-    Geometry geometry = WKT_READER.read(WKT_GEOMETRY);
+    Geometry geometry = new WKTReader().read(WKT_GEOMETRY);
     openSearchParser.populateSpatial(
         webClient,
         geometry,

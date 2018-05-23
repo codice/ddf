@@ -47,8 +47,6 @@ public class OpenSearchParserImpl implements OpenSearchParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImpl.class);
 
-  private static final WKTWriter WKT_WRITER = new WKTWriter();
-
   @VisibleForTesting static final String USER_DN = "dn";
 
   @VisibleForTesting static final String FILTER = "filter";
@@ -161,7 +159,7 @@ public class OpenSearchParserImpl implements OpenSearchParser {
     }
 
     if (geometry != null) {
-      checkAndReplace(client, WKT_WRITER.write(geometry), OpenSearchConstants.GEOMETRY, parameters);
+      checkAndReplace(client, new WKTWriter().write(geometry), OpenSearchConstants.GEOMETRY, parameters);
     } else if (boundingBox != null) {
       checkAndReplace(
           client,
