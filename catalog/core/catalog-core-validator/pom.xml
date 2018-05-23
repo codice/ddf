@@ -47,6 +47,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.countrycode</groupId>
+            <artifactId>converter</artifactId>
+            <version>${countryconverter.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -62,6 +67,7 @@
                             catalog-core-api-impl,
                             platform-util
                         </Embed-Dependency>
+                        <Export-Package>ddf.catalog.validation.impl.validator</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -83,7 +89,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.96</minimum>
+                                            <minimum>0.94</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>

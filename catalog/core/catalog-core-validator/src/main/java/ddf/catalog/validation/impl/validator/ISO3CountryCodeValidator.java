@@ -20,14 +20,14 @@ import ddf.catalog.validation.impl.report.AttributeValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.AttributeValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.codice.countrycode.standard.StandardProvider;
+import org.codice.countrycode.standard.StandardRegistryImpl;
 
 /**
  * Validates an attribute's value(s) against the ISO_3166-1 Alpha3 country codes.
@@ -35,17 +35,30 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * <p>Is capable of validating {@link String}s.
  */
 public class ISO3CountryCodeValidator implements AttributeValidator {
+  private static final String ISO_3166 = "ISO3166";
+  private static final String VERSION = "1";
+
   private final boolean ignoreCase;
 
-  private static final Set<String> COUNTRY_CODES =
-      Arrays.stream(Locale.getISOCountries())
-          .map(iso2CC -> new Locale("", iso2CC))
-          .map(Locale::getISO3Country)
-          .map(String::toUpperCase)
-          .collect(Collectors.toSet());
+  private final Set<String> countryCodes;
 
   public ISO3CountryCodeValidator(final boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
+
+    StandardProvider standardProvider =
+        StandardRegistryImpl.getInstance().lookup(ISO_3166, VERSION);
+
+    if (standardProvider == null) {
+      throw new IllegalStateException(
+          "StandardProvider lookup failed for [" + ISO_3166 + ", " + VERSION + "]");
+    }
+
+    countryCodes =
+        standardProvider
+            .getStandardEntries()
+            .stream()
+            .map(cc -> cc.getAsFormat("alpha3"))
+            .collect(Collectors.toSet());
   }
 
   /**
@@ -73,7 +86,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
         .filter(String.class::isInstance)
         .map(String.class::cast)
         .map(ignoreCase ? String::toUpperCase : String::toString)
-        .filter(s -> !COUNTRY_CODES.contains(s))
+        .filter(s -> !countryCodes.contains(s))
         .map(
             s ->
                 new ValidationViolationImpl(
@@ -82,7 +95,7 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
                     ValidationViolation.Severity.ERROR))
         .forEach(report::addViolation);
 
-    COUNTRY_CODES.forEach(report::addSuggestedValue);
+    countryCodes.forEach(report::addSuggestedValue);
 
     return report;
   }
@@ -100,13 +113,13 @@ public class ISO3CountryCodeValidator implements AttributeValidator {
     ISO3CountryCodeValidator that = (ISO3CountryCodeValidator) o;
 
     return new EqualsBuilder()
-        .append(COUNTRY_CODES, that.COUNTRY_CODES)
+        .append(countryCodes, that.countryCodes)
         .append(ignoreCase, that.ignoreCase)
         .isEquals();
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(COUNTRY_CODES).toHashCode();
+    return new HashCodeBuilder(17, 37).append(countryCodes).toHashCode();
   }
 }

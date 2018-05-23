@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.spatial.geocoding.create;
 
-import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
-import org.codice.countrycode.CountryCodeConverter;
-import org.codice.countrycode.converter.Converter;
-import org.codice.countrycode.standard.CountryCode;
 import org.codice.countrycode.standard.StandardProvider;
 import org.codice.countrycode.standard.StandardRegistry;
 import org.codice.countrycode.standard.StandardRegistryImpl;
@@ -29,11 +24,9 @@ import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
  * href="http://download.geonames.org/export/dump">geonames.org</a>.
  */
 public class GeoNamesCreator implements GeoEntryCreator {
-  private Converter converter;
   private StandardProvider isoStandard;
 
   public GeoNamesCreator() {
-    this.converter = new CountryCodeConverter();
     StandardRegistry registry = StandardRegistryImpl.getInstance();
     isoStandard = registry.lookup("ISO3166", "1");
   }
@@ -43,13 +36,15 @@ public class GeoNamesCreator implements GeoEntryCreator {
     // Passing a negative value to preserve empty fields.
     final String[] fields = line.split("\\t", -1);
 
-    String countryCode = fields[8];
-    Set<CountryCode> countryCodes =
-        converter.fromAlpha2(
-            fields[8].trim(), isoStandard.getStandard(), isoStandard.getStandard());
-    if (CollectionUtils.isNotEmpty(countryCodes)) {
-      countryCode = countryCodes.iterator().next().getAsFormat("alpha3");
-    }
+    final String countryCodeAlpha2 = fields[8];
+    String countryCodeAlpha3 =
+        isoStandard
+            .getStandardEntries()
+            .stream()
+            .filter(c -> c.getAsFormat("alpha2").equals(countryCodeAlpha2))
+            .findFirst()
+            .map(cc -> cc.getAsFormat("alpha3"))
+            .orElse(countryCodeAlpha2);
 
     return new GeoEntry.Builder()
         .name(fields[1])
@@ -58,7 +53,7 @@ public class GeoNamesCreator implements GeoEntryCreator {
         .featureCode(fields[7])
         .population(Long.parseLong(fields[14]))
         .alternateNames(fields[3])
-        .countryCode(countryCode)
+        .countryCode(countryCodeAlpha3)
         .importLocation(entryResource)
         .build();
   }

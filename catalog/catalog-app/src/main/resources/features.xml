@@ -370,6 +370,7 @@
 
     <feature name="catalog-core-validator" version="${project.version}"
              description="Metacard and attribute validation services">
+        <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
