@@ -68,7 +68,7 @@ public interface WorkspaceTransformation<M, J> {
    *     of this {@link WorkspaceTransformation}'s {@link #getMetacardValueType() expected metacard
    *     type} and will come from a metacard's attribute with the given {@link #getMetacardKey()
    *     expected metacard key}.
-   * @param workspaceMetacard
+   * @param workspaceMetacard the {@link Metacard} that houses workspace data.
    * @return a new value to be used as the value in a JSON-style data map with this {@link
    *     WorkspaceTransformation}'s {@link #getJsonKey() JSON key} or {@link Optional#empty()}; the
    *     value inside a non-empty {@link Optional} will be an instance of this {@link

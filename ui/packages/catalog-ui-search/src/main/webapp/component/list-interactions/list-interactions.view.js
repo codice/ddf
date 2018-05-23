@@ -65,7 +65,7 @@ module.exports = Marionette.ItemView.extend({
     },
     triggerAction(event){
        const url = event.currentTarget.getAttribute('data-url');
-       window.open(url, '_blank');
+       window.open(url);
     },
     handleResult(){
         this.$el.toggleClass('has-results', this.model.get('query').get('result') !== undefined);

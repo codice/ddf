@@ -30,6 +30,7 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
 
+  private static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
   private static final String ACTIONS_KEY = "actions";
 
   private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Sets.newHashSet(ACTIONS_KEY);
@@ -56,7 +57,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
                 .stream()
                 .filter(Map.class::isInstance)
                 .map(Map.class::cast)
-                .forEach(map -> map.put(ACTIONS_KEY, listActions)));
+                .forEach(listMetacardMap -> listMetacardMap.put(ACTIONS_KEY, listActions)));
 
     return listMetacardOptional;
   }
@@ -70,7 +71,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
         .stream()
         .filter(Map.class::isInstance)
         .map(Map.class::cast)
-        .forEach(map -> EXTERNAL_LIST_ATTRIBUTES.forEach(map::remove));
+        .forEach(listMetacardMap -> EXTERNAL_LIST_ATTRIBUTES.forEach(listMetacardMap::remove));
 
     return super.jsonValueToMetacardValue(transformer, metacardJsonData);
   }
@@ -89,7 +90,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
     return actionRegistry
         .list(workspaceMetacard)
         .stream()
-        .filter(action -> action.getId().startsWith("catalog.data.metacard.list"))
+        .filter(action -> action.getId().startsWith(LIST_ACTION_PREFIX))
         .map(
             action -> {
               // Work-around for paths being behind VPCs with non-public DNS values
