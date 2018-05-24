@@ -154,7 +154,7 @@ public class CqlRequest {
     QueryRequest queryRequest;
     if (CACHE_SOURCE.equals(source)) {
       queryRequest = new QueryRequestImpl(query, true);
-      queryRequest.getProperties().put("mode", "cache");
+      queryRequest.getProperties().put("mode", CACHE_SOURCE);
     } else {
       queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
       queryRequest.getProperties().put("mode", "update");
