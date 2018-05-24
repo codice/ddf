@@ -18,7 +18,6 @@ const template = require('./query-editor.hbs');
 const CustomElements = require('js/CustomElements');
 const QueryBasic = require('component/query-basic/query-basic.view');
 const QueryAdvanced = require('component/query-advanced/query-advanced.view');
-const QueryCustom = require('component/query-custom/query-custom.view');
 const QueryTitle = require('component/query-title/query-title.view');
 const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 const cql = require('js/cql');

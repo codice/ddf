@@ -32,8 +32,8 @@ render(<Provider store={store}>
             <Announcments />
        </Provider>, region);
 
-exports.announce = function (announcement) {
-    store.dispatch(actions.announce(announcement));
+exports.announce = function (announcement, timeout) {
+    store.dispatch(actions.announce(announcement, timeout));
 };
 
 if (process.env.NODE_ENV !== 'production' && module.hot) {

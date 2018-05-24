@@ -73,7 +73,7 @@ module.exports =  Marionette.ItemView.extend({
                                         title: 'Error!',
                                         message: "Unable to delete the forms: " + xhr.responseText,
                                         type: 'error'
-                                    });
+                                    }, 2500);
                                     throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
                                 }.bind(this),
                                 success: function(model, xhr, options) {

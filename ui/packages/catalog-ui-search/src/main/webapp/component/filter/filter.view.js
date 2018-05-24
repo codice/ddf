@@ -83,7 +83,7 @@ define([
             this.listenTo(this.model, 'change:comparator', this.determineInput);
         },
         onBeforeShow: function(){
-            this.$el.toggleClass('hide-rearrange', this.options.isSortableDisabled || false);
+            this.$el.toggleClass('is-sortable', this.options.isSortable || true);
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
             this.filterAttribute.show(DropdownView.createSimpleDropdown({
                 list: metacardDefinitions.sortedMetacardTypes.filter(function(metacardType){

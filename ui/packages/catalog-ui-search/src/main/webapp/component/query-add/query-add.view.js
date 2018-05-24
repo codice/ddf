@@ -19,7 +19,6 @@ const template = require('./query-add.hbs');
 const CustomElements = require('js/CustomElements');
 const QueryBasic = require('component/query-basic/query-basic.view');
 const QueryAdvanced = require('component/query-advanced/query-advanced.view');
-const QueryCustom = require('component/query-custom/query-custom.view');
 const QueryTitle = require('component/query-title/query-title.view');
 const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 const Query = require('js/model/Query');
@@ -160,7 +159,7 @@ module.exports = Marionette.LayoutView.extend({
                 }),
                 'change:choice',
                 function (confirmation) {
-                    var choice = confirmation.get('choice');
+                   var choice = confirmation.get('choice');
                     if (choice === true) {
                         var loadingview = new LoadingView();
                         store.get('workspaces').once('sync', function(workspace, resp, options) {
@@ -182,16 +181,16 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     getQueryAsQueryTemplate: function() {
-        let formParameters = this.queryContent.currentView.serializeTemplateParameters();
+        const formModel = this.model.get('associatedFormModel') || new SearchFormModel();
+        const formParameters = this.queryContent.currentView.serializeTemplateParameters();
         let filterTree = cql.simplify(formParameters.filterTree || {});
         let filterSettings = formParameters.filterSettings || {};
-        let formModel = this.model.get('associatedFormModel') || new SearchFormModel();
         if (filterTree.filters && filterTree.filters.length === 1) {
             filterTree = filterTree.filters[0];
         }
         filterSettings.sorts = filterSettings.sorts.filter(sort => sort.attribute && sort.direction)
             .map(sort => sort.attribute + ',' + sort.direction);
-        let filterTemplate = {
+        return filterTemplate = {
             filterTemplate: filterTree,
             accessIndividuals: formModel.get('accessIndividuals'),
             accessGroups: formModel.get('accessGroups'),
@@ -203,7 +202,6 @@ module.exports = Marionette.LayoutView.extend({
             owner: formModel.get('owner'),
             querySettings: filterSettings
         }
-        return filterTemplate;
     },
     saveTemplateToBackend: function() {
         let loadingView = new LoadingView();
@@ -214,19 +212,12 @@ module.exports = Marionette.LayoutView.extend({
             contentType: 'application/json',
             customErrorHandling: true
         })
-        .done((data, textStatus, jqxhr) => {
-            announcement.announce({
-                title: 'Saved!',
-                message: 'Search form has been saved.',
-                type: 'success'
-            });
-        })
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({
-                title: 'Error!',
-                message: 'Search form failed to be saved.',
+                title: 'Search Form Failed to be Saved',
+                message: jqxhr.responseJSON.message,
                 type: 'error'
-            });
+            }, 2500);
         })
         .always(() => {
             loadingView.remove();

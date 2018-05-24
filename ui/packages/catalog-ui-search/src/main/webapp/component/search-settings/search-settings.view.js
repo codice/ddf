@@ -96,7 +96,6 @@ define([
             this.onBeforeShow();
         },
         save: function() {
-            console.trace();
             this.updateResultCountSettings();
             this.updateSearchSettings();
             user.savePreferences();

@@ -39,7 +39,7 @@ const fixTemplates = function(templates) {
 let cachedTemplates = [];
 let promiseIsResolved = false;
 
-const templatePromiseSupplier = () => $.ajax({
+const templatePromiseSupplier = () => properties.hasExperimentalEnabled() ? $.ajax({
         type: 'GET',
         context: this,
         url: '/search/catalog/internal/forms/query',
@@ -61,7 +61,7 @@ const templatePromiseSupplier = () => $.ajax({
             cachedTemplates = cachedTemplates.concat(newTemplates);
             promiseIsResolved = true;
         }
-    });
+    }) : Promise.resolve();
 
 let bootstrapPromise = templatePromiseSupplier();
 
@@ -100,7 +100,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }],
     addCustomForms: function() {
         if (!this.isDestroyed) {
-            $.each(cachedTemplates, function(index, value) {
+            cachedTemplates.forEach(function(value, index) {
                 if (this.checkIfOwnerOrSystem(value)) {
                     var utcSeconds = value.created / 1000;
                     var d = new Date(0);

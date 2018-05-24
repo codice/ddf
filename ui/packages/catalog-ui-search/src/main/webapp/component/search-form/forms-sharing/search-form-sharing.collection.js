@@ -51,7 +51,7 @@
    addMySharedForms: function() {
        templatePromise.then(() => {
             if (!this.isDestroyed){
-                $.each(sharedTemplates, (index, value) => {
+                sharedTemplates.forEach((value, index) => {
                     if (this.checkIfShareable(value)) {
                         let utcSeconds = value.created / 1000;
                         let d = new Date(0);

@@ -53,10 +53,8 @@ exports.announce = function (announcement, timeout) {
             announcement: _.extend({ id: id }, announcement)
         });
 
-        if (announcement.type !== 'error') {
-            setTimeout(function () {
-                dispatch(remove(id, timeout));
-            }, timeout || 5000);
-        }
+        setTimeout(function () {
+            dispatch(remove(id, timeout));
+        }, timeout || 5000);
     };
 };
