@@ -15,9 +15,9 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
 import static java.util.stream.Collectors.toList;
 
-import com.google.common.collect.Sets;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   private static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
   private static final String ACTIONS_KEY = "actions";
 
-  private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Sets.newHashSet(ACTIONS_KEY);
+  private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Collections.singleton(ACTIONS_KEY);
   private final ActionRegistry actionRegistry;
 
   public EmbeddedListMetacardsHandler(ActionRegistry actionRegistry) {
@@ -48,10 +48,10 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
 
     final List<Map<String, Object>> listActions = getListActions(workspaceMetacard);
 
-    final Optional<List> listMetacardOptional =
+    final Optional<List> listMetacardsOptional =
         super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
 
-    listMetacardOptional.ifPresent(
+    listMetacardsOptional.ifPresent(
         listMetacards ->
             ((List<Object>) listMetacards)
                 .stream()
@@ -59,7 +59,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
                 .map(Map.class::cast)
                 .forEach(listMetacardMap -> listMetacardMap.put(ACTIONS_KEY, listActions)));
 
-    return listMetacardOptional;
+    return listMetacardsOptional;
   }
 
   // Remove "actions" key from list metacard map.
@@ -71,9 +71,13 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
         .stream()
         .filter(Map.class::isInstance)
         .map(Map.class::cast)
-        .forEach(listMetacardMap -> EXTERNAL_LIST_ATTRIBUTES.forEach(listMetacardMap::remove));
+        .forEach(listMetacardMap -> removeExternalListAttributes(listMetacardMap));
 
     return super.jsonValueToMetacardValue(transformer, metacardJsonData);
+  }
+
+  private void removeExternalListAttributes(Map listMetacardMap) {
+    EXTERNAL_LIST_ATTRIBUTES.forEach(listMetacardMap::remove);
   }
 
   /**
