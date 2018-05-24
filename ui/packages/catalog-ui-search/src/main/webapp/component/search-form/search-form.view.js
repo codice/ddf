@@ -71,10 +71,16 @@ module.exports = Marionette.LayoutView.extend({
                 break;
             case 'basic':
                 this.options.queryModel.set('type', 'basic');
+                if (oldType === 'new-form' || oldType === 'custom') {
+                    this.options.queryModel.set('title', 'Search Name');
+                }
                 user.getQuerySettings().set('type', 'basic');
                 break;
             case 'text':
                 this.options.queryModel.set('type', 'text');
+                if (oldType === 'new-form' || oldType === 'custom') {
+                    this.options.queryModel.set('title', 'Search Name');
+                }
                 user.getQuerySettings().set('type', 'text');
                 break;
             case 'custom':
@@ -97,7 +103,6 @@ module.exports = Marionette.LayoutView.extend({
                     this.options.queryModel.trigger('change:type');
                 }
                 user.getQuerySettings().set('type', 'custom');
-
                 break;
         }
 

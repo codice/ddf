@@ -81,6 +81,10 @@ module.exports = Marionette.LayoutView.extend({
         }.bind(this));
     },
     triggerTypeAdvanced: function() {
+        let oldType = this.model.get('type');
+        if (oldType === 'custom' || oldType === 'new-form') {
+            this.model.set('title', 'Search Name');
+        }
         this.model.set('type', 'advanced');
         user.getQuerySettings().set('type', 'advanced');
         user.savePreferences();
