@@ -123,7 +123,8 @@ module.exports = Marionette.LayoutView.extend({
             selectedListId = listId;
             if (!this.model.get(selectedListId).isEmpty()) {
                 this.listResults.show(new ResultSelectorView({
-                    model: this.model.get(selectedListId).get('query')
+                    model: this.model.get(selectedListId).get('query'),
+                    selectionInterface: store
                 }));
             }
         } else {
