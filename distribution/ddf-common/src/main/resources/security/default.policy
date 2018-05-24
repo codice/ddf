@@ -338,7 +338,7 @@ grant codeBase "file:/admin-ui" {
 }
 
 grant codeBase "file:/admin-configuration-configupdater" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write,delete";
 }
 
 grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standalone" {

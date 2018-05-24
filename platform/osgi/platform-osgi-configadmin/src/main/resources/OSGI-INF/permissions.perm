@@ -37,6 +37,9 @@
 (org.osgi.framework.ServicePermission "org.osgi.service.cm.*" "get,register")
 (org.osgi.framework.ServicePermission "org.osgi.service.log.LogService" "get")
 
+# (CODICE) Need access to ConfigurationPersistencePlugin services
+(org.osgi.framework.ServicePermission "org.codice.felix.cm.internal.ConfigurationPersistencePlugin" "get")
+
 # Manage configurations
 # -> ConfigurationAdminImpl
 (org.osgi.framework.AdminPermission "*" "metadata")
