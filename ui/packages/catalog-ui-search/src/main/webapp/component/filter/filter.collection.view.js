@@ -71,7 +71,7 @@ module.exports = Marionette.CollectionView.extend({
     },
     turnOffEditing: function(){
         this.children.forEach(function(childView){
-                childView.turnOffEditing();
+            childView.turnOffEditing();
         });
     },
     handleMinusButton: function(){

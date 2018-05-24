@@ -19,7 +19,7 @@
  const SearchFormCollectionView = require('./search-form.collection.view');
  const SearchFormCollection = require('./search-form.collection.js');
  const CustomElements = require('js/CustomElements');
- const LoadingView = require('component/loading/loading.view');
+ const LoadingCompanionView = require("component/loading-companion/loading-companion.view");
  const properties = require('properties');
 
  module.exports = Marionette.LayoutView.extend({
@@ -39,8 +39,10 @@
             collectionWrapperModel: this.searchFormCollection,
             queryModel: this.model
         }));
-        this.loadingView.show(properties.hasExperimentalEnabled() ? new LoadingView({ DOMHook: this.$el }) : new Marionette.LayoutView({ template: () => "<div/>"}));
-        this.handleLoadingSpinner();
+        if (properties.hasExperimentalEnabled()) {
+            LoadingCompanionView.beginLoading(this, this.$el);
+            this.handleLoadingSpinner();
+        }
     },
     handleLoadingSpinner: function() {
         if(this.searchFormCollection.getDoneLoading()) {

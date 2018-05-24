@@ -10,9 +10,9 @@
  *
  **/
  /*global require*/
- var Tabs = require('component/tabs/tabs');
- var MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
- var MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
+ const Tabs = require('component/tabs/tabs');
+ const MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
+ const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
  const properties = require('properties');
 
  module.exports = Tabs.extend({
