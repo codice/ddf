@@ -65,28 +65,15 @@ public final class SystemBaseUrl {
   private String protocol;
 
   /* EXTERNAL and INTERNAL singleton objects */
-  public static final SystemBaseUrl EXTERNAL = new SystemBaseUrl(true);
-  public static final SystemBaseUrl INTERNAL = new SystemBaseUrl(false);
+  public static final SystemBaseUrl EXTERNAL = new SystemBaseUrl(EXTERNAL_HTTP_PORT, EXTERNAL_HTTPS_PORT, EXTERNAL_PORT, EXTERNAL_HOST, EXTERNAL_PROTOCOL);
+  public static final SystemBaseUrl INTERNAL = new SystemBaseUrl(INTERNAL_HTTP_PORT, INTERNAL_HTTPS_PORT, INTERNAL_PORT, INTERNAL_HOST, INTERNAL_PROTOCOL);
 
-  private SystemBaseUrl(boolean external) {
-    if (external) externalMode();
-    else internalMode();
-  }
-
-  private void externalMode() {
-    httpPort = EXTERNAL_HTTP_PORT;
-    httpsPort = EXTERNAL_HTTPS_PORT;
-    port = EXTERNAL_PORT;
-    host = EXTERNAL_HOST;
-    protocol = EXTERNAL_PROTOCOL;
-  }
-
-  private void internalMode() {
-    httpPort = INTERNAL_HTTP_PORT;
-    httpsPort = INTERNAL_HTTPS_PORT;
-    port = INTERNAL_PORT;
-    host = INTERNAL_HOST;
-    protocol = INTERNAL_PROTOCOL;
+  private SystemBaseUrl(String httpPortKey, String httpsPortKey, String portKey, String hostKey, String protocolKey) {
+    httpPort = httpPortKey;
+    httpsPort = httpsPortKey;
+    port = portKey;
+    host = hostKey;
+    protocol = protocolKey;
   }
 
   /**
@@ -95,11 +82,7 @@ public final class SystemBaseUrl {
    * @return
    */
   public String getPort() {
-    String port = System.getProperty(this.port);
-    if (port == null) {
-      port = getPort(getProtocol());
-    }
-    return port;
+    return System.getProperty(this.port, getPort(getProtocol()));
   }
 
   /**

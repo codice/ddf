@@ -160,6 +160,20 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
 
   private Option getSystemPropertyOptions() {
     return composite(
+            editConfigurationFilePut(
+                    SYSTEM_PROPERTIES_FILE,
+                    SystemBaseUrl.INTERNAL_PORT,
+                    portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTP_PORT)),
+            editConfigurationFilePut(
+                    SYSTEM_PROPERTIES_FILE,
+                    SystemBaseUrl.INTERNAL_HTTP_PORT,
+                    portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTP_PORT)),
+            editConfigurationFilePut(
+                    SYSTEM_PROPERTIES_FILE,
+                    SystemBaseUrl.INTERNAL_HTTPS_PORT,
+                    portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTPS_PORT)),
+            editConfigurationFilePut(
+                    SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_PROTOCOL, "http://"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE,
             SystemBaseUrl.EXTERNAL_PORT,
