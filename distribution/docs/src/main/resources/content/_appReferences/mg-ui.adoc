@@ -4,7 +4,7 @@
 :summary: Enables users to search a catalog and associated sites for content and metadata.
 :order: 12
 
-The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
+The Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
 
 == {title} Application Reference
 

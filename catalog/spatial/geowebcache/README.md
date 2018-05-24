@@ -88,7 +88,7 @@ diskquota.xml:
 See http://geowebcache.org/docs/current/configuration/diskquotas.html for more information on configuration options for disk quota.
 
 ### Configure the Standard Search UI
-Add a new Imagery Provider in the Standard Search UI Config in the Admin Console (/admin).
+Add a new Imagery Provider in the Search UI Config in the Admin Console (/admin).
 Set the Map Projection to `EPSG:900913` or `EPSG:4326`.  Out of the box, GeoWebCache supports either of these projections.
 
 `{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`

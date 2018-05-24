@@ -84,6 +84,7 @@ import spark.Response;
 public class EndpointUtil {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EndpointUtil.class);
+  public static final String MESSAGE = "message";
 
   private final List<MetacardType> metacardTypes;
 
@@ -99,7 +100,7 @@ public class EndpointUtil {
 
   private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-  public static final String APPLICATION_JSON = "application/json";
+  private static final String APPLICATION_JSON = "application/json";
 
   private static int pageSize = 250;
 
@@ -125,6 +126,7 @@ public class EndpointUtil {
     registerGeoToolsFunctionFactory();
   }
 
+  @SuppressWarnings("squid:S1604") // generics cannot be lambdas
   private void registerGeoToolsFunctionFactory() {
     GeoTools.addFactoryIteratorProvider(
         new FactoryIteratorProvider() {
@@ -189,25 +191,22 @@ public class EndpointUtil {
                 EndpointUtil::firstInWinsMerge));
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+  public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter) {
     return getMetacards(Metacard.ID, ids, tagFilter);
   }
 
-  public Map<String, Result> getMetacards(Collection<String> ids, Filter tagFilter)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+  public Map<String, Result> getMetacards(Collection<String> ids, Filter tagFilter) {
     return getMetacards(Metacard.ID, ids, tagFilter);
   }
 
-  public Map<String, Result> getMetacards(String attributeName, Collection<String> ids, String tag)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+  public Map<String, Result> getMetacards(
+      String attributeName, Collection<String> ids, String tag) {
     return getMetacards(
         attributeName, ids, filterBuilder.attribute(Metacard.TAGS).is().like().text(tag));
   }
 
   public Map<String, Result> getMetacards(
-      String attributeName, Collection<String> ids, Filter tagFilter)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      String attributeName, Collection<String> ids, Filter tagFilter) {
     if (ids.isEmpty()) {
       return new HashMap<>();
     }
@@ -280,6 +279,7 @@ public class EndpointUtil {
     return resultTypes;
   }
 
+  @SuppressWarnings("squid:S1319") // needs to match signature of AttributeImpl
   public ArrayList<String> getStringList(List<Serializable> list) {
     if (list == null) {
       return new ArrayList<>();
@@ -342,50 +342,69 @@ public class EndpointUtil {
     return objectMapper.toJson(result);
   }
 
-  public Optional<MetacardType> getMetacardType(String name) {
-    return metacardTypes.stream().filter(mt -> mt.getName().equals(name)).findFirst();
-  }
-
   public Map<String, Object> getMetacardMap(Metacard metacard) {
     Set<AttributeDescriptor> attributeDescriptors =
         metacard.getMetacardType().getAttributeDescriptors();
     Map<String, Object> result = new HashMap<>();
     for (AttributeDescriptor descriptor : attributeDescriptors) {
-      if (metacard.getAttribute(descriptor.getName()) == null) {
-        if (descriptor.isMultiValued()) {
-          result.put(descriptor.getName(), Collections.emptyList());
-        } else {
-          result.put(descriptor.getName(), null);
-        }
+      if (handleNullName(metacard, result, descriptor)
+          || handleThumbnail(metacard, result, descriptor)) {
         continue;
       }
-      if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
-        if (metacard.getThumbnail() != null) {
-          result.put(
-              descriptor.getName(), Base64.getEncoder().encodeToString(metacard.getThumbnail()));
-        } else {
-          result.put(descriptor.getName(), null);
-        }
-        continue;
-      }
-      if (descriptor.getType().getAttributeFormat().equals(AttributeType.AttributeFormat.DATE)) {
-        Attribute attribute = metacard.getAttribute(descriptor.getName());
-        if (descriptor.isMultiValued()) {
-          result.put(
-              descriptor.getName(),
-              attribute.getValues().stream().map(this::parseDate).collect(Collectors.toList()));
-        } else {
-          result.put(descriptor.getName(), parseDate(attribute.getValue()));
-        }
-      }
-
-      if (descriptor.isMultiValued()) {
-        result.put(descriptor.getName(), metacard.getAttribute(descriptor.getName()).getValues());
-      } else {
-        result.put(descriptor.getName(), metacard.getAttribute(descriptor.getName()).getValue());
-      }
+      handleDate(metacard, result, descriptor);
+      handleMultivalued(metacard, result, descriptor);
     }
     return result;
+  }
+
+  private void handleMultivalued(
+      Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
+    if (descriptor.isMultiValued()) {
+      result.put(descriptor.getName(), metacard.getAttribute(descriptor.getName()).getValues());
+    } else {
+      result.put(descriptor.getName(), metacard.getAttribute(descriptor.getName()).getValue());
+    }
+  }
+
+  private void handleDate(
+      Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
+    if (descriptor.getType().getAttributeFormat().equals(AttributeType.AttributeFormat.DATE)) {
+      Attribute attribute = metacard.getAttribute(descriptor.getName());
+      if (descriptor.isMultiValued()) {
+        result.put(
+            descriptor.getName(),
+            attribute.getValues().stream().map(this::parseDate).collect(Collectors.toList()));
+      } else {
+        result.put(descriptor.getName(), parseDate(attribute.getValue()));
+      }
+    }
+  }
+
+  private boolean handleThumbnail(
+      Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
+    if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
+      if (metacard.getThumbnail() != null) {
+        result.put(
+            descriptor.getName(), Base64.getEncoder().encodeToString(metacard.getThumbnail()));
+      } else {
+        result.put(descriptor.getName(), null);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private boolean handleNullName(
+      Metacard metacard, Map<String, Object> result, AttributeDescriptor descriptor) {
+    if (metacard.getAttribute(descriptor.getName()) == null) {
+      if (descriptor.isMultiValued()) {
+        result.put(descriptor.getName(), Collections.emptyList());
+      } else {
+        result.put(descriptor.getName(), null);
+      }
+      return true;
+    }
+    return false;
   }
 
   public Instant parseToDate(Serializable value) {
@@ -404,6 +423,7 @@ public class EndpointUtil {
     }
   }
 
+  @SuppressWarnings("squid:S2293") // results in class cast error
   public Map.Entry<String, Object> convertDateEntries(Map.Entry<String, Object> entry) {
     if (entry == null || entry.getKey() == null || entry.getValue() == null) {
       return entry;
@@ -413,11 +433,9 @@ public class EndpointUtil {
         .lookup(entry.getKey())
         .filter(ad -> AttributeType.AttributeFormat.DATE.equals(ad.getType().getAttributeFormat()))
         .map(
-            _$ -> {
+            attributeDescriptor -> {
               Serializable date = parseDate((Serializable) entry.getValue());
-              if (date instanceof Date) {
-                date = (Date) date;
-              } else if (date instanceof Instant) {
+              if (date instanceof Instant) {
                 // must be Date object for solr to parse correctly
                 date = Date.from((Instant) date);
               }
@@ -431,7 +449,7 @@ public class EndpointUtil {
       Pattern.compile("[a-zA-Z]{3}\\s[a-zA-Z]{3}\\s\\d+\\s[0-9:]+\\s(\\w+\\s)?\\d+");
 
   private Pattern iso8601 =
-      Pattern.compile("\\d+-?\\d+-?\\d+T\\d+:?\\d+:?\\d+(Z|(\\+|-)\\d+:\\d+)");
+      Pattern.compile("\\d+-?\\d+-?\\d+T\\d+:?\\d+:?\\d+(Z|([+\\-])\\d+:\\d+)");
 
   public Serializable parseDate(Serializable value) {
     if (value == null) {
@@ -452,7 +470,7 @@ public class EndpointUtil {
 
     String string = String.valueOf(value);
 
-    SimpleDateFormat dateFormat = null;
+    SimpleDateFormat dateFormat;
     if (boonDefault.matcher(string).matches()) {
       dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
     } else if (iso8601.matcher(string).matches()) {
@@ -483,16 +501,18 @@ public class EndpointUtil {
     return new String(bytes, Charset.defaultCharset());
   }
 
+  @SuppressWarnings("squid:S1172") // needed for compilation
   public void handleRuntimeException(Exception ex, Request req, Response res) {
     LOGGER.debug("Exception occurred", ex);
     res.status(404);
     res.header(CONTENT_TYPE, APPLICATION_JSON);
-    res.body(getJson(ImmutableMap.of("message", "Could not find what you were looking for")));
+    res.body(getJson(ImmutableMap.of(MESSAGE, "Could not find what you were looking for")));
   }
 
+  @SuppressWarnings("squid:S1172") // needed for compilation
   public void handleEntityTooLargeException(Exception ex, Request req, Response res) {
     LOGGER.info(
-        "User uploaded object greater than maximum size ({} bytes). If this is a valid request then you may consider increasing the maximum allowed request size under: <system>/admin/index.html > Standard Search UI > Catalog UI Search > Maximum Endpoint Upload Size. Please consider the constraints of system memory before adjusting this value.  It is roughly 3 * (max number concurrent system users) * (maximum endpoint upload bytes size) just for this endpoint, not considering the rest of the system. ",
+        "User uploaded object greater than maximum size ({} bytes). If this is a valid request then you may consider increasing the maximum allowed request size under: <system>/admin/index.html > Search UI > Catalog UI Search > Maximum Endpoint Upload Size. Please consider the constraints of system memory before adjusting this value.  It is roughly 3 * (max number concurrent system users) * (maximum endpoint upload bytes size) just for this endpoint, not considering the rest of the system. ",
         config.getMaximumUploadSize(),
         ex);
     String errorId = null;
@@ -504,11 +524,12 @@ public class EndpointUtil {
     res.body(
         getJson(
             ImmutableMap.of(
-                "message",
+                MESSAGE,
                 "The data sent was too large. Please contact your Systems Administrator. Error Code: "
                     + errorId)));
   }
 
+  @SuppressWarnings("squid:S1172") // needed for compilation
   public void handleIOException(Exception ex, Request req, Response res) {
     LOGGER.debug("Exception occurred", ex);
     res.status(500);
@@ -516,7 +537,7 @@ public class EndpointUtil {
     res.body(
         getJson(
             ImmutableMap.of(
-                "message",
+                MESSAGE,
                 "Something went wrong, please retry. If the problem persists please contact your Systems Administrator.")));
   }
 

@@ -54,7 +54,7 @@
         "catalog-app"
       ],
       "dependencies": [],
-      "description": "The Standard Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\\nIt includes both standard (3d globe) and simple (text page) versions.::Standard Search UI",
+      "description": "The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\\nIt includes both standard (3d globe) and simple (text page) versions.::Search UI",
       "name": "search-ui-app",
       "state": "INACTIVE",
       "uri": "mvn:ddf.ui.search/search-ui-app/2.5.0-SNAPSHOT/xml/features",
