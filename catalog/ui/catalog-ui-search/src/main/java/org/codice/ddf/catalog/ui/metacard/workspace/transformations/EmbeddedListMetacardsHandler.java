@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
 import static java.util.stream.Collectors.toList;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
 import java.util.Collections;
@@ -30,8 +31,8 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
 
-  private static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
-  private static final String ACTIONS_KEY = "actions";
+  @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
+  @VisibleForTesting static final String ACTIONS_KEY = "actions";
 
   private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Collections.singleton(ACTIONS_KEY);
   private final ActionRegistry actionRegistry;
