@@ -86,7 +86,7 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        <configuration>
+                            <configuration>
                             <haltOnFailure>true</haltOnFailure>
                             <rules>
                                 <rule>
@@ -95,12 +95,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <minimum>0.66</minimum>
                                         </limit>
                                         <limit>
                                             <counter>INSTRUCTION</counter>

@@ -16,6 +16,7 @@ package ddf.catalog.transformer.csv.common;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,90 +34,90 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CsvTransformerTest {
 
   private static final List<AttributeDescriptor> ATTRIBUTE_DESCRIPTOR_LIST = new ArrayList<>();
+
   private static Map<String, Attribute> metacardDataMap = new HashMap<>();
 
   private static List<Metacard> metacardList = new ArrayList<>();
+
   private static final int METACARD_COUNT = 2;
 
-  private static final String CSV_REGEX = "[\\n\\r,]";
+  private static final String CSV_ITEM_SEPARATOR_REGEX = "[\\n\\r,]";
 
-  private static final Object[][] ATTRIBUTE_DATA = {
-    {"attribute1", "value1", BasicTypes.STRING_TYPE},
-    {"attribute2", "value2", BasicTypes.STRING_TYPE},
-    {"attribute3", 101, BasicTypes.INTEGER_TYPE},
-    {"attribute4", 3.14159, BasicTypes.DOUBLE_TYPE},
-    {"attribute5", "value,5", BasicTypes.STRING_TYPE},
-    {"attribute6", "value6", BasicTypes.STRING_TYPE},
-    {"attribute7", "OBJECT", BasicTypes.OBJECT_TYPE},
-    {"attribute8", "BINARY", BasicTypes.BINARY_TYPE}
-  };
+  private static final List<ImmutableTriple<Object, Object, Object>> ATTRIBUTE_DATA =
+      Arrays.asList(
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute1", "value1", BasicTypes.STRING_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute2", "value2", BasicTypes.STRING_TYPE),
+          new ImmutableTriple<Object, Object, Object>("attribute3", 101, BasicTypes.INTEGER_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute4", 3.14159, BasicTypes.DOUBLE_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute5", "value,5", BasicTypes.STRING_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute6", "value6", BasicTypes.STRING_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute7", "OBJECT", BasicTypes.OBJECT_TYPE),
+          new ImmutableTriple<Object, Object, Object>(
+              "attribute8", "BINARY", BasicTypes.BINARY_TYPE));
 
   @Before
   public void setup() {
     ATTRIBUTE_DESCRIPTOR_LIST.clear();
-    metacardList.clear();
     buildMetacardDataMap();
     buildMetacardList();
   }
 
   @Test
-  public void getAllAttributes() {
-    Set<String> hiddenFields = new HashSet<>();
-    hiddenFields.add("attribute1");
-
+  public void getAllCsvAttributeDescriptors() {
     Set<AttributeDescriptor> allAttributes =
-        CsvTransformer.getAllAttributes(metacardList, hiddenFields);
-    assertThat(allAttributes, hasSize(5));
-
+        CsvTransformer.getAllCsvAttributeDescriptors(metacardList);
+    assertThat(allAttributes, hasSize(6));
     Set<String> allAttributeNames =
         allAttributes.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
-
+    // Binary and Object types are filtered
     final Set<String> expectedAttributes =
-        Sets.newHashSet("attribute2", "attribute3", "attribute4", "attribute5", "attribute6");
-
+        Sets.newHashSet(
+            "attribute1", "attribute2", "attribute3", "attribute4", "attribute5", "attribute6");
     assertThat(allAttributeNames, is(expectedAttributes));
   }
 
   @Test
   public void getOnlyRequestedAttributes() {
+
     Set<String> requestedAttributes = new HashSet<>();
     requestedAttributes.add("attribute1");
 
     Set<AttributeDescriptor> onlyRequestedAttributes =
-        CsvTransformer.getOnlyRequestedAttributes(
-            metacardList, requestedAttributes, Collections.emptySet());
+        CsvTransformer.getOnlyRequestedAttributes(metacardList, requestedAttributes);
 
     assertThat(onlyRequestedAttributes, hasSize(1));
-    final String name = onlyRequestedAttributes.stream().findFirst().get().getName();
+    final Optional<AttributeDescriptor> attributeDescriptorOptional =
+        onlyRequestedAttributes.stream().findFirst();
+    assertThat(attributeDescriptorOptional.isPresent(), is(true));
+
+    final AttributeDescriptor attributeDescriptor = attributeDescriptorOptional.get();
+    assertThat(attributeDescriptor, notNullValue());
+
+    final String name = attributeDescriptor.getName();
     assertThat(name, is("attribute1"));
-  }
-
-  @Test
-  public void getOnlyRequestedAttributesWithExcludedConfig() {
-    Set<String> requestedAttributes = Sets.newHashSet("attribute1", "attribute2");
-    Set<String> excludedAttributes = Sets.newHashSet("attribute1");
-
-    Set<AttributeDescriptor> onlyRequestedAttributes =
-        CsvTransformer.getOnlyRequestedAttributes(
-            metacardList, requestedAttributes, excludedAttributes);
-
-    assertThat(onlyRequestedAttributes, hasSize(1));
-    final String name = onlyRequestedAttributes.stream().findFirst().get().getName();
-    assertThat(name, is("attribute2"));
   }
 
   @Test
@@ -129,11 +130,8 @@ public class CsvTransformerTest {
             metacardList, requestedAttributes, Collections.emptyMap());
 
     Scanner scanner = new Scanner(csvText.toString());
-    scanner.useDelimiter(CSV_REGEX);
+    scanner.useDelimiter(CSV_ITEM_SEPARATOR_REGEX);
 
-    // Only attributes in "attributes" config field will exist in output.
-    // OBJECT types, BINARY types and excluded attributes will be filtered out
-    // excluded attribute take precedence over attributes that appear in requested attribute list.
     String[] expectedHeaders = {"attribute1"};
     validate(scanner, expectedHeaders);
 
@@ -160,11 +158,8 @@ public class CsvTransformerTest {
         CsvTransformer.writeMetacardsToCsv(metacardList, requestedAttributes, aliasMap);
 
     Scanner scanner = new Scanner(csvText.toString());
-    scanner.useDelimiter(CSV_REGEX);
+    scanner.useDelimiter(CSV_ITEM_SEPARATOR_REGEX);
 
-    // Only attributes in "attributes" config field will exist in output.
-    // OBJECT types, BINARY types and excluded attributes will be filtered out
-    // excluded attribute take precedence over attributes that appear in requested attribute list.
     String[] expectedHeaders = {"column1"};
     validate(scanner, expectedHeaders);
 
@@ -197,10 +192,10 @@ public class CsvTransformerTest {
   }
 
   private void buildMetacardDataMap() {
-    for (Object[] entry : ATTRIBUTE_DATA) {
-      String attributeName = entry[0].toString();
-      AttributeType attributeType = (AttributeType) entry[2];
-      Serializable attributeValue = (Serializable) entry[1];
+    for (ImmutableTriple entry : ATTRIBUTE_DATA) {
+      String attributeName = (String) entry.getLeft();
+      Serializable attributeValue = (Serializable) entry.getMiddle();
+      AttributeType attributeType = (AttributeType) entry.getRight();
       Attribute attribute = new AttributeImpl(attributeName, attributeValue);
       metacardDataMap.put(attributeName, attribute);
       ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(attributeName, attributeType));
@@ -216,7 +211,10 @@ public class CsvTransformerTest {
 
   private void validate(Scanner scanner, String[] expectedValues) {
     for (String expectedValue : expectedValues) {
-      assertThat(scanner.hasNext(), is(true));
+      assertThat(
+          "Expected next value to be " + expectedValue + " but scanner.hasNext() returned false",
+          scanner.hasNext(),
+          is(true));
       assertThat(scanner.next(), is(expectedValue));
     }
   }

@@ -15,7 +15,8 @@
 package ddf.catalog.transformer.csv;
 
 import static ddf.catalog.transformer.csv.common.CsvTransformer.createResponse;
-import static ddf.catalog.transformer.csv.common.CsvTransformer.getAllAttributes;
+import static ddf.catalog.transformer.csv.common.CsvTransformer.getAllCsvAttributeDescriptors;
+import static ddf.catalog.transformer.csv.common.CsvTransformer.getOnlyRequestedAttributes;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.sortAttributes;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsToCsv;
 
@@ -41,22 +42,23 @@ import java.util.stream.Collectors;
  * @see ddf.catalog.transform.QueryResponseTransformer
  */
 public class CsvQueryResponseTransformer implements QueryResponseTransformer {
-  private static final String HIDDEN_FIELDS_KEY = "hiddenFields";
 
-  private static final String COLUMN_ORDER_KEY = "columnOrder";
+  public static final String COLUMN_ORDER_KEY = "columnOrder";
 
-  private static final String COLUMN_ALIAS_KEY = "aliases";
+  public static final String COLUMN_ALIAS_KEY = "aliases";
 
   /**
    * @param upstreamResponse the SourceResponse to be converted.
-   * @param arguments this transformer accepts 3 parameters in the 'arguments' map. 1) key:
-   *     'hiddenFields' value: a java.util.Set containing Attribute names (as Strings) to be
-   *     excluded from the output. 2) key: 'attributeOrder' value: a java.utilList containing
-   *     Attribute name (as Strings) to identify the order that the columns will appear in the
-   *     output. 3) key: 'aliases' value: a java.util.Map whose keys are attribute names and values
-   *     are the how that attribute column should be aliased in the output. For example, if the key
-   *     is 'title' and the value is 'Product' then the resulting CSV will have a column name of
-   *     'Product' instead of 'title'.
+   * @param arguments this transformer accepts 2 parameters in the 'arguments' map.
+   *     <ol>
+   *       <li>key: 'columnOrder' value: a {@link List} of attribute names (as strings) that
+   *           specifies the order in which the columns will appear in the output.
+   *       <li>key: 'aliases' value: a {@link Map} with keys that are attribute names and with
+   *           values that are the corresponding column headers that will be printed in the output.
+   *           For example, if the key is 'title' and the value is 'Product' then the resulting CSV
+   *           will have a column name of 'Product' instead of 'title'.
+   *     </ol>
+   *
    * @return a BinaryContent object that contains an InputStream with the CSV content.
    * @throws CatalogTransformerException during processing, the CSV output is written to an
    *     Appendable, whose 'append()' method signature declares that it throws IOException. When
@@ -76,10 +78,6 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
             .map(Result::getMetacard)
             .collect(Collectors.toList());
 
-    Set<String> hiddenFields =
-        Optional.ofNullable((Set<String>) arguments.get(HIDDEN_FIELDS_KEY))
-            .orElse(Collections.emptySet());
-
     List<String> attributeOrder =
         Optional.ofNullable((List<String>) arguments.get(COLUMN_ORDER_KEY))
             .orElse(Collections.emptyList());
@@ -88,21 +86,15 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
         Optional.ofNullable((Map<String, String>) arguments.get(COLUMN_ALIAS_KEY))
             .orElse(Collections.emptyMap());
 
-    Set<AttributeDescriptor> allAttributeDescriptors = getAllAttributes(metacards, hiddenFields);
-
     Set<String> requestedFields = new HashSet<>(attributeOrder);
 
-    // If requestedFields is not empty, additionally filter out all non-requested attributes.
-    if (!requestedFields.isEmpty()) {
-      allAttributeDescriptors =
-          allAttributeDescriptors
-              .stream()
-              .filter(attrDesc -> requestedFields.contains(attrDesc.getName()))
-              .collect(Collectors.toSet());
-    }
+    Set<AttributeDescriptor> requestedAttributeDescriptors =
+        requestedFields.isEmpty()
+            ? getAllCsvAttributeDescriptors(metacards)
+            : getOnlyRequestedAttributes(metacards, requestedFields);
 
     List<AttributeDescriptor> sortedAttributeDescriptors =
-        sortAttributes(allAttributeDescriptors, attributeOrder);
+        sortAttributes(requestedAttributeDescriptors, attributeOrder);
 
     Appendable csv = writeMetacardsToCsv(metacards, sortedAttributeDescriptors, columnAliasMap);
 

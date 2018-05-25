@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.csv.CSVFormat;
@@ -72,16 +71,17 @@ public class CsvTransformer {
 
   public static Appendable writeMetacardsToCsv(
       final List<Metacard> metacards,
-      final List<AttributeDescriptor> sortedAttributeDescriptors,
+      final List<AttributeDescriptor> orderedAttributeDescriptors,
       final Map<String, String> aliasMap)
       throws CatalogTransformerException {
     StringBuilder stringBuilder = new StringBuilder();
 
     try {
       CSVPrinter csvPrinter = new CSVPrinter(stringBuilder, CSVFormat.RFC4180);
-      printColumnHeaders(csvPrinter, sortedAttributeDescriptors, aliasMap);
+      printColumnHeaders(csvPrinter, orderedAttributeDescriptors, aliasMap);
 
-      metacards.forEach(m -> printMetacard(csvPrinter, m, sortedAttributeDescriptors));
+      metacards.forEach(
+          metacard -> printMetacard(csvPrinter, metacard, orderedAttributeDescriptors));
 
       return csvPrinter.getOut();
     } catch (IOException ioe) {
@@ -89,32 +89,48 @@ public class CsvTransformer {
     }
   }
 
+  private static boolean attributeNotBinary(AttributeDescriptor attributeDescriptor) {
+    return !AttributeType.AttributeFormat.BINARY.equals(
+        attributeDescriptor.getType().getAttributeFormat());
+  }
+
+  private static boolean attributeNotObject(AttributeDescriptor attributeDescriptor) {
+    return !AttributeType.AttributeFormat.OBJECT.equals(
+        attributeDescriptor.getType().getAttributeFormat());
+  }
+
   private static void printMetacard(
       final CSVPrinter csvPrinter,
       final Metacard metacard,
-      final List<AttributeDescriptor> sortedAttributeDescriptors) {
-
+      final List<AttributeDescriptor> orderedAttributeDescriptors) {
     Iterator<Serializable> metacardIterator =
-        new MetacardIterator(metacard, sortedAttributeDescriptors);
-
-    printData(csvPrinter, metacardIterator);
+        new MetacardIterator(metacard, orderedAttributeDescriptors);
+    printMetacardData(csvPrinter, metacardIterator, metacard);
   }
 
   private static void printColumnHeaders(
       final CSVPrinter csvPrinter,
-      final List<AttributeDescriptor> sortedAttributeDescriptors,
+      final List<AttributeDescriptor> orderedAttributeDescriptors,
       final Map<String, String> aliasMap) {
     Iterator<String> columnHeaderIterator =
-        new ColumnHeaderIterator(sortedAttributeDescriptors, aliasMap);
-
-    printData(csvPrinter, columnHeaderIterator);
+        new ColumnHeaderIterator(orderedAttributeDescriptors, aliasMap);
+    printHeaders(csvPrinter, columnHeaderIterator);
   }
 
-  private static void printData(final CSVPrinter csvPrinter, final Iterator iterator) {
+  private static void printHeaders(final CSVPrinter csvPrinter, final Iterator iterator) {
     try {
       csvPrinter.printRecord(() -> iterator);
     } catch (IOException ioe) {
-      LOGGER.debug("Failed to print the CSV data.", ioe);
+      LOGGER.debug("Failed to print the CSV header data.", ioe);
+    }
+  }
+
+  private static void printMetacardData(
+      final CSVPrinter csvPrinter, final Iterator iterator, Metacard metacard) {
+    try {
+      csvPrinter.printRecord(() -> iterator);
+    } catch (IOException ioe) {
+      LOGGER.debug("Failed to print the CSV data for metacard with id: {}", metacard.getId(), ioe);
     }
   }
 
@@ -127,23 +143,14 @@ public class CsvTransformer {
   }
 
   /**
-   * Given a list of {@link Metacard}s and a string set of hiddenFields, returns a set of {@link
-   * AttributeDescriptor}s that contains all attributes that exist on the given metacard types
-   * except those that should be excluded.
+   * Given a list of {@link Metacard}s, returns a set of {@link AttributeDescriptor}s that contains
+   * all attributes that exist on the given metacard types. Object and Binary types are excluded
+   *
+   * @param metacards List of metacards from which to extract attribute descriptors
+   * @return a Set of {@AttributeDescriptor}s that are on each metacard
    */
-  public static Set<AttributeDescriptor> getAllAttributes(
-      final List<Metacard> metacards, final Set<String> excludedFields) {
-
-    final Predicate<AttributeDescriptor> attributeNotBinary =
-        attrDesc ->
-            !AttributeType.AttributeFormat.BINARY.equals(attrDesc.getType().getAttributeFormat());
-
-    final Predicate<AttributeDescriptor> attributeNotObject =
-        attrDesc ->
-            !AttributeType.AttributeFormat.OBJECT.equals(attrDesc.getType().getAttributeFormat());
-
-    final Predicate<AttributeDescriptor> attributeNotExcluded =
-        attrDesc -> !excludedFields.contains(attrDesc.getName());
+  public static Set<AttributeDescriptor> getAllCsvAttributeDescriptors(
+      final List<Metacard> metacards) {
 
     return metacards
         .stream()
@@ -151,24 +158,18 @@ public class CsvTransformer {
         .map(Metacard::getMetacardType)
         .map(MetacardType::getAttributeDescriptors)
         .flatMap(Set::stream)
-        .filter(attributeNotBinary)
-        .filter(attributeNotObject)
-        .filter(attributeNotExcluded)
+        .filter(CsvTransformer::attributeNotBinary)
+        .filter(CsvTransformer::attributeNotObject)
         .collect(toSet());
   }
 
   /**
-   * Given a list of {@link Metacard}s, a string set of requested attributes and a string set of
-   * excluded fields, returns a set of {@link AttributeDescriptor}s containing the requested
-   * attributes, additionally filtering out excluded attributes.
+   * Given a list of {@link Metacard}s and a string set of requested attributes, returns a set of
+   * {@link AttributeDescriptor}s containing the requested attributes.
    */
   public static Set<AttributeDescriptor> getOnlyRequestedAttributes(
-      final List<Metacard> metacards,
-      final Set<String> requestedAttributes,
-      final Set<String> excluded) {
-
-    // Get all attributes, filtering out excluded.
-    final Set<AttributeDescriptor> attributes = getAllAttributes(metacards, excluded);
+      final List<Metacard> metacards, final Set<String> requestedAttributes) {
+    final Set<AttributeDescriptor> attributes = getAllCsvAttributeDescriptors(metacards);
 
     // Filter out attributes not requested.
     attributes.removeIf(attrDesc -> !requestedAttributes.contains(attrDesc.getName()));
