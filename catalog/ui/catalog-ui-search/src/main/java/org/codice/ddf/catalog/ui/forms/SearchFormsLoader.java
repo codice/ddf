@@ -70,6 +70,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
 
+  private static final String EXCEPTION_OCCURRED_PARSING = "Exception occurred parsing config file";
+
   private static final String FORMS_FILE_NAME = "forms.json";
 
   private static final String RESULTS_FILE_NAME = "results.json";
@@ -265,6 +267,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
           .map(e -> new SimpleEntry<>(e.getKey(), valueType.cast(e.getValue())))
           .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
     } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
       LOGGER.warn(
           "Form configuration field {} was malformed, expected a querySettings Map containing type {}",
           key,
@@ -282,6 +285,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     try {
       return (List<T>) unchecked.stream().map(type::cast).collect(Collectors.toList());
     } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
       LOGGER.warn(
           "Form configuration field {} was malformed, expected a List containing type {}",
           key,
@@ -300,6 +304,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     try {
       return type.cast(value);
     } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
       LOGGER.warn(
           "Form configuration field {} was malformed, expected a {} but got {}",
           key,
