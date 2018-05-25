@@ -22,6 +22,7 @@ import ddf.security.samlp.ValidationException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import javax.validation.constraints.NotNull;
@@ -113,12 +114,16 @@ public abstract class SamlValidator {
       StringBuilder signedParts =
           new StringBuilder(reqres)
               .append("=")
-              .append(URLEncoder.encode(builder.samlString, "UTF-8"));
+              .append(URLEncoder.encode(builder.samlString, StandardCharsets.UTF_8.name()));
       String relayState = builder.relayState;
       if (relayState != null) {
-        signedParts.append("&RelayState=").append(relayState);
+        signedParts
+            .append("&RelayState=")
+            .append(URLEncoder.encode(relayState, StandardCharsets.UTF_8.name()));
       }
-      signedParts.append("&SigAlg=").append(URLEncoder.encode(builder.sigAlgo, "UTF-8"));
+      signedParts
+          .append("&SigAlg=")
+          .append(URLEncoder.encode(builder.sigAlgo, StandardCharsets.UTF_8.name()));
 
       if (!builder.simpleSign.validateSignature(
           signedParts.toString(), builder.signature, builder.signingCertificate)) {
@@ -204,7 +209,7 @@ public abstract class SamlValidator {
      */
     public SamlValidator build(
         @NotNull String destination,
-        @NotNull SamlProtocol.Binding binding,
+        SamlProtocol.Binding binding,
         @NotNull SignableXMLObject xmlObject)
         throws IllegalStateException, ValidationException {
       if (binding == null) {
@@ -266,7 +271,7 @@ public abstract class SamlValidator {
       return this;
     }
 
-    public Builder setTimeout(@NotNull Duration timeout) {
+    public Builder setTimeout(Duration timeout) {
       if (timeout == null) {
         throw new IllegalArgumentException("Timeout cannot be null!");
       }
@@ -274,7 +279,7 @@ public abstract class SamlValidator {
       return this;
     }
 
-    public Builder setClockSkew(@NotNull Duration clockSkew) {
+    public Builder setClockSkew(Duration clockSkew) {
       if (clockSkew == null) {
         throw new IllegalArgumentException("clockSkew cannot be null!");
       }
