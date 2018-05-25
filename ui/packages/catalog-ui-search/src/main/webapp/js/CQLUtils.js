@@ -15,14 +15,126 @@ const $ = require('jquery')
 const cql = require('js/cql')
 const DistanceUtils = require('js/DistanceUtils.js')
 const metacardDefinitions = require('component/singletons/metacard-definitions')
-const ol = require('openlayers')
+
+function sanitizeForCql(text) {
+    return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
+}
+
+function generateAnyGeoFilter(property, model) {
+    switch (model.type) {
+        case 'LINE':
+            return {
+                type: 'DWITHIN',
+                property: property,
+                value: 'LINESTRING' +
+                this.sanitizeForCql(JSON.stringify(this.lineToCQLLIne(model.line))),
+                distance: DistanceUtils.getDistanceInMeters(model.lineWidth, model.lineUnits)
+            };
+        case 'POLYGON':
+            return {
+                type: 'INTERSECTS',
+                property: property,
+                value: 'POLYGON(' +
+                this.sanitizeForCql(JSON.stringify(this.polygonToCQLPolygon(model.polygon))) + ')'
+            };
+        case 'MULTIPOLYGON':
+            var poly = 'MULTIPOLYGON(' +
+                this.sanitizeForCql(JSON.stringify(this.polygonToCQLMultiPolygon(model.polygon))) + ')';
+            return {
+                type: 'INTERSECTS',
+                property: property,
+                value: poly
+            };
+        case 'BBOX':
+            return {
+                type: 'INTERSECTS',
+                property: property,
+                value: 'POLYGON(' +
+                this.sanitizeForCql(JSON.stringify(this.bboxToCQLPolygon(model))) + ')'
+            };
+        case 'POINTRADIUS':
+            return {
+                type: 'DWITHIN',
+                property: property,
+                value: 'POINT(' + model.lon + ' ' + model.lat + ')',
+                distance: DistanceUtils.getDistanceInMeters(model.radius, model.radiusUnits)
+            };
+        default:
+            return {
+                type: 'INTERSECTS',
+                property: property,
+                value: ''
+            };
+    }
+}
+
+function bboxToCQLPolygon(model) {
+    if (model.locationType === 'usng'){
+        return [
+            model.mapWest + ' ' + model.mapSouth,
+            model.mapWest + ' ' + model.mapNorth,
+            model.mapEast + ' ' + model.mapNorth,
+            model.mapEast + ' ' + model.mapSouth,
+            model.mapWest + ' ' + model.mapSouth
+        ];
+    } else {
+        return [
+            model.west + ' ' + model.south,
+            model.west + ' ' + model.north,
+            model.east + ' ' + model.north,
+            model.east + ' ' + model.south,
+            model.west + ' ' + model.south
+        ];
+    }
+}
+
+function polygonToCQLPolygon(model) {
+    var cqlPolygon = model.map(function (point) {
+        return point[0] + ' ' + point[1];
+    });
+    if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
+        cqlPolygon.push(cqlPolygon[0]);
+    }
+    return cqlPolygon;
+}
+
+function polygonToCQLMultiPolygon(model) {
+    return model.map(this.polygonToCQLPolygon);
+}
+
+function lineToCQLLIne(model) {
+    var cqlLINE = model.map(function (point) {
+        return point[0] + ' ' + point[1];
+    });
+    return cqlLINE;
+}
+
+function buildIntersectOrCQL(shapes) {
+    var locationFilter = "";
+    $.each(shapes, function (i, shape) {
+        locationFilter += this.buildIntersectCQL(shape);
+
+        if (i !== shapes.length - 1) {
+              locationFilter += " OR ";
+        }
+    }.bind(this));
+
+    return locationFilter;
+}
+
+function arrayFromPartialWkt(partialWkt) {
+    // remove the leading and trailing parentheses
+    var result = partialWkt.replace(/^\(/, '').replace(/\)$/, '');
+    // change parentheses to array brackets
+    result = result.replace(/\(/g,'[').replace(/\)/g,']');
+    // change each space-separated coordinate pair to a two-element array
+    result = result.replace(/([^,\[\]]+)\s+([^,\[\]]+)/g, '[$1,$2]');
+    // build nested arrays from the string
+    return JSON.parse(result);
+}
 
 module.exports = {
-    sanitizeForCql: function (text) {
-        return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
-    },
-
-    sanitizeGeometryCql: function (cqlString) {
+    sanitizeGeometryCql: function(cqlString) {
         //sanitize polygons
         let polygons = cqlString.match(/'POLYGON\(\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*,?)*\)\)'/g);
         if (polygons) {
@@ -56,13 +168,13 @@ module.exports = {
         }
         return cqlString;
     },
-    getProperty: function (filter) {
+    getProperty: function(filter) {
         if (typeof(filter.property) !== 'string') {
             return null;
         }
         return filter.property.split('"').join('');
     },
-    generateFilter: function (type, property, value) {
+    generateFilter: function(type, property, value) {
         switch (metacardDefinitions.metacardTypes[property].type) {
             case 'LOCATION':
             case 'GEOMETRY':
@@ -72,53 +184,6 @@ module.exports = {
                     type: type,
                     property: '"' + property + '"',
                     value: value,
-                };
-        }
-    },
-    generateAnyGeoFilter: function (property, model) {
-        switch (model.type) {
-            case 'LINE':
-                return {
-                    type: 'DWITHIN',
-                    property: property,
-                    value: 'LINESTRING' +
-                    this.sanitizeForCql(JSON.stringify(this.lineToCQLLIne(model.line))),
-                    distance: DistanceUtils.getDistanceInMeters(model.lineWidth, model.lineUnits)
-                };
-            case 'POLYGON':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON(' +
-                    this.sanitizeForCql(JSON.stringify(this.polygonToCQLPolygon(model.polygon))) + ')'
-                };
-            case 'MULTIPOLYGON':
-                var poly = 'MULTIPOLYGON(' +
-                    this.sanitizeForCql(JSON.stringify(this.polygonToCQLMultiPolygon(model.polygon))) + ')';
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: poly
-                };
-            case 'BBOX':
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: 'POLYGON(' +
-                    this.sanitizeForCql(JSON.stringify(this.bboxToCQLPolygon(model))) + ')'
-                };
-            case 'POINTRADIUS':
-                return {
-                    type: 'DWITHIN',
-                    property: property,
-                    value: 'POINT(' + model.lon + ' ' + model.lat + ')',
-                    distance: DistanceUtils.getDistanceInMeters(model.radius, model.radiusUnits)
-                };
-            default:
-                return {
-                    type: 'INTERSECTS',
-                    property: property,
-                    value: ''
                 };
         }
     },
@@ -133,56 +198,19 @@ module.exports = {
             }
         };
     },
-    bboxToCQLPolygon: function (model) {
-        if (model.locationType === 'usng'){
-            return [
-                model.mapWest + ' ' + model.mapSouth,
-                model.mapWest + ' ' + model.mapNorth,
-                model.mapEast + ' ' + model.mapNorth,
-                model.mapEast + ' ' + model.mapSouth,
-                model.mapWest + ' ' + model.mapSouth
-            ];
-        } else {
-            return [
-                model.west + ' ' + model.south,
-                model.west + ' ' + model.north,
-                model.east + ' ' + model.north,
-                model.east + ' ' + model.south,
-                model.west + ' ' + model.south
-            ];
-        }
-    },
-    polygonToCQLPolygon: function (model) {
-        var cqlPolygon = model.map(function (point) {
-            return point[0] + ' ' + point[1];
-        });
-        if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
-            cqlPolygon.push(cqlPolygon[0]);
-        }
-        return cqlPolygon;
-    },
-    polygonToCQLMultiPolygon: function(model) {
-        return model.map(this.polygonToCQLPolygon);
-    },
-    lineToCQLLIne: function(model){
-        var cqlLINE = model.map(function (point) {
-            return point[0] + ' ' + point[1];
-        });
-        return cqlLINE;
-    },
-    isGeoFilter: function(type){
+    isGeoFilter: function(type) {
         return (type === 'DWITHIN' || type === 'INTERSECTS');
     },
-    transformFilterToCQL: function(filter){
+    transformFilterToCQL: function(filter) {
         return this.sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
     },
-    transformCQLToFilter: function(cqlString){
+    transformCQLToFilter: function(cqlString) {
         return cql.simplify(cql.read(cqlString));
     },
-    isPointRadiusFilter: function(filter){
+    isPointRadiusFilter: function(filter) {
         return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
     },
-    buildIntersectCQL: function(locationGeometry){
+    buildIntersectCQL: function(locationGeometry) {
         var locationFilter = "";
         var locationWkt = locationGeometry.toWkt();
         var locationType = locationGeometry.toGeoJSON().type.toUpperCase();
@@ -234,28 +262,6 @@ module.exports = {
         }
 
         return locationFilter;
-    },
-    buildIntersectOrCQL: function(shapes){
-        var locationFilter = "";
-        $.each(shapes, function (i, shape) {
-            locationFilter += this.buildIntersectCQL(shape);
-
-            if (i !== shapes.length - 1) {
-                  locationFilter += " OR ";
-            }
-        }.bind(this));
-
-        return locationFilter;
-    },
-    arrayFromPartialWkt: function(partialWkt) {
-        // remove the leading and trailing parentheses
-        var result = partialWkt.replace(/^\(/, '').replace(/\)$/, '');
-        // change parentheses to array brackets
-        result = result.replace(/\(/g,'[').replace(/\)/g,']');
-        // change each space-separated coordinate pair to a two-element array
-        result = result.replace(/([^,\[\]]+)\s+([^,\[\]]+)/g, '[$1,$2]');
-        // build nested arrays from the string
-        return JSON.parse(result);
     },
     arrayFromPolygonWkt: function(wkt) {
         // This assumes the wkt is either a POLYGON or a MULTIPOLYGON with no holes
