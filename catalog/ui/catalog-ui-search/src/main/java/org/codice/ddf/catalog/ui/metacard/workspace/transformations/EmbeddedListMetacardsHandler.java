@@ -42,7 +42,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
     this.actionRegistry = actionRegistry;
   }
 
-  // Add "actions" key to list metacards.
+  /** {@inheritDoc} Add "actions" key to list metacards. */
   @Override
   public Optional<List> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
@@ -63,7 +63,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
     return listMetacardsOptional;
   }
 
-  // Remove "actions" key from list metacard map.
+  /** {@inheritDoc} Remove "actions" key from list metacard map. */
   @Override
   public Optional<List> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, List metacardJsonData) {
@@ -72,7 +72,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
         .stream()
         .filter(Map.class::isInstance)
         .map(Map.class::cast)
-        .forEach(listMetacardMap -> removeExternalListAttributes(listMetacardMap));
+        .forEach(this::removeExternalListAttributes);
 
     return super.jsonValueToMetacardValue(transformer, metacardJsonData);
   }
