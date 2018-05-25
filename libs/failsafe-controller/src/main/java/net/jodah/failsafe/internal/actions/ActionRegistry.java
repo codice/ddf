@@ -124,12 +124,12 @@ public class ActionRegistry<R> {
    */
   public Expectation next() {
     synchronized (controller) {
-      final Expectation expectation = expectations.pop();
-
-      if (expectation == null) {
+      if (expectations.isEmpty()) {
         throw controller.setFailure(
             new AssertionError("not enough expected executions recorded for '" + controller + "'"));
       }
+      final Expectation expectation = expectations.pop();
+
       processing.add(expectation);
       return expectation;
     }
@@ -185,7 +185,7 @@ public class ActionRegistry<R> {
       }
     }
 
-    @SuppressWarnings("squid:S1181" /* purposely catching VirtualMachineError first */)
+    @SuppressWarnings("squid:S1181" /* bubbling up VirtualMachineError first */)
     public R attempt(ExecutionContext context, ContextualCallable<R> callable) throws Exception {
       LOGGER.debug("FailsafeController({} - {}): failsafe is attempting", controller, id);
       while (true) {

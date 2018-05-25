@@ -15,7 +15,7 @@
  * testing of asynchronous code controlled by Failsafe. It is designed to compress the time aspect
  * while allowing full control of the Failsafe behavior while testing one's code.
  *
- * <p>Failsafe is typically used in code by repeatedly executing a given task until it succeeds or
+ * <p>Failsafe is typically used in code to repeatedly execute a given task until it succeeds or
  * aborts. For example:
  *
  * <pre>
@@ -338,8 +338,7 @@
  * then be recorded for a particular execution. For example:
  *
  * <p><code><pre>
- *   Actions.waitTo("connect")
- *     .then().doReturn(true);
+ *   Actions.waitTo("connect").before().returning(true);
  * </pre></code>
  *
  * <p>In this example, the first Failsafe attempt for the execution would be blocked until some
@@ -348,14 +347,14 @@
  *
  * <p><code><pre>
  *   Actions.doThrow(NullPointerException)
- *     .then().waitTo("connect again")
- *     .then().doReturn(false, true);
+ *     .then().waitTo("connect again").before().returning(false)
+ *     .then().doReturn(true);
  * </pre></code>
  *
  * <p>In this example, the first Failsafe attempt for the next execution would result in a {@link
  * java.lang.NullPointerException} being thrown back. The expectation is that a second attempt would
  * be made at which point it would block until some other part of the code decides to notify the
- * <code>"connect again</code> at which point it would return <code>false</code>. When a third
+ * <code>"connect again"</code> at which point it would return <code>false</code>. When a third
  * attempt is made by Failsafe, <code>true</code> would then be returned and no more attempts would
  * be expected for this execution.
  *
@@ -370,9 +369,9 @@
  * the controller using one of the {@link
  * net.jodah.failsafe.FailsafeController#onNextExecution(net.jodah.failsafe.Actions.Done)} method.
  * For Groovy developers, it is also possible to use a closure that returns the sequence of actions
- * using the {@link net.jodah.failsafe.FailsafeController#onNextExecution(groovy.lang.Closure)}. No
- * matter which way you do it, the sequence of actions will be defined as indicated in the previous
- * section.
+ * using the {@link net.jodah.failsafe.FailsafeController#onNextExecution(groovy.lang.Closure)}
+ * method. No matter which way you do it, the sequence of actions will be defined as indicated in
+ * the previous section.
  *
  * <p>Each and every expected executions must be recorded and each and every expected attempts must
  * be accounted for with actions otherwise the Failsafe controller will generate an {@link
@@ -424,7 +423,7 @@
  * <p>To simplify the design of the controller all waits that are designed to block execution until
  * something happens do not expect a timeout to be specified. This is primarily due to the fact that
  * time should be removed from the equation when we are performing asynchronous testing such that
- * the tests ends up being deterministic. This is also why te Failsafe controller autoamtically
+ * the tests ends up being deterministic. This is also why the Failsafe controller automatically
  * compress time for the specified retry policy. Because of this and because the code under test
  * could also be buggy and not behave as expected, the test might actually block. It is therefore
  * the responsibility of the test writer to take advantage of the test framework capability to

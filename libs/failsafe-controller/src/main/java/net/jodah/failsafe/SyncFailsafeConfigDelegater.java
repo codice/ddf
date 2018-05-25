@@ -13,7 +13,12 @@
  */
 package net.jodah.failsafe;
 
+import java.util.concurrent.ExecutorService;
+import net.jodah.failsafe.event.ContextualResultListener;
+import net.jodah.failsafe.function.CheckedBiConsumer;
 import net.jodah.failsafe.function.CheckedBiFunction;
+import net.jodah.failsafe.function.CheckedConsumer;
+import net.jodah.failsafe.internal.monitor.MonitoredContextualResultListener;
 
 /**
  * This class delegates all configuration methods to a master in addition to the local object; thus
@@ -26,13 +31,14 @@ public class SyncFailsafeConfigDelegater<R> extends SyncFailsafe<R> {
 
   public SyncFailsafeConfigDelegater(FailsafeConfig<R, ?> master) {
     super(master.circuitBreaker);
+    this.master = master;
     // copy all config from master
     super.retryPolicy = master.retryPolicy;
     super.circuitBreaker = master.circuitBreaker;
     super.fallback = master.fallback;
     super.listeners = master.listeners;
-    super.listenerRegistry = master.listenerRegistry;
-    this.master = master;
+    // make sure we use the master registry while ensuring it was initialized
+    super.listenerRegistry = master.registry();
   }
 
   @Override
@@ -61,13 +67,134 @@ public class SyncFailsafeConfigDelegater<R> extends SyncFailsafe<R> {
     return super.withFallback(fallback);
   }
 
-  // overriding registry() will intercept all listeners adding methods
+  // override all async listeners in order to make them monitorable
   @Override
-  ListenerRegistry<R> registry() {
-    final ListenerRegistry<R> listenerRegistry = master.registry();
+  public SyncFailsafe<R> onAbortAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    return super.onAbort(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
 
-    // make sure we use the same registry
-    super.listenerRegistry = listenerRegistry;
-    return listenerRegistry;
+  @Override
+  public SyncFailsafe<R> onAbortAsync(
+      CheckedConsumer<? extends Throwable> listener, ExecutorService executor) {
+    return super.onAbort(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onAbortAsync(
+      ContextualResultListener<? extends R, ? extends Throwable> listener,
+      ExecutorService executor) {
+    return super.onAbort(new MonitoredContextualResultListener<>(listener, executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onCompleteAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    return super.onComplete(
+        new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onCompleteAsync(
+      ContextualResultListener<? extends R, ? extends Throwable> listener,
+      ExecutorService executor) {
+    return super.onComplete(new MonitoredContextualResultListener<>(listener, executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailedAttemptAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    return super.onFailedAttempt(
+        new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailedAttemptAsync(
+      CheckedConsumer<? extends Throwable> listener, ExecutorService executor) {
+    return super.onFailedAttempt(
+        new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailedAttemptAsync(
+      ContextualResultListener<? extends R, ? extends Throwable> listener,
+      ExecutorService executor) {
+    return super.onFailedAttempt(new MonitoredContextualResultListener<>(listener, executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailureAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    return super.onFailure(
+        new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailureAsync(
+      CheckedConsumer<? extends Throwable> listener, ExecutorService executor) {
+    return super.onFailure(
+        new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onFailureAsync(
+      ContextualResultListener<? extends R, ? extends Throwable> listener,
+      ExecutorService executor) {
+    return super.onFailure(new MonitoredContextualResultListener<>(listener, executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onRetriesExceededAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    registry()
+        .retriesExceeded()
+        .add(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+    return this;
+  }
+
+  @Override
+  public SyncFailsafe<R> onRetriesExceededAsync(
+      CheckedConsumer<? extends Throwable> listener, ExecutorService executor) {
+    registry()
+        .retriesExceeded()
+        .add(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+    return this;
+  }
+
+  @Override
+  public SyncFailsafe<R> onRetryAsync(
+      CheckedBiConsumer<? extends R, ? extends Throwable> listener, ExecutorService executor) {
+    return super.onRetry(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onRetryAsync(
+      CheckedConsumer<? extends Throwable> listener, ExecutorService executor) {
+    return super.onRetry(new MonitoredContextualResultListener<>(Listeners.of(listener), executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onRetryAsync(
+      ContextualResultListener<? extends R, ? extends Throwable> listener,
+      ExecutorService executor) {
+    return super.onRetry(new MonitoredContextualResultListener<>(listener, executor));
+  }
+
+  @Override
+  public SyncFailsafe<R> onSuccessAsync(
+      CheckedBiConsumer<? extends R, ExecutionContext> listener, ExecutorService executor) {
+    registry()
+        .success()
+        .add(new MonitoredContextualResultListener<>(Listeners.ofResult(listener), executor));
+    return this;
+  }
+
+  @Override
+  public SyncFailsafe<R> onSuccessAsync(
+      CheckedConsumer<? extends R> listener, ExecutorService executor) {
+    registry()
+        .success()
+        .add(new MonitoredContextualResultListener<>(Listeners.ofResult(listener), executor));
+    return this;
   }
 }

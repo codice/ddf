@@ -62,6 +62,17 @@ public class Actions {
   }
 
   /**
+   * Indicates to return nothing (returns <code>null</code>) the next time failsafe attempts a
+   * retry. Doing so short circuits any actions registered with failsafe by the code under test.
+   *
+   * @param <R> the result type
+   * @return a stub construct for chaining
+   */
+  public static <R> ActionList<R>.Stubber2 doReturn() {
+    return new ActionList<R>().doReturn();
+  }
+
+  /**
    * Registers the specified exceptions to be thrown in sequence the next time failsafe attempts a
    * retry. Doing so short circuits any actions registered with failsafe by the code under test.
    *

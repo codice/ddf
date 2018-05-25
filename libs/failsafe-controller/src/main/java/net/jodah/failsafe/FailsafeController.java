@@ -14,19 +14,23 @@
 package net.jodah.failsafe;
 
 import groovy.lang.Closure;
-import java.util.Deque;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
+import net.jodah.failsafe.function.AsyncCallable;
+import net.jodah.failsafe.function.AsyncRunnable;
 import net.jodah.failsafe.function.CheckedRunnable;
 import net.jodah.failsafe.function.ContextualCallable;
 import net.jodah.failsafe.function.ContextualRunnable;
 import net.jodah.failsafe.internal.TimelessRetryPolicy;
 import net.jodah.failsafe.internal.actions.ActionRegistry;
+import net.jodah.failsafe.internal.executions.AsyncControlledExecution;
 import net.jodah.failsafe.internal.executions.ControlledExecutionRegistry;
+import net.jodah.failsafe.internal.executions.SyncControlledExecution;
+import net.jodah.failsafe.internal.monitor.ThreadMonitor;
 import net.jodah.failsafe.internal.util.Assert;
 import net.jodah.failsafe.util.concurrent.Scheduler;
 import net.jodah.failsafe.util.concurrent.Schedulers;
@@ -36,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The failsafe controller is the point of entry for creating a test framework for failsafe.
+ *
+ * <p>A controller supports the creation of a single Failsafe object via one of the {@link
+ * #with(CircuitBreaker)} or {@link #with(RetryPolicy)} methods.
  *
  * @param <R> the result type
  */
@@ -47,15 +54,23 @@ public class FailsafeController<R> {
 
   private static final String INVALID_NULL_CONDITION = "invalid null condition";
 
+  private static final String NOT_SUPPORTED_YET = "not supported yet";
+
+  private static final String RUNNABLE = "runnable";
+
+  private static final String CALLABLE = "callable";
+
   private final String id;
 
   private final ActionRegistry<R> actions;
 
   private final ControlledExecutionRegistry<R> executions;
 
+  private SyncBuilder sync = null;
+
   private final Set<String> conditions = new HashSet<>();
 
-  private final Deque<Thread> threads = new LinkedList<>();
+  private final ThreadMonitor monitor;
 
   private AssertionError shutdownFailure = null;
 
@@ -70,6 +85,7 @@ public class FailsafeController<R> {
     this.id = id;
     this.actions = new ActionRegistry<>(this);
     this.executions = new ControlledExecutionRegistry<>(this);
+    this.monitor = new ThreadMonitor(this);
   }
 
   /**
@@ -89,9 +105,14 @@ public class FailsafeController<R> {
    *
    * @param retryPolicy the retry policy to use
    * @throws NullPointerException if {@code retryPolicy} is null
+   * @throws IllegalStateException if any of the <code>retry()</code> methods have been called
+   *     already
    */
-  public SyncFailsafe<R> with(RetryPolicy retryPolicy) {
-    return new SyncBuilder(retryPolicy);
+  public synchronized SyncFailsafe<R> with(RetryPolicy retryPolicy) {
+    Assert.state(sync == null, "with() was already called once");
+    this.sync = new SyncBuilder(new FailsafeConfig<R, FailsafeConfig<R, ?>>());
+    sync.with(retryPolicy);
+    return sync;
   }
 
   /**
@@ -103,9 +124,17 @@ public class FailsafeController<R> {
    *
    * @param circuitBreaker the circuit breaker to use
    * @throws NullPointerException if {@code circuitBreaker} is null
+   * @throws IllegalStateException if any of the <code>retry()</code> methods have been called
+   *     already
    */
-  public SyncFailsafe<R> with(CircuitBreaker circuitBreaker) {
-    return new SyncBuilder(circuitBreaker);
+  @SuppressWarnings(
+      "squid:CommentedOutCodeLine" /* currently not supported, will be uncommented once we support it */)
+  public synchronized SyncFailsafe<R> with(CircuitBreaker circuitBreaker) {
+    Assert.state(sync == null, "with() was already called once");
+    throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
+    //    this.sync = new SyncBuilder(new FailsafeConfig<R, FailsafeConfig<R, ?>>());
+    //    sync.with(circuitBreaker);
+    //    return sync;
   }
 
   /**
@@ -122,7 +151,27 @@ public class FailsafeController<R> {
   /**
    * Register expected actions for the next Failsafe execution.
    *
-   * <p>This method makes it nice to use in with Spock.
+   * <p>Syntax sugar for Spock users which allows you to write this:
+   *
+   * <p><code>new FailsafeController('test') >> doReturn(true)</code>
+   *
+   * @param actionList the list of actions to be executed for the next Failsafe's execution
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> rightShift(Actions.Done<R> actionList) {
+    return onNextExecution(actionList);
+  }
+
+  /**
+   * Register expected actions for the next Failsafe execution.
+   *
+   * <p>Syntax sugar for Spock users which allows you to write this:
+   *
+   * <p><code><pre>
+   *   new FailsafeController('test').onNextExecution {
+   *     doThrow(NullPointerException).then().doReturn(true)
+   *   }
+   * </pre></code>
    *
    * @param closure a closure for the list of actions to be executed for the next Failsafe's
    *     execution
@@ -130,6 +179,43 @@ public class FailsafeController<R> {
    */
   public FailsafeController<R> onNextExecution(Closure<Actions.Done<R>> closure) {
     return onNextExecution(closure.call());
+  }
+
+  /**
+   * Register expected actions for the next Failsafe execution.
+   *
+   * <p>Syntax sugar for Spock users which allows you to write this:
+   *
+   * <p><code><pre>
+   *   new FailsafeController('test') >> {
+   *     doWaitFor('creating').before().returning(true)
+   *   }
+   * </pre></code>
+   *
+   * @param closure a closure for the list of actions to be executed for the next Failsafe's
+   *     execution
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> rightShift(Closure<Actions.Done<R>> closure) {
+    return onNextExecution(closure);
+  }
+
+  /**
+   * Register expected actions for the next Failsafe executions where each entry correspond to a
+   * separate executions.
+   *
+   * <p>Syntax sugar for Spock users which allows you to write this:
+   *
+   * <p><code><pre>
+   *   new FailsafeController('test') >>> [doReturn(true), doThrow(NullPointerException).then().doReturn(true)]
+   * </pre></code>
+   *
+   * @param actionLists the lists of actions to be executed for the next Failsafe's execution
+   * @return the failsafe controller for chaining
+   */
+  public FailsafeController<R> rightShiftUnsigned(List<Actions.Done<R>> actionLists) {
+    actionLists.forEach(this::onNextExecution);
+    return this;
   }
 
   /**
@@ -163,9 +249,7 @@ public class FailsafeController<R> {
     LOGGER.debug("FailsafeController({}): shutting down", id);
     this.shutdownFailure =
         new AssertionError(FailsafeController.FAILSAFE_CONTROLLER_WAS_SHUTDOWN + id);
-    while (!threads.isEmpty()) {
-      threads.pop().interrupt();
-    }
+    monitor.shutdown();
     actions.shutdown(shutdownFailure);
     executions.shutdown(shutdownFailure);
     notifyAll();
@@ -363,6 +447,17 @@ public class FailsafeController<R> {
     actions.verify();
   }
 
+  /**
+   * Gets the retry policy associated with the corresponding Failsafe.
+   *
+   * @return the retry policy associated with the corresponding failsafe
+   * @throws IllegalStateException if one of the <code>with()</code> methods has not been called yet
+   */
+  public RetryPolicy getRetryPolicy() {
+    Assert.state(sync != null, "with() has not been called yet");
+    return sync.getOriginalRetryPolicy();
+  }
+
   @Override
   public String toString() {
     return id;
@@ -405,34 +500,27 @@ public class FailsafeController<R> {
     executions.currentExecution().ifPresent(exec -> exec.onCompletion(result, error));
   }
 
+  static <T> ContextualCallable<T> callableOf(final ContextualRunnable runnable) {
+    Assert.notNull(runnable, FailsafeController.RUNNABLE);
+    return c -> {
+      runnable.run(c);
+      return null;
+    };
+  }
+
   /**
    * This class is used to intercept all failsafe configuration in order to allow us to control
    * them. Any sync or async created later will always delegate configuration to this class as the
    * master which will allow us to keep one copy of the configuration and interceptors.
    */
-  class SyncBuilder extends SyncFailsafe<R> {
+  class SyncBuilder extends SyncFailsafeConfigDelegater<R> {
     private RetryPolicy originalRetryPolicy = RetryPolicy.NEVER;
 
-    SyncBuilder(CircuitBreaker circuitBreaker) {
-      super(circuitBreaker);
-      // force our timeless retry policy just in case
-      super.retryPolicy = new TimelessRetryPolicy(originalRetryPolicy);
+    SyncBuilder(FailsafeConfig<R, ?> master) {
+      super(master);
       // register a synchronous completion listener to get the results as soon as possible
       // for sync, this will be called from the same thread that is invoking failsafe which is
-      // already
-      // going to be tracked
-      // for async, this will be called from a thread retrieved from the scheduler that is actually
-      // executing a given attempt which is also going to be tracked
-      onComplete(FailsafeController.this::onCompletion);
-    }
-
-    SyncBuilder(RetryPolicy retryPolicy) {
-      super(new TimelessRetryPolicy(retryPolicy));
-      this.originalRetryPolicy = retryPolicy;
-      // register a synchronous completion listener to get the results as soon as possible
-      // for sync, this will be called from the same thread that is invoking failsafe which is
-      // already
-      // going to be tracked
+      // already going to be tracked
       // for async, this will be called from a thread retrieved from the scheduler that is actually
       // executing a given attempt which is also going to be tracked
       onComplete(FailsafeController.this::onCompletion);
@@ -458,6 +546,39 @@ public class FailsafeController<R> {
     public AsyncFailsafe<R> with(Scheduler scheduler) {
       return new AsyncBuilder(this, Assert.notNull(scheduler, "scheduler"));
     }
+
+    @Override
+    public <T> T get(Callable<T> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      return get(c -> callable.call());
+    }
+
+    @Override
+    public <T> T get(ContextualCallable<T> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      final ActionRegistry<R>.Expectation expectation = actions.next();
+      final SyncControlledExecution<R> execution = executions.newExecution(this, expectation);
+
+      return (T)
+          execution.execute(
+              context ->
+                  monitor.monitor(
+                      () -> expectation.attempt(context, (ContextualCallable<R>) callable)));
+    }
+
+    @Override
+    public void run(CheckedRunnable runnable) {
+      get(Functions.callableOf(runnable));
+    }
+
+    @Override
+    public void run(ContextualRunnable runnable) {
+      get(FailsafeController.callableOf(runnable));
+    }
+
+    RetryPolicy getOriginalRetryPolicy() {
+      return originalRetryPolicy;
+    }
   }
 
   /**
@@ -470,60 +591,65 @@ public class FailsafeController<R> {
     }
 
     @Override
-    public <T> FailsafeFuture<T> get(ContextualCallable<T> callable) {
-      final ActionRegistry<R>.Expectation expectation = actions.next();
+    public <T> CompletableFuture<T> future(Callable<CompletableFuture<T>> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      return future(c -> callable.call());
+    }
 
-      return (FailsafeFuture<T>)
-          new FailsafeFutureAdapter<>(
-              this,
-              executions
-                  .newExecution(this, expectation)
-                  .execute(
-                      new ContextualCallable<CompletableFuture<R>>() {
-                        @Override
-                        public CompletableFuture<R> call(ExecutionContext context)
-                            throws Exception {
-                          return CompletableFuture.completedFuture(
-                              attempt(context, expectation, (ContextualCallable<R>) callable));
-                        }
-                      }));
+    @Override
+    public <T> CompletableFuture<T> future(ContextualCallable<CompletableFuture<T>> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> futureAsync(AsyncCallable<CompletableFuture<T>> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
     }
 
     @Override
     public <T> FailsafeFuture<T> get(Callable<T> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
       return get(c -> callable.call());
     }
 
     @Override
+    public <T> FailsafeFuture<T> get(ContextualCallable<T> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      final ActionRegistry<R>.Expectation expectation = actions.next();
+      final AsyncControlledExecution<R> execution = executions.newExecution(this, expectation);
+      final CompletableFuture<R> future =
+          execution.execute(
+              context ->
+                  CompletableFuture.completedFuture(
+                      monitor.monitor(
+                          () -> expectation.attempt(context, (ContextualCallable<R>) callable))));
+
+      return (FailsafeFuture<T>) new FailsafeFutureAdapter<>(this, future);
+    }
+
+    @Override
+    public <T> FailsafeFuture<T> getAsync(AsyncCallable<T> callable) {
+      Assert.notNull(callable, FailsafeController.CALLABLE);
+      throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
+    }
+
+    @Override
     public FailsafeFuture<Void> run(CheckedRunnable runnable) {
+      Assert.notNull(runnable, FailsafeController.RUNNABLE);
       return get(Functions.callableOf(runnable));
     }
 
     @Override
     public FailsafeFuture<Void> run(ContextualRunnable runnable) {
-      return get(
-          c -> {
-            runnable.run(c);
-            return null;
-          });
+      Assert.notNull(runnable, FailsafeController.RUNNABLE);
+      return get(FailsafeController.callableOf(runnable));
     }
 
-    @SuppressWarnings("squid:S00112" /* Based on Failsafe's API */)
-    private R attempt(
-        ExecutionContext context,
-        ActionRegistry<R>.Expectation expectation,
-        ContextualCallable<R> callable)
-        throws Exception {
-      try {
-        synchronized (FailsafeController.this) {
-          threads.add(Thread.currentThread());
-        }
-        return expectation.attempt(context, callable);
-      } finally {
-        synchronized (FailsafeController.this) {
-          threads.remove(Thread.currentThread());
-        }
-      }
+    @Override
+    public FailsafeFuture<Void> runAsync(AsyncRunnable runnable) {
+      throw new UnsupportedOperationException(FailsafeController.NOT_SUPPORTED_YET);
     }
   }
 }

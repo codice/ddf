@@ -52,6 +52,37 @@ public class ActionList<R> implements Done<R> {
   }
 
   /**
+   * Adds all specified actions to this list.
+   *
+   * @param actionList the list of actions to be added to this one
+   * @return this list for chaining
+   */
+  public ActionList<R> add(Done<R> actionList) {
+    final ActionList<R> alist = actionList.done();
+
+    if (alist != this) { // to avoid circular references
+      actions.addAll(alist.actions);
+    }
+    return this;
+  }
+
+  /**
+   * Adds all specified actions to this list.
+   *
+   * <p>Syntax sugar for Spock users which allows you to write this:
+   *
+   * <p><code><pre>
+   *   doThrow(NullPointerException) + doReturn(true)
+   * </pre></code>
+   *
+   * @param actionList the list of actions to be added to this one
+   * @return this list for chaining
+   */
+  public ActionList<R> plus(Done<R> actionList) {
+    return add(actionList);
+  }
+
+  /**
    * Registers the specified results to be returned in sequence the next time failsafe attempts a
    * retry. Doing so short circuits any actions registered with failsafe by the code under test.
    *
@@ -71,6 +102,16 @@ public class ActionList<R> implements Done<R> {
    */
   public ActionList<R>.Stubber2 doNothing() {
     return stubber.doNothing();
+  }
+
+  /**
+   * Indicates to return nothing (returns <code>null</code>) the next time failsafe attempts a
+   * retry. Doing so short circuits any actions registered with failsafe by the code under test.
+   *
+   * @return a stub construct for chaining
+   */
+  public ActionList<R>.Stubber2 doReturn() {
+    return stubber.doReturn();
   }
 
   /**
@@ -247,6 +288,22 @@ public class ActionList<R> implements Done<R> {
     }
 
     /**
+     * Adds all specified actions to this list.
+     *
+     * <p>Syntax sugar for Spock users which allows you to write this:
+     *
+     * <p><code><pre>
+     *   doThrow(NullPointerException) + doReturn(true)
+     * </pre></code>
+     *
+     * @param actionList the list of actions to be added to this one
+     * @return this list for chaining
+     */
+    public ActionList<R> plus(Done<R> actionList) {
+      return add(actionList);
+    }
+
+    /**
      * Registers the specified results to be returned in sequence the next time failsafe attempts a
      * retry. Doing so short circuits any actions registered with failsafe by the code under test.
      *
@@ -260,6 +317,19 @@ public class ActionList<R> implements Done<R> {
     }
 
     /**
+     * Registers the specified results to be returned in sequence the next time failsafe attempts a
+     * retry. Doing so short circuits any actions registered with failsafe by the code under test.
+     *
+     * @param results the results to be returned in sequence or <code>null</code> if a single <code>
+     *     null</code> element should be returned
+     * @return a stub construct for chaining
+     */
+    public Stubber2 returning(@Nullable R... results) {
+      add(expectation -> new DoReturnAction<>(expectation, "returning", results));
+      return stubber2;
+    }
+
+    /**
      * Indicates to do nothing (return <code>null</code>) the next time failsafe attempts a retry.
      * Doing so short circuits any actions registered with failsafe by the code under test.
      *
@@ -267,6 +337,28 @@ public class ActionList<R> implements Done<R> {
      */
     public Stubber2 doNothing() {
       add(expectation -> new DoNothingAction<>(expectation, "doNothing"));
+      return stubber2;
+    }
+
+    /**
+     * Indicates to do nothing (return <code>null</code>) the next time failsafe attempts a retry.
+     * Doing so short circuits any actions registered with failsafe by the code under test.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber2 doReturn() {
+      add(expectation -> new DoNothingAction<>(expectation, "doReturn"));
+      return stubber2;
+    }
+
+    /**
+     * Indicates to do nothing (return <code>null</code>) the next time failsafe attempts a retry.
+     * Doing so short circuits any actions registered with failsafe by the code under test.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber2 returning() {
+      add(expectation -> new DoNothingAction<>(expectation, "returning"));
       return stubber2;
     }
 
@@ -291,6 +383,23 @@ public class ActionList<R> implements Done<R> {
      * Registers the specified exceptions to be thrown in sequence the next time failsafe attempts a
      * retry. Doing so short circuits any actions registered with failsafe by the code under test.
      *
+     * <p><i>Note:</i> The stack trace of each exception will be re-filled just before being thrown
+     * out.
+     *
+     * @param throwables the exceptions objects to be thrown in sequence
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>throwables</code> or any of its elements is <code>
+     *     null</code>
+     */
+    public Stubber2 throwing(Throwable... throwables) {
+      add(expectation -> new DoThrowAction<>(expectation, "throwing", throwables));
+      return stubber2;
+    }
+
+    /**
+     * Registers the specified exceptions to be thrown in sequence the next time failsafe attempts a
+     * retry. Doing so short circuits any actions registered with failsafe by the code under test.
+     *
      * <p><i>Note:</i> Actual exception objects will be instantiated for the provided classes using
      * a constructor that takes a message string, one that takes a message string and a cause, one
      * that takes a cause, or the default constructor.
@@ -302,6 +411,24 @@ public class ActionList<R> implements Done<R> {
      */
     public Stubber2 doThrow(Class<? extends Throwable>... throwables) {
       add(expectation -> new DoThrowAction<>(expectation, "doThrow", throwables));
+      return stubber2;
+    }
+
+    /**
+     * Registers the specified exceptions to be thrown in sequence the next time failsafe attempts a
+     * retry. Doing so short circuits any actions registered with failsafe by the code under test.
+     *
+     * <p><i>Note:</i> Actual exception objects will be instantiated for the provided classes using
+     * a constructor that takes a message string, one that takes a message string and a cause, one
+     * that takes a cause, or the default constructor.
+     *
+     * @param throwables the exceptions classes to be instantiated and thrown in sequence
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>throwables</code> or any of its elements is <code>
+     *     null</code> if unable to instantiate any exception classes
+     */
+    public Stubber2 throwing(Class<? extends Throwable>... throwables) {
+      add(expectation -> new DoThrowAction<>(expectation, "throwing", throwables));
       return stubber2;
     }
 
@@ -332,8 +459,44 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      * @throws IllegalArgumentException if unable to instantiate any exception classes
      */
+    public Stubber2 throwingOrReturning(@Nullable Object... arguments) {
+      add(
+          expectation ->
+              new DoThrowOrReturnAction<>(expectation, "throwingOrReturning", arguments));
+      return stubber2;
+    }
+
+    /**
+     * Registers the specified results or exceptions to be returned or thrown in sequence the next
+     * time failsafe attempts a retry. Doing so short circuits any actions registered with failsafe
+     * by the code under test.
+     *
+     * @param arguments the results to be returned or the exceptions to be thrown or the exception
+     *     classes to be instantiated and thrown in sequence or <code>null</code> if a single <code>
+     *     null</code> element should be returned
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if unable to instantiate any exception classes
+     */
     public Stubber2 doReturnOrThrow(@Nullable Object... arguments) {
       add(expectation -> new DoThrowOrReturnAction<>(expectation, "doReturnOrThrow", arguments));
+      return stubber2;
+    }
+
+    /**
+     * Registers the specified results or exceptions to be returned or thrown in sequence the next
+     * time failsafe attempts a retry. Doing so short circuits any actions registered with failsafe
+     * by the code under test.
+     *
+     * @param arguments the results to be returned or the exceptions to be thrown or the exception
+     *     classes to be instantiated and thrown in sequence or <code>null</code> if a single <code>
+     *     null</code> element should be returned
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if unable to instantiate any exception classes
+     */
+    public Stubber2 returningOrThrowing(@Nullable Object... arguments) {
+      add(
+          expectation ->
+              new DoThrowOrReturnAction<>(expectation, "returningOrThrowing", arguments));
       return stubber2;
     }
 
@@ -349,6 +512,17 @@ public class ActionList<R> implements Done<R> {
     }
 
     /**
+     * Indicates to simulate a thread interruption the next time failsafe attempts a retry. Doing so
+     * short circuits any actions registered with failsafe by the code under test.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber2 interrupting() {
+      add(expectation -> new DoInterruptAction<>(expectation, "interrupting"));
+      return stubber2;
+    }
+
+    /**
      * Indicates to proceed with calling the production action registered with failsafe normally the
      * next time failsafe attempts a retry.
      *
@@ -356,6 +530,17 @@ public class ActionList<R> implements Done<R> {
      */
     public Stubber2 doProceed() {
       add(expectation -> new DoProceedAction<>(expectation, "doProceed"));
+      return stubber2;
+    }
+
+    /**
+     * Indicates to proceed with calling the production action registered with failsafe normally the
+     * next time failsafe attempts a retry.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber2 proceeding() {
+      add(expectation -> new DoProceedAction<>(expectation, "proceeding"));
       return stubber2;
     }
 
@@ -386,8 +571,40 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
      */
+    public Stubber0 notifying(String condition) {
+      add(expectation -> new DoNotifyAction(expectation, "notifying", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+     * executing this action, the controller will move on to the next one and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to notify
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
     public Stubber0 doNotifyTo(String condition) {
       add(expectation -> new DoNotifyAction(expectation, "doNotifyTo", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to notify the specified condition/latch and wake up anybody waiting on it. After
+     * executing this action, the controller will move on to the next one and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to notify
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
+    public Stubber0 notifyingTo(String condition) {
+      add(expectation -> new DoNotifyAction(expectation, "notifyTo", condition));
       return stubber0;
     }
 
@@ -420,13 +637,47 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
      */
+    public Stubber0 waitingFor(String condition) {
+      add(expectation -> new WaitForAction<>(expectation, "waitingFor", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to block failsafe the next time it attempts a retry until the specified
+     * condition/latch is notified. After the specified condition/latch has been notified, the
+     * controller will move on to the next action and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to wait for
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
     public Stubber0 waitTo(String condition) {
       add(expectation -> new WaitForAction<>(expectation, "waitTo", condition));
       return stubber0;
     }
 
     /**
-     * Indicates to block failsafe the next time it attempts a retry until its execution is
+     * Indicates to block failsafe the next time it attempts a retry until the specified
+     * condition/latch is notified. After the specified condition/latch has been notified, the
+     * controller will move on to the next action and execute it right away.
+     *
+     * <p>If the specified condition/latch has already been notified then the controller will move
+     * on to the next action.
+     *
+     * @param condition the condition/latch to wait for
+     * @return a stub construct for chaining
+     * @throws IllegalArgumentException if <code>condition</code> is <code>null</code>
+     */
+    public Stubber0 waitingTo(String condition) {
+      add(expectation -> new WaitForAction<>(expectation, "waitingTo", condition));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to block failsafe the next time it attempts a retry until it execution is
      * cancelled. After the execution is cancelled, the controller will move on to the next action
      * and execute it right away.
      *
@@ -437,6 +688,21 @@ public class ActionList<R> implements Done<R> {
      */
     public Stubber0 waitToBeCancelled() {
       add(expectation -> new WaitToBeCancelledAction<>(expectation, "waitToBeCancelled"));
+      return stubber0;
+    }
+
+    /**
+     * Indicates to block failsafe the next time it attempts a retry until it execution is
+     * cancelled. After the execution is cancelled, the controller will move on to the next action
+     * and execute it right away.
+     *
+     * <p>If the execution has already been cancelled then the controller will will move on to the
+     * next action.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber0 waitingToBeCancelled() {
+      add(expectation -> new WaitToBeCancelledAction<>(expectation, "waitingToBeCancelled"));
       return stubber0;
     }
 
@@ -472,10 +738,7 @@ public class ActionList<R> implements Done<R> {
      * @return a stub construct for chaining
      */
     public Stubber onlyIf(boolean condition) {
-      add(
-          expectation ->
-              new OnlyIfAction<>(expectation, "onlyIf", condition, Boolean.toString(condition)));
-      return stubber;
+      return onlyIf(condition, Boolean.toString(condition));
     }
 
     /**
@@ -544,6 +807,24 @@ public class ActionList<R> implements Done<R> {
      */
     public Stubber onlyIf(Closure<Boolean> closure, String info) {
       return onlyIf(closure::call, info);
+    }
+
+    /**
+     * Syntax sugar.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber0 before() {
+      return this;
+    }
+
+    /**
+     * Syntax sugar.
+     *
+     * @return a stub construct for chaining
+     */
+    public Stubber0 but() {
+      return this;
     }
   }
 
