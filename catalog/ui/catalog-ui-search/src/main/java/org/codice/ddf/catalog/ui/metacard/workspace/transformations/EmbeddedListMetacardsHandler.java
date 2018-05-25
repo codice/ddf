@@ -84,13 +84,9 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   /**
    * Given a {@link org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl}, get a list
    * of actions that can be executed on a list.
-   *
-   * @param workspaceMetacard
-   * @return
    */
   private List<Map<String, Object>> getListActions(Metacard workspaceMetacard) {
-    final String host =
-        SystemBaseUrl.getProtocol() + SystemBaseUrl.getHost() + ":" + SystemBaseUrl.getPort();
+    final String host = SystemBaseUrl.getBaseUrl();
 
     return actionRegistry
         .list(workspaceMetacard)
