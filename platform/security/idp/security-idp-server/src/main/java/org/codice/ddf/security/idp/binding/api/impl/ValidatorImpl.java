@@ -112,7 +112,7 @@ public abstract class ValidatorImpl implements Validator {
       throw new ValidationException("Signed AuthnRequest must have a Destination attribute.");
     } else if (!authnRequest
         .getDestination()
-        .equals(SystemBaseUrl.constructUrl("/idp/login", true))) {
+        .equals(SystemBaseUrl.INTERNAL.constructUrl("/idp/login", true))) {
       throw new ValidationException(
           "Signed AuthnRequest must have Destination attribute matching this IdP server.");
     }

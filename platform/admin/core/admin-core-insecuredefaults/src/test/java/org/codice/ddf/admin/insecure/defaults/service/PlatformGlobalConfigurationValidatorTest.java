@@ -35,7 +35,7 @@ public class PlatformGlobalConfigurationValidatorTest {
   @Test
   public void testValidateWhenHttpIsEnabled() throws Exception {
     // Setup
-    System.setProperty(SystemBaseUrl.PROTOCOL, HTTP_PROTOCOL);
+    System.setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, HTTP_PROTOCOL);
     PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator();
 
     // Perform Test
@@ -52,7 +52,7 @@ public class PlatformGlobalConfigurationValidatorTest {
   public void testValidateWhenHttpIsDisabled() throws Exception {
     // Setup
 
-    System.setProperty(SystemBaseUrl.PROTOCOL, HTTPS_PROTOCOL);
+    System.setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, HTTPS_PROTOCOL);
     PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator();
 
     // Perform Test

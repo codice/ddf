@@ -278,7 +278,7 @@ public class KmlEndpoint {
     UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
     builder =
         generateEndpointUrl(
-            SystemBaseUrl.getRootContext()
+            SystemBaseUrl.EXTERNAL.getRootContext()
                 + FORWARD_SLASH
                 + CATALOG_URL_PATH
                 + FORWARD_SLASH
@@ -315,7 +315,7 @@ public class KmlEndpoint {
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
         builder =
             generateEndpointUrl(
-                SystemBaseUrl.getRootContext()
+                SystemBaseUrl.EXTERNAL.getRootContext()
                     + FORWARD_SLASH
                     + CATALOG_URL_PATH
                     + FORWARD_SLASH
@@ -376,15 +376,15 @@ public class KmlEndpoint {
   private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder)
       throws UnknownHostException {
     UriBuilder builder = uriBuilder;
-    builder.host(SystemBaseUrl.getHost());
+    builder.host(SystemBaseUrl.EXTERNAL.getHost());
 
     try {
-      builder.port(Integer.parseInt(SystemBaseUrl.getPort()));
+      builder.port(Integer.parseInt(SystemBaseUrl.EXTERNAL.getPort()));
     } catch (NumberFormatException nfe) {
       LOGGER.debug(
           "Cannot convert the current DDF port: {} to an integer."
               + " Defaulting to port in invocation.",
-          SystemBaseUrl.getPort());
+          SystemBaseUrl.EXTERNAL.getPort());
       throw new UnknownHostException("Unable to determine port DDF is using.");
     }
 

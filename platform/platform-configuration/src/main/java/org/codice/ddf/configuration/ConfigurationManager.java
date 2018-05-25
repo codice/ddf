@@ -110,9 +110,9 @@ public class ConfigurationManager {
   private static Map<String, String> propertyMapping = new HashMap<>();
 
   static {
-    propertyMapping.put(PROTOCOL, SystemBaseUrl.PROTOCOL);
-    propertyMapping.put(HOST, SystemBaseUrl.HOST);
-    propertyMapping.put(PORT, SystemBaseUrl.PORT);
+    propertyMapping.put(PROTOCOL, SystemBaseUrl.EXTERNAL_PROTOCOL);
+    propertyMapping.put(HOST, SystemBaseUrl.EXTERNAL_HOST);
+    propertyMapping.put(PORT, SystemBaseUrl.EXTERNAL_PORT);
     propertyMapping.put(SITE_NAME, SystemInfo.SITE_NAME);
     propertyMapping.put(CONTACT, SystemInfo.SITE_CONTACT);
     propertyMapping.put(ORGANIZATION, SystemInfo.ORGANIZATION);
@@ -317,14 +317,14 @@ public class ConfigurationManager {
 
   private Map<String, String> getSystemProperties() {
     Map<String, String> map = new HashMap<>();
-    map.put(HTTP_PORT, SystemBaseUrl.getHttpPort());
-    map.put(HOST, SystemBaseUrl.getHost());
-    map.put(PROTOCOL, SystemBaseUrl.getProtocol());
-    map.put(PORT, SystemBaseUrl.getPort());
+    map.put(HTTP_PORT, SystemBaseUrl.EXTERNAL.getHttpPort());
+    map.put(HOST, SystemBaseUrl.EXTERNAL.getHost());
+    map.put(PROTOCOL, SystemBaseUrl.EXTERNAL.getProtocol());
+    map.put(PORT, SystemBaseUrl.EXTERNAL.getPort());
     map.put(SITE_NAME, SystemInfo.getSiteName());
     map.put(VERSION, SystemInfo.getVersion());
     map.put(ORGANIZATION, SystemInfo.getOrganization());
-    map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.getRootContext());
+    map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.EXTERNAL.getRootContext());
     return map;
   }
 }

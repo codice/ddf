@@ -50,7 +50,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
   private ObjectName objectName;
 
-  private String oldHostName = SystemBaseUrl.getHost();
+  private String oldHostName = SystemBaseUrl.EXTERNAL.getHost();
 
   private static final String KARAF_ETC = "karaf.etc";
 
@@ -131,13 +131,13 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     ArrayList<SystemPropertyDetails> properties = new ArrayList<>();
     properties.add(
-        getSystemPropertyDetails(SystemBaseUrl.HOST, HOST_TITLE, HOST_DESCRIPTION, null));
+        getSystemPropertyDetails(SystemBaseUrl.EXTERNAL_HOST, HOST_TITLE, HOST_DESCRIPTION, null));
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.HTTP_PORT, HTTP_PORT_TITLE, HTTP_PORT_DESCRIPTION, null));
+            SystemBaseUrl.EXTERNAL_HTTP_PORT, HTTP_PORT_TITLE, HTTP_PORT_DESCRIPTION, null));
     properties.add(
         getSystemPropertyDetails(
-            SystemBaseUrl.HTTPS_PORT, HTTPS_PORT_TITLE, HTTPS_PORT_DESCRIPTION, null));
+            SystemBaseUrl.EXTERNAL_HTTPS_PORT, HTTPS_PORT_TITLE, HTTPS_PORT_DESCRIPTION, null));
     properties.add(
         getSystemPropertyDetails(
             SystemInfo.ORGANIZATION, ORGANIZATION_TITLE, ORGANIZATION_DESCRIPTION, null));
@@ -160,7 +160,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
     // Get system.properties file
     // save off the current/old hostname before we make any changes
-    oldHostName = SystemBaseUrl.getHost();
+    oldHostName = SystemBaseUrl.EXTERNAL.getHost();
 
     String etcDir = System.getProperty(KARAF_ETC);
     String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
@@ -174,10 +174,39 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     try {
       Properties systemDotProperties = new Properties(systemPropertiesFile);
 
-      updateProperty(SystemBaseUrl.HOST, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.PROTOCOL, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.HTTP_PORT, updatedSystemProperties, systemDotProperties);
-      updateProperty(SystemBaseUrl.HTTPS_PORT, updatedSystemProperties, systemDotProperties);
+      // Duplicate properties into the internal properties for legacy functionality
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HOST)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HOST));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_PROTOCOL)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_PROTOCOL,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_PROTOCOL));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTP_PORT)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HTTP_PORT,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTP_PORT));
+      }
+      if (updatedSystemProperties.containsKey(SystemBaseUrl.EXTERNAL_HTTPS_PORT)) {
+        updatedSystemProperties.put(
+            SystemBaseUrl.INTERNAL_HTTPS_PORT,
+            updatedSystemProperties.get(SystemBaseUrl.EXTERNAL_HTTPS_PORT));
+      }
+
+      updateProperty(SystemBaseUrl.EXTERNAL_HOST, updatedSystemProperties, systemDotProperties);
+      updateProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.EXTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.EXTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
+      updateProperty(SystemBaseUrl.INTERNAL_HOST, updatedSystemProperties, systemDotProperties);
+      updateProperty(SystemBaseUrl.INTERNAL_PROTOCOL, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.INTERNAL_HTTP_PORT, updatedSystemProperties, systemDotProperties);
+      updateProperty(
+          SystemBaseUrl.INTERNAL_HTTPS_PORT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.ORGANIZATION, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
@@ -207,7 +236,8 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
         if (oldHostValue != null) {
           usersDotProperties.remove(oldHostName);
-          usersDotProperties.setProperty(System.getProperty(SystemBaseUrl.HOST), oldHostValue);
+          usersDotProperties.setProperty(
+              System.getProperty(SystemBaseUrl.EXTERNAL_HOST), oldHostValue);
 
           usersDotProperties.save();
         }
@@ -228,7 +258,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       addGuestClaimsProfileAttributes(json);
 
       if (json.containsKey(oldHostName)) {
-        json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
+        json.put(System.getProperty(SystemBaseUrl.EXTERNAL_HOST), json.remove(oldHostName));
       }
 
       for (Map.Entry<String, Object> entry : json.entrySet()) {
@@ -284,7 +314,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       if (val.contains(DEFAULT_LOCALHOST_DN)) {
         map.put(
             entry.getKey(),
-            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.HOST)));
+            val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.EXTERNAL_HOST)));
       }
     }
     return map;
@@ -307,15 +337,15 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
   private void updatePortProperty(
       Map<String, String> updatedProperties, Properties systemDotProperties) {
-    String protocol = SystemBaseUrl.getProtocol();
+    String protocol = SystemBaseUrl.EXTERNAL.getProtocol();
 
-    String port = SystemBaseUrl.getHttpsPort();
+    String port = SystemBaseUrl.EXTERNAL.getHttpsPort();
     if (protocol != null && protocol.equalsIgnoreCase(HTTP_PROTOCOL)) {
-      port = SystemBaseUrl.getHttpPort();
+      port = SystemBaseUrl.EXTERNAL.getHttpPort();
     }
 
-    systemDotProperties.put(SystemBaseUrl.PORT, port);
-    System.setProperty(SystemBaseUrl.PORT, port);
+    systemDotProperties.put(SystemBaseUrl.EXTERNAL_PORT, port);
+    System.setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
   }
 
   private void configureMBean() {

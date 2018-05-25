@@ -62,7 +62,7 @@ public class TestAttributeQueryClient {
 
   private static final String USERNAME = "admin";
 
-  private static final String EXTERNAL_ATTRIBUTE_STORE = SystemBaseUrl.getBaseUrl();
+  private static final String EXTERNAL_ATTRIBUTE_STORE = SystemBaseUrl.EXTERNAL.getBaseUrl();
 
   private Dispatch<StreamSource> dispatch;
 

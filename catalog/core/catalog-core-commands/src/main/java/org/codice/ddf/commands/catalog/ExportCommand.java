@@ -244,7 +244,7 @@ public class ExportCommand extends CqlCommands {
       start = Instant.now();
       jarSigner.signJar(
           zipFile.getFile(),
-          System.getProperty("org.codice.ddf.system.hostname"),
+          System.getProperty("org.codice.ddf.external.hostname"),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
           System.getProperty("javax.net.ssl.keyStorePassword"));

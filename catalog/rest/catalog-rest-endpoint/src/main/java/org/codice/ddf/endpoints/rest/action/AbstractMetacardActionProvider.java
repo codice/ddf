@@ -60,7 +60,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
       return null;
     }
 
-    if (isHostUnset(SystemBaseUrl.getHost())) {
+    if (isHostUnset(SystemBaseUrl.EXTERNAL.getHost())) {
       LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
       return null;
     }

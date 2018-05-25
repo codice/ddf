@@ -54,7 +54,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
   @Before
   public void setup() throws Exception {
-    System.setProperty(SystemBaseUrl.HOST, "localhost");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "localhost");
 
     when(metacard.getId()).thenReturn(METACARD_ID);
     when(metacard.getSourceId()).thenReturn(REMOTE_SOURCE_ID);
@@ -106,7 +106,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
   @Test(expected = URISyntaxException.class)
   public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
     String invalidHost = "23^&*#";
-    System.setProperty(SystemBaseUrl.HOST, invalidHost);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
     actionProvider.getMetacardActionUrl(REMOTE_SOURCE_ID, metacard);
   }
@@ -117,7 +117,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         String.format(
             "%s%s/%s/%s?transform=%s",
             CONTEXT_ROOT, SOURCES_PATH, REMOTE_SOURCE_ID, encodedMetacardId, SAMPLE_TRANSFORMER_ID);
-    return new URL(SystemBaseUrl.constructUrl(urlString, true));
+    return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
 
   private String expectedDefaultAddressWith(String id, String sourceName, String transformerName) {

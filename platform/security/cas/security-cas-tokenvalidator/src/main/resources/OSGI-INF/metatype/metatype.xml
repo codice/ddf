@@ -17,7 +17,7 @@
          name="Security STS CAS Token Validator" id="ddf.security.cas.webSSOTokenValidator">
 
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
-            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/"
+            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8443/cas/"
             description="URL of the CAS server (generally ends in /cas). The STS will use this to
                         retrieve user attributes.">
         </AD>

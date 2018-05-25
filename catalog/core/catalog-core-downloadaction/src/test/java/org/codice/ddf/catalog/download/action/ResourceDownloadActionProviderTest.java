@@ -57,7 +57,7 @@ public class ResourceDownloadActionProviderTest {
 
   @Before
   public void setup() {
-    System.setProperty(SystemBaseUrl.HOST, "localhost");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "localhost");
     actionProvider =
         new ResourceDownloadActionProvider(ACTION_PROVIDER_ID) {
           @Override
@@ -106,7 +106,7 @@ public class ResourceDownloadActionProviderTest {
   @Test(expected = URISyntaxException.class)
   public void getMetacardActionUrlWhenUrlIsMalformed() throws Exception {
     String invalidHost = "23^&*#";
-    System.setProperty(SystemBaseUrl.HOST, invalidHost);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, invalidHost);
 
     setupMockBasicMetacard(REMOTE_SITE_NAME, REMOTE_RESOURCE_URI, DEFAULT_METACARD_ID);
     actionProvider.getMetacardActionUrl(REMOTE_SITE_NAME, mockMetacard);
@@ -117,7 +117,7 @@ public class ResourceDownloadActionProviderTest {
     String urlString =
         String.format(
             "%s?source=%s&metacard=%s", CONTEXT_PATH, REMOTE_SITE_NAME, encodedMetacardId);
-    return new URL(SystemBaseUrl.constructUrl(urlString, true));
+    return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
 
   private void setupMockBasicMetacard(String sourceId, String resourceUri, String metacardId)

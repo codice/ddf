@@ -150,7 +150,7 @@ public class ZipCompression implements QueryResponseTransformer {
       binaryContent = new BinaryContentImpl(fileInputStream);
       jarSigner.signJar(
           zipFile.getFile(),
-          System.getProperty("org.codice.ddf.system.hostname"),
+          System.getProperty("org.codice.ddf.external.hostname"),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
           System.getProperty("javax.net.ssl.keyStorePassword"));

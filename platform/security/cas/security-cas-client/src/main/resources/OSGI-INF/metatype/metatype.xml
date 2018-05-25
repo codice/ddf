@@ -23,7 +23,7 @@
         </AD>
 
         <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
-            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas"
+            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8443/cas"
             description="URL of the CAS server (generally ends in /cas). ${branding} will use
                         this for service ticket validation.">
         </AD>
@@ -41,7 +41,7 @@
         </AD>
 
         <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
-            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso"
+            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}/sso"
             description="The URL to which CAS should send proxy granting tickets when requested
              			      by the CAS client.">
         </AD>
