@@ -209,7 +209,7 @@ public abstract class SamlValidator {
      */
     public SamlValidator build(
         @NotNull String destination,
-        @NotNull SamlProtocol.Binding binding,
+        SamlProtocol.Binding binding,
         @NotNull SignableXMLObject xmlObject)
         throws IllegalStateException, ValidationException {
       if (binding == null) {
@@ -271,7 +271,7 @@ public abstract class SamlValidator {
       return this;
     }
 
-    public Builder setTimeout(@NotNull Duration timeout) {
+    public Builder setTimeout(Duration timeout) {
       if (timeout == null) {
         throw new IllegalArgumentException("Timeout cannot be null!");
       }
@@ -279,7 +279,7 @@ public abstract class SamlValidator {
       return this;
     }
 
-    public Builder setClockSkew(@NotNull Duration clockSkew) {
+    public Builder setClockSkew(Duration clockSkew) {
       if (clockSkew == null) {
         throw new IllegalArgumentException("clockSkew cannot be null!");
       }
