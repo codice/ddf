@@ -159,8 +159,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
       '1 attempt'                                                      || SolrClient
       '2 attempts where the first one returned null'                   || null
       '2 attempts where the first one failed with SolrServerException' || SolrServerException
-      '2 attempts where the first one failed with SolrException'       || new SolrException(
-          ErrorCode.UNKNOWN, 'testing')
+      '2 attempts where the first one failed with SolrException'       || new SolrException(ErrorCode.UNKNOWN, 'testing')
       '2 attempts where the first one failed with IOException'         || IOException
       '2 attempts where the first one failed with RutimeException'     || RuntimeException
   }
