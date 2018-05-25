@@ -248,15 +248,26 @@ define([
 
             return locationFilter;
         },
-        arrayFromCQLGeometry: function(cql) {
-            // remove opening 'POLYGON(' or 'MULTIPOLYGON(' as well as closing ')'
-            var result = cql.replace(/^\w+\(/, "").replace(/\)$/, "");
+        arrayFromPartialWkt: function(partialWkt) {
+            // remove the leading and trailing parentheses
+            var result = partialWkt.replace(/^\(/, '').replace(/\)$/, '');
             // change parentheses to array brackets
             result = result.replace(/\(/g,'[').replace(/\)/g,']');
             // change each space-separated coordinate pair to a two-element array
             result = result.replace(/([^,\[\]]+)\s+([^,\[\]]+)/g, '[$1,$2]');
             // build nested arrays from the string
             return JSON.parse(result);
+        },
+        arrayFromPolygonWkt: function(wkt) {
+            // This assumes the wkt is either a POLYGON or a MULTIPOLYGON with no holes
+            let polygons = wkt.match(/\(\([^\(\)]+\)\)/g);
+            if (polygons) {
+                return polygons.map(function(polygon) {
+                    return this.arrayFromPartialWkt(polygon);
+                }.bind(this));
+            } else {
+                return [];
+            }
         }
     };
 });
