@@ -387,8 +387,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       WebClient restWebClient)
       throws UnsupportedQueryException {
     // All queries must have at least a search phrase to be valid
-    searchPhraseMap.putIfAbsent(OpenSearchConstants.SEARCH_TERMS, "*");
-
+    if (searchPhraseMap.isEmpty()) {
+      searchPhraseMap.put(OpenSearchConstants.SEARCH_TERMS, "*");
+    }
     openSearchParser.populateSearchOptions(restWebClient, queryRequest, subject, parameters);
     openSearchParser.populateContextual(restWebClient, searchPhraseMap, parameters);
     openSearchParser.populateTemporal(restWebClient, temporalSearch, parameters);
