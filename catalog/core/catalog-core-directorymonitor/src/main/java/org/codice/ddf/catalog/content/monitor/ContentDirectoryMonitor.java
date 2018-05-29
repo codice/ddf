@@ -319,7 +319,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   /*
-     Task that waits for the "content" CamelComponent before adding the routes from the
+     Task that waits for the "content" and "catalog" CamelComponents before adding the routes from the
      RouteBuilder to the CamelContext. This ensures content directory monitors will
      automatically start after a system shutdown.
   */
@@ -328,7 +328,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
       RouteBuilder routeBuilder = createRouteBuilder();
-      verifyContentCamelComponentIsAvailable();
+      verifyContentCamelComponentIsAvailable("content");
+      verifyContentCamelComponentIsAvailable("catalog");
       camelContext.addRoutes(routeBuilder);
       setRouteCollection(routeBuilder);
     } catch (Exception e) {
@@ -344,7 +345,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   /*
      Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
   */
-  private void verifyContentCamelComponentIsAvailable() {
+  private void verifyContentCamelComponentIsAvailable(String componentName) {
     Failsafe.with(
             new RetryPolicy()
                 .retryWhen(null)
@@ -352,9 +353,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
         .withFallback(
             () -> {
-              throw new IllegalStateException("Could not get Camel component 'content'");
+              throw new IllegalStateException("Could not get Camel component " + componentName);
             })
-        .get(() -> camelContext.getComponent("content"));
+        .get(() -> camelContext.getComponent(componentName));
   }
 
   /*
@@ -471,7 +472,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (routeStatus != null) {
           LOGGER.debug("Route ID {} is started = {}", routeId, routeStatus.isStarted());
         } else {
-          LOGGER.debug("routeStatus is NULL for routeId = {}", routeId);
+          LOGGER.debug("routeStamtus is NULL for routeId = {}", routeId);
         }
       }
     }

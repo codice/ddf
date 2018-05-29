@@ -77,7 +77,7 @@ public class LocalResourceRetriever implements ResourceRetriever {
     }
 
     URI derivedUri = null;
-    Serializable serializable = props.get(ContentItem.QUALIFIER);
+    Serializable serializable = props.get(ContentItem.QUALIFIER_KEYWORD);
     if (serializable != null && serializable instanceof String) {
       LOGGER.debug(
           "Received qualifier in request properties, looking for qualified content on metacard with id [{}]",
@@ -99,23 +99,24 @@ public class LocalResourceRetriever implements ResourceRetriever {
 
     for (ResourceReader reader : resourceReaders) {
       if (reader != null && reader.getSupportedSchemes().contains(scheme)) {
-          try {
-            if (LOGGER.isDebugEnabled()) {LOGGER.debug(
+        try {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(
                 "Found an acceptable resource reader ({}) for URI {}",
                 reader.getId(),
-                resourceRetrievalUri.toASCIIString());}
-            resource = reader.retrieveResource(resourceRetrievalUri, props);
-            if (resource != null) {
-              break;
-            } else {
-              LOGGER.debug(
-                  "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
-                  reader.getId(),
-                  resourceRetrievalUri);
-            }
-          } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
-            LOGGER.debug("Product not found using resource reader with name {}", reader.getId(), e);
-
+                resourceRetrievalUri.toASCIIString());
+          }
+          resource = reader.retrieveResource(resourceRetrievalUri, props);
+          if (resource != null) {
+            break;
+          } else {
+            LOGGER.debug(
+                "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
+                reader.getId(),
+                resourceRetrievalUri);
+          }
+        } catch (ResourceNotFoundException | ResourceNotSupportedException | IOException e) {
+          LOGGER.debug("Product not found using resource reader with name {}", reader.getId(), e);
         }
       }
     }

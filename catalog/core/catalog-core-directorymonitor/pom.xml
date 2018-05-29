@@ -292,6 +292,28 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.mime.tika</groupId>
+            <artifactId>mime-tika-resolver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>tika-input-transformer</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.cal10n</groupId>
+            <artifactId>cal10n-api</artifactId>
+            <version>0.7.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <scope>test</scope>

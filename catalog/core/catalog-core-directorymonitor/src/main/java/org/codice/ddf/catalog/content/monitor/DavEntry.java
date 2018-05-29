@@ -100,7 +100,7 @@ public class DavEntry implements Serializable {
     setETag(isExists() ? davResource.getEtag() : "0");
 
     if (file != null && !isDirectory() && origLastModified != getLastModified()) {
-      FileUtils.deleteQuietly(file.getParentFile());
+      deleteCacheIfExists();
     }
 
     // Return if there are changes
@@ -297,6 +297,16 @@ public class DavEntry implements Serializable {
    */
   public void setDirectory(final boolean directory) {
     this.directory = directory;
+  }
+
+  /**
+   * If this {@code DavEntry}'s file is cached, delete it. A {@code DavEntry}'s file is cached on
+   * the first call to {@link #getFile(Sardine) DavEntry.getFile(Sardine)}.
+   */
+  public void deleteCacheIfExists() {
+    if (file != null) {
+      FileUtils.deleteQuietly(file.getParentFile());
+    }
   }
 
   boolean remoteExists(Sardine sardine) {

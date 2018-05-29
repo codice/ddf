@@ -47,7 +47,10 @@ import ddf.catalog.content.operation.impl.DeleteStorageResponseImpl;
 import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.content.operation.impl.ReadStorageResponseImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
+import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.OperationImpl;
@@ -114,13 +117,17 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
   @Inject private CamelContext camelContext;
 
-  @Inject private ContentDirectoryMonitor contentDirectoryMonitor;
+  private ContentDirectoryMonitor contentDirectoryMonitor;
 
   private String directoryPath;
 
   private CatalogFramework catalogFramework;
 
   private ArgumentCaptor<CreateStorageRequest> createStorageRequest;
+
+  private ArgumentCaptor<CreateRequest> createRequest;
+
+  private CountDownLatch catalogFrameworkCreateStorage = new CountDownLatch(1);
 
   private CountDownLatch catalogFrameworkCreate = new CountDownLatch(1);
 
@@ -158,7 +165,17 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     catalogFramework = mockCatalogFramework();
     registerService(catalogFramework, CatalogFramework.class);
 
+    registerService(mock(AttributeRegistry.class), AttributeRegistry.class);
+
     createStorageRequest = ArgumentCaptor.forClass(CreateStorageRequest.class);
+    createRequest = ArgumentCaptor.forClass(CreateRequest.class);
+
+    await("Content Directory Monitor service registration")
+        .atMost(60, TimeUnit.SECONDS)
+        .until(() -> bundleContext.getServiceReference(ContentDirectoryMonitor.class) != null);
+
+    contentDirectoryMonitor =
+        bundleContext.getService(bundleContext.getServiceReference(ContentDirectoryMonitor.class));
   }
 
   @Test
@@ -166,11 +183,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.IN_PLACE);
 
     File file = createTestFile(directoryPath);
-    long fileLength = file.length();
+    long fileSize = file.length();
 
     waitForCreate();
 
-    verifyCreateStorageRequest("test", ".txt", fileLength);
+    verifyCreateRequest("test", "txt", file.toURI().toASCIIString(), fileSize);
     assertThat("File should still exist", file.exists(), is(true));
   }
 
@@ -181,10 +198,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
     waitForCreate();
 
-    verifyCreateStorageRequest("file1", "", WEBDAV_FILE_CONTENT.length());
+    verifyCreateRequest("file1", "", webDavPath + "/file1", WEBDAV_FILE_CONTENT.length());
     verifyHttp(stubServer).atLeast(1, isPropFindMethod, uri("/webdavtest"));
     verifyHttp(stubServer).atLeast(1, isPropFindMethod, uri("/webdavtest/file1"));
     verifyHttp(stubServer).once(method(Method.GET), uri("/webdavtest/file1"));
+    assertThat("WebDav cached file should not exist", isDavFileCached(), is(false));
   }
 
   @Test
@@ -195,26 +213,26 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     long fileLength = file.length();
     File movedFile = Paths.get(directoryPath, ".ingested", file.getName()).toFile();
 
-    waitForCreate();
+    waitForCreateStorage();
 
     verifyCreateStorageRequest("test", ".txt", fileLength);
     await("File deleted").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).until(() -> !file.exists());
-    await("File moved")
-        .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
-        .until(() -> movedFile.exists());
+    await("File moved").atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS).until(movedFile::exists);
   }
 
   @Test
   public void testDeleteMonitoring() throws Exception {
     updateContentDirectoryMonitor(directoryPath, ContentDirectoryMonitor.DELETE);
 
-    createTestFile(directoryPath);
+    File file = createTestFile(directoryPath);
+    long fileLength = file.length();
     File directory = Paths.get(directoryPath).toFile();
-    waitForCreate();
+    waitForCreateStorage();
 
     await("File deleted")
         .atMost(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
         .until(() -> directory.list().length == 0);
+    verifyCreateStorageRequest("test", "txt", fileLength);
   }
 
   @Override
@@ -314,7 +332,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.security.handler", "security-handler-api"),
         new BundleInfo("ddf.mime.core", "mime-core-api"),
         new BundleInfo("ddf.mime.core", "mime-core-impl"),
+        new BundleInfo("ddf.mime.tika", "mime-tika-resolver"),
+        new BundleInfo("ch.qos.cal10n", "cal10n-api"),
+        new BundleInfo("org.slf4j", "slf4j-ext"),
         new BundleInfo("ddf.catalog.core", "catalog-core-camelcomponent"),
+        new BundleInfo("ddf.catalog.transformer", "tika-input-transformer"),
         new BundleInfo("ddf.thirdparty", "restito"),
         new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"));
   }
@@ -329,11 +351,26 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         .thenAnswer(
             (Answer<CreateResponse>)
                 invocation -> {
+                  catalogFrameworkCreateStorage.countDown();
+                  return null;
+                });
+
+    when(catalogFramework.create(any(CreateRequest.class)))
+        .thenAnswer(
+            (Answer<CreateResponse>)
+                invocation -> {
                   catalogFrameworkCreate.countDown();
                   return null;
                 });
 
     return catalogFramework;
+  }
+
+  private boolean isDavFileCached() {
+    File tmpFile = Paths.get(System.getProperty("java.io.tmpdir")).toFile();
+    File[] cachedDavFiles = tmpFile.listFiles(file -> file.getName().startsWith("dav"));
+
+    return cachedDavFiles.length == 0 ? false : true;
   }
 
   private SourceInfoResponse mockSourceInfoResponse() {
@@ -366,6 +403,10 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     return file;
   }
 
+  private void waitForCreateStorage() throws Exception {
+    catalogFrameworkCreateStorage.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+  }
+
   private void waitForCreate() throws Exception {
     catalogFrameworkCreate.await(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
   }
@@ -380,10 +421,23 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
     verifyContentItem(contentItem, fileNamePrefix, fileNameSuffix, fileLength);
   }
 
+  private void verifyCreateRequest(
+      String fileNamePrefix, String fileNameSuffix, String uri, long fileLength) throws Exception {
+    verify(catalogFramework).create(createRequest.capture());
+    List<Metacard> metacards = createRequest.getValue().getMetacards();
+
+    assertThat(metacards.size(), is(1));
+    Metacard metacard = metacards.get(0);
+    assertThat(metacard.getTitle(), startsWith(fileNamePrefix));
+    assertThat(metacard.getTitle(), endsWith(fileNameSuffix));
+    assertThat(metacard.getResourceURI().toASCIIString(), is(uri));
+    assertThat(Long.parseLong(metacard.getResourceSize()), is(fileLength));
+  }
+
   private void verifyContentItem(
       ContentItem contentItem, String fileNamePrefix, String fileNameSuffix, long fileLength)
       throws Exception {
-    assertThat(contentItem.getMimeTypeRawData(), is("application/octet-stream"));
+    assertThat(contentItem.getMimeTypeRawData(), is("text/plain"));
     assertThat(contentItem.getFilename(), startsWith(fileNamePrefix));
     assertThat(contentItem.getFilename(), endsWith(fileNameSuffix));
     assertThat(contentItem.getUri(), is("content:" + contentItem.getId()));

@@ -80,6 +80,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     MockComponent contentComponent = new MockComponent();
     camelContext.addComponent("content", contentComponent);
+    MockComponent catalogComponent = new MockComponent();
+    camelContext.addComponent("catalog", catalogComponent);
 
     monitor = createContentDirectoryMonitor();
     monitor.setReadLockIntervalMilliseconds(1000);
