@@ -160,46 +160,14 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
   }
 
   private void processContentItems(
-      final List<ContentItem> contentItems, final Map<String, Serializable> properties)
-      throws PluginExecutionException {
+      final List<ContentItem> contentItems, final Map<String, Serializable> properties) {
     Map<String, Map<String, Path>> tmpContentPaths =
         (Map<String, Map<String, Path>>) properties.get(Constants.CONTENT_PATHS);
 
     for (ContentItem contentItem : contentItems) {
-      if (isVideo(contentItem)) {
+      Map<String, Path> contentPaths = videoContentPaths(tmpContentPaths, contentItem);
 
-        final long contentItemSizeBytes;
-        try {
-          contentItemSizeBytes = contentItem.getSize();
-        } catch (IOException e) {
-          LOGGER.warn(
-              "Error retrieving size for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
-              contentItem.getId(),
-              contentItem.getMetacard().getId());
-          continue;
-        }
-
-        final long bytesPerMegabyte = 1024L * 1024L;
-        final long maxFileSizeBytes = maxFileSizeMB * bytesPerMegabyte;
-        if (contentItemSizeBytes > maxFileSizeBytes) {
-          LOGGER.debug(
-              "ContentItem (id={} size={} MB) is larger than the configured max file size to process ({} MB). Skipping creating thumbnail for metacard (id={})",
-              contentItem.getId(),
-              contentItemSizeBytes,
-              maxFileSizeBytes,
-              contentItem.getMetacard().getId());
-          continue;
-        }
-
-        Map<String, Path> contentPaths = tmpContentPaths.get(contentItem.getId());
-        if (contentPaths == null || contentPaths.isEmpty()) {
-          LOGGER.warn(
-              "No path for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
-              contentItem.getId(),
-              contentItem.getMetacard().getId());
-          continue;
-        }
-
+      if (contentPaths != null) {
         // create a thumbnail for the unqualified content item
         Path tmpPath = contentPaths.get(null);
         if (tmpPath != null) {
@@ -209,6 +177,46 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     }
   }
 
+  private Map<String, Path> videoContentPaths(
+      Map<String, Map<String, Path>> tmpContentPaths, ContentItem contentItem) {
+    if (!isVideo(contentItem)) {
+      return null;
+    }
+
+    final long contentItemSizeBytes;
+    try {
+      contentItemSizeBytes = contentItem.getSize();
+    } catch (IOException e) {
+      LOGGER.debug(
+          "Error retrieving size for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
+          contentItem.getId(),
+          contentItem.getMetacard().getId());
+      return null;
+    }
+
+    final long bytesPerMegabyte = 1024L * 1024L;
+    final long maxFileSizeBytes = maxFileSizeMB * bytesPerMegabyte;
+    if (contentItemSizeBytes > maxFileSizeBytes) {
+      LOGGER.debug(
+          "ContentItem (id={} size={} MB) is larger than the configured max file size to process ({} MB). Skipping creating thumbnail for metacard (id={})",
+          contentItem.getId(),
+          contentItemSizeBytes,
+          maxFileSizeBytes,
+          contentItem.getMetacard().getId());
+      return null;
+    }
+
+    Map<String, Path> contentPaths = tmpContentPaths.get(contentItem.getId());
+    if (contentPaths == null || contentPaths.isEmpty()) {
+      LOGGER.debug(
+          "No path for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
+          contentItem.getId(),
+          contentItem.getMetacard().getId());
+      return null;
+    }
+    return contentPaths;
+  }
+
   private boolean isVideo(final ContentItem contentItem) {
     final MimeType createdMimeType = contentItem.getMimeType();
     final MediaType createdMediaType =
@@ -216,8 +224,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     return createdMediaType.is(MediaType.ANY_VIDEO_TYPE);
   }
 
-  private void createThumbnail(final ContentItem contentItem, final Path contentPath)
-      throws PluginExecutionException {
+  private void createThumbnail(final ContentItem contentItem, final Path contentPath) {
     LOGGER.trace("About to create video thumbnail");
 
     try {
@@ -314,7 +321,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     for (int clipNum = FFMPEG_FILE_NUMBERING_START; clipNum <= THUMBNAIL_COUNT; ++clipNum) {
       final String thumbnailPath = String.format(getThumbnailFilePath(), clipNum);
 
-      final String seek = durationToString(durationFraction.multipliedBy(clipNum - 1));
+      final String seek = durationToString(durationFraction.multipliedBy((long) clipNum - 1));
 
       final CommandLine command =
           getFFmpegCreateThumbnailCommand(videoFilePath, thumbnailPath, seek, 1);
