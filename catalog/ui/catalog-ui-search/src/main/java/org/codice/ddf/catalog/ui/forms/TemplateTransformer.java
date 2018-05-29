@@ -69,6 +69,10 @@ public class TemplateTransformer {
     String title = (String) formTemplate.get("title");
     String description = (String) formTemplate.get("description");
 
+    if (filterJson == null) {
+      return null;
+    }
+
     TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
     try {
       VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
