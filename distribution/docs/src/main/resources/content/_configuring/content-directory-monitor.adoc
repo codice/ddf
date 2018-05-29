@@ -15,18 +15,18 @@ The Content Directory Monitor is installed by default with a standard installati
 
 === Configuring the Content Directory Monitor
 
+.Content Directory Monitor Permissions
+[IMPORTANT]
+====
+When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it. Setting permissions should be done *before* configuring a CDM. See the CDM section in ${ddf.home}/security/configurations.policy for in-depth instructions on configuring permissions.
+====
+
 Configure the CDM from the ${admin-console}:
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Select the *Configuration* tab.
 . Select *Catalog Content Directory Monitor*.
-
-.Content Directory Monitor Permissions
-[IMPORTANT]
-====
-When setting monitored directory, make sure to set permissions on the new directory to allow ${branding} to access it.
-====
 
 See <<org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
 
