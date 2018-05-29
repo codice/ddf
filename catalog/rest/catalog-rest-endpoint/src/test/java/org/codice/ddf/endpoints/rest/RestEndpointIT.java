@@ -44,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Map;
 import javax.inject.Inject;
+import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.test.common.AbstractComponentTest;
@@ -90,6 +91,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   @Inject private BundleContext bundleContext;
 
   @MockOsgiService private CatalogFramework catalogFramework;
+
+  @MockOsgiService private AttachmentParser attachmentParser;
 
   @MockOsgiService private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
@@ -190,7 +193,8 @@ public class RestEndpointIT extends AbstractComponentTest {
       protected BundleOption getBundleOptions() {
         return super.getBundleOptions()
             .add("org.bouncycastle", "bcprov-jdk15on")
-            .add("ddf.catalog.transformer", "catalog-transformer-attribute");
+            .add("ddf.catalog.transformer", "catalog-transformer-attribute")
+            .add("ddf.catalog.core", "catalog-core-attachment");
       }
 
       @Override
