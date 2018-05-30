@@ -155,9 +155,9 @@ class OpenSearchSourceSpec extends Specification {
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
@@ -203,9 +203,9 @@ class OpenSearchSourceSpec extends Specification {
                 INTERSECTS_FILTER
         ]
         expectedQueryParameters << [
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"],  lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]]
         ]
     }
 
@@ -246,9 +246,9 @@ class OpenSearchSourceSpec extends Specification {
                 INTERSECTS_FILTER
         ]
         expectedQueryParameters << [
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["1.1,1.1,2.1,2.1"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["*"], bbox: ["10.2,10.2,20.2,20.2"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["1.1,1.1,2.1,2.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["10.2,10.2,20.2,20.2"], src: [""]]
         ]
     }
 
