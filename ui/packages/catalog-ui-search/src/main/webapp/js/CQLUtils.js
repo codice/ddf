@@ -9,12 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global require*/
 /*jshint bitwise: false*/
-const $ = require('jquery')
-const cql = require('js/cql')
+const $ = require('jquery');
+const cql = require('js/cql');
 const DistanceUtils = require('js/DistanceUtils.js')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
+const metacardDefinitions = require('component/singletons/metacard-definitions');
 
 function sanitizeForCql(text) {
     return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
@@ -27,7 +27,7 @@ function generateAnyGeoFilter(property, model) {
                 type: 'DWITHIN',
                 property: property,
                 value: 'LINESTRING' +
-                this.sanitizeForCql(JSON.stringify(this.lineToCQLLIne(model.line))),
+                sanitizeForCql(JSON.stringify(lineToCQLLIne(model.line))),
                 distance: DistanceUtils.getDistanceInMeters(model.lineWidth, model.lineUnits)
             };
         case 'POLYGON':
@@ -35,11 +35,11 @@ function generateAnyGeoFilter(property, model) {
                 type: 'INTERSECTS',
                 property: property,
                 value: 'POLYGON(' +
-                this.sanitizeForCql(JSON.stringify(this.polygonToCQLPolygon(model.polygon))) + ')'
+                sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon))) + ')'
             };
         case 'MULTIPOLYGON':
-            var poly = 'MULTIPOLYGON(' +
-                this.sanitizeForCql(JSON.stringify(this.polygonToCQLMultiPolygon(model.polygon))) + ')';
+            var poly = 'MULTIPOLYGON' +
+                sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)));
             return {
                 type: 'INTERSECTS',
                 property: property,
@@ -50,7 +50,7 @@ function generateAnyGeoFilter(property, model) {
                 type: 'INTERSECTS',
                 property: property,
                 value: 'POLYGON(' +
-                this.sanitizeForCql(JSON.stringify(this.bboxToCQLPolygon(model))) + ')'
+                sanitizeForCql(JSON.stringify(bboxToCQLPolygon(model))) + ')'
             };
         case 'POINTRADIUS':
             return {
@@ -99,7 +99,7 @@ function polygonToCQLPolygon(model) {
 }
 
 function polygonToCQLMultiPolygon(model) {
-    return model.map(this.polygonToCQLPolygon);
+    return model.map(function(polygon) {return [polygonToCQLPolygon(polygon)]});
 }
 
 function lineToCQLLIne(model) {
@@ -133,145 +133,170 @@ function arrayFromPartialWkt(partialWkt) {
     return JSON.parse(result);
 }
 
-module.exports = {
-    sanitizeGeometryCql: function(cqlString) {
-        //sanitize polygons
-        let polygons = cqlString.match(/'POLYGON\(\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*,?)*\)\)'/g);
-        if (polygons) {
-            polygons.forEach((polygon) => {
-                cqlString = cqlString.replace(polygon, polygon.replace(/'/g, ''));
-            });
-        }
-
-        //sanitize multipolygons
-        let multipolygons = cqlString.match(/'MULTIPOLYGON\(\(\(.*\)\)\)'/g);
-        if (multipolygons) {
-            multipolygons.forEach((multipolygon) => {
-                cqlString = cqlString.replace(multipolygon, multipolygon.replace(/'/g, ''));
-            });
-        }
-
-        //sanitize points
-        let points = cqlString.match(/'POINT\(-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*\)'/g);
-        if (points) {
-            points.forEach((point) => {
-                cqlString = cqlString.replace(point, point.replace(/'/g, ''));
-            });
-        }
-
-        //sanitize linestrings
-        let linestrings = cqlString.match(/'LINESTRING\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*.?)*\)'/g);
-        if (linestrings) {
-            linestrings.forEach((linestring) => {
-                cqlString = cqlString.replace(linestring, linestring.replace(/'/g, ''));
-            });
-        }
-        return cqlString;
-    },
-    getProperty: function(filter) {
-        if (typeof(filter.property) !== 'string') {
-            return null;
-        }
-        return filter.property.split('"').join('');
-    },
-    generateFilter: function(type, property, value) {
-        switch (metacardDefinitions.metacardTypes[property].type) {
-            case 'LOCATION':
-            case 'GEOMETRY':
-                return this.generateAnyGeoFilter(property, value);
-            default:
-                return {
-                    type: type,
-                    property: '"' + property + '"',
-                    value: value,
-                };
-        }
-    },
-    generateFilterForFilterFunction: function(filterFunctionName, params) {
-        return {
-            type: '=',
-            value: true,
-            property: {
-                type: 'FILTER_FUNCTION',
-                filterFunctionName,
-                params
-            }
-        };
-    },
-    isGeoFilter: function(type) {
-        return (type === 'DWITHIN' || type === 'INTERSECTS');
-    },
-    transformFilterToCQL: function(filter) {
-        return this.sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
-    },
-    transformCQLToFilter: function(cqlString) {
-        return cql.simplify(cql.read(cqlString));
-    },
-    isPointRadiusFilter: function(filter) {
-        return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
-    },
-    buildIntersectCQL: function(locationGeometry) {
-        var locationFilter = "";
-        var locationWkt = locationGeometry.toWkt();
-        var locationType = locationGeometry.toGeoJSON().type.toUpperCase();
-
-        var shapes;
-        switch (locationType) {
-          case "POINT":
-          case "LINESTRING":
-                locationFilter = "(DWITHIN(anyGeo, " + locationWkt + ", 1, meters))"
-                break;
-          case "POLYGON":
-                // Test if the shape wkt contains ,(
-                if (/,\(/.test(locationWkt)) {
-                    shapes = locationWkt.split(',(');
-
-                    $.each(shapes, function (i, polygon) {
-                        locationWkt = polygon.replace(/POLYGON|[()]/g, '');
-                        locationWkt = "POLYGON((" + locationWkt + "))"
-                        locationFilter += "(INTERSECTS(anyGeo, " + locationWkt + "))";
-
-                        if (i !== shapes.length - 1) {
-                              locationFilter += " OR ";
-                        }
-                    }.bind(this));
-                }
-                else {
-                    locationFilter = "(INTERSECTS(anyGeo, " + locationWkt + "))";
-                }
-                break;
-          case "MULTIPOINT":
-                shapes = locationGeometry.points;
-                locationFilter = this.buildIntersectOrCQL(shapes);
-                break;
-          case "MULTIPOLYGON":
-                shapes = locationGeometry.polygons;
-                locationFilter = this.buildIntersectOrCQL(shapes);
-                break;
-          case "MULTILINESTRING":
-                shapes = locationGeometry.lineStrings;
-                locationFilter = this.buildIntersectOrCQL(shapes);
-                break;
-          case "GEOMETRYCOLLECTION":
-                shapes = locationGeometry.geometries;
-                locationFilter = this.buildIntersectOrCQL(shapes);
-                break;
-          default:
-                console.log("unknown location type");
-                return;
-        }
-
-        return locationFilter;
-    },
-    arrayFromPolygonWkt: function(wkt) {
-        // This assumes the wkt is either a POLYGON or a MULTIPOLYGON with no holes
-        let polygons = wkt.match(/\(\([^\(\)]+\)\)/g);
-        if (polygons) {
-            return polygons.map(function(polygon) {
-                return this.arrayFromPartialWkt(polygon);
-            }.bind(this));
-        } else {
-            return [];
-        }
+function sanitizeGeometryCql(cqlString) {
+    //sanitize polygons
+    let polygons = cqlString.match(/'POLYGON\(\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*,?)*\)\)'/g);
+    if (polygons) {
+        polygons.forEach((polygon) => {
+            cqlString = cqlString.replace(polygon, polygon.replace(/'/g, ''));
+        });
     }
+
+    //sanitize multipolygons
+    let multipolygons = cqlString.match(/'MULTIPOLYGON\(\(\(.*\)\)\)'/g);
+    if (multipolygons) {
+        multipolygons.forEach((multipolygon) => {
+            cqlString = cqlString.replace(multipolygon, multipolygon.replace(/'/g, ''));
+        });
+    }
+
+    //sanitize points
+    let points = cqlString.match(/'POINT\(-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*\)'/g);
+    if (points) {
+        points.forEach((point) => {
+            cqlString = cqlString.replace(point, point.replace(/'/g, ''));
+        });
+    }
+
+    //sanitize linestrings
+    let linestrings = cqlString.match(/'LINESTRING\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*.?)*\)'/g);
+    if (linestrings) {
+        linestrings.forEach((linestring) => {
+            cqlString = cqlString.replace(linestring, linestring.replace(/'/g, ''));
+        });
+    }
+    return cqlString;
+}
+
+function getProperty(filter) {
+    if (typeof(filter.property) !== 'string') {
+        return null;
+    }
+    return filter.property.split('"').join('');
+}
+
+function generateFilter(type, property, value) {
+    switch (metacardDefinitions.metacardTypes[property].type) {
+        case 'LOCATION':
+        case 'GEOMETRY':
+            return generateAnyGeoFilter(property, value);
+        default:
+            return {
+                type: type,
+                property: '"' + property + '"',
+                value: value,
+            };
+    }
+}
+
+function generateFilterForFilterFunction(filterFunctionName, params) {
+    return {
+        type: '=',
+        value: true,
+        property: {
+            type: 'FILTER_FUNCTION',
+            filterFunctionName,
+            params
+        }
+    };
+}
+
+function isGeoFilter(type) {
+    return (type === 'DWITHIN' || type === 'INTERSECTS');
+}
+
+function transformFilterToCQL(filter) {
+    return this.sanitizeGeometryCql("(" + cql.write(cql.simplify(cql.read(cql.write(filter)))) + ")");
+}
+
+function transformCQLToFilter(cqlString) {
+    return cql.simplify(cql.read(cqlString));
+}
+
+function isPointRadiusFilter(filter) {
+    return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
+}
+
+function buildIntersectCQL(locationGeometry) {
+    var locationFilter = "";
+    var locationWkt = locationGeometry.toWkt();
+    var locationType = locationGeometry.toGeoJSON().type.toUpperCase();
+
+    var shapes;
+    switch (locationType) {
+      case "POINT":
+      case "LINESTRING":
+            locationFilter = "(DWITHIN(anyGeo, " + locationWkt + ", 1, meters))"
+            break;
+      case "POLYGON":
+            // Test if the shape wkt contains ,(
+            if (/,\(/.test(locationWkt)) {
+                shapes = locationWkt.split(',(');
+
+                $.each(shapes, function (i, polygon) {
+                    locationWkt = polygon.replace(/POLYGON|[()]/g, '');
+                    locationWkt = "POLYGON((" + locationWkt + "))"
+                    locationFilter += "(INTERSECTS(anyGeo, " + locationWkt + "))";
+
+                    if (i !== shapes.length - 1) {
+                          locationFilter += " OR ";
+                    }
+                }.bind(this));
+            }
+            else {
+                locationFilter = "(INTERSECTS(anyGeo, " + locationWkt + "))";
+            }
+            break;
+      case "MULTIPOINT":
+            shapes = locationGeometry.points;
+            locationFilter = buildIntersectOrCQL.call(this, shapes);
+            break;
+      case "MULTIPOLYGON":
+            shapes = locationGeometry.polygons;
+            locationFilter = buildIntersectOrCQL.call(this, shapes);
+            break;
+      case "MULTILINESTRING":
+            shapes = locationGeometry.lineStrings;
+            locationFilter = buildIntersectOrCQL.call(this, shapes);
+            break;
+      case "GEOMETRYCOLLECTION":
+            shapes = locationGeometry.geometries;
+            locationFilter = buildIntersectOrCQL.call(this, shapes);
+            break;
+      default:
+            console.log("unknown location type");
+            return;
+    }
+
+    return locationFilter;
+}
+
+function arrayFromPolygonWkt(wkt) {
+    // Handle POLYGON with no internal rings (i.e. holes)
+    if (wkt.startsWith("POLYGON")) {
+      const polygon = wkt.match(/\(\([^\(\)]+\)\)/g);
+      return polygon.length == 1 ? arrayFromPartialWkt(polygon[0]) : [];
+    }
+
+    // Handle MULTIPOLYGON with no internal rings (i.e. holes)
+    let polygons = wkt.match(/\(\([^\(\)]+\)\)/g);
+    if (polygons) {
+        return polygons.map(function(polygon) {
+            return arrayFromPartialWkt(polygon);
+        }.bind(this));
+    }
+    return [];
+}
+
+module.exports = {
+    sanitizeGeometryCql,
+    getProperty,
+    generateFilter,
+    generateFilterForFilterFunction,
+    isGeoFilter,
+    transformFilterToCQL,
+    transformCQLToFilter,
+    isPointRadiusFilter,
+    buildIntersectCQL,
+    arrayFromPolygonWkt
 };
