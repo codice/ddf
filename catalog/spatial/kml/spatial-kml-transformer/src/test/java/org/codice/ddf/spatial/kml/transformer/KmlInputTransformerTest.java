@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.codice.ddf.spatial.kml.converter.KmlToJtsConverterTest;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,14 +60,14 @@ public class KmlInputTransformerTest {
 
   @Test(expected = CatalogTransformerException.class)
   public void testTransformBadKmlThrowsException() throws Exception {
-    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/notKml.kml");
+    InputStream stream = this.getClass().getResourceAsStream("/notKml.kml");
 
     kmlInputTransformer.transform(stream);
   }
 
   @Test
   public void testTransformPointKml() throws Exception {
-    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/kmlPoint.kml");
+    InputStream stream = this.getClass().getResourceAsStream("/kmlPoint.kml");
 
     Metacard metacard = kmlInputTransformer.transform(stream);
     assertThat(metacard, notNullValue());
@@ -76,7 +75,7 @@ public class KmlInputTransformerTest {
 
   @Test
   public void testMetacardKeepsTheIdThatTheTransformIsCalledWith() throws Exception {
-    InputStream stream = KmlToJtsConverterTest.class.getResourceAsStream("/kmlPoint.kml");
+    InputStream stream = this.getClass().getResourceAsStream("/kmlPoint.kml");
 
     String id = "someId";
     Metacard metacard = kmlInputTransformer.transform(stream, id);

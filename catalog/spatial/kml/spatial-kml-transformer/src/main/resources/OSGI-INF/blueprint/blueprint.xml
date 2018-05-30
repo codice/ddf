@@ -31,12 +31,15 @@
                             ref="kmlStyleMap"/>
     </reference-list>
 
+    <bean id="kmlMarshaller" class="org.codice.ddf.spatial.kml.util.KmlMarshaller"/>
+
     <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KMLTransformerImpl">
         <argument ref="blueprintBundleContext"/>
         <argument value="kml-styling/defaultStyling.kml"/>
         <!-- Path for default base Styling file -->
         <argument ref="kmlStyleMap"/>
         <argument ref="resourceActionProvider"/>
+        <argument ref="kmlMarshaller"/>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
@@ -99,7 +102,7 @@
     <service ref="kmlTransformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="kml"/>
-            <entry key="mime-type" >
+            <entry key="mime-type">
                 <list>
                     <value>text/xml</value>
                     <value>application/xml</value>
@@ -111,13 +114,13 @@
 
     <bean id="kmzTransformer"
           class="org.codice.ddf.spatial.kml.transformer.KmzInputTransformer">
-        <argument ref="kmlTransformer" />
+        <argument ref="kmlTransformer"/>
     </bean>
 
     <service ref="kmzTransformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="kmz"/>
-            <entry key="mime-type" >
+            <entry key="mime-type">
                 <list>
                     <value>application/vnd.google-earth.kmz</value>
                 </list>
