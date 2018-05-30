@@ -62,6 +62,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -118,6 +119,10 @@ public class HistorianTest {
     historian.setFilterBuilder(new GeotoolsFilterBuilder());
 
     historian.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
+
+    SubjectIdentity subjectIdentity = mock(SubjectIdentity.class);
+    when(subjectIdentity.getUniqueIdentifier(any())).thenReturn("test");
+    historian.setSubjectIdentity(subjectIdentity);
 
     Security security = mock(Security.class);
     Subject subject = mock(MockSubject.class);

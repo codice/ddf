@@ -23,6 +23,7 @@
         <property name="catalogProviders" ref="catalogProviderSortedList"/>
         <property name="storageProviders" ref="storageProviderSortedList"/>
         <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="subjectIdentity" ref="subjectIdentity"/>
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </property>

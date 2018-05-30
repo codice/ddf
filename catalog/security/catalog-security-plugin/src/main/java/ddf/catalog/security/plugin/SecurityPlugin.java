@@ -27,8 +27,9 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
-import ddf.security.SubjectUtils;
+import ddf.security.SubjectIdentity;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -42,6 +43,12 @@ public class SecurityPlugin implements AccessPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityPlugin.class);
 
+  private SubjectIdentity subjectIdentity;
+
+  public SecurityPlugin(SubjectIdentity subjectIdentity) {
+    this.subjectIdentity = subjectIdentity;
+  }
+
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
     ddf.security.Subject subject = setSubjectOnRequestProperties(input);
@@ -51,10 +58,10 @@ public class SecurityPlugin implements AccessPlugin {
           .getMetacards()
           .forEach(
               metacard -> {
-                if (metacard.getTags().isEmpty() || metacard.getTags().contains("resource")) {
-                  metacard.setAttribute(
-                      new AttributeImpl(
-                          Metacard.POINT_OF_CONTACT, SubjectUtils.getEmailAddress(subject)));
+                String id = subjectIdentity.getUniqueIdentifier(subject);
+                if ((metacard.getTags().isEmpty() || metacard.getTags().contains("resource"))
+                    && StringUtils.isNotBlank(id)) {
+                  metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT, id));
                 }
               });
     }
