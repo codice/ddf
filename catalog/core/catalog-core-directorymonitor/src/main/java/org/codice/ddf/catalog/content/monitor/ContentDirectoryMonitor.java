@@ -328,8 +328,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
       RouteBuilder routeBuilder = createRouteBuilder();
-      verifyContentCamelComponentIsAvailable("content");
-      verifyContentCamelComponentIsAvailable("catalog");
+      verifyCamelComponentIsAvailable("content");
+      verifyCamelComponentIsAvailable("catalog");
       camelContext.addRoutes(routeBuilder);
       setRouteCollection(routeBuilder);
     } catch (Exception e) {
@@ -345,7 +345,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   /*
      Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
   */
-  private void verifyContentCamelComponentIsAvailable(String componentName) {
+  private void verifyCamelComponentIsAvailable(String componentName) {
     Failsafe.with(
             new RetryPolicy()
                 .retryWhen(null)
@@ -472,7 +472,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (routeStatus != null) {
           LOGGER.debug("Route ID {} is started = {}", routeId, routeStatus.isStarted());
         } else {
-          LOGGER.debug("routeStamtus is NULL for routeId = {}", routeId);
+          LOGGER.debug("routeStatus is NULL for routeId = {}", routeId);
         }
       }
     }

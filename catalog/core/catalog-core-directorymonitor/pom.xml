@@ -294,6 +294,7 @@
         <dependency>
             <groupId>ddf.mime.tika</groupId>
             <artifactId>mime-tika-resolver</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
