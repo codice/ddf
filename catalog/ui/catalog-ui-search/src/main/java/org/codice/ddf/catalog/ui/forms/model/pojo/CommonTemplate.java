@@ -18,6 +18,7 @@ import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
@@ -38,14 +39,30 @@ public class CommonTemplate {
 
   private final Date created;
 
+  private final Date modified;
+
   private final String owner;
 
   public CommonTemplate(Metacard metacard) {
     this.id = safeGet(metacard, Core.ID, String.class);
     this.title = safeGet(metacard, Core.TITLE, String.class);
     this.description = safeGet(metacard, Core.DESCRIPTION, String.class);
+
     this.created = safeGet(metacard, Core.CREATED, Date.class);
+    this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
+  }
+
+  public CommonTemplate(Map<String, Object> input) {
+    this.id = (String) input.get(Core.ID);
+    this.title = (String) input.get(Core.TITLE);
+    this.description = (String) input.get(Core.DESCRIPTION);
+
+    // Let the framework decide on the date info when creating / updating
+    this.created = null;
+    this.modified = null;
+
+    this.owner = (String) input.get(Core.METACARD_OWNER);
   }
 
   public String getId() {
@@ -62,6 +79,10 @@ public class CommonTemplate {
 
   public Date getCreated() {
     return created;
+  }
+
+  public Date getModified() {
+    return modified;
   }
 
   public String getOwner() {

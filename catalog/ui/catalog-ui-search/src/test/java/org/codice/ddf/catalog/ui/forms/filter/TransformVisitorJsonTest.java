@@ -11,12 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.forms.model;
+package org.codice.ddf.catalog.ui.forms.filter;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertLeafNode;
-import static org.codice.ddf.catalog.ui.forms.model.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,17 +25,16 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import javax.xml.bind.JAXBElement;
+import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
-import org.codice.ddf.catalog.ui.forms.filter.FilterReader;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElement;
-import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
-public class JsonTransformVisitorTest {
+public class TransformVisitorJsonTest {
   private static final URL FILTER_RESOURCES_DIR =
       SearchFormsLoaderTest.class.getResource("/forms/filter2");
 
@@ -42,57 +42,65 @@ public class JsonTransformVisitorTest {
 
   private static final String DEPTH_VAL = "100";
 
-  private JsonTransformVisitor visitor;
+  private TransformVisitor<FilterNode> visitor;
 
   @Before
   public void setup() {
-    visitor = new JsonTransformVisitor();
+    visitor = new TransformVisitor<>(new JsonModelBuilder());
   }
 
   @Test
   public void testVisitPropertyIsEqualTo() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsEqualTo.xml").accept(visitor);
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsEqualTo.xml").accept(visitor);
     assertLeafNode(visitor.getResult(), "=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsNotEqualTo() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsNotEqualTo.xml").accept(visitor);
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsNotEqualTo.xml").accept(visitor);
     assertLeafNode(visitor.getResult(), "!=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsLessThan() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsLessThan.xml").accept(visitor);
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsLessThan.xml").accept(visitor);
     assertLeafNode(visitor.getResult(), "<", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsLessThanOrEqualTo() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsLessThanOrEqualTo.xml").accept(visitor);
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsLessThanOrEqualTo.xml")
+        .accept(visitor);
     assertLeafNode(visitor.getResult(), "<=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThan() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsGreaterThan.xml").accept(visitor);
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsGreaterThan.xml").accept(visitor);
     assertLeafNode(visitor.getResult(), ">", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitPropertyIsGreaterThanOrEqualTo() throws Exception {
-    getRootFilterNode("comparison-binary-ops", "PropertyIsGreaterThanOrEqualTo.xml")
+    getRootXmlFilterNode("comparison-binary-ops", "PropertyIsGreaterThanOrEqualTo.xml")
         .accept(visitor);
     assertLeafNode(visitor.getResult(), ">=", DEPTH_PROP, DEPTH_VAL);
   }
 
   @Test
   public void testVisitIntersectsWithFunction() throws Exception {
-    getRootFilterNode("function-ops", "Intersects.xml").accept(visitor);
+    getRootXmlFilterNode("function-ops", "Intersects.xml").accept(visitor);
     assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
   }
 
-  private static VisitableXmlElement getRootFilterNode(String... resourceRoute) throws Exception {
+  @Test
+  public void testVariety2() throws Exception {
+    getRootXmlFilterNode("hybrid", "hybrid-example-2.xml").accept(visitor);
+    assertParentNode(visitor.getResult(), "AND", 6);
+    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
+  }
+
+  private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {
     File dir = new File(FILTER_RESOURCES_DIR.toURI());
     if (!dir.exists()) {
       fail(
@@ -111,7 +119,8 @@ public class JsonTransformVisitorTest {
       fail("File was not found " + xmlFile.getAbsolutePath());
     }
 
-    return new VisitableXmlElementImpl(
-        new FilterReader().unmarshalFilter(new FileInputStream(xmlFile)));
+    JAXBElement<FilterType> filter =
+        new FilterReader().unmarshalFilter(new FileInputStream(xmlFile));
+    return VisitableXmlElementImpl.create(filter);
   }
 }

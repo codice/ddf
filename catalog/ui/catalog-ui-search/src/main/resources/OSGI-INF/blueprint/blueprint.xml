@@ -124,6 +124,16 @@
         <bean class="org.codice.ddf.catalog.ui.security.ShareableMetacardSharingPolicyPlugin"/>
     </service>
 
+    <service interface="ddf.catalog.plugin.AccessPlugin">
+        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplateAccessPlugin"/>
+    </service>
+
+    <service interface="ddf.catalog.plugin.PolicyPlugin">
+        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplatePolicyPlugin">
+            <argument ref="shareableMetacardSecurityConfiguration"/>
+        </bean>
+    </service>
+
     <bean id="shareableMetacardSecurityConfiguration"
           class="org.codice.ddf.catalog.ui.security.ShareableMetacardSecurityConfiguration">
         <cm:managed-properties
@@ -369,8 +379,15 @@
         <argument ref="subjectIdentity"/>
     </bean>
 
+    <bean id="filterWriter"
+          class="org.codice.ddf.catalog.ui.forms.filter.FilterWriter">
+        <argument value="true"/>
+    </bean>
+
     <bean id="templateTransformer"
-          class="org.codice.ddf.catalog.ui.forms.model.TemplateTransformer"/>
+          class="org.codice.ddf.catalog.ui.forms.TemplateTransformer">
+        <argument ref="filterWriter"/>
+    </bean>
 
     <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication"
           init-method="setup">

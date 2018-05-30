@@ -1,0 +1,13 @@
+[
+  {
+    "title": "Common Fields",
+    "description": "A minimum set of fields needed for skimming results",
+    "descriptors": [
+      "title",
+      "description",
+      "created",
+      "resource-download-url",
+      "thumbnail"
+    ]
+  }
+]

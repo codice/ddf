@@ -13,7 +13,12 @@
  */
 package org.codice.ddf.catalog.ui.forms.model.pojo;
 
+import static org.apache.commons.lang.Validate.notEmpty;
+
 import ddf.catalog.data.Metacard;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,6 +37,19 @@ public class FieldFilter extends CommonTemplate {
 
   public FieldFilter(Metacard metacard, Set<String> descriptors) {
     super(metacard);
+    notEmpty(descriptors);
     this.descriptors = descriptors;
+  }
+
+  @SuppressWarnings("unchecked")
+  public FieldFilter(Map<String, Object> input) {
+    super(input);
+    List<String> des = (List<String>) input.get("descriptors");
+    notEmpty(des);
+    this.descriptors = new HashSet<>(des);
+  }
+
+  public Set<String> getDescriptors() {
+    return descriptors;
   }
 }

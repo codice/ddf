@@ -30,7 +30,7 @@
             description="The value of the attribute to determine the system user."
             required="true"
             type="String"
-            default="admin"/>
+            default="system-user"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.security">

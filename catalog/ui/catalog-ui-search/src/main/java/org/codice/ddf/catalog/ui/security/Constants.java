@@ -27,7 +27,7 @@ public class Constants {
           WorkspaceAttributes.WORKSPACE_TAG,
           QueryTemplateType.QUERY_TEMPLATE_TAG);
 
-  public static final String SYSTEM_TEMPLATE = "System Template";
+  public static final String SYSTEM_TEMPLATE = "system-template";
 
   public static final String ROLES_CLAIM_URI =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";

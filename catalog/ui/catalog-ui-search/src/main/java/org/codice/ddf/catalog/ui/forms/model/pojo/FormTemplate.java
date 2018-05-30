@@ -16,7 +16,9 @@ package org.codice.ddf.catalog.ui.forms.model.pojo;
 import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import org.boon.json.annotations.JsonProperty;
+import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
@@ -41,17 +43,22 @@ public class FormTemplate extends CommonTemplate {
   @JsonProperty("creator")
   private String creator;
 
+  @JsonProperty("querySettings")
+  private Map<String, Object> querySettings;
+
   public FormTemplate(
       Metacard metacard,
       FilterNode root,
       List<Serializable> accessIndividuals,
       List<Serializable> accessGroups,
-      String creator) {
+      String creator,
+      Map<String, Object> querySettings) {
     super(metacard);
     this.root = root;
     this.accessIndividuals = accessIndividuals;
     this.accessGroups = accessGroups;
     this.creator = creator;
+    this.querySettings = querySettings;
   }
 
   public FilterNode getRoot() {

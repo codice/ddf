@@ -17,7 +17,7 @@ public class ShareableMetacardSecurityConfiguration {
 
   private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
 
-  private String systemUserAttributeValue = "admin";
+  private String systemUserAttributeValue = "system-user";
 
   public String getSystemUserAttribute() {
     return systemUserAttribute;

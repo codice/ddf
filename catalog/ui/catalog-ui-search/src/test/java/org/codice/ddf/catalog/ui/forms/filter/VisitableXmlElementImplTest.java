@@ -34,6 +34,7 @@ import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.PropertyIsNilType;
 import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
+import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +53,7 @@ public class VisitableXmlElementImplTest {
 
   @Before
   public void setup() {
-    node = new VisitableXmlElementImpl(mockElement);
+    node = new VisitableXmlElementImplUnderTest(mockElement);
   }
 
   @Test(expected = FilterProcessingException.class)
@@ -157,5 +158,16 @@ public class VisitableXmlElementImplTest {
     verify(mockElement).getDeclaredType();
     assertOnVisitFunction.accept(mockVisitor);
     verifyNoMoreInteractions(mockVisitor, mockElement);
+  }
+
+  private static class VisitableXmlElementImplUnderTest extends VisitableXmlElementImpl<Object> {
+    VisitableXmlElementImplUnderTest(JAXBElement e) {
+      super(e);
+    }
+
+    @Override
+    public Object getValue() {
+      return null;
+    }
   }
 }

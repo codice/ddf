@@ -13,20 +13,21 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
+import static java.util.AbstractMap.SimpleEntry;
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
+import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.security.service.SecurityServiceException;
+import ddf.security.Subject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,17 +35,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.io.IOUtils;
 import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
-import org.codice.ddf.catalog.ui.forms.model.TemplateTransformer;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.codice.ddf.security.common.Security;
@@ -66,6 +70,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   private static final File DEFAULT_FORMS_DIRECTORY =
       new File(new AbsolutePathResolver("etc/forms").getPath());
 
+  private static final String EXCEPTION_OCCURRED_PARSING = "Exception occurred parsing config file";
+
   private static final String FORMS_FILE_NAME = "forms.json";
 
   private static final String RESULTS_FILE_NAME = "results.json";
@@ -84,15 +90,27 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return new SearchFormsLoader();
   }
 
+  public static boolean enabled() {
+    return new SearchFormsLoader().configDirectory.exists();
+  }
+
+  /**
+   * Setup the catalog with system templates.
+   *
+   * <p>Caution should be exercised when executing code as system. Results from querying as system
+   * are never returned to the client or cached. This means there is no risk of data leak.
+   *
+   * @param framework the catalog framework, for creating system templates.
+   * @param util for querying the catalog.
+   * @param systemTemplates system templates loaded from config.
+   */
   public static void bootstrap(
       CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
-
-    // Note: Results from querying as admin are never returned to the client or cached
-    // This means there is no risk of data leak
+    Function<Map<String, Result>, Set<String>> transform = SearchFormsLoader::titlesTransform;
     Set<String> queryTitles =
-        queryAsAdmin(util, QUERY_TEMPLATE_TAG, SearchFormsLoader::titlesTransform);
+        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)));
     Set<String> resultTitles =
-        queryAsAdmin(util, ATTRIBUTE_GROUP_TAG, SearchFormsLoader::titlesTransform);
+        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)));
 
     List<Metacard> dedupedTemplateMetacards =
         Stream.concat(
@@ -107,7 +125,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
             .collect(Collectors.toList());
 
     if (!dedupedTemplateMetacards.isEmpty()) {
-      saveMetacards(framework, dedupedTemplateMetacards);
+      executeAsSystem(() -> framework.create(new CreateRequestImpl(dedupedTemplateMetacards)));
     }
   }
 
@@ -171,6 +189,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     String title = safeGet(map, Core.TITLE, String.class);
     String description = safeGet(map, Core.DESCRIPTION, String.class);
     String filterTemplateFile = safeGet(map, "filterTemplateFile", String.class);
+    Map<String, Object> querySettings = safeGetMap(map, "querySettings", Object.class);
 
     if (anyNull(title, description, filterTemplateFile)) {
       return null;
@@ -188,7 +207,13 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     }
 
     QueryTemplateMetacard metacard = new QueryTemplateMetacard(title, description);
+    Set<String> newTags = new HashSet<>(metacard.getTags());
+    newTags.add(SYSTEM_TEMPLATE);
+    metacard.setTags(newTags);
     metacard.setFormsFilter(filterXml);
+    if (querySettings != null) {
+      metacard.setQuerySettings(querySettings);
+    }
 
     // Validation so the catalog is not contaminated on startup, which would impact every request
     if (TemplateTransformer.invalidFormTemplate(metacard)) {
@@ -211,6 +236,9 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     }
 
     AttributeGroupMetacard metacard = new AttributeGroupMetacard(title, description);
+    Set<String> newTags = new HashSet<>(metacard.getTags());
+    newTags.add(SYSTEM_TEMPLATE);
+    metacard.setTags(newTags);
     metacard.setGroupDescriptors(new HashSet<>(descriptors));
     return metacard;
   }
@@ -226,16 +254,38 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return null;
   }
 
-  @SuppressWarnings({"unchecked", "squid:S1168" /* We want to return null */})
+  private static <T> Map<String, T> safeGetMap(Map map, String key, Class<T> valueType) {
+    Map<?, ?> unchecked = safeGet(map, key, Map.class);
+    if (unchecked == null) {
+      return null;
+    }
+    try {
+      return unchecked
+          .entrySet()
+          .stream()
+          .map(e -> new SimpleEntry<>(String.class.cast(e.getKey()), e.getValue()))
+          .map(e -> new SimpleEntry<>(e.getKey(), valueType.cast(e.getValue())))
+          .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
+    } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
+      LOGGER.warn(
+          "Form configuration field {} was malformed, expected a querySettings Map containing type {}",
+          key,
+          valueType.getName());
+    }
+    return null;
+  }
+
   @Nullable
   private static <T> List<T> safeGetList(Map map, String key, Class<T> type) {
-    List unchecked = safeGet(map, key, List.class);
+    List<?> unchecked = safeGet(map, key, List.class);
     if (unchecked == null) {
       return null;
     }
     try {
       return (List<T>) unchecked.stream().map(type::cast).collect(Collectors.toList());
     } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
       LOGGER.warn(
           "Form configuration field {} was malformed, expected a List containing type {}",
           key,
@@ -254,6 +304,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     try {
       return type.cast(value);
     } catch (ClassCastException e) {
+      LOGGER.debug(EXCEPTION_OCCURRED_PARSING, e);
       LOGGER.warn(
           "Form configuration field {} was malformed, expected a {} but got {}",
           key,
@@ -288,38 +339,25 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
   }
 
   /**
-   * Results from this method call should not be directly returned to clients or cached in some
-   * intermediate block of memory.
+   * Caution should be used with this, as it elevates the permissions to the System user.
+   *
+   * <p>Operations that throw an {@link Exception} will be tried (in total) a maximum of 3 times
+   * before actually failing.
+   *
+   * @param func What to execute as the System
+   * @param <T> Generic return type of func
+   * @return result of the callable func
    */
-  private static Set<String> queryAsAdmin(
-      EndpointUtil util, String tag, Function<Map<String, Result>, Set<String>> transform) {
-    return SECURITY.runAsAdmin(
-        () -> {
-          try {
-            return SECURITY.runWithSubjectOrElevate(
-                () -> transform.apply(util.getMetacardsByFilter(tag)));
-          } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.warn(
-                "Can't query the catalog while trying to initialize system search templates, was "
-                    + "unable to elevate privileges",
-                e);
-          }
-          return Collections.emptySet();
-        });
-  }
-
-  private static void saveMetacards(CatalogFramework framework, List<Metacard> metacards) {
-    SECURITY.runAsAdmin(
-        () -> {
-          try {
-            return SECURITY.runWithSubjectOrElevate(
-                () -> framework.create(new CreateRequestImpl(metacards)).getCreatedMetacards());
-          } catch (SecurityServiceException | InvocationTargetException e) {
-            LOGGER.warn(
-                "Can't create metacard for system search template, was unable to elevate privileges",
-                e);
-          }
-          return null;
-        });
+  private static <T> T executeAsSystem(Callable<T> func) {
+    Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    if (systemSubject == null) {
+      throw new SecurityException("Could not get systemSubject to initialize system templates");
+    }
+    return Failsafe.with(
+            new RetryPolicy()
+                .retryOn(Collections.singletonList(Exception.class))
+                .withMaxRetries(2)
+                .withBackoff(2, 10, TimeUnit.SECONDS))
+        .get(() -> systemSubject.execute(func));
   }
 }
