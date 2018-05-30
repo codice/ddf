@@ -22,6 +22,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.common.collect.Lists;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.samlp.SamlProtocol;
@@ -33,9 +34,12 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPPart;
@@ -243,6 +247,17 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
       if (httpResponse.statusCode < 400) {
         httpResponseContent = httpResponse.content;
         message.setContent(InputStream.class, httpResponseContent);
+        Map<String, List<String>> headers = new HashMap<>();
+        message.put(Message.PROTOCOL_HEADERS, headers);
+        httpResponse.headers.forEach(
+            (entry) ->
+                headers.put(
+                    entry.getKey(),
+                    // CXF Expects pairs of <String, List<String>>
+                    entry.getValue() instanceof List
+                        ? (List) entry.getValue()
+                        : Lists.newArrayList(String.valueOf(entry.getValue()))));
+
       } else {
         throw new Fault(
             new AccessDeniedException("Unable to complete SAML ECP connection due to an error."));
@@ -343,6 +358,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
     httpResponseWrapper.statusCode = httpResponse.getStatusCode();
     httpResponseWrapper.content = httpResponse.getContent();
+    httpResponseWrapper.headers = httpResponse.getHeaders().entrySet();
     return httpResponseWrapper;
   }
 
@@ -441,5 +457,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     int statusCode;
 
     InputStream content;
+
+    Set<Entry<String, Object>> headers;
   }
 }

@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.cxf.paos;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -30,6 +33,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.ExchangeImpl;
@@ -67,7 +71,14 @@ public class PaosInInterceptorTest {
     message.setContent(
         InputStream.class,
         PaosInInterceptorTest.class.getClassLoader().getResource("ecprequest.xml").openStream());
+    final String testHeaderKey = "X-Test-Header";
+    final String correctHeaderToBeForwarded = "correct header that needs to be forwarded";
+
     message.put(Message.CONTENT_TYPE, "application/vnd.paos+xml");
+    HashMap<String, List<String>> messageHeaders = new HashMap<>();
+    messageHeaders.put(testHeaderKey, ImmutableList.of("original, incorrect header value"));
+    message.put(Message.PROTOCOL_HEADERS, messageHeaders);
+
     Message outMessage = new MessageImpl();
     HashMap<String, List> protocolHeaders = new HashMap<>();
     outMessage.put(Message.PROTOCOL_HEADERS, protocolHeaders);
@@ -76,6 +87,7 @@ public class PaosInInterceptorTest {
     ExchangeImpl exchange = new ExchangeImpl();
     exchange.setOutMessage(outMessage);
     message.setExchange(exchange);
+
     PaosInInterceptor paosInInterceptor =
         new PaosInInterceptor(Phase.RECEIVE) {
           HttpResponseWrapper getHttpResponse(
@@ -84,6 +96,10 @@ public class PaosInInterceptorTest {
             if (responseConsumerURL.equals("https://sp.example.org/PAOSConsumer")) {
               httpResponseWrapper.statusCode = 200;
               httpResponseWrapper.content = new ByteArrayInputStream("actual content".getBytes());
+              httpResponseWrapper.headers =
+                  ImmutableMap.of(
+                          testHeaderKey, (Object) ImmutableList.of(correctHeaderToBeForwarded))
+                      .entrySet();
             } else if (responseConsumerURL.equals("https://idp.example.org/saml2/sso")) {
               httpResponseWrapper.statusCode = 200;
               httpResponseWrapper.content =
@@ -97,6 +113,8 @@ public class PaosInInterceptorTest {
         };
     paosInInterceptor.handleMessage(message);
     assertThat(IOUtils.toString(message.getContent(InputStream.class)), is("actual content"));
+    Map<String, List<String>> headers = (Map) message.get(Message.PROTOCOL_HEADERS);
+    assertThat(headers.get(testHeaderKey), hasItem(correctHeaderToBeForwarded));
   }
 
   @Test(expected = Fault.class)
