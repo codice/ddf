@@ -118,9 +118,6 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
-                        <Export-Package>
-                            ddf.catalog.resource.impl;version="${project.version}"
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
