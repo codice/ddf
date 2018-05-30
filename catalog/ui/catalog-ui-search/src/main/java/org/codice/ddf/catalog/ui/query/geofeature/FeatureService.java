@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.query.geofeature;
 
 import java.util.List;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.opengis.feature.simple.SimpleFeature;
 
 /**
@@ -29,14 +30,14 @@ public interface FeatureService {
    * @param maxResults maximum number of results to return
    * @return list of names found
    */
-  List<String> getSuggestedFeatureNames(String query, int maxResults);
+  List<Suggestion> getSuggestedFeatureNames(String query, int maxResults);
 
   /**
-   * Retrieves a specific geographic feature by its exact name (as returned by
+   * Retrieves a specific geographic feature by its exact id (as returned by
    * getSuggestedFeatureNames).
    *
-   * @param name name of a geographic feature
+   * @param id id of a geographic feature
    * @return the feature if found, otherwise null
    */
-  SimpleFeature getFeatureByName(String name);
+  SimpleFeature getFeatureById(String id);
 }

@@ -60,6 +60,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -148,7 +149,31 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
   }
 
   @Override
-  public List<String> getSuggestedNames(String queryString, int maxResults)
+  public GeoEntry queryById(String id) throws GeoEntryQueryException {
+    if (StringUtils.isBlank(id)) {
+      throw new IllegalArgumentException();
+    }
+
+    Filter textFilter = filterBuilder.attribute(Core.ID).is().text(id);
+    Filter queryFilter = filterBuilder.allOf(tagFilter, textFilter);
+
+    QueryResponse queryResponse;
+    try {
+      queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter)));
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      throw new GeoEntryQueryException(ERROR_MESSAGE, e);
+    }
+
+    if (!queryResponse.getResults().isEmpty()) {
+      Result result = queryResponse.getResults().get(0);
+      return transformMetacardToGeoEntry(result.getMetacard());
+    }
+
+    return null;
+  }
+
+  @Override
+  public List<Suggestion> getSuggestedNames(String queryString, int maxResults)
       throws GeoEntryQueryException {
     Map<String, Serializable> suggestProps = new HashMap<>();
     suggestProps.put(SUGGESTION_QUERY_KEY, queryString);
@@ -163,9 +188,14 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
 
       if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
-        List<String> suggestions =
-            (List<String>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
-        return suggestions.subList(0, Math.min(suggestions.size(), maxResults));
+        List<List<String>> suggestions =
+            (List<List<String>>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
+
+        return suggestions
+            .stream()
+            .map(suggestion -> new Suggestion(suggestion.get(0), suggestion.get(1)))
+            .limit(maxResults)
+            .collect(Collectors.toList());
       }
 
     } catch (SourceUnavailableException | FederationException | UnsupportedQueryException e) {

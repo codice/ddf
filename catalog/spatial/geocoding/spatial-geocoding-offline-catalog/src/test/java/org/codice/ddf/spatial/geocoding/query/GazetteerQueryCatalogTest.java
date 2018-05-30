@@ -102,6 +102,17 @@ public class GazetteerQueryCatalogTest {
   }
 
   @Test
+  public void testQueryById() throws Exception {
+    GeoEntry geoEntry = queryCatalog.queryById(QUERY_STRING);
+    assertThat(geoEntry.getCountryCode(), is(USA_COUNTRY_CODE));
+    assertThat(geoEntry.getName(), is(BOSTON));
+    assertThat(geoEntry.getFeatureCode(), is("PPL"));
+    assertThat(geoEntry.getLatitude(), is(42.35771940022451));
+    assertThat(geoEntry.getLongitude(), is(-71.0595703125));
+    assertThat(geoEntry.getPopulation(), is(123456789L));
+  }
+
+  @Test
   public void testQueryEmptyMetacard() throws Exception {
     QueryResponse queryResponse = generateQueryResponseFromMetacard(generateEmptyMetacard());
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);

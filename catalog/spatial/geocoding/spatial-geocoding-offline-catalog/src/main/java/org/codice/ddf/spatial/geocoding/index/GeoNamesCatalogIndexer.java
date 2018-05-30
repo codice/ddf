@@ -79,7 +79,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private static final int BATCH_SIZE = 250;
 
-  private static final String TITLE_FORMAT = "%s, %s(%s)";
+  private static final String TITLE_FORMAT = "%s, %s";
 
   private static final String PROCESSED = ".processed";
 
@@ -135,8 +135,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(
         new AttributeImpl(
             Core.TITLE,
-            String.format(
-                TITLE_FORMAT, geoEntry.getName(), geoEntry.getCountryCode(), id.substring(0, 4))));
+            String.format(TITLE_FORMAT, geoEntry.getName(), geoEntry.getCountryCode())));
     metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, geoEntry.getAlternateNames()));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, geoEntry.getCountryCode()));
     metacard.setAttribute(new AttributeImpl(Core.ID, id));

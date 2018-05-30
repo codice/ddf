@@ -36,6 +36,17 @@ public interface GeoEntryQueryable {
   List<GeoEntry> query(String queryString, int maxResults) throws GeoEntryQueryException;
 
   /**
+   * Retrieves the {@code GeoEntry} corresponding to the supplied identifier. {@code Suggestion} ids
+   * may be passed to this method to retrieve the GeoEntry for a specific suggestion.
+   *
+   * @param id {@code String} identifier used to retrieve a specific {@code GeoEntry}
+   * @return {@code GeoEntry} matching the identifier supplied or null if not found
+   * @throws IllegalArgumentException if {@code id} is null or empty
+   * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
+   */
+  GeoEntry queryById(String id) throws GeoEntryQueryException;
+
+  /**
    * Retrieves auto-complete suggestions based on a partial or full word {@code queryString}
    *
    * @param queryString a partial or full search phrase
@@ -43,7 +54,8 @@ public interface GeoEntryQueryable {
    * @return
    * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
    */
-  List<String> getSuggestedNames(String queryString, int maxResults) throws GeoEntryQueryException;
+  List<Suggestion> getSuggestedNames(String queryString, int maxResults)
+      throws GeoEntryQueryException;
 
   /**
    * Retrieves the cities within {@code radiusInKm} kilometers of {@code metacard}, sorted by

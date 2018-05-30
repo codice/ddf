@@ -36,6 +36,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -111,7 +112,13 @@ public class GeoNamesWebService implements GeoEntryQueryable {
   }
 
   @Override
-  public List<String> getSuggestedNames(String queryString, int maxResults)
+  public GeoEntry queryById(String id) throws GeoEntryQueryException {
+    LOGGER.debug("Suggestion query not implemented.");
+    return null;
+  }
+
+  @Override
+  public List<Suggestion> getSuggestedNames(String queryString, int maxResults)
       throws GeoEntryQueryException {
     LOGGER.debug("Suggestion query not implemented.");
     return Collections.emptyList();

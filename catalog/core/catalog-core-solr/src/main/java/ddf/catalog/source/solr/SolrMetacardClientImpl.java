@@ -71,7 +71,6 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
-import org.apache.solr.client.solrj.response.Suggestion;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
@@ -191,14 +190,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
 
       if (suggesterResponse != null) {
-        List<String> suggestionResults =
+        List<List<String>> suggestionResults =
             suggesterResponse
                 .getSuggestions()
                 .entrySet()
                 .stream()
                 .map(Map.Entry::getValue)
                 .flatMap(List::stream)
-                .map(Suggestion::getTerm)
+                .map(suggestion -> Arrays.asList(suggestion.getPayload(), suggestion.getTerm()))
                 .collect(Collectors.toList());
 
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);

@@ -13,9 +13,17 @@
  */
 package org.codice.ddf.spatial.geocoder;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.ADMINISTRATIVE_DIVISION;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.DIVISION_FIFTH_ORDER;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.DIVISION_FIRST_ORDER;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.DIVISION_FOURTH_ORDER;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.DIVISION_SECOND_ORDER;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.DIVISION_THIRD_ORDER;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.POLITICAL_ENTITY;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.POPULATED_PLACE;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
@@ -23,67 +31,56 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
 
 public final class GeoResultCreator {
+  private GeoResultCreator() {}
+
   public static GeoResult createGeoResult(
       final String name,
       final double latitude,
       final double longitude,
       final String featureCode,
       final double population) {
-    double latitudeOffset = 0;
-    double longitudeOffset = 0;
-    if (featureCode.startsWith(GeoCodingConstants.ADMINISTRATIVE_DIVISION)) {
-      if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIRST_ORDER)) {
-        latitudeOffset = longitudeOffset = 5;
-      } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_SECOND_ORDER)) {
-        latitudeOffset = longitudeOffset = 4;
-      } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_THIRD_ORDER)) {
-        latitudeOffset = longitudeOffset = 3;
-      } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FOURTH_ORDER)) {
-        latitudeOffset = longitudeOffset = 2;
-      } else if (featureCode.endsWith(GeoCodingConstants.DIVISION_FIFTH_ORDER)) {
-        latitudeOffset = longitudeOffset = 1;
+    double offset = 0.1;
+    if (featureCode != null) {
+      if (featureCode.startsWith(ADMINISTRATIVE_DIVISION)) {
+        if (featureCode.endsWith(DIVISION_FIRST_ORDER)) {
+          offset = 5;
+        } else if (featureCode.endsWith(DIVISION_SECOND_ORDER)) {
+          offset = 4;
+        } else if (featureCode.endsWith(DIVISION_THIRD_ORDER)) {
+          offset = 3;
+        } else if (featureCode.endsWith(DIVISION_FOURTH_ORDER)) {
+          offset = 2;
+        } else if (featureCode.endsWith(DIVISION_FIFTH_ORDER)) {
+          offset = 1;
+        }
+      } else if (featureCode.startsWith(POLITICAL_ENTITY)) {
+        offset = 6;
+        if (population > 100_000_000) {
+          offset *= 2;
+        } else if (population > 10_000_000) {
+          offset *= 1;
+        } else if (population > 1_000_000) {
+          offset *= 0.8;
+        } else if (population > 0) {
+          offset *= 0.5;
+        }
+      } else if (featureCode.startsWith(POPULATED_PLACE)) {
+        offset = 0.5;
+        if (population > 10_000_000) {
+          offset *= 1.5;
+        } else if (population > 1_000_000) {
+          offset *= 0.8;
+        } else if (population > 100_000) {
+          offset *= 0.5;
+        } else if (population > 10_000) {
+          offset *= 0.3;
+        } else if (population > 0) {
+          offset *= 0.2;
+        }
       }
-    } else if (featureCode.startsWith(GeoCodingConstants.POLITICAL_ENTITY)) {
-      latitudeOffset = longitudeOffset = 6;
-      if (population > 100000000) {
-        latitudeOffset *= 2;
-        longitudeOffset *= 2;
-      } else if (population > 10000000) {
-        latitudeOffset *= 1;
-        longitudeOffset *= 1;
-      } else if (population > 1000000) {
-        latitudeOffset *= 0.8;
-        longitudeOffset *= 0.8;
-      } else if (population > 0) {
-        latitudeOffset *= 0.5;
-        longitudeOffset *= 0.5;
-      }
-    } else if (featureCode.startsWith(GeoCodingConstants.POPULATED_PLACE)) {
-      latitudeOffset = longitudeOffset = 0.5;
-      if (population > 10000000) {
-        latitudeOffset *= 1.5;
-        longitudeOffset *= 1.5;
-      } else if (population > 1000000) {
-        latitudeOffset *= 0.8;
-        longitudeOffset *= 0.8;
-      } else if (population > 100000) {
-        latitudeOffset *= 0.5;
-        longitudeOffset *= 0.5;
-      } else if (population > 10000) {
-        latitudeOffset *= 0.3;
-        longitudeOffset *= 0.3;
-      } else if (population > 0) {
-        latitudeOffset *= 0.2;
-        longitudeOffset *= 0.2;
-      }
-    } else {
-      latitudeOffset = longitudeOffset = 0.1;
     }
-
-    final DirectPosition northWest =
-        new DirectPositionImpl(longitude - longitudeOffset, latitude + latitudeOffset);
-    final DirectPosition southEast =
-        new DirectPositionImpl(longitude + longitudeOffset, latitude - latitudeOffset);
+    final DirectPosition northWest = new DirectPositionImpl(longitude - offset, latitude + offset);
+    final DirectPosition southEast = new DirectPositionImpl(longitude + offset, latitude - offset);
     final List<Point> bbox = new ArrayList<>();
     bbox.add(new PointImpl(northWest));
     bbox.add(new PointImpl(southEast));

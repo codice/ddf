@@ -31,6 +31,14 @@ public final class GeoCodingConstants {
 
   public static final String POLITICAL_ENTITY = "PCL";
 
+  public static final String POLITICAL_ENTITY_DEPENDENT = "PCLD";
+
+  public static final String POLITICAL_ENTITY_FREELY_ASSOCIATED = "PCLF";
+
+  public static final String POLITICAL_ENTITY_INDEPENDENT = "PCLI";
+
+  public static final String POLITICAL_ENTITY_SEMI_INDEPENDENT = "PCLS";
+
   public static final String POPULATED_PLACE = "PPL";
 
   public static final String SEAT_FIRST_ORDER = "A";
@@ -57,6 +65,14 @@ public final class GeoCodingConstants {
       ImmutableList.of(
           "PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL", "PPLR",
           "PPLS", "PPLX");
+
+  public static final List<String> COUNTRY_FEATURE_CODES =
+      ImmutableList.of(
+          POLITICAL_ENTITY,
+          POLITICAL_ENTITY_DEPENDENT,
+          POLITICAL_ENTITY_FREELY_ASSOCIATED,
+          POLITICAL_ENTITY_INDEPENDENT,
+          POLITICAL_ENTITY_SEMI_INDEPENDENT);
 
   private GeoCodingConstants() {}
 }

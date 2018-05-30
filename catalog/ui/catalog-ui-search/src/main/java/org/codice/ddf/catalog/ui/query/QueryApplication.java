@@ -53,6 +53,7 @@ import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
@@ -98,10 +99,8 @@ public class QueryApplication implements SparkApplication, Function {
         APPLICATION_JSON,
         (req, res) -> {
           CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
-
           CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
-          String result = mapper.toJson(cqlQueryResponse);
-          return result;
+          return mapper.toJson(cqlQueryResponse);
         });
 
     after(
@@ -114,21 +113,20 @@ public class QueryApplication implements SparkApplication, Function {
         "/geofeature/suggestions",
         (req, res) -> {
           String query = req.queryParams("q");
-          List<String> results = this.featureService.getSuggestedFeatureNames(query, 10);
+          List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
           return mapper.toJson(results);
         });
 
     get(
         "/geofeature",
         (req, res) -> {
-          String name = req.queryParams("name");
-          SimpleFeature feature = this.featureService.getFeatureByName(name);
+          String id = req.queryParams("id");
+          SimpleFeature feature = this.featureService.getFeatureById(id);
           if (feature == null) {
             res.status(404);
             return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
-          } else {
-            return new FeatureJSON().toString(feature);
           }
+          return new FeatureJSON().toString(feature);
         });
 
     exception(

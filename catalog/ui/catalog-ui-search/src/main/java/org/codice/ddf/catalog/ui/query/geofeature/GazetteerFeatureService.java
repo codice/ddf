@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.COUNTRY_FEATURE_CODES;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -26,6 +29,7 @@ import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTS;
@@ -58,7 +62,7 @@ public class GazetteerFeatureService implements FeatureService {
   }
 
   @Override
-  public List<String> getSuggestedFeatureNames(String query, int maxResults) {
+  public List<Suggestion> getSuggestedFeatureNames(String query, int maxResults) {
     try {
       return geoEntryQueryable.getSuggestedNames(query, maxResults);
     } catch (GeoEntryQueryException e) {
@@ -68,30 +72,31 @@ public class GazetteerFeatureService implements FeatureService {
   }
 
   @Override
-  public SimpleFeature getFeatureByName(String name) {
-    List<GeoEntry> entries;
+  public SimpleFeature getFeatureById(String id) {
+    GeoEntry entry;
     try {
-      entries = this.geoEntryQueryable.query(name, 1);
+      entry = this.geoEntryQueryable.queryById(id);
     } catch (GeoEntryQueryException e) {
       LOGGER.debug("Error while making feature service request.", e);
       return null;
     }
-    if (entries.isEmpty()) {
+    if (entry == null) {
       return null;
     }
-    GeoEntry entry = entries.get(0);
 
-    SimpleFeature feature = findDetailedFeatureForGeoEntry(entry);
-    if (feature != null) {
-      return feature;
+    if (entry.getFeatureCode() == null || COUNTRY_FEATURE_CODES.contains(entry.getFeatureCode())) {
+      SimpleFeature feature = findCountryShape(entry);
+      if (feature != null) {
+        return feature;
+      }
     }
 
-    GeoResult geoResult = GeoResultCreator.createGeoResult(entry);
-    return getFeatureFromGeoResult(geoResult);
+    return getFeatureFromGeoResult(GeoResultCreator.createGeoResult(entry));
   }
 
-  private SimpleFeature findDetailedFeatureForGeoEntry(GeoEntry entry) {
+  private SimpleFeature findCountryShape(GeoEntry entry) {
     String countryCode = entry.getCountryCode();
+
     if (countryCode == null) {
       return null;
     }
@@ -109,13 +114,14 @@ public class GazetteerFeatureService implements FeatureService {
     return null;
   }
 
-  public static SimpleFeature getFeatureFromGeoResult(GeoResult geoResult) {
+  private static SimpleFeature getFeatureFromGeoResult(GeoResult geoResult) {
     Polygon polygon = getPolygonFromBBox(geoResult.getBbox());
     SimpleFeatureBuilder builder = getSimpleFeatureBuilder(polygon);
     return builder.buildFeature(geoResult.getFullName());
   }
 
-  public static SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
+  @VisibleForTesting
+  static SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
     SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
     typeBuilder.setName("featureType");
     typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
@@ -126,7 +132,7 @@ public class GazetteerFeatureService implements FeatureService {
     return builder;
   }
 
-  public static Polygon getPolygonFromBBox(List<Point> bbox) {
+  private static Polygon getPolygonFromBBox(List<Point> bbox) {
     double[] p0 = bbox.get(0).getDirectPosition().getCoordinate();
     double[] p1 = bbox.get(1).getDirectPosition().getCoordinate();
     Envelope envelope = new Envelope();
