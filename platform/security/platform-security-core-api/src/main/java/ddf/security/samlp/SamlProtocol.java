@@ -274,9 +274,7 @@ public class SamlProtocol {
 
   public static Status createStatus(String statusValue) {
     Status status = statusBuilder.buildObject();
-    StatusCode statusCode = statusCodeBuilder.buildObject();
-    statusCode.setValue(statusValue);
-    status.setStatusCode(statusCode);
+    status.setStatusCode(createStatusCode(statusValue));
 
     return status;
   }
@@ -288,6 +286,13 @@ public class SamlProtocol {
     status.setStatusMessage(statusMessage);
 
     return status;
+  }
+
+  public static StatusCode createStatusCode(String statusValue) {
+    StatusCode statusCode = statusCodeBuilder.buildObject();
+    statusCode.setValue(statusValue);
+
+    return statusCode;
   }
 
   @SuppressWarnings("squid:S00107")

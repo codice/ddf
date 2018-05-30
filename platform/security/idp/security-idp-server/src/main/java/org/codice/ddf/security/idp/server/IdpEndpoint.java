@@ -56,6 +56,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -138,6 +140,7 @@ import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
@@ -1383,6 +1386,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
           return continueLogout(logoutState, cookie, incomingBinding);
         }
 
+        Instant notOnOrAfter = Instant.now().plus(30, ChronoUnit.MINUTES);
+        logoutRequest.setNotOnOrAfter(new DateTime(notOnOrAfter.getEpochSecond()));
         logoutRequest.setDestination(entityServiceInfo.getUrl());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
@@ -1391,13 +1396,17 @@ public class IdpEndpoint implements Idp, SessionHandler {
       } else {
         // No more targets, respond to original issuer
         entityId = logoutState.getOriginalIssuer();
-        String status =
-            logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
         logoutObject =
-            logoutMessage.buildLogoutResponse(
-                SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
-                status,
-                logoutState.getOriginalRequestId());
+            logoutState.isPartialLogout()
+                ? logoutMessage.buildLogoutResponse(
+                    SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+                    StatusCode.SUCCESS,
+                    StatusCode.PARTIAL_LOGOUT,
+                    logoutState.getOriginalRequestId())
+                : logoutMessage.buildLogoutResponse(
+                    SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+                    StatusCode.SUCCESS,
+                    logoutState.getOriginalRequestId());
 
         entityServiceInfo =
             getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);

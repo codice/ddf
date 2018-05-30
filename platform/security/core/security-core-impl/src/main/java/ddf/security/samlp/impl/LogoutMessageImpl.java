@@ -51,6 +51,8 @@ import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.w3c.dom.Document;
@@ -171,17 +173,8 @@ public class LogoutMessageImpl implements LogoutMessage {
   @Override
   public LogoutResponse buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo) {
-    return buildLogoutResponse(
-        issuerOrEntityId, statusCodeValue, inResponseTo, UUID.randomUUID().toString());
-  }
-
-  public LogoutResponse buildLogoutResponse(
-      String issuerOrEntityId, String statusCodeValue, String inResponseTo, String id) {
     if (issuerOrEntityId == null) {
       throw new IllegalArgumentException("Issuer cannot be null");
-    }
-    if (id == null) {
-      throw new IllegalArgumentException("ID cannot be null");
     }
     if (statusCodeValue == null) {
       throw new IllegalArgumentException("Status Code cannot be null");
@@ -191,7 +184,31 @@ public class LogoutMessageImpl implements LogoutMessage {
         SamlProtocol.createIssuer(issuerOrEntityId),
         SamlProtocol.createStatus(statusCodeValue),
         inResponseTo,
-        id);
+        "_" + UUID.randomUUID().toString());
+  }
+
+  @Override
+  public LogoutResponse buildLogoutResponse(
+      String issuerOrEntityId,
+      String topLevelStatusCode,
+      String secondLevelStatusCode,
+      String inResponseTo) {
+    if (issuerOrEntityId == null) {
+      throw new IllegalArgumentException("Issuer cannot be null");
+    }
+    if (topLevelStatusCode == null || secondLevelStatusCode == null) {
+      throw new IllegalArgumentException("Status Codes cannot be null");
+    }
+
+    Status status = SamlProtocol.createStatus(topLevelStatusCode);
+    StatusCode statusCode = SamlProtocol.createStatusCode(secondLevelStatusCode);
+    status.getStatusCode().setStatusCode(statusCode);
+
+    return SamlProtocol.createLogoutResponse(
+        SamlProtocol.createIssuer(issuerOrEntityId),
+        status,
+        inResponseTo,
+        "_" + UUID.randomUUID().toString());
   }
 
   @Override
