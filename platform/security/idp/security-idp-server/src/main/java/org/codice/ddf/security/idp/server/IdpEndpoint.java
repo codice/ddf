@@ -164,7 +164,7 @@ import org.w3c.dom.Node;
 @Path("/")
 public class IdpEndpoint implements Idp, SessionHandler {
 
-  public static final String SERVICES_IDP_PATH = SystemBaseUrl.getRootContext() + "/idp";
+  public static final String SERVICES_IDP_PATH = SystemBaseUrl.INTERNAL.getRootContext() + "/idp";
   public static final ImmutableSet<UsageType> USAGE_TYPES =
       ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
@@ -328,7 +328,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     LogoutRequest logoutRequest =
         logoutMessage.buildLogoutRequest(
             logoutState.getNameId(),
-            SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGOUT, true),
             logoutState.getSessionIndexes());
 
     logoutState.setCurrentRequestId(logoutRequest.getID());
@@ -785,7 +785,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     LOGGER.debug("Creating SAML Response for error condition.");
     org.opensaml.saml.saml2.core.Response samlResponse =
         SamlProtocol.createResponse(
-            SamlProtocol.createIssuer(SystemBaseUrl.constructUrl(IDP_LOGIN, true)),
+            SamlProtocol.createIssuer(SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true)),
             SamlProtocol.createStatus(statusCode),
             authnRequest.getID(),
             null);
@@ -981,7 +981,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     LOGGER.debug("User log in successful.");
     org.opensaml.saml.saml2.core.Response response =
         SamlProtocol.createResponse(
-            SamlProtocol.createIssuer(SystemBaseUrl.constructUrl(IDP_LOGIN, true)),
+            SamlProtocol.createIssuer(SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true)),
             SamlProtocol.createStatus(statusCode),
             authnRequest.getID(),
             samlToken);
@@ -1098,16 +1098,16 @@ public class IdpEndpoint implements Idp, SessionHandler {
     }
     EntityDescriptor entityDescriptor =
         SamlProtocol.createIdpMetadata(
-            SystemBaseUrl.constructUrl(IDP_LOGIN, true),
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
             Base64.getEncoder()
                 .encodeToString(issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
             Base64.getEncoder()
                 .encodeToString(encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
             nameIdFormats,
-            SystemBaseUrl.constructUrl(IDP_LOGIN, true),
-            SystemBaseUrl.constructUrl(IDP_LOGIN, true),
-            SystemBaseUrl.constructUrl(IDP_LOGIN, true),
-            SystemBaseUrl.constructUrl(IDP_LOGOUT, true));
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+            SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGOUT, true));
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
     return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor, doc, false)))
@@ -1370,7 +1370,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         LogoutRequest logoutRequest =
             logoutMessage.buildLogoutRequest(
                 logoutState.getNameId(),
-                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
+                SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
                 logoutState.getSessionIndexes());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
@@ -1383,7 +1383,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
             logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
         logoutObject =
             logoutMessage.buildLogoutResponse(
-                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
+                SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
                 status,
                 logoutState.getOriginalRequestId());
 

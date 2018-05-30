@@ -126,7 +126,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return SystemBaseUrl.constructUrl("https", SOLR_CONTEXT);
+    return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
   }
 
   /**
@@ -135,7 +135,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server HTTP address
    */
   public static String getDefaultHttpAddress() {
-    return SystemBaseUrl.constructUrl("http", SOLR_CONTEXT);
+    return SystemBaseUrl.INTERNAL.constructUrl("http", SOLR_CONTEXT);
   }
 
   /**
@@ -176,7 +176,8 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
    */
   public static Future<SolrClient> getHttpSolrClient(
       @Nullable String url, String coreName, @Nullable String configFile) {
-    String solrUrl = StringUtils.defaultIfBlank(url, SystemBaseUrl.constructUrl("/solr"));
+    String solrUrl =
+        StringUtils.defaultIfBlank(url, SystemBaseUrl.INTERNAL.constructUrl(SOLR_CONTEXT));
     String coreUrl = url + "/" + coreName;
 
     if (AccessController.doPrivileged(

@@ -97,7 +97,7 @@ public class ResourceDownloadActionProviderCanHandleTest {
   @Before
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    System.setProperty(SystemBaseUrl.HOST, "localhost");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "localhost");
     actionProvider =
         new ResourceDownloadActionProvider(ACTION_PROVIDER_ID) {
           @Override

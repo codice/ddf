@@ -96,6 +96,6 @@ public class PreviewActionProviderTest {
         String.format(
             "%s%s/%s/%s?transform=preview",
             CONTEXT_ROOT, SOURCES_PATH, metacardSource, encodedMetacardId);
-    return new URL(SystemBaseUrl.constructUrl(urlString, true));
+    return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
 }

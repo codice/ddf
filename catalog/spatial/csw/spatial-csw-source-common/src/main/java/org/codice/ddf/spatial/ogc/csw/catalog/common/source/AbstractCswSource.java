@@ -1834,7 +1834,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     getRecordsType.setOutputSchema("urn:catalog:metacard");
     getRecordsType
         .getResponseHandler()
-        .add(SystemBaseUrl.constructUrl("csw/subscription/event", true));
+        .add(SystemBaseUrl.EXTERNAL.constructUrl("csw/subscription/event", true));
     QueryType queryType = new QueryType();
     queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
     ObjectFactory objectFactory = new ObjectFactory();
@@ -1872,7 +1872,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   /** Clean-up when shutting down the CswSource */
-  public void destroy(int code) {
+  public void destroy() {
     LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
     availabilityPollFuture.cancel(true);
     scheduler.shutdownNow();

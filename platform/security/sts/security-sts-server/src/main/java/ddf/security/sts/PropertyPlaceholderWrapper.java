@@ -46,9 +46,9 @@ public class PropertyPlaceholderWrapper {
     stsProperties = properties;
     // set the default values in case there is no configuration
     samlConditionsProvider.setLifetime(DEFAULT_LIFETIME);
-    stsProperties.setSignatureUsername(SystemBaseUrl.getHost());
-    stsProperties.setIssuer(SystemBaseUrl.getHost());
-    stsProperties.setEncryptionUsername(SystemBaseUrl.getHost());
+    stsProperties.setSignatureUsername(SystemBaseUrl.INTERNAL.getHost());
+    stsProperties.setIssuer(SystemBaseUrl.INTERNAL.getHost());
+    stsProperties.setEncryptionUsername(SystemBaseUrl.INTERNAL.getHost());
   }
 
   public void setLifetime(Long lifetime) {

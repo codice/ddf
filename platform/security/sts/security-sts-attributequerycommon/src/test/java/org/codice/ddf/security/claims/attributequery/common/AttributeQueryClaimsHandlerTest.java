@@ -63,7 +63,7 @@ public class AttributeQueryClaimsHandlerTest {
   private static final String USERNAME =
       "CN=testCN, OU=testOU, O=testO, L=testL, ST=testST, C=testC";
 
-  private static final String EXTERNAL_ATTRIBUTE_STORE = SystemBaseUrl.getBaseUrl();
+  private static final String EXTERNAL_ATTRIBUTE_STORE = SystemBaseUrl.INTERNAL.getBaseUrl();
 
   private AttributeQueryTestClaimsHandler spyAttributeQueryClaimsHandler;
 

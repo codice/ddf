@@ -210,7 +210,7 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
                     "Error creating local registry entry. Couldn't convert registry map to a registry package."));
 
     if (!registryPackage.isSetHome()) {
-      registryPackage.setHome(SystemBaseUrl.getBaseUrl());
+      registryPackage.setHome(SystemBaseUrl.EXTERNAL.getBaseUrl());
     }
 
     if (!registryPackage.isSetObjectType()) {

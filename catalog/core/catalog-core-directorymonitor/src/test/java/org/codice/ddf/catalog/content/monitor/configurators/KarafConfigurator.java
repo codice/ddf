@@ -47,6 +47,8 @@ public class KarafConfigurator {
         logLevel().logLevel(LogLevelOption.LogLevel.DEBUG),
         editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
         editConfigurationFilePut(
+            "etc/system.properties", "org.codice.ddf.external.hostname", "localhost"),
+        editConfigurationFilePut(
             "etc/system.properties", "org.codice.ddf.system.hostname", "localhost"),
         when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
         KarafStandardFeatures.start("standard"));

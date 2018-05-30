@@ -19,18 +19,32 @@ package org.codice.ddf.configuration;
  */
 public final class SystemBaseUrl {
 
-  public static final String HTTP_PORT = "org.codice.ddf.system.httpPort";
+  /* Internal Property Keys */
+  public static final String INTERNAL_HTTP_PORT = "org.codice.ddf.system.httpPort";
 
-  public static final String HTTPS_PORT = "org.codice.ddf.system.httpsPort";
+  public static final String INTERNAL_HTTPS_PORT = "org.codice.ddf.system.httpsPort";
 
-  public static final String PORT = "org.codice.ddf.system.port";
+  public static final String INTERNAL_PORT = "org.codice.ddf.system.port";
 
-  public static final String HOST = "org.codice.ddf.system.hostname";
+  public static final String INTERNAL_HOST = "org.codice.ddf.system.hostname";
 
-  public static final String PROTOCOL = "org.codice.ddf.system.protocol";
+  public static final String INTERNAL_PROTOCOL = "org.codice.ddf.system.protocol";
 
+  /* External Property Keys */
+  public static final String EXTERNAL_HTTP_PORT = "org.codice.ddf.external.httpPort";
+
+  public static final String EXTERNAL_HTTPS_PORT = "org.codice.ddf.external.httpsPort";
+
+  public static final String EXTERNAL_PORT = "org.codice.ddf.external.port";
+
+  public static final String EXTERNAL_HOST = "org.codice.ddf.external.hostname";
+
+  public static final String EXTERNAL_PROTOCOL = "org.codice.ddf.external.protocol";
+
+  /* Shared Property Keys */
   public static final String ROOT_CONTEXT = "org.codice.ddf.system.rootContext";
 
+  /* Defaults */
   public static final String DEFAULT_HTTP_PORT = "8181";
 
   public static final String DEFAULT_HTTPS_PORT = "8993";
@@ -39,19 +53,41 @@ public final class SystemBaseUrl {
 
   public static final String DEFAULT_PROTOCOL = "https://";
 
-  private SystemBaseUrl() {}
+  /* Accessor Fields to be set based on External or Internal*/
+  private String httpPort;
+
+  private String httpsPort;
+
+  private String port;
+
+  private String host;
+
+  private String protocol;
+
+  /* EXTERNAL and INTERNAL singleton objects */
+  public static final SystemBaseUrl EXTERNAL =
+      new SystemBaseUrl(
+          EXTERNAL_HTTP_PORT, EXTERNAL_HTTPS_PORT, EXTERNAL_PORT, EXTERNAL_HOST, EXTERNAL_PROTOCOL);
+  public static final SystemBaseUrl INTERNAL =
+      new SystemBaseUrl(
+          INTERNAL_HTTP_PORT, INTERNAL_HTTPS_PORT, INTERNAL_PORT, INTERNAL_HOST, INTERNAL_PROTOCOL);
+
+  private SystemBaseUrl(
+      String httpPortKey, String httpsPortKey, String portKey, String hostKey, String protocolKey) {
+    httpPort = httpPortKey;
+    httpsPort = httpsPortKey;
+    port = portKey;
+    host = hostKey;
+    protocol = protocolKey;
+  }
 
   /**
    * Gets the port number based on the the system protocol
    *
    * @return
    */
-  public static String getPort() {
-    String port = System.getProperty(PORT);
-    if (port == null) {
-      port = getPort(getProtocol());
-    }
-    return port;
+  public String getPort() {
+    return System.getProperty(this.port, getPort(getProtocol()));
   }
 
   /**
@@ -59,7 +95,7 @@ public final class SystemBaseUrl {
    *
    * @return
    */
-  public static String getBaseUrl() {
+  public String getBaseUrl() {
     return getBaseUrl(getProtocol());
   }
 
@@ -70,7 +106,7 @@ public final class SystemBaseUrl {
    *     default protocol to be used
    * @return
    */
-  public static String getBaseUrl(String proto) {
+  public String getBaseUrl(String proto) {
     return constructUrl(proto, null);
   }
 
@@ -80,7 +116,7 @@ public final class SystemBaseUrl {
    * @param context The context path to be appened to the end of the base url
    * @return
    */
-  public static String constructUrl(String context) {
+  public String constructUrl(String context) {
     return constructUrl(getProtocol(), context);
   }
 
@@ -92,7 +128,7 @@ public final class SystemBaseUrl {
    *     url.
    * @return
    */
-  public static String constructUrl(String context, boolean includeRootContext) {
+  public String constructUrl(String context, boolean includeRootContext) {
     return constructUrl(getProtocol(), context, includeRootContext);
   }
 
@@ -104,7 +140,7 @@ public final class SystemBaseUrl {
    * @param context The context path to be appened to the end of the base url
    * @return
    */
-  public static String constructUrl(String proto, String context) {
+  public String constructUrl(String proto, String context) {
     return constructUrl(proto, context, false);
   }
 
@@ -118,7 +154,8 @@ public final class SystemBaseUrl {
    *     url.
    * @return
    */
-  public static String constructUrl(String proto, String context, boolean includeRootContext) {
+  @SuppressWarnings("squid:HiddenFieldCheck" /* Specific proto might be needed by caller */)
+  public String constructUrl(String proto, String context, boolean includeRootContext) {
     StringBuilder sb = new StringBuilder();
     String protocol = proto;
     if (protocol == null) {
@@ -158,7 +195,7 @@ public final class SystemBaseUrl {
    * @param proto protocol (http or https)
    * @return
    */
-  public static String getPort(String proto) {
+  public String getPort(String proto) {
     if (proto != null && !proto.startsWith("https")) {
       return getHttpPort();
     } else {
@@ -166,12 +203,12 @@ public final class SystemBaseUrl {
     }
   }
 
-  public static String getHttpPort() {
-    return System.getProperty(HTTP_PORT, DEFAULT_HTTP_PORT);
+  public String getHttpPort() {
+    return System.getProperty(this.httpPort, DEFAULT_HTTP_PORT);
   }
 
-  public static String getHttpsPort() {
-    return System.getProperty(HTTPS_PORT, DEFAULT_HTTPS_PORT);
+  public String getHttpsPort() {
+    return System.getProperty(this.httpsPort, DEFAULT_HTTPS_PORT);
   }
 
   /**
@@ -180,15 +217,15 @@ public final class SystemBaseUrl {
    *
    * @return host name, IP address or {@link #DEFAULT_HOST}
    */
-  public static String getHost() {
-    return System.getProperty(HOST, DEFAULT_HOST);
+  public String getHost() {
+    return System.getProperty(this.host, DEFAULT_HOST);
   }
 
-  public static String getProtocol() {
-    return System.getProperty(PROTOCOL, DEFAULT_PROTOCOL);
+  public String getProtocol() {
+    return System.getProperty(this.protocol, DEFAULT_PROTOCOL);
   }
 
-  public static String getRootContext() {
+  public String getRootContext() {
     return System.getProperty(ROOT_CONTEXT, "");
   }
 }

@@ -49,6 +49,11 @@
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

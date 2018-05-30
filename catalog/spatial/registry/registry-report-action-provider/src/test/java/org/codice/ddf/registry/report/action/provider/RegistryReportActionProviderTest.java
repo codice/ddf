@@ -424,10 +424,10 @@ public class RegistryReportActionProviderTest {
   private void configureActionProvider(
       String protocol, String host, String port, String contextRoot) {
 
-    setProperty("org.codice.ddf.system.hostname", host);
-    setProperty("org.codice.ddf.system.httpPort", port);
-    setProperty("org.codice.ddf.system.httpsPort", port);
-    setProperty("org.codice.ddf.system.protocol", protocol);
+    setProperty("org.codice.ddf.external.hostname", host);
+    setProperty("org.codice.ddf.external.httpPort", port);
+    setProperty("org.codice.ddf.external.httpsPort", port);
+    setProperty("org.codice.ddf.external.protocol", protocol);
     setProperty("org.codice.ddf.system.rootContext", contextRoot);
   }
 

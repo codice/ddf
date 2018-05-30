@@ -200,8 +200,8 @@ public class BackupCommand extends SolrCommands {
             LOGGER.debug("No Solr config found, checking System settings");
             if (System.getProperty("hostContext") != null) {
               backupUrl =
-                  SystemBaseUrl.constructUrl(
-                      SystemBaseUrl.getProtocol(), System.getProperty("hostContext"));
+                  SystemBaseUrl.INTERNAL.constructUrl(
+                      SystemBaseUrl.INTERNAL.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
               LOGGER.info(

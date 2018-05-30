@@ -184,7 +184,7 @@ public class IdentityNodeInitialization {
       extrinsicObject.setName(internationalStringTypeHelper.create(UNKNOWN_SITE_NAME));
     }
 
-    String home = SystemBaseUrl.getBaseUrl();
+    String home = SystemBaseUrl.EXTERNAL.getBaseUrl();
     extrinsicObject.setHome(home);
 
     String version = SystemInfo.getVersion();

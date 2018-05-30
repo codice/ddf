@@ -93,7 +93,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
   private URL getActionUrl(String metacardSource, String metacardId)
       throws MalformedURLException, URISyntaxException {
     return new URI(
-            SystemBaseUrl.constructUrl(
+            SystemBaseUrl.EXTERNAL.constructUrl(
                 String.format(
                     "%s?%s=%s&%s=%s",
                     CONTEXT_PATH, SOURCE_PARAM, metacardSource, METACARD_PARAM, metacardId),

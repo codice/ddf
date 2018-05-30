@@ -224,7 +224,7 @@ public class IdentityNodeInitializationTest {
     extrinsicObject.setId(extrinsicObjectId);
     extrinsicObject.setName(internationalStringTypeHelper.create(TEST_SITE_NAME));
 
-    String home = SystemBaseUrl.getBaseUrl();
+    String home = SystemBaseUrl.EXTERNAL.getBaseUrl();
     extrinsicObject.setHome(home);
 
     registryPackage.setRegistryObjectList(RIM_FACTORY.createRegistryObjectListType());
