@@ -190,7 +190,7 @@ module.exports = Marionette.LayoutView.extend({
         }
         filterSettings.sorts = filterSettings.sorts.filter(sort => sort.attribute && sort.direction)
             .map(sort => sort.attribute + ',' + sort.direction);
-        return filterTemplate = {
+        return {
             filterTemplate: filterTree,
             accessIndividuals: formModel.get('accessIndividuals'),
             accessGroups: formModel.get('accessGroups'),

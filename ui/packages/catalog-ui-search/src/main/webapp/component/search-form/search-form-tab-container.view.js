@@ -26,8 +26,7 @@
     template: template,
     tagName: CustomElements.register('search-form-collection'),
     regions: {
-        collectionView: '.collection',
-        loadingView: '.loading'
+        collectionView: '.collection'
     },
     initialize: function() {
         this.searchFormCollection = new SearchFormCollection();
@@ -46,7 +45,7 @@
     },
     handleLoadingSpinner: function() {
         if(this.searchFormCollection.getDoneLoading()) {
-            this.loadingView.currentView.remove();
+            LoadingCompanionView.endLoading(this);
         }
     }
  });
