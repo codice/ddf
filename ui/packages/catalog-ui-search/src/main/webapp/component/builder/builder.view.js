@@ -160,6 +160,7 @@ module.exports = Marionette.LayoutView.extend({
         });
 
         this.model.set('metacard', propertyCollection);
+        this.handleMetacard();
         this.$el.addClass('is-building');
 
     },
