@@ -36,6 +36,7 @@
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-attachment/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core" version="${project.version}"
@@ -74,6 +75,11 @@
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-core-attachment" version="${project.version}" description="Generate Filenames for Ingested Attachments">
+        <feature>catalog-core-api</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-attachment-impl/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-plugins" version="${project.version}"
@@ -547,5 +553,6 @@
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-thumbnail</feature>
         <feature>catalog-metacardingest-network</feature>
+        <feature>catalog-core-attachment</feature>
     </feature>
 </features>

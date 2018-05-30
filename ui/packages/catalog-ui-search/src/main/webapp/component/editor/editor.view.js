@@ -96,6 +96,8 @@ define([
             this.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsHidden', this.handleFilterValue);
         },
         handleTypes: function(){
+            const username = user.get('user').get('userid');
+            let isOwner = true;
             var types = {};
             this.model.forEach(function(result){
                 var tags = result.get('metacard').get('properties').get('metacard-tags');
@@ -111,6 +113,9 @@ define([
                 if (result.isRemote()){
                     types.remote = true;
                 }
+                const metacardOwner = result.get('metacard').get('properties').get('metacard.owner');
+
+                isOwner = isOwner && username === metacardOwner;
             });
             this.$el.toggleClass('is-mixed', Object.keys(types).length > 1);
             this.$el.toggleClass('is-workspace', types.workspace !== undefined);
@@ -118,6 +123,7 @@ define([
             this.$el.toggleClass('is-revision', types.revision !== undefined);
             this.$el.toggleClass('is-deleted', types.deleted !== undefined);
             this.$el.toggleClass('is-remote', types.remote !== undefined);
+            this.$el.toggleClass('is-owner', isOwner);
         },
         getEditorActionsOptions: function(){
             return {

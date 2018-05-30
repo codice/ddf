@@ -298,6 +298,15 @@
 
     <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
 
+    <reference-list id="userCreatableMetacardType"
+                    interface="org.codice.ddf.catalog.ui.metacard.internal.UserCreatableMetacardType"
+                    availability="optional"/>
+
+    <bean id="buildApplication" class="org.codice.ddf.catalog.ui.metacard.BuildApplication">
+        <argument ref="endpointUtil"/>
+        <argument ref="userCreatableMetacardType"/>
+    </bean>
+
     <bean id="metacardApplication" class="org.codice.ddf.catalog.ui.metacard.MetacardApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
@@ -324,6 +333,22 @@
         <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
+    </bean>
+
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+
+    <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
+
+    <bean id="listApplication" class="org.codice.ddf.catalog.ui.metacard.ListApplication">
+        <argument ref="mimeTypeMapper"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="uuidGenerator"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.metacard.impl.SplitterLocatorImpl"/>
+        </argument>
+        <argument ref="attachmentParser"/>
     </bean>
 
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
@@ -406,6 +431,8 @@
                 <ref component-id="configurationApplication"/>
                 <ref component-id="feedbackApplication"/>
                 <ref component-id="searchFormsApplication"/>
+                <ref component-id="listApplication"/>
+                <ref component-id="buildApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>
@@ -523,5 +550,13 @@
 
     <service ref="featureService"
              interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
+
+    <!-- This should have a service ranking lower than all other splitters. -->
+    <service interface="org.codice.ddf.catalog.ui.metacard.internal.Splitter" ranking="-100">
+        <service-properties>
+            <entry key="id" value="identity-splitter"/>
+        </service-properties>
+        <bean class="org.codice.ddf.catalog.ui.metacard.impl.IdentitySplitter"/>
+    </service>
 
 </blueprint>

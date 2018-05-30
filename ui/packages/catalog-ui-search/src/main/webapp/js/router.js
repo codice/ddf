@@ -38,12 +38,13 @@ define([
     'component/about/about.view',
     'component/notfound/notfound.view',
     'properties',
-    'component/announcement'
+    'component/announcement',
+    'underscore'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
             IngestView, router, user, uploadInstance, UploadView,
             NavigatorView, SourcesView, AboutView, 
-            NotFoundView, properties, announcement) {
+            NotFoundView, properties, announcement, _) {
 
     function hideViews() {
         Application.App.workspaceRegion.$el.addClass("is-hidden");
@@ -203,19 +204,27 @@ define([
                         queryForMetacards = new Query.Model({
                             cql: cql.write({
                                 type: 'OR',
-                                filters: upload.get('uploads').filter(function(file){
+                                filters: _.flatten(upload.get('uploads').filter(function(file){
                                     return file.id;
                                 }).map(function(file){
-                                    return {
-                                        type: '=',
-                                        value: file.id,
-                                        property: '"id"'
-                                    };
+                                    if (file.get('children') !== undefined) {
+                                        return file.get('children').map((child) => ({
+                                            type: '=',
+                                            value: child,
+                                            property: '"id"'
+                                        }));
+                                    } else {
+                                        return {
+                                            type: '=',
+                                            value: file.id,
+                                            property: '"id"'
+                                        };
+                                    }
                                 }).concat({
                                     type: '=',
                                     value: '-1',
                                     property: '"id"'
-                                })
+                                }))
                             }),
                             federation: 'enterprise'
                         });

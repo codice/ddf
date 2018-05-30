@@ -59,8 +59,6 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.ByteArrayInputStream;
@@ -112,13 +110,16 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.codice.ddf.attachment.AttachmentInfo;
+import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.opengis.filter.Filter;
@@ -135,8 +136,6 @@ import org.slf4j.LoggerFactory;
 public class RESTEndpoint implements RESTService {
 
   static final String DEFAULT_METACARD_TRANSFORMER = "xml";
-
-  private static final String DEFAULT_FILE_EXTENSION = "bin";
 
   private static final String BYTES_TO_SKIP = "BytesToSkip";
 
@@ -162,22 +161,11 @@ public class RESTEndpoint implements RESTService {
 
   private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-  private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-
-  private static final String DEFAULT_FILE_NAME = "file";
-
   public static final int MAX_INPUT_SIZE = 65_536;
 
   private UuidGenerator uuidGenerator;
 
-  /**
-   * Basic mime types that will be attempted to refine to a more accurate mime type based on the
-   * file extension of the filename specified in the create request.
-   */
-  private static final List<String> REFINEABLE_MIME_TYPES =
-      Arrays.asList(DEFAULT_MIME_TYPE, "text/plain");
-
-  private static MimeType jsonMimeType = null;
+  private static MimeType jsonMimeType;
 
   static {
     MimeType mime = null;
@@ -191,8 +179,6 @@ public class RESTEndpoint implements RESTService {
 
   private List<MetacardType> metacardTypes;
 
-  private MimeTypeMapper mimeTypeMapper;
-
   private FilterBuilder filterBuilder;
 
   private CatalogFramework catalogFramework;
@@ -201,9 +187,12 @@ public class RESTEndpoint implements RESTService {
 
   private MimeTypeResolver tikaMimeTypeResolver;
 
-  public RESTEndpoint(CatalogFramework framework) {
+  private final AttachmentParser attachmentParser;
+
+  public RESTEndpoint(CatalogFramework framework, AttachmentParser attachmentParser) {
     LOGGER.trace("Constructing REST Endpoint");
     this.catalogFramework = framework;
+    this.attachmentParser = attachmentParser;
     LOGGER.trace(("Rest Endpoint constructed successfully"));
   }
 
@@ -413,7 +402,7 @@ public class RESTEndpoint implements RESTService {
   public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
     BinaryContent content;
     ResponseBuilder responseBuilder;
-    String sourcesString = null;
+    String sourcesString;
 
     JSONArray resultsList = new JSONArray();
     SourceInfoResponse sources;
@@ -485,7 +474,7 @@ public class RESTEndpoint implements RESTService {
       @Context UriInfo uriInfo,
       @Context HttpServletRequest httpRequest) {
 
-    Response response = null;
+    Response response;
     Response.ResponseBuilder responseBuilder;
     QueryResponse queryResponse;
     Metacard card = null;
@@ -636,7 +625,7 @@ public class RESTEndpoint implements RESTService {
 
     InputStream stream = null;
     String contentType = null;
-    Response response = null;
+    Response response;
 
     String transformer = DEFAULT_METACARD_TRANSFORMER;
     if (transformerParam != null) {
@@ -744,17 +733,17 @@ public class RESTEndpoint implements RESTService {
 
         MimeType mimeType = getMimeType(headers);
 
-        CreateInfo createInfo = null;
+        Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
           if (CollectionUtils.isNotEmpty(contentParts)) {
-            createInfo = parseAttachments(contentParts, transformerParam);
+            attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
           }
         }
 
-        if (createInfo == null) {
+        if (attachmentInfoAndMetacard == null) {
           UpdateRequest updateRequest =
               new UpdateRequestImpl(id, generateMetacard(mimeType, id, message, transformerParam));
           catalogFramework.update(updateRequest);
@@ -764,11 +753,11 @@ public class RESTEndpoint implements RESTService {
                   Collections.singletonList(
                       new IncomingContentItem(
                           id,
-                          createInfo.getStream(),
-                          createInfo.getContentType(),
-                          createInfo.getFilename(),
+                          attachmentInfoAndMetacard.getLeft().getStream(),
+                          attachmentInfoAndMetacard.getLeft().getContentType(),
+                          attachmentInfoAndMetacard.getLeft().getFilename(),
                           0,
-                          createInfo.getMetacard())),
+                          attachmentInfoAndMetacard.getRight())),
                   null);
           catalogFramework.update(streamUpdateRequest);
         }
@@ -829,18 +818,18 @@ public class RESTEndpoint implements RESTService {
 
     try {
       if (message != null) {
-        CreateInfo createInfo = null;
+        Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
         if (multipartBody != null) {
           List<Attachment> contentParts = multipartBody.getAllAttachments();
           if (CollectionUtils.isNotEmpty(contentParts)) {
-            createInfo = parseAttachments(contentParts, transformerParam);
+            attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
           } else {
             LOGGER.debug("No file contents attachment found");
           }
         }
 
         CreateResponse createResponse;
-        if (createInfo == null) {
+        if (attachmentInfoAndMetacard == null) {
           CreateRequest createRequest =
               new CreateRequestImpl(generateMetacard(mimeType, null, message, transformerParam));
           createResponse = catalogFramework.create(createRequest);
@@ -850,10 +839,10 @@ public class RESTEndpoint implements RESTService {
                   Collections.singletonList(
                       new IncomingContentItem(
                           uuidGenerator,
-                          createInfo.getStream(),
-                          createInfo.getContentType(),
-                          createInfo.getFilename(),
-                          createInfo.getMetacard())),
+                          attachmentInfoAndMetacard.getLeft().getStream(),
+                          attachmentInfoAndMetacard.getLeft().getContentType(),
+                          attachmentInfoAndMetacard.getLeft().getFilename(),
+                          attachmentInfoAndMetacard.getRight())),
                   null);
           createResponse = catalogFramework.create(streamCreateRequest);
         }
@@ -901,15 +890,33 @@ public class RESTEndpoint implements RESTService {
     return response;
   }
 
-  CreateInfo parseAttachments(List<Attachment> contentParts, String transformerParam) {
+  Pair<AttachmentInfo, Metacard> parseAttachments(
+      List<Attachment> contentParts, String transformerParam) {
 
     if (contentParts.size() == 1) {
       Attachment contentPart = contentParts.get(0);
-      return parseAttachment(contentPart);
+
+      InputStream attachmentInputStream = null;
+
+      try {
+        attachmentInputStream = contentPart.getDataHandler().getInputStream();
+      } catch (IOException e) {
+        LOGGER.debug("IOException reading stream from file attachment in multipart body.", e);
+      }
+
+      return new ImmutablePair<>(
+          attachmentParser.generateAttachmentInfo(
+              attachmentInputStream,
+              contentPart.getContentType().toString(),
+              contentPart
+                  .getContentDisposition()
+                  .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)),
+          null);
     }
+
     List<Attribute> attributes = new ArrayList<>(contentParts.size());
     Metacard metacard = null;
-    CreateInfo createInfo = null;
+    AttachmentInfo attachmentInfo = null;
 
     for (Attachment attachment : contentParts) {
       String name = attachment.getContentDisposition().getParameter("name");
@@ -917,7 +924,13 @@ public class RESTEndpoint implements RESTService {
       try {
         InputStream inputStream = attachment.getDataHandler().getInputStream();
         if (name.equals("parse.resource")) {
-          createInfo = parseAttachment(attachment);
+          attachmentInfo =
+              attachmentParser.generateAttachmentInfo(
+                  inputStream,
+                  attachment.getContentType().toString(),
+                  attachment
+                      .getContentDisposition()
+                      .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME));
         } else if (name.equals("parse.metadata")) {
           metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
         } else {
@@ -930,7 +943,7 @@ public class RESTEndpoint implements RESTService {
             e);
       }
     }
-    if (createInfo == null) {
+    if (attachmentInfo == null) {
       throw new IllegalArgumentException("No parse.resource specified in request.");
     }
     if (metacard == null) {
@@ -939,9 +952,8 @@ public class RESTEndpoint implements RESTService {
     for (Attribute attribute : attributes) {
       metacard.setAttribute(attribute);
     }
-    createInfo.setMetacard(metacard);
 
-    return createInfo;
+    return new ImmutablePair<>(attachmentInfo, metacard);
   }
 
   private void parseOverrideAttributes(
@@ -1039,82 +1051,6 @@ public class RESTEndpoint implements RESTService {
       IOUtils.closeQuietly(inputStream);
     }
     return metacard;
-  }
-
-  CreateInfo parseAttachment(Attachment contentPart) {
-    CreateInfo createInfo = new CreateInfo();
-    InputStream stream = null;
-    String filename = null;
-    String contentType = null;
-
-    // Get the file contents as an InputStream and ensure the stream is positioned
-    // at the beginning
-    try {
-      stream = contentPart.getDataHandler().getInputStream();
-      if (stream != null && stream.available() == 0) {
-        stream.reset();
-      }
-      createInfo.setStream(stream);
-    } catch (IOException e) {
-      LOGGER.info("IOException reading stream from file attachment in multipart body", e);
-    }
-
-    // Example Content-Type header:
-    // Content-Type: application/json;id=geojson
-    if (contentPart.getContentType() != null) {
-      contentType = contentPart.getContentType().toString();
-    }
-
-    if (contentPart.getContentDisposition() != null) {
-      filename =
-          contentPart
-              .getContentDisposition()
-              .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
-    }
-
-    // Only interested in attachments for file uploads. Any others should be covered by
-    // the FormParam arguments.
-    // If the filename was not specified, then generate a default filename based on the
-    // specified content type.
-    if (StringUtils.isEmpty(filename)) {
-      LOGGER.debug("No filename parameter provided - generating default filename");
-      String fileExtension = DEFAULT_FILE_EXTENSION;
-      try {
-        fileExtension = mimeTypeMapper.getFileExtensionForMimeType(contentType); // DDF-2307
-        if (StringUtils.isEmpty(fileExtension)) {
-          fileExtension = DEFAULT_FILE_EXTENSION;
-        }
-      } catch (MimeTypeResolutionException e) {
-        LOGGER.debug("Exception getting file extension for contentType = {}", contentType);
-      }
-      filename = DEFAULT_FILE_NAME + "." + fileExtension; // DDF-2263
-      LOGGER.debug("No filename parameter provided - default to {}", filename);
-    } else {
-      filename = FilenameUtils.getName(filename);
-
-      // DDF-908: filename with extension was specified by the client. If the
-      // contentType is null or the browser default, try to refine the contentType
-      // by determining the mime type based on the filename's extension.
-      if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
-        String fileExtension = FilenameUtils.getExtension(filename);
-        LOGGER.debug(
-            "fileExtension = {}, contentType before refinement = {}", fileExtension, contentType);
-        try {
-          contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
-        } catch (MimeTypeResolutionException e) {
-          LOGGER.debug(
-              "Unable to refine contentType {} based on filename extension {}",
-              contentType,
-              fileExtension);
-        }
-        LOGGER.debug("Refined contentType = {}", contentType);
-      }
-    }
-
-    createInfo.setContentType(contentType);
-    createInfo.setFilename(filename);
-
-    return createInfo;
   }
 
   /**
@@ -1333,10 +1269,6 @@ public class RESTEndpoint implements RESTService {
     return response;
   }
 
-  public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
-    return mimeTypeToTransformerMapper;
-  }
-
   public void setMimeTypeToTransformerMapper(
       MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
     this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
@@ -1354,58 +1286,12 @@ public class RESTEndpoint implements RESTService {
     this.tikaMimeTypeResolver = mimeTypeResolver;
   }
 
-  public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
-    this.mimeTypeMapper = mimeTypeMapper;
-  }
-
   public void setMetacardTypes(List<MetacardType> metacardTypes) {
     this.metacardTypes = metacardTypes;
   }
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
-  }
-
-  protected static class CreateInfo {
-    InputStream stream = null;
-
-    String filename = null;
-
-    String contentType = null;
-
-    Metacard metacard = null;
-
-    public InputStream getStream() {
-      return stream;
-    }
-
-    public void setStream(InputStream stream) {
-      this.stream = stream;
-    }
-
-    public String getFilename() {
-      return filename;
-    }
-
-    public void setFilename(String filename) {
-      this.filename = filename;
-    }
-
-    public String getContentType() {
-      return contentType;
-    }
-
-    public void setContentType(String contentType) {
-      this.contentType = contentType;
-    }
-
-    public Metacard getMetacard() {
-      return metacard;
-    }
-
-    public void setMetacard(Metacard metacard) {
-      this.metacard = metacard;
-    }
   }
 
   protected static class IncomingContentItem extends ContentItemImpl {

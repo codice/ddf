@@ -126,5 +126,10 @@
             <artifactId>catalog-ui-enumeration</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>zip-splitter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

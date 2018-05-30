@@ -48,6 +48,7 @@ module.exports = Backbone.Model.extend({
     defaults: function() {
         return {
             id: undefined,
+            children: undefined,
             result: undefined,
             file: undefined,
             percentage: 0,
@@ -93,14 +94,24 @@ module.exports = Backbone.Model.extend({
             });
         }
     },
+    hasChildren() {
+        return this.get('children') && this.get('children').length > 1;
+    },
     handleSuccess: function(file) {
         if (fileMatches(file, this)) {
-            var message = file.name + ' uploaded successfully.';
+            let message = `${file.name} uploaded successfully.`;
+            const addedIdsHeader = file.xhr.getResponseHeader('added-ids');
+            const children = addedIdsHeader ? addedIdsHeader.split(',') : undefined;
+            if (children && children.length > 1) {
+                message+=` ${children.length} items found.`;
+            }
             this.set({
                 id: file.xhr.getResponseHeader('id'),
+                children,
                 success: true,
                 message: message
             });
+
             checkValidation(this);
         }
     },

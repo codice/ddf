@@ -28,6 +28,7 @@
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
+        <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>
     </feature>
 
     <feature name="search-ui" version="${project.version}" description="Search UI">
