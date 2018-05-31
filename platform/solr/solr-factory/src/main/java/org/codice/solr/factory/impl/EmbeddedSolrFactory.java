@@ -44,8 +44,7 @@ import org.slf4j.LoggerFactory;
 public class EmbeddedSolrFactory implements SolrClientFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
 
-  @VisibleForTesting
-  static final Map<EmbeddedSolrFiles, IndexSchema> INDEX_CACHE = new ConcurrentHashMap<>();
+  private static final Map<EmbeddedSolrFiles, IndexSchema> INDEX_CACHE = new ConcurrentHashMap<>();
 
   public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
 
@@ -74,7 +73,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    * @param configProxy the {@link ConfigurationFileProxy} instance to use
    * @return the newly created {@code SolrClient}
    * @throws IllegalArgumentException if <code>core</code>, <code>configXml</code>, <code>schemaXml
-   * </code>, <code>configStore</code> or <code>configProxy</code> is <code>null</code>
+   *     </code>, <code>configStore</code> or <code>configProxy</code> is <code>null</code>
    */
   public org.codice.solr.client.solrj.SolrClient newClient(
       String core,
@@ -103,8 +102,8 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    * @param configProxy {@link ConfigurationFileProxy} instance to use
    * @return a new {@link EmbeddedSolrServer} instance
    * @throws IllegalArgumentException if <code>coreName</code>, <code>configXml</code>, <code>
-   * schemaXml</code>, <code>configStore</code>, or <code>configProxy</code> is <code>null
-   * </code> or if it cannot find the Solr files
+   *     schemaXml</code>, <code>configStore</code>, or <code>configProxy</code> is <code>null
+   *     </code> or if it cannot find the Solr files
    */
   @VisibleForTesting
   EmbeddedSolrServer getEmbeddedSolrServer(
@@ -216,5 +215,15 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
         delPolicy,
         prev,
         reload);
+  }
+
+  @VisibleForTesting
+  static void resetIndexCache(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    EmbeddedSolrFactory.INDEX_CACHE.clear();
+    EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
+  }
+
+  static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
+    return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
   }
 }
