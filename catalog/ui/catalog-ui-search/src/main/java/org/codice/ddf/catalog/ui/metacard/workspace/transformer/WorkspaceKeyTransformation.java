@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
+import ddf.catalog.data.Metacard;
 import java.util.Optional;
 
 /**
@@ -37,7 +38,7 @@ public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Obje
 
   @Override
   default Optional<Object> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, Object metacardValue) {
+      WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
     return Optional.of(metacardValue);
   }
 

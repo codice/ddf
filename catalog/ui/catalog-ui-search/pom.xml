@@ -380,7 +380,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.36</minimum>
+                                            <minimum>0.37</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -390,12 +390,12 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.32</minimum>
+                                            <minimum>0.33</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.36</minimum>
+                                            <minimum>0.37</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
