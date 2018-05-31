@@ -47,6 +47,8 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
 
   public static final String COLUMN_ALIAS_KEY = "aliases";
 
+  private static final String HIDDEN_FIELDS_KEY = "hiddenFields";
+
   /**
    * @param upstreamResponse the SourceResponse to be converted.
    * @param arguments this transformer accepts 2 parameters in the 'arguments' map.
@@ -78,6 +80,10 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
             .map(Result::getMetacard)
             .collect(Collectors.toList());
 
+    Set<String> hiddenFields =
+        Optional.ofNullable((Set<String>) arguments.get(HIDDEN_FIELDS_KEY))
+            .orElse(Collections.emptySet());
+
     List<String> attributeOrder =
         Optional.ofNullable((List<String>) arguments.get(COLUMN_ORDER_KEY))
             .orElse(Collections.emptyList());
@@ -93,8 +99,14 @@ public class CsvQueryResponseTransformer implements QueryResponseTransformer {
             ? getAllCsvAttributeDescriptors(metacards)
             : getOnlyRequestedAttributes(metacards, requestedFields);
 
+    Set<AttributeDescriptor> filteredAttributeDescriptors =
+        requestedAttributeDescriptors
+            .stream()
+            .filter(desc -> !hiddenFields.contains(desc.getName()))
+            .collect(Collectors.toSet());
+
     List<AttributeDescriptor> sortedAttributeDescriptors =
-        sortAttributes(requestedAttributeDescriptors, attributeOrder);
+        sortAttributes(filteredAttributeDescriptors, attributeOrder);
 
     Appendable csv = writeMetacardsToCsv(metacards, sortedAttributeDescriptors, columnAliasMap);
 

@@ -85,7 +85,7 @@ public class CsvQueryResponseTransformerTest {
     String[] hiddenFieldsArray = {"attribute3", "attribute5"};
     argumentsMap.put("hiddenFields", buildSet(hiddenFieldsArray));
 
-    String[] columnOrderArray = {"attribute4", "attribute2"};
+    String[] columnOrderArray = {"attribute3", "attribute4", "attribute2"};
     argumentsMap.put("columnOrder", buildList(columnOrderArray));
 
     String[][] aliases = {{"attribute1", "column1"}, {"attribute2", "column2"}};
