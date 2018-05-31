@@ -16,7 +16,6 @@ package org.codice.ddf.endpoints.rest;
 import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
 import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
 
-import com.google.common.io.ByteSource;
 import ddf.action.Action;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
@@ -666,7 +665,7 @@ public class RESTEndpoint implements RESTService {
     }
 
     try {
-      Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream, null);
+      Metacard metacard = generateMetacard(mimeType, null, stream, null);
       String metacardId = metacard.getId();
       LOGGER.debug("Metacard {} created", metacardId);
       LOGGER.debug(
@@ -834,14 +833,22 @@ public class RESTEndpoint implements RESTService {
               new CreateRequestImpl(generateMetacard(mimeType, null, message, transformerParam));
           createResponse = catalogFramework.create(createRequest);
         } else {
+          String id =
+              attachmentInfoAndMetacard.getRight() == null
+                  ? null
+                  : attachmentInfoAndMetacard.getRight().getId();
+          if (id == null) {
+            id = uuidGenerator.generateUuid();
+          }
           CreateStorageRequest streamCreateRequest =
               new CreateStorageRequestImpl(
                   Collections.singletonList(
                       new IncomingContentItem(
-                          uuidGenerator,
+                          id,
                           attachmentInfoAndMetacard.getLeft().getStream(),
                           attachmentInfoAndMetacard.getLeft().getContentType(),
                           attachmentInfoAndMetacard.getLeft().getFilename(),
+                          0L,
                           attachmentInfoAndMetacard.getRight())),
                   null);
           createResponse = catalogFramework.create(streamCreateRequest);
@@ -1044,7 +1051,7 @@ public class RESTEndpoint implements RESTService {
     }
     try {
       MimeType mimeType = new MimeType(attachment.getContentType().toString());
-      metacard = generateMetacard(mimeType, "assigned-when-ingested", inputStream, transformer);
+      metacard = generateMetacard(mimeType, null, inputStream, transformer);
     } catch (MimeTypeParseException | MetacardCreationException e) {
       LOGGER.debug("Unable to parse metadata {}", attachment.getContentType().toString());
     } finally {
@@ -1183,9 +1190,9 @@ public class RESTEndpoint implements RESTService {
 
       if (id != null) {
         generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-      } else {
-        LOGGER.debug("Metacard had a null id");
       }
+      LOGGER.debug("Metacard id is {}", generatedMetacard.getId());
+
     } catch (IOException e) {
       throw new MetacardCreationException("Could not create metacard.", e);
     } catch (InvalidSyntaxException e) {
@@ -1297,25 +1304,6 @@ public class RESTEndpoint implements RESTService {
   protected static class IncomingContentItem extends ContentItemImpl {
 
     private InputStream inputStream;
-
-    public IncomingContentItem(
-        UuidGenerator uuidGenerator,
-        ByteSource byteSource,
-        String mimeTypeRawData,
-        String filename,
-        Metacard metacard) {
-      super(uuidGenerator.generateUuid(), byteSource, mimeTypeRawData, filename, 0L, metacard);
-    }
-
-    public IncomingContentItem(
-        UuidGenerator uuidGenerator,
-        InputStream inputStream,
-        String mimeTypeRawData,
-        String filename,
-        Metacard metacard) {
-      super(uuidGenerator.generateUuid(), null, mimeTypeRawData, filename, 0L, metacard);
-      this.inputStream = inputStream;
-    }
 
     public IncomingContentItem(
         String id,
