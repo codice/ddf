@@ -73,6 +73,7 @@ import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -133,6 +134,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     METADATA,
     PROTOCOL
   }
+
+  @Rule public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
   @Before
   public void setup() throws Exception {
