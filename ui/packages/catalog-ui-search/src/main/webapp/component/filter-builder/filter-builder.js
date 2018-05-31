@@ -16,7 +16,8 @@
  module.exports =  Backbone.Model.extend({
     defaults: {
         value: '',
-        operator: 'AND'
+        operator: 'AND',
+        sortableOrder: 0
     },
     type: 'filter-builder'
  });

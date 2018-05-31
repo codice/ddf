@@ -65,6 +65,9 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('filter'),
+        attributes: function() {
+            return { 'data-id': this.model.cid }
+        },
         events: {
             'click > .filter-remove': 'delete'
         },

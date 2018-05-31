@@ -61,7 +61,6 @@ define([
             this.turnOnEditing();
 
             let resultTemplates = ResultForm.getResultTemplatesProperties();
-            //TODO: Figure out why the All Fields form always shows up at the end and maybe reverse the way the array is constructed
             let lastIndex = resultTemplates.length - 1;
             if (resultTemplates) {
                 let detailLevelProperty = new Property({

@@ -33,7 +33,6 @@ module.exports = Marionette.LayoutView.extend({
         searchFormActions: '.choice-actions'
     },
     initialize: function() {
-        //TODO Fix this hack
         this.listenTo(this.model, 'change:type', this.changeView);
     },
     onRender: function() {
@@ -58,7 +57,7 @@ module.exports = Marionette.LayoutView.extend({
             case 'new-form':
                 this.options.queryModel.set({
                     type: 'new-form',
-                    associatedFormModel: this.model, //TODO: Compare this with the old approach of storing just the query id (for better or worse...)
+                    associatedFormModel: this.model,
                     title: this.model.get('name'),
                     filterTree: this.model.get('filterTemplate'),
                     accessGroups: this.model.get('accessGroups'),

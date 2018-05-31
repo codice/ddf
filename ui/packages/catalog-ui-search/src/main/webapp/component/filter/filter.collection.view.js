@@ -37,9 +37,12 @@ module.exports = Marionette.CollectionView.extend({
             animation: 250,
             draggable: '>*',
             disabled: this.options.isForm && !this.options.isFormBuilder,
-            onEnd: () => {
-                //Hooray?
-            }
+            onEnd: function() {
+                _.forEach(this.$el.children(`${CustomElements.getNamespace()}filter-builder` + ',' + `${CustomElements.getNamespace()}filter`), 
+                (element, index) => {
+                    this.collection.get(element.getAttribute('data-id')).set('sortableOrder', index);
+                });
+            }.bind(this)
         })
     },
     childViewOptions: function() {
@@ -56,7 +59,7 @@ module.exports = Marionette.CollectionView.extend({
     },
     addFilter: function(filterModel) {
         filterModel = filterModel || new FilterModel();
-        this.collection.unshift(filterModel);
+        this.collection.push(filterModel);
         return this.children.last();
     },
     addFilterBuilder: function(filterBuilderModel){

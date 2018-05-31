@@ -80,7 +80,7 @@ module.exports = Marionette.LayoutView.extend({
         this.queryAdvanced.currentView.turnOnEditing();
         if (this.options.isForm === true && this.options.isFormBuilder !== true) {
             this.queryAdvanced.currentView.turnOffEditing();
-            //TODO: Deal with the oddities in turning off editing in that view
+            //TODO: https://codice.atlassian.net/browse/DDF-3861 Deal with the oddities in turning off editing in that view 
             //this.querySettings.currentView.turnOffEditing();
         }
     },
@@ -92,6 +92,7 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.removeClass('is-editing');
         this.querySettings.currentView.saveToModel();
 
+        this.queryAdvanced.currentView.sortCollection();
         this.model.set({
             cql: this.options.isFormBuilder !== true ? this.queryAdvanced.currentView.transformToCql() : "",
             filterTree: JSON.stringify(this.queryAdvanced.currentView.getFilters())
@@ -101,6 +102,7 @@ module.exports = Marionette.LayoutView.extend({
         this.model.set('title', this.model.get('cql'));
     },
     serializeTemplateParameters: function() {
+        this.queryAdvanced.currentView.sortCollection();
         return {
             filterTree: this.queryAdvanced.currentView.getFilters(),
             filterSettings: this.querySettings.currentView.toJSON()

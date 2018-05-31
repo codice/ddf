@@ -41,15 +41,7 @@
     }
 
     > .filter-rearrange {
-      .grab-cursor();
-      margin-right: @minimumSpacing;
-      width: 0.75 * @minimumButtonSize;
-      opacity: 0.25;
-    }
-
-    > .filter-rearrange:hover {
-      opacity: 0.50;
-      transition: opacity 0.5s ease-in-out;
+      display: none;
     }
 
     > .filter-remove {
@@ -124,9 +116,19 @@
 
 }
 
-@{customElementNamespace}filter-builder.hide-rearrange {
-  > .filter-header > .filter-rearrange {
-    display: none;
+@{customElementNamespace}filter-builder.is-sortable {
+  > .filter-header {
+    > .filter-rearrange {
+      .grab-cursor();
+      display: inline-block;
+      width: 0.75 * @minimumButtonSize;
+      opacity: 0.25;
+    }
+
+    > .filter-rearrange:hover {
+      opacity: 0.50;
+      transition: opacity 0.5s ease-in-out;
+    }
   }
 }
 
