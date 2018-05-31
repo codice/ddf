@@ -82,7 +82,7 @@ public class IdpMetadata {
     }
   }
 
-  private void initSingleSignOut() {
+  private void initSingleLogout() {
     IDPSSODescriptor descriptor = getDescriptor();
     if (descriptor != null) {
 
@@ -259,12 +259,12 @@ public class IdpMetadata {
   }
 
   public String getSingleLogoutBinding() {
-    initSingleSignOut();
+    initSingleLogout();
     return singleLogoutBinding;
   }
 
   public String getSingleLogoutLocation() {
-    initSingleSignOut();
+    initSingleLogout();
     return singleLogoutLocation;
   }
 
