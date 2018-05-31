@@ -12,48 +12,22 @@
 const chai = require('chai');
 const expect = chai.expect;
 const wkx = require('wkx');
+const CQLUtils = require('js/CQLUtils');
 
-// Mock the metacard-definitions dependency to avoid it's dependency
-// on the properties module, which contains ajax calls.
-const CQLUtilsInjector = require('inject-loader!js/CQLUtils');
-const CQLUtils = CQLUtilsInjector({
-  'component/singletons/metacard-definitions': {
-      metacardTypes: {
-          anyText: {
-              id: 'anyText',
-              type: 'STRING',
-              multivalued: false
-          },
-          anyGeo: {
-              id: 'anyGeo',
-              type: 'LOCATION',
-              multivalued: false
-          },
-          'metacard-type': {
-              id: 'metacard-type',
-              type: 'STRING',
-              multivalued: false,
-              readOnly: true
-          },
-          'source-id': {
-              id: 'source-id',
-              type: 'STRING',
-              multivalued: false,
-              readOnly: true
-          },
-          cached: {
-              id: 'cached',
-              type: 'STRING',
-              multivalued: false
-          },
-          'metacard-tags': {
-              id: 'metacard-tags',
-              type: 'STRING',
-              multivalued: true
-          }
-      }
-  }
-});
+const mockMetacardDefinitions = {
+    metacardTypes: {
+        anyText: {
+            id: 'anyText',
+            type: 'STRING',
+            multivalued: false
+        },
+        anyGeo: {
+            id: 'anyGeo',
+            type: 'LOCATION',
+            multivalued: false
+        }
+    }
+}
 
 function assertMultiPolygon(actual, expected) {
   expect(actual.length).equals(expected.length);
@@ -168,7 +142,7 @@ describe('CQL Utils', () => {
   describe('generates filters', () => {
     it('generates filter with anyGeo property and LINE type', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'LINE', line: [[1, 1], [2, 2]], lineWidth: 5.0});
+          {type: 'LINE', line: [[1, 1], [2, 2]], lineWidth: 5.0}, mockMetacardDefinitions);
       expect(filter.type).equals('DWITHIN');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('LINESTRING(1 1,2 2)');
@@ -177,7 +151,7 @@ describe('CQL Utils', () => {
 
     it('generates filter with anyGeo property and POLYGON type', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'POLYGON', polygon: [[1, 1], [2, 2], [1, 1]]});
+          {type: 'POLYGON', polygon: [[1, 1], [2, 2], [1, 1]]}, mockMetacardDefinitions);
       expect(filter.type).equals('INTERSECTS');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('POLYGON((1 1,2 2,1 1))');
@@ -185,7 +159,8 @@ describe('CQL Utils', () => {
 
     it('generates filter with anyGeo property and MULTIPOLYGON type', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'MULTIPOLYGON', polygon: [[[3.0, 50.0], [4.0, 49.0], [4.0, 50.0], [3.0, 50.0]], [[8.0, 55.0], [9.0, 54.0], [9.0, 55.0], [8.0, 55.0]]]});
+          {type: 'MULTIPOLYGON', polygon: [[[3.0, 50.0], [4.0, 49.0], [4.0, 50.0], [3.0, 50.0]], [[8.0, 55.0], [9.0, 54.0], [9.0, 55.0], [8.0, 55.0]]]},
+          mockMetacardDefinitions);
       expect(filter.type).equals('INTERSECTS');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('MULTIPOLYGON(((3 50,4 49,4 50,3 50)),((8 55,9 54,9 55,8 55)))');
@@ -193,7 +168,8 @@ describe('CQL Utils', () => {
 
     it('generates filter with anyGeo property and BBOX type (latlon)', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'BBOX', locationType: 'latlon', west: -97, south: 41, east: -90, north: 46});
+          {type: 'BBOX', locationType: 'latlon', west: -97, south: 41, east: -90, north: 46},
+          mockMetacardDefinitions);
       expect(filter.type).equals('INTERSECTS');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('POLYGON((-97 41,-97 46,-90 46,-90 41,-97 41))');
@@ -201,7 +177,8 @@ describe('CQL Utils', () => {
 
     it('generates filter with anyGeo property and BBOX type (usng)', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'BBOX', locationType: 'usng', mapWest: -97, mapSouth: 41, mapEast: -90, mapNorth: 46});
+          {type: 'BBOX', locationType: 'usng', mapWest: -97, mapSouth: 41, mapEast: -90, mapNorth: 46},
+          mockMetacardDefinitions);
       expect(filter.type).equals('INTERSECTS');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('POLYGON((-97 41,-97 46,-90 46,-90 41,-97 41))');
@@ -209,7 +186,7 @@ describe('CQL Utils', () => {
 
     it('generates filter with anyGeo property and POINTRADIUS type', () => {
       const filter = CQLUtils.generateFilter('some type', 'anyGeo',
-          {type: 'POINTRADIUS', lon: 2, lat: 3, radius: 10});
+          {type: 'POINTRADIUS', lon: 2, lat: 3, radius: 10}, mockMetacardDefinitions);
       expect(filter.type).equals('DWITHIN');
       expect(filter.property).equals('anyGeo');
       expect(filter.value).equals('POINT(2 3)');
@@ -217,14 +194,14 @@ describe('CQL Utils', () => {
     });
 
     it('generates filter with anyText property', () => {
-      const filter = CQLUtils.generateFilter('some type', 'anyText', 'some value');
+      const filter = CQLUtils.generateFilter('some type', 'anyText', 'some value', mockMetacardDefinitions);
       expect(filter.type).equals('some type');
       expect(filter.property).equals('\"anyText\"');
       expect(filter.value).equals('some value');
     });
 
     it('generates filter for filter function', () => {
-      const filter = CQLUtils.generateFilterForFilterFunction('myFunc', {param1: 'val1'});
+      const filter = CQLUtils.generateFilterForFilterFunction('myFunc', {param1: 'val1'}, mockMetacardDefinitions);
       expect(filter.type).equals('=');
       expect(filter.value).to.be.true;
       expect(filter.property).to.deep.equal({type: 'FILTER_FUNCTION', filterFunctionName: 'myFunc', params: {param1: 'val1'}});

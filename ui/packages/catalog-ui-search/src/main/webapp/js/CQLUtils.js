@@ -9,12 +9,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 /*jshint bitwise: false*/
 const $ = require('jquery');
 const cql = require('js/cql');
 const DistanceUtils = require('js/DistanceUtils.js')
-const metacardDefinitions = require('component/singletons/metacard-definitions');
 
 function sanitizeForCql(text) {
     return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
@@ -175,7 +173,10 @@ function getProperty(filter) {
     return filter.property.split('"').join('');
 }
 
-function generateFilter(type, property, value) {
+function generateFilter(type, property, value, metacardDefinitions) {
+    if (!metacardDefinitions) {
+        metacardDefinitions = require('component/singletons/metacard-definitions');
+    }
     switch (metacardDefinitions.metacardTypes[property].type) {
         case 'LOCATION':
         case 'GEOMETRY':
