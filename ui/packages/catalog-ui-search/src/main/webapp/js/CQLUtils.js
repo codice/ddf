@@ -14,8 +14,9 @@
 define([
     'jquery',
     'js/cql',
+    'js/DistanceUtils.js',
     'component/singletons/metacard-definitions'
-], function ($, cql, metacardDefinitions) {
+], function ($, cql, DistanceUtils, metacardDefinitions) {
 
     return {
         sanitizeForCql: function (text) {
@@ -83,7 +84,7 @@ define([
                         property: property,
                         value: 'LINESTRING' +
                         this.sanitizeForCql(JSON.stringify(this.lineToCQLLIne(model.line))),
-                        distance: Number(model.lineWidth)
+                        distance: DistanceUtils.getDistanceInMeters(model.lineWidth, model.lineUnits)
                     };
                 case 'POLYGON':
                     return {
@@ -112,7 +113,7 @@ define([
                         type: 'DWITHIN',
                         property: property,
                         value: 'POINT(' + model.lon + ' ' + model.lat + ')',
-                        distance: Number(model.radius)
+                        distance: DistanceUtils.getDistanceInMeters(model.radius, model.radiusUnits)
                     };
                 default:
                     return {
