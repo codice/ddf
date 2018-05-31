@@ -51,7 +51,7 @@ public interface GeoEntryQueryable {
    *
    * @param queryString a partial or full search phrase
    * @param maxResults the maximum number of results to return
-   * @return
+   * @return List of {@code Suggestion} corresponding to {@code queryString}
    * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
    */
   List<Suggestion> getSuggestedNames(String queryString, int maxResults)

@@ -53,6 +53,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +63,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -76,7 +76,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
-import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -598,13 +597,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return result;
   }
 
-  private Double degreesToMeters(double distance) {
-    return new Distance(
-            DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM),
-            Distance.LinearUnit.KILOMETER)
-        .getAs(Distance.LinearUnit.METER);
-  }
-
   public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
     MetacardType metacardType = resolver.getMetacardType(doc);
     MetacardImpl metacard = new MetacardImpl(metacardType);
@@ -626,8 +618,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   @Override
   public List<SolrInputDocument> add(List<Metacard> metacards, boolean forceAutoCommit)
       throws IOException, SolrServerException, MetacardCreationException {
-    if (metacards == null || metacards.size() == 0) {
-      return null;
+    if (CollectionUtils.isEmpty(metacards)) {
+      return Collections.emptyList();
     }
 
     List<SolrInputDocument> docs = new ArrayList<>();
@@ -657,25 +649,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   public void deleteByIds(
       String fieldName, List<? extends Serializable> identifiers, boolean forceCommit)
       throws IOException, SolrServerException {
-    if (identifiers == null || identifiers.size() == 0) {
+    if (CollectionUtils.isEmpty(identifiers)) {
       return;
     }
 
     if (Metacard.ID.equals(fieldName)) {
-      CollectionUtils.transform(
-          identifiers,
-          new Transformer() {
-            @Override
-            public Object transform(Object o) {
-              return o.toString();
-            }
-          });
+      CollectionUtils.transform(identifiers, Object::toString);
       client.deleteById((List<String>) identifiers);
     } else {
       if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
         client.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
       } else {
-        int i = 0;
+        int i;
         for (i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
             i < identifiers.size();
             i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {

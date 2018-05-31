@@ -13,6 +13,10 @@
  */
 package org.codice.ddf.spatial.geocoding;
 
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 public interface Suggestion {
 
   /** Identifier that can be used to retrieve a specific {@code GeoEntry} from a resource */
