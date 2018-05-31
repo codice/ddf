@@ -37,9 +37,9 @@ import ddf.security.SecurityConstants;
 import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
@@ -56,7 +56,7 @@ public class WorkspaceServiceImplTest {
 
   private FilterBuilder filterBuilder;
 
-  private WorkspaceTransformer workspaceTransformer;
+  private WorkspaceTransformerImpl workspaceTransformer;
 
   private FilterService filterService;
 
@@ -68,7 +68,7 @@ public class WorkspaceServiceImplTest {
   public void setup() {
     catalogFramework = mock(CatalogFramework.class);
     filterBuilder = mock(FilterBuilder.class);
-    workspaceTransformer = mock(WorkspaceTransformer.class);
+    workspaceTransformer = mock(WorkspaceTransformerImpl.class);
     filterService = mock(FilterService.class);
     securityService = mock(SecurityService.class);
     WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
@@ -93,7 +93,7 @@ public class WorkspaceServiceImplTest {
     Attribute attribute = mock(Attribute.class);
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
-    when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     when(result.getMetacard()).thenReturn(metacard);
 

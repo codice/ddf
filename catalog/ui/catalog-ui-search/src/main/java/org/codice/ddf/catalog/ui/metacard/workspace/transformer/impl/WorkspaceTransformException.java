@@ -11,20 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
-import ddf.catalog.data.types.Associations;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
-
-public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransformation {
-  @Override
-  public String getMetacardKey() {
-    return Associations.RELATED;
-  }
-
-  @Override
-  public String getJsonKey() {
-    return WorkspaceAttributes.WORKSPACE_METACARDS;
+/** A Runtime exception class for workspace transformers */
+public class WorkspaceTransformException extends RuntimeException {
+  public WorkspaceTransformException(Exception e) {
+    super(e);
   }
 }

@@ -29,7 +29,7 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
 
   public WorkspaceMetacardImpl() {
     super(TYPE);
-    setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
   }
 
   public WorkspaceMetacardImpl(String id) {
@@ -69,7 +69,7 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
    * @return
    */
   public static boolean isWorkspaceMetacard(Metacard metacard) {
-    return metacard != null && metacard.getTags().contains(WorkspaceAttributes.WORKSPACE_TAG);
+    return metacard != null && metacard.getTags().contains(WorkspaceConstants.WORKSPACE_TAG);
   }
 
   public List<String> getMetacards() {
@@ -81,20 +81,20 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
   }
 
   public List<String> getQueries() {
-    return getValuesOrEmpty(WorkspaceAttributes.WORKSPACE_QUERIES);
+    return getValuesOrEmpty(WorkspaceConstants.WORKSPACE_QUERIES);
   }
 
   public WorkspaceMetacardImpl setQueries(List<String> queries) {
-    setAttribute(WorkspaceAttributes.WORKSPACE_QUERIES, new ArrayList<>(queries));
+    setAttribute(WorkspaceConstants.WORKSPACE_QUERIES, new ArrayList<>(queries));
     return this;
   }
 
   public List<String> getContent() {
-    return getValuesOrEmpty(WorkspaceAttributes.WORKSPACE_LISTS);
+    return getValuesOrEmpty(WorkspaceConstants.WORKSPACE_LISTS);
   }
 
   public WorkspaceMetacardImpl setContent(List<String> lists) {
-    setAttribute(WorkspaceAttributes.WORKSPACE_LISTS, new ArrayList<>(lists));
+    setAttribute(WorkspaceConstants.WORKSPACE_LISTS, new ArrayList<>(lists));
     return this;
   }
 }

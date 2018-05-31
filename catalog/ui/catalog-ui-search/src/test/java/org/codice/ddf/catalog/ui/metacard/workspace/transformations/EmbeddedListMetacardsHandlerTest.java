@@ -14,8 +14,8 @@
 package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
 
 import static java.util.Collections.singletonList;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedListMetacardsHandler.ACTIONS_KEY;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler.ACTIONS_KEY;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +49,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EmbeddedListMetacardsHandlerTest {
 
-  private EmbeddedListMetacardsHandler embeddedListMetacardsHandler;
+  private EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler embeddedListMetacardsHandler;
 
   @Mock private WorkspaceTransformer workspaceTransformer;
 
@@ -60,7 +61,7 @@ public class EmbeddedListMetacardsHandlerTest {
 
   @Before
   public void setup() throws MalformedURLException {
-    embeddedListMetacardsHandler = new EmbeddedListMetacardsHandler(actionRegistry);
+    embeddedListMetacardsHandler = new EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler(actionRegistry);
     final Action action = getMockAction();
     doReturn(singletonList(action)).when(actionRegistry).list(any());
   }

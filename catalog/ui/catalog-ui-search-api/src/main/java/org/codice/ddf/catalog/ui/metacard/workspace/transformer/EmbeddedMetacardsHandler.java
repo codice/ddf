@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -20,11 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
 /**
  * This partial implementation of {@link WorkspaceTransformation} is intended to transform embedded
@@ -33,39 +28,20 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTr
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
-public class EmbeddedMetacardsHandler implements WorkspaceValueTransformation<List, List> {
-  private final String key;
-
-  private final MetacardType metacardType;
-
-  public EmbeddedMetacardsHandler(String key, MetacardType metacardType) {
-    this.key = key;
-    this.metacardType = metacardType;
-  }
-
-  // The following static factory methods are used for OSGi blueprint factory methods.
-  public static EmbeddedMetacardsHandler newQueryMetacardHandler() {
-    return new EmbeddedMetacardsHandler(
-        WorkspaceAttributes.WORKSPACE_QUERIES, QueryMetacardImpl.TYPE);
-  }
+public interface EmbeddedMetacardsHandler extends WorkspaceValueTransformation<List, List> {
 
   @Override
-  public String getKey() {
-    return key;
-  }
-
-  @Override
-  public Class<List> getMetacardValueType() {
+  default Class<List> getMetacardValueType() {
     return List.class;
   }
 
   @Override
-  public Class<List> getJsonValueType() {
+  default Class<List> getJsonValueType() {
     return List.class;
   }
 
   @Override
-  public Optional<List> metacardValueToJsonValue(
+  default Optional<List> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
     return Optional.of(
         ((List<Object>) metacardXMLStrings)
@@ -78,7 +54,7 @@ public class EmbeddedMetacardsHandler implements WorkspaceValueTransformation<Li
   }
 
   @Override
-  public Optional<List> jsonValueToMetacardValue(
+  default Optional<List> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, List metacardJsonData) {
     return Optional.of(
         ((List<Object>) metacardJsonData)
@@ -87,11 +63,17 @@ public class EmbeddedMetacardsHandler implements WorkspaceValueTransformation<Li
             .map(Map.class::cast)
             .map(
                 queryJson -> {
-                  final Metacard metacard = new MetacardImpl(metacardType);
+                  final Metacard metacard = new MetacardImpl(getMetacardType());
                   transformer.transformIntoMetacard((Map<String, Object>) queryJson, metacard);
                   return metacard;
                 })
             .map(transformer::metacardToXml)
             .collect(Collectors.toList()));
   }
+
+  /**
+   * @return the {@link MetacardType} that the XML strings and JSON-style data maps are expected to
+   *     describe.
+   */
+  MetacardType getMetacardType();
 }

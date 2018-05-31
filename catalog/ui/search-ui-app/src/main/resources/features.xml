@@ -17,9 +17,14 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <feature name="catalog-ui-search-api" version="${project.version}" description="API for interacting with Catalog UI">
+        <bundle>mvn:ddf.ui/catalog-ui-search-api/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-ui" version="${project.version}" description="Catalog UI">
         <feature>spatial-app</feature>
         <feature>camel-http</feature>
+        <feature>catalog-ui-search-api</feature>
         <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.config.config" override="false">
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>

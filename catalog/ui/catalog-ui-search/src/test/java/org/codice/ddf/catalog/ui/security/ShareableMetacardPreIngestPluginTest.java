@@ -36,7 +36,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,7 +79,7 @@ public class ShareableMetacardPreIngestPluginTest {
 
     ShareableMetacardPreIngestPlugin plugin = makePlugin();
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
-    shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    shareableMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     plugin.process(new CreateRequestImpl(shareableMetacard));
     assertThat(shareableMetacard.getOwner(), is("owner"));
@@ -119,8 +119,8 @@ public class ShareableMetacardPreIngestPluginTest {
 
     ShareableMetacardImpl prev = new ShareableMetacardImpl("id");
     ShareableMetacardImpl next = ShareableMetacardImpl.clone(prev);
-    prev.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    next.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    prev.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    next.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     prev.setOwner("prev");
 

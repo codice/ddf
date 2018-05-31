@@ -11,19 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
+import ddf.catalog.data.types.Associations;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
 
-public class SrcToQuerySources implements WorkspaceKeyTransformation {
+public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
-    return QueryMetacardTypeImpl.QUERY_SOURCES;
+    return Associations.RELATED;
   }
 
   @Override
   public String getJsonKey() {
-    return "src";
+    return WorkspaceConstants.WORKSPACE_METACARDS;
   }
 }

@@ -11,34 +11,39 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
-
-import static java.util.stream.Collectors.toList;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.configuration.SystemBaseUrl;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.configuration.SystemBaseUrl;
 
-public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
+import static java.util.stream.Collectors.toList;
 
-  @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
+public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
+  @VisibleForTesting
+  static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
+
   @VisibleForTesting static final String ACTIONS_KEY = "actions";
 
   private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Collections.singleton(ACTIONS_KEY);
+
   private final ActionRegistry actionRegistry;
 
   public EmbeddedListMetacardsHandler(ActionRegistry actionRegistry) {
-    super(WorkspaceAttributes.WORKSPACE_LISTS, ListMetacardImpl.TYPE);
     this.actionRegistry = actionRegistry;
   }
 
@@ -50,7 +55,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
     final List<Map<String, Object>> listActions = getListActions(workspaceMetacard);
 
     final Optional<List> listMetacardsOptional =
-        super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
+        EmbeddedMetacardsHandler.super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
 
     listMetacardsOptional.ifPresent(
         listMetacards ->
@@ -74,7 +79,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
         .map(Map.class::cast)
         .forEach(this::removeExternalListAttributes);
 
-    return super.jsonValueToMetacardValue(transformer, metacardJsonData);
+    return EmbeddedMetacardsHandler.super.jsonValueToMetacardValue(transformer, metacardJsonData);
   }
 
   private void removeExternalListAttributes(Map listMetacardMap) {
@@ -104,5 +109,15 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
               return actionMap;
             })
         .collect(toList());
+  }
+
+  @Override
+  public String getKey() {
+    return WorkspaceConstants.WORKSPACE_LISTS;
+  }
+
+  @Override
+  public MetacardType getMetacardType() {
+    return ListMetacardImpl.TYPE;
   }
 }

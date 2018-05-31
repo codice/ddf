@@ -11,11 +11,18 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
+package org.codice.ddf.catalog.ui.metacard.workspace;
 
-/** A Runtime exception class for workspace transformers */
-public class WorkspaceTransformException extends RuntimeException {
-  public WorkspaceTransformException(Exception e) {
-    super(e);
-  }
+public class WorkspaceConstants {
+  public static final String WORKSPACE_TAG = "workspace";
+
+  public static final String WORKSPACE_METACARDS = "metacards";
+
+  public static final String WORKSPACE_QUERIES = "queries";
+
+  public static final String WORKSPACE_SHARING = "metacard.sharing";
+
+  public static final String WORKSPACE_LISTS = "lists";
+
+  private WorkspaceConstants() {}
 }

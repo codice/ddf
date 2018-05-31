@@ -290,6 +290,11 @@
             <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-search-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -342,6 +347,7 @@
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
+                            org.codice.ddf.catalog.ui.metacard.workspace.transformer,
                             !sun.reflect,
                             !com.sun.management,
                             !org.noggit,

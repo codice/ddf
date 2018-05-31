@@ -25,16 +25,6 @@ import java.util.Set;
 
 public class WorkspaceAttributes implements MetacardType {
 
-  public static final String WORKSPACE_TAG = "workspace";
-
-  public static final String WORKSPACE_METACARDS = "metacards";
-
-  public static final String WORKSPACE_QUERIES = "queries";
-
-  public static final String WORKSPACE_SHARING = "metacard.sharing";
-
-  public static final String WORKSPACE_LISTS = "lists";
-
   private static final String NAME = "workspace";
 
   // @formatter:off
@@ -48,25 +38,25 @@ public class WorkspaceAttributes implements MetacardType {
               true /* tokenized */,
               false /* multivalued */,
               BasicTypes.STRING_TYPE),
-          WORKSPACE_QUERIES,
+          WorkspaceConstants.WORKSPACE_QUERIES,
           new AttributeDescriptorImpl(
-              WORKSPACE_QUERIES,
+              WorkspaceConstants.WORKSPACE_QUERIES,
               false /* indexed */,
               true /* stored */,
               false /* tokenized */,
               true /* multivalued */,
               BasicTypes.XML_TYPE),
-          WORKSPACE_LISTS,
+          WorkspaceConstants.WORKSPACE_LISTS,
           new AttributeDescriptorImpl(
-              WORKSPACE_LISTS,
+              WorkspaceConstants.WORKSPACE_LISTS,
               false /* indexed */,
               true /* stored */,
               false /* tokenized */,
               true /* multivalued */,
               BasicTypes.XML_TYPE),
-          WORKSPACE_SHARING,
+          WorkspaceConstants.WORKSPACE_SHARING,
           new AttributeDescriptorImpl(
-              WORKSPACE_SHARING,
+              WorkspaceConstants.WORKSPACE_SHARING,
               false /* indexed */,
               true /* stored */,
               false /* tokenized */,

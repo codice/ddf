@@ -11,47 +11,39 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Security;
-import java.util.List;
+import ddf.catalog.data.types.Core;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
-public class FilterBlankAccessIndividuals implements WorkspaceValueTransformation<List, List> {
+public class RemoveMetacardTags implements WorkspaceValueTransformation<Object, Object> {
   @Override
   public String getKey() {
-    return Security.ACCESS_INDIVIDUALS;
+    return Core.METACARD_TAGS;
   }
 
   @Override
-  public Class<List> getMetacardValueType() {
-    return List.class;
+  public Class<Object> getMetacardValueType() {
+    return Object.class;
   }
 
   @Override
-  public Class<List> getJsonValueType() {
-    return List.class;
+  public Class<Object> getJsonValueType() {
+    return Object.class;
   }
 
   @Override
-  public Optional<List> metacardValueToJsonValue(
-      WorkspaceTransformer transformer, List metacardValue, Metacard workspaceMetacard) {
-    return Optional.of(
-        ((List<Object>) metacardValue)
-            .stream()
-            .filter(String.class::isInstance)
-            .map(String.class::cast)
-            .filter(StringUtils::isNotBlank)
-            .collect(Collectors.toList()));
+  public Optional<Object> metacardValueToJsonValue(
+      WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
+    return Optional.of(metacardValue);
   }
 
   @Override
-  public Optional<List> jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
-    return Optional.of(jsonValue);
+  public Optional<Object> jsonValueToMetacardValue(
+      WorkspaceTransformer transformer, Object jsonValue) {
+    return Optional.empty();
   }
 }

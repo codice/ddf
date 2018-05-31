@@ -23,7 +23,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Collections;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,7 +52,7 @@ public class ShareableMetacardImplTest {
   @Before
   public void setUp() {
     shareableMetacard = new ShareableMetacardImpl();
-    shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    shareableMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ShareableMetacardImplTest {
   public void testShareableMetacardFrom() {
     ShareableMetacardImpl wrapped =
         ShareableMetacardImpl.createOrThrow(new MetacardImpl(shareableMetacard));
-    wrapped.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    wrapped.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
     wrapped.setId(TEST_ID);
     assertThat(wrapped.getId(), is(TEST_ID));
     assertThat(shareableMetacard.getId(), is(TEST_ID));
@@ -112,7 +112,7 @@ public class ShareableMetacardImplTest {
     ShareableMetacardImpl m =
         ShareableMetacardImpl.create(
             ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of(ADMIN, GUEST)));
-    m.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    m.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     shareableMetacard.setAccessGroups(ImmutableSet.of(ADMIN));
     Set<String> diffGroups = ImmutableSet.of(GUEST);
@@ -128,7 +128,7 @@ public class ShareableMetacardImplTest {
             ImmutableMap.of(
                 SecurityAttributes.ACCESS_INDIVIDUALS,
                 ImmutableList.of(TEST_EMAIL_1, TEST_EMAIL_2)));
-    m.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    m.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     shareableMetacard.setAccessIndividuals(ImmutableSet.of(TEST_EMAIL_1));
     Set<String> diffIndividuals = ImmutableSet.of(TEST_EMAIL_2);
@@ -142,7 +142,7 @@ public class ShareableMetacardImplTest {
     ShareableMetacardImpl m =
         ShareableMetacardImpl.create(
             ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of(ADMIN_2, ADMIN_3)));
-    m.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    m.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     shareableMetacard.setAccessGroups(ImmutableSet.of(ADMIN_1, ADMIN_2));
     Set<String> diffGroups = ImmutableSet.of(ADMIN_1, ADMIN_3);
@@ -158,7 +158,7 @@ public class ShareableMetacardImplTest {
             ImmutableMap.of(
                 SecurityAttributes.ACCESS_INDIVIDUALS,
                 ImmutableList.of(TEST_EMAIL_2, TEST_EMAIL_3)));
-    m.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    m.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     shareableMetacard.setAccessIndividuals(ImmutableSet.of(TEST_EMAIL_1, TEST_EMAIL_2));
     Set<String> diffIndividuals = ImmutableSet.of(TEST_EMAIL_1, TEST_EMAIL_3);

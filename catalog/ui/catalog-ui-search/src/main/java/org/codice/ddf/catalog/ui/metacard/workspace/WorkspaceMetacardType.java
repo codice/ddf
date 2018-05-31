@@ -38,7 +38,7 @@ public class WorkspaceMetacardType implements MetacardType {
 
   @Override
   public String getName() {
-    return WorkspaceAttributes.WORKSPACE_TAG;
+    return WorkspaceConstants.WORKSPACE_TAG;
   }
 
   @Override

@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
@@ -46,12 +46,15 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class WorkspaceTransformerTest {
+public class WorkspaceTransformerImplTest {
   private static final String KEY_TRANSFORMATION_JSON_KEY = "jsonKey";
 
   private static final String KEY_TRANSFORMATION_METACARD_KEY = "metacardKey";
@@ -215,7 +218,7 @@ public class WorkspaceTransformerTest {
     metacard = new MetacardImpl(DUMMY_METACARD_TYPE);
 
     workspaceTransformer =
-        new WorkspaceTransformer(
+        new WorkspaceTransformerImpl(
             mockCatalogFramework,
             mockInputTransformer,
             mockEndpointUtils,
