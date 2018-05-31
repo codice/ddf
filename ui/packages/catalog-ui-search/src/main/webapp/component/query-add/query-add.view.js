@@ -13,33 +13,34 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./query-add.hbs');
-var CustomElements = require('js/CustomElements');
-var QueryBasic = require('component/query-basic/query-basic.view');
-var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
-var QueryAdvanced = require('component/query-advanced/query-advanced.view');
-var QueryTitle = require('component/query-title/query-title.view');
-var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
-var Query = require('js/model/Query');
-var store = require('js/store');
-var QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
-var LoadingView = require('component/loading/loading.view');
-var wreqr = require('wreqr');
+const $ = require('jquery');
+const Marionette = require('marionette');
+const template = require('./query-add.hbs');
+const CustomElements = require('js/CustomElements');
+const QueryBasic = require('component/query-basic/query-basic.view');
+const QueryAdvanced = require('component/query-advanced/query-advanced.view');
+const QueryTitle = require('component/query-title/query-title.view');
+const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
+const Query = require('js/model/Query');
+const store = require('js/store');
+const QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
+const LoadingView = require('component/loading/loading.view');
+const wreqr = require('wreqr');
 const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
+const announcement = require('component/announcement');
+const SearchFormModel = require('component/search-form/search-form.js');
+
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('query-add'),
     regions: {
         queryContent: '> form > .editor-content > .content-form',
-        queryTitle: '> form > .editor-content > .content-title'
+        queryTitle: '> form > .editor-content > .content-title',
+        queryFooter: '> form > .editor-content > .content-footer'
     },
     events: {
-        'click > form > .editor-content > .content-mode > .is-text': 'toText',
-        'click > form > .editor-content > .content-mode > .is-basic': 'toBasic',
-        'click > form > .editor-content > .content-mode > .is-advanced': 'toAdvanced',
         'click .editor-edit': 'edit',
         'click .editor-cancel': 'cancel',
         'click .editor-save': 'save',
@@ -51,7 +52,11 @@ module.exports = Marionette.LayoutView.extend({
         this.listenForSave();
     },
     reshow: function() {
+        this.$el.toggleClass('is-form-builder', this.model.get('type') === 'new-form');
         switch (this.model.get('type')) {
+            case 'new-form':
+                this.showFormBuilder();
+                break;
             case 'text':
                 this.showText();
                 break;
@@ -70,13 +75,20 @@ module.exports = Marionette.LayoutView.extend({
         this.reshow();
         this.showTitle();
     },
-    showText: function () {
-        this.queryContent.show(new QueryAdhoc({
+    showTitle: function () {
+        this.queryTitle.show(new QueryTitle({
             model: this.model
         }));
     },
-    showTitle: function () {
-        this.queryTitle.show(new QueryTitle({
+    showFormBuilder: function () {
+        this.queryContent.show(new QueryAdvanced({
+            model: this.model,
+            isForm: true,
+            isFormBuilder: true
+        }));
+    },
+    showText: function () {
+        this.queryContent.show(new QueryAdhoc({
             model: this.model
         }));
     },
@@ -92,16 +104,16 @@ module.exports = Marionette.LayoutView.extend({
     },
     showAdvanced: function () {
         this.queryContent.show(new QueryAdvanced({
-            model: this.model
+            model: this.model,
+            isForm: false,
+            isFormBuilder: false
         }));
     },
     showCustom: function () {
-        this.model.set({
-            title: user.getQuerySettings().get('template').name
-        });
-        this.queryContent.show(new QueryCustom({
+        this.queryContent.show(new QueryAdvanced({
             model: this.model,
-            filterTemplate: user.getQuerySettings().get('template').filterTemplate
+            isForm: true,
+            isFormBuilder: false
         }));
     },
     focus: function () {
@@ -116,6 +128,12 @@ module.exports = Marionette.LayoutView.extend({
         this.onBeforeShow();
     },
     save: function () {
+        //A new form is not necessarily a finished query, so skip saving the rest of the normal stuff
+        if (this.$el.hasClass('is-form-builder')) {
+            this.saveTemplateToBackend();
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+            return;
+        }
         this.queryContent.currentView.save();
         this.queryTitle.currentView.save();
         if (store.getCurrentQueries().get(this.model) === undefined) {
@@ -141,7 +159,7 @@ module.exports = Marionette.LayoutView.extend({
                 }),
                 'change:choice',
                 function (confirmation) {
-                    var choice = confirmation.get('choice');
+                   var choice = confirmation.get('choice');
                     if (choice === true) {
                         var loadingview = new LoadingView();
                         store.get('workspaces').once('sync', function(workspace, resp, options) {
@@ -161,6 +179,49 @@ module.exports = Marionette.LayoutView.extend({
                     }
                 }.bind(this));
         }
+    },
+    getQueryAsQueryTemplate: function() {
+        const formModel = this.model.get('associatedFormModel') || new SearchFormModel();
+        const formParameters = this.queryContent.currentView.serializeTemplateParameters();
+        let filterTree = cql.simplify(formParameters.filterTree || {});
+        let filterSettings = formParameters.filterSettings || {};
+        if (filterTree.filters && filterTree.filters.length === 1) {
+            filterTree = filterTree.filters[0];
+        }
+        filterSettings.sorts = filterSettings.sorts.filter(sort => sort.attribute && sort.direction)
+            .map(sort => sort.attribute + ',' + sort.direction);
+        return {
+            filterTemplate: filterTree,
+            accessIndividuals: formModel.get('accessIndividuals'),
+            accessGroups: formModel.get('accessGroups'),
+            creator: formModel.get('createdBy'),
+            id: formModel.get('id'),
+            title: this.model.get('title'),
+            description: formModel.get('description'),
+            created: formModel.get('createdOn'),
+            owner: formModel.get('owner'),
+            querySettings: filterSettings
+        }
+    },
+    saveTemplateToBackend: function() {
+        let loadingView = new LoadingView();
+        $.ajax({
+            url: '/search/catalog/internal/forms/query',
+            data: JSON.stringify(this.getQueryAsQueryTemplate()),
+            method: 'PUT',
+            contentType: 'application/json',
+            customErrorHandling: true
+        })
+        .fail((jqxhr, textStatus, errorThrown) => {
+            announcement.announce({
+                title: 'Search Form Failed to be Saved',
+                message: jqxhr.responseJSON.message,
+                type: 'error'
+            }, 2500);
+        })
+        .always(() => {
+            loadingView.remove();
+        }); 
     },
     endSave: function () {
         this.model.startSearch();

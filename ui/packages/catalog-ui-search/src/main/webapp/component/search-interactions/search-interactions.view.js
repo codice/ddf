@@ -37,8 +37,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     events: {
         'click > .interaction-reset': 'triggerReset',
-        'click > .interaction-type-advanced': 'triggerTypeAdvanced',
-        'click > .interaction-form': 'triggerCloseDropdown'
+        'click > .interaction-type-advanced': 'triggerTypeAdvanced'
     },
     onRender: function(){
         this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
@@ -82,8 +81,13 @@ module.exports = Marionette.LayoutView.extend({
         }.bind(this));
     },
     triggerTypeAdvanced: function() {
+        let oldType = this.model.get('type');
+        if (oldType === 'custom' || oldType === 'new-form') {
+            this.model.set('title', 'Search Name');
+        }
         this.model.set('type', 'advanced');
         user.getQuerySettings().set('type', 'advanced');
         user.savePreferences();
+        this.triggerCloseDropdown();
     }
 });

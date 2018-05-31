@@ -13,17 +13,16 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./query-editor.hbs');
-var CustomElements = require('js/CustomElements');
-var QueryBasic = require('component/query-basic/query-basic.view');
-var QueryCustom = require('component/query-advanced/query-custom/query-custom.view');
-var QueryAdvanced = require('component/query-advanced/query-advanced.view');
-var QueryTitle = require('component/query-title/query-title.view');
-var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
-var cql = require('js/cql');
-var CQLUtils = require('js/CQLUtils');
-var store = require('js/store');
+const Marionette = require('marionette');
+const template = require('./query-editor.hbs');
+const CustomElements = require('js/CustomElements');
+const QueryBasic = require('component/query-basic/query-basic.view');
+const QueryAdvanced = require('component/query-advanced/query-advanced.view');
+const QueryTitle = require('component/query-title/query-title.view');
+const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
+const cql = require('js/cql');
+const CQLUtils = require('js/CQLUtils');
+const store = require('js/store');
 const user = require('component/singletons/user-instance');
 
 function isNested(filter) {
@@ -164,12 +163,10 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     showCustom: function () {
-        this.model.set({
-            title: user.getQuerySettings().get('template').name
-        });
-        this.queryContent.show(new QueryCustom({
+        this.queryContent.show(new QueryAdvanced({
             model: this.model,
-            filterTemplate: user.getQuerySettings().get('template').filterTemplate
+            isForm: true,
+            isFormBuilder: false
         }));
     },
     handleEditOnShow: function(){

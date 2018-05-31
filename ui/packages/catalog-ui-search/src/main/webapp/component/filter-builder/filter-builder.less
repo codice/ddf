@@ -40,6 +40,10 @@
       margin-right: @minimumSpacing;
     }
 
+    > .filter-rearrange {
+      display: none;
+    }
+
     > .filter-remove {
       display: none;
       vertical-align: top;
@@ -112,8 +116,36 @@
 
 }
 
+@{customElementNamespace}filter-builder.is-sortable {
+  > .filter-header {
+    > .filter-rearrange {
+      .grab-cursor();
+      display: inline-block;
+      width: 0.75 * @minimumButtonSize;
+      opacity: 0.25;
+    }
+
+    > .filter-rearrange:hover {
+      opacity: 0.50;
+      transition: opacity 0.5s ease-in-out;
+    }
+  }
+}
+
+@{customElementNamespace}filter-builder.hide-field-button {
+  > .filter-header > .contents-buttons > .add-filter {
+    display: none;
+  }
+}
+
 @{customElementNamespace}filter-builder.hide-nesting {
   > .filter-header > .contents-buttons > .add-filterBuilder {
+    display: none;
+  }
+}
+
+@{customElementNamespace}filter-builder.hide-root-operator {
+  > .filter-header > .filter-operator {
     display: none;
   }
 }

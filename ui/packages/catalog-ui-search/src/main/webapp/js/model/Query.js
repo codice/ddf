@@ -74,6 +74,8 @@ define([
             defaults: function () {
                 return _merge({
                     cql: "anyText ILIKE ''",
+                    filterTree: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
+                    associatedFormModel: undefined,
                     title: 'Search Name',
                     excludeUnnecessaryAttributes: true,
                     count: properties.resultCount,
@@ -88,7 +90,7 @@ define([
                     type: 'text',
                     isLocal: false,
                     isOutdated: false,
-                    selectedResultTemplate: undefined
+                    'detail-level': undefined
                 }, user.getQuerySettings().toJSON());
             },
             resetToDefaults: function () {
@@ -167,7 +169,7 @@ define([
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
-                    result.set('selectedResultTemplate', this.get('selectedResultTemplate'));
+                    result.set('selectedResultTemplate', this.get('detail-level'));
                     result.set('merged', true);
                     result.get('queuedResults').fullCollection.reset();
                     result.get('queuedResults').reset();
@@ -179,7 +181,7 @@ define([
                         queryId: this.getId(),
                         color: this.getColor(),
                         status: initialStatus,
-                        selectedResultTemplate: this.get('selectedResultTemplate')
+                        selectedResultTemplate: this.get('detail-level')
                     });
                     this.set({
                         result: result

@@ -12,6 +12,10 @@
     margin-right: @minimumSpacing;
   }
 
+  > .filter-rearrange {
+    display: none;
+  }
+
   > .filter-comparator,
   > .filter-attribute {
     height: @minimumButtonSize;
@@ -33,6 +37,20 @@
       width: auto;
       max-width: 300px;
     }
+  }
+}
+
+@{customElementNamespace}filter.is-sortable {
+  > .filter-rearrange {
+    .grab-cursor();
+    display: inline-block;
+    width: 0.75 * @minimumButtonSize;
+    opacity: 0.25;
+  }
+
+  > .filter-rearrange:hover {
+    opacity: 0.50;
+    transition: opacity 0.3s ease-in-out;
   }
 }
 

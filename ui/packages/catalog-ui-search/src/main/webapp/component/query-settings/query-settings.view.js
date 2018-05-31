@@ -60,10 +60,13 @@ define([
             this.setupSortFieldDropdown();
             this.turnOnEditing();
 
-            if (ResultForm.getResultTemplatesProperties()) {
+            let resultTemplates = ResultForm.getResultTemplatesProperties();
+            let lastIndex = resultTemplates.length - 1;
+            if (resultTemplates) {
                 let detailLevelProperty = new Property({
                     label: 'Detail Level',
                     enum: ResultForm.getResultTemplatesProperties(),
+                    value: [this.model.get('detail-level') || (resultTemplates && resultTemplates[lastIndex] && resultTemplates[lastIndex].value)],
                     id: 'Detail Level'
                 });
                 this.listenTo(detailLevelProperty, 'change:value', this.handleChangeDetailLevel);
@@ -82,7 +85,7 @@ define([
         handleChangeDetailLevel: function (model, values) {
             $.each(model.get('enum'), (function (index, value) {
                 if (values[0] === value.value) {
-                    this.model.set('selectedResultTemplate', value);
+                    this.model.set('detail-level', value);
                 }
             }).bind(this));
         },
@@ -138,10 +141,15 @@ define([
                 }
             }
             var sorts = this.settingsSortField.currentView.collection.toJSON();
+            let detailLevel = this.resultForm.currentView && this.resultForm.currentView.model.get('value')[0]
+            if (detailLevel && detailLevel === 'allFields') {
+                detailLevel = undefined;
+            }
             return {
                 src: src,
                 federation: federation,
-                sorts: sorts
+                sorts: sorts,
+                'detail-level': detailLevel
             };
         },
         saveToModel: function () {

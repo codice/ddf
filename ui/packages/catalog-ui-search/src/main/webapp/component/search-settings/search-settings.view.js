@@ -93,13 +93,13 @@ define([
                     this.model.applyDefaults();
                 }
             }.bind(this));
+            this.onBeforeShow();
         },
         save: function() {
             this.updateResultCountSettings();
             this.updateSearchSettings();
             user.savePreferences();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-            this.onBeforeShow();
         },
         triggerCancel: function() {
           this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());

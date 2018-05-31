@@ -51,7 +51,7 @@
    addMySharedForms: function() {
        templatePromise.then(() => {
             if (!this.isDestroyed){
-                $.each(sharedTemplates, (index, value) => {
+                sharedTemplates.forEach((value, index) => {
                     if (this.checkIfShareable(value)) {
                         let utcSeconds = value.created / 1000;
                         let d = new Date(0);
@@ -60,11 +60,14 @@
                             createdOn: Common.getHumanReadableDate(d),
                             id: value.id,
                             name: value.title,
+                            description: value.description,
                             type: 'custom',
-                            filterTemplate: value.filterTemplate,
+                            filterTemplate: JSON.stringify(value.filterTemplate),
                             accessIndividuals: value.accessIndividuals,
                             accessGroups: value.accessGroups,
-                            createdBy: value.creator
+                            createdBy: value.creator,
+                            owner: value.owner,
+                            querySettings: value.querySettings
                         }));
                     }
                 });

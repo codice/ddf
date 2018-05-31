@@ -65,12 +65,16 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('filter'),
+        attributes: function() {
+            return { 'data-id': this.model.cid }
+        },
         events: {
             'click > .filter-remove': 'delete'
         },
         modelEvents: {
         },
         regions: {
+            filterRearrange: '.filter-rearrange',
             filterAttribute: '.filter-attribute',
             filterComparator: '.filter-comparator',
             filterInput: '.filter-input'
@@ -82,6 +86,7 @@ define([
             this.listenTo(this.model, 'change:comparator', this.determineInput);
         },
         onBeforeShow: function(){
+            this.$el.toggleClass('is-sortable', this.options.isSortable || true);
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
             this.filterAttribute.show(DropdownView.createSimpleDropdown({
                 list: metacardDefinitions.sortedMetacardTypes.filter(function(metacardType){
@@ -119,10 +124,14 @@ define([
                 case 'DWITHIN':
                     break;
                 default:
-                   if (value[0].constructor === Object) {
+                    if (value === null || value[0] === null) {
+                        value = [""];
+                        break;
+                    }
+                    if (value[0].constructor === Object) {
                         value[0] = value[0].value;
-                   }
-                   break;
+                    }
+                    break;
             }
             return value;
         },
@@ -318,7 +327,7 @@ define([
             var property = this.filterInput.currentView.model instanceof ValueModel
                 ? this.filterInput.currentView.model.get('property')
                 : this.filterInput.currentView.model;
-            property.set('isEditing', false);
+            property.set('isEditing', this.options.isForm === true || this.options.isFormBuilder === true);
         }
     });
 });

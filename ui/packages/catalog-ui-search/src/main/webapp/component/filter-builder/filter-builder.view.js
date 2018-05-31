@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -31,6 +31,9 @@
  module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('filter-builder'),
+    attributes: function() {
+        return { 'data-id': this.model.cid }
+    },
     events: {
             'click > .filter-header > .contents-buttons .getValue': 'printValue',
             'click > .filter-header > .filter-remove': 'delete',
@@ -45,8 +48,16 @@
     },
     initialize: function(){
         this.listenTo(this.model, 'change:operator', this.updateOperatorDropdown);
+        if (this.options.isForm === true) {
+            if (this.options.isFormBuilder !== true) {
+                this.turnOffFieldAdditions();
+            }
+            this.turnOffNesting();
+            this.turnOffRootOperator();
+        }
     },
     onBeforeShow: function(){
+        this.$el.toggleClass('is-sortable', this.options.isSortable || false);
         this.filterOperator.show(DropdownView.createSimpleDropdown({
             list: [{
                 label: 'AND',
@@ -65,8 +76,12 @@
         }));
         this.listenTo(this.filterOperator.currentView.model, 'change:value', this.handleOperatorUpdate);
         this.filterContents.show(new FilterCollectionView({
-            collection: new Backbone.Collection([this.createFilterModel()]),
-                'filter-builder': this
+            collection: new Backbone.Collection([this.createFilterModel()], {
+                comparator: 'sortableOrder'
+            }),
+            'filter-builder': this,
+            isForm: this.options.isForm || false,
+            isFormBuilder: this.options.isFormBuilder || false
         }));
     },
     updateOperatorDropdown: function(){
@@ -84,7 +99,8 @@
         return FilterView;
     },
     addFilterBuilder: function(){
-        var FilterBuilderView = this.filterContents.currentView.addFilterBuilder(new FilterBuilderModel());
+        const numFilters = this.filterContents.currentView ? this.filterContents.currentView.collection.length : 0;
+        var FilterBuilderView = this.filterContents.currentView.addFilterBuilder(new FilterBuilderModel({ sortableOrder: numFilters + 1 }));
         this.handleEditing();
         return FilterBuilderView;
     },
@@ -171,12 +187,9 @@
     revert: function(){
         this.$el.removeClass('is-editing');
     },
-    turnOnEditing: function(){
-        this.$el.addClass('is-editing');
-    },
     serializeData: function(){
         return {
-            cql: 'hello'
+            cql: 'anyText ILIKE ""'
         };
     },
     deserialize: function(cql){
@@ -197,6 +210,9 @@
             this.turnOffEditing();
         }
     },
+    sortCollection: function() {
+        this.filterContents.currentView.collection.sort();
+    },
     turnOnEditing: function(){
         this.$el.addClass('is-editing');
         this.filterOperator.currentView.turnOnEditing();
@@ -210,8 +226,16 @@
     turnOffNesting: function(){
         this.$el.addClass('hide-nesting');
     },
+    turnOffRootOperator: function(){
+        this.$el.addClass('hide-root-operator');
+    },
+    turnOffFieldAdditions: function(){
+        this.$el.addClass('hide-field-button');
+    },
     createFilterModel: function() {
+        const numFilters = this.filterContents.currentView ? this.filterContents.currentView.collection.length : 0;
         return new FilterModel({
+            sortableOrder: numFilters + 1,
             isResultFilter: Boolean(this.model.get("isResultFilter"))
         });
     }

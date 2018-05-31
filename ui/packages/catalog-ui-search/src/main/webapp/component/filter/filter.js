@@ -19,7 +19,8 @@ define([
         defaults: {
             value: [''],
             type: 'anyText',
-            comparator: 'CONTAINS'
+            comparator: 'CONTAINS',
+            sortableOrder: 0
         },
         type: 'filter'
     });

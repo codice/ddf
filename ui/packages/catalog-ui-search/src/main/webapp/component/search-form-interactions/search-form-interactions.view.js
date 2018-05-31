@@ -13,16 +13,15 @@
  *
  **/
 /*global define, window*/
-const  wreqr = require('wreqr');
-const  Marionette = require('marionette');
-const  template = require('./search-form-interactions.hbs');
-const  CustomElements = require('js/CustomElements');
-const  user = require('component/singletons/user-instance');
-const  LoadingView = require('component/loading/loading.view');
-const  announcement = require('component/announcement');
-const  ConfirmationView = require('component/confirmation/confirmation.view');
-const  lightboxInstance = require('component/lightbox/lightbox.view.instance');
-const  QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
+const Marionette = require('marionette');
+const template = require('./search-form-interactions.hbs');
+const CustomElements = require('js/CustomElements');
+const user = require('component/singletons/user-instance');
+const LoadingView = require('component/loading/loading.view');
+const announcement = require('component/announcement');
+const ConfirmationView = require('component/confirmation/confirmation.view');
+const lightboxInstance = require('component/lightbox/lightbox.view.instance');
+const QueryTemplateSharing = require('component/query-template-sharing/query-template-sharing.view');
 
 module.exports =  Marionette.ItemView.extend({
         template: template,
@@ -36,6 +35,7 @@ module.exports =  Marionette.ItemView.extend({
             'click .interaction-clear': 'handleClearDefault',
             'click .interaction-trash': 'handleTrash',
             'click .interaction-share': 'handleShare',
+            'click .interaction-edit': 'handleEdit',
             'click': 'handleClick'
         },
         ui: {},
@@ -63,9 +63,9 @@ module.exports =  Marionette.ItemView.extend({
                 function(confirmation) {
                     if (confirmation.get('choice')) {
                         let loadingview = new LoadingView();
-                            this.model.url = '/search/catalog/internal/forms/' + this.model.id;
+                            this.model.url = '/search/catalog/internal/forms/' + this.model.get('id');
                             this.model.destroy({
-                                data: JSON.stringify({'metacard.owner': [this.model.get('createdBy')]}),
+                                data: JSON.stringify({'metacard.owner': this.model.get('createdBy')}),
                                 contentType: 'application/json',
                                 wait: true,
                                 error: function(model, xhr, options){
@@ -73,11 +73,13 @@ module.exports =  Marionette.ItemView.extend({
                                         title: 'Error!',
                                         message: "Unable to delete the forms: " + xhr.responseText,
                                         type: 'error'
-                                    });
+                                    }, 2500);
                                     throw new Error('Error Deleting Template: ' + xhr.responseText);                                  
-                                }
-                            }); 
-                        this.removeCachedTemplate(this.model.id);
+                                }.bind(this),
+                                success: function(model, xhr, options) {
+                                    this.options.collectionWrapperModel.deleteCachedTemplateById(this.model.id);
+                                }.bind(this)
+                            });
                         loadingview.remove();
                     }
                 }.bind(this));                        
@@ -140,10 +142,19 @@ module.exports =  Marionette.ItemView.extend({
         isSystemTemplate: function() {
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
+        handleEdit: function() {
+            this.model.set({
+                type: 'new-form',
+                title: this.model.get('name'),
+                filterTree: this.model.get('filterTemplate'),
+                id: this.model.get('id'),
+                accessGroups: this.model.get('accessGroups'),
+                accessIndividuals: this.model.get('accessIndividuals')
+            });
+            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+            this.model.trigger('change:type');
+        },
         handleClick: function() {
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        },
-        removeCachedTemplate: function(id){
-            wreqr.vent.trigger("deleteTemplateById", id);
         }
     });

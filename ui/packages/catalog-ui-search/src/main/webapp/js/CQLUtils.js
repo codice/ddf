@@ -114,6 +114,12 @@ define([
                         value: 'POINT(' + model.lon + ' ' + model.lat + ')',
                         distance: Number(model.radius)
                     };
+                default:
+                    return {
+                        type: 'INTERSECTS',
+                        property: property,
+                        value: ''
+                    };
             }
         },
         generateFilterForFilterFunction: function(filterFunctionName, params) {

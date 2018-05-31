@@ -37,7 +37,7 @@
                   const customResultTemplates = _.map(resultTemplates, function(resultForm) {
                       return {
                         label: resultForm.title,
-                        value:resultForm.title,
+                        value: resultForm.id,
                         id: resultForm.id,
                         descriptors: resultForm.descriptors,
                         description: resultForm.description
@@ -46,7 +46,7 @@
 
                   customResultTemplates.push({
                     label: 'All Fields',
-                    value: 'All Fields',
+                    value: 'allFields',
                     id: 'allFields',
                     descriptors: [],
                     description: 'All Fields'
