@@ -252,7 +252,7 @@
     </feature>
 
     <feature name="catalog-transformer-csv" version="${project.version}"
-             description="CSV Query Response Transformer converts query results to CSV format.">
+             description="CSV Query Response Transformer and Common Library.">
         <bundle>mvn:ddf.catalog.transformer/csv-queryresponse-transformer/${project.version}</bundle>
     </feature>
 
