@@ -290,7 +290,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
       'before creating and connecting as it becomes available' || true            | true
   }
 
-  def 'test client connection as it becomes available where an API call succeeds connecting first'() {
+  def 'test client connection as it becomes available where an API call succeeds connecting before the background initialization which is then cancelled'() {
     given: "a client that succeeds direct pings"
       def client = Mock(SolrClient) {
         // called on the first API call to check if we are really still not connected
@@ -458,7 +458,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
 
       e.is(exception)
 
-    and: "cthe adapter should still be available"
+    and: "the adapter should still be available"
       adapter.available
 
     and: "verify failsafe controllers"

@@ -22,7 +22,7 @@
  *                    |                                     |       +----------------+
  *          while     |     +-------------+           pings |
  *          creating  +---->| Unavailable |                 |     +-------------------+
- *          SolrJ	          | Solr Client |                 +---->|     SolrJ Http    |
+ *          SolrJ           | Solr Client |                 +---->|     SolrJ Http    |
  *          Solr Client,    +-------------+                       |    Solr Client    |
  *          while connecting (for non pings)                      | (with no retries) |
  *          and after being closed                                +-------------------+

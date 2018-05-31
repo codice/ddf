@@ -124,7 +124,7 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
             .setMaxConnTotal(128)
             .setMaxConnPerRoute(32);
 
-    if (StringUtils.startsWith(url, "https")) {
+    if (StringUtils.startsWithIgnoreCase(url, "https")) {
       builder.setSSLSocketFactory(
           new SSLConnectionSocketFactory(
               getSslContext(),

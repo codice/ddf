@@ -167,7 +167,7 @@ public final class SolrClientAdapter extends SolrClientProxy
    * following exceptions: {@link IOException}, {@link SolrServerException}, {@link SolrException},
    * {@link InterruptedException}, or {@link InterruptedIOException}. A retry will automatically be
    * triggered if returning <code>null</code> or any exceptions other than {@link
-   * InterruptedException} or {@link InterruptedIOException} or thrown back.
+   * InterruptedException} or {@link InterruptedIOException} are thrown back.
    *
    * @param core the Solr core for which to create an adaptor
    * @param creator the creator to use for creating corresponding Solr clients
@@ -260,7 +260,7 @@ public final class SolrClientAdapter extends SolrClientProxy
       // do a spot check to see if it suddenly became reachable
       try {
         checkIfReachable("from the API because it is currently unavailable");
-        // if we get here than the ping was successful so make sure we move to connected
+        // if we get here then the ping was successful so make sure we move to connected
         setConnected(true);
         // fall-through to return the current one which should have been changed to the actual one
       } catch (UnavailableSolrException e) {
@@ -383,7 +383,7 @@ public final class SolrClientAdapter extends SolrClientProxy
         final long t = end - now;
 
         if (t <= 0L) { // we timed out
-          return available;
+          return false;
         }
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(

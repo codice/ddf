@@ -64,7 +64,7 @@ class EmbeddedSolrFactorySpec extends Specification {
     ConfigurationStore.instance.dataDirectoryPath = null
     ConfigurationStore.instance.inMemory = false
     // clear the cache of schema indexes
-    EmbeddedSolrFactory.INDEX_CACHE.clear()
+    EmbeddedSolrFactory.resetIndexCache(Collections.emptyMap())
   }
 
   @Timeout(EmbeddedSolrFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
@@ -259,10 +259,7 @@ class EmbeddedSolrFactorySpec extends Specification {
       0 * server.close()
 
     and: "make sure the new schema index was cached"
-      EmbeddedSolrFactory.INDEX_CACHE == [
-          (files):
-              index
-      ]
+      EmbeddedSolrFactory.indexCacheEquals([(files): index])
 
     where:
       store_that_is   || in_memory || expected_write_solr_config
@@ -293,7 +290,7 @@ class EmbeddedSolrFactorySpec extends Specification {
       }
 
     and:
-      EmbeddedSolrFactory.INDEX_CACHE.put(files, index)
+      EmbeddedSolrFactory.resetIndexCache([(files): index])
 
     when:
       def createdServer = factory.getEmbeddedSolrServer(CORE, CONFIG_XML, SCHEMA_XML, configStore, configFileProxy)
@@ -305,10 +302,7 @@ class EmbeddedSolrFactorySpec extends Specification {
       0 * files.schemaIndex
 
     and: "make sure the original schema index is still cached"
-      EmbeddedSolrFactory.INDEX_CACHE == [
-          (files):
-              index
-      ]
+      EmbeddedSolrFactory.indexCacheEquals([(files): index])
   }
 
   def 'test creating an embedded Solr server when failing to create the schema index'() {
@@ -344,7 +338,7 @@ class EmbeddedSolrFactorySpec extends Specification {
       e.is(error)
 
     and: "make sure the no schema indexes were cached"
-      EmbeddedSolrFactory.INDEX_CACHE.isEmpty()
+      EmbeddedSolrFactory.indexCacheEquals(Collections.emptyMap())
   }
 
   def 'test creating an embedded Solr server when failing after the creation of the resource loader'() {
