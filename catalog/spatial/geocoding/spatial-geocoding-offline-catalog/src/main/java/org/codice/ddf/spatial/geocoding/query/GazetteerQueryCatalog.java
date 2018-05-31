@@ -63,6 +63,7 @@ import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
+import org.codice.ddf.spatial.geocoding.context.impl.SuggestionImpl;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.opengis.filter.Filter;
@@ -188,12 +189,13 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
 
       if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
-        List<List<String>> suggestions =
-            (List<List<String>>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
+        List<Map.Entry<String, String>> suggestions =
+            (List<Map.Entry<String, String>>)
+                suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
 
         return suggestions
             .stream()
-            .map(suggestion -> new Suggestion(suggestion.get(0), suggestion.get(1)))
+            .map(suggestion -> new SuggestionImpl(suggestion.getKey(), suggestion.getValue()))
             .limit(maxResults)
             .collect(Collectors.toList());
       }

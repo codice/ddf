@@ -62,13 +62,13 @@ public class GazetteerFeatureServiceTest {
           .alternateNames("")
           .build();
 
-  private static final List<GeoEntry> QUERYABLE_RESULTS = Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2);
-
   private static final List<Suggestion> SUGGESTED_NAMES = new ArrayList<>();
 
   static {
-    SUGGESTED_NAMES.add(new Suggestion("id1", "name1"));
-    SUGGESTED_NAMES.add(new Suggestion("id2", "name2"));
+    Suggestion suggestion = mock(Suggestion.class);
+    doReturn("id1").when(suggestion).getId();
+    doReturn("name1").when(suggestion).getName();
+    SUGGESTED_NAMES.add(suggestion);
   }
 
   private static final String TEST_QUERY = "example";
@@ -95,8 +95,8 @@ public class GazetteerFeatureServiceTest {
 
     List<Suggestion> results =
         gazetteerFeatureService.getSuggestedFeatureNames(TEST_QUERY, maxResults);
+    assertEquals("id1", results.get(0).getId());
     assertEquals("name1", results.get(0).getName());
-    assertEquals("name2", results.get(1).getName());
   }
 
   @Test

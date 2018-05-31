@@ -49,6 +49,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -145,7 +146,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     boolean isFacetedQuery = false;
     Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
 
-    if (textFacetPropRaw != null && textFacetPropRaw instanceof TermFacetProperties) {
+    if (textFacetPropRaw instanceof TermFacetProperties) {
       TermFacetProperties textFacetProp = (TermFacetProperties) textFacetPropRaw;
       isFacetedQuery = true;
       if (LOGGER.isTraceEnabled()) {
@@ -190,14 +191,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
 
       if (suggesterResponse != null) {
-        List<List<String>> suggestionResults =
+        List<Map.Entry<String, String>> suggestionResults =
             suggesterResponse
                 .getSuggestions()
                 .entrySet()
                 .stream()
                 .map(Map.Entry::getValue)
                 .flatMap(List::stream)
-                .map(suggestion -> Arrays.asList(suggestion.getPayload(), suggestion.getTerm()))
+                .map(
+                    suggestion ->
+                        new AbstractMap.SimpleImmutableEntry<>(
+                            suggestion.getPayload(), suggestion.getTerm()))
                 .collect(Collectors.toList());
 
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);

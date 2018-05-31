@@ -42,43 +42,14 @@ public final class GeoResultCreator {
     double offset = 0.1;
     if (featureCode != null) {
       if (featureCode.startsWith(ADMINISTRATIVE_DIVISION)) {
-        if (featureCode.endsWith(DIVISION_FIRST_ORDER)) {
-          offset = 5;
-        } else if (featureCode.endsWith(DIVISION_SECOND_ORDER)) {
-          offset = 4;
-        } else if (featureCode.endsWith(DIVISION_THIRD_ORDER)) {
-          offset = 3;
-        } else if (featureCode.endsWith(DIVISION_FOURTH_ORDER)) {
-          offset = 2;
-        } else if (featureCode.endsWith(DIVISION_FIFTH_ORDER)) {
-          offset = 1;
-        }
+        offset = getOffsetAdministrativeDivision(featureCode);
       } else if (featureCode.startsWith(POLITICAL_ENTITY)) {
-        offset = 6;
-        if (population > 100_000_000) {
-          offset *= 2;
-        } else if (population > 10_000_000) {
-          offset *= 1;
-        } else if (population > 1_000_000) {
-          offset *= 0.8;
-        } else if (population > 0) {
-          offset *= 0.5;
-        }
+        offset = getOffsetPoliticalEntity(population);
       } else if (featureCode.startsWith(POPULATED_PLACE)) {
-        offset = 0.5;
-        if (population > 10_000_000) {
-          offset *= 1.5;
-        } else if (population > 1_000_000) {
-          offset *= 0.8;
-        } else if (population > 100_000) {
-          offset *= 0.5;
-        } else if (population > 10_000) {
-          offset *= 0.3;
-        } else if (population > 0) {
-          offset *= 0.2;
-        }
+        offset = getOffsetPopulatedPlace(population);
       }
     }
+
     final DirectPosition northWest = new DirectPositionImpl(longitude - offset, latitude + offset);
     final DirectPosition southEast = new DirectPositionImpl(longitude + offset, latitude - offset);
     final List<Point> bbox = new ArrayList<>();
@@ -92,6 +63,52 @@ public final class GeoResultCreator {
     geoResult.setBbox(bbox);
     geoResult.setFullName(name);
     return geoResult;
+  }
+
+  private static double getOffsetPopulatedPlace(double population) {
+    double offset = 0.5;
+    if (population > 10_000_000) {
+      offset *= 1.5;
+    } else if (population > 1_000_000) {
+      offset *= 0.8;
+    } else if (population > 100_000) {
+      offset *= 0.5;
+    } else if (population > 10_000) {
+      offset *= 0.3;
+    } else if (population > 0) {
+      offset *= 0.2;
+    }
+    return offset;
+  }
+
+  private static double getOffsetPoliticalEntity(double population) {
+    double offset = 6;
+    if (population > 100_000_000) {
+      offset *= 2;
+    } else if (population > 10_000_000) {
+      offset *= 1;
+    } else if (population > 1_000_000) {
+      offset *= 0.8;
+    } else if (population > 0) {
+      offset *= 0.5;
+    }
+    return offset;
+  }
+
+  private static double getOffsetAdministrativeDivision(String featureCode) {
+    double offset = 0;
+    if (featureCode.endsWith(DIVISION_FIRST_ORDER)) {
+      offset = 5;
+    } else if (featureCode.endsWith(DIVISION_SECOND_ORDER)) {
+      offset = 4;
+    } else if (featureCode.endsWith(DIVISION_THIRD_ORDER)) {
+      offset = 3;
+    } else if (featureCode.endsWith(DIVISION_FOURTH_ORDER)) {
+      offset = 2;
+    } else if (featureCode.endsWith(DIVISION_FIFTH_ORDER)) {
+      offset = 1;
+    }
+    return offset;
   }
 
   public static GeoResult createGeoResult(GeoEntry geoEntry) {

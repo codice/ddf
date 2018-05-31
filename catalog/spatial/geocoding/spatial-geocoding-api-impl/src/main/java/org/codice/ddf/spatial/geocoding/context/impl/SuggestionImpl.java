@@ -11,13 +11,28 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.geocoding;
+package org.codice.ddf.spatial.geocoding.context.impl;
 
-public interface Suggestion {
+import org.codice.ddf.spatial.geocoding.Suggestion;
 
-  /** Identifier that can be used to retrieve a specific {@code GeoEntry} from a resource */
-  String getId();
+public class SuggestionImpl implements Suggestion {
 
-  /** Search suggestion name */
-  String getName();
+  private final String id;
+
+  private final String name;
+
+  public SuggestionImpl(String id, String name) {
+    this.id = id;
+    this.name = name;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
 }
