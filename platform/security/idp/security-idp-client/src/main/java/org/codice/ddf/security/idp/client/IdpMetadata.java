@@ -235,7 +235,7 @@ public class IdpMetadata {
       LOGGER.debug("Error parsing SSO metadata", e);
       return null;
     }
-    processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
+    processMap.putAll(metadataConfigurationParser.getEntityDescriptors());
 
     return processMap;
   }

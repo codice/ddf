@@ -37,6 +37,8 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +53,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,39 +80,35 @@ public class MetadataConfigurationParser {
   private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
   private final Consumer<EntityDescriptor> updateCallback;
 
-  public MetadataConfigurationParser(List<String> entityDescriptions) throws IOException {
-    this(entityDescriptions, null);
+  public MetadataConfigurationParser(List<String> entityDescriptors) throws IOException {
+    this(entityDescriptors, null);
   }
 
   public MetadataConfigurationParser(
-      List<String> entityDescriptions, Consumer<EntityDescriptor> updateCallback)
+      List<String> entityDescriptors, Consumer<EntityDescriptor> updateCallback)
       throws IOException {
     this.updateCallback = updateCallback;
-    parseEntityDescriptions(entityDescriptions);
+    parseEntityDescriptors(entityDescriptors);
   }
 
-  public Map<String, EntityDescriptor> getEntryDescriptions() {
+  public Map<String, EntityDescriptor> getEntityDescriptors() {
     return entityDescriptorMap;
   }
 
-  private void parseEntityDescriptions(List<String> entityDescriptions) throws IOException {
+  private void parseEntityDescriptors(List<String> entityDescriptorStrings) throws IOException {
     String ddfHome = System.getProperty("ddf.home");
-    for (String entityDescription : entityDescriptions) {
-      buildEntityDescriptor(entityDescription);
+    for (String entityDescriptor : entityDescriptorStrings) {
+      buildEntityDescriptor(entityDescriptor);
     }
     Path metadataFolder = Paths.get(ddfHome, ETC_FOLDER, METADATA_ROOT_FOLDER);
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(metadataFolder)) {
       for (Path path : directoryStream) {
         if (Files.isReadable(path)) {
           try (InputStream fileInputStream = Files.newInputStream(path)) {
-            EntityDescriptor entityDescriptor =
-                readEntityDescriptor(new InputStreamReader(fileInputStream, "UTF-8"));
+            List<EntityDescriptor> entityDescriptors =
+                readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8"));
 
-            LOGGER.info("entityId = {}", entityDescriptor.getEntityID());
-            entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
-            if (updateCallback != null) {
-              updateCallback.accept(entityDescriptor);
-            }
+            entityDescriptors.forEach(this::processEntityDescriptor);
           }
         }
       }
@@ -118,15 +117,15 @@ public class MetadataConfigurationParser {
     }
   }
 
-  private void buildEntityDescriptor(String entityDescription) throws IOException {
-    EntityDescriptor entityDescriptor = null;
-    entityDescription = entityDescription.trim();
-    if (entityDescription.startsWith(HTTPS) || entityDescription.startsWith(HTTP)) {
-      if (entityDescription.startsWith(HTTP)) {
+  private void buildEntityDescriptor(String entityDescriptorString) throws IOException {
+    List<EntityDescriptor> entityDescriptors = new ArrayList<>();
+    entityDescriptorString = entityDescriptorString.trim();
+    if (entityDescriptorString.startsWith(HTTPS) || entityDescriptorString.startsWith(HTTP)) {
+      if (entityDescriptorString.startsWith(HTTP)) {
         LOGGER.warn(
             "Retrieving metadata via HTTP instead of HTTPS. The metadata configuration is unsafe!!!");
       }
-      PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
+      PropertyResolver propertyResolver = new PropertyResolver(entityDescriptorString);
       HttpTransport httpTransport = new NetHttpTransport();
 
       ExecutorService executor =
@@ -144,25 +143,32 @@ public class MetadataConfigurationParser {
         service.shutdown();
         Thread.currentThread().interrupt();
       }
-    } else if (entityDescription.startsWith(FILE + System.getProperty("ddf.home"))) {
-      String pathStr = StringUtils.substringAfter(entityDescription, FILE);
+    } else if (entityDescriptorString.startsWith(FILE + System.getProperty("ddf.home"))) {
+      String pathStr = StringUtils.substringAfter(entityDescriptorString, FILE);
       Path path = Paths.get(pathStr);
       if (Files.isReadable(path)) {
         try (InputStream fileInputStream = Files.newInputStream(path)) {
-          entityDescriptor = readEntityDescriptor(new InputStreamReader(fileInputStream, "UTF-8"));
+          entityDescriptors =
+              readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8"));
         }
       }
-    } else if (entityDescription.startsWith("<") && entityDescription.endsWith(">")) {
-      entityDescriptor = readEntityDescriptor(new StringReader(entityDescription));
+    } else if (entityDescriptorString.startsWith("<") && entityDescriptorString.endsWith(">")) {
+      entityDescriptors = readEntityDescriptors(new StringReader(entityDescriptorString));
     } else {
-      LOGGER.info("Skipping unknown metadata configuration value: {}", entityDescription);
+      LOGGER.info("Skipping unknown metadata configuration value: {}", entityDescriptorString);
     }
 
-    if (entityDescriptor != null) {
-      entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
-      if (updateCallback != null) {
-        updateCallback.accept(entityDescriptor);
-      }
+    if (!entityDescriptors.isEmpty()) {
+      entityDescriptors.forEach(this::processEntityDescriptor);
+    }
+  }
+
+  private void processEntityDescriptor(EntityDescriptor entityDescriptor) {
+    LOGGER.info("entityId = {}", entityDescriptor.getEntityID());
+    validateMetadata(entityDescriptor);
+    entityDescriptorMap.put(entityDescriptor.getEntityID(), entityDescriptor);
+    if (updateCallback != null) {
+      updateCallback.accept(entityDescriptor);
     }
   }
 
@@ -223,7 +229,7 @@ public class MetadataConfigurationParser {
     };
   }
 
-  private EntityDescriptor readEntityDescriptor(Reader reader) {
+  private List<EntityDescriptor> readEntityDescriptors(Reader reader) {
     Document entityDoc;
     try {
       entityDoc = StaxUtils.read(reader);
@@ -237,9 +243,11 @@ public class MetadataConfigurationParser {
       throw new IllegalArgumentException(
           "Unable to convert EntityDescriptor document to XMLObject.");
     }
-    EntityDescriptor root = (EntityDescriptor) entityXmlObj;
-    validateMetadata(root);
-    return root;
+    if (entityXmlObj instanceof EntitiesDescriptor) {
+      return ((EntitiesDescriptor) entityXmlObj).getEntityDescriptors();
+    } else {
+      return Collections.singletonList((EntityDescriptor) entityXmlObj);
+    }
   }
 
   private void validateMetadata(EntityDescriptor root) {

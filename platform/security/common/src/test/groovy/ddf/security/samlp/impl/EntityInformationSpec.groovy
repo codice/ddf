@@ -78,7 +78,7 @@ class EntityInformationSpec extends Specification {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser(
                 [fakeSpHalfSupportedMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         when: "request any binding"
@@ -143,7 +143,7 @@ class EntityInformationSpec extends Specification {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser(
                 [fakeSpHalfSupportedMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         when:
@@ -157,7 +157,7 @@ class EntityInformationSpec extends Specification {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser(
                 [fakeSpNoPostMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         reflectAndSetDefaultAssertionConsumerService(entityInfo)
@@ -174,7 +174,7 @@ class EntityInformationSpec extends Specification {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser(
                 [fakeSpMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         reflectAndSetDefaultAssertionConsumerService(entityInfo)
@@ -189,7 +189,7 @@ class EntityInformationSpec extends Specification {
     def "parse sample sp metadata"() {
         setup:
         MetadataConfigurationParser mcp = new MetadataConfigurationParser([sampleSPMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
 
         when:
         new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
@@ -200,7 +200,7 @@ class EntityInformationSpec extends Specification {
 
     EntityInformation getFakeEntityInfo() {
         MetadataConfigurationParser mcp = new MetadataConfigurationParser([fakeSpMetadata])
-        EntityDescriptor ed = mcp.entryDescriptions.find {true}.value
+        EntityDescriptor ed = mcp.entityDescriptors.find {true}.value
         return new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
     }
 
