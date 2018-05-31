@@ -16,8 +16,8 @@ package org.codice.ddf.spatial.kml.converter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
+import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.springframework.util.CollectionUtils;
 
 public class KmlToJtsLineStringConverter {
   private static final GeometryFactory GEOMETRY_FACTORY = JTSFactoryFinder.getGeometryFactory();

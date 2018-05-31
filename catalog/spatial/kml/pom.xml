@@ -26,6 +26,7 @@
     <modules>
         <module>spatial-kml-networklinkendpoint</module>
         <module>spatial-kml-transformer</module>
+        <module>spatial-kml-util</module>
     </modules>
     <dependencyManagement>
         <dependencies>
