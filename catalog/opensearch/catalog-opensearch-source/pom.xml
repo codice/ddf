@@ -108,6 +108,10 @@
             <version>2.0.4</version>
             <scope>test</scope>
         </dependency>
+      <dependency>
+        <groupId>ddf.catalog.common</groupId>
+        <artifactId>geo-formatter</artifactId>
+      </dependency>
     </dependencies>
     <build>
         <plugins>

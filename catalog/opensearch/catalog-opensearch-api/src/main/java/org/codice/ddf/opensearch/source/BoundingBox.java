@@ -18,7 +18,7 @@ package org.codice.ddf.opensearch.source;
  * #west} may be greater than {@link #east} in a bounding box but not in an {@link
  * com.vividsolutions.jts.geom.Envelope}.
  */
-class BoundingBox {
+public class BoundingBox {
 
   private final double west;
 

@@ -482,17 +482,46 @@ public class OpenSearchParserImplTest {
     assertNoQueryParametersPopulated();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void populateMultipleSearchesSpatial() {
+  @Test
+  public void populateMultipleSearchesSpatial() throws ParseException {
+    double lat = 43.25;
+    double lon = -123.45;
+    double radius = 10000;
+
+    final PointRadius pointRadius = new PointRadius(lon, lat, radius);
+    final Polygon polygon =
+        GEOMETRY_FACTORY.createPolygon(
+            GEOMETRY_FACTORY.createLinearRing(
+                new Coordinate[] {
+                  new Coordinate(1, 1),
+                  new Coordinate(5, 1),
+                  new Coordinate(5, 5),
+                  new Coordinate(1, 5),
+                  new Coordinate(1, 1)
+                }),
+            null);
+
+    final Geometry geometry = new WKTReader().read(WKT_GEOMETRY);
+
+    final BoundingBox boundingBox = new BoundingBox(170, 50, -150, 60);
+
     openSearchParser.populateSpatial(
         webClient,
-        mock(Geometry.class),
-        mock(BoundingBox.class),
-        null,
-        null,
+        geometry,
+        boundingBox,
+        polygon,
+        pointRadius,
         Arrays.asList(
-            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
+            "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort"
                 .split(",")));
+
+    assertQueryParameterPopulated(OpenSearchConstants.GEOMETRY, WKT_GEOMETRY);
+    assertQueryParameterPopulated(
+        OpenSearchConstants.POLYGON, "1.0,1.0,1.0,5.0,5.0,5.0,5.0,1.0,1.0,1.0");
+    assertQueryParameterPopulated(OpenSearchConstants.BBOX, "170.0,50.0,-150.0,60.0");
+    assertQueryParameterPopulated(OpenSearchConstants.LAT, String.valueOf(lat));
+    assertQueryParameterPopulated(OpenSearchConstants.LON, String.valueOf(lon));
+    assertQueryParameterPopulated(OpenSearchConstants.RADIUS, String.valueOf(radius));
   }
 
   private Subject getMockSubject(String principalName) {

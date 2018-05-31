@@ -52,6 +52,7 @@ class OpenSearchSourceSpec extends Specification {
     private static final Contains CONTAINS_FILTER = (Contains) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).containing().wkt("POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))")
     private static final Intersects INTERSECTS_FILTER = (Intersects) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).intersecting().wkt("POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))")
     private static final During DURING_FILTER = (During) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_TEMPORAL_SEARCH_TERM).during().dates(new Date(10000), new Date(10005))
+    private static final Intersects GEOMETRY_COLLECTION = (Intersects) filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).intersecting().wkt("GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))");
 
     private static final DWithin NOT_SUPPORTED_D_WITHIN_FILTER = (DWithin) filterBuilder.attribute("this attribute name is not supported for spatial filters").is().withinBuffer().wkt("POINT(1.0 2.0)", 5)
     private static final Contains NOT_SUPPORTED_CONTAINS_FILTER = (Contains) filterBuilder.attribute("this attribute name is not supported for spatial filters").containing().wkt("POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))")
@@ -104,7 +105,7 @@ class OpenSearchSourceSpec extends Specification {
 
         source.setEndpointUrl("http://localhost:8181/services/catalog/query")
         source.init()
-        source.setParameters(["q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox", "polygon", "dtstart", "dtend", "dateName", "filter", "sort"])
+        source.setParameters(["q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox", "geometry", "polygon", "dtstart", "dtend", "dateName", "filter", "sort"])
 
         queryRequestProperties = [:]
         queryRequestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject)
@@ -142,70 +143,40 @@ class OpenSearchSourceSpec extends Specification {
         filter << [
                 PROPERTY_IS_LIKE_FILTER,
                 DURING_FILTER,
-                filterBuilder.allOf(D_WITHIN_FILTER, D_WITHIN_FILTER), // multiple of the same point-radius filter
-                filterBuilder.allOf(CONTAINS_FILTER, CONTAINS_FILTER), // multiple of the same polygon filter
+                INTERSECTS_FILTER, // polygon filter
+                D_WITHIN_FILTER, // point-radius filter
+                CONTAINS_FILTER, // polygon filter
+
+                //Multiple geometry filters
+                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(0.0 0.0)", 804672), PROPERTY_IS_LIKE_FILTER, DURING_FILTER), //multiple point radius filter
+                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),  //point radius and polygon filters
+                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),  // multiple polygon filters
+                filterBuilder.allOf(GEOMETRY_COLLECTION, CONTAINS_FILTER, INTERSECTS_FILTER, D_WITHIN_FILTER),  // polygon, geometry, point radius filters
+
                 /*not supported filters and supported filters*/
                 filterBuilder.allOf(NOT_SUPPORTED_DURING_FILTER, PROPERTY_IS_LIKE_FILTER),
                 filterBuilder.allOf(NOT_SUPPORTED_D_WITHIN_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
                 filterBuilder.allOf(NOT_SUPPORTED_CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
-                filterBuilder.allOf(NOT_SUPPORTED_INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
-                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 6), PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
-                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),
-                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER)
+                filterBuilder.allOf(NOT_SUPPORTED_INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER)
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], geometry:["POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))"] , src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], geometry:["POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))"] , src: [""]],
+
+                //multiple geometry filters
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["GEOMETRYCOLLECTION (POLYGON ((0.9999550570408705 1.999954933135129, 1.0000449429591296 1.999954933135129, 1.0000449429591296 2.000045066864871, 0.9999550570408705 2.000045066864871, 0.9999550570408705 1.999954933135129)), POLYGON ((-7.228491563030235 -7.25280885791844, 7.228491563030235 -7.25280885791844, 7.228491563030235 7.25280885791844, -7.228491563030235 7.25280885791844, -7.228491563030235 -7.25280885791844)))"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))"], lat:["2.0"], lon:["1.0"], radius:["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["GEOMETRYCOLLECTION (POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2)), POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1)))"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], geometry:["GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POINT (4 6), LINESTRING (4 6, 7 10)), POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1)), POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2)))"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+
+                /*not supported filters and supported filters*/
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], src: [""]]
-        ]
-    }
-
-    def testNotBboxSpatialQueries() throws UnsupportedQueryException {
-        given:
-        final Map<String, Object> webClientQueryParameters = [:]
-
-        webClient.get() >> {
-            assert webClientQueryParameters == expectedQueryParameters
-            return Mock(Response) {
-                getStatus() >> Response.Status.OK.getStatusCode()
-                getEntity() >> new ByteArrayInputStream(OpenSearchSourceTest.SAMPLE_ATOM.getBytes(StandardCharsets.UTF_8))
-                getHeaderString("Accept-Ranges") >> "bytes"
-            }
-        }
-        webClient.replaceQueryParam(_ as String, _ as Object) >> {
-            String parameter, Object value -> webClientQueryParameters.put(parameter, value)
-        }
-
-        final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
-
-        when:
-        final SourceResponse response = source.query(queryRequest)
-
-        then:
-        response.getHits() == 1
-        final List<Result> results = response.getResults()
-        results.size() == 1
-        final Result result = results.get(0)
-        result.getMetacard() != null
-
-        where:
-        filter << [
-                D_WITHIN_FILTER,
-                CONTAINS_FILTER,
-                INTERSECTS_FILTER
-        ]
-        expectedQueryParameters << [
-                [start: ["1"], count: ["20"], mt: ["0"],  lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["1.1,1.1,2.1,1.1,2.1,2.1,1.1,2.1,1.1,1.1"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  polygon: ["10.2,10.2,20.2,10.2,20.2,20.2,10.2,20.2,10.2,10.2"], src: [""]]
         ]
     }
 
@@ -243,12 +214,18 @@ class OpenSearchSourceSpec extends Specification {
         filter << [
                 D_WITHIN_FILTER,
                 CONTAINS_FILTER,
-                INTERSECTS_FILTER
+                INTERSECTS_FILTER,
+                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER), // point-radius and polygon filters
+                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER), // different polygon filters
+                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(0.0 0.0)", 804672)) // different point-radius filters
         ]
         expectedQueryParameters << [
-                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["1.1,1.1,2.1,2.1"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"],  bbox: ["10.2,10.2,20.2,20.2"], src: [""]]
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["1.1,1.1,2.1,2.1"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["10.2,10.2,20.2,20.2"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["0.9999550570408705,1.999954933135129,20.2,20.2"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["1.1,1.1,20.2,20.2"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], bbox: ["-7.228491563030235,-7.25280885791844,7.228491563030235,7.25280885791844"], src: [""]]
         ]
     }
 
@@ -268,10 +245,7 @@ class OpenSearchSourceSpec extends Specification {
                 NOT_SUPPORTED_DURING_FILTER,
                 NOT_SUPPORTED_D_WITHIN_FILTER,
                 NOT_SUPPORTED_CONTAINS_FILTER,
-                NOT_SUPPORTED_INTERSECTS_FILTER,
-                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(1.0 2.0)", 6)), // different point-radius filters
-                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER), // point-radius and polygon filters
-                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER), // different polygon filters
+                NOT_SUPPORTED_INTERSECTS_FILTER
         ]
     }
 }

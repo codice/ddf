@@ -29,7 +29,6 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -156,18 +155,15 @@ public class OpenSearchParserImpl implements OpenSearchParser {
       @Nullable PointRadius pointRadius,
       List<String> parameters) {
 
-    if (Stream.of(geometry, boundingBox, polygon, pointRadius).filter(Objects::nonNull).count()
-        > 1) {
-      throw new IllegalArgumentException("Only one spatial search may be populated");
-    }
-
     if (geometry != null) {
       checkAndReplace(
           client,
           WKT_WRITER_THREAD_LOCAL.get().write(geometry),
           OpenSearchConstants.GEOMETRY,
           parameters);
-    } else if (boundingBox != null) {
+    }
+
+    if (boundingBox != null) {
       checkAndReplace(
           client,
           Stream.of(
@@ -179,7 +175,9 @@ public class OpenSearchParserImpl implements OpenSearchParser {
               .collect(Collectors.joining(OpenSearchConstants.BBOX_DELIMITER)),
           OpenSearchConstants.BBOX,
           parameters);
-    } else if (polygon != null) {
+    }
+
+    if (polygon != null) {
       checkAndReplace(
           client,
           Arrays.stream(polygon.getCoordinates())
@@ -188,7 +186,9 @@ public class OpenSearchParserImpl implements OpenSearchParser {
               .collect(Collectors.joining(OpenSearchConstants.POLYGON_LON_LAT_DELIMITER)),
           OpenSearchConstants.POLYGON,
           parameters);
-    } else if (pointRadius != null) {
+    }
+
+    if (pointRadius != null) {
       checkAndReplace(
           client, String.valueOf(pointRadius.getLat()), OpenSearchConstants.LAT, parameters);
       checkAndReplace(

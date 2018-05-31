@@ -13,12 +13,17 @@
  */
 package org.codice.ddf.opensearch.endpoint.query;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -43,6 +48,7 @@ import org.geotools.filter.spatial.DWithinImpl;
 import org.geotools.filter.spatial.IntersectsImpl;
 import org.geotools.filter.temporal.DuringImpl;
 import org.geotools.geometry.GeometryBuilder;
+import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
@@ -53,6 +59,7 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.spatial.Intersects;
 import org.opengis.geometry.Geometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Period;
@@ -65,6 +72,16 @@ public class OpenSearchQueryTest {
   private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
   private static final double DOUBLE_DELTA = 0.00001;
+
+  private static final String GEOMETRY_WKT =
+      "GEOMETRYCOLLECTION (POINT (-105.2071712 40.0160994), LINESTRING (4 6, 7 10))";
+
+  private static final String POLYGON_WKT =
+      "POLYGON ((-120.032 30.943, -120.032 35.039, -110.856 35.039, -110.856 30.943, -120.032 30.943))";
+
+  private static final String POINT_WKT = "POINT (117.3425 33.9283)";
+
+  private static final WKTWriter WKT_WRITER = new WKTWriter();
 
   private Filter getKeywordAttributeFilter(String keyword) {
     return FILTER_BUILDER.attribute(Metacard.ANY_TEXT).is().like().text(keyword);
@@ -665,6 +682,67 @@ public class OpenSearchQueryTest {
       assertEquals(Double.parseDouble(expectedCoords[index - 1]), coord.x, DOUBLE_DELTA);
       assertEquals(Double.parseDouble(expectedCoords[index]), coord.y, DOUBLE_DELTA);
       i++;
+    }
+  }
+
+  @Test
+  public void testGeometrySpatialFilter() {
+    OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
+    query.addGeometrySpatialFilter(GEOMETRY_WKT);
+    Filter filter = query.getFilter();
+    assertThat(filter, notNullValue());
+    Intersects intersects = (Intersects) filter;
+    Literal literalWrapper = (Literal) intersects.getExpression2();
+    Object geometryExpression = literalWrapper.getValue();
+    assertThat(geometryExpression, instanceOf(GeometryImpl.class));
+    com.vividsolutions.jts.geom.Geometry polygon =
+        ((GeometryImpl) geometryExpression).getJTSGeometry();
+    assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
+  }
+
+  @Test
+  public void testMultipleSpatialFilter() {
+    OpenSearchQuery query = new OpenSearchQuery(0, 10, "relevance", "desc", 30000, FILTER_BUILDER);
+    query.addGeometrySpatialFilter(GEOMETRY_WKT);
+    query.addPolygonSpatialFilter(
+        "30.943,-120.032,35.039,-120.032,35.039,-110.856,30.943,-110.856,30.943,-120.032");
+    query.addBBoxSpatialFilter("-120.032,30.943,-110.856,35.039");
+    query.addPointRadiusSpatialFilter("117.3425", "33.9283", "5000");
+    query.addPolygonSpatialFilter(
+        "30.943,-120.032,35.039,-120.032,35.039,-110.856,30.943,-110.856,30.943,-120.032");
+
+    Filter filter = query.getFilter();
+    assertThat(filter, notNullValue());
+
+    // TODO: fix as OR filter after https://codice.atlassian.net/browse/DDF-3857
+    AndImpl topFilter = (AndImpl) filter;
+    List<Filter> spatialFilters = topFilter.getChildren();
+    assertThat(spatialFilters.size(), is(5));
+
+    for (Filter spatialFilter : spatialFilters) {
+      if (spatialFilter instanceof DWithinImpl) {
+        assertThat(spatialFilter, notNullValue());
+        DWithinImpl dWithin = (DWithinImpl) spatialFilter;
+        assertThat(dWithin.getDistance(), is(5000.0));
+        Literal literal = (Literal) dWithin.getExpression2();
+        PointImpl point = (PointImpl) literal.getValue();
+        String wkt = WKT_WRITER.write(point.getJTSGeometry());
+        assertThat(wkt, is(POINT_WKT));
+      } else if (spatialFilter instanceof IntersectsImpl) {
+        assertThat(spatialFilter, notNullValue());
+        IntersectsImpl intersects = (IntersectsImpl) spatialFilter;
+        Literal literal = (Literal) intersects.getExpression2();
+        Object geometryExpression = literal.getValue();
+        if (geometryExpression instanceof SurfaceImpl) {
+          SurfaceImpl surface = (SurfaceImpl) literal.getValue();
+          String wkt = WKT_WRITER.write(surface.getJTSGeometry());
+          assertThat(wkt, is(POLYGON_WKT));
+        } else if (geometryExpression instanceof GeometryImpl) {
+          com.vividsolutions.jts.geom.Geometry polygon =
+              ((GeometryImpl) geometryExpression).getJTSGeometry();
+          assertThat(WKT_WRITER.write(polygon), is(GEOMETRY_WKT));
+        }
+      }
     }
   }
 

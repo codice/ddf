@@ -159,7 +159,7 @@ public abstract class CompositeGeometry {
    * @return an array of {@link Coordinate} objects, if input is <code>null</code> or empty, it will
    *     return an empty array
    */
-  protected static Coordinate[] getCoordinates(List<List<String>> primitiveCoordinatesList) {
+  protected static Coordinate[] getCoordinates(List<List> primitiveCoordinatesList) {
     if (primitiveCoordinatesList != null && !primitiveCoordinatesList.isEmpty()) {
       Coordinate[] coordinatesArray = new Coordinate[primitiveCoordinatesList.size()];
 

@@ -276,13 +276,19 @@ public class OpenSearchEndpoint implements OpenSearch {
     if (StringUtils.isNotBlank(geometry)) {
       LOGGER.trace("Adding SpatialCriterion geometry: {}", geometry);
       query.addGeometrySpatialFilter(geometry.trim());
-    } else if (StringUtils.isNotBlank(bbox)) {
+    }
+
+    if (StringUtils.isNotBlank(bbox)) {
       LOGGER.trace("Adding SpatialCriterion bbox: {}", bbox);
       query.addBBoxSpatialFilter(bbox.trim());
-    } else if (StringUtils.isNotBlank(polygon)) {
+    }
+
+    if (StringUtils.isNotBlank(polygon)) {
       LOGGER.trace("Adding SpatialCriterion polygon: {}", polygon);
       query.addPolygonSpatialFilter(polygon.trim());
-    } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
+    }
+
+    if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
       if (StringUtils.isBlank(radius)) {
         LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
         query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);

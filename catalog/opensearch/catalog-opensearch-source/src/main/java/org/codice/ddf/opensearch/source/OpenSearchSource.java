@@ -21,6 +21,7 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -62,6 +63,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -118,6 +120,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
+
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
@@ -726,7 +730,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   @VisibleForTesting
-  Bundle getBundle() {
+  protected Bundle getBundle() {
     return FrameworkUtil.getBundle(this.getClass());
   }
 
@@ -1011,6 +1015,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       this.pointRadius = pointRadius;
     }
 
+    public SpatialSearch(
+        Geometry geometry, BoundingBox boundingBox, Polygon polygon, PointRadius pointRadius) {
+      this.geometry = geometry;
+      this.boundingBox = boundingBox;
+      this.polygon = polygon;
+      this.pointRadius = pointRadius;
+    }
+
     @Nullable
     public Geometry getGeometry() {
       return geometry;
@@ -1044,50 +1056,48 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   @Nullable
   protected SpatialSearch createCombinedSpatialSearch(
       final Queue<PointRadius> pointRadiusSearches, final Queue<Geometry> geometrySearches) {
-    final boolean filterContainedSomePointRadiusCriteria =
-        CollectionUtils.isNotEmpty(pointRadiusSearches);
-    final boolean filterContainedSomePolygonSearchCriteria =
-        CollectionUtils.isNotEmpty(geometrySearches);
+    Geometry geometrySearch = null;
+    BoundingBox boundingBox = null;
+    PointRadius pointRadius = null;
+    SpatialSearch spatialSearch = null;
 
-    if (filterContainedSomePointRadiusCriteria && filterContainedSomePolygonSearchCriteria) {
-      LOGGER.debug(
-          "Ignoring all spatial searches because combining spatial and point radius searches is not yet implemented.");
-      return null;
+    Queue<Geometry> combinedGeometrySearches = new LinkedList<>(geometrySearches);
+
+    if (CollectionUtils.isNotEmpty(pointRadiusSearches)) {
+      if (shouldConvertToBBox || pointRadiusSearches.size() > 1) {
+        // convert all pointRadiusSearch into a polygon
+        for (PointRadius search : pointRadiusSearches) {
+          BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
+          List bboxCoordinate = BoundingBoxUtils.getPrimativeCoordinates(bbox);
+          List<List> coordinates = new ArrayList<>();
+          coordinates.add(bboxCoordinate);
+          combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
+        }
+      } else {
+        pointRadius = pointRadiusSearches.remove();
+      }
     }
 
-    if (!filterContainedSomePointRadiusCriteria && filterContainedSomePolygonSearchCriteria) {
-      if (CollectionUtils.size(geometrySearches) > 1) {
-        LOGGER.debug(
-            "Ignoring all polygon searches because combining polygon searches is not yet implemented.");
-        return null;
+    if (CollectionUtils.isNotEmpty(combinedGeometrySearches)) {
+      if (combinedGeometrySearches.size() == 1) {
+        geometrySearch = combinedGeometrySearches.remove();
+      } else {
+        geometrySearch =
+            GEOMETRY_FACTORY.createGeometryCollection(
+                combinedGeometrySearches.toArray(new Geometry[0]));
       }
 
-      final Geometry geometry = geometrySearches.remove();
-      if (!(geometry instanceof Polygon)) {
-        LOGGER.debug(
-            "Ignoring geometry search because only polygon searches are currently supported.");
-        return null;
+      if (shouldConvertToBBox) {
+        // extra geometry collection envelop and convert to a boundingBox
+        boundingBox = BoundingBoxUtils.createBoundingBox((Polygon) geometrySearch.getEnvelope());
+        geometrySearch = null;
       }
-
-      final Polygon polygon = (Polygon) geometry;
-      return shouldConvertToBBox
-          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(polygon))
-          : new SpatialSearch(polygon);
     }
 
-    if (filterContainedSomePointRadiusCriteria) {
-      if (CollectionUtils.size(pointRadiusSearches) > 1) {
-        LOGGER.debug(
-            "Ignoring all spatial searches because combining point radius-searches is not yet implemented.");
-        return null;
-      }
-
-      final PointRadius pointRadius = pointRadiusSearches.remove();
-      return shouldConvertToBBox
-          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(pointRadius))
-          : new SpatialSearch(pointRadius);
+    if (geometrySearch != null || boundingBox != null || pointRadius != null) {
+      // Geo Draft 2 default always geometry instead of polygon
+      spatialSearch = new SpatialSearch(geometrySearch, boundingBox, null, pointRadius);
     }
-
-    return null;
+    return spatialSearch;
   }
 }

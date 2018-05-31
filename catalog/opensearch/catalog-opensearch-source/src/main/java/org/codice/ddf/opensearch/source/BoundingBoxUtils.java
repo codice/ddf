@@ -15,6 +15,8 @@ package org.codice.ddf.opensearch.source;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -188,5 +190,42 @@ public final class BoundingBoxUtils {
     }
 
     return new BoundingBox(west, south, east, north);
+  }
+
+  /**
+   * Takes in a {@link BoundingBox} and extract the coordinates in a counter clockwise matter with
+   * first and last coordinate being the same point
+   *
+   * @param boundingBox
+   * @return
+   */
+  public static List<List> getPrimativeCoordinates(BoundingBox boundingBox) {
+    List<List> coordinates = new ArrayList<>();
+    List coordinate = new ArrayList<>();
+    coordinate.add(boundingBox.getWest());
+    coordinate.add(boundingBox.getSouth());
+    coordinates.add(coordinate);
+
+    coordinate = new ArrayList<>();
+    coordinate.add(boundingBox.getEast());
+    coordinate.add(boundingBox.getSouth());
+    coordinates.add(coordinate);
+
+    coordinate = new ArrayList<>();
+    coordinate.add(boundingBox.getEast());
+    coordinate.add(boundingBox.getNorth());
+    coordinates.add(coordinate);
+
+    coordinate = new ArrayList<>();
+    coordinate.add(boundingBox.getWest());
+    coordinate.add(boundingBox.getNorth());
+    coordinates.add(coordinate);
+
+    coordinate = new ArrayList<>();
+    coordinate.add(boundingBox.getWest());
+    coordinate.add(boundingBox.getSouth());
+    coordinates.add(coordinate);
+
+    return coordinates;
   }
 }
