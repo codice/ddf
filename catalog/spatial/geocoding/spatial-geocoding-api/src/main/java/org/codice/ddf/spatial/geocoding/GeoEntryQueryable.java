@@ -71,7 +71,7 @@ public interface GeoEntryQueryable {
    *
    * @param wktLocation A WKT location
    * @param radius the radius in kilometers to search from the given {@code wktLocation}
-   * @return a country code in ISO 3166-1 alpha-2 format or null if not found (for example, a
+   * @return a country code in ISO 3166-1 alpha-3 format or null if not found (for example, a
    *     location in the ocean)
    */
   Optional<String> getCountryCode(String wktLocation, int radius)

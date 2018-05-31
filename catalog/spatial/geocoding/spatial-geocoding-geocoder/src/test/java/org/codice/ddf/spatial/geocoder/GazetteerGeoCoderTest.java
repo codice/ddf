@@ -147,7 +147,7 @@ public class GazetteerGeoCoderTest {
 
   @Test
   public void testGetCountryCode() throws ParseException, GeoEntryQueryException {
-    when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of("US"));
+    when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of("USA"));
 
     countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
 
@@ -177,16 +177,6 @@ public class GazetteerGeoCoderTest {
     when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenThrow(new ParseException("", 1));
 
     countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
-    assertThat(countryCode.isPresent(), is(false));
-  }
-
-  @Test
-  public void testGetCountryCodeInvalidCountryCode() throws ParseException, GeoEntryQueryException {
-    when(geoEntryQueryable.getCountryCode(TEST_POINT, 50))
-        .thenReturn(Optional.of("not a country code"));
-
-    countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
-
     assertThat(countryCode.isPresent(), is(false));
   }
 }
