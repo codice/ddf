@@ -104,6 +104,7 @@ module.exports = Marionette.LayoutView.extend({
         user.getQuerySettings().set('type', 'advanced');
         user.savePreferences();
         this.triggerCloseDropdown();
+    },
     serializeData() {
         return {
             experimental: properties.hasExperimentalEnabled()

@@ -19,14 +19,13 @@
  const ResultFormCollectionView = require('./result-form.collection.view')
  const ResultForm = require('./result-form')
  const CustomElements = require('js/CustomElements')
- const LoadingView = require('component/loading/loading.view')
+ const LoadingCompanionView = require("component/loading-companion/loading-companion.view")
 
  module.exports = Marionette.LayoutView.extend({
    template: template,
    tagName: CustomElements.register('result-form-collection'),
    regions: {
-     collectionView: '.collection',
-     loadingView: '.loading'
+     collectionView: '.collection'
    },
    initialize: function() {
     this.resultFormCollection = ResultForm.getResultCollection();
@@ -39,12 +38,12 @@
        collectionWrapperModel: this.resultFormCollection,
        queryModel: this.model
      }))
-     this.loadingView.show(new LoadingView({ DOMHook: this.$el }))
+     LoadingCompanionView.beginLoading(this, this.$el);
      this.handleLoadingSpinner();
    },
    handleLoadingSpinner: function() {
     if(this.resultFormCollection.getDoneLoading()) {
-        this.loadingView.currentView.remove();
+      LoadingCompanionView.endLoading(this);
     }
   }
  })

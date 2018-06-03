@@ -23,7 +23,6 @@ const QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 const cql = require('js/cql');
 const CQLUtils = require('js/CQLUtils');
 const store = require('js/store');
-const store = require('js/store');
 const user = require('component/singletons/user-instance');
 
 function isNested(filter) {

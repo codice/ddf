@@ -80,6 +80,14 @@ define([
             multivalued: true
         }
     }
+    function mergeObject(target, source) {
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+                target[key] = source[key];
+            }
+        }
+        return target;
+    }
 
     return new (Backbone.Model.extend({
         initialize: function () {
@@ -186,7 +194,7 @@ define([
         },
         metacardDefinitions: [],
         sortedMetacardTypes: [],
-        metacardTypes: Object.assign({}, metacardStartingTypes),
+        metacardTypes: mergeObject({}, metacardStartingTypes),
         validation: {
         },
         enums: {
