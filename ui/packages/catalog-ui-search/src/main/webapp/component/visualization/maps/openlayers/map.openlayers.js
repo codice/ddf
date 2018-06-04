@@ -46,6 +46,7 @@ function createMap(insertionElement) {
     var layerCollectionController = new OpenLayerCollectionController({ collection: layerPrefs });
     var map = layerCollectionController.makeMap({
         zoom: 3,
+        minZoom: 1.9,
         element: insertionElement
     });
 

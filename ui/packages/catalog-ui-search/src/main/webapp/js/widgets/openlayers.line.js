@@ -21,10 +21,11 @@ define([
         'maptype',
         './notification.view',
         '@turf/turf',
-        './drawing.controller'
+        './drawing.controller',
+        '../OpenLayersGeometryUtils'
     ],
     function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
-              Turf, DrawingController) {
+              Turf, DrawingController, olUtils) {
         "use strict";
 
         function translateFromOpenlayersCoordinates(coords) {
@@ -134,8 +135,9 @@ define([
             },
 
             handleRegionStop: function (sketchFeature) {
-                this.setModelFromGeometry(sketchFeature.feature.getGeometry());
-                this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
+                this.setModelFromGeometry(geometry);
+                this.drawBorderedPolygon(geometry);
                 this.listenTo(this.model, 'change:line', this.updateGeometry);
                 this.listenTo(this.model, 'change:lineWidth', this.updateGeometry);
 

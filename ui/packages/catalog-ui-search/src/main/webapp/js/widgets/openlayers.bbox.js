@@ -20,9 +20,10 @@ define([
         'wreqr',
         'maptype',
         './notification.view',
-        './drawing.controller'
+        './drawing.controller',
+        '../OpenLayersGeometryUtils'
     ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, DrawingController) {
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, DrawingController, olUtils) {
         "use strict";
 
         var Draw = {};
@@ -46,7 +47,6 @@ define([
 
                 var northWest = ol.proj.transform([extent[0], extent[3]], properties.projection, 'EPSG:4326');
                 var southEast = ol.proj.transform([extent[2], extent[1]], properties.projection, 'EPSG:4326');
-
                 this.model.set({
                     north: northWest[1],
                     south: southEast[1],
@@ -145,7 +145,8 @@ define([
             },
 
             handleRegionStop: function () {
-                this.setModelFromGeometry(this.primitive.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(this.primitive.getGeometry());
+                this.setModelFromGeometry(geometry);
                 this.updateGeometry(this.model);
                 this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 

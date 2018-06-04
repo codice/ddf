@@ -23,10 +23,11 @@ define([
         'terraformer',
         '@turf/turf',
         '@turf/circle',
-        './drawing.controller'
+        './drawing.controller',
+        '../OpenLayersGeometryUtils'
     ],
     function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
-              Terraformer, Turf, TurfCircle, DrawingController) {
+              Terraformer, Turf, TurfCircle, DrawingController, olUtils) {
         "use strict";
 
         function translateFromOpenlayersCoordinate(coord){
@@ -126,8 +127,9 @@ define([
             },
 
             handleRegionStop: function (sketchFeature) {
-                this.setModelFromGeometry(sketchFeature.feature.getGeometry());
-                this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
+                this.setModelFromGeometry(geometry);
+                this.drawBorderedPolygon(geometry);
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);

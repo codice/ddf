@@ -21,9 +21,10 @@ define([
         'maptype',
         './notification.view',
         'js/ShapeUtils',
-        './drawing.controller'
+        './drawing.controller',
+        '../OpenLayersGeometryUtils'
     ],
-    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, ShapeUtils, DrawingController) {
+    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, ShapeUtils, DrawingController, olUtils) {
         "use strict";
 
         var Draw = {};
@@ -147,8 +148,9 @@ define([
             },
 
             handleRegionStop: function(sketchFeature) {
-                this.setModelFromGeometry(sketchFeature.feature.getGeometry());
-                this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
+                const geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
+                this.setModelFromGeometry(geometry);
+                this.drawBorderedPolygon(geometry);
                 this.listenTo(this.model, 'change:polygon', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
