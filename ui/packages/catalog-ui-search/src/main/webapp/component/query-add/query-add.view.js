@@ -256,11 +256,6 @@ module.exports = Marionette.LayoutView.extend({
             customErrorHandling: true
         })
         .done((data, textStatus, jqxhr) => {
-            announcement.announce({
-                title: 'Saved!',
-                message: 'Search form has been saved.',
-                type: 'success'
-            });
 
             let queryTemplate = _this.getQueryAsQueryTemplate();
             let sorts = queryTemplate['querySettings'] && queryTemplate['querySettings'].sorts;
