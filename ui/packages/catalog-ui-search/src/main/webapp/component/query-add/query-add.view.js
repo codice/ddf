@@ -70,6 +70,9 @@ module.exports = Marionette.LayoutView.extend({
             case 'advanced':
                 this.showAdvanced();
                 break;
+            case 'result':
+                this.showResult();
+                break;
             case 'custom':
                 this.showCustom();
                 break;
@@ -136,7 +139,29 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     focus: function () {
+        this.autoLoadDefaultIfSet();
         this.queryContent.currentView.focus();
+    },
+    autoLoadDefaultIfSet: function () {
+        let userDefaultTemplate = user.getQuerySettings().get('template');
+        if (userDefaultTemplate) {
+            let sorts = userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].sorts;
+            if (sorts) {
+                sorts = sorts.map(sort => ({ attribute: sort.split(',')[0], direction: sort.split(',')[1] }));
+            }
+            this.model.set({
+                        type: 'custom',
+                        title: userDefaultTemplate['name'],
+                        filterTree: userDefaultTemplate['filterTemplate'],
+                        src: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].src) || '',
+                        federation: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].federation) || 'enterprise',
+                        sorts: sorts, 
+                        'detail-level': (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings']['detail-level']) || 'allFields',
+                        accessGroups: userDefaultTemplate['accessGroups'],
+                        accessIndividuals: userDefaultTemplate['accessIndividuals']});
+
+            this.showCustom();
+        }
     },
     edit: function () {
         this.$el.addClass('is-editing');
@@ -224,6 +249,8 @@ module.exports = Marionette.LayoutView.extend({
     },
     saveTemplateToBackend: function() {
         let loadingView = new LoadingView();
+        let _this = this;
+        let _user = user;
         $.ajax({
             url: '/search/catalog/internal/forms/query',
             data: JSON.stringify(this.getQueryAsQueryTemplate()),
@@ -231,6 +258,37 @@ module.exports = Marionette.LayoutView.extend({
             contentType: 'application/json',
             customErrorHandling: true
         })
+        .done((data, textStatus, jqxhr) => {
+            announcement.announce({
+                title: 'Saved!',
+                message: 'Search form has been saved.',
+                type: 'success'
+            });
+
+            let queryTemplate = _this.getQueryAsQueryTemplate();
+            let sorts = queryTemplate['querySettings'] && queryTemplate['querySettings'].sorts;
+
+            if (sorts) {
+                sorts = sorts.map(sort => ({ attribute: sort.split(',')[0], direction: sort.split(',')[1] }));
+
+            queryTemplate = {
+                type: 'custom',
+                name: queryTemplate['title'],
+                filterTemplate: JSON.stringify(queryTemplate['filterTemplate']),
+                src: (queryTemplate['querySettings'] && queryTemplate['querySettings'].src) || '',
+                federation: (queryTemplate['querySettings'] && queryTemplate['querySettings'].federation) || 'enterprise',
+                querySettings: sorts, 
+                'detail-level': (queryTemplate['querySettings'] && queryTemplate['querySettings']['detail-level']) || 'allFields',
+                accessGroups: queryTemplate['accessGroups'],
+                accessIndividuals: queryTemplate['accessIndividuals']
+            };
+
+            _user.getQuerySettings().set({
+                template: queryTemplate
+            });
+
+            _user.savePreferences();
+        }})
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({
                 title: 'Search Form Failed to be Saved',

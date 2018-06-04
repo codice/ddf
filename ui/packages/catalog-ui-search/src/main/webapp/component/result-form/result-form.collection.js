@@ -117,7 +117,7 @@
    checkIfOwnerOrSystem: function (template) {
      let myEmail = user.get('user').get('email')
      let templateCreator = template.creator
-     return myEmail === templateCreator || templateCreator === 'System Template'
+     return myEmail === templateCreator || templateCreator === 'system-template'
    },
    addResultForm: function (newForm) {
      this.get('resultForms').add(newForm)

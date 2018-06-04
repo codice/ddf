@@ -35,6 +35,7 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;

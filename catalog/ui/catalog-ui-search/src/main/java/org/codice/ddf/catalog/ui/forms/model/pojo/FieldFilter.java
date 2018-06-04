@@ -16,10 +16,13 @@ package org.codice.ddf.catalog.ui.forms.model.pojo;
 import static org.apache.commons.lang.Validate.notEmpty;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Security;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.boon.json.annotations.JsonProperty;
 
 /**
  * Provides data model pojo that can be annotated and sent to Boon for JSON serialization.
@@ -35,10 +38,26 @@ public class FieldFilter extends CommonTemplate {
   @SuppressWarnings("squid:S1068" /* Needed for serialization */)
   private final Set<String> descriptors;
 
-  public FieldFilter(Metacard metacard, Set<String> descriptors) {
+  @JsonProperty("creator")
+  private String creator;
+
+  @JsonProperty("accessIndividuals")
+  private List<Serializable> accessIndividuals;
+
+  @JsonProperty("accessGroups")
+  private List<Serializable> accessGroups;
+
+  public FieldFilter(
+      Metacard metacard,
+      Set<String> descriptors,
+      String creator,
+      Map<String, List<Serializable>> securityAttributes) {
     super(metacard);
     notEmpty(descriptors);
     this.descriptors = descriptors;
+    this.creator = creator;
+    this.accessIndividuals = securityAttributes.get(Security.ACCESS_INDIVIDUALS);
+    this.accessGroups = securityAttributes.get(Security.ACCESS_GROUPS);
   }
 
   @SuppressWarnings("unchecked")

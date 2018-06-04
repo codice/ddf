@@ -15,7 +15,7 @@
  const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
  const properties = require('properties');
 
- module.exports = Tabs.extend({
+module.exports = Tabs.extend({
     defaults: {
         tabs: properties.hasExperimentalEnabled() ? {
             'My Search Forms': MySearchFormCollectionView,
