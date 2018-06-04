@@ -173,6 +173,21 @@ public class PermissionActivatorTest {
     permissionActivator.start(mock(BundleContext.class));
   }
 
+  @Test
+  public void policyEntryWithNoPermissionsIsValid() throws Exception {
+    File emptyEntryPolicy = temporaryFolder.newFile("security/emptyEntry.policy");
+    FileOutputStream emptyEntryOutStream = new FileOutputStream(emptyEntryPolicy);
+    InputStream emptyEntryStream =
+        PermissionActivatorTest.class.getResourceAsStream("/emptyEntry.policy");
+    IOUtils.copy(emptyEntryStream, emptyEntryOutStream);
+
+    IOUtils.closeQuietly(emptyEntryOutStream);
+    IOUtils.closeQuietly(emptyEntryStream);
+
+    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
+    permissionActivator.start(mock(BundleContext.class));
+  }
+
   private class PermissionActivatorForTest extends PermissionActivator {
     SecurityAdmin securityAdmin;
 
