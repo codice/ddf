@@ -751,6 +751,7 @@ are essentially embedding a slightly modified version of felix -->
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
                                 <aggregate>true</aggregate>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             </configuration>
                         </plugin>
                         <plugin>

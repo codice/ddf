@@ -36,7 +36,7 @@ public class ShareableMetacardSharingPolicyPluginTest {
 
   private PolicyPlugin plugin;
 
-  private static final String email = "a@b.c";
+  private static final String EMAIL = "a@b.c";
 
   @Before
   public void setUp() {
@@ -48,7 +48,7 @@ public class ShareableMetacardSharingPolicyPluginTest {
   public void testOwnerOnCreate() throws Exception {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
     shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    shareableMetacard.setOwner(email);
+    shareableMetacard.setOwner(EMAIL);
     PolicyResponse response = plugin.processPreCreate(shareableMetacard, properties);
     assertThat(response.itemPolicy(), is(Collections.emptyMap()));
   }
@@ -57,14 +57,14 @@ public class ShareableMetacardSharingPolicyPluginTest {
   public void testOwnerOnUpdate() throws Exception {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
     shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    shareableMetacard.setOwner(email);
+    shareableMetacard.setOwner(EMAIL);
     PolicyResponse response = plugin.processPreUpdate(shareableMetacard, properties);
     assertThat(
         response.itemPolicy(),
         is(
             ImmutableMap.of(
                 Core.METACARD_OWNER,
-                ImmutableSet.of(email),
+                ImmutableSet.of(EMAIL),
                 AttributeGroupType.ATTRIBUTE_GROUP_TAG,
                 Collections.singleton(AttributeGroupType.ATTRIBUTE_GROUP_TAG),
                 WorkspaceAttributes.WORKSPACE_TAG,

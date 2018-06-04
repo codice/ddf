@@ -52,13 +52,13 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class WorkspaceTransformerTest {
-  private final String KEY_TRANSFORMATION_JSON_KEY = "jsonKey";
+  private static final String KEY_TRANSFORMATION_JSON_KEY = "jsonKey";
 
-  private final String KEY_TRANSFORMATION_METACARD_KEY = "metacardKey";
+  private static final String KEY_TRANSFORMATION_METACARD_KEY = "metacardKey";
 
-  private final Serializable KEY_TRANSFORMATION_VALUE = 15.5;
+  private static final Serializable KEY_TRANSFORMATION_VALUE = 15.5;
 
-  private final WorkspaceKeyTransformation KEY_TRANSFORMATION =
+  private static final WorkspaceKeyTransformation KEY_TRANSFORMATION =
       new WorkspaceKeyTransformation() {
         @Override
         public String getMetacardKey() {
@@ -71,13 +71,13 @@ public class WorkspaceTransformerTest {
         }
       };
 
-  private final String VALUE_TRANSFORMATION_KEY = "targetKey";
+  private static final String VALUE_TRANSFORMATION_KEY = "targetKey";
 
-  private final int VALUE_TRANSFORMATION_METACARD_VALUE = 10;
+  private static final int VALUE_TRANSFORMATION_METACARD_VALUE = 10;
 
-  private final double VALUE_TRANSFORMATION_JSON_VALUE = 10.5;
+  private static final double VALUE_TRANSFORMATION_JSON_VALUE = 10.5;
 
-  private final WorkspaceValueTransformation<Integer, Double> VALUE_TRANSFORMATION =
+  private static final WorkspaceValueTransformation<Integer, Double> VALUE_TRANSFORMATION =
       new WorkspaceValueTransformation<Integer, Double>() {
         @Override
         public String getKey() {
@@ -107,13 +107,13 @@ public class WorkspaceTransformerTest {
         }
       };
 
-  private final String UNTRANSFORMED_KEY = "justAKey";
+  private static final String UNTRANSFORMED_KEY = "justAKey";
 
-  private final String UNTRANSFORMED_VALUE = "justAValue";
+  private static final String UNTRANSFORMED_VALUE = "justAValue";
 
-  private final String METACARD_KEY_TO_REMOVE = "unwantedMetacardKey";
+  private static final String METACARD_KEY_TO_REMOVE = "unwantedMetacardKey";
 
-  private final WorkspaceValueTransformation<Object, Object> METACARD_ATTRIBUTE_REMOVER =
+  private static final WorkspaceValueTransformation<Object, Object> METACARD_ATTRIBUTE_REMOVER =
       new WorkspaceValueTransformation<Object, Object>() {
         @Override
         public String getKey() {
@@ -143,9 +143,9 @@ public class WorkspaceTransformerTest {
         }
       };
 
-  private final String JSON_KEY_TO_REMOVE = "unwantedJsonKey";
+  private static final String JSON_KEY_TO_REMOVE = "unwantedJsonKey";
 
-  private final WorkspaceValueTransformation<Object, Object> JSON_KEY_VALUE_REMOVER =
+  private static final WorkspaceValueTransformation<Object, Object> JSON_KEY_VALUE_REMOVER =
       new WorkspaceValueTransformation<Object, Object>() {
         @Override
         public String getKey() {
@@ -175,7 +175,7 @@ public class WorkspaceTransformerTest {
         }
       };
 
-  private final MetacardType DUMMY_METACARD_TYPE =
+  private static final MetacardType DUMMY_METACARD_TYPE =
       new MetacardTypeImpl(
           "workspace-transformer-test-type",
           ImmutableSet.<AttributeDescriptor>builder()
