@@ -172,6 +172,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private static final String IDP_LOGIN = "/idp/login";
   private static final String IDP_LOGOUT = "/idp/logout";
   private static final String AUTHN_REQUEST_MUST_USE_TLS = "Authn Request must use TLS.";
+  private static final String COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG =
+      "Could not find entity service info for {}";
 
   /** Input factory */
   private static volatile XMLInputFactory xmlInputFactory;
@@ -401,7 +403,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     ServiceInfo entityServiceInfo =
         getServiceProvidersMap().get(entityId).getLogoutService(SamlProtocol.Binding.SOAP);
     if (entityServiceInfo == null) {
-      LOGGER.info("Could not find entity service info for {}", entityId);
+      LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
       return null;
     }
     if (entityServiceInfo.getBinding() != SamlProtocol.Binding.SOAP) {
@@ -1377,7 +1379,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
 
         if (entityServiceInfo == null) {
-          LOGGER.info("Could not find entity service info for {}", entityId);
+          LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
           return continueLogout(logoutState, cookie, incomingBinding);
         }
 
@@ -1401,7 +1403,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
             getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
 
         if (entityServiceInfo == null) {
-          LOGGER.info("Could not find entity service info for {}", entityId);
+          LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
           return continueLogout(logoutState, cookie, incomingBinding);
         }
 
