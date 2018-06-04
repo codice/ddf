@@ -264,9 +264,8 @@ grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apach
     permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis.xml", "read";
 }
 
-grant codeBase "file:/admin-core-impl/catalog-admin-poller-service" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}profiles.json", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
+grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jolokia" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
