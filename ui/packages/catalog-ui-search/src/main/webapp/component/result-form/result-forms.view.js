@@ -22,9 +22,9 @@ module.exports = SearchFormViews.extend({
   changeView: function () {
     let oldType = this.options.queryModel.get('type')
     switch (this.model.get('type')) {
-      case 'newResult':
+      case 'new-result':
         this.options.queryModel.set({
-          type: 'newResult',
+          type: 'new-result',
           resultTitle: '',
           formId: this.model.get('id'),
           accessGroups: [],

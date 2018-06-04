@@ -21,8 +21,6 @@
    childView: ResultFormView,
    className: 'is-list is-inline has-list-highlighting',
    tagName: CustomElements.register('result-forms'),
-   initialize: function (options) {
-   },
    childViewOptions: function () {
      return {
        queryModel: this.options.queryModel,

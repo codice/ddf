@@ -55,7 +55,7 @@
    initialize: function () {
      this.addResultForm(new ResultForm({
        name: 'Create New Data View',
-       type: 'newResult'
+       type: 'new-result'
      }))
      this.addResultForms()
    },
@@ -69,7 +69,6 @@
    }],
    addResultForms: function () {
     this.set('doneLoading',false)
-    this.set('added', false)
      if (!this.isDestroyed) {
       if (promiseIsResolved === true) {
         promiseIsResolved = false;
@@ -93,7 +92,7 @@
             this.resetResultForm()
             this.addResultForm(new ResultForm({
               name: 'Create New Data View',
-              type: 'newResult'
+              type: 'new-result'
             }))
             this.filteredList.forEach(element => {
               let utcSeconds = element.created / 1000

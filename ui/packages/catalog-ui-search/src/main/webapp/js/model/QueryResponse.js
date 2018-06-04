@@ -20,7 +20,7 @@ var Common = require('js/Common');
 require('backbone-associations');
 var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus');
 var QueryResultCollection = require('js/model/QueryResult.collection');
-var ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.js') : '';
+var ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.js') : {};
 
 let rpc = null
 

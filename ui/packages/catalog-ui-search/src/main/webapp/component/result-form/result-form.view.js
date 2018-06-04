@@ -43,18 +43,16 @@ module.exports = Marionette.LayoutView.extend({
     basicAttribute: '.basic-type',
     basicAttributeSpecific: '.basic-type-specific'
   },
-  ui: {},
   filter: undefined,
   onBeforeShow: function () {
     this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model
     this.setupTitleInput()
     this.setupDescription()
     this.setupAttributeSpecific()
-    this.turnOnLimitedWidth()
     this.edit()
   },
   setupAttributeSpecific: function () {
-    let currentValue = this.model.get('descriptors') !== '{}' || this.model.get('descriptors') !== '[]' ? this.model.get('descriptors') : []
+    let currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
     let excludedList = metacardDefinitions.getMetacardStartingTypes();
     this.basicAttributeSpecific.show(new PropertyView({
       model: new Property({
@@ -96,13 +94,6 @@ module.exports = Marionette.LayoutView.extend({
         placeholder: 'Result Form Description'
       })
     }))
-  },
-  turnOnLimitedWidth: function () {
-    this.regionManager.forEach(function (region) {
-      if (region.currentView && region.currentView.turnOnLimitedWidth) {
-        region.currentView.turnOnLimitedWidth()
-      }
-    })
   },
   edit: function () {
     this.$el.addClass('is-editing')
@@ -148,7 +139,6 @@ module.exports = Marionette.LayoutView.extend({
       data: JSON.stringify(templatePerms),
       context: this,
       success: function (data) {
-        this.message('Success!', 'Saved Result Form', 'success')
         ResultFormCollection.getResultCollection().filteredList = _.filter(ResultFormCollection.getResultCollection().filteredList, function(template) {
           return template.id !== templatePerms.id
         })

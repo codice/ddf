@@ -14,18 +14,16 @@
  **/
 /* global require */
 
-var template = require('./result-form-selector.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('js/CustomElements')
-var ResultFormsView = require('component/tabs/result-form/tabs.result-form.view')
+const template = require('./result-form-selector.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('js/CustomElements')
+const ResultFormsView = require('component/tabs/result-form/tabs.result-form.view')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-form-selector'),
   template: template,
   regions: {
-    tabsContent: {
-      selector: '.content'
-    }
+    tabsContent: '.content'
   },
   onRender: function () {
     this.tabsContent.show(new ResultFormsView({

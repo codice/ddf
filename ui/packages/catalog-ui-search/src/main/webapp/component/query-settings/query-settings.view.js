@@ -29,7 +29,7 @@ const SortItemCollectionView = require('component/sort/sort.view')
 const ScheduleQueryView = require('component/query-schedule/query-schedule.view')
 const Common = require('js/Common')
 const properties = require('properties')
-const ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form') : ''
+const ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form') : {}
 
 module.exports = Marionette.LayoutView.extend({
         template: template,
@@ -72,13 +72,10 @@ module.exports = Marionette.LayoutView.extend({
             }
         },
         renderResultForms: function(resultTemplates){
-            if(resultTemplates == undefined)
-            {
-                resultTemplates = [];
-            }
+            resultTemplates = resultTemplates ? resultTemplates : []
             resultTemplates.push({
                 label: 'All Fields',
-                value: 'All Fields',
+                value: 'allFields',
                 id: 'All Fields',
                 descriptors: [],
                 description: 'All Fields'
