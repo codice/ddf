@@ -11,11 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import static java.util.Collections.singletonList;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler.ACTIONS_KEY;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.ACTIONS_KEY;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedQueryMetacardsHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EmbeddedListMetacardsHandlerTest {
 
-  private EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler embeddedListMetacardsHandler;
+  private EmbeddedListMetacardsHandler embeddedListMetacardsHandler;
 
   @Mock private WorkspaceTransformer workspaceTransformer;
 
@@ -61,7 +60,7 @@ public class EmbeddedListMetacardsHandlerTest {
 
   @Before
   public void setup() throws MalformedURLException {
-    embeddedListMetacardsHandler = new EmbeddedQueryMetacardsHandler.EmbeddedListMetacardsHandler(actionRegistry);
+    embeddedListMetacardsHandler = new EmbeddedListMetacardsHandler(actionRegistry);
     final Action action = getMockAction();
     doReturn(singletonList(action)).when(actionRegistry).list(any());
   }

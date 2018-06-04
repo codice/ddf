@@ -13,29 +13,26 @@
  */
 package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.configuration.SystemBaseUrl;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toList;
+import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
-  @VisibleForTesting
-  static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
+  @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
 
   @VisibleForTesting static final String ACTIONS_KEY = "actions";
 
@@ -55,7 +52,8 @@ public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
     final List<Map<String, Object>> listActions = getListActions(workspaceMetacard);
 
     final Optional<List> listMetacardsOptional =
-        EmbeddedMetacardsHandler.super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
+        EmbeddedMetacardsHandler.super.metacardValueToJsonValue(
+            transformer, metacardXMLStrings, workspaceMetacard);
 
     listMetacardsOptional.ifPresent(
         listMetacards ->
