@@ -152,11 +152,11 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
   @Override
   public GeoEntry queryById(String id) throws GeoEntryQueryException {
     if (StringUtils.isBlank(id)) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("id cannot be blank or null");
     }
 
-    Filter textFilter = filterBuilder.attribute(Core.ID).is().text(id);
-    Filter queryFilter = filterBuilder.allOf(tagFilter, textFilter);
+    Filter idFilter = filterBuilder.attribute(Core.ID).is().text(id);
+    Filter queryFilter = filterBuilder.allOf(tagFilter, idFilter);
 
     QueryResponse queryResponse;
     try {

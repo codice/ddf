@@ -113,7 +113,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
 
   @Override
   public GeoEntry queryById(String id) throws GeoEntryQueryException {
-    LOGGER.debug("Suggestion query not implemented.");
+    LOGGER.debug("Query by ID not query not implemented.");
     return null;
   }
 
