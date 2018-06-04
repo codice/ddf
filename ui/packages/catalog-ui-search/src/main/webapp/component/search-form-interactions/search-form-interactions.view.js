@@ -141,7 +141,7 @@ module.exports =  Marionette.ItemView.extend({
             this.handleClick();
         },
         isSystemTemplate: function() {
-            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'system-template');
+            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'system');
         },
         handleEdit: function() {
             if(this.model.get('type') === 'custom')

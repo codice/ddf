@@ -70,9 +70,6 @@ module.exports = Marionette.LayoutView.extend({
             case 'advanced':
                 this.showAdvanced();
                 break;
-            case 'result':
-                this.showResult();
-                break;
             case 'custom':
                 this.showCustom();
                 break;

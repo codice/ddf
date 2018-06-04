@@ -36,7 +36,7 @@
         let newTemplates = data.filter(
             incomingTemplate => sharedTemplates.length === 0 || !_.any(sharedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id)
         );
-        //Replace updated templates in their corresponding indices (//TODO: Should this just be a backbone collection instead of an array?)
+        //Replace updated templates in their corresponding indices 
         _.each(updatedTemplates, 
             updatedTemplate => sharedTemplates[_.findIndex(sharedTemplates, (cachedTemplate) => cachedTemplate.id === updatedTemplate.id)] = updatedTemplate
         );
