@@ -134,7 +134,7 @@ module.exports = Backbone.AssociatedModel.extend({
     checkIfOwnerOrSystem: function(template) {
         let myEmail = user.get('user').get('email');
         let templateCreator = template.creator;
-        return myEmail === templateCreator || templateCreator === "System Template";
+        return myEmail === templateCreator || templateCreator === "system";
     },
     doneLoading: function() {
         this.set('doneLoading', true);
