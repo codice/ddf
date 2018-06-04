@@ -86,7 +86,7 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
    * of actions that can be executed on a list.
    */
   private List<Map<String, Object>> getListActions(Metacard workspaceMetacard) {
-    final String host = SystemBaseUrl.getBaseUrl();
+    final String host = SystemBaseUrl.EXTERNAL.getBaseUrl();
 
     return actionRegistry
         .list(workspaceMetacard)
