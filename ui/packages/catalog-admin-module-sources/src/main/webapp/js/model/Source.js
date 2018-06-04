@@ -163,7 +163,7 @@ define([
                 if (this.get('currentUrl') === undefined) {
                     return false;
                 }
-               return /.*(localhost|org.codice.ddf.external.hostname).*/.test(this.getCurrentUrl().toString());
+               return /.*(localhost|org.codice.ddf.system.hostname).*/.test(this.getCurrentUrl().toString());
             },
             updateCurrentBinding: function () {
               this.set('currentUrl', this.getCurrentUrl());

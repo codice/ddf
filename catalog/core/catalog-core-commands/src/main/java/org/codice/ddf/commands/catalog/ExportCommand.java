@@ -73,6 +73,7 @@ import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
@@ -247,7 +248,7 @@ public class ExportCommand extends CqlCommands {
       start = Instant.now();
       jarSigner.signJar(
           zipFile.getFile(),
-          System.getProperty("org.codice.ddf.external.hostname"),
+          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
           System.getProperty("javax.net.ssl.keyStorePassword"));

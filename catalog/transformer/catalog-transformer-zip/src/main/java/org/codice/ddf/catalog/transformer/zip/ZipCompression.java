@@ -51,6 +51,7 @@ import net.lingala.zip4j.model.ZipParameters;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +151,7 @@ public class ZipCompression implements QueryResponseTransformer {
       binaryContent = new BinaryContentImpl(fileInputStream);
       jarSigner.signJar(
           zipFile.getFile(),
-          System.getProperty("org.codice.ddf.external.hostname"),
+          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
           System.getProperty("javax.net.ssl.keyStorePassword"));
