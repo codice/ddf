@@ -16,7 +16,6 @@ package org.codice.ddf.catalog.ui.forms.model.pojo;
 import static org.apache.commons.lang.Validate.notEmpty;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Security;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;

@@ -14,12 +14,10 @@
 package org.codice.ddf.catalog.ui.forms.model.pojo;
 
 import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
-import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -62,8 +60,7 @@ public class CommonTemplate {
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
   }
 
-  public CommonTemplate(
-      Metacard metacard, Map<String, List<Serializable>> securityAttributes) {
+  public CommonTemplate(Metacard metacard, Map<String, List<Serializable>> securityAttributes) {
     this.id = safeGet(metacard, Core.ID, String.class);
     this.title = safeGet(metacard, Core.TITLE, String.class);
     this.description = safeGet(metacard, Core.DESCRIPTION, String.class);

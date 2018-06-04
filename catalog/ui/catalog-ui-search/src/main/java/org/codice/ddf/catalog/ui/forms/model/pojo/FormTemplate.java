@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.forms.model.pojo;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Security;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
