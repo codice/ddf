@@ -172,6 +172,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private static final String IDP_LOGIN = "/idp/login";
   private static final String IDP_LOGOUT = "/idp/logout";
   private static final String AUTHN_REQUEST_MUST_USE_TLS = "Authn Request must use TLS.";
+  private static final String COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG =
+      "Could not find entity service info for {}";
 
   /** Input factory */
   private static volatile XMLInputFactory xmlInputFactory;
@@ -401,7 +403,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     ServiceInfo entityServiceInfo =
         getServiceProvidersMap().get(entityId).getLogoutService(SamlProtocol.Binding.SOAP);
     if (entityServiceInfo == null) {
-      LOGGER.info("Could not find entity service info for {}", entityId);
+      LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
       return null;
     }
     if (entityServiceInfo.getBinding() != SamlProtocol.Binding.SOAP) {
@@ -1273,13 +1275,13 @@ public class IdpEndpoint implements Idp, SessionHandler {
             cookie, logoutState, logoutRequest, SamlProtocol.Binding.HTTP_POST, relayState);
       } else if (samlResponse != null) {
         LogoutResponse logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(samlResponse));
+            logoutMessage.extractSamlLogoutResponse(RestSecurity.base64Decode(samlResponse));
         String requestId = logoutState != null ? logoutState.getCurrentRequestId() : null;
         validatePost(request, logoutResponse, requestId);
         return handleLogoutResponse(
             cookie, logoutState, logoutResponse, SamlProtocol.Binding.HTTP_POST);
       }
-    } catch (IOException | XMLStreamException e) {
+    } catch (XMLStreamException e) {
       throw new IdpException("Unable to inflate Saml Object", e);
     } catch (ValidationException e) {
       throw new IdpException("Unable to validate Saml Object", e);
@@ -1355,7 +1357,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
     try {
       SignableSAMLObject logoutObject;
-      String relay = "";
+      String relay = null;
       String entityId = "";
       SamlProtocol.Type samlType;
       EntityInformation.ServiceInfo entityServiceInfo = null;
@@ -1372,10 +1374,20 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 logoutState.getNameId(),
                 SystemBaseUrl.constructUrl(IDP_LOGIN, true),
                 logoutState.getSessionIndexes());
+
+        entityServiceInfo =
+            getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
+
+        if (entityServiceInfo == null) {
+          LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
+          return continueLogout(logoutState, cookie, incomingBinding);
+        }
+
+        logoutRequest.setDestination(entityServiceInfo.getUrl());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
         samlType = SamlProtocol.Type.REQUEST;
-        relay = "";
+        relay = null;
       } else {
         // No more targets, respond to original issuer
         entityId = logoutState.getOriginalIssuer();
@@ -1390,13 +1402,12 @@ public class IdpEndpoint implements Idp, SessionHandler {
         entityServiceInfo =
             getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
 
-        ((LogoutResponse) logoutObject)
-            .setDestination(
-                getServiceProvidersMap()
-                    .get(entityId)
-                    .getLogoutService(entityServiceInfo.getBinding())
-                    .getUrl());
+        if (entityServiceInfo == null) {
+          LOGGER.info(COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG, entityId);
+          return continueLogout(logoutState, cookie, incomingBinding);
+        }
 
+        ((LogoutResponse) logoutObject).setDestination(entityServiceInfo.getUrl());
         relay = logoutState.getInitialRelayState();
         logoutStates.decode(cookie.getValue(), true);
         samlType = SamlProtocol.Type.RESPONSE;
@@ -1405,14 +1416,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       LOGGER.debug(
           "Responding to [{}] with a [{}] and relay state [{}]", entityId, samlType, relay);
 
-      if (entityServiceInfo == null) {
-        entityServiceInfo =
-            getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);
-      }
-      if (entityServiceInfo == null) {
-        LOGGER.info("Could not find entity service info for {}", entityId);
-        return continueLogout(logoutState, cookie, incomingBinding);
-      }
       switch (entityServiceInfo.getBinding()) {
         case HTTP_REDIRECT:
           return getSamlRedirectLogoutResponse(
