@@ -12,19 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window*/
+/* global require */
+const LightboxView = require('./../Lightbox.view')
 
- define([
-     'backbone',
-     './result-form.collection'
- ], function (Backbone, ResultFormCollection) {
-
-  let resultFormCollection = new ResultFormCollection();
-  return new (Backbone.Model.extend({
-      initialize: function () {
-      },
-      getResultCollection: function() {
-        return resultFormCollection;
-    }
-    }));
+module.exports = LightboxView.extend({
+  className: 'is-result-form'
 })

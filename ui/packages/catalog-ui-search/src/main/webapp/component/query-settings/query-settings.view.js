@@ -13,27 +13,25 @@
  *
  **/
 /*global define, setTimeout*/
-define([
-    'marionette',
-    'backbone',
-    'underscore',
-    'jquery',
-    './query-settings.hbs',
-    'js/CustomElements',
-    'js/store',
-    'component/dropdown/dropdown',
-    'component/dropdown/query-src/dropdown.query-src.view',
-    'component/property/property.view',
-    'component/property/property',
-    'component/singletons/user-instance',
-    'component/sort/sort.view',
-    'js/Common',
-    'component/result-form/result-form',
-    'plugins/query-settings'
-], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
-             QuerySrcView, PropertyView, Property, user, SortItemCollectionView, Common, ResultForm, plugin) {
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./query-settings.hbs')
+const CustomElements = require('js/CustomElements')
+const store = require('js/store')
+const DropdownModel = require('component/dropdown/dropdown')
+const QuerySrcView = require('component/dropdown/query-src/dropdown.query-src.view')
+const PropertyView = require('component/property/property.view')
+const Property = require('component/property/property')
+const user = require('component/singletons/user-instance')
+const SortItemCollectionView = require('component/sort/sort.view')
+const ScheduleQueryView = require('component/query-schedule/query-schedule.view')
+const Common = require('js/Common')
+const properties = require('properties')
+const ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form') : {}
 
-    return plugin(Marionette.LayoutView.extend({
+module.exports = Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-settings'),
         modelEvents: {},
@@ -55,26 +53,47 @@ define([
         initialize: function () {
             this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
             this.listenTo(this.model, 'change:sortField change:sortOrder change:src change:federation', Common.safeCallback(this.onBeforeShow));
+            if(properties.hasExperimentalEnabled())
+            {
+                this.resultFormCollection = ResultForm.getResultCollection();
+                this.listenTo(this.resultFormCollection, 'change:added', this.handleFormUpdate)
+            }
+        },
+        handleFormUpdate: function(newForm) {
+            this.renderResultForms(this.resultFormCollection.filteredList)
         },
         onBeforeShow: function () {
             this.setupSortFieldDropdown();
+            this.setupSrcDropdown();
             this.turnOnEditing();
-
-            let resultTemplates = ResultForm.getResultTemplatesProperties();
+            if(properties.hasExperimentalEnabled())
+            {
+                this.renderResultForms(this.resultFormCollection.filteredList)
+            }
+        },
+        renderResultForms: function(resultTemplates){
+            resultTemplates = resultTemplates ? resultTemplates : []
+            resultTemplates.push({
+                label: 'All Fields',
+                value: 'allFields',
+                id: 'All Fields',
+                descriptors: [],
+                description: 'All Fields'
+            });
+            resultTemplates =  _.uniq(resultTemplates, 'id');
             let lastIndex = resultTemplates.length - 1;
-            if (resultTemplates) {
                 let detailLevelProperty = new Property({
-                    label: 'Detail Level',
-                    enum: ResultForm.getResultTemplatesProperties(),
-                    value: [this.model.get('detail-level') || (resultTemplates && resultTemplates[lastIndex] && resultTemplates[lastIndex].value)],
-                    id: 'Detail Level'
+                label: 'Result Form',
+                enum: resultTemplates,
+                value: [this.model.get('detail-level') || (resultTemplates && resultTemplates[lastIndex] && resultTemplates[lastIndex].value)],
+                showValidationIssues: false,
+                id: 'Result Form'
                 });
                 this.listenTo(detailLevelProperty, 'change:value', this.handleChangeDetailLevel);
                 this.resultForm.show(new PropertyView({
                     model: detailLevelProperty
                 }));
                 this.resultForm.currentView.turnOnEditing();
-            }
 
             const extensions = this.getExtensions()
             if (extensions !== undefined) {
@@ -119,7 +138,7 @@ define([
         },
         turnOnEditing: function () {
             this.$el.addClass('is-editing');
-            this.regionManager.forEach(function (region) {
+            this.regionManager.forEach(function(region){
                 if (region.currentView && region.currentView.turnOnEditing) {
                     region.currentView.turnOnEditing();
                 }
@@ -167,5 +186,4 @@ define([
             store.setCurrentQuery(this.model);
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
-    }));
-});
+    });

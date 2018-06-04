@@ -30,6 +30,10 @@ const user = require('component/singletons/user-instance');
 const cql = require('js/cql');
 const announcement = require('component/announcement');
 const SearchFormModel = require('component/search-form/search-form.js');
+const properties = require('properties')
+const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
+const lightboxInstance = lightboxResultInstance.generateNewLightbox();
+const QueryResult = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.view') : {}
 
 
 module.exports = Marionette.LayoutView.extend({
@@ -69,6 +73,10 @@ module.exports = Marionette.LayoutView.extend({
             case 'custom':
                 this.showCustom();
                 break;
+            case 'new-result': //pass through case statement
+            case 'result':
+                this.showResult();
+                break;
         }
     },
     onBeforeShow: function () {
@@ -96,6 +104,17 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryBasic({
             model: this.model
         }));
+    },
+    showResult: function () {
+        if(properties.hasExperimentalEnabled())
+        {   
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+            lightboxInstance.model.updateTitle(this.model.get('resultTitle'));
+            lightboxInstance.model.open();
+            lightboxInstance.lightboxContent.show(new QueryResult({
+                    model: this.model,
+            }));
+        }
     },
     handleEditOnShow: function () {
         if (this.$el.hasClass('is-editing')) {

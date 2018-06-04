@@ -20,7 +20,7 @@ var Common = require('js/Common');
 require('backbone-associations');
 var QueryResponseSourceStatus = require('js/model/QueryResponseSourceStatus');
 var QueryResultCollection = require('js/model/QueryResult.collection');
-var ResultForm = require('component/result-form/result-form.js');
+var ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.js') : {};
 
 let rpc = null
 
@@ -176,7 +176,7 @@ module.exports = Backbone.AssociatedModel.extend({
         metacardDefinitions.addMetacardDefinitions(resp.types);
         if (resp.results) {
             var queryId = this.getQueryId();
-            var selectedResultTemplate = ResultForm.getResultTemplatesProperties().filter(form => form.id === this.get('selectedResultTemplate'))[0];
+            var selectedResultTemplate = properties.hasExperimentalEnabled() ? ResultForm.getResultCollection().filteredList.filter(form => (form.id === this.get('selectedResultTemplate' ) || form.value === this.get('selectedResultTemplate') ))[0] : '';
             var color = this.getColor();
             _.forEach(resp.results, function (result) {
                 result.propertyTypes = resp.types[result.metacard.properties['metacard-type']];

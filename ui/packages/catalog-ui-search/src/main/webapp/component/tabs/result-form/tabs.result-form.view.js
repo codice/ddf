@@ -12,19 +12,24 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window*/
+ /* global require */
+ var TabsView = require('../tabs.view')
+ var ResultFormModel = require('./tabs.result-form')
+ var store = require('js/store')
 
- define([
-     'backbone',
-     './result-form.collection'
- ], function (Backbone, ResultFormCollection) {
-
-  let resultFormCollection = new ResultFormCollection();
-  return new (Backbone.Model.extend({
-      initialize: function () {
-      },
-      getResultCollection: function() {
-        return resultFormCollection;
-    }
-    }));
-})
+ module.exports = TabsView.extend({
+   selectionInterface: store,
+   setDefaultModel: function () {
+     this.model = new ResultFormModel()
+   },
+   initialize: function () {
+     this.setDefaultModel()
+     TabsView.prototype.initialize.call(this)
+   },
+   determineContent: function () {
+     var ActiveTab = this.model.getActiveView()
+     this.tabsContent.show(new ActiveTab({
+       model: this.options.model
+     }))
+   }
+ })

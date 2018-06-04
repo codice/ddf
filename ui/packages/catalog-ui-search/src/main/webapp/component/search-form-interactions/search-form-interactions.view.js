@@ -45,6 +45,7 @@ module.exports =  Marionette.ItemView.extend({
         onRender: function() {
             this.checkIfSubscribed();
             this.checkIfDefaultSearchForm();
+            this.checkIfResultForm();
             this.isSystemTemplate();
         },
         checkIfSubscribed: function() {
@@ -94,6 +95,9 @@ module.exports =  Marionette.ItemView.extend({
             }
             this.trigger("doneLoading");
         },
+        checkIfResultForm() {
+            this.$el.toggleClass('is-result-form-template', this.model.get('type') === 'result');
+        },
         handleMakeDefault: function() {
             user.getQuerySettings().set({
                 type: 'custom',
@@ -138,19 +142,35 @@ module.exports =  Marionette.ItemView.extend({
                     'accessGroups': this.model.get('accessGroups')
                 }
             }));
+            this.handleClick();
         },
         isSystemTemplate: function() {
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
         },
         handleEdit: function() {
-            this.model.set({
-                type: 'new-form',
-                title: this.model.get('name'),
-                filterTree: this.model.get('filterTemplate'),
-                id: this.model.get('id'),
-                accessGroups: this.model.get('accessGroups'),
-                accessIndividuals: this.model.get('accessIndividuals')
-            });
+            if(this.model.get('type') === 'custom')
+            {
+                this.model.set({
+                    type: 'new-form',
+                    title: this.model.get('name'),
+                    filterTree: this.model.get('filterTemplate'),
+                    id: this.model.get('id'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals')
+                });
+            }
+            else if(this.model.get('type') === 'result')
+            {
+                this.model.set({
+                    type: 'result',
+                    title: this.model.get('name'),
+                    formId: this.model.get('id'),
+                    accessGroups: this.model.get('accessGroups'),
+                    accessIndividuals: this.model.get('accessIndividuals'),
+                    descriptors: this.model.get('descriptors'),
+                    description: this.model.get('description')
+                });
+            }
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
             this.model.trigger('change:type');
         },

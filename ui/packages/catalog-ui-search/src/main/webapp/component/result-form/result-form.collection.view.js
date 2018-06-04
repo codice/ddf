@@ -12,19 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window*/
+ /* global require */
+ const Marionette = require('marionette')
+ const ResultFormView = require('component/result-form/result-forms.view')
+ const CustomElements = require('js/CustomElements')
 
- define([
-     'backbone',
-     './result-form.collection'
- ], function (Backbone, ResultFormCollection) {
-
-  let resultFormCollection = new ResultFormCollection();
-  return new (Backbone.Model.extend({
-      initialize: function () {
-      },
-      getResultCollection: function() {
-        return resultFormCollection;
-    }
-    }));
-})
+ module.exports = Marionette.CollectionView.extend({
+   childView: ResultFormView,
+   className: 'is-list is-inline has-list-highlighting',
+   tagName: CustomElements.register('result-forms'),
+   childViewOptions: function () {
+     return {
+       queryModel: this.options.queryModel,
+       collectionWrapperModel: this.options.collectionWrapperModel
+     }
+   }
+ })

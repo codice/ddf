@@ -36,7 +36,7 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(this.model, 'change:type', this.changeView);
     },
     onRender: function() {
-        if (this.model.get('type') === 'basic' || this.model.get('type') === 'text' || this.model.get('type') === 'new-form') {
+        if (this.model.get('type') === 'basic' || this.model.get('type') === 'text' || this.model.get('type') === 'new-form' || this.model.get('type') === 'new-result') {
             this.$el.addClass('is-static');
         }
         else if (properties.hasExperimentalEnabled()) {
