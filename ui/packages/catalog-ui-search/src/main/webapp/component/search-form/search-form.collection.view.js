@@ -29,7 +29,7 @@ const CustomElements = require('js/CustomElements');
     childViewOptions: function() {
         return {
             queryModel: this.options.queryModel,
-            sharingLightboxTitle: 'Query Form Sharing',
+            sharingLightboxTitle: 'Search Form Sharing',
             collectionWrapperModel: this.options.collectionWrapperModel
         };
     }

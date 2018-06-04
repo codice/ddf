@@ -53,12 +53,10 @@ public class FormTemplate extends CommonTemplate {
       Map<String, List<Serializable>> securityAttributes,
       String creator,
       Map<String, Object> querySettings) {
-    super(metacard);
+    super(metacard, securityAttributes);
     this.root = root;
     this.creator = creator;
     this.querySettings = querySettings;
-    this.accessIndividuals = securityAttributes.get(Security.ACCESS_INDIVIDUALS);
-    this.accessGroups = securityAttributes.get(Security.ACCESS_GROUPS);
   }
 
   public FilterNode getRoot() {

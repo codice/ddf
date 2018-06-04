@@ -32,7 +32,7 @@
      childViewOptions: function() {
         return {
             queryModel: this.options.model,
-            sharingLightboxTitle: 'Query Form Sharing'
+            sharingLightboxTitle: 'Search Form Sharing'
         };
      },
  });

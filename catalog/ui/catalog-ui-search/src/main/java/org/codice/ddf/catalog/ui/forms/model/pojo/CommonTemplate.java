@@ -14,10 +14,15 @@
 package org.codice.ddf.catalog.ui.forms.model.pojo;
 
 import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGet;
+import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
+
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +48,10 @@ public class CommonTemplate {
 
   private final String owner;
 
+  private List<Serializable> accessGroups;
+
+  private List<Serializable> accessIndividuals;
+
   public CommonTemplate(Metacard metacard) {
     this.id = safeGet(metacard, Core.ID, String.class);
     this.title = safeGet(metacard, Core.TITLE, String.class);
@@ -51,6 +60,20 @@ public class CommonTemplate {
     this.created = safeGet(metacard, Core.CREATED, Date.class);
     this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
+  }
+
+  public CommonTemplate(
+      Metacard metacard, Map<String, List<Serializable>> securityAttributes) {
+    this.id = safeGet(metacard, Core.ID, String.class);
+    this.title = safeGet(metacard, Core.TITLE, String.class);
+    this.description = safeGet(metacard, Core.DESCRIPTION, String.class);
+
+    this.created = safeGet(metacard, Core.CREATED, Date.class);
+    this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
+    this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
+
+    this.accessIndividuals = securityAttributes.get(Security.ACCESS_INDIVIDUALS);
+    this.accessGroups = securityAttributes.get(Security.ACCESS_GROUPS);
   }
 
   public CommonTemplate(Map<String, Object> input) {
@@ -87,5 +110,13 @@ public class CommonTemplate {
 
   public String getOwner() {
     return owner;
+  }
+
+  public List<Serializable> getAccessGroups() {
+    return accessGroups;
+  }
+
+  public List<Serializable> getAccessIndividuals() {
+    return accessIndividuals;
   }
 }

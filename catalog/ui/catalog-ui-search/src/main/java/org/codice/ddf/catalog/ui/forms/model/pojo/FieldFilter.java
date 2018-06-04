@@ -41,23 +41,15 @@ public class FieldFilter extends CommonTemplate {
   @JsonProperty("creator")
   private String creator;
 
-  @JsonProperty("accessIndividuals")
-  private List<Serializable> accessIndividuals;
-
-  @JsonProperty("accessGroups")
-  private List<Serializable> accessGroups;
-
   public FieldFilter(
       Metacard metacard,
       Set<String> descriptors,
       String creator,
       Map<String, List<Serializable>> securityAttributes) {
-    super(metacard);
+    super(metacard, securityAttributes);
     notEmpty(descriptors);
     this.descriptors = descriptors;
     this.creator = creator;
-    this.accessIndividuals = securityAttributes.get(Security.ACCESS_INDIVIDUALS);
-    this.accessGroups = securityAttributes.get(Security.ACCESS_GROUPS);
   }
 
   @SuppressWarnings("unchecked")
