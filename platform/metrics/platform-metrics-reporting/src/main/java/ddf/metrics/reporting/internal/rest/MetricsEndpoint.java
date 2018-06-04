@@ -121,7 +121,7 @@ public class MetricsEndpoint {
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-  private final String defaultedToEndtime = "Defaulted endTime to {}";
+  private static final String DEFAULTED_TO_ENDTIME = "Defaulted endTime to {}";
 
   private String metricsDir = DEFAULT_METRICS_DIR;
 
@@ -200,7 +200,7 @@ public class MetricsEndpoint {
       // Default end time for metrics graphing to now (in seconds)
       Calendar now = getCalendar();
       endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-      LOGGER.trace(defaultedToEndtime, endTime);
+      LOGGER.trace(DEFAULTED_TO_ENDTIME, endTime);
 
       // Set endDate to new calculated endTime (so that endDate is displayed properly
       // in graph's title)
@@ -429,7 +429,7 @@ public class MetricsEndpoint {
       // Default end time for metrics graphing to now (in seconds)
       Calendar now = getCalendar();
       endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-      LOGGER.debug(defaultedToEndtime, endTime);
+      LOGGER.debug(DEFAULTED_TO_ENDTIME, endTime);
 
       // Set endDate to new calculated endTime (so that endDate is displayed properly
       // in graph's title)
@@ -557,7 +557,7 @@ public class MetricsEndpoint {
     // 12 hours, 1 day, 3 days, 1 week, 1 month, and 1 year
     Calendar cal = getCalendar();
     long endTime = cal.getTimeInMillis() / 1000;
-    LOGGER.trace(defaultedToEndtime, endTime);
+    LOGGER.trace(DEFAULTED_TO_ENDTIME, endTime);
 
     String[] supportedFormats = new String[] {"png", "csv", "xls"};
 

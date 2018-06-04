@@ -106,9 +106,9 @@ public class ExportCommand extends CqlCommands {
 
   private static final int PAGE_SIZE = 64;
 
-  private final String deletedMetacard = "deleted";
+  private static final String DELETED_METACARD = "deleted";
 
-  private final String revisionMetacard = "revision";
+  private static final String REVISION_METACARD = "revision";
 
   private MetacardTransformer transformer;
 
@@ -344,11 +344,11 @@ public class ExportCommand extends CqlCommands {
             .filter(ei -> ei.getResourceUri().getScheme() != null)
             .filter(ei -> ei.getResourceUri().getScheme().startsWith(ContentItem.CONTENT_SCHEME))
             // Deleted Metacards have no content associated
-            .filter(ei -> !ei.getMetacardTag().equals(deletedMetacard))
+            .filter(ei -> !ei.getMetacardTag().equals(DELETED_METACARD))
             // for revision metacards, only those that have their own content
             .filter(
                 ei ->
-                    !ei.getMetacardTag().equals(revisionMetacard)
+                    !ei.getMetacardTag().equals(REVISION_METACARD)
                         || ei.getResourceUri().getSchemeSpecificPart().equals(ei.getId()))
             .filter(distinctByKey(ei -> ei.getResourceUri().getSchemeSpecificPart()))
             .collect(Collectors.toList());
@@ -368,7 +368,7 @@ public class ExportCommand extends CqlCommands {
       }
       writeToZip(zipFile, contentItem, resource);
       exportedContentItems.add(contentItem);
-      if (!contentItem.getMetacardTag().equals(revisionMetacard)) {
+      if (!contentItem.getMetacardTag().equals(REVISION_METACARD)) {
         for (String derivedUri : contentItem.getDerivedUris()) {
           URI uri;
           try {
@@ -524,17 +524,17 @@ public class ExportCommand extends CqlCommands {
 
   private String getTag(Result r) {
     Set<String> tags = r.getMetacard().getTags();
-    if (tags.contains(deletedMetacard)) {
-      return deletedMetacard;
-    } else if (tags.contains(revisionMetacard)) {
-      return revisionMetacard;
+    if (tags.contains(DELETED_METACARD)) {
+      return DELETED_METACARD;
+    } else if (tags.contains(REVISION_METACARD)) {
+      return REVISION_METACARD;
     } else {
       return "nonhistory";
     }
   }
 
   private Filter initRevisionFilter() {
-    return filterBuilder.attribute(Metacard.TAGS).is().like().text(revisionMetacard);
+    return filterBuilder.attribute(Metacard.TAGS).is().like().text(REVISION_METACARD);
   }
 
   private Filter getHistoryFilter(Result result) {
@@ -561,7 +561,7 @@ public class ExportCommand extends CqlCommands {
     if (archived) {
       filter =
           filterBuilder.allOf(
-              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(deletedMetacard));
+              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(DELETED_METACARD));
     }
     return filter;
   }
