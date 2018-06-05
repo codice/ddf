@@ -14,10 +14,12 @@
 package org.codice.ddf.opensearch.source
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class BoundingBoxUtilsSpec extends Specification {
 
-    def 'create BBox from point radius'(double lon, double lat, double expectedWest, double expectedSouth, double expectedEast, double expectedNorth) {
+    @Unroll
+    def 'create BBox from point radius (#lon, #lat)'(double lon, double lat, double expectedWest, double expectedSouth, double expectedEast, double expectedNorth) {
         given:
         final double searchRadiusInMeters = 804672 // 500 miles
 

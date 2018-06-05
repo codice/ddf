@@ -14,6 +14,8 @@
 package org.codice.ddf.opensearch.endpoint.query;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
+import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.opensearch.endpoint.query.filter.BBoxSpatialFilter;
 import org.codice.ddf.opensearch.endpoint.query.filter.PolygonSpatialFilter;
 import org.geotools.filter.AndImpl;
@@ -59,6 +62,7 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.spatial.DWithin;
 import org.opengis.filter.spatial.Intersects;
 import org.opengis.geometry.Geometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -79,7 +83,36 @@ public class OpenSearchQueryTest {
   private static final String POLYGON_WKT =
       "POLYGON ((-120.032 30.943, -120.032 35.039, -110.856 35.039, -110.856 30.943, -120.032 30.943))";
 
+  private static final String POLYGON_WKT_2 =
+      "POLYGON ((100 -30, 100 -35, 110 -35, 110 -30, 100 -30))";
+
   private static final String POINT_WKT = "POINT (117.3425 33.9283)";
+
+  private static final DWithin D_WITHIN_FILTER =
+      (DWithin)
+          FILTER_BUILDER
+              .attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM)
+              .is()
+              .withinBuffer()
+              .wkt(POINT_WKT, 5);
+  private static final Intersects INTERSECTS_FILTER =
+      (Intersects)
+          FILTER_BUILDER
+              .attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM)
+              .intersecting()
+              .wkt(POLYGON_WKT);
+  private static final Intersects INTERSECTS_FILTER_2 =
+      (Intersects)
+          FILTER_BUILDER
+              .attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM)
+              .intersecting()
+              .wkt(POLYGON_WKT_2);
+  private static final Intersects GEOMETRY_COLLECTION =
+      (Intersects)
+          FILTER_BUILDER
+              .attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM)
+              .intersecting()
+              .wkt(GEOMETRY_WKT);
 
   private static final WKTWriter WKT_WRITER = new WKTWriter();
 
@@ -708,8 +741,7 @@ public class OpenSearchQueryTest {
         "30.943,-120.032,35.039,-120.032,35.039,-110.856,30.943,-110.856,30.943,-120.032");
     query.addBBoxSpatialFilter("-120.032,30.943,-110.856,35.039");
     query.addPointRadiusSpatialFilter("117.3425", "33.9283", "5000");
-    query.addPolygonSpatialFilter(
-        "30.943,-120.032,35.039,-120.032,35.039,-110.856,30.943,-110.856,30.943,-120.032");
+    query.addPolygonSpatialFilter("-30,100,-35,100,-35,110,-30,110,-30,100");
 
     Filter filter = query.getFilter();
     assertThat(filter, notNullValue());
@@ -718,6 +750,14 @@ public class OpenSearchQueryTest {
     AndImpl topFilter = (AndImpl) filter;
     List<Filter> spatialFilters = topFilter.getChildren();
     assertThat(spatialFilters.size(), is(5));
+    assertThat(
+        spatialFilters,
+        containsInAnyOrder(
+            D_WITHIN_FILTER,
+            INTERSECTS_FILTER,
+            INTERSECTS_FILTER,
+            INTERSECTS_FILTER_2,
+            GEOMETRY_COLLECTION));
 
     for (Filter spatialFilter : spatialFilters) {
       if (spatialFilter instanceof DWithinImpl) {
@@ -736,7 +776,7 @@ public class OpenSearchQueryTest {
         if (geometryExpression instanceof SurfaceImpl) {
           SurfaceImpl surface = (SurfaceImpl) literal.getValue();
           String wkt = WKT_WRITER.write(surface.getJTSGeometry());
-          assertThat(wkt, is(POLYGON_WKT));
+          assertThat(wkt, anyOf(is(POLYGON_WKT), is(POLYGON_WKT_2)));
         } else if (geometryExpression instanceof GeometryImpl) {
           com.vividsolutions.jts.geom.Geometry polygon =
               ((GeometryImpl) geometryExpression).getJTSGeometry();

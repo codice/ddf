@@ -63,7 +63,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -987,36 +986,17 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private final Polygon polygon;
     private final PointRadius pointRadius;
 
-    public SpatialSearch(Geometry geometry) {
-      this.geometry = geometry;
-      boundingBox = null;
-      polygon = null;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(BoundingBox boundingBox) {
-      geometry = null;
-      this.boundingBox = boundingBox;
-      polygon = null;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(Polygon polygon) {
-      geometry = null;
-      boundingBox = null;
-      this.polygon = polygon;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(PointRadius pointRadius) {
-      geometry = null;
-      boundingBox = null;
-      polygon = null;
-      this.pointRadius = pointRadius;
-    }
-
     public SpatialSearch(
-        Geometry geometry, BoundingBox boundingBox, Polygon polygon, PointRadius pointRadius) {
+        @Nullable Geometry geometry,
+        @Nullable BoundingBox boundingBox,
+        @Nullable Polygon polygon,
+        @Nullable PointRadius pointRadius) {
+
+      if (geometry == null && boundingBox == null && polygon == null && pointRadius == null) {
+        throw new IllegalArgumentException(
+            "All spatial criteria are null. Unable to create a spatial search");
+      }
+
       this.geometry = geometry;
       this.boundingBox = boundingBox;
       this.polygon = polygon;
@@ -1045,13 +1025,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   /**
-   * Method to combine spatial searches into either a polygon or a point-radius search. OpenSearch
-   * endpoints will ignore multiple spatial query parameters. This method has been refactored out
-   * and is protected so that downstream projects may try to implement another algorithm (e.g.
-   * best-effort) to combine searches.
+   * Method to combine spatial searches into either geometry collection or a bounding box.
+   * OpenSearch endpoints and the query framework allow for multiple spatial query parameters. This
+   * method has been refactored out and is protected so that downstream projects may try to
+   * implement another algorithm (e.g. best-effort) to combine searches.
    *
-   * @return null if the searches cannot be combined, or a {@linkSpatialSearch} with one search that
-   *     is the combination of all of the spatial criteria
+   * @return null if there is no search specified, or a {@linkSpatialSearch} with one search that is
+   *     the combination of all of the spatial criteria
    */
   @Nullable
   protected SpatialSearch createCombinedSpatialSearch(
@@ -1061,34 +1041,59 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     PointRadius pointRadius = null;
     SpatialSearch spatialSearch = null;
 
-    Queue<Geometry> combinedGeometrySearches = new LinkedList<>(geometrySearches);
+    Set<Geometry> combinedGeometrySearches = new HashSet<>(geometrySearches);
 
     if (CollectionUtils.isNotEmpty(pointRadiusSearches)) {
-      if (shouldConvertToBBox || pointRadiusSearches.size() > 1) {
-        // convert all pointRadiusSearch into a polygon
+      /**
+       * if there is only one point radius search, and it is not to be converted to bounding box,
+       * retain this point radius search as point radius search
+       */
+      if (!shouldConvertToBBox && pointRadiusSearches.size() == 1) {
+        pointRadius = pointRadiusSearches.remove();
+      } else {
+        /**
+         * There is multiple point radius or in need to convert to bounding box Convert all
+         * pointRadiusSearch into an (rough approximation) polygon (square) using Vincenty's formula
+         * (direct) and the WGS-84 approximation of the Earth Collect all these polygon to a
+         * collection for later processing *
+         */
         for (PointRadius search : pointRadiusSearches) {
+          /**
+           * first convert to a bounding box approximation, extract the coordinates and build a
+           * geometry polygon
+           */
           BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
-          List bboxCoordinate = BoundingBoxUtils.getPrimativeCoordinates(bbox);
+          List bboxCoordinate = BoundingBoxUtils.getBoundingBoxCoordinatesList(bbox);
           List<List> coordinates = new ArrayList<>();
           coordinates.add(bboxCoordinate);
           combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
+          LOGGER.debug(
+              "Point radius searches are converts it to a (rough approximation) square using Vincenty's formula (direct)");
         }
-      } else {
-        pointRadius = pointRadiusSearches.remove();
       }
     }
 
     if (CollectionUtils.isNotEmpty(combinedGeometrySearches)) {
-      if (combinedGeometrySearches.size() == 1) {
-        geometrySearch = combinedGeometrySearches.remove();
-      } else {
+      // if there is more than one geometry, create a geometry collection
+      if (combinedGeometrySearches.size() > 1) {
         geometrySearch =
             GEOMETRY_FACTORY.createGeometryCollection(
                 combinedGeometrySearches.toArray(new Geometry[0]));
+      } else {
+        geometrySearch = combinedGeometrySearches.iterator().next();
       }
 
+      /**
+       * If convert to bounding box is enabled, extracts the approximate envelope. In the case of
+       * multiple geometry, a large approximate envelope encompassing all of the geometry is
+       * returned. Area between the geometries are also included in this spatial search. Hence widen
+       * the search area.
+       */
       if (shouldConvertToBBox) {
-        // extra geometry collection envelop and convert to a boundingBox
+        if (combinedGeometrySearches.size() > 1) {
+          LOGGER.debug(
+              "An approximate envelope encompassing all the geometry is returned. Area between the geometries are also included in this spatial search. Hence widen the search area.");
+        }
         boundingBox = BoundingBoxUtils.createBoundingBox((Polygon) geometrySearch.getEnvelope());
         geometrySearch = null;
       }

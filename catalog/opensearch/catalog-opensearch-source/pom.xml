@@ -111,6 +111,7 @@
       <dependency>
         <groupId>ddf.catalog.common</groupId>
         <artifactId>geo-formatter</artifactId>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
     <build>

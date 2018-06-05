@@ -73,6 +73,7 @@
                     <value>lon</value>
                     <value>radius</value>
                     <value>bbox</value>
+                    <value>geometry</value>
                     <value>polygon</value>
                     <value>dtstart</value>
                     <value>dtend</value>

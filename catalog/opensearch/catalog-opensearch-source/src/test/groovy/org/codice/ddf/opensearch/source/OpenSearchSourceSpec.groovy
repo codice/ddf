@@ -39,6 +39,7 @@ import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.ws.rs.core.Response
 import java.nio.charset.StandardCharsets
@@ -111,7 +112,8 @@ class OpenSearchSourceSpec extends Specification {
         queryRequestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject)
     }
 
-    def testQueries(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
+    @Unroll
+    def 'testQueries #filter'(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
         given:
         final Map<String, Object> webClientQueryParameters = [:]
 
@@ -170,7 +172,7 @@ class OpenSearchSourceSpec extends Specification {
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["GEOMETRYCOLLECTION (POLYGON ((0.9999550570408705 1.999954933135129, 1.0000449429591296 1.999954933135129, 1.0000449429591296 2.000045066864871, 0.9999550570408705 2.000045066864871, 0.9999550570408705 1.999954933135129)), POLYGON ((-7.228491563030235 -7.25280885791844, 7.228491563030235 -7.25280885791844, 7.228491563030235 7.25280885791844, -7.228491563030235 7.25280885791844, -7.228491563030235 -7.25280885791844)))"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2))"], lat:["2.0"], lon:["1.0"], radius:["5.0"], src: [""]],
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], dtstart: ["1970-01-01T00:00:10.000Z"], dtend: ["1970-01-01T00:00:10.005Z"], geometry:["GEOMETRYCOLLECTION (POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2)), POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1)))"], src: [""]],
-                [start: ["1"], count: ["20"], mt: ["0"], geometry:["GEOMETRYCOLLECTION (GEOMETRYCOLLECTION (POINT (4 6), LINESTRING (4 6, 7 10)), POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1)), POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2)))"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
+                [start: ["1"], count: ["20"], mt: ["0"], geometry:["GEOMETRYCOLLECTION (POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1)), POLYGON ((10.2 10.2, 10.2 20.2, 20.2 20.2, 20.2 10.2, 10.2 10.2)), GEOMETRYCOLLECTION (POINT (4 6), LINESTRING (4 6, 7 10)))"], lat: ["2.0"], lon: ["1.0"], radius: ["5.0"], src: [""]],
 
                 /*not supported filters and supported filters*/
                 [start: ["1"], count: ["20"], mt: ["0"], q: ["someSearchPhrase"], src: [""]],
@@ -180,7 +182,8 @@ class OpenSearchSourceSpec extends Specification {
         ]
     }
 
-    def testBboxSpatialQueries(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
+    @Unroll
+    def 'testBboxSpatialQueries #filter'(Filter filter, Map<String, Object> expectedQueryParameters) throws UnsupportedQueryException {
         given:
         final Map<String, Object> webClientQueryParameters = [:]
 
@@ -229,7 +232,8 @@ class OpenSearchSourceSpec extends Specification {
         ]
     }
 
-    def testUnsupportedQuery(Filter filter) {
+    @Unroll
+    def 'testUnsupportedQuery #filter'(Filter filter) {
         given:
         final QueryRequestImpl queryRequest = new QueryRequestImpl(new QueryImpl(filter), queryRequestProperties)
 

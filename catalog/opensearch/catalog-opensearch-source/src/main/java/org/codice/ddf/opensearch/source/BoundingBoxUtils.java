@@ -193,13 +193,13 @@ public final class BoundingBoxUtils {
   }
 
   /**
-   * Takes in a {@link BoundingBox} and extract the coordinates in a counter clockwise matter with
+   * Takes in a {@link BoundingBox} and extracts the coordinates in a counter clockwise matter with
    * first and last coordinate being the same point
    *
    * @param boundingBox
    * @return
    */
-  public static List<List> getPrimativeCoordinates(BoundingBox boundingBox) {
+  public static List<List> getBoundingBoxCoordinatesList(BoundingBox boundingBox) {
     List<List> coordinates = new ArrayList<>();
     List coordinate = new ArrayList<>();
     coordinate.add(boundingBox.getWest());
