@@ -304,8 +304,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private void lookupMetacardType(WfsMetadata metadata) {
     Optional<MetacardType> optionalMetacardType =
-        metacardTypeRegistry.lookupMetacardTypeBySimpleName(
-            metadata.getId(), featureTypeQName.getLocalPart());
+        metacardTypeRegistry.lookupMetacardType(metadata.getId());
     if (optionalMetacardType.isPresent()) {
       metacardType = optionalMetacardType.get();
     } else {

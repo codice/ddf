@@ -22,7 +22,7 @@
 
     <cm:managed-service-factory id="handlebarsFeatureTransformer"
                                 factory-pid="Wfs_Templated_Mapping"
-                                interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="39">
+                                interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="14">
 
         <cm:managed-component
                 class="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars.HandlebarsWfsFeatureTransformer">

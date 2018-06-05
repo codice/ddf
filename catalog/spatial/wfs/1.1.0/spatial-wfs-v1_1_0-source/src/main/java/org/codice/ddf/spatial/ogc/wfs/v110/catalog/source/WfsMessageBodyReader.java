@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WfsMessageBodyReader implements MessageBodyReader<WfsFeatureCollection> {
-  private WfsMetadata<FeatureTypeType> wfsMetadata;
+  private Supplier<WfsMetadata<FeatureTypeType>> wfsMetadataSupplier;
 
   private FeatureTransformationService featureTransformationService;
 
@@ -37,9 +38,9 @@ public class WfsMessageBodyReader implements MessageBodyReader<WfsFeatureCollect
 
   public WfsMessageBodyReader(
       FeatureTransformationService featureTransformationService,
-      WfsMetadata<FeatureTypeType> wfsMetadata) {
+      Supplier<WfsMetadata<FeatureTypeType>> wfsMetadataSupplier) {
     this.featureTransformationService = featureTransformationService;
-    this.wfsMetadata = wfsMetadata;
+    this.wfsMetadataSupplier = wfsMetadataSupplier;
   }
 
   @Override
@@ -62,7 +63,8 @@ public class WfsMessageBodyReader implements MessageBodyReader<WfsFeatureCollect
       MultivaluedMap<String, String> multivaluedMap,
       InputStream inputStream) {
 
-    List<Metacard> featureMembers = featureTransformationService.apply(inputStream, wfsMetadata);
+    List<Metacard> featureMembers =
+        featureTransformationService.apply(inputStream, wfsMetadataSupplier.get());
 
     WfsFeatureCollection result = new WfsFeatureCollection();
     result.setFeatureMembers(featureMembers);

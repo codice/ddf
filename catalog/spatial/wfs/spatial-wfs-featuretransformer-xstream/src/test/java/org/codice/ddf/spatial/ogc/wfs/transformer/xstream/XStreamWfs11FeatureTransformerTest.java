@@ -108,8 +108,7 @@ public class XStreamWfs11FeatureTransformerTest {
             Wfs11Constants.GML_3_1_1_NAMESPACE,
             FeatureMetacardType.DEFAULT_METACARD_TYPE_ENHANCER);
 
-    when(metacardTypeRegistry.lookupMetacardTypeBySimpleName(
-            SOURCE_ID, PETER_PAN_NAME.getLocalPart()))
+    when(metacardTypeRegistry.lookupMetacardType(SOURCE_ID))
         .thenReturn(Optional.of(featureMetacardType));
 
     return metacardTypeRegistry;

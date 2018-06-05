@@ -51,9 +51,9 @@ public abstract class XStreamWfsFeatureTransformer<T> implements FeatureTransfor
   private List<QName> featureTypeQNameList;
 
   public XStreamWfsFeatureTransformer() {
-    this.featureTypeQNameList = new ArrayList<QName>();
+    this.featureTypeQNameList = new ArrayList<>();
     xStream = new XStream(new WstxDriver());
-    xStream.alias("featureMember", Metacard.class);
+    xStream.alias("roads", Metacard.class);
     xStream.addPermission(NoTypePermission.NONE);
     xStream.allowTypeHierarchy(Metacard.class);
     xStream.setClassLoader(this.getClass().getClassLoader());
@@ -76,6 +76,7 @@ public abstract class XStreamWfsFeatureTransformer<T> implements FeatureTransfor
       metacard = (Metacard) xStream.fromXML(document);
     } catch (XStreamException e) {
       LOGGER.trace("Failed to parse FeatureMember into Metacard", e);
+      LOGGER.error("failed to parse", e);
     }
 
     return Optional.ofNullable(metacard);

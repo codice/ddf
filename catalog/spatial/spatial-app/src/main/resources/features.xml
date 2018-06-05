@@ -43,10 +43,10 @@
     <feature name="spatial-wfs-ogc" version="${project.version}"
              description="Web Feature Service (WFS). OGC ">
         <feature>spatial-common-ogc</feature>
-        <bundle>wrap:mvn:org.jvnet.ogc/gml-v_3_1_1/2.6.1$Bundle-Name=gml-v_3_1_1&amp;Bundle-SymbolicName=gml-v_3_1_1&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/ows-v_1_0_0/2.6.1$Bundle-Name=ows-v_1_0_0&amp;Bundle-SymbolicName=ows-v_1_0_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/filter-v_1_1_0/2.6.1$Bundle-Name=filter-v_1_1_0&amp;Bundle-SymbolicName=filter-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/wfs-v_1_1_0/2.6.1$Bundle-Name=wfs-v_1_1_0&amp;Bundle-SymbolicName=wfs-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/gml-v_3_1_1/2.6.1$Bundle-Name=gml-v_3_1_1&amp;Bundle-SymbolicName=gml-v_3_1_1&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[2.6.1,2.6.1]",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/ows-v_1_0_0/2.6.1$Bundle-Name=ows-v_1_0_0&amp;Bundle-SymbolicName=ows-v_1_0_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[2.6.1,2.6.1]",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/filter-v_1_1_0/2.6.1$Bundle-Name=filter-v_1_1_0&amp;Bundle-SymbolicName=filter-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[2.6.1,2.6.1]",*</bundle>
+        <bundle>wrap:mvn:org.jvnet.ogc/wfs-v_1_1_0/2.6.1$Bundle-Name=wfs-v_1_1_0&amp;Bundle-SymbolicName=wfs-v_1_1_0&amp;Bundle-Version=2.6.1&amp;Export-Package=*;version="2.6.1"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.*;version="[2.6.1,2.6.1]",*</bundle>
     </feature>
 
     <feature name="spatial-wfs-feature-transformer-xstream" description="Xstream feature transformer" version="${project.version}">

@@ -33,6 +33,6 @@
 
     <reference id="wfsMetacardTypeRegistry" interface="org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry"/>
 
-    <service ref="xstreamWfs11FeatureTransformer" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="14"/>
+    <service ref="xstreamWfs11FeatureTransformer" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="39"/>
 
 </blueprint>
