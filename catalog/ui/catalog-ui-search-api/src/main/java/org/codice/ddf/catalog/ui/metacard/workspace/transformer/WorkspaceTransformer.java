@@ -56,13 +56,11 @@ public interface WorkspaceTransformer {
   }
 
   /**
-   * Transforms the given {@link Metacard} into a JSON-style key-value pair {@link Map} using all
+   * Transforms the given {@link Metacard} {@code metacard} into a JSON-style key-value pair {@link Map} using all
    * available {@link WorkspaceTransformation}s.
    *
-   * @param workspaceMetacard the workspace metacard that started the transformation; note that when
-   *     {@link Metacard}s inside the workspace metacard are transformed, this will not be the same
-   *     as the {@link Metacard} in the next argument
-   * @param metacard the {@link Metacard} to transform into JSON-style data
+   * @param workspaceMetacard the workspace metacard that started the transformation
+   * @param metacard the {@link Metacard} to transform into JSON-style data; this will either be equivalent to the argument {@code workspaceMetacard} or will be a {@link Metacard} embedded inside {@code workspaceMetacard}
    * @return a new JSON-style {@link Map} containing the results of {@link WorkspaceTransformation}s
    *     performed on the given {@link Metacard}'s data
    */
