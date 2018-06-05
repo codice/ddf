@@ -34,13 +34,18 @@ import com.google.common.base.Strings;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
@@ -78,6 +83,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
@@ -103,6 +109,7 @@ import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -170,6 +177,8 @@ public class RestEndpointTest {
 
   private AttachmentParser attachmentParser;
 
+  private AttributeRegistry attributeRegistry;
+
   @Before
   public void setup() throws MimeTypeResolutionException {
     MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
@@ -177,6 +186,8 @@ public class RestEndpointTest {
     when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
 
     attachmentParser = new AttachmentParserImpl(mimeTypeMapper);
+
+    attributeRegistry = mock(AttributeRegistry.class);
   }
 
   @Test
@@ -184,7 +195,7 @@ public class RestEndpointTest {
 
     CatalogFramework framework = mock(CatalogFramework.class);
 
-    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
 
     HttpHeaders headers = mock(HttpHeaders.class);
 
@@ -222,7 +233,7 @@ public class RestEndpointTest {
 
     HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
 
@@ -248,6 +259,89 @@ public class RestEndpointTest {
 
   @Test
   @SuppressWarnings({"unchecked"})
+  public void testAddDocumentWithAttributeOverrides()
+      throws IOException, CatalogTransformerException, IngestException, SourceUnavailableException,
+          URISyntaxException, InvalidSyntaxException {
+
+    CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+
+    AttributeDescriptor descriptor =
+        new AttributeDescriptorImpl(
+            "custom.attribute", true, true, false, false, BasicTypes.STRING_TYPE);
+
+    HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
+    BundleContext bundleContext = mock(BundleContext.class);
+    Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
+    ServiceReference serviceReference = mock(ServiceReference.class);
+    InputTransformer inputTransformer = mock(InputTransformer.class);
+    when(inputTransformer.transform(any())).thenReturn(new MetacardImpl());
+    when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
+    serviceReferences.add(serviceReference);
+    when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
+        .thenReturn(serviceReferences);
+
+    when(attributeRegistry.lookup("custom.attribute")).thenReturn(Optional.of(descriptor));
+
+    RESTEndpoint rest =
+        new RESTEndpoint(framework, attachmentParser, attributeRegistry) {
+          @Override
+          BundleContext getBundleContext() {
+            return bundleContext;
+          }
+        };
+
+    UuidGenerator uuidGenerator = mock(UuidGenerator.class);
+    when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
+    rest.setUuidGenerator(uuidGenerator);
+
+    addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
+
+    UriInfo info = givenUriInfo(SAMPLE_ID);
+
+    List<Attachment> attachments = new ArrayList<>();
+    ContentDisposition contentDisposition =
+        new ContentDisposition("form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
+    Attachment attachment =
+        new Attachment(
+            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+    attachments.add(attachment);
+    ContentDisposition contentDisposition2 =
+        new ContentDisposition("form-data; name=custom.attribute; ");
+    Attachment attachment2 =
+        new Attachment(
+            descriptor.getName(),
+            new ByteArrayInputStream("CustomValue".getBytes()),
+            contentDisposition2);
+    attachments.add(attachment2);
+    MultipartBody multipartBody = new MultipartBody(attachments);
+
+    Response response =
+        rest.addDocument(
+            headers,
+            info,
+            mock(HttpServletRequest.class),
+            multipartBody,
+            null,
+            new ByteArrayInputStream("".getBytes()));
+
+    LOGGER.debug(ToStringBuilder.reflectionToString(response));
+
+    assertThat(response.getStatus(), equalTo(201));
+    ArgumentCaptor<CreateStorageRequest> captor = new ArgumentCaptor<>();
+    verify(framework, times(1)).create(captor.capture());
+    assertThat(
+        captor
+            .getValue()
+            .getContentItems()
+            .get(0)
+            .getMetacard()
+            .getMetacardType()
+            .getAttributeDescriptor(descriptor.getName()),
+        equalTo(descriptor));
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked"})
   public void testAddDocumentWithMetadataPositiveCase()
       throws IOException, CatalogTransformerException, IngestException, SourceUnavailableException,
           URISyntaxException, InvalidSyntaxException {
@@ -266,7 +360,7 @@ public class RestEndpointTest {
         .thenReturn(serviceReferences);
 
     RESTEndpoint rest =
-        new RESTEndpoint(framework, attachmentParser) {
+        new RESTEndpoint(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
             return bundleContext;
@@ -276,7 +370,9 @@ public class RestEndpointTest {
     UuidGenerator uuidGenerator = mock(UuidGenerator.class);
     when(uuidGenerator.generateUuid()).thenReturn(UUID.randomUUID().toString());
     rest.setUuidGenerator(uuidGenerator);
-    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
+
+    when(attributeRegistry.lookup(Core.METADATA))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
 
     addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
 
@@ -381,13 +477,15 @@ public class RestEndpointTest {
         .thenReturn(serviceReferences);
 
     RESTEndpoint rest =
-        new RESTEndpoint(framework, attachmentParser) {
+        new RESTEndpoint(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
             return bundleContext;
           }
         };
-    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
+    when(attributeRegistry.lookup(Core.METADATA))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
+    when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
     addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
 
@@ -451,13 +549,15 @@ public class RestEndpointTest {
         .thenReturn(serviceReferences);
 
     RESTEndpoint rest =
-        new RESTEndpoint(framework, attachmentParser) {
+        new RESTEndpoint(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
             return bundleContext;
           }
         };
-    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
+    when(attributeRegistry.lookup(Core.METADATA))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
+    when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
     addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
 
@@ -662,7 +762,7 @@ public class RestEndpointTest {
     when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class)))
         .thenReturn(sourceInfoResponse);
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
 
     Response response = restEndpoint.getDocument(null, null);
     assertEquals(OK, response.getStatus());
@@ -762,7 +862,7 @@ public class RestEndpointTest {
     when(framework.transform(isA(Metacard.class), anyString(), isNull(Map.class)))
         .thenReturn(content);
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
 
     // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
     addMatchingService(restEndpoint, Collections.singletonList(getSimpleTransformer()));
@@ -886,7 +986,7 @@ public class RestEndpointTest {
     when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
         .thenReturn(resource);
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
     restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     restEndpoint.setFilterBuilder(filterBuilder);
@@ -1003,7 +1103,7 @@ public class RestEndpointTest {
       CatalogFramework framework, String transformer, boolean local, HttpServletRequest request)
       throws URISyntaxException {
 
-    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
     restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
     FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
     restEndpoint.setFilterBuilder(filterBuilder);
@@ -1046,7 +1146,7 @@ public class RestEndpointTest {
         .thenReturn(serviceReferences);
 
     RESTEndpoint rest =
-        new RESTEndpoint(framework, attachmentParser) {
+        new RESTEndpoint(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
             return bundleContext;
@@ -1055,7 +1155,8 @@ public class RestEndpointTest {
     String generatedMcardId = UUID.randomUUID().toString();
     when(uuidGenerator.generateUuid()).thenReturn(generatedMcardId);
     rest.setUuidGenerator(uuidGenerator);
-    rest.setMetacardTypes(Collections.singletonList(MetacardImpl.BASIC_METACARD));
+    when(attributeRegistry.lookup(Core.METADATA))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
 
     addMatchingService(rest, Collections.singletonList(inputTransformer));
 
@@ -1100,7 +1201,7 @@ public class RestEndpointTest {
 
     HttpHeaders headers = createHeaders(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser);
+    RESTEndpoint rest = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
 
     addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
 

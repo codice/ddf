@@ -26,6 +26,7 @@ import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -36,6 +37,7 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -77,10 +79,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -176,8 +179,6 @@ public class RESTEndpoint implements RESTService {
     jsonMimeType = mime;
   }
 
-  private List<MetacardType> metacardTypes;
-
   private FilterBuilder filterBuilder;
 
   private CatalogFramework catalogFramework;
@@ -188,10 +189,16 @@ public class RESTEndpoint implements RESTService {
 
   private final AttachmentParser attachmentParser;
 
-  public RESTEndpoint(CatalogFramework framework, AttachmentParser attachmentParser) {
+  private AttributeRegistry attributeRegistry;
+
+  public RESTEndpoint(
+      CatalogFramework framework,
+      AttachmentParser attachmentParser,
+      AttributeRegistry attributeRegistry) {
     LOGGER.trace("Constructing REST Endpoint");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
+    this.attributeRegistry = attributeRegistry;
     LOGGER.trace(("Rest Endpoint constructed successfully"));
   }
 
@@ -956,8 +963,22 @@ public class RESTEndpoint implements RESTService {
     if (metacard == null) {
       metacard = new MetacardImpl();
     }
+
+    Set<AttributeDescriptor> missingDescriptors = new HashSet<>();
     for (Attribute attribute : attributes) {
+      if (metacard.getMetacardType().getAttributeDescriptor(attribute.getName()) == null) {
+        attributeRegistry
+            .lookup(attribute.getName())
+            .ifPresent(descriptor -> missingDescriptors.add(descriptor));
+      }
       metacard.setAttribute(attribute);
+    }
+
+    if (!missingDescriptors.isEmpty()) {
+      MetacardType original = metacard.getMetacardType();
+      MetacardImpl newMetacard = new MetacardImpl(metacard);
+      newMetacard.setType(new MetacardTypeImpl(original.getName(), original, missingDescriptors));
+      metacard = newMetacard;
     }
 
     return new ImmutablePair<>(attachmentInfo, metacard);
@@ -965,16 +986,15 @@ public class RESTEndpoint implements RESTService {
 
   private void parseOverrideAttributes(
       List<Attribute> attributes, String parsedName, InputStream inputStream) {
-    metacardTypes
-        .stream()
-        .map(metacardType -> metacardType.getAttributeDescriptor(parsedName))
-        .filter(Objects::nonNull)
-        .findFirst()
-        .map(AttributeDescriptor::getType)
-        .map(AttributeType::getAttributeFormat)
+    attributeRegistry
+        .lookup(parsedName)
         .ifPresent(
-            attributeFormat ->
-                parseAttribute(attributes, parsedName, inputStream, attributeFormat));
+            descriptor ->
+                parseAttribute(
+                    attributes,
+                    parsedName,
+                    inputStream,
+                    descriptor.getType().getAttributeFormat()));
   }
 
   private void parseAttribute(
@@ -1291,10 +1311,6 @@ public class RESTEndpoint implements RESTService {
 
   public void setTikaMimeTypeResolver(MimeTypeResolver mimeTypeResolver) {
     this.tikaMimeTypeResolver = mimeTypeResolver;
-  }
-
-  public void setMetacardTypes(List<MetacardType> metacardTypes) {
-    this.metacardTypes = metacardTypes;
   }
 
   public void setUuidGenerator(UuidGenerator uuidGenerator) {

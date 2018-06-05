@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.net.HttpHeaders;
 import com.jayway.restassured.RestAssured;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -95,6 +96,8 @@ public class RestEndpointIT extends AbstractComponentTest {
   @MockOsgiService private AttachmentParser attachmentParser;
 
   @MockOsgiService private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+
+  @MockOsgiService private AttributeRegistry attributeRegistry;
 
   @MockOsgiService(answer = Answers.RETURNS_DEEP_STUBS)
   private FilterBuilder filterBuilder;
