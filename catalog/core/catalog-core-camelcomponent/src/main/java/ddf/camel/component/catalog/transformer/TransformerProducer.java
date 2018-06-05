@@ -34,13 +34,15 @@ import org.slf4j.LoggerFactory;
  * @author ddf.isgs@lmco.com
  */
 public abstract class TransformerProducer extends DefaultProducer {
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(TransformerProducer.class);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TransformerProducer.class);
 
   private CatalogEndpoint endpoint;
 
   /**
-   * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would map
-   * to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
+   * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent. This
+   * producer would map to a Camel <to> route node with a URI like <code>catalog:inputtransformer
+   * </code>
    *
    * @param endpoint the Camel endpoint that created this consumer
    */
@@ -59,13 +61,10 @@ public abstract class TransformerProducer extends DefaultProducer {
    */
   public void process(Exchange exchange)
       throws CatalogTransformerException, MimeTypeParseException, IOException {
-
-    LOGGER.debug("ENTERING: process");
-
+    LOGGER.trace("ENTERING: process");
     LOGGER.debug("exchange pattern = {}", exchange.getPattern());
 
     Message in = exchange.getIn();
-    Object metacard = null;
 
     // Get the MIME Type and ID of the transformer to use to transform the
     // request's payload from the endpoint that manages this producer
@@ -87,7 +86,9 @@ public abstract class TransformerProducer extends DefaultProducer {
     if (mimeType != null) {
       in.removeHeader(CatalogComponent.MIME_TYPE_PARAMETER);
     } else {
-      LOGGER.debug("MIME Type retrieved from CamelCatalogEndpoint");
+      LOGGER.debug(
+          "No mimeType provided, defaulting to Camel CatalogEndpoint mimeType of [{}]",
+          endpoint.getMimeType());
       mimeType = endpoint.getMimeType();
     }
 
@@ -95,26 +96,23 @@ public abstract class TransformerProducer extends DefaultProducer {
 
     MimeTypeToTransformerMapper mapper = endpoint.getComponent().getMimeTypeToTransformerMapper();
 
+    Object metacard;
     if (mapper != null) {
       LOGGER.debug("Got a MimeTypeToTransformerMapper service");
 
-      metacard = transform(in, metacard, mimeType, transformerId, mapper);
+      metacard = transform(in, mimeType, transformerId, mapper);
     } else {
       LOGGER.debug("Did not find a MimeTypeToTransformerMapper service");
       throw new CatalogTransformerException("Did not find a MimeTypeToTransformerMapper service");
     }
 
-    // Set the response output to the Metacard from the transformation
-    exchange.getOut().setBody(metacard);
+    // Set the body to the Metacard from the transformation
+    in.setBody(metacard);
 
-    LOGGER.debug("EXITING: process");
+    LOGGER.trace("EXITING: process");
   }
 
   protected abstract Object transform(
-      Message in,
-      Object metacard,
-      String mimeType,
-      String transformerId,
-      MimeTypeToTransformerMapper mapper)
+      Message in, String mimeType, String transformerId, MimeTypeToTransformerMapper mapper)
       throws MimeTypeParseException, IOException, CatalogTransformerException;
 }

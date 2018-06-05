@@ -130,6 +130,10 @@ public class PermissionActivator implements BundleActivator {
         type);
   }
 
+  /**
+   * This method will allow policy entries with no permissions for the case where there are
+   * pre-defined policy entries for administrators to add configuration specific permissions.
+   */
   private void buildConditionalPermissionInfo(
       ConditionalPermissionAdmin conditionalPermissionAdmin,
       List<ParsedPolicyEntry> entries,
@@ -137,6 +141,11 @@ public class PermissionActivator implements BundleActivator {
       String type) {
     for (ParsedPolicyEntry parsedPolicyEntry : entries) {
       List<ParsedPermission> permissions = parsedPolicyEntry.getPermissions();
+      if (permissions.isEmpty()) {
+        // Allow policy entries with no permissions.
+        continue;
+      }
+
       PermissionInfo[] permissionInfos = new PermissionInfo[permissions.size()];
       int index = 0;
       for (ParsedPermission parsedPermission : permissions) {

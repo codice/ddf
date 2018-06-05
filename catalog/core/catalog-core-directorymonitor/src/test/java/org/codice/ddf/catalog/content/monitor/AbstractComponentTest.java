@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceRegistration;
 public abstract class AbstractComponentTest {
   static final int TIMEOUT_IN_SECONDS = 30;
 
-  @Inject private BundleContext bundleContext;
+  @Inject BundleContext bundleContext;
 
   private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 

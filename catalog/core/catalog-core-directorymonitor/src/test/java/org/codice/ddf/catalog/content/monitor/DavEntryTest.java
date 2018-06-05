@@ -123,6 +123,7 @@ public class DavEntryTest {
     File file = child.getFile(mockSardine);
     assertThat(FileUtils.readFileToString(file, "UTF-8"), is("test"));
     assertThat(file.getName(), is("more shenanigans.txt"));
+    child.deleteCacheIfExists();
   }
 
   @Test

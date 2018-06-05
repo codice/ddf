@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.AttributeRegistry;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +35,7 @@ import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
@@ -73,6 +75,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private final CamelContext camelContext;
 
+  private final AttributeRegistry attributeRegistry;
+
   private String monitoredDirectory = null;
 
   private String processingMechanism = DELETE;
@@ -99,9 +103,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    *     if Apache changes this ModelCamelContext interface there is no guarantee that whatever DM
    *     is being used (Blueprint in this case) will be updated accordingly.
    */
-  public ContentDirectoryMonitor(CamelContext camelContext) {
+  public ContentDirectoryMonitor(CamelContext camelContext, AttributeRegistry attributeRegistry) {
     this(
         camelContext,
+        attributeRegistry,
         20,
         5,
         Executors.newSingleThreadExecutor(
@@ -121,10 +126,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    */
   public ContentDirectoryMonitor(
       CamelContext camelContext,
+      AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
       Executor configurationExecutor) {
     this.camelContext = camelContext;
+    this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
@@ -297,7 +304,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     if (CollectionUtils.isNotEmpty(badFiles)) {
-      patterns.addAll(badFiles.stream().collect(Collectors.toList()));
+      patterns.addAll(new ArrayList<>(badFiles));
     }
 
     if (CollectionUtils.isEmpty(patterns)) {
@@ -312,7 +319,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   }
 
   /*
-     Task that waits for the "content" CamelComponent before adding the routes from the
+     Task that waits for the "content" and "catalog" CamelComponents before adding the routes from the
      RouteBuilder to the CamelContext. This ensures content directory monitors will
      automatically start after a system shutdown.
   */
@@ -321,7 +328,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         "Attempting to add routes for content directory monitor watching {}", monitoredDirectory);
     try {
       RouteBuilder routeBuilder = createRouteBuilder();
-      verifyContentCamelComponentIsAvailable();
+      verifyCamelComponentIsAvailable("content");
+      verifyCamelComponentIsAvailable("catalog");
       camelContext.addRoutes(routeBuilder);
       setRouteCollection(routeBuilder);
     } catch (Exception e) {
@@ -337,7 +345,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
   /*
      Do not attempt to add routes to the CamelContext until we know the content scheme is ready.
   */
-  private void verifyContentCamelComponentIsAvailable() {
+  private void verifyCamelComponentIsAvailable(String componentName) {
     Failsafe.with(
             new RetryPolicy()
                 .retryWhen(null)
@@ -345,9 +353,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 .withDelay(delayBetweenRetries, TimeUnit.SECONDS))
         .withFallback(
             () -> {
-              throw new IllegalStateException("Could not get Camel component 'content'");
+              throw new IllegalStateException("Could not get Camel component " + componentName);
             })
-        .get(() -> camelContext.getComponent("content"));
+        .get(() -> camelContext.getComponent(componentName));
   }
 
   /*
@@ -380,20 +388,27 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (monitoredDirectory.startsWith("http")) {
           isDav = true;
         } else {
-          stringBuilder.append("file:" + monitoredDirectory);
+          stringBuilder.append("file:");
+          stringBuilder.append(monitoredDirectory);
+
           stringBuilder.append("?recursive=true");
           stringBuilder.append("&moveFailed=.errors");
 
           /* ReadLock Configuration */
           stringBuilder.append("&readLockMinLength=1");
           stringBuilder.append("&readLock=changed");
-          stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
-          stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
+
+          stringBuilder.append("&readLockTimeout=");
+          stringBuilder.append(2 * readLockIntervalMilliseconds);
+
+          stringBuilder.append("&readLockCheckInterval=");
+          stringBuilder.append(readLockIntervalMilliseconds);
 
           /* File Exclusions */
           String exclusions = getBlackListAsRegex();
           if (StringUtils.isNotBlank(exclusions)) {
-            stringBuilder.append("&exclude=" + exclusions);
+            stringBuilder.append("&exclude=");
+            stringBuilder.append(exclusions);
           }
         }
 
@@ -411,7 +426,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             }
             break;
         }
-        LOGGER.trace("inbox = {}", stringBuilder);
+
+        LOGGER.debug("ContentDirectoryMonitor inbox = {}", stringBuilder);
 
         RouteDefinition routeDefinition = from(stringBuilder.toString());
 
@@ -419,8 +435,19 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
           routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY).constant(attributeOverrides);
         }
 
-        LOGGER.trace("About to process scheme content:framework");
-        routeDefinition.threads(numThreads).process(systemSubjectBinder).to("content:framework");
+        ThreadsDefinition td = routeDefinition.threads(numThreads).process(systemSubjectBinder);
+        if (processingMechanism.equals(IN_PLACE)) {
+          td.choice()
+              .when(
+                  simple(
+                      "${in.headers.operation} == 'CREATE' || ${in.headers.operation} == 'UPDATE'"))
+              .to("catalog:inputtransformer")
+              .process(new InPlaceMetacardProcessor(attributeRegistry))
+              .end()
+              .to("catalog:framework");
+        } else {
+          td.to("content:framework");
+        }
       }
     };
   }

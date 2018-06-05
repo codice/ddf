@@ -13,12 +13,9 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
-import ddf.catalog.Constants;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.nio.file.WatchEvent;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import org.apache.camel.Exchange;
@@ -33,24 +30,25 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<EventfulFileWrapper> {
-  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<File> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDurableFileConsumer.class);
 
   FileSystemPersistenceProvider fileSystemPersistenceProvider;
 
-  String remaining;
+  private String remaining;
 
   AbstractDurableFileConsumer(
-      GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      GenericFileEndpoint<File> endpoint,
       String remaining,
       Processor processor,
-      GenericFileOperations<EventfulFileWrapper> operations) {
+      GenericFileOperations<File> operations) {
     super(endpoint, processor, operations);
     this.remaining = remaining;
   }
 
   @Override
-  protected void updateFileHeaders(GenericFile<EventfulFileWrapper> file, Message message) {
+  protected void updateFileHeaders(GenericFile<File> file, Message message) {
     // noop
   }
 
@@ -62,7 +60,7 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
   @Override
   protected boolean pollDirectory(String fileName, List list, int depth) {
     if (remaining != null) {
-      String sha1 = DigestUtils.sha1Hex(remaining);
+      String sha1 = getShaFor(remaining);
       initialize(remaining, sha1);
       return doPoll(sha1);
     }
@@ -74,56 +72,82 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
 
   protected abstract boolean doPoll(@NotNull String sha1);
 
-  void createExchangeHelper(File file, WatchEvent.Kind<Path> fileEvent) {
-    Exchange exchange;
-    try {
-      exchange = getExchange(file, fileEvent, file.getCanonicalPath());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+  void submitExchange(Exchange exchange) {
     processExchange(exchange);
   }
 
-  Exchange getExchange(File file, WatchEvent.Kind<Path> fileEvent, String reference) {
-    GenericFile<EventfulFileWrapper> genericFile = new GenericFile<>();
-    genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
-    try {
+  /** Utility class for building GenericFile exchanges from files. */
+  public static class ExchangeHelper {
+
+    private Exchange exchange;
+
+    /**
+     * If {@code file} is null, creates a null file exchange, otherwise the exchange's GenericFile
+     * is populated with the file.
+     *
+     * @param file the file to populate the {@link GenericFile}
+     * @param endpoint the consumer's endpoint
+     */
+    public ExchangeHelper(File file, GenericFileEndpoint<File> endpoint) {
+      GenericFile<File> genericFile = new GenericFile<>();
+      genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
+
       if (file == null) {
-        genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, null));
+        genericFile.setFile(null);
+        exchange = endpoint.createExchange(genericFile);
       } else {
-        genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, file.toPath()));
-        genericFile.setAbsoluteFilePath(file.getCanonicalPath());
+        try {
+          genericFile.setFile(file);
+          genericFile.setAbsoluteFilePath(file.getCanonicalPath());
+          exchange = endpoint.createExchange(genericFile);
+          setBody(genericFile);
+          addHeader(Exchange.FILE_NAME, file.getName());
+          addHeader(Exchange.FILE_LENGTH, Long.toString(file.length()));
+        } catch (IOException e) {
+          LOGGER.debug(
+              "Error setting GenericFile's absolute path for resource [{}].", file.getName(), e);
+          throw new UncheckedIOException(e);
+        }
       }
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
     }
-    Exchange exchange = endpoint.createExchange(genericFile);
-    exchange.getIn().setHeader(Constants.STORE_REFERENCE_KEY, reference);
-    exchange.addOnCompletion(new ErrorLoggingSynchronization(reference, fileEvent));
-    return exchange;
+
+    ExchangeHelper addHeader(String key, Object value) {
+      exchange.getIn().setHeader(key, value);
+      return this;
+    }
+
+    ExchangeHelper addSynchronization(Synchronization synchronization) {
+      exchange.addOnCompletion(synchronization);
+      return this;
+    }
+
+    ExchangeHelper setBody(Object object) {
+      exchange.getIn().setBody(object);
+      return this;
+    }
+
+    Exchange getExchange() {
+      return exchange;
+    }
   }
 
-  private static class ErrorLoggingSynchronization implements Synchronization {
-    private final String file;
-
-    private final WatchEvent.Kind<Path> fileEvent;
-
-    ErrorLoggingSynchronization(String file, WatchEvent.Kind<Path> fileEvent) {
-      this.file = file;
-      this.fileEvent = fileEvent;
+  String getMetacardIdFromReference(
+      String referenceKey,
+      String catalogOperation,
+      FileSystemPersistenceProvider productToMetacardIdMap) {
+    String ref = getShaFor(referenceKey);
+    if (!productToMetacardIdMap.loadAllKeys().contains(ref)) {
+      LOGGER.debug(
+          "Received a [{}] operation, but no mapped metacardIds were available for product [{}].",
+          catalogOperation,
+          referenceKey);
+      return null;
     }
 
-    @Override
-    public void onComplete(Exchange exchange) {
-      // no-op
-    }
+    return (String) productToMetacardIdMap.loadFromPersistence(ref);
+  }
 
-    @Override
-    public void onFailure(Exchange exchange) {
-      if (INGEST_LOGGER.isErrorEnabled()) {
-        INGEST_LOGGER.error(
-            "Delivery failed for {} event on  {}", file, fileEvent.name(), exchange.getException());
-      }
-    }
+  private String getShaFor(String value) {
+    return DigestUtils.sha1Hex(value);
   }
 }

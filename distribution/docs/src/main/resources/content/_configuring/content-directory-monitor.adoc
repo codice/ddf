@@ -13,7 +13,47 @@ The Content Directory Monitor (CDM) provides the capability to easily add conten
 
 The Content Directory Monitor is installed by default with a standard installation of the ${ddf-catalog} application.
 
+=== Configuring Permissions for the Content Directory Monitor
+// This section of the docs is duplicated in ${home_directory}/security/configurations.policy. Updates
+// should be applied to both locations.
+
+[TIP]
+====
+If the CDM being configured is WebDav in place, or the directory being monitored is inside ${home_directory}, then adding permissions is not required and this section can be skipped.
+====
+
+Configuring a Content Directory Monitor requires adding permissions to the Security Manager before CDM configuration.
+
+Configuring a CDM requires adding read and write permissions to the directory being monitored. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory being monitored, are required for each configured CDM and should be placed in the CDM section inside ${home_directory}/security/configurations.policy.
+
+.Adding New Permissions
+[WARNING]
+====
+After adding permissions, a system restart is required for them to take effect.
+====
+
+. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
+. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read, write";
+
+Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
+
+Line 1 gives the CDM the permissions to read from the monitored directory path. Line 2 gives the CDM the permissions to recursively read and write from the monitored directory path, specified by the directory path's suffix "${/}-".
+
+If a CDM configuration is deleted, then the corresponding permissions that were added should be deleted to avoid granting unnecessary permissions to parts of the system.
+
 === Configuring the Content Directory Monitor
+
+.Content Directory Monitor Permissions
+[IMPORTANT]
+====
+When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it. Setting permissions should be done *before* configuring a CDM. See <<_configuring_permissions_for_the_content_directory_monitor,Configuring Permissions for the Content Directory Monitor>> for in-depth instructions on configuring permissions.
+====
+
+.Monitoring Directories In Place
+[WARNING]
+====
+If monitoring a directory in place, then the <<_url_resource_reader, URL Resource Reader>> must be configured prior to configuring the CDM to allow reading from the configured directory. This allows the ${ddf-catalog} to download the products.
+====
 
 Configure the CDM from the ${admin-console}:
 
@@ -21,12 +61,6 @@ Configure the CDM from the ${admin-console}:
 . Select the *${ddf-catalog}* application.
 . Select the *Configuration* tab.
 . Select *Catalog Content Directory Monitor*.
-
-.Content Directory Monitor Permissions
-[IMPORTANT]
-====
-When setting monitored directory, make sure to set permissions on the new directory to allow ${branding} to access it.
-====
 
 See <<org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
 

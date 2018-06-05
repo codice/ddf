@@ -15,6 +15,7 @@ package ddf.camel.component.catalog;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.util.Map;
 import org.apache.camel.Endpoint;
@@ -39,13 +40,15 @@ public class CatalogComponent extends DefaultComponent {
   /** The name of the scheme this custom Camel component resolves to. */
   public static final String NAME = "catalog";
 
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(CatalogComponent.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogComponent.class);
 
   private BundleContext bundleContext;
 
   private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
   private CatalogFramework catalogFramework;
+
+  private MimeTypeMapper mimeTypeMapper;
 
   public CatalogComponent() {
     super();
@@ -60,12 +63,11 @@ public class CatalogComponent extends DefaultComponent {
    */
   protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters)
       throws CatalogTransformerException {
-    LOGGER.debug("ENTERING: createEndpoint");
+    LOGGER.trace("ENTERING: createEndpoint");
 
-    LOGGER.debug("uri = {},  remaining = {}", uri, remaining);
-    LOGGER.debug("parameters = {}", parameters);
+    LOGGER.debug(
+        "CatalogEndpoint: uri = {}, remaining = {}, parameters = {}", uri, remaining, parameters);
 
-    String contextPath = remaining;
     String transformerId = getAndRemoveParameter(parameters, ID_PARAMETER, String.class);
 
     String mimeType = getAndRemoveParameter(parameters, MIME_TYPE_PARAMETER, String.class);
@@ -73,15 +75,15 @@ public class CatalogComponent extends DefaultComponent {
     LOGGER.debug("transformerId = {}", transformerId);
 
     Endpoint endpoint =
-        new CatalogEndpoint(uri, this, transformerId, mimeType, contextPath, catalogFramework);
+        new CatalogEndpoint(
+            uri, this, transformerId, mimeType, remaining, catalogFramework, mimeTypeMapper);
     try {
       setProperties(endpoint, parameters);
     } catch (Exception e) {
       throw new CatalogTransformerException("Failed to create transformer endpoint", e);
     }
 
-    LOGGER.debug("EXITING: createEndpoint");
-
+    LOGGER.trace("EXITING: createEndpoint");
     return endpoint;
   }
 
@@ -131,5 +133,9 @@ public class CatalogComponent extends DefaultComponent {
    */
   public void setCatalogFramework(CatalogFramework catalogFramework) {
     this.catalogFramework = catalogFramework;
+  }
+
+  public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
+    this.mimeTypeMapper = mimeTypeMapper;
   }
 }

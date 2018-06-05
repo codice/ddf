@@ -379,7 +379,7 @@ public class ResourceOperations extends DescribableImpl {
         LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
         retriever =
             new LocalResourceRetriever(
-                frameworkProperties.getResourceReaders(), responseURI, requestProperties);
+                frameworkProperties.getResourceReaders(), responseURI, metacard, requestProperties);
       }
 
       try {

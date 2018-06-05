@@ -3,6 +3,7 @@
 :type: table
 :status: published
 :application: ${ddf-catalog}
+:link: _url_resource_reader
 :summary: URL Resource Reader
 
 .[[ddf.catalog.resource.impl.URLResourceReader]]URL Resource Reader

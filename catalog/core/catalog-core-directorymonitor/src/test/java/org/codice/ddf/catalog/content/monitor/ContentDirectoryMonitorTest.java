@@ -18,8 +18,10 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.AttributeRegistry;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     MockComponent contentComponent = new MockComponent();
     camelContext.addComponent("content", contentComponent);
+    MockComponent catalogComponent = new MockComponent();
+    camelContext.addComponent("catalog", catalogComponent);
 
     monitor = createContentDirectoryMonitor();
     monitor.setReadLockIntervalMilliseconds(1000);
@@ -387,7 +391,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
   private ContentDirectoryMonitor createContentDirectoryMonitor() {
     ContentDirectoryMonitor monitor =
-        new ContentDirectoryMonitor(camelContext, 1, 1, Runnable::run);
+        new ContentDirectoryMonitor(
+            camelContext, mock(AttributeRegistry.class), 1, 1, Runnable::run);
     monitor.systemSubjectBinder = exchange -> {};
     monitor.setNumThreads(1);
     monitor.setReadLockIntervalMilliseconds(1000);

@@ -1,0 +1,44 @@
+priority "grant";
+// Double forward slashes "//" indicate comments and have no effect on policies.
+
+// This policy file's intended usage is to contain appropriate sections for adding permissions related
+// to configurations. For example, the Content Directory Monitor requires read/write permissions to
+// the directory being monitored, and has an appropriate section below. Sections should contain
+// sufficient details about adding permissions required for the given configuration.
+
+// Instructions in this file may be duplicated in the documentation. Documentation provides better
+// formatting and readability.
+
+// When adding permissions for directories, trailing slashes have no effect on the permissions granted.
+// For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms
+// "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
+
+// IMPORTANT! - Adding new permissions requires a system restart to take affect.
+
+
+//                        Content Directory Monitor (CDM) Permissions
+// Adding required permissions for a new Content Directory Monitor.
+//
+// If the directory being monitored is located in DDF's home directory or the CDM is being configured
+// to monitor a WebDav server, then adding these permissions is not required and these instructions can be ignored.
+//
+// Configuring CDM requires adding read and write permissions to the directory being monitored. For
+// each configured CDM, the following 2 permissions are required:
+//   1. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
+//   2. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read, write";
+// Replacing <DIRECTORY_PATH> with the path of the directory being monitored.
+//
+// Line 1 gives the CDM the permissions to read from the monitored directory path. Line 2 gives the
+// CDM the permissions to recursively read and write from the monitored directory path, specified
+// by the directory path's suffix "${/}-".
+//
+// If a CDM configuration is deleted, then the corresponding permissions that were added should be
+// deleted to avoid granting unnecessary permissions to parts of the system.
+//
+grant codeBase "file:/org.apache.camel.camel-core/catalog-core-directorymonitor/catalog-core-camelcomponent/com.google.guava/catalog-core-standardframework/org.apache.camel.camel-blueprint/catalog-core-urlresourcereader/catalog-transformer-resource/catalog-rest-endpoint/org.apache.cxf.cxf-rt-transports-http/javax.servlet-api/org.eclipse.jetty.servlet/platform-filter-delegate/platform-filter-clientinfo/platform-filter-response/security-filter-authorization/security-filter-login" {
+    // Add required CDM permissions here.
+
+    // Example:
+    // permission java.io.FilePermission "/test/some/monitored/directory", "read";
+    // permission java.io.FilePermission "/test/some/monitored/directory"${/}-", "read, write";
+}

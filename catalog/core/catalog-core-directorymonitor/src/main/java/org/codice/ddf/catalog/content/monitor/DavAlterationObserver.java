@@ -108,7 +108,7 @@ public class DavAlterationObserver implements Serializable {
     }
   }
 
-  /** Check whether the file and its chlidren have been created, modified or deleted. */
+  /** Check whether the file and its children have been created, modified or deleted. */
   void checkAndNotify(Sardine sardine) {
     this.sardine = sardine;
     if (rootEntry.remoteExists(sardine)) {
