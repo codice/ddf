@@ -78,85 +78,85 @@ public class FlatFilterBuilderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_BeginBinaryLogicType_WhenResultNotYetRetrieved() {
+  public void testFailureConditionBeginBinaryLogicTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.beginBinaryLogicType(logicalOp);
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_BeginBinaryLogicType_WhenTerminalNodeNotInProgress() {
+  public void testFailureConditionBeginBinaryLogicTypeWhenTerminalNodeNotInProgress() {
     builder.beginBinaryComparisonType(comparisonOp).beginBinaryLogicType(logicalOp);
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_EndBinaryLogicType_WhenResultNotYetRetrieved() {
+  public void testFailureConditionEndBinaryLogicTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.endBinaryLogicType();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_EndBinaryLogicType_WhenTerminalNodeNotInProgress() {
+  public void testFailureConditionEndBinaryLogicTypeWhenTerminalNodeNotInProgress() {
     builder.beginBinaryComparisonType(comparisonOp).endBinaryLogicType();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_EndBinaryLogicType_WhenResultNotNull() {
+  public void testFailureConditionEndBinaryLogicTypeWhenResultNotNull() {
     builder.endBinaryLogicType();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_BeginBinaryComparisonType_WhenResultNotYetRetrieved() {
+  public void testFailureConditionBeginBinaryComparisonTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.beginBinaryComparisonType(comparisonOp);
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_BeginBinaryComparisonType_WhenTerminalNodeNotInProgresss() {
+  public void testFailureConditionBeginBinaryComparisonTypeWhenTerminalNodeNotInProgresss() {
     builder
         .beginBinaryComparisonType(comparisonOp)
         .beginBinaryComparisonType("PropertyIsGreaterThan");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_EndBinaryComparisonType_WhenResultNotYetRetrieved() {
+  public void testFailureConditionEndBinaryComparisonTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.endTerminalType();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_GetResult_WhenTerminalNodeNotInProgress() {
+  public void testFailureConditionGetResultWhenTerminalNodeNotInProgress() {
     builder.beginBinaryComparisonType(comparisonOp).getResult();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_GetResult_WhenResultNotNull() {
+  public void testFailureConditionGetResultWhenResultNotNull() {
     builder.getResult();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetProperty_WhenResultNotYetRetrieved() {
+  public void testFailureConditionSetPropertyWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.setProperty("property");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetProperty_WhenTerminalNodeInProgress() {
+  public void testFailureConditionSetPropertyWhenTerminalNodeInProgress() {
     builder.setProperty("property");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetValue_WhenResultNotYetRetrieved() {
+  public void testFailureConditionSetValueWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.setValue("value");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetValue_WhenTerminalNodeInProgress() {
+  public void testFailureConditionSetValueWhenTerminalNodeInProgress() {
     builder.setValue("value");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetTemplatedValues_WhenResultNotYetRetrieved() {
+  public void testFailureConditionSetTemplatedValuesWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
     builder.setTemplatedValues(
         ImmutableMap.of(
@@ -164,24 +164,24 @@ public class FlatFilterBuilderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureCondition_SetTemplatedValues_WhenTerminalNodeInProgress() {
+  public void testFailureConditionSetTemplatedValuesWhenTerminalNodeInProgress() {
     builder.setTemplatedValues(
         ImmutableMap.of(
             "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testInput_BinaryLogicType_BadOperator() {
+  public void testInputBinaryLogicTypeBadOperator() {
     builder.beginBinaryLogicType("bad");
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testInput_BinaryComparisonType_BadOperator() {
+  public void testInputBinaryComparisonTypeBadOperator() {
     builder.beginBinaryComparisonType("bad");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCase_EndTerminalType_CalledTwiceIncorrectly() {
+  public void testAwkwardCaseEndTerminalTypeCalledTwiceIncorrectly() {
     builder
         .beginBinaryComparisonType(comparisonOp)
         .setProperty("name")
@@ -191,7 +191,7 @@ public class FlatFilterBuilderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCase_EndTerminalType_CalledTwiceInLogicTypeIncorrectly() {
+  public void testAwkwardCaseEndTerminalTypeCalledTwiceInLogicTypeIncorrectly() {
     builder
         .beginBinaryLogicType(logicalOp)
         .beginBinaryComparisonType(comparisonOp)
@@ -202,12 +202,12 @@ public class FlatFilterBuilderTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCase_EndBinaryLogicType_WhenNothingInProgress() {
+  public void testAwkwardCaseEndBinaryLogicTypeWhenNothingInProgress() {
     builder.endBinaryLogicType();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCase_EndBinaryLogicType_WithoutAnyChildren() {
+  public void testAwkwardCaseEndBinaryLogicTypeWithoutAnyChildren() {
     builder.beginBinaryLogicType(logicalOp).endBinaryLogicType();
   }
 
