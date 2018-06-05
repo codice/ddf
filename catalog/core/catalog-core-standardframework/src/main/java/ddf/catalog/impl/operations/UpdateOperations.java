@@ -197,7 +197,7 @@ public class UpdateOperations {
             Metacard overrideMetacard = contentItem.getMetacard();
 
             Metacard updatedMetacard =
-                OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true, true);
+                OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true);
 
             updatedMetacard.setAttribute(
                 new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
