@@ -1,6 +1,4 @@
 <sf:roads
-  xmlns:sf="http://www.openplans.org/spearfish"
-  xmlns:gml="http://www.opengis.net/gml"
   gml:id="roads.2">
   <sf:the_geom>
     <gml:MultiLineString srsName="urn:x-ogc:def:crs:EPSG:26713" srsDimension="2">
