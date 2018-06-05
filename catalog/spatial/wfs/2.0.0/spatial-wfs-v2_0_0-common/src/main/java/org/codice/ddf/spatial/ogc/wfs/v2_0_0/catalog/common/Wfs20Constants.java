@@ -21,6 +21,8 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 /** Constants for WFS services and requests. */
 public class Wfs20Constants extends WfsConstants {
 
+  public static final String GML_MIME_TYPE = "application/gml+xml";
+
   /* Request Names */
   public static final String GET_CAPABILITIES = "GetCapabilities";
 

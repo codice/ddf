@@ -55,7 +55,7 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl.FeatureColle
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+@Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML, Wfs20Constants.GML_MIME_TYPE})
 @Provider
 public class FeatureCollectionMessageBodyReaderWfs20
     implements MessageBodyReader<Wfs20FeatureCollection> {
