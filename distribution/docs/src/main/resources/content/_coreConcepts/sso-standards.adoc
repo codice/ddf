@@ -1,4 +1,5 @@
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :title: Single Sign On Standards Provided by ${ddf-branding}
 :parent: Standards Supported by ${branding}

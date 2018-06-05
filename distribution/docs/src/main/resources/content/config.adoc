@@ -1,6 +1,5 @@
 Version ${project.version}. Copyright (c) Codice Foundation
 :imagesdir: ${project.build.directory}/doc-contents/images
-:title: ${branding-expanded} Documentation
 :type: config
 :status: published
 :toc: left
@@ -17,7 +16,8 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :release-notes-url: https://codice.atlassian.net/wiki/spaces/DDF/pages/71275152/Release+Notes
 :adoc-include: ${project.build.directory}/doc-contents/_contents
 :hardening-step: Required Step for Security Hardening
-:title-logo: logo_ddf.png
+:title-logo-image: image::logo_ddf.png[]
+:pdf-page-size: Letter
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +
 This page last updated:

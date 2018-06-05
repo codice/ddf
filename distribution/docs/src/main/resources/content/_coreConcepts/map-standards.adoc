@@ -1,4 +1,5 @@
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :title: Map Formats
 :parent: Standards Supported by ${branding}

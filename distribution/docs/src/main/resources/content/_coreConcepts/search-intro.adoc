@@ -1,4 +1,6 @@
 :type: coreConcept
+:priority: 00
+:section: Core Concepts
 :status: published
 :title: Introduction to Search
 :order: 00
@@ -7,7 +9,7 @@
 
 ${branding} provides the capability to search the Catalog for metadata.
 There are a number of different types of searches that can be performed on the Catalog, and these searches are accessed using one of several interfaces.
-This section provides a very high level overview of introductory concepts of searching with ${branding}.
+This section provides a very high-level overview of introductory concepts of searching with ${branding}.
 These concepts are expanded upon in later sections.
 
 .Search Types

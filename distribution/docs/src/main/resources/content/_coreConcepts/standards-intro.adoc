@@ -1,5 +1,7 @@
 :title: Standards Supported by ${branding}
 :type: coreConcept
+:priority: 00
+:section: Core Concepts
 :status: published
 :order: 10
 

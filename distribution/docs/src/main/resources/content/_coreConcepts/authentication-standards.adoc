@@ -1,4 +1,5 @@
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :title: Authentication Standards Provided by ${ddf-branding}
 :parent: Standards Supported by ${branding}

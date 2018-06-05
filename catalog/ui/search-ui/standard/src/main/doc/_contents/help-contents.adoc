@@ -202,7 +202,7 @@ button is selected in the Record pane, the following information is displayed.
  the search results list is reached, the respective up or down arrow is disabled.
 
 |Summary button
-|Opens the Summary tab, which provides a high level overview of the result set.
+|Opens the Summary tab, which provides a high-level overview of the result set.
 
 |Id
 |The record's unique identifier.

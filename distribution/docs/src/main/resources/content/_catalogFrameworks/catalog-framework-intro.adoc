@@ -61,7 +61,7 @@ Compatibility is reflected in version numbers.
 ==== Catalog Framework Sequence Diagrams
 
 Because the Catalog Framework plays a central role to Catalog functionality, it interacts with many different Catalog components.
-To illustrate these relationships, high level sequence diagrams with notional class names are provided below.
+To illustrate these relationships, high-level sequence diagrams with notional class names are provided below.
 These examples are for illustrative purposes only and do not necessarily represent every step in each procedure.
 
 .Ingest Request Data Flow

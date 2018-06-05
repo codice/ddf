@@ -1,6 +1,10 @@
 :type: introduction
 :status: published
-:title: Core Concepts Introduction
+:title: Core Concepts
+:section: Core Concepts
 :priority: 1
+:order: 00
 
-This introduction section is intended to give a high level overview of the concepts and capabilities of ${branding}.
+== {title}
+
+This introduction section is intended to give a high-level overview of the concepts and capabilities of ${branding}.

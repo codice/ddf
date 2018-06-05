@@ -1,0 +1,12 @@
+= ${branding-expanded} Overview
+include::${project.build.directory}/doc-contents/content/config.adoc[]
+:title: ${branding-expanded} Executive Summary: Core Concepts and Introduction
+:managing-prefix: documentation.adoc#_
+:using-prefix: documentation.adoc#_
+:integrating-prefix: documentation.adoc#_
+:developing-prefix: documentation.adoc#_
+:metadata-prefix: documentation.adoc#_
+
+<#include "build/introduction.ftl">
+
+include::${project.build.directory}/doc-contents/content/scripts.html[]

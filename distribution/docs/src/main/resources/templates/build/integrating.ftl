@@ -22,7 +22,7 @@ include::${dvi.file}[]
 </#if>
 </#list>
 
-.Avaliable Validation Services
+.Available Validation Services
 <#list dataValidations?sort_by("order") as dataValidation>
 <#if (dataValidation.status == "published")>
 <<${dataValidation.link},${dataValidation.title}>>:: ${dataValidation.summary}

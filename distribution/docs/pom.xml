@@ -82,6 +82,11 @@
                                             <type>pdf</type>
                                             <classifier>Documentation</classifier>
                                         </artifact>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/pdf/introduction.pdf</file>
+                                            <type>pdf</type>
+                                            <classifier>Introduction</classifier>
+                                        </artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
@@ -215,6 +220,7 @@
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>**/*.adoc</include>
+                                        <include>**/*.html</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -405,6 +411,11 @@
                                     <file>${project.build.directory}/docs/html/documentation.html</file>
                                     <type>html</type>
                                     <classifier>Documentation</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/docs/html/introduction.html</file>
+                                    <type>html</type>
+                                    <classifier>Introduction</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

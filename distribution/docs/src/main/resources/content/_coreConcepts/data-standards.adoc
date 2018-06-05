@@ -1,4 +1,5 @@
 :type: subCoreConcept
+:section: Core Concepts
 :status: published
 :title: Data Formats
 :parent: Standards Supported by ${branding}
@@ -6,8 +7,8 @@
 
 == {title}
 
-${branding} has extended capabilities to extract rich metadata from many common data formats, if those attributes are populated in the source document.
-See <<_all_file_formats_supported,appendix>> for a complete list of file formats that can be ingested, with limited metadata coverage.
+${branding} has extended capabilities to extract rich metadata from many common data formats if those attributes are populated in the source document.
+See <<_all_file_formats_supported,appendix>> for a complete list of file formats that can be ingested with limited metadata coverage.
 Metadata standards use XML or JSON, or both.
 
 .Data Formats Included in ${ddf-branding}

@@ -5,6 +5,7 @@
 :order: 00
 :summary: Securing REST.
 
+.Security Architecture
 [ditaa,security_architecture,png]
 ....
 +------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -71,9 +72,9 @@ If a handler is successfully found, an auth token is assigned and the request co
 To retrieve the subject, the token is sent through Shiro to the STS Realm where the token will be exchanged for a SAML assertion through a SOAP call to an STS server.
 
 . If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
-If the user has the correct permissions to access that web context, the request is allowed to hit the endpoint.
+If the user has the correct permissions to access that web context, the request can hit the endpoint.
 
-
+IdP Architecture
 [ditaa,security_idp_architecture,png]
 ....
 +---------------------------------------------------------------------------------------------------------------------------------------+
@@ -130,7 +131,7 @@ The request will proceed through the rest of the filters as any other connection
 
 Unauthenticated non-browser clients that pass the HTTP headers signaling that they understand SAML ECP can authenticate via that mechanism as explained below.
 
-
+.Ecp Architecture
 [ditaa,security_ecp_architecture,png]
 ....
 +---------------------------------------------------------------------------------------------------------------------+
