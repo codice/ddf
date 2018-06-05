@@ -223,6 +223,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     EmbeddedSolrFactory.INDEX_CACHE.putAll(cache);
   }
 
+  @VisibleForTesting
   static boolean indexCacheEquals(Map<EmbeddedSolrFiles, IndexSchema> cache) {
     return EmbeddedSolrFactory.INDEX_CACHE.equals(cache);
   }

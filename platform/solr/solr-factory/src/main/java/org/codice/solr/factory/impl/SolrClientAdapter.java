@@ -342,6 +342,11 @@ public final class SolrClientAdapter extends SolrClientProxy
 
   @Override
   public boolean isAvailable() {
+    // no need to account for state == State.CLOSED, since that would require synchronization which
+    // we are trying to avoid here. Since by design, this class is dealing with background retries
+    // when it is not available, this method doesn't have to do anything, As such, checking only for
+    // CONNECTED would automatically yield false and return right away without doing anything else;
+    // very close to a short-circuit.
     final boolean available = (state == State.CONNECTED);
 
     if (LOGGER.isDebugEnabled()) {
@@ -380,18 +385,18 @@ public final class SolrClientAdapter extends SolrClientProxy
         if (available) {
           return true;
         }
-        final long t = end - now;
+        final long timeRemaining = end - now;
 
-        if (t <= 0L) { // we timed out
+        if (timeRemaining <= 0L) { // we timed out
           return false;
         }
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(
               "Solr({}): waiting {} to become available",
               core,
-              DurationFormatUtils.formatDurationHMS(TimeUnit.NANOSECONDS.toMillis(t)));
+              DurationFormatUtils.formatDurationHMS(TimeUnit.NANOSECONDS.toMillis(timeRemaining)));
         }
-        now = waiter.timedWait(lock, now, t, TimeUnit.NANOSECONDS);
+        now = waiter.timedWait(lock, now, timeRemaining, TimeUnit.NANOSECONDS);
       }
     }
   }

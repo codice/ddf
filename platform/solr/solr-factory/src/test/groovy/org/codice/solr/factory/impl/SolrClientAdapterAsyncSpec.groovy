@@ -218,7 +218,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
   }
 
   @Unroll
-  def 'test client #test_client_how where an API call also fails to connect after the initial failure'() {
+  def 'test client #test_client_how where an API call also fails to connect after the initial failure and finally recover to become available'() {
     given: "a Solr client that fails direct pings"
       def client = Mock(SolrClient) {
         // in case the real client is consulted for the first API call
@@ -228,6 +228,9 @@ class SolrClientAdapterAsyncSpec extends Specification {
       }
 
     and: "controllers that mocks every execution/attempts"
+      // be careful here as the mocking conditions are changed based on blocking_create and blocking_ping
+      // although not necessarly a good practice, I feel like this avoids duplicating this test 3 times
+      // the hope is that this comment is enough to warn developers to not use this approach all the times 
       def createController = new FailsafeController('SolrClient Creation') >> {
         waitTo('create').onlyIf(blocking_create)
             .then().doReturn(client)
