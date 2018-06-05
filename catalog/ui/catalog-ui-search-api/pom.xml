@@ -60,7 +60,6 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.codice.ddf.catalog.ui.metacard.workspace,
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer
                         </Export-Package>
                         <Embed-Dependency>
@@ -99,11 +98,6 @@
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.29</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.33</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
