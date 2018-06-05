@@ -83,5 +83,13 @@ program
   .option('--host <host>', 'dev server host (default: localhost)')
   .action(wrap('./lib/start'))
 
+program
+  .command('disable-idp')
+  .description('disable idp authentication in running ddf instance')
+  .option('-a, --auth <auth>', 'auth <username:password> (default: admin:admin)')
+  .option('--port <port>', 'ddf server port (default: 8993)')
+  .option('--host <host>', 'ddf server host (default: localhost)')
+  .action(wrap('./lib/disable-idp'))
+
 program.parse(process.argv)
 
