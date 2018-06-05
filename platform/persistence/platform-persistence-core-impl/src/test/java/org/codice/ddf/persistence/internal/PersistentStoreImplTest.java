@@ -26,8 +26,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -35,6 +33,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.SolrClientFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,16 +47,14 @@ public class PersistentStoreImplTest {
 
   @Mock private SolrClientFactoryImpl solrClientFactory;
 
-  @Mock private Future<SolrClient> solrFuture;
-
   @Mock private SolrClient solrClient;
 
   private PersistentStoreImpl persistentStore;
 
   @Before
   public void setup() throws Exception {
-    when(solrClientFactory.newClient(any())).thenReturn(solrFuture);
-    when(solrFuture.get(anyLong(), any())).thenReturn(solrClient);
+    when(solrClientFactory.newClient(any())).thenReturn(solrClient);
+    when(solrClient.isAvailable(anyLong(), any())).thenReturn(true);
     persistentStore = new PersistentStoreImpl(solrClientFactory);
   }
 

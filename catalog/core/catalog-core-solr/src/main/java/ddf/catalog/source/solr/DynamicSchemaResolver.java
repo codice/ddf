@@ -69,7 +69,6 @@ import net.sf.saxon.tree.tiny.TinyTree;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -79,6 +78,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +110,9 @@ public class DynamicSchemaResolver {
   protected static final XMLInputFactory XML_INPUT_FACTORY;
 
   private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
+
+  private static final String COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES =
+      "Could not update cache for field names.";
 
   private static final List<String> PRIVATE_SOLR_FIELDS =
       Arrays.asList(
@@ -195,8 +198,11 @@ public class DynamicSchemaResolver {
    * SolrClient is up to ensure the cache is synchronized with Solr.
    *
    * @param client the SolrClient we are working with
+   * @throws SolrServerException if a Solr server exception occurs
+   * @throws SolrException if a Solr exception occurs
+   * @throws IOException if an I/O exception occurs
    */
-  public void addFieldsFromClient(SolrClient client) {
+  public void addFieldsFromClient(SolrClient client) throws SolrServerException, IOException {
     if (client == null) {
       LOGGER.debug("Solr client is null, could not add fields to cache.");
       return;
@@ -218,8 +224,9 @@ public class DynamicSchemaResolver {
     try {
       response = client.query(query);
     } catch (SolrServerException | SolrException | IOException e) {
-      LOGGER.info("Could not update cache for field names.", e);
-      return;
+      LOGGER.info(DynamicSchemaResolver.COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES);
+      LOGGER.debug(DynamicSchemaResolver.COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES, e);
+      throw e;
     }
     NamedList<?> fields = (SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY));
 

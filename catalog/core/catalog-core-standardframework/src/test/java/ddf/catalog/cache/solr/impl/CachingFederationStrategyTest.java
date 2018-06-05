@@ -73,6 +73,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.solr.client.solrj.SolrClient;
 import org.geotools.filter.NullFilterImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -108,7 +109,9 @@ public class CachingFederationStrategyTest {
 
   @Mock private SortedQueryMonitor mockSortedQueryMonitor;
 
-  @Mock private SolrClientAdaptor mockClientAdaptor;
+  @Mock private SolrClient mockClient;
+
+  @Mock private CacheSolrMetacardClient mockMetacardClient;
 
   @Mock private SolrCache cache;
 
@@ -601,7 +604,8 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessUpdateResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
+    SolrCacheSource cacheSource =
+        new SolrCacheSource(new SolrCache(mockClient, mockMetacardClient));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -648,7 +652,8 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessDeleteResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
+    SolrCacheSource cacheSource =
+        new SolrCacheSource(new SolrCache(mockClient, mockMetacardClient));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 

@@ -16,26 +16,18 @@ package ddf.catalog.solr.provider;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.source.solr.RemoteSolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
-import java.util.concurrent.Future;
-import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
 /** Catalog Provider that interfaces with Solr */
 public class SolrCatalogProvider extends RemoteSolrCatalogProvider {
-
-  private SolrClientFactory clientFactory;
-
   public SolrCatalogProvider(
       FilterAdapter filterAdapter,
       SolrClientFactory clientFactory,
       SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    super(filterAdapter, null, solrFilterDelegateFactory, null);
-    this.clientFactory = clientFactory;
-    updateClient();
-  }
-
-  @Override
-  protected Future<SolrClient> createClient() {
-    return clientFactory.newClient(SOLR_CATALOG_CORE_NAME);
+    super(
+        filterAdapter,
+        clientFactory.newClient(SOLR_CATALOG_CORE_NAME),
+        solrFilterDelegateFactory,
+        null);
   }
 }

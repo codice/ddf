@@ -37,9 +37,6 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 @ExamReactorStrategy(PerSuite.class)
 public class TestPlatform extends AbstractIntegrationTest {
 
-  private static final DynamicUrl BANANA_URL =
-      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/solr/banana");
-
   private static final DynamicUrl LOGGING_SERVICE_JOLOKIA_URL =
       new DynamicUrl(
           DynamicUrl.SECURE_ROOT,
@@ -52,23 +49,9 @@ public class TestPlatform extends AbstractIntegrationTest {
       waitForSystemReady();
       // Start the services needed for testing.
       // We need to start the Search UI to test that it redirects properly
-      getServiceManager().startFeature(true, "banana");
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
-  }
-
-  @Test
-  public void testDeployment() throws Exception {
-
-    given()
-        .auth()
-        .preemptive()
-        .basic("admin", "admin")
-        .expect()
-        .statusCode(200)
-        .when()
-        .get(BANANA_URL.getUrl());
   }
 
   @Test

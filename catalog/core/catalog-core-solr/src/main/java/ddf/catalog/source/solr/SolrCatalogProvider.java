@@ -28,6 +28,7 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.Request;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
@@ -55,9 +56,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -66,6 +68,7 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,31 +89,31 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   public static final int MAX_BOOLEAN_CLAUSES = 1024;
 
-  private static Properties describableProperties = new Properties();
+  private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   static {
     try (InputStream propertiesStream =
         ddf.catalog.source.solr.SolrCatalogProvider.class.getResourceAsStream(
             DESCRIBABLE_PROPERTIES_FILE)) {
-      describableProperties.load(propertiesStream);
+      DESCRIBABLE_PROPERTIES.load(propertiesStream);
     } catch (IOException e) {
       LOGGER.info("Failed to load describable properties", e);
     }
   }
 
-  private DynamicSchemaResolver resolver;
+  private final DynamicSchemaResolver resolver;
 
-  private SolrClient solr;
+  private final SolrClient solr;
 
-  private SolrMetacardClientImpl client;
+  private final SolrMetacardClientImpl client;
 
-  private FilterAdapter filterAdapter;
+  private final FilterAdapter filterAdapter;
 
   /**
    * Cache of Metacards that have been updated on Solr but might not be visible in the near real
    * time index yet. Cache is checked when ID queries fail from Solr.
    */
-  private Cache<String, Metacard> pendingNrtIndex =
+  private final Cache<String, Metacard> pendingNrtIndex =
       CacheBuilder.newBuilder()
           .expireAfterWrite(
               NumberUtils.toInt(System.getProperty("solr.provider.pending-nrt-ttl"), 5),
@@ -129,10 +132,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       FilterAdapter adapter,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
       DynamicSchemaResolver resolver) {
-    if (solrClient == null) {
-      throw new IllegalArgumentException("SolrClient cannot be null.");
-    }
-
+    Validate.notNull(solrClient, "SolrClient cannot be null.");
+    Validate.notNull(adapter, "FilterAdapter cannot be null");
+    Validate.notNull(solrFilterDelegateFactory, "SolrFilterDelegateFactory cannot be null");
+    Validate.notNull(resolver, "DynamicSchemaResolver cannot be null");
     this.solr = solrClient;
     this.filterAdapter = adapter;
     this.resolver = resolver;
@@ -140,7 +143,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     LOGGER.debug(
         "Constructing {} with Solr client [{}]", SolrCatalogProvider.class.getName(), solr);
 
-    resolver.addFieldsFromClient(solrClient);
+    solr.whenAvailable(this::addFieldsFromClientToResolver);
     this.client =
         new ProviderSolrMetacardClient(solrClient, adapter, solrFilterDelegateFactory, resolver);
   }
@@ -164,17 +167,20 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   }
 
   @Override
+  @SuppressWarnings("squid:S1181" /* bubbling out VirtualMachineError */)
   public boolean isAvailable() {
     try {
       SolrPingResponse ping = solr.ping();
 
       return "OK".equals(ping.getResponse().get("status"));
-    } catch (Exception e) {
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable t) {
       /*
        * if we get any type of exception, whether declared by Solr or not, we do not want to
        * fail, we just want to return false
        */
-      LOGGER.debug("Solr ping failed.", e);
+      LOGGER.debug("Solr ping failed.", t);
       LOGGER.warn(
           "Solr ping request/response failed while checking availability. Verify Solr is available and correctly configured.");
     }
@@ -184,27 +190,29 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   @Override
   public boolean isAvailable(SourceMonitor callback) {
-    return isAvailable();
+    // first register the callback
+    solr.isAvailable(new SolrClientListenerAdapter(callback));
+    return isAvailable(); // then trigger an active ping
   }
 
   @Override
   public String getDescription() {
-    return describableProperties.getProperty("description");
+    return DESCRIBABLE_PROPERTIES.getProperty("description");
   }
 
   @Override
   public String getOrganization() {
-    return describableProperties.getProperty("organization");
+    return DESCRIBABLE_PROPERTIES.getProperty("organization");
   }
 
   @Override
   public String getTitle() {
-    return describableProperties.getProperty("name");
+    return DESCRIBABLE_PROPERTIES.getProperty("name");
   }
 
   @Override
   public String getVersion() {
-    return describableProperties.getProperty("version");
+    return DESCRIBABLE_PROPERTIES.getProperty("version");
   }
 
   @Override
@@ -228,7 +236,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     Set<String> ids =
         filterAdapter.adapt(request.getQuery(), new MetacardIdEqualityFilterDelegate());
-    if (ids.size() == 0) {
+    if (ids.isEmpty()) {
       return;
     }
 
@@ -250,9 +258,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   @Override
   public CreateResponse create(CreateRequest request) throws IngestException {
-    if (request == null) {
-      throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
-    }
+    nonNull(request);
 
     List<Metacard> metacards = request.getMetacards();
     List<Metacard> output = new ArrayList<>();
@@ -289,21 +295,19 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
 
     pendingNrtIndex.putAll(
-        output.stream().collect(Collectors.toMap(Metacard::getId, m -> copyMetacard(m))));
+        output.stream().collect(Collectors.toMap(Metacard::getId, this::copyMetacard)));
 
     return new CreateResponseImpl(request, request.getProperties(), output);
   }
 
   @Override
   public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
-    if (updateRequest == null) {
-      throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
-    }
+    nonNull(updateRequest);
 
     List<Entry<Serializable, Metacard>> updates = updateRequest.getUpdates();
 
     // the list of updates, both new and old metacards
-    ArrayList<Update> updateList = new ArrayList<>();
+    List<Update> updateList = new ArrayList<>();
 
     String attributeName = updateRequest.getAttributeName();
 
@@ -313,19 +317,19 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
           "Attribute name cannot be null. " + "Please provide the name of the attribute.");
     }
 
-    List<String> identifiers = new ArrayList<>();
-
     // if we have nothing to update, send the empty list
-    if (updates == null || updates.size() == 0) {
+    if (CollectionUtils.isEmpty(updates)) {
       return new UpdateResponseImpl(updateRequest, null, new ArrayList<>());
     }
 
     /* 1. QUERY */
-
     // Loop to get all identifiers
-    for (Entry<Serializable, Metacard> updateEntry : updates) {
-      identifiers.add(updateEntry.getKey().toString());
-    }
+    List<String> identifiers =
+        updates
+            .stream()
+            .map(Entry::getKey)
+            .map(Serializable::toString)
+            .collect(Collectors.toList());
 
     /* 1a. Create the old Metacard Query */
     String attributeQuery = getQuery(attributeName, identifiers);
@@ -338,83 +342,26 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     // 1 is added to the row size, so we can still determine whether we found more metacards than
     // updated metacards provided
     query.setRows(updates.size() + 1);
-
     QueryResponse idResults = null;
 
-    /* 1b. Execute Query */
     try {
       idResults = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to query for metacard(s) before update.", e);
     }
-
     // map of old metacards to be populated
-    Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
-
-    /* 1c. Populate list of old metacards */
-    if (idResults != null && idResults.getResults() != null && idResults.getResults().size() != 0) {
-
-      LOGGER.debug("Found {} current metacard(s).", idResults.getResults().size());
-
-      // CHECK updates size assertion
-      if (idResults.getResults().size() > updates.size()) {
-        throw new IngestException(
-            "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
-      }
-
-      for (SolrDocument doc : idResults.getResults()) {
-        Metacard old;
-        try {
-          old = client.createMetacard(doc);
-        } catch (MetacardCreationException e) {
-          LOGGER.info("Unable to create metacard(s) from Solr responses during update.", e);
-          throw new IngestException("Could not create metacard(s).");
-        }
-
-        if (!idToMetacardMap.containsKey(old.getAttribute(attributeName).getValue())) {
-          idToMetacardMap.put(old.getAttribute(attributeName).getValue(), old);
-        } else {
-          throw new IngestException(
-              "The attribute value given ["
-                  + old.getAttribute(attributeName).getValue()
-                  + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
-        }
-      }
-    }
+    final Map<Serializable, Metacard> idToMetacardMap =
+        computeOldMetacardIds(attributeName, updates, idResults);
 
     if (Metacard.ID.equals(attributeName)) {
       idToMetacardMap.putAll(pendingNrtIndex.getAllPresent(identifiers));
     }
-
-    if (idToMetacardMap.size() == 0) {
+    if (idToMetacardMap.isEmpty()) {
       LOGGER.debug("No results found for given attribute values.");
-
       // return an empty list
       return new UpdateResponseImpl(updateRequest, null, new ArrayList<>());
     }
-
-    /* 2. Update the cards */
-    List<Metacard> newMetacards = new ArrayList<>();
-    for (Entry<Serializable, Metacard> updateEntry : updates) {
-      String localKey = updateEntry.getKey().toString();
-
-      /* 2a. Prepare new Metacard */
-      MetacardImpl newMetacard = new MetacardImpl(updateEntry.getValue());
-      // Find the exact oldMetacard that corresponds with this newMetacard
-      Metacard oldMetacard = idToMetacardMap.get(localKey);
-
-      // We need to skip because of partial updates such as one entry
-      // matched but another did not
-      if (oldMetacard != null) {
-        // overwrite the id, in case it has not been done properly/already
-        newMetacard.setId(oldMetacard.getId());
-
-        newMetacard.setSourceId(getId());
-
-        newMetacards.add(newMetacard);
-        updateList.add(new UpdateImpl(newMetacard, oldMetacard));
-      }
-    }
+    List<Metacard> newMetacards = computeMetacardsToUpdate(updates, idToMetacardMap, updateList);
 
     try {
       client.add(newMetacards, isForcedAutoCommit());
@@ -422,7 +369,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       LOGGER.info("Failed to update metacard(s) with Solr.", e);
       throw new IngestException("Failed to update metacard(s).");
     }
-
     pendingNrtIndex.putAll(
         updateList
             .stream()
@@ -435,10 +381,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   @Override
   public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
-
-    if (deleteRequest == null) {
-      throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
-    }
+    nonNull(deleteRequest);
 
     List<Metacard> deletedMetacards = new ArrayList<>();
 
@@ -451,7 +394,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     @SuppressWarnings("unchecked")
     List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
 
-    if (identifiers == null || identifiers.size() == 0) {
+    if (CollectionUtils.isEmpty(identifiers)) {
       return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
     }
 
@@ -479,6 +422,82 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
   }
 
+  private void addFieldsFromClientToResolver(SolrClient client) {
+    try {
+      resolver.addFieldsFromClient(client);
+    } catch (SolrServerException | SolrException | IOException e) {
+      // retry again when it comes back available
+      client.whenAvailable(this::addFieldsFromClientToResolver);
+    }
+  }
+
+  private List<Metacard> computeMetacardsToUpdate(
+      List<Entry<Serializable, Metacard>> updates,
+      Map<Serializable, Metacard> idToMetacardMap,
+      List<Update> updateList) {
+    List<Metacard> newMetacards = new ArrayList<>();
+
+    for (Entry<Serializable, Metacard> updateEntry : updates) {
+      String localKey = updateEntry.getKey().toString();
+      MetacardImpl newMetacard = new MetacardImpl(updateEntry.getValue());
+      // Find the exact oldMetacard that corresponds with this newMetacard
+      Metacard oldMetacard = idToMetacardMap.get(localKey);
+
+      // We need to skip because of partial updates such as one entry
+      // matched but another did not
+      if (oldMetacard != null) {
+        // overwrite the id, in case it has not been done properly/already
+        newMetacard.setId(oldMetacard.getId());
+        newMetacard.setSourceId(getId());
+        newMetacards.add(newMetacard);
+        updateList.add(new UpdateImpl(newMetacard, oldMetacard));
+      }
+    }
+    return newMetacards;
+  }
+
+  private Map<Serializable, Metacard> computeOldMetacardIds(
+      String attributeName, List<Entry<Serializable, Metacard>> updates, QueryResponse idResults)
+      throws IngestException {
+    Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
+
+    if (idResults != null) {
+      final SolrDocumentList results = idResults.getResults();
+
+      if (CollectionUtils.isNotEmpty(results)) {
+        LOGGER.debug("Found {} current metacard(s).", results.size());
+
+        // CHECK updates size assertion
+        if (results.size() > updates.size()) {
+          throw new IngestException(
+              "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
+        }
+
+        for (SolrDocument doc : results) {
+          final Metacard old = recreateMetacard(doc);
+          final Serializable oldValue = old.getAttribute(attributeName).getValue();
+
+          if (idToMetacardMap.putIfAbsent(oldValue, old) != null) {
+            throw new IngestException(
+                "The attribute value given ["
+                    + oldValue
+                    + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
+          }
+        }
+      }
+    }
+    return idToMetacardMap;
+  }
+
+  private Metacard recreateMetacard(SolrDocument doc) throws IngestException {
+    try {
+      return client.createMetacard(doc);
+    } catch (MetacardCreationException e) {
+      LOGGER.info("Unable to create metacard(s) from Solr responses during update.", e);
+      throw new IngestException("Could not create metacard(s).");
+    }
+  }
+
   private void deleteListOfMetacards(
       List<Metacard> deletedMetacards,
       List<? extends Serializable> identifiers,
@@ -493,7 +512,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       // right away, such as expired data, etc.
       // so we force the commit
       client.deleteByIds(fieldName, identifiers, true);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to delete metacards by ID(s).", e);
       throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
     }
@@ -541,7 +560,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     QueryResponse solrResponse;
     try {
       solrResponse = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Failed to get list of Solr documents for delete.", e);
       throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
     }
@@ -593,6 +612,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
   }
 
+  private static void nonNull(Request request) throws IngestException {
+    if (request == null) {
+      throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
+    }
+  }
+
   private class ProviderSolrMetacardClient extends SolrMetacardClientImpl {
 
     public ProviderSolrMetacardClient(
@@ -608,6 +633,42 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       MetacardImpl metacard = super.createMetacard(doc);
       metacard.setSourceId(getId());
       return metacard;
+    }
+  }
+
+  /** Solr client listener class to adapt to a source monitor class */
+  private static class SolrClientListenerAdapter implements SolrClient.Listener {
+    private final SourceMonitor callback;
+
+    private SolrClientListenerAdapter(SourceMonitor callback) {
+      this.callback = callback;
+    }
+
+    @Override
+    public void changed(SolrClient client, boolean available) {
+      if (available) {
+        callback.setAvailable();
+      } else {
+        callback.setUnavailable();
+      }
+    }
+
+    @Override
+    public int hashCode() {
+      return callback.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof SolrClientListenerAdapter) {
+        return callback.equals(((SolrClientListenerAdapter) obj).callback);
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return callback.toString();
     }
   }
 }
