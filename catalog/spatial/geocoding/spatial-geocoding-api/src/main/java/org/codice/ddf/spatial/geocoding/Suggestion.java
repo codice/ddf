@@ -11,33 +11,17 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.query.geofeature;
-
-import java.util.List;
-import org.codice.ddf.spatial.geocoding.Suggestion;
-import org.opengis.feature.simple.SimpleFeature;
+package org.codice.ddf.spatial.geocoding;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-public interface FeatureService {
-  /**
-   * Searches for geographic features by name, returning the names of the closest n matches.
-   * Intended for use by an autocomplete widget.
-   *
-   * @param query search term
-   * @param maxResults maximum number of results to return
-   * @return list of names found
-   */
-  List<Suggestion> getSuggestedFeatureNames(String query, int maxResults);
+public interface Suggestion {
 
-  /**
-   * Retrieves a specific geographic feature by its exact id (as returned by
-   * getSuggestedFeatureNames).
-   *
-   * @param id id of a geographic feature
-   * @return the feature if found, otherwise null
-   */
-  SimpleFeature getFeatureById(String id);
+  /** Identifier that can be used to retrieve a specific {@code GeoEntry} from a resource */
+  String getId();
+
+  /** Search suggestion name */
+  String getName();
 }

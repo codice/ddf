@@ -14,7 +14,7 @@
 package org.codice.ddf.catalog.ui.query.geofeature;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -25,6 +25,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.codice.ddf.spatial.geocoder.GeoResult;
@@ -34,6 +35,7 @@ import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
@@ -60,9 +62,14 @@ public class GazetteerFeatureServiceTest {
           .alternateNames("")
           .build();
 
-  private static final List<GeoEntry> QUERYABLE_RESULTS = Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2);
+  private static final List<Suggestion> SUGGESTED_NAMES = new ArrayList<>();
 
-  private static final List<String> SUGGESTED_NAMES = Arrays.asList("name1", "name2");
+  static {
+    Suggestion suggestion = mock(Suggestion.class);
+    doReturn("id1").when(suggestion).getId();
+    doReturn("name1").when(suggestion).getName();
+    SUGGESTED_NAMES.add(suggestion);
+  }
 
   private static final String TEST_QUERY = "example";
 
@@ -86,15 +93,17 @@ public class GazetteerFeatureServiceTest {
     final int maxResults = 2;
     doReturn(SUGGESTED_NAMES).when(geoEntryQueryable).getSuggestedNames(anyString(), anyInt());
 
-    List<String> results = gazetteerFeatureService.getSuggestedFeatureNames(TEST_QUERY, maxResults);
-    assertThat(results, contains("name1", "name2"));
+    List<Suggestion> results =
+        gazetteerFeatureService.getSuggestedFeatureNames(TEST_QUERY, maxResults);
+    assertEquals("id1", results.get(0).getId());
+    assertEquals("name1", results.get(0).getName());
   }
 
   @Test
-  public void testGetCityFeatureByName() throws GeoEntryQueryException {
-    doReturn(QUERYABLE_RESULTS).when(geoEntryQueryable).query(TEST_QUERY, 1);
+  public void testGetCityFeatureById() throws GeoEntryQueryException {
+    doReturn(GEO_ENTRY_1).when(geoEntryQueryable).queryById(TEST_QUERY);
 
-    SimpleFeature feature = gazetteerFeatureService.getFeatureByName(TEST_QUERY);
+    SimpleFeature feature = gazetteerFeatureService.getFeatureById(TEST_QUERY);
     Geometry geometry = (Geometry) feature.getDefaultGeometry();
 
     assertThat(feature.getID(), is(GEO_ENTRY_1.getName()));
@@ -116,8 +125,8 @@ public class GazetteerFeatureServiceTest {
   }
 
   @Test
-  public void testGetCountryFeatureByName() throws GeoEntryQueryException, FeatureQueryException {
-    doReturn(Arrays.asList(GEO_ENTRY_2)).when(geoEntryQueryable).query(TEST_QUERY, 1);
+  public void testGetCountryFeatureById() throws GeoEntryQueryException, FeatureQueryException {
+    doReturn(GEO_ENTRY_2).when(geoEntryQueryable).queryById(TEST_QUERY);
 
     Coordinate[] countryCoordinates =
         new Coordinate[] {
@@ -138,7 +147,7 @@ public class GazetteerFeatureServiceTest {
         .when(featureQueryable)
         .query("CAN", GEO_ENTRY_2.getFeatureCode(), 1);
 
-    SimpleFeature feature = gazetteerFeatureService.getFeatureByName(TEST_QUERY);
+    SimpleFeature feature = gazetteerFeatureService.getFeatureById(TEST_QUERY);
     Geometry geometry = (Geometry) feature.getDefaultGeometry();
 
     assertThat(feature.getID(), is(GEO_ENTRY_2.getName()));

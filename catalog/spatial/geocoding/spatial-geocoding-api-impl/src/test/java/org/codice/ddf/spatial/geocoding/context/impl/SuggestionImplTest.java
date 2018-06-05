@@ -11,19 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.geocoding.query;
+package org.codice.ddf.spatial.geocoding.context.impl;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.junit.Test;
 
-public class GeoNamesQueryLuceneDirectoryIndexTest {
+public class SuggestionImplTest {
+
   @Test
-  public void getShape() throws Exception {
-    assertThat(
-        GeoNamesQueryLuceneDirectoryIndex.getShape(
-            "GEOMETRYCOLLECTION (MULTIPOLYGON (((56 9, 64 9, 60 14, 56 9)), ((61 9, 69 9, 65 14, 61 9)), ((51 9, 59 9, 55 14, 51 9))), LINESTRING (50 8, 50 15, 70 15, 70 8, 50 8), MULTIPOINT ((62.5 14), (67.5 14), (57.5 14), (52.5 14)))"),
-        notNullValue());
+  public void testConstructor() {
+    Suggestion suggestion = new SuggestionImpl("id1", "name1");
+    assertThat(suggestion.getId(), is("id1"));
+    assertThat(suggestion.getName(), is("name1"));
   }
 }

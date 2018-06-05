@@ -1155,7 +1155,7 @@
             <str name="field">title_txt</str>
             <str name="contextField">metacard-tags_txt</str>
             <str name="weightField">ext.population_lng</str>
-            <str name="payloadField">description_txt</str>
+            <str name="payloadField">id_txt</str>
             <str name="buildOnStartup">true</str>
         </lst>
     </searchComponent>

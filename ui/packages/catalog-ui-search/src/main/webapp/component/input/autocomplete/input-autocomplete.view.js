@@ -33,14 +33,13 @@ module.exports = InputView.extend({
             cache: false,
             minimumInputLength: 3,
             getUrlParams(query) { return { q: query }; },
-            getLabelForResult(item) { return item.name.replace(/\(.+\)/, "") || item; },
-            getLabelForSelection(item) { return item.name.replace(/\(.+\)/, "") || item; },
+            getLabel(item) { return item.name || item; },
             processResults(data) {
                 var items = data.items;
                 if (!Array.isArray(items)) { items = data; }
                 if (!Array.isArray(items)) { items = []; }
                 return items.map(function(item){
-                    return { name: item, id: item };
+                    return { name: item.name, id: item.id };
                 });
             }
         };
@@ -71,11 +70,11 @@ module.exports = InputView.extend({
             escapeMarkup(markup) { return markup; },
             templateResult(result) {
                 if (result.loading) { return result.text; }
-                return options.getLabelForResult(result);
+                return options.getLabel(result);
             },
             templateSelection(result) {
                 if (!result.id) { return result.text; /* nothing selected */ }
-                return options.getLabelForSelection(result);
+                return options.getLabel(result);
             }            
         });
     },

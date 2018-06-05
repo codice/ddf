@@ -446,7 +446,7 @@ define([
             }
             view.$el.toggleClass('is-loading-geometry', true);
             view.getFeatureByKeywordXHR = $.get({
-                url: '/search/catalog/internal/geofeature?name=' + query,
+                url: '/search/catalog/internal/geofeature?id=' + query,
                 contentType: 'application/json',
                 cache: false,
                 customErrorHandling: true
