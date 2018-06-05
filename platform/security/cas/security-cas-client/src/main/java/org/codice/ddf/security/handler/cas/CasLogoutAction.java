@@ -36,7 +36,7 @@ public class CasLogoutAction implements ActionProvider {
 
   static {
     try {
-      logoutUrl = new URL(SystemBaseUrl.constructUrl("/cas/logout", true));
+      logoutUrl = new URL(SystemBaseUrl.EXTERNAL.constructUrl("/cas/logout", true));
     } catch (MalformedURLException e) {
       LOGGER.info("Unable to resolve URL: {}", e);
     }

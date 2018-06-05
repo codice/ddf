@@ -195,7 +195,7 @@ public class AbstractMetacardActionProviderTest {
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
     when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
-    System.clearProperty(SystemBaseUrl.HOST);
+    System.clearProperty(SystemBaseUrl.EXTERNAL_HOST);
 
     Action action = actionProvider.getAction(metacard);
 
@@ -210,7 +210,7 @@ public class AbstractMetacardActionProviderTest {
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
     when(actionProvider.getMetacardActionUrl(SOURCE_ID, metacard)).thenReturn(url);
-    System.setProperty(SystemBaseUrl.HOST, "0.0.0.0");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "0.0.0.0");
 
     Action action = actionProvider.getAction(metacard);
 
@@ -234,7 +234,7 @@ public class AbstractMetacardActionProviderTest {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
 
     Action action = actionProvider.getAction(metacard);
 
@@ -253,7 +253,7 @@ public class AbstractMetacardActionProviderTest {
           }
         };
 
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
     Action action = actionProvider.getAction(metacard);
     assertThat(action, is(nullValue()));
   }
@@ -262,7 +262,7 @@ public class AbstractMetacardActionProviderTest {
   public void getActionsWhenMetacardSourceIdIsNull() throws Exception {
     MetacardActionProvider actionProvider = createMetacardActionProvider();
     when(metacard.getSourceId()).thenReturn(null);
-    System.setProperty(SystemBaseUrl.HOST, "codice.org");
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, "codice.org");
     System.setProperty(SystemInfo.SITE_NAME, "ddf");
     when(actionProvider.createMetacardAction(eq(ACTION_ID), eq(TITLE), eq(DESCRIPTION), any()))
         .thenReturn(action);

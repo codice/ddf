@@ -25,6 +25,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
 
 import java.io.File;
 import org.codice.ddf.catalog.content.monitor.features.KarafStandardFeatures;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.ops4j.pax.exam.ConfigurationManager;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
@@ -46,8 +47,8 @@ public class KarafConfigurator {
         keepRuntimeFolder(),
         logLevel().logLevel(LogLevelOption.LogLevel.DEBUG),
         editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
-        editConfigurationFilePut(
-            "etc/system.properties", "org.codice.ddf.system.hostname", "localhost"),
+        editConfigurationFilePut("etc/system.properties", SystemBaseUrl.EXTERNAL_HOST, "localhost"),
+        editConfigurationFilePut("etc/system.properties", SystemBaseUrl.INTERNAL_HOST, "localhost"),
         when(Boolean.getBoolean("isDebugEnabled")).useOptions(debugConfiguration()),
         KarafStandardFeatures.start("standard"));
   }

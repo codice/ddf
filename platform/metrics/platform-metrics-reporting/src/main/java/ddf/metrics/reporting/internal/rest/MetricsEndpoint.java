@@ -121,6 +121,8 @@ public class MetricsEndpoint {
 
   private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
+  private static final String DEFAULTED_TO_ENDTIME = "Defaulted endTime to {}";
+
   private String metricsDir = DEFAULT_METRICS_DIR;
 
   private MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
@@ -159,6 +161,7 @@ public class MetricsEndpoint {
    * @return Response containing the metric's data in the specified outputFormat
    * @throws MetricsEndpointException
    */
+  @SuppressWarnings({"squid:S3776", "squid:S00107"})
   @GET
   @Path("/{metricName}.{outputFormat}")
   public Response getMetricsData(
@@ -197,7 +200,7 @@ public class MetricsEndpoint {
       // Default end time for metrics graphing to now (in seconds)
       Calendar now = getCalendar();
       endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-      LOGGER.trace("Defaulted endTime to {}", endTime);
+      LOGGER.trace(DEFAULTED_TO_ENDTIME, endTime);
 
       // Set endDate to new calculated endTime (so that endDate is displayed properly
       // in graph's title)
@@ -313,7 +316,7 @@ public class MetricsEndpoint {
         String jsonData =
             metricsRetriever.createJsonData(metricName, rrdFilename, startTime, endTime);
         ResponseBuilder responseBuilder = Response.ok(jsonData);
-        responseBuilder.type("application/json");
+        responseBuilder.type(JSON_MIME_TYPE);
         response = responseBuilder.build();
       } catch (IOException | MetricsGraphException e) {
         LOGGER.info("Could not create JSON data for specified metric");
@@ -426,7 +429,7 @@ public class MetricsEndpoint {
       // Default end time for metrics graphing to now (in seconds)
       Calendar now = getCalendar();
       endTime = now.getTimeInMillis() / MILLISECONDS_PER_SECOND;
-      LOGGER.debug("Defaulted endTime to {}", endTime);
+      LOGGER.debug(DEFAULTED_TO_ENDTIME, endTime);
 
       // Set endDate to new calculated endTime (so that endDate is displayed properly
       // in graph's title)
@@ -554,7 +557,7 @@ public class MetricsEndpoint {
     // 12 hours, 1 day, 3 days, 1 week, 1 month, and 1 year
     Calendar cal = getCalendar();
     long endTime = cal.getTimeInMillis() / 1000;
-    LOGGER.trace("Defaulted endTime to {}", endTime);
+    LOGGER.trace(DEFAULTED_TO_ENDTIME, endTime);
 
     String[] supportedFormats = new String[] {"png", "csv", "xls"};
 
@@ -592,7 +595,7 @@ public class MetricsEndpoint {
          */
 
         String metricsUrl =
-            SystemBaseUrl.getRootContext()
+            SystemBaseUrl.EXTERNAL.getRootContext()
                 + METRICS_SERVICE_BASE_URL
                 + "/"
                 + metricsName

@@ -27,86 +27,138 @@ public class SystemBaseUrlTest {
     System.setProperty("org.codice.ddf.system.hostname", "localhost");
     System.setProperty("org.codice.ddf.system.httpsPort", "8993");
     System.setProperty("org.codice.ddf.system.httpPort", "8181");
+    System.setProperty("org.codice.ddf.external.protocol", "https://");
+    System.setProperty("org.codice.ddf.external.hostname", "not_localhost");
+    System.setProperty("org.codice.ddf.external.httpsPort", "8994");
+    System.setProperty("org.codice.ddf.external.httpPort", "8282");
   }
 
   @Test
   public void testPropertyRead() {
-    assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
-    assertThat(SystemBaseUrl.getHost(), equalTo("localhost"));
-    assertThat(SystemBaseUrl.getHttpPort(), equalTo("8181"));
-    assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8993"));
+    assertThat(SystemBaseUrl.INTERNAL.getProtocol(), equalTo("https://"));
+    assertThat(SystemBaseUrl.INTERNAL.getHost(), equalTo("localhost"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpPort(), equalTo("8181"));
+    assertThat(SystemBaseUrl.INTERNAL.getHttpsPort(), equalTo("8993"));
+    assertThat(SystemBaseUrl.EXTERNAL.getProtocol(), equalTo("https://"));
+    assertThat(SystemBaseUrl.EXTERNAL.getHost(), equalTo("not_localhost"));
+    assertThat(SystemBaseUrl.EXTERNAL.getHttpPort(), equalTo("8282"));
+    assertThat(SystemBaseUrl.EXTERNAL.getHttpsPort(), equalTo("8994"));
   }
 
   @Test
   public void testGetPortHttps() throws Exception {
-    assertThat(SystemBaseUrl.getPort(), equalTo("8993"));
+    assertThat(SystemBaseUrl.INTERNAL.getPort(), equalTo("8993"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort(), equalTo("8994"));
   }
 
   @Test
   public void testGetPortHttp() throws Exception {
     System.setProperty("org.codice.ddf.system.protocol", "http://");
-    assertThat(SystemBaseUrl.getPort(), equalTo("8181"));
+    System.setProperty("org.codice.ddf.external.protocol", "http://");
+    assertThat(SystemBaseUrl.INTERNAL.getPort(), equalTo("8181"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort(), equalTo("8282"));
   }
 
   @Test
   public void testGetPortHttpsProtoHttp() throws Exception {
-    assertThat(SystemBaseUrl.getPort("http"), equalTo("8181"));
+    assertThat(SystemBaseUrl.INTERNAL.getPort("http"), equalTo("8181"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort("http"), equalTo("8282"));
   }
 
   @Test
   public void testGetPortHttpsBadProto() throws Exception {
-    assertThat(SystemBaseUrl.getPort("asdf"), equalTo("8181"));
+    assertThat(SystemBaseUrl.INTERNAL.getPort("asdf"), equalTo("8181"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort("asdf"), equalTo("8282"));
   }
 
   @Test
   public void testGetPortHttpsNullProto() throws Exception {
-    assertThat(SystemBaseUrl.getPort(null), equalTo("8993"));
+    assertThat(SystemBaseUrl.INTERNAL.getPort(null), equalTo("8993"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort(null), equalTo("8994"));
   }
 
   @Test
   public void testGetPortNoProtocol() throws Exception {
     System.clearProperty("org.codice.ddf.system.protocol");
-    assertThat(SystemBaseUrl.getPort(), equalTo("8993"));
+    System.clearProperty("org.codice.ddf.external.protocol");
+    assertThat(SystemBaseUrl.INTERNAL.getPort(), equalTo("8993"));
+    assertThat(SystemBaseUrl.EXTERNAL.getPort(), equalTo("8994"));
   }
 
   @Test
   public void testGetBaseUrl() throws Exception {
-    assertThat(SystemBaseUrl.getBaseUrl(), equalTo("https://localhost:8993"));
-    assertThat(SystemBaseUrl.getBaseUrl("http://"), equalTo("http://localhost:8181"));
-    assertThat(SystemBaseUrl.getBaseUrl("http"), equalTo("http://localhost:8181"));
+    assertThat(SystemBaseUrl.INTERNAL.getBaseUrl(), equalTo("https://localhost:8993"));
+    assertThat(SystemBaseUrl.INTERNAL.getBaseUrl("http://"), equalTo("http://localhost:8181"));
+    assertThat(SystemBaseUrl.INTERNAL.getBaseUrl("http"), equalTo("http://localhost:8181"));
+
+    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl(), equalTo("https://not_localhost:8994"));
+    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl("http://"), equalTo("http://not_localhost:8282"));
+    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl("http"), equalTo("http://not_localhost:8282"));
   }
 
   @Test
   public void testConstructUrl() throws Exception {
     assertThat(
-        SystemBaseUrl.constructUrl("/some/path"), equalTo("https://localhost:8993/some/path"));
-    assertThat(
-        SystemBaseUrl.constructUrl(null, "/some/path"),
+        SystemBaseUrl.INTERNAL.constructUrl("/some/path"),
         equalTo("https://localhost:8993/some/path"));
     assertThat(
-        SystemBaseUrl.constructUrl(null, "some/path"), equalTo("https://localhost:8993/some/path"));
-    assertThat(
-        SystemBaseUrl.constructUrl("https", "/some/path"),
+        SystemBaseUrl.INTERNAL.constructUrl(null, "/some/path"),
         equalTo("https://localhost:8993/some/path"));
     assertThat(
-        SystemBaseUrl.constructUrl("http", "/some/path"),
+        SystemBaseUrl.INTERNAL.constructUrl(null, "some/path"),
+        equalTo("https://localhost:8993/some/path"));
+    assertThat(
+        SystemBaseUrl.INTERNAL.constructUrl("https", "/some/path"),
+        equalTo("https://localhost:8993/some/path"));
+    assertThat(
+        SystemBaseUrl.INTERNAL.constructUrl("http", "/some/path"),
         equalTo("http://localhost:8181/some/path"));
-    assertThat(SystemBaseUrl.constructUrl(null, null), equalTo("https://localhost:8993"));
-    assertThat(SystemBaseUrl.constructUrl("http", null), equalTo("http://localhost:8181"));
+    assertThat(SystemBaseUrl.INTERNAL.constructUrl(null, null), equalTo("https://localhost:8993"));
+    assertThat(SystemBaseUrl.INTERNAL.constructUrl("http", null), equalTo("http://localhost:8181"));
+
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("/some/path"),
+        equalTo("https://not_localhost:8994/some/path"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl(null, "/some/path"),
+        equalTo("https://not_localhost:8994/some/path"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl(null, "some/path"),
+        equalTo("https://not_localhost:8994/some/path"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("https", "/some/path"),
+        equalTo("https://not_localhost:8994/some/path"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("http", "/some/path"),
+        equalTo("http://not_localhost:8282/some/path"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl(null, null), equalTo("https://not_localhost:8994"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("http", null), equalTo("http://not_localhost:8282"));
   }
 
   @Test
   public void testRootContext() throws Exception {
-    assertThat(SystemBaseUrl.getRootContext(), equalTo(""));
+    assertThat(SystemBaseUrl.INTERNAL.getRootContext(), equalTo(""));
     System.setProperty("org.codice.ddf.system.rootContext", "/services");
-    assertThat(SystemBaseUrl.getRootContext(), equalTo("/services"));
+    assertThat(SystemBaseUrl.INTERNAL.getRootContext(), equalTo("/services"));
 
     assertThat(
-        SystemBaseUrl.constructUrl("/some/path", true),
+        SystemBaseUrl.INTERNAL.constructUrl("/some/path", true),
         equalTo("https://localhost:8993/services/some/path"));
     System.setProperty("org.codice.ddf.system.rootContext", "services");
     assertThat(
-        SystemBaseUrl.constructUrl("/some/path", true),
+        SystemBaseUrl.INTERNAL.constructUrl("/some/path", true),
         equalTo("https://localhost:8993/services/some/path"));
+
+    System.setProperty("org.codice.ddf.system.rootContext", "/services");
+    assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/services"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
+        equalTo("https://not_localhost:8994/services/some/path"));
+    System.setProperty("org.codice.ddf.external.rootContext", "services");
+    assertThat(
+        SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
+        equalTo("https://not_localhost:8994/services/some/path"));
   }
 }

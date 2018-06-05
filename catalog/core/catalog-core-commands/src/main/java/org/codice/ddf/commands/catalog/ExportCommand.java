@@ -73,6 +73,7 @@ import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
 import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
@@ -104,6 +105,10 @@ public class ExportCommand extends CqlCommands {
               LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).format(FORMATTER));
 
   private static final int PAGE_SIZE = 64;
+
+  private static final String DELETED_METACARD = "deleted";
+
+  private static final String REVISION_METACARD = "revision";
 
   private MetacardTransformer transformer;
 
@@ -243,7 +248,7 @@ public class ExportCommand extends CqlCommands {
       start = Instant.now();
       jarSigner.signJar(
           zipFile.getFile(),
-          System.getProperty("org.codice.ddf.system.hostname"),
+          System.getProperty(SystemBaseUrl.EXTERNAL_HOST),
           System.getProperty("javax.net.ssl.keyStorePassword"),
           System.getProperty("javax.net.ssl.keyStore"),
           System.getProperty("javax.net.ssl.keyStorePassword"));
@@ -327,6 +332,7 @@ public class ExportCommand extends CqlCommands {
         .collect(Collectors.toList());
   }
 
+  @SuppressWarnings("squid:S3776")
   private List<ExportItem> doContentExport(
       /*Mutable,IO*/ ZipFile zipFile, List<ExportItem> exportedItems) throws ZipException {
     List<ExportItem> contentItemsToExport =
@@ -338,11 +344,11 @@ public class ExportCommand extends CqlCommands {
             .filter(ei -> ei.getResourceUri().getScheme() != null)
             .filter(ei -> ei.getResourceUri().getScheme().startsWith(ContentItem.CONTENT_SCHEME))
             // Deleted Metacards have no content associated
-            .filter(ei -> !ei.getMetacardTag().equals("deleted"))
+            .filter(ei -> !ei.getMetacardTag().equals(DELETED_METACARD))
             // for revision metacards, only those that have their own content
             .filter(
                 ei ->
-                    !ei.getMetacardTag().equals("revision")
+                    !ei.getMetacardTag().equals(REVISION_METACARD)
                         || ei.getResourceUri().getSchemeSpecificPart().equals(ei.getId()))
             .filter(distinctByKey(ei -> ei.getResourceUri().getSchemeSpecificPart()))
             .collect(Collectors.toList());
@@ -362,7 +368,7 @@ public class ExportCommand extends CqlCommands {
       }
       writeToZip(zipFile, contentItem, resource);
       exportedContentItems.add(contentItem);
-      if (!contentItem.getMetacardTag().equals("revision")) {
+      if (!contentItem.getMetacardTag().equals(REVISION_METACARD)) {
         for (String derivedUri : contentItem.getDerivedUris()) {
           URI uri;
           try {
@@ -518,17 +524,17 @@ public class ExportCommand extends CqlCommands {
 
   private String getTag(Result r) {
     Set<String> tags = r.getMetacard().getTags();
-    if (tags.contains("deleted")) {
-      return "deleted";
-    } else if (tags.contains("revision")) {
-      return "revision";
+    if (tags.contains(DELETED_METACARD)) {
+      return DELETED_METACARD;
+    } else if (tags.contains(REVISION_METACARD)) {
+      return REVISION_METACARD;
     } else {
       return "nonhistory";
     }
   }
 
   private Filter initRevisionFilter() {
-    return filterBuilder.attribute(Metacard.TAGS).is().like().text("revision");
+    return filterBuilder.attribute(Metacard.TAGS).is().like().text(REVISION_METACARD);
   }
 
   private Filter getHistoryFilter(Result result) {
@@ -555,7 +561,7 @@ public class ExportCommand extends CqlCommands {
     if (archived) {
       filter =
           filterBuilder.allOf(
-              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text("deleted"));
+              filter, filterBuilder.attribute(Metacard.TAGS).is().like().text(DELETED_METACARD));
     }
     return filter;
   }

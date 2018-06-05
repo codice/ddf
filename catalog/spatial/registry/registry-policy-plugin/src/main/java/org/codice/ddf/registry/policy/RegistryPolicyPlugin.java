@@ -176,7 +176,8 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
           RegistryUtility.getStringAttribute(
               input, RegistryObjectMetacardType.REGISTRY_BASE_URL, null);
       if (isRegistryDisabled()
-          || (registryBaseUrl != null && registryBaseUrl.startsWith(SystemBaseUrl.getBaseUrl()))) {
+          || (registryBaseUrl != null
+              && registryBaseUrl.startsWith(SystemBaseUrl.EXTERNAL.getBaseUrl()))) {
         operationPolicy.putAll(bypassAccessPolicy);
       } else {
         operationPolicy.putAll(policy);

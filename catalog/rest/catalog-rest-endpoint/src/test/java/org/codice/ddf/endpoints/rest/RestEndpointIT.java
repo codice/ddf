@@ -115,9 +115,9 @@ public class RestEndpointIT extends AbstractComponentTest {
 
     restEndpointUrlBuilder =
         UrlBuilder.fromSystemProperties(
-                SystemBaseUrl.HOST,
-                SystemBaseUrl.HTTP_PORT,
-                SystemBaseUrl.HTTPS_PORT,
+                SystemBaseUrl.EXTERNAL_HOST,
+                SystemBaseUrl.EXTERNAL_HTTP_PORT,
+                SystemBaseUrl.EXTERNAL_HTTPS_PORT,
                 SystemBaseUrl.ROOT_CONTEXT)
             .add("/catalog");
   }

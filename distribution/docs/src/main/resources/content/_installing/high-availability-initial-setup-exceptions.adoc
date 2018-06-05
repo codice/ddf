@@ -29,11 +29,14 @@ The hostname of the ${branding} must match the hostname of the proxy.
 [source]
 ----
 org.codice.ddf.system.hostname=service.org
-org.codice.ddf.system.httpsPort=8993
-org.codice.ddf.system.httpPort=8181
+org.codice.ddf.system.httpsPort=1111
+org.codice.ddf.system.httpPort=2222
 org.codice.ddf.system.port=${org.codice.ddf.system.httpsPort}
-org.codice.ddf.system.internalHttpsPort=1111
-org.codice.ddf.system.internalHttpPort=2222
+
+org.codice.ddf.external.hostname=service.org
+org.codice.ddf.external.httpsPort=8993
+org.codice.ddf.external.httpPort=8181
+org.codice.ddf.external.port=${org.codice.ddf.external.httpsPort}
 ----
 
 ===== Identical Directory Structures

@@ -205,7 +205,7 @@ public class FederationAdminTest {
     String ebrim = IOUtils.toString(captor.getValue());
     IOUtils.closeQuietly(captor.getValue());
     assertXpathEvaluatesTo(
-        SystemBaseUrl.getBaseUrl(), "/*[local-name() = 'RegistryPackage']/@home", ebrim);
+        SystemBaseUrl.EXTERNAL.getBaseUrl(), "/*[local-name() = 'RegistryPackage']/@home", ebrim);
     assertXpathEvaluatesTo(
         RegistryConstants.REGISTRY_NODE_OBJECT_TYPE,
         "/*[local-name() = 'RegistryPackage']/@objectType",

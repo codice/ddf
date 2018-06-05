@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.junit.Before;
@@ -424,11 +425,11 @@ public class RegistryReportActionProviderTest {
   private void configureActionProvider(
       String protocol, String host, String port, String contextRoot) {
 
-    setProperty("org.codice.ddf.system.hostname", host);
-    setProperty("org.codice.ddf.system.httpPort", port);
-    setProperty("org.codice.ddf.system.httpsPort", port);
-    setProperty("org.codice.ddf.system.protocol", protocol);
-    setProperty("org.codice.ddf.system.rootContext", contextRoot);
+    setProperty(SystemBaseUrl.EXTERNAL_HOST, host);
+    setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, port);
+    setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, protocol);
+    setProperty(SystemBaseUrl.ROOT_CONTEXT, contextRoot);
   }
 
   private void setProperty(String key, String value) {

@@ -66,13 +66,13 @@ public class ConfigurationManager {
   public static final String TRUST_STORE = "trustStore";
 
   /** Password associated with the trust store */
-  public static final String TRUST_STORE_PASSWORD = "trustStorePassword";
+  public static final String TRUST_STORE_PASS = "trustStorePassword";
 
   /** Key store to use for outgoing DDF connections */
   public static final String KEY_STORE = "keyStore";
 
   /** Password associated with the key store */
-  public static final String KEY_STORE_PASSWORD = "keyStorePassword";
+  public static final String KEY_STORE_PASS = "keyStorePassword";
 
   /** The site name for this DDF instance */
   public static final String SITE_NAME = "id";
@@ -93,12 +93,11 @@ public class ConfigurationManager {
 
   private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
 
-  private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY =
-      "javax.net.ssl.keyStorePassword";
+  private static final String SSL_KEYSTORE_PASS_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
 
   private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
 
-  private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY =
+  private static final String SSL_TRUSTSTORE_PASS_JAVA_PROPERTY =
       "javax.net.ssl.trustStorePassword";
 
   /** List of DdfManagedServices to push the DDF system settings to. */
@@ -110,9 +109,9 @@ public class ConfigurationManager {
   private static Map<String, String> propertyMapping = new HashMap<>();
 
   static {
-    propertyMapping.put(PROTOCOL, SystemBaseUrl.PROTOCOL);
-    propertyMapping.put(HOST, SystemBaseUrl.HOST);
-    propertyMapping.put(PORT, SystemBaseUrl.PORT);
+    propertyMapping.put(PROTOCOL, SystemBaseUrl.EXTERNAL_PROTOCOL);
+    propertyMapping.put(HOST, SystemBaseUrl.EXTERNAL_HOST);
+    propertyMapping.put(PORT, SystemBaseUrl.EXTERNAL_PORT);
     propertyMapping.put(SITE_NAME, SystemInfo.SITE_NAME);
     propertyMapping.put(CONTACT, SystemInfo.SITE_CONTACT);
     propertyMapping.put(ORGANIZATION, SystemInfo.ORGANIZATION);
@@ -155,11 +154,9 @@ public class ConfigurationManager {
     configurationProperties.putAll(getSystemProperties());
 
     readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
-    readOnlySettings.put(
-        KEY_STORE_PASSWORD, System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
+    readOnlySettings.put(KEY_STORE_PASS, System.getProperty(SSL_KEYSTORE_PASS_JAVA_PROPERTY));
     readOnlySettings.put(TRUST_STORE, System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY));
-    readOnlySettings.put(
-        TRUST_STORE_PASSWORD, System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY));
+    readOnlySettings.put(TRUST_STORE_PASS, System.getProperty(SSL_TRUSTSTORE_PASS_JAVA_PROPERTY));
 
     this.configuration = new HashMap<>();
 
@@ -317,14 +314,14 @@ public class ConfigurationManager {
 
   private Map<String, String> getSystemProperties() {
     Map<String, String> map = new HashMap<>();
-    map.put(HTTP_PORT, SystemBaseUrl.getHttpPort());
-    map.put(HOST, SystemBaseUrl.getHost());
-    map.put(PROTOCOL, SystemBaseUrl.getProtocol());
-    map.put(PORT, SystemBaseUrl.getPort());
+    map.put(HTTP_PORT, SystemBaseUrl.EXTERNAL.getHttpPort());
+    map.put(HOST, SystemBaseUrl.EXTERNAL.getHost());
+    map.put(PROTOCOL, SystemBaseUrl.EXTERNAL.getProtocol());
+    map.put(PORT, SystemBaseUrl.EXTERNAL.getPort());
     map.put(SITE_NAME, SystemInfo.getSiteName());
     map.put(VERSION, SystemInfo.getVersion());
     map.put(ORGANIZATION, SystemInfo.getOrganization());
-    map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.getRootContext());
+    map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.EXTERNAL.getRootContext());
     return map;
   }
 }

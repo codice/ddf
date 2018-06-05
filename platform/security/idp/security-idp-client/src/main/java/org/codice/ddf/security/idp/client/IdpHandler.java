@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
@@ -33,15 +32,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -176,6 +166,9 @@ public class IdpHandler implements AuthenticationHandler {
   public final String soapMessageTemplate;
 
   public final String soapfaultMessageTemplate;
+
+  private static final String IDP_METADATA_MISSING =
+      "IdP metadata is missing. No IDPSSODescriptor present.";
 
   private boolean userAgentCheck = true;
 
@@ -346,7 +339,7 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+        throw new ServletException(IDP_METADATA_MISSING);
       }
       authnRequest =
           createAndSignAuthnRequest(
@@ -373,7 +366,7 @@ public class IdpHandler implements AuthenticationHandler {
     soapMessage = soapMessage.replace("{{" + PAOS_RESPONSE + "}}", "");
     try {
       httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-      httpServletResponse.setContentType("application/vnd.paos+xml");
+      httpServletResponse.setContentType(PAOS_MIME);
       httpServletResponse.getOutputStream().print(soapMessage);
       httpServletResponse.flushBuffer();
     } catch (IOException ioe) {
@@ -448,7 +441,7 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+        throw new ServletException(IDP_METADATA_MISSING);
       }
       StringBuilder queryParams =
           new StringBuilder("SAMLRequest=")
@@ -492,7 +485,7 @@ public class IdpHandler implements AuthenticationHandler {
     try {
       IDPSSODescriptor idpssoDescriptor = idpMetadata.getDescriptor();
       if (idpssoDescriptor == null) {
-        throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
+        throw new ServletException(IDP_METADATA_MISSING);
       }
       response
           .getWriter()
@@ -560,7 +553,9 @@ public class IdpHandler implements AuthenticationHandler {
   private String getSpIssuerId() {
     return String.format(
         "https://%s:%s%s/saml",
-        SystemBaseUrl.getHost(), SystemBaseUrl.getHttpsPort(), SystemBaseUrl.getRootContext());
+        SystemBaseUrl.INTERNAL.getHost(),
+        SystemBaseUrl.INTERNAL.getHttpsPort(),
+        SystemBaseUrl.INTERNAL.getRootContext());
   }
 
   private String serializeAndSign(boolean isPost, boolean wantSigned, AuthnRequest authnRequest)
@@ -623,24 +618,6 @@ public class IdpHandler implements AuthenticationHandler {
     } else {
       return requestURL.append('?').append(queryString).toString();
     }
-  }
-
-  private X509Certificate getTlsCertificate()
-      throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-    String host = SystemBaseUrl.getHost();
-    Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
-    String keyStorePassword = SecurityConstants.getKeystorePassword();
-    KeyStore keyStore = SecurityConstants.newKeystore();
-    try (InputStream kfis = Files.newInputStream(keyStoreFile)) {
-      keyStore.load(kfis, keyStorePassword.toCharArray());
-    }
-
-    return (X509Certificate) keyStore.getCertificate(host);
-  }
-
-  private String getBase64Certificate(X509Certificate x509Certificate)
-      throws CertificateEncodingException {
-    return Base64.getEncoder().encodeToString(x509Certificate.getEncoded());
   }
 
   @Override

@@ -211,7 +211,7 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
   }
 
   private void setSystemHighUserAttributes() {
-    final String systemHighUserName = SystemBaseUrl.getHost(); // will never be null
+    final String systemHighUserName = SystemBaseUrl.INTERNAL.getHost(); // will never be null
     final Map<String, Set<String>> newSystemHighUserAttributes = json.get(systemHighUserName);
     if (null == newSystemHighUserAttributes) {
       final String reason =

@@ -431,6 +431,7 @@ public class SecureCxfClientFactory<T> {
     return clientImpl;
   }
 
+  @SuppressWarnings("squid:S3776")
   private void configureConduit(ClientConfiguration clientConfig) {
     HTTPConduit httpConduit = clientConfig.getHttpConduit();
     if (httpConduit == null) {
@@ -570,7 +571,7 @@ public class SecureCxfClientFactory<T> {
       }
     } else {
       tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
-      tlsParams.setCertAlias(SystemBaseUrl.getHost());
+      tlsParams.setCertAlias(SystemBaseUrl.INTERNAL.getHost());
     }
 
     httpConduit.setTlsClientParameters(tlsParams);

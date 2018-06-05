@@ -103,9 +103,9 @@ public class KmlEndpointTest {
     jetPath = jetLocation.getPath().replaceAll(JET_ICON, "");
     jetBtyes = IOUtils.toByteArray(jetLocation.openStream());
 
-    System.setProperty(SystemBaseUrl.HOST, TEST_HOST);
-    System.setProperty(SystemBaseUrl.HTTPS_PORT, TEST_PORT);
-    System.setProperty(SystemBaseUrl.HTTP_PORT, TEST_PORT);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HOST, TEST_HOST);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, TEST_PORT);
+    System.setProperty(SystemBaseUrl.EXTERNAL_HTTP_PORT, TEST_PORT);
     System.setProperty(SystemBaseUrl.ROOT_CONTEXT, "/services");
     System.setProperty(SystemInfo.SITE_CONTACT, "example@example.com");
 

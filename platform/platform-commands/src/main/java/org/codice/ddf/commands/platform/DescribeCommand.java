@@ -25,26 +25,29 @@ import org.codice.ddf.configuration.SystemInfo;
   description = "Provides a description of the platform"
 )
 public class DescribeCommand extends PlatformCommands {
+  private String format = "%s=%s%n";
 
   @Override
+  @SuppressWarnings("squid:s106" /* Console command */)
   public Object execute() throws Exception {
-    System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.getProtocol());
-    System.out.printf("%s=%s%n", "Host", SystemBaseUrl.getHost());
-    System.out.printf("%s=%s%n", "Port", SystemBaseUrl.getPort());
-    System.out.printf("%s=%s%n", "Root Context", SystemBaseUrl.getRootContext());
-    System.out.printf("%s=%s%n", "External Http Port", SystemBaseUrl.getHttpPort());
-    System.out.printf("%s=%s%n", "External Https Port", SystemBaseUrl.getHttpsPort());
+    System.out.printf(format, "Protocol", SystemBaseUrl.EXTERNAL.getProtocol());
+    System.out.printf(format, "Host", SystemBaseUrl.EXTERNAL.getHost());
+    System.out.printf(format, "Port", SystemBaseUrl.EXTERNAL.getPort());
+    System.out.printf(format, "Root Context", SystemBaseUrl.EXTERNAL.getRootContext());
+    System.out.printf(format, "External Http Port", SystemBaseUrl.EXTERNAL.getHttpPort());
+    System.out.printf(format, "External Https Port", SystemBaseUrl.EXTERNAL.getHttpsPort());
     System.out.printf(
-        "%s=%s%n",
-        "Internal Http Port", System.getProperty("org.codice.ddf.system.internalHttpPort"));
+        format, "Internal Http Port", System.getProperty(SystemBaseUrl.INTERNAL.getHttpPort()));
     System.out.printf(
-        "%s=%s%n",
-        "Internal Https Port", System.getProperty("org.codice.ddf.system.internalHttpsPort"));
+        format, "Internal Https Port", System.getProperty(SystemBaseUrl.INTERNAL.getHttpsPort()));
+    System.out.printf(format, "Internal Protocol", SystemBaseUrl.INTERNAL.getProtocol());
+    System.out.printf(format, "Internal Host", SystemBaseUrl.INTERNAL.getHost());
+    System.out.printf(format, "Internal Port", SystemBaseUrl.INTERNAL.getPort());
 
-    System.out.printf("%s=%s%n", "Site Name", SystemInfo.getSiteName());
-    System.out.printf("%s=%s%n", "Organization", SystemInfo.getOrganization());
-    System.out.printf("%s=%s%n", "Contact", SystemInfo.getSiteContatct());
-    System.out.printf("%s=%s%n", "Version", SystemInfo.getVersion());
+    System.out.printf(format, "Site Name", SystemInfo.getSiteName());
+    System.out.printf(format, "Organization", SystemInfo.getOrganization());
+    System.out.printf(format, "Contact", SystemInfo.getSiteContatct());
+    System.out.printf(format, "Version", SystemInfo.getVersion());
     return null;
   }
 }

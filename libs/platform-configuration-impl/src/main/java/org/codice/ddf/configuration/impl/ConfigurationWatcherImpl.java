@@ -26,36 +26,35 @@ import org.codice.ddf.configuration.SystemInfo;
  *
  * @deprecated As of 2.8.0, Use SystemBaseUrl and SystemInfo instead
  */
+@Deprecated
 public class ConfigurationWatcherImpl {
-
-  public ConfigurationWatcherImpl() {}
 
   /**
    * Helper method to get the hostname or IP from the configuration
    *
-   * @return the value associated with {@link SystemBaseUrl#HOST} property name
+   * @return the value associated with {@link SystemBaseUrl#EXTERNAL_HOST} property name
    */
   public String getHostname() {
-    return SystemBaseUrl.getHost();
+    return SystemBaseUrl.EXTERNAL.getHost();
   }
 
   /**
    * Helper method to get the port from the configuration
    *
-   * @return the Integer value associated with the {@link SystemBaseUrl#HTTP_PORT} or {@link
-   *     SystemBaseUrl#HTTPS_PORT} property depending on the protocol
+   * @return the Integer value associated with the {@link SystemBaseUrl#EXTERNAL_HTTP_PORT} or
+   *     {@link SystemBaseUrl#EXTERNAL_HTTPS_PORT} property depending on the protocol
    */
   public Integer getPort() {
-    return Integer.parseInt(SystemBaseUrl.getPort());
+    return Integer.parseInt(SystemBaseUrl.EXTERNAL.getPort());
   }
 
   /**
    * Helper method to get the Protocol which includes the slashes (e.g. http:// or https://)
    *
-   * @return the value associated with the {@link SystemBaseUrl#PROTOCOL} property name
+   * @return the value associated with the {@link SystemBaseUrl#EXTERNAL_PROTOCOL} property name
    */
   public String getProtocol() {
-    return SystemBaseUrl.getProtocol();
+    return SystemBaseUrl.EXTERNAL.getProtocol();
   }
 
   /**
@@ -63,10 +62,10 @@ public class ConfigurationWatcherImpl {
    * the first ':' (e.g. http or https)
    *
    * @return the String value before the first ':' character associated with the {@link
-   *     SystemBaseUrl#PROTOCOL} property name
+   *     SystemBaseUrl#EXTERNAL_PROTOCOL} property name
    */
   public String getSchemeFromProtocol() {
-    return SystemBaseUrl.getProtocol().split(":")[0];
+    return SystemBaseUrl.EXTERNAL.getProtocol().split(":")[0];
   }
 
   /**
@@ -112,6 +111,7 @@ public class ConfigurationWatcherImpl {
    *     exist in the configuration
    * @deprecated will always return null
    */
+  @SuppressWarnings("squid:S1172" /* This method is deprecated*/)
   public String getConfigurationValue(String name) {
     return null;
   }

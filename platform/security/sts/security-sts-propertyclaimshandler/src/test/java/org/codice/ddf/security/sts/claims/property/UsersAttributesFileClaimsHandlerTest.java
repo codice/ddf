@@ -55,7 +55,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testGetSupportedClaimTypes() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -83,7 +83,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testRetrieveClaimValuesTestHostname() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -139,7 +139,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testRetrieveClaimValuesAdmin() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -175,7 +175,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testRetrieveClaimValuesRegex() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -206,7 +206,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testNoMatchRetrieveClaimValues() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -232,7 +232,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testRetrieveClaimsValuesNullPrincipal() throws IOException {
     // when
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -254,7 +254,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testGetSingleValuedSystemHighAttribute() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -268,7 +268,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testGetMultiValuedSystemHighAttribute() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -284,7 +284,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testNoMatchGetSystemHighAttribute() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -298,7 +298,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testCantFindSystemHighUserInUsersDotAttributesFile() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "someUserThatIsntInTheUsersDotAttributesFile");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "someUserThatIsntInTheUsersDotAttributesFile");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -318,7 +318,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testNoUsersDotAttributesFile() {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -330,7 +330,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testUnexpectedFormatInUsersDotAttributesFile() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -343,7 +343,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testEmptyListValueInUsersDotAttributesFile() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -356,7 +356,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testNonStringValueInUsersDotAttributesFile() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -369,7 +369,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test(expected = IllegalStateException.class)
   public void testNonStringListValueInUsersDotAttributesFile() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();
@@ -382,7 +382,7 @@ public class UsersAttributesFileClaimsHandlerTest {
   @Test
   public void testUpdateAttributeFileLocation() throws IOException {
     // given
-    System.setProperty(SystemBaseUrl.HOST, "testHostname");
+    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
 
     final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
         new UsersAttributesFileClaimsHandler();

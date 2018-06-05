@@ -162,17 +162,32 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
     return composite(
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE,
-            SystemBaseUrl.PORT,
-            portFinder.getPortAsString(SystemBaseUrl.HTTP_PORT)),
+            SystemBaseUrl.INTERNAL_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTP_PORT)),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE,
-            SystemBaseUrl.HTTP_PORT,
-            portFinder.getPortAsString(SystemBaseUrl.HTTP_PORT)),
+            SystemBaseUrl.INTERNAL_HTTP_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTP_PORT)),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE,
-            SystemBaseUrl.HTTPS_PORT,
-            portFinder.getPortAsString(SystemBaseUrl.HTTPS_PORT)),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.PROTOCOL, "http://"),
+            SystemBaseUrl.INTERNAL_HTTPS_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.INTERNAL_HTTPS_PORT)),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_PROTOCOL, "http://"),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE,
+            SystemBaseUrl.EXTERNAL_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTP_PORT)),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE,
+            SystemBaseUrl.EXTERNAL_HTTP_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTP_PORT)),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE,
+            SystemBaseUrl.EXTERNAL_HTTPS_PORT,
+            portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTPS_PORT)),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE, SystemBaseUrl.EXTERNAL_PROTOCOL, "http://"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.ROOT_CONTEXT, ROOT_CONTEXT),
         editConfigurationFilePut("etc/org.apache.cxf.osgi.cfg", SERVLET_CONTEXT_KEY, ROOT_CONTEXT),
         editConfigurationFilePut(
@@ -182,14 +197,15 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
         editConfigurationFilePut(
             PAX_WEB_CONFIG_FILE,
             OSGI_SERVICE_HTTP_PORT_KEY,
-            portFinder.getPortAsString(SystemBaseUrl.HTTP_PORT)),
+            portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTP_PORT)),
         editConfigurationFilePut(
             PAX_WEB_CONFIG_FILE,
             OSGI_SERVICE_HTTP_PORT_SECURE_KEY,
-            portFinder.getPortAsString(SystemBaseUrl.HTTPS_PORT)),
+            portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTPS_PORT)),
         editConfigurationFilePut(PAX_WEB_CONFIG_FILE, "org.osgi.service.http.enabled", "true"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, "ddf.home", "${karaf.home}"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.HOST, "localhost"));
+        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.EXTERNAL_HOST, "localhost"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_HOST, "localhost"));
   }
 
   private Option getLoggingOptions() {
