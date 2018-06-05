@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
     }))
   },
   setupTitleInput: function () {
-    let currentValue = this.model.get('resultTitle') ? this.model.get('resultTitle') : ''
+    let currentValue = this.model.get('name') ? this.model.get('name') : ''
     this.basicTitle.show(new PropertyView({
       model: new Property({
         value: [currentValue],
@@ -120,7 +120,7 @@ module.exports = Marionette.LayoutView.extend({
       return 
     }
     let description = this.basicDescription.currentView.model.getValue()[0]
-    let id = this.model.get('formId')
+    let id = this.model.get('id')
     let templatePerms = {
       'descriptors': descriptors.flatten(),
       'title': title,

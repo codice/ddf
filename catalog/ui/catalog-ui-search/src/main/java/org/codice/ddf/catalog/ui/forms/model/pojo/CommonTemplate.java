@@ -70,7 +70,8 @@ public class CommonTemplate {
     this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
 
-    this.accessIndividuals = securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS, new ArrayList<>());
+    this.accessIndividuals =
+        securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS, new ArrayList<>());
     this.accessGroups = securityAttributes.getOrDefault(Security.ACCESS_GROUPS, new ArrayList<>());
   }
 

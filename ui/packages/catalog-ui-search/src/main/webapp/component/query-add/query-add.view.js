@@ -53,6 +53,7 @@ module.exports = Marionette.LayoutView.extend({
     initialize: function () {
         this.model = new Query.Model();
         this.listenTo(this.model, 'resetToDefaults change:type', this.reshow);
+        this.listenTo(this.model, 'closeDropdown', this.closeDropdown);
         this.listenForSave();
     },
     reshow: function() {
@@ -72,10 +73,6 @@ module.exports = Marionette.LayoutView.extend({
                 break;
             case 'custom':
                 this.showCustom();
-                break;
-            case 'new-result': //pass through case statement
-            case 'result':
-                this.showResult();
                 break;
         }
     },
@@ -104,17 +101,6 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryBasic({
             model: this.model
         }));
-    },
-    showResult: function () {
-        if(properties.hasExperimentalEnabled())
-        {   
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-            lightboxInstance.model.updateTitle(this.model.get('resultTitle'));
-            lightboxInstance.model.open();
-            lightboxInstance.lightboxContent.show(new QueryResult({
-                    model: this.model,
-            }));
-        }
     },
     handleEditOnShow: function () {
         if (this.$el.hasClass('is-editing')) {
@@ -153,9 +139,8 @@ module.exports = Marionette.LayoutView.extend({
                         src: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].src) || '',
                         federation: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].federation) || 'enterprise',
                         sorts: sorts, 
-                        'detail-level': (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings']['detail-level']) || 'allFields',
-                        accessGroups: userDefaultTemplate['accessGroups'],
-                        accessIndividuals: userDefaultTemplate['accessIndividuals']});
+                        'detail-level': (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings']['detail-level']) || 'allFields'
+                    });
 
             this.showCustom();
         }
@@ -170,13 +155,13 @@ module.exports = Marionette.LayoutView.extend({
     },
     save: function () {
         //A new form is not necessarily a finished query, so skip saving the rest of the normal stuff
+        this.queryContent.currentView.save();
+        this.queryTitle.currentView.save();
         if (this.$el.hasClass('is-form-builder')) {
             this.saveTemplateToBackend();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
             return;
         }
-        this.queryContent.currentView.save();
-        this.queryTitle.currentView.save();
         if (store.getCurrentQueries().get(this.model) === undefined) {
             store.getCurrentQueries().add(this.model);
         }
@@ -256,31 +241,10 @@ module.exports = Marionette.LayoutView.extend({
             customErrorHandling: true
         })
         .done((data, textStatus, jqxhr) => {
-
-            let queryTemplate = _this.getQueryAsQueryTemplate();
-            let sorts = queryTemplate['querySettings'] && queryTemplate['querySettings'].sorts;
-
-            if (sorts) {
-                sorts = sorts.map(sort => ({ attribute: sort.split(',')[0], direction: sort.split(',')[1] }));
-
-            queryTemplate = {
-                type: 'custom',
-                name: queryTemplate['title'],
-                filterTemplate: JSON.stringify(queryTemplate['filterTemplate']),
-                src: (queryTemplate['querySettings'] && queryTemplate['querySettings'].src) || '',
-                federation: (queryTemplate['querySettings'] && queryTemplate['querySettings'].federation) || 'enterprise',
-                querySettings: sorts, 
-                'detail-level': (queryTemplate['querySettings'] && queryTemplate['querySettings']['detail-level']) || 'allFields',
-                accessGroups: queryTemplate['accessGroups'],
-                accessIndividuals: queryTemplate['accessIndividuals']
-            };
-
-            _user.getQuerySettings().set({
-                template: queryTemplate
-            });
-
-            _user.savePreferences();
-        }})
+            _this.model.set({
+                type: 'custom'
+            })
+        })
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({
                 title: 'Search Form Failed to be Saved',
@@ -304,5 +268,8 @@ module.exports = Marionette.LayoutView.extend({
             .on('saveQuery.' + CustomElements.getNamespace(), function (e) {
                 this.saveRun();
             }.bind(this));
+    },
+    closeDropdown: function() {
+        this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
     }
 });
