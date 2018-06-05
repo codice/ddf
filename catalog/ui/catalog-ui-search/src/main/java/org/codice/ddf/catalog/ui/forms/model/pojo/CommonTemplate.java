@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +70,8 @@ public class CommonTemplate {
     this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
 
-    this.accessIndividuals = securityAttributes.get(Security.ACCESS_INDIVIDUALS);
-    this.accessGroups = securityAttributes.get(Security.ACCESS_GROUPS);
+    this.accessIndividuals = securityAttributes.getOrDefault(Security.ACCESS_INDIVIDUALS, new ArrayList<>());
+    this.accessGroups = securityAttributes.getOrDefault(Security.ACCESS_GROUPS, new ArrayList<>());
   }
 
   public CommonTemplate(Map<String, Object> input) {
