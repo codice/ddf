@@ -91,9 +91,9 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean isIngest = true;
 
-  private Boolean isCacheDisabled = false;
+  private Boolean isCacheEnabled = true;
 
-  private Boolean disableUnknownErrorBox = false;
+  private Boolean enableUnknownErrorBox = true;
 
   private BrandingPlugin branding;
 
@@ -133,7 +133,7 @@ public class ConfigurationApplication implements SparkApplication {
       JsonFactory.create(
           new JsonParserFactory(), new JsonSerializerFactory().includeNulls().includeEmpty());
 
-  private boolean disableLocalCatalog = false;
+  private boolean enableLocalCatalog = true;
 
   private boolean queryFeedbackEnabled = false;
 
@@ -178,9 +178,9 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean showLogo = false;
 
-  private boolean historicalSearchDisabled = false;
+  private boolean historicalSearchEnabled = true;
 
-  private boolean archiveSearchDisabled = false;
+  private boolean archiveSearchEnabled = true;
 
   /** List of injected historian configurations. */
   private List<HistorianConfiguration> historianConfigurations;
@@ -388,8 +388,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("sourcePollInterval", sourcePollInterval);
     config.put("scheduleFrequencyList", scheduleFrequencyList);
     config.put("isEditingAllowed", isEditingAllowed);
-    config.put("isCacheDisabled", isCacheDisabled);
-    config.put("disableLocalCatalog", disableLocalCatalog);
+    config.put("isCacheDisabled", !isCacheEnabled);
+    config.put("disableLocalCatalog", !enableLocalCatalog);
     config.put("queryFeedbackEnabled", queryFeedbackEnabled);
     config.put("queryFeedbackEmailSubjectTemplate", queryFeedbackEmailSubjectTemplate);
     config.put("queryFeedbackEmailBodyTemplate", queryFeedbackEmailBodyTemplate);
@@ -405,8 +405,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showRelevanceScores", showRelevanceScores);
     config.put("relevancePrecision", relevancePrecision);
     config.put("showLogo", showLogo);
-    config.put("isHistoricalSearchDisabled", historicalSearchDisabled);
-    config.put("isArchiveSearchDisabled", archiveSearchDisabled);
+    config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
+    config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -422,7 +422,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("customBackgroundContent", customBackgroundContent);
     config.put("customBackgroundModal", customBackgroundModal);
     config.put("customBackgroundSlideout", customBackgroundSlideout);
-    config.put("disableUnknownErrorBox", disableUnknownErrorBox);
+    config.put("disableUnknownErrorBox", !enableUnknownErrorBox);
     return config;
   }
 
@@ -745,8 +745,8 @@ public class ConfigurationApplication implements SparkApplication {
     this.isIngest = isIngest;
   }
 
-  public void setCacheDisabled(Boolean cacheDisabled) {
-    this.isCacheDisabled = cacheDisabled;
+  public void setCacheEnabled(Boolean cacheEnabled) {
+    this.isCacheEnabled = cacheEnabled;
   }
 
   public Boolean getIsEditingAllowed() {
@@ -757,12 +757,12 @@ public class ConfigurationApplication implements SparkApplication {
     this.isEditingAllowed = isEditingAllowed;
   }
 
-  public void setDisableUnknownErrorBox(Boolean disableUnknownErrorBox) {
-    this.disableUnknownErrorBox = disableUnknownErrorBox;
+  public void setEnableUnknownErrorBox(Boolean enableUnknownErrorBox) {
+    this.enableUnknownErrorBox = enableUnknownErrorBox;
   }
 
-  public Boolean getDisableUnknownErrorBox() {
-    return disableUnknownErrorBox;
+  public Boolean getEnableUnknownErrorBox() {
+    return enableUnknownErrorBox;
   }
 
   public void setTypeNameMapping(String[] mappings) {
@@ -827,12 +827,12 @@ public class ConfigurationApplication implements SparkApplication {
     this.isExternalAuthentication = isExternalAuthentication;
   }
 
-  public boolean isDisableLocalCatalog() {
-    return disableLocalCatalog;
+  public boolean isEnableLocalCatalog() {
+    return enableLocalCatalog;
   }
 
-  public void setDisableLocalCatalog(boolean disableLocalCatalog) {
-    this.disableLocalCatalog = disableLocalCatalog;
+  public void setEnableLocalCatalog(boolean enableLocalCatalog) {
+    this.enableLocalCatalog = enableLocalCatalog;
   }
 
   public void setQueryFeedbackEnabled(boolean queryFeedbackEnabled) {
@@ -945,20 +945,20 @@ public class ConfigurationApplication implements SparkApplication {
     this.mapHome = mapHome;
   }
 
-  public boolean isHistoricalSearchDisabled() {
-    return historicalSearchDisabled;
+  public boolean isHistoricalSearchEnabled() {
+    return historicalSearchEnabled;
   }
 
-  public void setHistoricalSearchDisabled(boolean historicalSearchDisabled) {
-    this.historicalSearchDisabled = historicalSearchDisabled;
+  public void setHistoricalSearchEnabled(boolean historicalSearchEnabled) {
+    this.historicalSearchEnabled = historicalSearchEnabled;
   }
 
-  public boolean isArchiveSearchDisabled() {
-    return archiveSearchDisabled;
+  public boolean isArchiveSearchEnabled() {
+    return archiveSearchEnabled;
   }
 
-  public void setArchiveSearchDisabled(boolean archiveSearchDisabled) {
-    this.archiveSearchDisabled = archiveSearchDisabled;
+  public void setArchiveSearchEnabled(boolean archiveSearchEnabled) {
+    this.archiveSearchEnabled = archiveSearchEnabled;
   }
 
   public void setHistorianConfigurations(List<HistorianConfiguration> historians) {
