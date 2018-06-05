@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
+import org.apache.commons.lang.Validate;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -173,12 +174,8 @@ public class LogoutMessageImpl implements LogoutMessage {
   @Override
   public LogoutResponse buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo) {
-    if (issuerOrEntityId == null) {
-      throw new IllegalArgumentException("Issuer cannot be null");
-    }
-    if (statusCodeValue == null) {
-      throw new IllegalArgumentException("Status Code cannot be null");
-    }
+    Validate.notNull(issuerOrEntityId, "Issuer cannot be null");
+    Validate.notNull(statusCodeValue, "Status Code cannot be null");
 
     return SamlProtocol.createLogoutResponse(
         SamlProtocol.createIssuer(issuerOrEntityId),
@@ -193,12 +190,9 @@ public class LogoutMessageImpl implements LogoutMessage {
       String topLevelStatusCode,
       String secondLevelStatusCode,
       String inResponseTo) {
-    if (issuerOrEntityId == null) {
-      throw new IllegalArgumentException("Issuer cannot be null");
-    }
-    if (topLevelStatusCode == null || secondLevelStatusCode == null) {
-      throw new IllegalArgumentException("Status Codes cannot be null");
-    }
+    Validate.notNull(issuerOrEntityId, "Issuer cannot be null");
+    Validate.notNull(topLevelStatusCode, "Top level Status Code cannot be null");
+    Validate.notNull(secondLevelStatusCode, "Second level Status Code cannot be null");
 
     Status status = SamlProtocol.createStatus(topLevelStatusCode);
     StatusCode statusCode = SamlProtocol.createStatusCode(secondLevelStatusCode);
