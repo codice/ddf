@@ -106,6 +106,5 @@ module.exports = Marionette.LayoutView.extend({
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        this.options.queryModel.trigger('closeDropdown');
     }
 });

@@ -19,6 +19,7 @@ const lightboxResultInstance = require('component/lightbox/result/lightbox.resul
 const lightboxInstance = lightboxResultInstance.generateNewLightbox();
 const QueryResult = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.view') : {}
 const SearchFormModel = require('component/search-form/search-form.js')
+const CustomElements = require('js/CustomElements')
 
 module.exports = SearchFormViews.extend({
   initialize: function () {
@@ -33,5 +34,9 @@ module.exports = SearchFormViews.extend({
         model: this.model.get('type') === 'new-result' ? new SearchFormModel({name: ''}) : this.model,
       }));
     }
+  },
+  triggerCloseDropdown: function() {
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+    this.options.queryModel.trigger('closeDropdown');
   }
 })

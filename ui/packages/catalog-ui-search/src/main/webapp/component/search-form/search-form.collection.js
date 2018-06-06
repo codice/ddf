@@ -46,19 +46,7 @@ const templatePromiseSupplier = () => properties.hasExperimentalEnabled() ? $.aj
         contentType: 'application/json',
         success: function(data) {
             fixTemplates(data);
-            //Find templates with the same id but different property maps (because we should trust the server)
-            let updatedTemplates = data.filter(
-                incomingTemplate => _.any(cachedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id && !_.isEqual(cachedTemplate, incomingTemplate))
-            );
-            //Find templates that are new
-            let newTemplates = data.filter(
-                incomingTemplate => cachedTemplates.length === 0 || !_.any(cachedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id)
-            );
-            //Replace updated templates in their corresponding indices
-            _.each(updatedTemplates, 
-                updatedTemplate => cachedTemplates[_.findIndex(cachedTemplates, (cachedTemplate) => cachedTemplate.id === updatedTemplate.id)] = updatedTemplate
-            );
-            cachedTemplates = cachedTemplates.concat(newTemplates);
+            cachedTemplates = data;
             promiseIsResolved = true;
         }
     }) : Promise.resolve();

@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
-
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
@@ -196,7 +194,7 @@ public class TemplateTransformer {
   /** Retrieves original creator of metacard if present to determine if system template or not */
   private static String retrieveOwnerIfPresent(Metacard inputMetacard) {
 
-    String metacardOwner = SYSTEM_TEMPLATE;
+    String metacardOwner = "system";
 
     if (inputMetacard.getAttribute(Core.METACARD_OWNER) != null) {
       metacardOwner = inputMetacard.getAttribute(Core.METACARD_OWNER).getValue().toString();
