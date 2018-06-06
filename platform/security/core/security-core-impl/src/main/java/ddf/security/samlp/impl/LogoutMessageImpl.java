@@ -61,9 +61,11 @@ import org.w3c.dom.Element;
 
 public class LogoutMessageImpl implements LogoutMessage {
 
-  public static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
+  private static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
 
-  public static final String SAML_SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+  private static final String SAML_SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+
+  private static final String ISSUER_CANNOT_BE_NULL_MSG = "Issuer cannot be null";
 
   static {
     OpenSAMLUtil.initSamlEngine();
@@ -143,7 +145,7 @@ public class LogoutMessageImpl implements LogoutMessage {
       throw new IllegalArgumentException("Name ID cannot be null");
     }
     if (issuerOrEntityId == null) {
-      throw new IllegalArgumentException("Issuer cannot be null");
+      throw new IllegalArgumentException(ISSUER_CANNOT_BE_NULL_MSG);
     }
     if (id == null) {
       throw new IllegalArgumentException("ID cannot be null");
@@ -174,7 +176,7 @@ public class LogoutMessageImpl implements LogoutMessage {
   @Override
   public LogoutResponse buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo) {
-    Validate.notNull(issuerOrEntityId, "Issuer cannot be null");
+    Validate.notNull(issuerOrEntityId, ISSUER_CANNOT_BE_NULL_MSG);
     Validate.notNull(statusCodeValue, "Status Code cannot be null");
 
     return SamlProtocol.createLogoutResponse(
@@ -190,7 +192,7 @@ public class LogoutMessageImpl implements LogoutMessage {
       String topLevelStatusCode,
       String secondLevelStatusCode,
       String inResponseTo) {
-    Validate.notNull(issuerOrEntityId, "Issuer cannot be null");
+    Validate.notNull(issuerOrEntityId, ISSUER_CANNOT_BE_NULL_MSG);
     Validate.notNull(topLevelStatusCode, "Top level Status Code cannot be null");
     Validate.notNull(secondLevelStatusCode, "Second level Status Code cannot be null");
 
