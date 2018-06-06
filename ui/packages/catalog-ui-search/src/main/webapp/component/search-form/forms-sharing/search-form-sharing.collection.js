@@ -28,20 +28,7 @@
     url: '/search/catalog/internal/forms/query',
     contentType: 'application/json',
     success: function (data) {
-        //Find templates with the same id but different property maps (because we should trust the server)
-        let updatedTemplates = data.filter(
-            incomingTemplate => _.any(sharedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id && !_.isEqual(cachedTemplate, incomingTemplate))
-        );
-        //Find templates that are new
-        let newTemplates = data.filter(
-            incomingTemplate => sharedTemplates.length === 0 || !_.any(sharedTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id)
-        );
-        //Replace updated templates in their corresponding indices 
-        _.each(updatedTemplates, 
-            updatedTemplate => sharedTemplates[_.findIndex(sharedTemplates, (cachedTemplate) => cachedTemplate.id === updatedTemplate.id)] = updatedTemplate
-        );
-
-        sharedTemplates = sharedTemplates.concat(newTemplates);
+        sharedTemplates = data;
         promiseIsResolved = true;
     }
 });
