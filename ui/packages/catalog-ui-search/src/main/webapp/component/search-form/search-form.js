@@ -23,7 +23,6 @@
         type: "custom",
         id: undefined,
         filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
-        //TODO: Check that nowhere else (i.e. backend) expects this to be a String
         descriptors: [],
         accessIndividuals: [],
         accessGroups: [],

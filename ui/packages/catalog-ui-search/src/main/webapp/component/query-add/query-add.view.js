@@ -154,7 +154,6 @@ module.exports = Marionette.LayoutView.extend({
         this.onBeforeShow();
     },
     save: function () {
-        //A new form is not necessarily a finished query, so skip saving the rest of the normal stuff
         this.queryContent.currentView.save();
         this.queryTitle.currentView.save();
         if (this.$el.hasClass('is-form-builder')) {
