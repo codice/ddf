@@ -16,7 +16,6 @@ package org.codice.ddf.security.idp.server;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -56,6 +55,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -138,6 +139,7 @@ import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
@@ -150,7 +152,6 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -164,14 +165,13 @@ import org.w3c.dom.Node;
 @Path("/")
 public class IdpEndpoint implements Idp, SessionHandler {
 
-  public static final String SERVICES_IDP_PATH = SystemBaseUrl.INTERNAL.getRootContext() + "/idp";
-  public static final ImmutableSet<UsageType> USAGE_TYPES =
-      ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
+  private static final String SERVICES_IDP_PATH = SystemBaseUrl.INTERNAL.getRootContext() + "/idp";
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
   private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
   private static final String IDP_LOGIN = "/idp/login";
   private static final String IDP_LOGOUT = "/idp/logout";
   private static final String AUTHN_REQUEST_MUST_USE_TLS = "Authn Request must use TLS.";
+  private static final int THIRTY_MINUTE_EXPIRATION = 30;
   private static final String COULD_NOT_FIND_ENTITY_SERVICE_INFO_MSG =
       "Could not find entity service info for {}";
 
@@ -1383,6 +1383,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
           return continueLogout(logoutState, cookie, incomingBinding);
         }
 
+        Instant notOnOrAfter = Instant.now().plus(THIRTY_MINUTE_EXPIRATION, ChronoUnit.MINUTES);
+        logoutRequest.setNotOnOrAfter(new DateTime(notOnOrAfter.getEpochSecond()));
         logoutRequest.setDestination(entityServiceInfo.getUrl());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
@@ -1391,13 +1393,17 @@ public class IdpEndpoint implements Idp, SessionHandler {
       } else {
         // No more targets, respond to original issuer
         entityId = logoutState.getOriginalIssuer();
-        String status =
-            logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
         logoutObject =
-            logoutMessage.buildLogoutResponse(
-                SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
-                status,
-                logoutState.getOriginalRequestId());
+            logoutState.isPartialLogout()
+                ? logoutMessage.buildLogoutResponse(
+                    SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+                    StatusCode.SUCCESS,
+                    StatusCode.PARTIAL_LOGOUT,
+                    logoutState.getOriginalRequestId())
+                : logoutMessage.buildLogoutResponse(
+                    SystemBaseUrl.INTERNAL.constructUrl(IDP_LOGIN, true),
+                    StatusCode.SUCCESS,
+                    logoutState.getOriginalRequestId());
 
         entityServiceInfo =
             getServiceProvidersMap().get(entityId).getLogoutService(incomingBinding);

@@ -48,6 +48,12 @@ public interface LogoutMessage {
   LogoutResponse buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo);
 
+  LogoutResponse buildLogoutResponse(
+      String issuerOrEntityId,
+      String topLevelStatusCode,
+      String secondLevelStatusCode,
+      String inResponseTo);
+
   Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException;
 
   String sendSamlLogoutRequest(

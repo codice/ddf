@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
+import org.apache.commons.lang.Validate;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -51,6 +52,8 @@ import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.w3c.dom.Document;
@@ -58,9 +61,11 @@ import org.w3c.dom.Element;
 
 public class LogoutMessageImpl implements LogoutMessage {
 
-  public static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
+  private static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
 
-  public static final String SAML_SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+  private static final String SAML_SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+
+  private static final String ISSUER_CANNOT_BE_NULL_MSG = "Issuer cannot be null";
 
   static {
     OpenSAMLUtil.initSamlEngine();
@@ -140,7 +145,7 @@ public class LogoutMessageImpl implements LogoutMessage {
       throw new IllegalArgumentException("Name ID cannot be null");
     }
     if (issuerOrEntityId == null) {
-      throw new IllegalArgumentException("Issuer cannot be null");
+      throw new IllegalArgumentException(ISSUER_CANNOT_BE_NULL_MSG);
     }
     if (id == null) {
       throw new IllegalArgumentException("ID cannot be null");
@@ -171,27 +176,35 @@ public class LogoutMessageImpl implements LogoutMessage {
   @Override
   public LogoutResponse buildLogoutResponse(
       String issuerOrEntityId, String statusCodeValue, String inResponseTo) {
-    return buildLogoutResponse(
-        issuerOrEntityId, statusCodeValue, inResponseTo, UUID.randomUUID().toString());
-  }
-
-  public LogoutResponse buildLogoutResponse(
-      String issuerOrEntityId, String statusCodeValue, String inResponseTo, String id) {
-    if (issuerOrEntityId == null) {
-      throw new IllegalArgumentException("Issuer cannot be null");
-    }
-    if (id == null) {
-      throw new IllegalArgumentException("ID cannot be null");
-    }
-    if (statusCodeValue == null) {
-      throw new IllegalArgumentException("Status Code cannot be null");
-    }
+    Validate.notNull(issuerOrEntityId, ISSUER_CANNOT_BE_NULL_MSG);
+    Validate.notNull(statusCodeValue, "Status Code cannot be null");
 
     return SamlProtocol.createLogoutResponse(
         SamlProtocol.createIssuer(issuerOrEntityId),
         SamlProtocol.createStatus(statusCodeValue),
         inResponseTo,
-        id);
+        "_" + UUID.randomUUID().toString());
+  }
+
+  @Override
+  public LogoutResponse buildLogoutResponse(
+      String issuerOrEntityId,
+      String topLevelStatusCode,
+      String secondLevelStatusCode,
+      String inResponseTo) {
+    Validate.notNull(issuerOrEntityId, ISSUER_CANNOT_BE_NULL_MSG);
+    Validate.notNull(topLevelStatusCode, "Top level Status Code cannot be null");
+    Validate.notNull(secondLevelStatusCode, "Second level Status Code cannot be null");
+
+    Status status = SamlProtocol.createStatus(topLevelStatusCode);
+    StatusCode statusCode = SamlProtocol.createStatusCode(secondLevelStatusCode);
+    status.getStatusCode().setStatusCode(statusCode);
+
+    return SamlProtocol.createLogoutResponse(
+        SamlProtocol.createIssuer(issuerOrEntityId),
+        status,
+        inResponseTo,
+        "_" + UUID.randomUUID().toString());
   }
 
   @Override
