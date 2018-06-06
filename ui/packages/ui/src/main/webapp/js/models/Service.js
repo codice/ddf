@@ -48,7 +48,7 @@ define(['backbone', 'jquery', 'js/ServiceFactoryNameRegistry', 'js/MetatypeRegis
     });
 
     Service.Configuration = Backbone.AssociatedModel.extend({
-        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+        configUrl: "./jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
         defaults: function () {
             return {
@@ -253,7 +253,7 @@ define(['backbone', 'jquery', 'js/ServiceFactoryNameRegistry', 'js/MetatypeRegis
     });
 
     Service.Model = Backbone.AssociatedModel.extend({
-        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+        configUrl: "./jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
         defaults: function () {
             return {
@@ -327,7 +327,7 @@ define(['backbone', 'jquery', 'js/ServiceFactoryNameRegistry', 'js/MetatypeRegis
             if (options && options.url) {
                 this.url = options.url;
             } else {
-                this.url = "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices";
+                this.url = "./jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices";
             }
         }
     });

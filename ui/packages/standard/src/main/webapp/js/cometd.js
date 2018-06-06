@@ -10,7 +10,6 @@
  *
  **/
 /*global define*/
-/*global location*/
 define(['jquery', 'jquerycometd'], function ($) {
     'use strict';
 
@@ -18,7 +17,7 @@ define(['jquery', 'jquerycometd'], function ($) {
 
     Cometd.Comet = $.cometd;
     Cometd.Comet.websocketEnabled = false;
-    var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/search/cometd';
+    var path = '../cometd';
     Cometd.Comet.configure({
         url: path,
         maxNetworkDelay: 30000

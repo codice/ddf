@@ -124,7 +124,7 @@ module.exports = Marionette.LayoutView.extend({
         };
         $.ajax({
             type: "POST",
-            url: '/search/catalog/internal/transform/csv?_=' + Date.now(),
+            url: './internal/transform/csv?_=' + Date.now(),
             data: JSON.stringify(data),
             contentType: 'application/json',
             success: this.saveExport
@@ -140,7 +140,7 @@ module.exports = Marionette.LayoutView.extend({
         };
         $.ajax({
             type: "POST",
-            url: '/search/catalog/internal/transform/csv?_=' + Date.now(),
+            url: './internal/transform/csv?_=' + Date.now(),
             data: JSON.stringify(data),
             contentType: 'application/json',
             success: this.saveExport

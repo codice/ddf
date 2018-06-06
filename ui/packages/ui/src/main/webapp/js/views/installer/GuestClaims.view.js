@@ -404,7 +404,7 @@ define([
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
-                url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+                url: './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
             });
         },
         validate: function () {

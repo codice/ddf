@@ -134,7 +134,7 @@ export const fetch = () => (dispatch, getState) => {
 
 export const save = () => (dispatch, getState) => {
   const state = getState()
-  const url = '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+  const url = '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
   const buffer = getBuffer(state)
 
   if (validate(buffer) !== undefined) {

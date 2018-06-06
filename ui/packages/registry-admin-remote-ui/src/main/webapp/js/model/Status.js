@@ -17,7 +17,7 @@ define(['backbone'],
 function (Backbone) {
     var Status = {};
     Status.Model = Backbone.Model.extend({
-        url: "/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryStatus/",
+        url: "../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryStatus/",
             initialize: function(pid) {
                 this.url += pid;
             }

@@ -25,7 +25,7 @@
  const sharedSearchFormPromise = () => $.ajax({
     type: 'GET',
     context: this,
-    url: '/search/catalog/internal/forms/query',
+    url: './internal/forms/query',
     contentType: 'application/json',
     success: function (data) {
         sharedTemplates = data;

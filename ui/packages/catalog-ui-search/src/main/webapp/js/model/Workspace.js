@@ -160,7 +160,7 @@ module.exports = Backbone.AssociatedModel.extend({
     subscribe: function () {
         $.ajax({
             type: 'post',
-            url: '/search/catalog/internal/subscribe/' + this.get('id'),
+            url: './internal/subscribe/' + this.get('id'),
         }).then(function () {
             this.set('subscribed', true);
         }.bind(this));
@@ -168,7 +168,7 @@ module.exports = Backbone.AssociatedModel.extend({
     unsubscribe: function () {
         $.ajax({
             type: 'post',
-            url: '/search/catalog/internal/unsubscribe/' + this.get('id'),
+            url: './internal/unsubscribe/' + this.get('id'),
         }).then(function () {
             this.set('subscribed', false);
         }.bind(this));

@@ -110,7 +110,7 @@ define([
 
     User.Preferences = Backbone.AssociatedModel.extend({
         useAjaxSync: true,
-        url: '/search/catalog/internal/user/preferences',
+        url: './internal/user/preferences',
         defaults: function () {
             return {
                 id: 'preferences',
@@ -313,7 +313,7 @@ define([
 
     User.Response = Backbone.AssociatedModel.extend({
         useAjaxSync: true,
-        url: '/search/catalog/internal/user',
+        url: './internal/user',
         relations: [
             {
                 type: Backbone.One,

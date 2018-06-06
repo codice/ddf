@@ -29,7 +29,7 @@ function (Q, Service, Backbone, _) {
     });
 
     Registry.Model = Backbone.AssociatedModel.extend({
-        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
+        configUrl: "../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
         initialize: function() {
             this.set('registryConfiguration', new Registry.ConfigurationList());
         },

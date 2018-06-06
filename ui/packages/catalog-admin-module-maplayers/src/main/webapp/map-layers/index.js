@@ -418,7 +418,7 @@ const MapLayers = (props) => {
       <div style={{ paddingTop: 96 }}>
         <Description>
           The following form allows users to configure imagery providers
-          for <Link target='_blank' href='/search/catalog'>Intrigue</Link>.
+          for <Link target='_blank' href='../../search/catalog'>Intrigue</Link>.
         </Description>
         <Description>
           Some provider types are currently only supported by the 2D <Link target='_blank'
@@ -475,7 +475,7 @@ const MapLayers = (props) => {
           action={message.action}
           autoHideDuration={5000}
           onRequestClose={() => onMessage()}
-          onActionTouchTap={() => window.open('/search/catalog')} />
+          onActionTouchTap={() => window.open('../../search/catalog')} />
       </div>
       {invalid !== null
         ? <FixConfig

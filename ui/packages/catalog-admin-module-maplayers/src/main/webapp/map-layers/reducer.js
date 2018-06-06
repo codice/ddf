@@ -81,7 +81,7 @@ export const fetch = () => (dispatch) => {
 
 export const save = () => (dispatch, getState) => {
   const state = getState()
-  const url = '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+  const url = './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
 
   const providers = getProviders(state)
 

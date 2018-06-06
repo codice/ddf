@@ -21,7 +21,7 @@ var WorkspaceModel = require('js/model/Workspace');
 
 module.exports = Backbone.Collection.extend({
     model: WorkspaceModel,
-    url: '/search/catalog/internal/workspaces',
+    url: './internal/workspaces',
     useAjaxSync: true,
     fetched: false,
     handleSync: function () {

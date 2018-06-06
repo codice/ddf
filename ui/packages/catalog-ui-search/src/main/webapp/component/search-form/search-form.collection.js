@@ -42,7 +42,7 @@ let promiseIsResolved = false;
 const templatePromiseSupplier = () => properties.hasExperimentalEnabled() ? $.ajax({
         type: 'GET',
         context: this,
-        url: '/search/catalog/internal/forms/query',
+        url: './internal/forms/query',
         contentType: 'application/json',
         success: function(data) {
             fixTemplates(data);

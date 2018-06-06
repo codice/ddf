@@ -135,7 +135,7 @@ module.exports = Marionette.LayoutView.extend({
             'List-ID': this.model.attributes.id,
             'List-Type': this.model.get('list.icon')
         },
-        url: '/search/catalog/internal/list/import',
+        url: './internal/list/import',
         handleUploadSuccess: (file) => this.handleUploadSuccess(file),
         handleNewMetacard: (id) => this.handleNewMetacard(id),
         close: () => lightboxInstance.close()

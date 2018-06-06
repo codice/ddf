@@ -233,7 +233,7 @@ module.exports = Marionette.LayoutView.extend({
         let _this = this;
         let _user = user;
         $.ajax({
-            url: '/search/catalog/internal/forms/query',
+            url: './internal/forms/query',
             data: JSON.stringify(this.getQueryAsQueryTemplate()),
             method: 'PUT',
             contentType: 'application/json',

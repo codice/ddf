@@ -168,7 +168,7 @@ const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMess
     <div style={{ paddingTop: 96 }}>
       <Description>
           The following form allows administrators to configure the default layout for visualization
-          windows within <Link target='_blank' href='/search/catalog'>Intrigue</Link>.
+          windows within <Link target='_blank' href='../../search/catalog'>Intrigue</Link>.
       </Description>
       <Card>
         <LayoutMenu />
@@ -195,7 +195,7 @@ const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMess
         action={message.action}
         autoHideDuration={5000}
         onRequestClose={() => onMessage()}
-        onActionTouchTap={() => window.open('/search/catalog')} />
+        onActionTouchTap={() => window.open('../../search/catalog')} />
     </div>
   </Spinner>
 )

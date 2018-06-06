@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
             },
             comments: this.comments.currentView.model.getValue()[0]
         };
-        $.post('/search/catalog/internal/feedback', JSON.stringify(payload));
+        $.post('./internal/feedback', JSON.stringify(payload));
         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
     }
 });

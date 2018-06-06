@@ -54,7 +54,7 @@ module.exports = Marionette.ItemView.extend({
         //if you aren't using basic auth, this shouldn't do anything
         $.ajax({
             type: 'GET',
-            url: '/search/catalog/internal/user',
+            url: './internal/user',
             async: false,
             username: '1',
             password: '1'

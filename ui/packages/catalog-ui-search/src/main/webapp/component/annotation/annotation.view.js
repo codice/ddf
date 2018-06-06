@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
     handleDelete: function () {
         LoadingCompanionView.beginLoading(this);
         $.ajax({
-            url: '/search/catalog/internal/annotations/' + this.model.id,
+            url: './internal/annotations/' + this.model.id,
             method: 'DELETE',
             contentType: 'application/json'
         }).always(function (response) {
@@ -124,7 +124,7 @@ module.exports = Marionette.LayoutView.extend({
         requestData.note = this.annotationContent.currentView.model.get('value')[0];
         LoadingCompanionView.beginLoading(this);
         $.ajax({
-            url: '/search/catalog/internal/annotations/' + this.model.id,
+            url: './internal/annotations/' + this.model.id,
             method: 'PUT',
             data: JSON.stringify(requestData),
             contentType: 'application/json'

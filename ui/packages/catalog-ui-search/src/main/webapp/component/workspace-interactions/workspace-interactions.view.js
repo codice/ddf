@@ -83,7 +83,7 @@ define([
             this.model.unsubscribe();
         },
         handleNewTab: function() {
-            window.open('/search/catalog/#workspaces/' + this.model.id);
+            window.open('./#workspaces/' + this.model.id);
         },
         handleShare: function() {
             lightboxInstance.model.updateTitle('Workspace Sharing');

@@ -92,7 +92,7 @@ module.exports = Backbone.AssociatedModel.extend({
             relatedModel: QueryResponseSourceStatus
         }
     ],
-    url: "/search/catalog/internal/cql",
+    url: "./internal/cql",
     useAjaxSync: true,
     initialize: function () {
         this.listenTo(this.get('queuedResults'), 'add change remove reset', _.throttle(this.updateMerged, 2500, {

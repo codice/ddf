@@ -13,6 +13,7 @@ module.exports = ({ args, pkg }) => {
     env: process.env.NODE_ENV || args.env || 'development',
     main: pkg.main,
     alias: pkg.alias,
+    publicPath: pkg['context-path'],
     auth: args.auth ||
       console.log(chalk.yellow('WARNING: using default basic auth (admin:admin)! See options for how to override this.')) ||
       'admin:admin'
@@ -29,7 +30,7 @@ module.exports = ({ args, pkg }) => {
       console.error(err)
       process.exit(1)
     } else if (args.open) {
-      open(`http://${host}:${port}`)
+      open(`http://${host}:${port}${publicPath}/`)
     }
   })
 }

@@ -100,12 +100,12 @@ define([
             this.metacardTypes[id].type === 'OBJECT';
         },
         getDatatypeEnum: function(){
-            $.get( '/search/catalog/internal/enumerations/attribute/datatype').then(function(response){
+            $.get( './internal/enumerations/attribute/datatype').then(function(response){
                 _.extend(this.enums, response);
             }.bind(this));
         },
         getEnumForMetacardDefinition: function(metacardDefinition){
-            $.get( '/search/catalog/internal/enumerations/metacardtype/'+metacardDefinition).then(function(response){
+            $.get( './internal/enumerations/metacardtype/'+metacardDefinition).then(function(response){
                 _.extend(this.enums, transformEnumResponse(this.metacardTypes, response));
             }.bind(this));
         },
@@ -140,7 +140,7 @@ define([
             }
         },
         getMetacardTypes: function(){
-            $.get('/search/catalog/internal/metacardtype').then(function(metacardDefinitions){
+            $.get('./internal/metacardtype').then(function(metacardDefinitions){
                 this.addMetacardDefinitions(metacardDefinitions);
             }.bind(this));
         },

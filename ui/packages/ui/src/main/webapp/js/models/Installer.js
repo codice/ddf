@@ -47,12 +47,12 @@ define([
   };
 
   Installer.Model = Backbone.Model.extend({
-    installUrl: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/',
-    uninstallUrl: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/',
-    shutdownUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
-    propertiesUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
-    restartUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
-    restartWrapperUrl: '/admin/jolokia/exec/org.tanukisoftware.wrapper:type=WrapperManager/restart()',
+    installUrl: './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/',
+    uninstallUrl: './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/',
+    shutdownUrl: './jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
+    propertiesUrl: './jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
+    restartUrl: './jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
+    restartWrapperUrl: './jolokia/exec/org.tanukisoftware.wrapper:type=WrapperManager/restart()',
     defaults: function () {
       return {
         hasNext: true,

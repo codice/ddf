@@ -105,7 +105,7 @@ define([
             return response;
         },
         determineLocalCatalog: function(){
-            $.get('/search/catalog/internal/localcatalogid').then(function(data){
+            $.get('./internal/localcatalogid').then(function(data){
                 this.localCatalog = data['local-catalog-id'];
 
                 poller.get(this, {

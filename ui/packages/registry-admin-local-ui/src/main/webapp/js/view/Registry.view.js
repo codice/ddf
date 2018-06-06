@@ -404,7 +404,7 @@ define([
 
         RegistryView.SubscriptFilterModal = RegistryView.AbstractSettingsModal.extend({
             template: 'subscriptionFilterModal',
-            opUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/nodeFilterProperties(java.util.Map)',
+            opUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/nodeFilterProperties(java.util.Map)',
             operation: 'nodeFilterProperties(java.util.Map)',
             getArguments: function() {
                 var checkboxes = $('.filtered-node-check');
@@ -442,7 +442,7 @@ define([
         });
         RegistryView.ClientServerModal = RegistryView.AbstractSettingsModal.extend({
             template: 'clientServerModal',
-            opUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/nodeFilterProperties(java.util.Map)',
+            opUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/nodeFilterProperties(java.util.Map)',
             operation: 'nodeFilterProperties(java.util.Map)',
             getArguments: function () {
                 return {
@@ -473,7 +473,7 @@ define([
                     input.checked = selectAll;
                 });
             },
-            opUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
+            opUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
             operation: 'regenerateRegistrySources',
             getArguments: function() {
                 var checkboxes = $('.regenerate-source-check');

@@ -24,7 +24,7 @@ define([
         defaults: {
             fetched: false
         },
-        url: '/admin/jolokia/read/java.lang:type=OperatingSystem/',
+        url: './jolokia/read/java.lang:type=OperatingSystem/',
         parse: function(resp){
             resp.value.fetched = true;
             return resp.value;

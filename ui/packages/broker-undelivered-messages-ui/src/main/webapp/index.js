@@ -31,7 +31,7 @@ import TableView from './table.view'
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
-const getMessagesURI = '/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/getMessages/DLQ/DLQ/'
+const getMessagesURI = '../jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/getMessages/DLQ/DLQ/'
 
 const retrieveData = (data, url) =>
   window.fetch(url, {
@@ -58,7 +58,7 @@ const retrieveData = (data, url) =>
 
 const operateOnData = (data, method) => {
   var ids = (method === 'resendMessages') ? getSelectedIds(getSelectedMessages(data).filter((message) => message.message.origin.length !== 0)) : getSelectedIds(data)
-  window.fetch('/admin/jolokia/', {
+  window.fetch('../jolokia/', {
     method: 'POST',
     credentials: 'same-origin',
     headers: {

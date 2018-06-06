@@ -25,7 +25,7 @@ define([
 
     ModulePlugin.Collection = Backbone.Collection.extend({
         model: ModulePlugin.Model,
-        url: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForModule(java.lang.String)/',
+        url: './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForModule(java.lang.String)/',
         fetchByModuleName: function(moduleName, options) {
             var collection = this;
 

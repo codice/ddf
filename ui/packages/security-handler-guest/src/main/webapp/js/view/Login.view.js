@@ -43,7 +43,7 @@ define([
 
             $.ajax({
                 type: "POST",
-                url: "/services/login",
+                url: "../services/login",
                 data: {
                     "username": view.$('#username').val(),
                     "password": view.$('#password').val(),

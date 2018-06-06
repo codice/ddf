@@ -34,7 +34,7 @@ define([
 
     var serviceModelResponse = new Service.Response();
     serviceModelResponse.fetch({
-        url: '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
+        url: './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)'
     });
 
     var systemPropertiesWrapped = new ConfigurationModel.SystemPropertiesWrapped();

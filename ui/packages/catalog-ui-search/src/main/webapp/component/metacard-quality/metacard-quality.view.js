@@ -46,9 +46,9 @@ define([
             LoadingCompanionView.beginLoading(this);
             var self = this;
             setTimeout(function() {
-                $.when($.get('/search/catalog/internal/metacard/' + self.model.get('metacard').id + '/attribute/validation').then(function(response) {
+                $.when($.get('./internal/metacard/' + self.model.get('metacard').id + '/attribute/validation').then(function(response) {
                     self._attributeValidation = response;
-                }), $.get('/search/catalog/internal/metacard/' + self.model.get('metacard').id + '/validation').then(function(response) {
+                }), $.get('./internal/metacard/' + self.model.get('metacard').id + '/validation').then(function(response) {
                     self._metacardValidation = response;
                 })).always(function() {
                     self.checkForDuplicate();

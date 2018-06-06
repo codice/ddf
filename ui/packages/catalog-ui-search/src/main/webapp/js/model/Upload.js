@@ -24,12 +24,12 @@ function checkValidation(model) {
         //wait for solr
         setTimeout(function() {
             $.whenAll.apply(this, [
-                $.get('/search/catalog/internal/metacard/' + model.get('id') + '/attribute/validation').then(function(response) {
+                $.get('./internal/metacard/' + model.get('id') + '/attribute/validation').then(function(response) {
                     model.set({
                         issues: model.get('issues') || response.length > 0
                     });
                 }),
-                $.get('/search/catalog/internal/metacard/' + model.get('id') + '/validation').then(function(response) {
+                $.get('./internal/metacard/' + model.get('id') + '/validation').then(function(response) {
                     model.set({
                         issues: model.get('issues') || response.length > 0
                     });

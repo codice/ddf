@@ -61,7 +61,7 @@ define([
             }).forEach(function(result){
                 (function(id) {
                     $.get({
-                        url: '/search/catalog/internal/metacard/'+id+'/attribute/validation',
+                        url: './internal/metacard/'+id+'/attribute/validation',
                         customErrorHandling: true
                     }).then(function(response){
                         if (!self.isDestroyed && self.editorProperties.currentView){
@@ -91,7 +91,7 @@ define([
                 var self = this;
                 setTimeout(function(){
                     $.ajax({
-                        url: '/search/catalog/internal/metacards',
+                        url: './internal/metacards',
                         type: 'PATCH',
                         data: JSON.stringify(payload),
                         contentType: 'application/json'

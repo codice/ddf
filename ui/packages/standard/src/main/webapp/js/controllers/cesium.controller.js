@@ -122,7 +122,7 @@ define(['application',
                     container.html("");
                     viewer._geocoder = new Cesium.Geocoder({
                         container: container[0],
-                        url: '/services/',
+                        url: '../../services/',
                         scene: viewer.scene
                     });
                 }
