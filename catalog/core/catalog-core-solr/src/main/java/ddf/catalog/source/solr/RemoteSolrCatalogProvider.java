@@ -13,8 +13,6 @@
  */
 package ddf.catalog.source.solr;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import ddf.catalog.data.ContentType;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
@@ -34,38 +32,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
-import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Common base class for all remote Solr Catalog providers. Sub-classes need to implement the {@link
- * #createClient()} method and return a new {@code SolrClient}.
- */
+/** Common base class for all remote Solr Catalog providers. */
 public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements CatalogProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RemoteSolrCatalogProvider.class);
 
-  private static final String PING_ERROR_MESSAGE = "Solr ping failed.";
-
-  private static final String OK_STATUS = "OK";
-
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
-  private static Properties describableProperties = new Properties();
+  private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   static {
     try (InputStream inputStream =
         RemoteSolrCatalogProvider.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
-      describableProperties.load(inputStream);
+      DESCRIBABLE_PROPERTIES.load(inputStream);
     } catch (IOException e) {
       LOGGER.info("Did not load properties properly.", e);
     }
@@ -73,69 +58,29 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   protected static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-  private String url;
-
-  private CatalogProvider provider = new UnavailableSolrCatalogProvider();
-
-  private SolrClient client;
-
-  private FilterAdapter filterAdapter;
-
-  private SolrFilterDelegateFactory solrFilterDelegateFactory;
-
-  private DynamicSchemaResolver resolver;
-
-  private Future<SolrClient> clientFuture;
+  private final SolrCatalogProvider provider;
 
   /**
    * Constructor.
    *
    * @param filterAdapter filter adaptor this provider will use
-   * @param client client this provider will use to connect to Solr. If set to {@code null}, a new
-   *     client will be created using {@link #createClient()} when needed.
+   * @param client client this provider will use to connect to Solr
    * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
    * @param resolver schema resolver this provider will use. A default schema resolver will be used
    *     if this parameter is {@code null}.
    */
   public RemoteSolrCatalogProvider(
       FilterAdapter filterAdapter,
-      @Nullable SolrClient client,
+      SolrClient client,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
       @Nullable DynamicSchemaResolver resolver) {
-    notNull(filterAdapter, "FilterAdapter cannot be null");
-    notNull(solrFilterDelegateFactory, "SolrFilterDelegateFactory cannot be null");
-
-    this.filterAdapter = filterAdapter;
-    this.client = client;
-    this.solrFilterDelegateFactory = solrFilterDelegateFactory;
-    this.resolver = (resolver == null) ? new DynamicSchemaResolver() : resolver;
-  }
-
-  /**
-   * Constructor. Uses a default {@link DynamicSchemaResolver}.
-   *
-   * @param filterAdapter filter adaptor this provider will use
-   * @param client client this provider will use to connect to Solr. If set to {@code null}, a new
-   *     client will be created using {@link #createClient()} when needed.
-   * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
-   */
-  public RemoteSolrCatalogProvider(
-      FilterAdapter filterAdapter,
-      @Nullable SolrClient client,
-      SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    this(filterAdapter, client, solrFilterDelegateFactory, null);
-  }
-
-  /**
-   * Constructor. Creates and uses a default {@code SolrClient} and {@link DynamicSchemaResolver}.
-   *
-   * @param filterAdapter filter adaptor this provider will use
-   * @param solrFilterDelegateFactory Solr filter delegate factory this provider will use
-   */
-  public RemoteSolrCatalogProvider(
-      FilterAdapter filterAdapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    this(filterAdapter, null, solrFilterDelegateFactory, null);
-    updateClient();
+    this.provider =
+        new SolrCatalogProvider(
+            client,
+            filterAdapter,
+            solrFilterDelegateFactory,
+            (resolver == null) ? new DynamicSchemaResolver() : resolver);
+    provider.maskId(getId());
   }
 
   @Override
@@ -166,188 +111,61 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   @Override
   public Set<ContentType> getContentTypes() {
-    return getProvider().getContentTypes();
+    return provider.getContentTypes();
   }
 
   @Override
   public boolean isAvailable() {
-    return getProvider().isAvailable();
+    return provider.isAvailable();
   }
 
   @Override
   public boolean isAvailable(SourceMonitor callback) {
-    return getProvider().isAvailable(callback);
+    return provider.isAvailable(callback);
   }
 
   @Override
   public SourceResponse query(QueryRequest queryRequest) throws UnsupportedQueryException {
-    return getProvider().query(queryRequest);
+    return provider.query(queryRequest);
   }
 
   @Override
   public String getDescription() {
-    return describableProperties.getProperty("description", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("description", "");
   }
 
   @Override
   public String getOrganization() {
-    return describableProperties.getProperty("organization", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("organization", "");
   }
 
   @Override
   public String getTitle() {
-    return describableProperties.getProperty("name", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("name", "");
   }
 
   @Override
   public String getVersion() {
-    return describableProperties.getProperty("version", "");
+    return DESCRIBABLE_PROPERTIES.getProperty("version", "");
   }
 
   @Override
   public CreateResponse create(CreateRequest createRequest) throws IngestException {
-    return getProvider().create(createRequest);
+    return provider.create(createRequest);
   }
 
   @Override
   public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
-    return getProvider().delete(deleteRequest);
+    return provider.delete(deleteRequest);
   }
 
   @Override
   public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
-    return getProvider().update(updateRequest);
+    return provider.update(updateRequest);
   }
 
   /** Shuts down the connection to Solr and releases resources. */
   public void shutdown() {
-    closeSolrClient();
-  }
-
-  /**
-   * Returns the current Solr server URL. The format of the URL may vary based on the current Solr
-   * configuration (embedded, external or cloud).
-   *
-   * @return current Solr URL
-   */
-  @Nullable
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * Sets Solr's URL. The format of the URL may vary based on the current Solr configuration, e.g.,
-   * embedded, external or cloud. See the {@code system.properties} configuration file for the
-   * different options and formats. <br>
-   * Changing the URL will trigger the creation of a new Solr client using {@link #createClient()}.
-   *
-   * @param url new Solr URL
-   */
-  public void setUrl(@Nullable String url) {
-    updateClient(PropertyResolver.resolveProperties(url));
-  }
-
-  /** Forces an update of the Solr client. */
-  protected void updateClient() {
-    clientFuture = createClient();
-    client = null;
-  }
-
-  /**
-   * Request the creation of a new {@code SolrClient}.
-   *
-   * @return {@code Future} used to retrieve the new {@code SolrClient} created
-   */
-  protected abstract Future<SolrClient> createClient();
-
-  private void updateClient(@Nullable String urlValue) {
-    LOGGER.debug("New url {}", urlValue);
-
-    if (urlValue != null) {
-      if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || getClient() == null) {
-        url = urlValue.trim();
-
-        if (getClient() != null) {
-          LOGGER.debug(
-              "Shutting down the connection manager to Solr and releasing allocated resources.");
-          closeSolrClient();
-          LOGGER.debug("Shutdown complete.");
-        }
-
-        updateClient();
-      }
-
-    } else {
-      url = null;
-    }
-  }
-
-  private void closeSolrClient() {
-    LOGGER.debug("Closing connection to Solr client.");
-    if (client != null) {
-      try {
-        client.close();
-      } catch (IOException e) {
-        LOGGER.info("Unable to close Solr client", e);
-      }
-    } else if (clientFuture != null && !clientFuture.isDone() && !clientFuture.isCancelled()) {
-      clientFuture.cancel(true);
-    }
-
-    LOGGER.debug("Finished closing connection to Solr client.");
-  }
-
-  private CatalogProvider getProvider() {
-
-    if (!isClientConnected(getClient())) {
-      return new UnavailableSolrCatalogProvider();
-    }
-
-    if (provider instanceof UnavailableSolrCatalogProvider) {
-      provider =
-          new SolrCatalogProvider(getClient(), filterAdapter, solrFilterDelegateFactory, resolver);
-    }
-
-    provider.maskId(getId());
-    return provider;
-  }
-
-  private boolean isClientConnected(SolrClient solr) {
-
-    if (solr == null) {
-      return false;
-    }
-
-    try {
-      return OK_STATUS.equals(solr.ping().getResponse().get("status"));
-    } catch (Exception e) {
-      /*
-       * if we get any type of exception, whether declared by Solr or not, we do not want to
-       * fail, we just want to return false
-       */
-      LOGGER.info(PING_ERROR_MESSAGE);
-      LOGGER.debug(PING_ERROR_MESSAGE, e);
-    }
-    return false;
-  }
-
-  private SolrClient getClient() {
-    if (client == null && clientFuture != null) {
-      try {
-        SolrClient solrClient = clientFuture.get(5, TimeUnit.SECONDS);
-
-        if (solrClient == null) {
-          // If we fail to get a SolrClient after all potential retries have been
-          // exhausted, call updateClient() to keep trying.
-          // See SolrClientFactory.newClient() for details.
-          updateClient();
-        }
-
-        return solrClient;
-      } catch (InterruptedException | ExecutionException | TimeoutException e) {
-        LOGGER.debug("Failed to get client from future", e);
-      }
-    }
-    return client;
+    provider.shutdown();
   }
 }

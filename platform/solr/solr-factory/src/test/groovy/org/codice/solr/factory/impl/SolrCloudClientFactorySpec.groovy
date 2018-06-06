@@ -1,0 +1,574 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.solr.factory.impl
+
+import net.jodah.failsafe.FailsafeException
+import net.jodah.failsafe.RetryPolicy
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.solr.client.solrj.SolrServerException
+import org.apache.solr.client.solrj.impl.CloudSolrClient
+import org.apache.solr.client.solrj.request.CollectionAdminRequest
+import org.apache.solr.client.solrj.response.SolrPingResponse
+import org.apache.solr.common.SolrException
+import org.apache.solr.common.cloud.ClusterState
+import org.apache.solr.common.cloud.SolrZkClient
+import org.apache.solr.common.cloud.ZkStateReader
+import org.apache.solr.common.util.NamedList
+import org.apache.zookeeper.KeeperException
+import org.codice.spock.extension.ClearInterruptions
+import org.codice.spock.extension.Supplemental
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
+import spock.lang.Timeout
+import spock.lang.Unroll
+import spock.util.environment.RestoreSystemProperties
+
+import static java.util.concurrent.TimeUnit.SECONDS
+import static org.apache.solr.common.SolrException.ErrorCode.BAD_REQUEST
+
+@RestoreSystemProperties
+@Supplemental
+class SolrCloudClientFactorySpec extends Specification {
+  static final String CORE = "test_core"
+  static final String DATA_DIR = "data_dir"
+
+  static final int SOLR_SHARD_COUNT = 3
+  static final int SOLR_REPLICATION_FACTOR = 3
+  static final int SOLR_MAX_SHARDS_PER_NODE = 1
+  static final String SOLR_CLOUD_ZOOKEEPERS = "server:1234,server2:2345"
+
+  static final int MAX_RETRIES = 2
+
+  static final int AVAILABLE_TIMEOUT_IN_SECS = 25
+
+  @Rule
+  TemporaryFolder tempFolder = new TemporaryFolder();
+
+  def setup() {
+    tempFolder.create();
+    ConfigurationStore.instance.dataDirectoryPath = tempFolder.root.absolutePath
+  }
+
+  def cleanup() {
+    // reset the config store
+    ConfigurationStore.instance.dataDirectoryPath = null
+  }
+
+  @Timeout(SolrCloudClientFactorySpec.AVAILABLE_TIMEOUT_IN_SECS)
+  def 'test new client becoming available when system property solr.cloud.zookeeper is set'() {
+    given:
+      def cloudClient = Mock(SolrClient) {
+        ping() >> Mock(SolrPingResponse) {
+          // verify the Solr cloud client should have been successfully pinged at least once
+          // must be done in 'given' because it will be called from a different thread and if
+          // declared in 'then', it will be out of scope and not matched
+          (1.._) * getResponse() >> Mock(NamedList) {
+            get("status") >> "OK"
+          }
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        // verify an actual Solr cloud client will be created
+        // must be done in 'given' because it will be called from a different thread and if
+        // declared in 'then', it will be out of scope and not matched
+        1 * createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE) >> cloudClient
+      }
+
+    and:
+      System.setProperty("solr.cloud.zookeeper", SOLR_CLOUD_ZOOKEEPERS)
+
+    when:
+      def client = factory.newClient(CORE)
+
+    then: "the reported core should correspond to the requested one"
+      client.core == CORE
+
+    when: "checking for the adapter to become available"
+      // because the SolrCloudClientFactory wraps what it returns with a SolrClientAdapter which uses
+      // background threads to create and ping the servers, we are forced to wait for it to become
+      // available. That being said, we mocked the client that will be internally created and its
+      // ping will be successful right away. Therefore this should all happen very quickly without
+      // a hitch. Worst case scenario we have a bug and it will take about 30 seconds to detect it.
+      // Best case scenario, it will return pretty much right away.
+      def available = client.isAvailable(AVAILABLE_TIMEOUT_IN_SECS + 5L, SECONDS)
+
+    then: "it should be"
+      available
+
+    and: "the underlying client should never be closed"
+      0 * cloudClient.close()
+  }
+
+  @Unroll
+  def 'test new client when system property solr.cloud.zookeeper is #solr_cloud_zookeeper_is'() {
+    given:
+      def factory = new SolrCloudClientFactory()
+
+    and:
+      System.setPropertyIfNotNull("solr.cloud.zookeeper", solr_cloud_zookeeper)
+
+    when:
+      factory.newClient(CORE)
+
+    then:
+      def e = thrown(IllegalStateException)
+
+      e.message.contains("'solr.cloud.zookeeper' is not configured")
+
+    where:
+      solr_cloud_zookeeper_is || solr_cloud_zookeeper
+      'blank'                 || ''
+      'not defined'           || null
+  }
+
+  def 'test new client with a null core'() {
+    given:
+      def factory = new SolrCloudClientFactory();
+
+    and:
+      System.setProperty("solr.cloud.zookeeper", SOLR_CLOUD_ZOOKEEPERS)
+
+    when:
+      factory.newClient(null)
+
+    then:
+      def e = thrown(IllegalArgumentException)
+
+      e.message.contains("invalid null Solr core")
+  }
+
+  def 'test creating a Solr cloud client when configuration is already uploaded and the collection already exists'() {
+    given:
+      def zkClient = Mock(SolrZkClient)
+      def listResponse = Mock(NamedList)
+      def cloudClient = Mock(CloudSolrClient) {
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> zkClient
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory)
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "verify the Solr cloud client is created"
+      1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+
+    and: "the returned client is the one we created"
+      createdClient.is(cloudClient)
+
+    and: "it is being connected"
+      1 * cloudClient.connect() >> null
+
+    then: "verify zookeeper is consulted to see if the configuration exists"
+      1 * zkClient.exists("/configs/$CORE", true) >> true
+
+    and: "therefore, the config is never uploaded to zookeeper"
+      0 * cloudClient.uploadConfig(*_)
+
+    then: "verify zookeeper is consulted to see if the collection exists"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> listResponse
+      1 * listResponse.get('collections') >> Collections.singletonList(CORE)
+
+    and: "the collection is never created"
+      0 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null)
+
+    and: "close() is never called on the underlying client"
+      0 * cloudClient.close()
+  }
+
+  def 'test creating a Solr cloud client when configuration is already uploaded and the collection does not exists'() {
+    given:
+      System.setProperty("solr.cloud.shardCount", SOLR_SHARD_COUNT as String)
+      System.setProperty("solr.cloud.maxShardPerNode", SOLR_MAX_SHARDS_PER_NODE as String)
+      System.setProperty("solr.cloud.replicationFactor", SOLR_REPLICATION_FACTOR as String)
+
+    and:
+      def zkClient = Mock(SolrZkClient)
+      def clusterState = Mock(ClusterState)
+      def listResponse = Mock(NamedList)
+      def createResponse = Mock(NamedList)
+      def cloudClient = Mock(CloudSolrClient) {
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> zkClient
+          getClusterState() >> clusterState
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory)
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "verify the Solr cloud client is created"
+      1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+
+    and: "the returned client is the one we created"
+      createdClient.is(cloudClient)
+
+    and: "it is being connected"
+      1 * cloudClient.connect() >> null
+
+    then: "verify zookeeper is consulted to see if the configuration exists"
+      1 * zkClient.exists("/configs/$CORE", true) >> true
+
+    and: "therefore, the config is never uploaded to zookeeper"
+      0 * cloudClient.uploadConfig(*_)
+
+    then: "verify zookeeper is consulted to see if the collection exists"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> listResponse
+      1 * listResponse.get('collections') >> Collections.emptyList()
+
+    and: "the collection is created"
+      1 * cloudClient.request({
+        ((it instanceof CollectionAdminRequest.Create)
+            && (it.numShards == SOLR_SHARD_COUNT)
+            && (it.maxShardsPerNode == SOLR_MAX_SHARDS_PER_NODE)
+            && (it.replicationFactor == SOLR_REPLICATION_FACTOR)
+            && (it.collectionName == CORE))
+      }, null) >> createResponse
+      1 * createResponse.get('success') >> true
+
+    and: "verify zookeeper is consulted to see if the collection was created"
+      1 * clusterState.hasCollection(CORE) >> true
+
+    and: "verify zookeeper is consulted to see if the shards were started"
+      1 * clusterState.getSlices(CORE) >> ['shard'] * SOLR_SHARD_COUNT
+
+    and: "close() is never called on the underlying client"
+      0 * cloudClient.close()
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when configuration is uploaded and the collection already exists and system property solr.data.dir is #data_dir_is'() {
+    given:
+      if (solr_data_dir) {
+        solr_data_dir = new File(tempFolder.root, solr_data_dir).absolutePath
+        System.setProperty("solr.data.dir", solr_data_dir)
+      } else {
+        System.clearProperty("solr.data.dir")
+      }
+
+    and:
+      def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
+      def zkClient = Mock(SolrZkClient)
+      def listResponse = Mock(NamedList)
+      def cloudClient = Mock(CloudSolrClient) {
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> zkClient
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory)
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "verify the Solr cloud client is created"
+      1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+
+    and: "the returned client is the one we created"
+      createdClient.is(cloudClient)
+
+    and: "it is being connected"
+      1 * cloudClient.connect() >> null
+
+    then: "verify zookeeper is consulted to see if the configuration exists"
+      1 * zkClient.exists("/configs/$CORE", true) >> false
+
+    and: "the config is uploaded to zookeeper"
+      1 * cloudClient.uploadConfig(*_) >> null
+
+    then: "verify zookeeper is consulted to see if the collection exists"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> listResponse
+      1 * listResponse.get('collections') >> Collections.singletonList(CORE)
+
+    and: "the collection is never created"
+      0 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null)
+
+    and: "close() is never called on the underlying client"
+      0 * cloudClient.close()
+
+    and: "the config store is initialized and its data directory was or wasn't updated"
+      ConfigurationStore.instance.dataDirectoryPath == data_dir_updated ? solr_data_dir : initialDataDir
+
+    where:
+      data_dir_is   || solr_data_dir || data_dir_updated
+      'defined'     || DATA_DIR      || true
+      'not defined' || null          || false
+  }
+
+  // @ClearInterruptions because Failsafe is affected whenever it catches an InterruptedException
+  // and decides to propagate it; thus affecting the next test cases that will call system methods
+  // that checks for interruptions
+  @ClearInterruptions
+  @Unroll
+  def 'test creating a Solr cloud client when failing to check if the configuration was already uploaded with #exception.class.noSpockSimpleName'() {
+    given:
+      def zkClient = Mock(SolrZkClient)
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> zkClient
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when zookeeper is consulted to see if the configuration exists"
+      1 * zkClient.exists("/configs/$CORE", true) >> { throw exception }
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      exception << [Stub(KeeperException), new InterruptedException()]
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when failing to upload the configuration with #exception.class.simpleName'() {
+    given:
+      System.setProperty("solr.cloud.shardCount", SOLR_SHARD_COUNT as String)
+      System.setProperty("solr.cloud.maxShardPerNode", SOLR_MAX_SHARDS_PER_NODE as String)
+      System.setProperty("solr.cloud.replicationFactor", SOLR_REPLICATION_FACTOR as String)
+
+    and:
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> false
+          }
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when uploading the configuration"
+      1 * cloudClient.uploadConfig(*_) >> { throw exception }
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      exception << [new IOException()]
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when failing to list existing collections with #exception.class.simpleName'() {
+    given:
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> true
+          }
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when trying to list existing collections"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> {
+        throw exception
+      }
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      exception << [new SolrServerException('test'), new SolrException(BAD_REQUEST, 'test'), new IOException()]
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when failing to list existing collections with #fail_to_list_existing_collections_with'() {
+    given:
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> true
+          }
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when trying to list existing collections"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> list_response
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      fail_to_list_existing_collections_with || list_response
+      'a null response'                      || null
+      'no collections returned'              || Mock(NamedList) { 1 * get("collections") >> null }
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when failing to create the collection with #exception.class.simpleName'() {
+    given:
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> true
+          }
+        }
+        request({ it instanceof CollectionAdminRequest.List }, null) >> Mock(NamedList) {
+          1 * get("collections") >> Collections.emptyList()
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when trying to create the collection"
+      1 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null) >> {
+        throw exception
+      }
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      exception << [new SolrServerException('test'), new SolrException(BAD_REQUEST, 'test'), new IOException()]
+  }
+
+  def 'test creating a Solr cloud client when failing to create the collection with a failure response'() {
+    given:
+      def createResponse = Mock(NamedList)
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> true
+          }
+        }
+        request({ it instanceof CollectionAdminRequest.List }, null) >> Mock(NamedList) {
+          1 * get("collections") >> Collections.emptyList()
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail when trying to create the collection"
+      1 * cloudClient.request({
+        it instanceof CollectionAdminRequest.Create
+      }, null) >> createResponse
+      1 * createResponse.get('success') >> null
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+  }
+
+  @Unroll
+  def 'test creating a Solr cloud client when failing to check if the collection is active because #collection_is_not_active_because'() {
+    given:
+      def clusterState = Mock(ClusterState)
+      def cloudClient = Mock(CloudSolrClient) {
+        connect() >> null
+        getZkStateReader() >> Mock(ZkStateReader) {
+          getZkClient() >> Mock(SolrZkClient) {
+            exists(*_) >> true
+          }
+          getClusterState() >> clusterState
+        }
+        request({ it instanceof CollectionAdminRequest.List }, null) >> Mock(NamedList) {
+          1 * get("collections") >> Collections.emptyList()
+        }
+        request({ it instanceof CollectionAdminRequest.Create }, null) >> Mock(NamedList) {
+          get('success') >> true
+        }
+      }
+      def factory = Spy(SolrCloudClientFactory) {
+        newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+      }
+
+    when:
+      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+
+    then: "fail or not when checking if the collection was created"
+      expected_retries_for_has_collection * factory.withRetry() >> {
+        if (!has_collection_retry) {
+          throw new FailsafeException()
+        }
+        new RetryPolicy().withMaxRetries(MAX_RETRIES)
+      }
+      expected_cluster_state_has_collection * clusterState.hasCollection(CORE) >> has_collection
+
+    then: "fail or not zookeeper when consulted to see if the shards were started"
+      expected_retries_for_get_slices * factory.withRetry() >> {
+        if (!get_slices_retry) {
+          throw new FailsafeException()
+        }
+        new RetryPolicy().withMaxRetries(MAX_RETRIES)
+      }
+      expected_cluster_state_get_slices * clusterState.getSlices(CORE) >> ['shard'] * shard_count
+
+    then: "verify the underlying client is closed"
+      1 * cloudClient.close()
+
+    and: "verify no client was returned"
+      createdClient == null
+
+    where:
+      collection_is_not_active_because                       || expected_retries_for_has_collection | has_collection_retry | expected_cluster_state_has_collection | has_collection | expected_retries_for_get_slices | get_slices_retry | expected_cluster_state_get_slices | shard_count
+      'it was not created'                                   || 1                                   | true                 | MAX_RETRIES + 1                       | false          | 0                               | null             | 0                                 | SOLR_SHARD_COUNT
+      'a retry failure occurred while creating it'           || 1                                   | false                | 0                                     | false          | 0                               | null             | 0                                 | SOLR_SHARD_COUNT
+      'the shards are not started'                           || 1                                   | true                 | 1                                     | true           | 1                               | true             | MAX_RETRIES + 1                   | 0
+      'a retry failure occurred while retrieving the shards' || 1                                   | true                 | 1                                     | true           | 1                               | false            | 0                                 | 0
+  }
+}

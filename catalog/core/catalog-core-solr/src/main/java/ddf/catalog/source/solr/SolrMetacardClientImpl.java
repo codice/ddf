@@ -63,7 +63,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -76,6 +75,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.codice.solr.client.solrj.SolrClient;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -277,7 +277,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       return results;
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
   }
@@ -361,7 +361,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
       }
 
-    } catch (SolrServerException | IOException e) {
+    } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Solr exception getting content types", e);
     }
 
@@ -707,6 +707,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             /* waitForFlush */ true,
             /* waitToMakeVisible */ true,
             /* softCommit */ true)
-        .process(client);
+        .process(client.getClient());
   }
 }

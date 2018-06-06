@@ -17,11 +17,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.LukeRequest;
 import org.apache.solr.client.solrj.response.LukeResponse;
 import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
+import org.apache.solr.common.SolrException;
+import org.codice.solr.client.solrj.SolrClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +136,7 @@ public class SchemaFieldResolver {
     LukeRequest luke = new LukeRequest();
     LukeResponse rsp;
     try {
-      rsp = luke.process(solr);
+      rsp = luke.process(solr.getClient());
       Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
       if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
         LOGGER.debug("got fieldsInfo for {} fields", fieldsInfo.size());
@@ -164,10 +165,8 @@ public class SchemaFieldResolver {
         LOGGER.debug("fieldsInfo from LukeRequest are either null or empty");
       }
 
-    } catch (SolrServerException e) {
-      LOGGER.info("SolrServerException while processing LukeRequest", e);
-    } catch (IOException e) {
-      LOGGER.info("IOException while processing LukeRequest", e);
+    } catch (SolrServerException | SolrException | IOException e) {
+      LOGGER.info("Exception while processing LukeRequest", e);
     }
 
     LOGGER.debug("Did not find SchemaField for property {}", propertyName);

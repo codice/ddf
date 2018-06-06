@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationFileProxy;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.EmbeddedSolrFactory;
@@ -43,7 +43,7 @@ public class ReuterSolrImport implements Runnable {
 
   private static final String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
 
-  private EmbeddedSolrServer solr;
+  private final SolrClient solr;
 
   private SolrCatalogProvider solrProvider;
 
@@ -54,13 +54,16 @@ public class ReuterSolrImport implements Runnable {
     this.arrayOfFile = arrayOfFile;
 
     try {
+      final ConfigurationStore configStore = ConfigurationStore.getInstance();
 
       this.solr =
-          EmbeddedSolrFactory.getEmbeddedSolrServer(
-              "catalog",
-              "solrconfigSoft.xml",
-              "schema.xml",
-              new ConfigurationFileProxy(ConfigurationStore.getInstance()));
+          new EmbeddedSolrFactory()
+              .newClient(
+                  "catalog",
+                  "solrconfigSoft.xml",
+                  "schema.xml",
+                  configStore,
+                  new ConfigurationFileProxy(configStore));
 
       this.solrProvider =
           new SolrCatalogProvider(

@@ -26,10 +26,14 @@ import ddf.catalog.source.solr.provider.SolrProviderTemporal;
 import ddf.catalog.source.solr.provider.SolrProviderUpdate;
 import ddf.catalog.source.solr.provider.SolrProviderXpath;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationFileProxy;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.codice.solr.factory.impl.EmbeddedSolrFactory;
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -65,7 +69,7 @@ public class SolrProviderTest {
   public static final String MASKED_ID = "scp";
 
   @BeforeClass
-  public static void setup() {
+  public static void setup() throws Exception {
     cipherSuites = System.getProperty("https.cipherSuites");
     protocols = System.getProperty("https.protocols");
     System.setProperty(
@@ -82,13 +86,19 @@ public class SolrProviderTest {
     System.getProperty("solr.data.dir", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
     ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(store);
+    final SolrClient client =
+        new EmbeddedSolrFactory()
+            .newClient(
+                "catalog", "solrconfig-inmemory.xml", "schema.xml", store, configurationFileProxy);
+
+    Assert.assertThat(
+        "Solr client is not available for testing",
+        client.isAvailable(30L, TimeUnit.SECONDS),
+        Matchers.equalTo(true));
 
     provider =
         new SolrCatalogProvider(
-            EmbeddedSolrFactory.getEmbeddedSolrServer(
-                "catalog", "solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
-            new GeotoolsFilterAdapterImpl(),
-            new SolrFilterDelegateFactoryImpl());
+            client, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
     // Mask the id, this is something that the CatalogFramework would
     // usually do

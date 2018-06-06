@@ -33,7 +33,6 @@
 * com.hazelcast:hazelcast:jar:3.2.1
 * com.jayway.restassured:rest-assured:jar:2.9.0
 * com.jhlabs:filters:jar:2.0.235-1
-* com.lucidworks:banana:war:1.5.1
 * com.rometools:rome-utils:jar:1.5.0
 * com.rometools:rome:jar:1.5.0
 * com.sparkjava:spark-core:jar:2.5.5

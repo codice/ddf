@@ -17,9 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
-import java.util.concurrent.Future;
 import java.util.function.BiFunction;
-import org.apache.solr.client.solrj.SolrClient;
+import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,15 +28,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SolrClientFactoryImplTest {
 
-  @Mock private Future<SolrClient> future;
+  @Mock private SolrClient mockClient;
 
   // Used to keep and assert on the SolrClientFactory instance newClient would be called on
   private SolrClientFactory solrClientFactory;
 
-  private BiFunction<SolrClientFactory, String, Future<SolrClient>> newClientFunction =
+  private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction =
       (factory, core) -> {
         this.solrClientFactory = factory;
-        return future;
+        return mockClient;
       };
 
   @Test(expected = IllegalArgumentException.class)
@@ -51,9 +50,9 @@ public class SolrClientFactoryImplTest {
     System.setProperty("solr.client", "EmbeddedSolrServer");
     SolrClientFactoryImpl factory = new SolrClientFactoryImpl(newClientFunction);
 
-    Future<SolrClient> client = factory.newClient("core");
+    SolrClient client = factory.newClient("core");
     assertThat(solrClientFactory, is(instanceOf(EmbeddedSolrFactory.class)));
-    assertThat(client, is(future));
+    assertThat(client, is(mockClient));
   }
 
   @Test
@@ -61,9 +60,9 @@ public class SolrClientFactoryImplTest {
     System.setProperty("solr.client", "HttpSolrClient");
     SolrClientFactoryImpl factory = new SolrClientFactoryImpl(newClientFunction);
 
-    Future<SolrClient> client = factory.newClient("core");
+    SolrClient client = factory.newClient("core");
     assertThat(solrClientFactory, is(instanceOf(HttpSolrClientFactory.class)));
-    assertThat(client, is(future));
+    assertThat(client, is(mockClient));
   }
 
   @Test
@@ -71,9 +70,9 @@ public class SolrClientFactoryImplTest {
     System.setProperty("solr.client", "CloudSolrClient");
     SolrClientFactoryImpl factory = new SolrClientFactoryImpl(newClientFunction);
 
-    Future<SolrClient> client = factory.newClient("core");
+    SolrClient client = factory.newClient("core");
     assertThat(solrClientFactory, is(instanceOf(SolrCloudClientFactory.class)));
-    assertThat(client, is(future));
+    assertThat(client, is(mockClient));
   }
 
   @Test
@@ -81,8 +80,8 @@ public class SolrClientFactoryImplTest {
     System.setProperty("solr.client", "Unknown");
     SolrClientFactoryImpl factory = new SolrClientFactoryImpl(newClientFunction);
 
-    Future<SolrClient> client = factory.newClient("core");
+    SolrClient client = factory.newClient("core");
     assertThat(solrClientFactory, is(instanceOf(HttpSolrClientFactory.class)));
-    assertThat(client, is(future));
+    assertThat(client, is(mockClient));
   }
 }
