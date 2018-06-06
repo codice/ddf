@@ -111,6 +111,6 @@ During ${branding} installation, the major directories and files shown in the ta
 
 |===
 
-==== Complete Installation
+==== Completing Installation
 
-Upon startup, complete installation from either the Admin Console or the command line.
+Upon startup, complete installation from either the ${admin-console} or the ${command-console}.
