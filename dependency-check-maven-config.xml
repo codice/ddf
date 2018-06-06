@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <!-- FIXME - Temporary suppression. Remove when DDF-3871 has been completed -->
+    <suppress>
+        <notes>Temporarily suppressing until goetools has been upgraded</notes>
+        <cve>CVE-2018-1335</cve>
+    </suppress>
+
     <!-- Remove this suppression CVE-2017-5644 once DDF-3064 has been resolved-->
     <suppress>
         <notes>
@@ -526,7 +532,8 @@
 
     <suppress>
         <notes>
-            This CVE is not an issue since the software is not exposing STOMP over WebSocket endpoints.
+            This CVE is not an issue since the software is not exposing STOMP over WebSocket
+            endpoints.
         </notes>
         <cve>CVE-2018-1270</cve>
     </suppress>
