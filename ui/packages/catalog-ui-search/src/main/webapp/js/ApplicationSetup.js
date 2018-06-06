@@ -14,7 +14,10 @@
 require('styles/styles.less');
 var $ = require('jquery')
 $.ajaxSetup({
-    cache: false
+    cache: false,
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+    }
 });
 
 if (process.env.NODE_ENV !== 'production') {

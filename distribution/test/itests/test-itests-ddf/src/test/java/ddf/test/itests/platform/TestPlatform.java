@@ -62,6 +62,8 @@ public class TestPlatform extends AbstractIntegrationTest {
             .auth()
             .preemptive()
             .basic("admin", "admin")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Origin", LOGGING_SERVICE_JOLOKIA_URL.getUrl())
             .expect()
             .statusCode(200)
             .when()

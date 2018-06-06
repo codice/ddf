@@ -152,7 +152,14 @@
             Application.App.mainRegion.show(new ModuleView({model: Application.ModuleModel}));
         });
 
-        //setup the header
+        // add anti-csrf header to outgoing requests
+        $.ajaxSetup({
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        // setup the header
         app.addInitializer(function () {
             if (Properties.ui.header && Properties.ui.header !== '') {
                 $('html').addClass('has-header');

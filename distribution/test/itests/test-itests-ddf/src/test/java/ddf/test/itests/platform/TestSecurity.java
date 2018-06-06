@@ -1420,6 +1420,8 @@ public class TestSecurity extends AbstractIntegrationTest {
     return given()
         .auth()
         .basic("admin", "admin")
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", SECURE_ROOT_AND_PORT.getUrl())
         .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
         .body()
         .print();
@@ -1429,6 +1431,8 @@ public class TestSecurity extends AbstractIntegrationTest {
     return given()
         .auth()
         .basic(SYSTEM_ADMIN_USER, SYSTEM_ADMIN_USER_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", SECURE_ROOT_AND_PORT.getUrl())
         .get(SECURE_ROOT_AND_PORT + jolokiaEndpoint)
         .body()
         .print();

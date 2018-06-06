@@ -13,18 +13,18 @@ import React from 'react'
 import {render} from 'react-dom'
 import store from './store'
 import {
-    isAllSelected,
-    getSelectedIds,
-    getSelectedMessages,
-    getIds
+  isAllSelected,
+  getSelectedIds,
+  getSelectedMessages,
+  getIds
 } from './reducer'
 import {
-    addMessage,
-    checkAllMessages,
-    togglePolling,
-    expandAllMessages,
-    updateDeleted,
-    removeMessages
+  addMessage,
+  checkAllMessages,
+  togglePolling,
+  expandAllMessages,
+  updateDeleted,
+  removeMessages
 } from './actions'
 import TableView from './table.view'
 
@@ -34,7 +34,12 @@ require('isomorphic-fetch')
 const getMessagesURI = '/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/getMessages/DLQ/DLQ/'
 
 const retrieveData = (data, url) =>
-  window.fetch(url, {credentials: 'same-origin'})
+  window.fetch(url, {
+    credentials: 'same-origin',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
     .then((res) => res.json())
     .then((json) => {
       json.value.filter((message) => !(getIds(data).includes(message.messageID))).map((message) => {
@@ -57,7 +62,8 @@ const operateOnData = (data, method) => {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
     },
     body: JSON.stringify({
       type: 'EXEC',

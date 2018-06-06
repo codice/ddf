@@ -129,6 +129,13 @@ require(['underscore',
             return ich[template](data);
         };
 
+        // Add anti-CSRF header to outgoing calls
+        Backbone.$.ajaxSetup({
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
         // Actually start up the application.
         app.App.start({});
     });

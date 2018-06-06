@@ -280,8 +280,8 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
           <div key='ace' style={{ margin: '0 15px' }}>
             <Error errorText={
               ['buffer', 'proxyEnabled', 'order', 'show', 'withCredentials']
-              .map((key) => error.get(key))
-              .filter((msg) => msg !== undefined)[0]
+                .map((key) => error.get(key))
+                .filter((msg) => msg !== undefined)[0]
             }>
               <AceEditor
                 mode='json'
@@ -430,12 +430,12 @@ const MapLayers = (props) => {
             {(i === 0)
               ? <div style={{textAlign: 'center', paddingTop: 20, fontWeight: 'bold', fontSize: '1.2rem'}}>
                   Topmost Layer
-                </div>
+              </div>
               : null}
             {(i > 0 && i === providers.size - 1)
               ? <div style={{textAlign: 'center', paddingTop: 20, fontWeight: 'bold', fontSize: '1.2rem'}}>
                   Bottommost Layer
-                </div>
+              </div>
               : null}
             <div style={{ position: 'absolute', top: 20, right: 20 }}>
               {(i < providers.size - 1)
