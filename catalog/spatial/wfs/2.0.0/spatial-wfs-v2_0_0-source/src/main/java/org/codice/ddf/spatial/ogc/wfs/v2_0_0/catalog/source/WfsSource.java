@@ -280,6 +280,8 @@ public class WfsSource extends AbstractWfsSource {
     setupAvailabilityPoll();
   }
 
+  @SuppressWarnings(
+      "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
     unregisterAllMetacardTypes();
     availabilityPollFuture.cancel(true);

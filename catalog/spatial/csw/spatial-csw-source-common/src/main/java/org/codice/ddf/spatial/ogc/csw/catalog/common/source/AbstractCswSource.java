@@ -1872,7 +1872,9 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   /** Clean-up when shutting down the CswSource */
-  public void destroy() {
+  @SuppressWarnings(
+      "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
+  public void destroy(int code) {
     LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
     availabilityPollFuture.cancel(true);
     scheduler.shutdownNow();
