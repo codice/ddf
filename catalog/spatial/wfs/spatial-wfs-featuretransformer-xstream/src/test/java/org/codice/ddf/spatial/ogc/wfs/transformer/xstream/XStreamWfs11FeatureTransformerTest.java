@@ -108,7 +108,8 @@ public class XStreamWfs11FeatureTransformerTest {
             Wfs11Constants.GML_3_1_1_NAMESPACE,
             FeatureMetacardType.DEFAULT_METACARD_TYPE_ENHANCER);
 
-    when(metacardTypeRegistry.lookupMetacardType(SOURCE_ID))
+    when(metacardTypeRegistry.lookupMetacardTypeBySimpleName(
+            SOURCE_ID, PETER_PAN_NAME.getLocalPart()))
         .thenReturn(Optional.of(featureMetacardType));
 
     return metacardTypeRegistry;
@@ -117,6 +118,7 @@ public class XStreamWfs11FeatureTransformerTest {
   private WfsMetadata<FeatureTypeType> mockWfsMetadata() {
     WfsMetadata<FeatureTypeType> wfsMetadata = mock(WfsMetadata.class);
     when(wfsMetadata.getId()).thenReturn(SOURCE_ID);
+    when(wfsMetadata.getFeatureMemberNodeName()).thenReturn("featureMember");
 
     when(wfsMetadata.getDescriptors()).thenReturn(Collections.singletonList(mockFeatureType()));
 

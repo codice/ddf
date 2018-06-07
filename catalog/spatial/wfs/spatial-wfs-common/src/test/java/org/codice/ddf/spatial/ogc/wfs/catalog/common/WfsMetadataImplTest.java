@@ -38,7 +38,7 @@ public class WfsMetadataImplTest {
         new WfsMetadataImpl<FeatureMetacardType>(
             () -> TEST_ID,
             () -> COORDINATE_ORDER,
-            () -> FEATURE_MEMBER_ELEMENT,
+            FEATURE_MEMBER_ELEMENT,
             FeatureMetacardType.class);
     FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
     testWfsMetadataImpl.addEntry(mockFeatureMetacardType);

@@ -26,14 +26,14 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
 
   private final List<T> descriptors;
 
-  private Supplier<String> featureMemberNodeName;
+  private String featureMemberNodeName;
 
   private final Class<T> descriptorClass;
 
   public WfsMetadataImpl(
       Supplier<String> idSupplier,
       Supplier<String> coordinateOrderSupplier,
-      Supplier<String> featureMemberNodeName,
+      String featureMemberNodeName,
       Class<T> descriptorClass) {
     this.idSupplier = idSupplier;
     this.coordinateOrderSupplier = coordinateOrderSupplier;
@@ -63,7 +63,7 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
 
   @Override
   public String getFeatureMemberNodeName() {
-    return this.featureMemberNodeName.get();
+    return this.featureMemberNodeName;
   }
 
   public Class<T> getDescriptorClass() {

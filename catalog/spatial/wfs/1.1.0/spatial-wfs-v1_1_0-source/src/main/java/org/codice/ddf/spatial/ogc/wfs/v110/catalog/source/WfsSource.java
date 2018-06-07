@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
@@ -54,7 +53,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -267,6 +265,9 @@ public class WfsSource extends AbstractWfsSource {
     this.metacardToFeatureMappers = Collections.emptyList();
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
     this.metacardTypeEnhancers = metacardTypeEnhancers;
+    this.wfsMetadata =
+        new WfsMetadataImpl<>(
+            this::getId, this::getCoordinateOrder, FEATURE_MEMBER_ELEMENT, FeatureTypeType.class);
     initProviders();
     configureWfsFeatures();
   }
@@ -279,6 +280,9 @@ public class WfsSource extends AbstractWfsSource {
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
     this.encryptionService = encryptionService;
+    this.wfsMetadata =
+        new WfsMetadataImpl<>(
+            this::getId, this::getCoordinateOrder, FEATURE_MEMBER_ELEMENT, FeatureTypeType.class);
     this.featureTransformationService = featureTransformationService;
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
   }
@@ -292,12 +296,6 @@ public class WfsSource extends AbstractWfsSource {
    * configuration.
    */
   public void init() {
-    this.wfsMetadata =
-        new WfsMetadataImpl<>(
-            this::getId,
-            this::getCoordinateOrder,
-            this::getFeatureTypeSimpleName,
-            FeatureTypeType.class);
     createClientFactory();
     setupAvailabilityPoll();
   }
@@ -1310,15 +1308,5 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setWfsMetacardTypeRegistry(WfsMetacardTypeRegistry wfsMetacardTypeRegistry) {
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
-  }
-
-  private String getFeatureTypeSimpleName() {
-    String simpleName = "";
-    Optional<MetacardType> metacardType = wfsMetacardTypeRegistry.lookupMetacardType(this.getId());
-    if (metacardType.isPresent()) {
-      simpleName = metacardType.get().getName();
-    }
-
-    return simpleName;
   }
 }

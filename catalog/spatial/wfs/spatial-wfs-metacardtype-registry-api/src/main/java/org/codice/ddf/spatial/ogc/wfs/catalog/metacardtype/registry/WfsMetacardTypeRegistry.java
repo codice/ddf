@@ -30,9 +30,10 @@ public interface WfsMetacardTypeRegistry {
    * Lookup a MetacardType by source Id and simple name
    *
    * @param sourceId Id of the source that registered the MetacardType
+   * @param simpleName name of the MetacardType's FeatureType
    * @return Optional containing the MetacardType if found
    */
-  Optional<MetacardType> lookupMetacardType(String sourceId);
+  Optional<MetacardType> lookupMetacardTypeBySimpleName(String sourceId, String simpleName);
 
   /**
    * Add a MetacardType to the registry. Stored by sourceId and simpleName

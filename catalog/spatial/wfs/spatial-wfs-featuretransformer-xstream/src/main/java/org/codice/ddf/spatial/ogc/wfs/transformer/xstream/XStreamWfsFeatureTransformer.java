@@ -53,7 +53,6 @@ public abstract class XStreamWfsFeatureTransformer<T> implements FeatureTransfor
   public XStreamWfsFeatureTransformer() {
     this.featureTypeQNameList = new ArrayList<>();
     xStream = new XStream(new WstxDriver());
-    xStream.alias("roads", Metacard.class);
     xStream.addPermission(NoTypePermission.NONE);
     xStream.allowTypeHierarchy(Metacard.class);
     xStream.setClassLoader(this.getClass().getClassLoader());
@@ -63,6 +62,7 @@ public abstract class XStreamWfsFeatureTransformer<T> implements FeatureTransfor
 
   @Override
   public Optional<Metacard> apply(InputStream document, WfsMetadata<T> metadata) {
+    xStream.alias(metadata.getFeatureMemberNodeName(), Metacard.class);
     Metacard metacard = null;
 
     for (T featureType : metadata.getDescriptors()) {

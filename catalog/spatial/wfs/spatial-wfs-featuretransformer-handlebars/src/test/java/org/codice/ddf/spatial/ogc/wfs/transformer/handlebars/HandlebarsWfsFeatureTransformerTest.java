@@ -162,7 +162,8 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   @Test
   public void metacardLookupFailsReturnsEmpty() {
-    when(mockMetacardTypeRegistry.lookupMetacardType(anyString())).thenReturn(Optional.empty());
+    when(mockMetacardTypeRegistry.lookupMetacardTypeBySimpleName(anyString(), anyString()))
+        .thenReturn(Optional.empty());
     Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
     assertThat(metacardOptional, equalTo(Optional.empty()));
   }
@@ -263,8 +264,10 @@ public class HandlebarsWfsFeatureTransformerTest {
   }
 
   private void setupMetacardTypeRegistry() {
-    when(mockMetacardTypeRegistry.lookupMetacardType(eq(SOURCE_ID))).thenReturn(Optional.empty());
-    when(mockMetacardTypeRegistry.lookupMetacardType(SOURCE_ID))
+    when(mockMetacardTypeRegistry.lookupMetacardTypeBySimpleName(eq(SOURCE_ID), anyString()))
+        .thenReturn(Optional.empty());
+    when(mockMetacardTypeRegistry.lookupMetacardTypeBySimpleName(
+            SOURCE_ID, EXPECTED_FEATURE_TYPE_LOCAL_PART))
         .thenReturn(Optional.of(getMetacardType()));
   }
 

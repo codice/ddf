@@ -79,10 +79,17 @@ public class WfsMetacardTypeRegistryTest {
     wfsMetacardTypeRegistry.registerMetacardType(
         mockMetacardType, TEST_SOURCE_ID, TEST_FEATURE_SIMPLE_NAME);
     Optional<MetacardType> MetacardTypeOptional =
-        wfsMetacardTypeRegistry.lookupMetacardType(TEST_SOURCE_ID);
+        wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(
+            TEST_SOURCE_ID, TEST_FEATURE_SIMPLE_NAME);
     assertThat(MetacardTypeOptional.isPresent(), is(true));
 
-    MetacardTypeOptional = wfsMetacardTypeRegistry.lookupMetacardType("different-source");
+    MetacardTypeOptional =
+        wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(
+            "different-source", TEST_FEATURE_SIMPLE_NAME);
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
+
+    MetacardTypeOptional =
+        wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(TEST_SOURCE_ID, "different-name");
     assertThat(MetacardTypeOptional.isPresent(), is(false));
   }
 
@@ -111,10 +118,12 @@ public class WfsMetacardTypeRegistryTest {
 
   @Test
   public void testLookupNullValues() {
-    Optional<MetacardType> metacardTypeOptional = wfsMetacardTypeRegistry.lookupMetacardType(null);
-    assertThat(metacardTypeOptional.isPresent(), is(false));
+    Optional<MetacardType> MetacardTypeOptional =
+        wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(null, TEST_FEATURE_SIMPLE_NAME);
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
 
-    metacardTypeOptional = wfsMetacardTypeRegistry.lookupMetacardType(TEST_SOURCE_ID);
-    assertThat(metacardTypeOptional.isPresent(), is(false));
+    MetacardTypeOptional =
+        wfsMetacardTypeRegistry.lookupMetacardTypeBySimpleName(TEST_SOURCE_ID, null);
+    assertThat(MetacardTypeOptional.isPresent(), is(false));
   }
 }

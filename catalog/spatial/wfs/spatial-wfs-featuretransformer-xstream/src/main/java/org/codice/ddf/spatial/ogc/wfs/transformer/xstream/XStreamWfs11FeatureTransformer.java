@@ -28,7 +28,8 @@ public class XStreamWfs11FeatureTransformer extends XStreamWfsFeatureTransformer
   @Override
   protected Optional<MetacardType> lookupFeatureMetacardType(
       String sourceId, FeatureTypeType featureType) {
-    return metacardTypeRegistry.lookupMetacardType(sourceId);
+    return metacardTypeRegistry.lookupMetacardTypeBySimpleName(
+        sourceId, featureType.getName().getLocalPart());
   }
 
   @Override

@@ -40,9 +40,9 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
   }
 
   /** {@inheritDoc} */
-  public Optional<MetacardType> lookupMetacardType(String sourceId) {
+  public Optional<MetacardType> lookupMetacardTypeBySimpleName(String sourceId, String simpleName) {
 
-    if (sourceId == null) {
+    if (sourceId == null || simpleName == null) {
       return Optional.empty();
     }
 
@@ -51,6 +51,8 @@ public final class WfsMetacardTypeRegistryImpl implements WfsMetacardTypeRegistr
             .stream()
             .filter(s -> s.getReference().getProperty(SOURCE_ID) != null)
             .filter(s -> s.getReference().getProperty(SOURCE_ID).equals(sourceId))
+            .filter(s -> s.getReference().getProperty(FEATURE_NAME) != null)
+            .filter(s -> s.getReference().getProperty(FEATURE_NAME).equals(simpleName))
             .findFirst();
 
     if (serviceRegistrationOptional.isPresent()) {
