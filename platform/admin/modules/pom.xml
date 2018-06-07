@@ -29,7 +29,6 @@
         <module>admin-modules-application</module>
         <module>admin-modules-docs</module>
         <module>admin-metrics-ui</module>
-        <module>admin-security-ui</module>
         <module>admin-security-certificate-ui</module>
     </modules>
 </project>

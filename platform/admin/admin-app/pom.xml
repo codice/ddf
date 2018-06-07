@@ -132,11 +132,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.admin.modules</groupId>
-            <artifactId>admin-security-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin.modules</groupId>
             <artifactId>admin-security-certificate-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
