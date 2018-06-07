@@ -423,7 +423,7 @@ public class RestEndpointTest {
 
   @Test
   @SuppressWarnings({"unchecked"})
-  public void testAddDocumentWithMetadataMcardId() throws Exception {
+  public void testAddDocumentWithMetadataMetacardId() throws Exception {
     String inputMcardId = "123456789987654321";
     MetacardImpl inputMcard = new MetacardImpl();
     inputMcard.setId(inputMcardId);
