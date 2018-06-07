@@ -23,11 +23,13 @@ import spock.lang.Unroll
 
 import javax.xml.parsers.ParserConfigurationException
 import java.nio.file.Path
+import java.nio.file.Paths
 
 class EmbeddedSolrFilesSpec extends Specification {
   static final String CORE = "test_core"
 
-  static final File HOME = new File(File.separator + "test_home")
+  static final Path CWD = Paths.get(System.getProperty("user.dir"))
+  static final File HOME = CWD.resolve(File.separator + "test_home").toFile()
   static final String DATA_DIR = new File(new File(HOME, CORE), "data").toString()
 
   static final String CONFIG_XML = "solrconfig.xml"
