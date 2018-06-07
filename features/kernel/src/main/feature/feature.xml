@@ -26,7 +26,6 @@
         <feature version="${karaf.version}">eventadmin</feature>
         <feature version="${karaf.version}">jasypt-encryption</feature>
         <feature version="${karaf.version}">http</feature>
-        <feature version="${fabric8.version}">fabric8-karaf-checks</feature>
     </feature>
 
     <feature name="javax-validation" version="${project.version}">
