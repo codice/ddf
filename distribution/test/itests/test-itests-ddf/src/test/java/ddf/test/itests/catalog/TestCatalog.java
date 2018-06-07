@@ -2300,7 +2300,9 @@ public class TestCatalog extends AbstractIntegrationTest {
       map.put("Key-" + i, "Val-" + i);
     }
 
-    String jsonString = new JSONObject(map).toJSONString();
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.putAll(map);
+    String jsonString = jsonObject.toJSONString();
 
     final PersistentStore pstore = getServiceManager().getService(PersistentStore.class);
 

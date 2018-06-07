@@ -142,12 +142,12 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>14.4</version>
+            <version>${opengis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>14.4</version>
+            <version>${opengis.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jai_core</artifactId>
@@ -273,7 +273,11 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.action.core</groupId>

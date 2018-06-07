@@ -34,7 +34,7 @@ public class ProximityFunction extends FunctionImpl {
           "result:Boolean",
           "property:String",
           "distance:Integer",
-          "text:String:2,");
+          "text:String");
 
   public ProximityFunction(List<Expression> parameters, Literal fallback) {
     notNull(parameters, "Parameters are required");

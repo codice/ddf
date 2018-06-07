@@ -249,8 +249,7 @@
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>8.4_1</version>
-            <scope>test</scope>
+            <version>${opengis.bundle.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>

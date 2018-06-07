@@ -310,8 +310,13 @@
             </dependency>
             <dependency>
                 <groupId>com.vividsolutions</groupId>
-                <artifactId>jts</artifactId>
-                <version>1.12</version>
+                <artifactId>jts-core</artifactId>
+                <version>${jts.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts-io</artifactId>
+                <version>${jts.version}</version>
             </dependency>
             <dependency>
                 <groupId>xerces</groupId>

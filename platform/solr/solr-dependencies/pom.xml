@@ -27,7 +27,7 @@
         <info.ganglia.gmetric4j.version>1.0.7</info.ganglia.gmetric4j.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        <jts.version>1.13</jts.version>
+        <jts.version>1.14.0</jts.version>
         <dropwizard.version>3.2.2</dropwizard.version>
     </properties>
     <dependencies>
@@ -43,7 +43,12 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
             <version>${jts.version}</version>
         </dependency>
         <dependency>
@@ -138,7 +143,8 @@
                             <include>com.fasterxml.jackson.core:jackson-core</include>
                             <include>com.fasterxml.jackson.dataformat:jackson-dataformat-smile</include>
                             <include>joda-time:joda-time</include>
-                            <include>com.vividsolutions:jts</include>
+                            <include>com.vividsolutions:jts-core</include>
+                            <include>com.vividsolutions:jts-io</include>
                             <include>org.apache.lucene:lucene-analyzers-common</include>
                             <include>org.apache.lucene:lucene-analyzers-kuromoji</include>
                             <include>org.apache.lucene:lucene-analyzers-phonetic</include>
