@@ -104,42 +104,42 @@ Example:
 |true
 
 |Show Sign In
-|signIn
+|signInEnabled
 |Boolean
 |Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected.
 |true
 |false
 
 |Show Tasks
-|task
+|taskEnabled
 |Boolean
 |Show task menu area for long running actions.
 |false
 |false
 
 |Show Gazetteer
-|gazetteer
+|gazetteerEnabled
 |Boolean
 |Show gazetteer for searching place names.
 |true
 |false
 
 |Use Online Gazetteer
-|onlineGazetteer
+|onlineGazetteerEnabled
 |Boolean
 |Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue.
 |true
 |false
 
 |Show Uploader
-|ingest
+|ingestEnabled
 |Boolean
 |Show upload menu for adding new record.
 |true
 |false
 
 |Use External Authentication
-|externalAuthentication
+|externalAuthenticationEnabled
 |Boolean
 |Use an external authentication point, such as IdP.
 |false
@@ -153,7 +153,7 @@ Example:
 |false
 
 |Allow Editing
-|isEditingAllowed
+|editingEnabled
 |Boolean
 |Allow editing capability to be visible in the UI.
 |true
@@ -167,7 +167,7 @@ Example:
 |false
 
 |Enable Local Catalog
-|enableLocalCatalog
+|localCatalogEnabled
 |Boolean
 |Enables queries to the local catalog.
 |true
@@ -195,28 +195,28 @@ Example:
 |true
 
 |Enable Experimental Features
-|isExperimental
+|experimentalEnabled
 |Boolean
 |WARNING: Enables experimental features in the UI. This allows users to preview upcoming features.
 |false
 |true
 
 |Show Relevance Scores
-|showRelevanceScores
+|relevanceScoresEnabled
 |Boolean
 |Toggle the display of relevance scores of search results.
 |false
 |false
 
 |Show Logo in Title Bar
-|showLogo
+|logoEnabled
 |Boolean
 |Toggles the visibility of the logo in the menu bar.
 |false
 |false
 
 |Enable Unknown Error Box
-|enableUnknownErrorBox
+|unknownErrorBoxEnabled
 |Boolean
 |Enable Unknown Error Box visibility.
 |true
