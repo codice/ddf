@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.featuretransformer;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -31,8 +32,8 @@ public interface WfsMetadata<T> {
   String getCoordinateOrder();
 
   /** @return an unmodifiable list of objects describing the FeatureMember */
-  List<T> getDescriptors();
+  Collection<T> getDescriptors();
 
-  /** @return the name of the XML response node containing a single feature member */
-  String getFeatureMemberNodeName();
+  /** @return the names of the XML response nodes containing a single feature member */
+  List<String> getFeatureMemberNodeNames();
 }

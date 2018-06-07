@@ -18,6 +18,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 
+import java.util.Collections;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class WfsMetadataImplTest {
         new WfsMetadataImpl<FeatureMetacardType>(
             () -> TEST_ID,
             () -> COORDINATE_ORDER,
-            FEATURE_MEMBER_ELEMENT,
+            Collections.singletonList(FEATURE_MEMBER_ELEMENT),
             FeatureMetacardType.class);
     FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
     testWfsMetadataImpl.addEntry(mockFeatureMetacardType);

@@ -118,7 +118,8 @@ public class XStreamWfs11FeatureTransformerTest {
   private WfsMetadata<FeatureTypeType> mockWfsMetadata() {
     WfsMetadata<FeatureTypeType> wfsMetadata = mock(WfsMetadata.class);
     when(wfsMetadata.getId()).thenReturn(SOURCE_ID);
-    when(wfsMetadata.getFeatureMemberNodeName()).thenReturn("featureMember");
+    when(wfsMetadata.getFeatureMemberNodeNames())
+        .thenReturn(Collections.singletonList("featureMember"));
 
     when(wfsMetadata.getDescriptors()).thenReturn(Collections.singletonList(mockFeatureType()));
 

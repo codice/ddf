@@ -24,6 +24,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 
 public final class WfsRouteBuilder extends RouteBuilder {
+
   protected static final String FEATURECOLLECTION_ENDPOINT_URL =
       "direct://wfsTransformFeatureCollection";
 
@@ -33,13 +34,18 @@ public final class WfsRouteBuilder extends RouteBuilder {
     from(FEATURECOLLECTION_ENDPOINT_URL)
         .id("TransformFeatureCollectionRoute")
         .setHeader("metadata", simple("${body.getArgs()[1]}"))
-        .setBody(simple("${body.getArgs()[0]}"))
+        .setHeader("xml", simple("${body.getArgs()[0]}"))
+        .setBody(simple("${header.metadata.featureMemberNodeNames}"))
         .streamCaching()
+        .split(body(), new MetacardListAggregationStrategy())
+        .setHeader("featureMemberNodeName", simple("${body}"))
+        .setBody(header("xml"))
         .split(
-            body().tokenizeXML("${header.metadata.featureMemberNodeName}", "FeatureCollection"),
-            new WfsMemberAggregationStrategy())
+            body().tokenizeXML("${header.featureMemberNodeName}", "FeatureCollection"),
+            new MetacardAggregationStrategy())
         .streaming()
         .to(FEATUREMEMBER_ENDPOINT_URL)
+        .end()
         .end()
         .choice()
         .when(body().isInstanceOf(InputStream.class))
@@ -50,7 +56,8 @@ public final class WfsRouteBuilder extends RouteBuilder {
         .bean("wfsTransformerProcessor", "apply(${body}, ${header.metadata})");
   }
 
-  public static class WfsMemberAggregationStrategy implements AggregationStrategy {
+  public static class MetacardAggregationStrategy implements AggregationStrategy {
+
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
       Optional<Metacard> metacardOpt = newExchange.getIn().getBody(Optional.class);
 
@@ -65,6 +72,30 @@ public final class WfsRouteBuilder extends RouteBuilder {
           Optional.ofNullable(oldExchange.getIn().getBody(List.class)).orElse(new ArrayList<>());
 
       metacardOpt.ifPresent(metacardList::add);
+      return oldExchange;
+    }
+  }
+
+  private class MetacardListAggregationStrategy implements AggregationStrategy {
+
+    @Override
+    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+      List<Metacard> incomingMetacards = newExchange.getIn().getBody(List.class);
+
+      if (oldExchange == null) {
+        List<Metacard> metacards = new ArrayList<>();
+        if (incomingMetacards != null) {
+          metacards.addAll(incomingMetacards);
+        }
+        newExchange.getIn().setBody(metacards);
+        return newExchange;
+      }
+
+      final List<Metacard> aggregateMetacards = oldExchange.getIn().getBody(List.class);
+      if (incomingMetacards != null) {
+        aggregateMetacards.addAll(incomingMetacards);
+      }
+
       return oldExchange;
     }
   }

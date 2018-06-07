@@ -26,6 +26,7 @@ import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -84,7 +85,8 @@ public class FeatureTransformationServiceTest {
             FeatureTransformationServiceTest.class.getResourceAsStream(inputFileName));
 
     WfsMetadata wfsMetadata = mock(WfsMetadata.class);
-    when(wfsMetadata.getFeatureMemberNodeName()).thenReturn(featureNodeName);
+    when(wfsMetadata.getFeatureMemberNodeNames())
+        .thenReturn(Collections.singletonList(featureNodeName));
 
     List<Metacard> metacards = featureTransformationService.apply(inputStream, wfsMetadata);
     ArgumentCaptor<InputStream> inputStreamArgumentCaptor =
@@ -109,7 +111,8 @@ public class FeatureTransformationServiceTest {
             FeatureTransformationServiceTest.class.getResourceAsStream("/Broken.xml"));
 
     WfsMetadata wfsMetadata = mock(WfsMetadata.class);
-    when(wfsMetadata.getFeatureMemberNodeName()).thenReturn("featureMember");
+    when(wfsMetadata.getFeatureMemberNodeNames())
+        .thenReturn(Collections.singletonList("featureMember"));
 
     List<Metacard> metacards = featureTransformationService.apply(inputStream, wfsMetadata);
     ArgumentCaptor<InputStream> inputStreamArgumentCaptor =

@@ -267,7 +267,10 @@ public class WfsSource extends AbstractWfsSource {
     this.metacardTypeEnhancers = metacardTypeEnhancers;
     this.wfsMetadata =
         new WfsMetadataImpl<>(
-            this::getId, this::getCoordinateOrder, FEATURE_MEMBER_ELEMENT, FeatureTypeType.class);
+            this::getId,
+            this::getCoordinateOrder,
+            Collections.singletonList(FEATURE_MEMBER_ELEMENT),
+            FeatureTypeType.class);
     initProviders();
     configureWfsFeatures();
   }
@@ -282,7 +285,10 @@ public class WfsSource extends AbstractWfsSource {
     this.encryptionService = encryptionService;
     this.wfsMetadata =
         new WfsMetadataImpl<>(
-            this::getId, this::getCoordinateOrder, FEATURE_MEMBER_ELEMENT, FeatureTypeType.class);
+            this::getId,
+            this::getCoordinateOrder,
+            Collections.singletonList(FEATURE_MEMBER_ELEMENT),
+            FeatureTypeType.class);
     this.featureTransformationService = featureTransformationService;
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
   }
@@ -627,12 +633,20 @@ public class WfsSource extends AbstractWfsSource {
     // in a state of flux.
     wfsMetacardTypeRegistry.clear();
 
+    List<String> featureNames = new ArrayList<>();
     if (!mcTypeRegs.isEmpty()) {
       for (FeatureMetacardType metacardType : mcTypeRegs.values()) {
         String simpleName = metacardType.getFeatureType().getLocalPart();
+        featureNames.add(simpleName);
         wfsMetacardTypeRegistry.registerMetacardType(metacardType, this.getId(), simpleName);
       }
     }
+
+    WfsMetadataImpl wfsMetadataImpl =
+        new WfsMetadataImpl<>(
+            this::getId, this::getCoordinateOrder, featureNames, FeatureTypeType.class);
+    this.wfsMetadata.getDescriptors().forEach(wfsMetadataImpl::addEntry);
+    this.wfsMetadata = wfsMetadataImpl;
   }
 
   private void lookupFeatureConverter(

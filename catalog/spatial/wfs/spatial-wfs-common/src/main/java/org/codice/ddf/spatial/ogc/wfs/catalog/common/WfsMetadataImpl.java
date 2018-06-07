@@ -13,9 +13,10 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 
@@ -24,22 +25,22 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
 
   private final Supplier<String> coordinateOrderSupplier;
 
-  private final List<T> descriptors;
+  private final Set<T> descriptors;
 
-  private String featureMemberNodeName;
+  private List<String> featureMemberNodeNames;
 
   private final Class<T> descriptorClass;
 
   public WfsMetadataImpl(
       Supplier<String> idSupplier,
       Supplier<String> coordinateOrderSupplier,
-      String featureMemberNodeName,
+      List<String> featureMemberNodeNames,
       Class<T> descriptorClass) {
     this.idSupplier = idSupplier;
     this.coordinateOrderSupplier = coordinateOrderSupplier;
     this.descriptorClass = descriptorClass;
-    this.featureMemberNodeName = featureMemberNodeName;
-    this.descriptors = new ArrayList<>();
+    this.featureMemberNodeNames = featureMemberNodeNames;
+    this.descriptors = new HashSet<>();
   }
 
   @Override
@@ -53,8 +54,8 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
   }
 
   @Override
-  public List<T> getDescriptors() {
-    return Collections.unmodifiableList(this.descriptors);
+  public Set<T> getDescriptors() {
+    return Collections.unmodifiableSet(this.descriptors);
   }
 
   public void addEntry(T featureDescription) {
@@ -62,8 +63,8 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
   }
 
   @Override
-  public String getFeatureMemberNodeName() {
-    return this.featureMemberNodeName;
+  public List<String> getFeatureMemberNodeNames() {
+    return this.featureMemberNodeNames;
   }
 
   public Class<T> getDescriptorClass() {

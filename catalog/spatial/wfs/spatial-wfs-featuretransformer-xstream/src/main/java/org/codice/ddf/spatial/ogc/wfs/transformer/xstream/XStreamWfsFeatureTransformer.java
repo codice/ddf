@@ -62,7 +62,7 @@ public abstract class XStreamWfsFeatureTransformer<T> implements FeatureTransfor
 
   @Override
   public Optional<Metacard> apply(InputStream document, WfsMetadata<T> metadata) {
-    xStream.alias(metadata.getFeatureMemberNodeName(), Metacard.class);
+    metadata.getFeatureMemberNodeNames().forEach(name -> xStream.alias(name, Metacard.class));
     Metacard metacard = null;
 
     for (T featureType : metadata.getDescriptors()) {
