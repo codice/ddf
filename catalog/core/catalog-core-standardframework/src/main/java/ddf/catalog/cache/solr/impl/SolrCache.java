@@ -45,9 +45,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.OperationsException;
 import javax.management.StandardMBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +58,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.solr.client.solrj.SolrClient;
+import org.codice.solr.client.solrj.UnavailableSolrException;
 import org.codice.solr.factory.SolrClientFactory;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -123,6 +127,8 @@ public class SolrCache implements SolrCacheMBean {
     configureMBean();
   }
 
+  @SuppressWarnings(
+      "squid:UnusedPrivateMethod" /* used by another constructor and required to be able to use the client in 2 places */)
   private SolrCache(
       FilterAdapter adapter,
       SolrClient client,
@@ -204,27 +210,30 @@ public class SolrCache implements SolrCacheMBean {
 
   private void configureMBean() {
     LOGGER.debug("Registering Cache Manager Service MBean");
-    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-
+    final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
     final ObjectName objectName;
+
     try {
       objectName = new ObjectName(SolrCacheMBean.OBJECT_NAME);
-
     } catch (MalformedObjectNameException e) {
       LOGGER.info("Could not create object name", e);
       return;
     }
-
     try {
-      try {
-        mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
-      } catch (InstanceAlreadyExistsException e) {
-        LOGGER.debug("Re-registering Cache Manager MBean");
-        mbeanServer.unregisterMBean(objectName);
-        mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
-      }
+      registerMBean(mbeanServer, objectName);
     } catch (Exception e) {
       LOGGER.debug("Could not register MBean.", e);
+    }
+  }
+
+  private void registerMBean(MBeanServer mbeanServer, ObjectName objectName)
+      throws IOException, NotCompliantMBeanException, MBeanException, OperationsException {
+    try {
+      mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
+    } catch (InstanceAlreadyExistsException e) {
+      LOGGER.debug("Re-registering Cache Manager MBean");
+      mbeanServer.unregisterMBean(objectName);
+      mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
     }
   }
 
@@ -318,8 +327,11 @@ public class SolrCache implements SolrCacheMBean {
       try {
         LOGGER.debug("Expiring cache.");
         client.deleteByQuery(CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes + "MINUTES]");
+      } catch (UnavailableSolrException e) {
+        LOGGER.debug("Unable to expire cache.", e);
       } catch (SolrServerException | SolrException | IOException e) {
-        LOGGER.info("Unable to expire cache.", e);
+        LOGGER.info("Unable to expire cache; {}", e.getMessage());
+        LOGGER.debug("Cache expiration error.", e);
       }
     }
   }
