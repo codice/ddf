@@ -19,41 +19,41 @@
 
         paths: {
 
-            moment: '/webjars/moment/2.20.1/moment',
+            moment: '../../webjars/moment/2.20.1/moment',
 
-            bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-            spin: '/webjars/spin.js/1.3.3/spin',
-            q: '/webjars/q/1.4.1/q',
+            bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+            spin: '../../webjars/spin.js/1.3.3/spin',
+            q: '../../webjars/q/1.4.1/q',
 
             // backbone
-            backbone: '/webjars/backbone/1.1.2/backbone',
-            backboneassociation: '/webjars/backbone-associations/0.6.2/backbone-associations-min',
-            underscore: '/webjars/underscore/1.8.3/underscore-min',
-            marionette: '/webjars/marionette/1.8.8/lib/backbone.marionette.min',
+            backbone: '../../webjars/backbone/1.1.2/backbone',
+            backboneassociation: '../../webjars/backbone-associations/0.6.2/backbone-associations-min',
+            underscore: '../../webjars/underscore/1.8.3/underscore-min',
+            marionette: '../../webjars/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
-            modelbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-            collectionbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
-            poller: '/webjars/backbone-poller/1.1.3/backbone.poller',
-            iframeresizer: '/webjars/metrics/iframe-resizer/2.6.2/js/iframeResizer.min',
+            modelbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            collectionbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
+            poller: '../../webjars/backbone-poller/1.1.3/backbone.poller',
+            iframeresizer: '../../webjars/metrics/iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // ddf
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
-            jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
-            multiselect: '/webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: '/webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-            fileupload: '/webjars/jquery-file-upload/9.5.7/js/jquery.fileupload',
-            fileuploadiframe: '/webjars/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
+            jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
+            jqueryui: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+            multiselect: '../../webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
+            perfectscrollbar: '../../webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+            fileupload: '../../webjars/jquery-file-upload/9.5.7/js/jquery.fileupload',
+            fileuploadiframe: '../../webjars/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
 
             // handlebars
-            handlebars: '/webjars/handlebars/2.0.0/handlebars.min',
+            handlebars: '../../webjars/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '/webjars/requirejs-plugins/1.0.3/lib/text',
-            css: '/webjars/require-css/0.1.10/css',
+            text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+            css: '../../webjars/require-css/0.1.10/css',
 
             // default admin ui
             app: '../../admin/metrics/js/application',

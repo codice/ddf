@@ -14,40 +14,40 @@
 require.config({
     paths: {
 
-        bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-        bootstrapselect: '/webjars/bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
+        bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+        bootstrapselect: '../../webjars/bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        moment: '/webjars/moment/2.20.1/min/moment.min',
-        perfectscrollbar: '/webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-        q: '/webjars/q/1.4.1/q',
+        moment: '../../webjars/moment/2.20.1/min/moment.min',
+        perfectscrollbar: '../../webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+        q: '../../webjars/q/1.4.1/q',
 
         // backbone
-        backbone: '/webjars/backbone/1.1.2/backbone',
-        backboneassociations: '/webjars/backbone-associations/0.6.2/backbone-associations-min',
-        underscore: '/webjars/underscore/1.8.3/underscore-min',
-        marionette: '/webjars/marionette/2.4.5/lib/backbone.marionette',
+        backbone: '../../webjars/backbone/1.1.2/backbone',
+        backboneassociations: '../../webjars/backbone-associations/0.6.2/backbone-associations-min',
+        underscore: '../../webjars/underscore/1.8.3/underscore-min',
+        marionette: '../../webjars/marionette/2.4.5/lib/backbone.marionette',
         // TODO test combining
-        modelbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-        collectionbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
+        modelbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+        collectionbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 
         // application
         application: 'js/application',
         properties: 'properties',
 
         // jquery
-        jquery: '/webjars/jquery/2.2.4/dist/jquery.min',
-        jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
-        multiselect: '/webjars/jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
-        multiselectfilter: '/webjars/lib/multiselect/src/jquery.multiselect.filter',
-        fileupload: '/webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
+        jquery: '../../webjars/jquery/2.2.4/dist/jquery.min',
+        jqueryui: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+        multiselect: '../../webjars/jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
+        multiselectfilter: '../../webjars/lib/multiselect/src/jquery.multiselect.filter',
+        fileupload: '../../webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
 
         // handlebars
-        handlebars: '/webjars/handlebars/4.0.10/handlebars.min',
+        handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: '/webjars/requirejs-plugins/1.0.3/lib/text',
-        css: '/webjars/require-css/0.1.10/css.min',
+        text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+        css: '../../webjars/require-css/0.1.10/css.min',
     },
     map: {
         '*': {

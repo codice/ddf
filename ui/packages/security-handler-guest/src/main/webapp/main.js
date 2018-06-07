@@ -19,27 +19,27 @@
 
         paths: {
 
-            bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: '/webjars/q/1.4.1/q',
+            bootstrap: '../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: '../webjars/q/1.4.1/q',
 
             // backbone
-            backbone: '/webjars/backbone/1.1.2/backbone',
-            underscore: '/webjars/underscore/1.8.3/underscore-min',
-            marionette: '/webjars/marionette/1.8.8/lib/backbone.marionette.min',
+            backbone: '../webjars/backbone/1.1.2/backbone',
+            underscore: '../webjars/underscore/1.8.3/underscore-min',
+            marionette: '../webjars/marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
-            jqueryuiCore: '/webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+            jquery: '../webjars/jquery/3.2.1/dist/jquery.min',
+            jqueryuiCore: '../webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
 
             // purl
-            purl: '/webjars/purl/2.3.1/purl',
+            purl: '../webjars/purl/2.3.1/purl',
 
             // handlebars
-            handlebars: '/webjars/handlebars/2.0.0/handlebars.min',
+            handlebars: '../webjars/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '/webjars/requirejs-plugins/1.0.3/lib/text',
+            text: '../webjars/requirejs-plugins/1.0.3/lib/text',
 
             // default login ui
             app: 'js/application'
