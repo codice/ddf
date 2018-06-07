@@ -11,7 +11,6 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/introduction.ftl">
 
-== Quick Start Tutorial
 <#include "build/quickstart.ftl">
 
 :sectnums!:

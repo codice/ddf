@@ -23,7 +23,9 @@ distribution/docs/src/main/resources/content/_securityFramework/.asciidoctor/
 distribution/docs/src/main/resources/content/_securityFramework/security_architecture.png
 distribution/docs/src/main/resources/content/_securityFramework/security_ecp_architecture.png
 distribution/docs/src/main/resources/content/_securityFramework/security_idp_architecture.png
-
+distribution/docs/src/main/resources/content/_coreConcepts/.asciidoctor/
+distribution/docs/src/main/resources/content/_coreConcepts/highly-available-setup-after-failover.png
+distribution/docs/src/main/resources/content/_coreConcepts/highly-available-setup.png
 # JMeter Related files to ignore
 jmeter.log
 *.jmx.log

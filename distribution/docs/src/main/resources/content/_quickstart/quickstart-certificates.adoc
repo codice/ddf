@@ -1,23 +1,26 @@
-:title: Certificates Quickstart
+:title: Certificates (Quick Start)
 :type: quickStart
+:level: section
+:section: quickStart
+:parent: Quick Start Tutorial
 :status: published
 :summary: Keystore and certificate instructions.
 :order: 01
 
-=== Certificates (Quick Start)
+== Certificates (Quick Start)
 
 ${branding} comes with a default keystore that contains certificates.
 This allows the distribution to be unzipped and run immediately.
-If these certificates are sufficient for testing purposes, proceed to <<_configuring_quick_start,Configuring (Quick Start)>>.
+If these certificates are sufficient for testing purposes, proceed to <<{quickstart-prefix}configuring_quick_start,Configuring (Quick Start)>>.
 
-To test federation using 2-way TLS, the default keystore certificates will need to be replaced, using either the included <<_demo_certificate_authority_ca,Demo Certificate Authority>> or by <<_creating_self_signed_certificates,Creating Self-signed Certificates>>.
+To test federation using 2-way TLS, the default keystore certificates will need to be replaced, using either the included <<{quickstart-prefix}demo_certificate_authority_ca,Demo Certificate Authority>> or by <<{quickstart-prefix}creating_self_signed_certificates,Creating Self-signed Certificates>>.
 
 If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
 
 If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
 The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
 
-==== Demo Certificate Authority (CA)
+=== Demo Certificate Authority (CA)
 
 ${branding} comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
 It also includes an entry for the ${ddf-branding} Demo Root CA.
@@ -26,7 +29,7 @@ It enables ${branding} to run immediately after unzipping the distribution.
 The keys and certificates for the ${ddf-branding} Demo Root CA are included as part of the ${branding} distribution.
 This entry must be removed from the truststore before ${branding} can operate securely.
 
-===== Creating New Server Keystore Entry with the CertNew Scripts
+==== Creating New Server Keystore Entry with the CertNew Scripts
 
 To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
 To use the scripts, run them out of the `${home_directory}/etc/certs` directory.
@@ -80,16 +83,16 @@ The `CertNew` scripts:
 * Adds the specified subject alternative names if any.
 * Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
 
-To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
+To install a certificate signed by a different Certificate Authority, see <<{quickstart-prefix}managing_keystores,Managing Keystores>>.
 
-After this proceed to <<_updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>.
+After this proceed to <<{quickstart-prefix}updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>.
 
 [WARNING]
 ====
 If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
 ====
 
-===== Dealing with Lack of DNS
+==== Dealing with Lack of DNS
 
 In some cases DNS may not be available and the system will need to be configured to work with IP addresses.
 
@@ -109,9 +112,9 @@ From ${home_directory}/etc/certs/ run:
 `CertNew -cn <IP> -san "IP:<IP>"`
 ****
 
-After this proceed to <<_updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>, and be sure to use the IP address instead of the FQDN.
+After this proceed to <<{quickstart-prefix}updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>, and be sure to use the IP address instead of the FQDN.
 
-==== Creating Self-Signed Certificates
+=== Creating Self-Signed Certificates
 
 If using the Demo CA is not desired, ${branding} supports creating self-signed certificates with a self-signed certificate authority.
 This is considered an advanced configuration.
@@ -127,7 +130,7 @@ For this example, the following tools are used:
 * The standard Java http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html[keytool] certificate management utility.
 * http://portecle.sourceforge.net/[Portecle] can be used for *keytool* operations if a GUI if preferred over a command line interface.
 
-===== Creating a custom CA Key and Certificate
+==== Creating a custom CA Key and Certificate
 
 The following steps demonstrate creating a root CA to sign certificates.
 
@@ -136,7 +139,7 @@ The following steps demonstrate creating a root CA to sign certificates.
 . Use the key to sign the CA certificate. +
 `$> openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt`
 
-===== Sign Certificates Using the custom CA
+==== Sign Certificates Using the custom CA
 
 The following steps demonstrate signing a certificate for the `tokenissuer` user by a CA.
 
@@ -147,7 +150,7 @@ The following steps demonstrate signing a certificate for the `tokenissuer` user
 
 These certificates will be used during system configuration to replace the default certificates.
 
-==== Updating Settings After Changing Certificates
+=== Updating Settings After Changing Certificates
 
 After changing the certificates it will be necessary to update the system user and the `org.codice.ddf.system.hostname` property with the value of either the FQDN or the IP.
 
