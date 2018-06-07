@@ -12,10 +12,51 @@
 /*jshint bitwise: false*/
 const $ = require('jquery');
 const cql = require('js/cql');
-const DistanceUtils = require('js/DistanceUtils.js')
+const DistanceUtils = require('js/DistanceUtils.js');
 
 function sanitizeForCql(text) {
     return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
+}
+
+function lineToCQLLine(model) {
+    var cqlLINE = model.map(function (point) {
+        return point[0] + ' ' + point[1];
+    });
+    return cqlLINE;
+}
+
+function polygonToCQLPolygon(model) {
+    var cqlPolygon = model.map(function (point) {
+        return point[0] + ' ' + point[1];
+    });
+    if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
+        cqlPolygon.push(cqlPolygon[0]);
+    }
+    return [cqlPolygon];
+}
+
+function polygonToCQLMultiPolygon(model) {
+    return model.map(function(polygon) { return polygonToCQLPolygon(polygon); });
+}
+
+function bboxToCQLPolygon(model) {
+    if (model.locationType === 'usng'){
+        return [
+            model.mapWest + ' ' + model.mapSouth,
+            model.mapWest + ' ' + model.mapNorth,
+            model.mapEast + ' ' + model.mapNorth,
+            model.mapEast + ' ' + model.mapSouth,
+            model.mapWest + ' ' + model.mapSouth
+        ];
+    } else {
+        return [
+            model.west + ' ' + model.south,
+            model.west + ' ' + model.north,
+            model.east + ' ' + model.north,
+            model.east + ' ' + model.south,
+            model.west + ' ' + model.south
+        ];
+    }
 }
 
 function generateAnyGeoFilter(property, model) {
@@ -25,15 +66,15 @@ function generateAnyGeoFilter(property, model) {
                 type: 'DWITHIN',
                 property: property,
                 value: 'LINESTRING' +
-                sanitizeForCql(JSON.stringify(lineToCQLLIne(model.line))),
+                sanitizeForCql(JSON.stringify(lineToCQLLine(model.line))),
                 distance: DistanceUtils.getDistanceInMeters(model.lineWidth, model.lineUnits)
             };
         case 'POLYGON':
             return {
                 type: 'INTERSECTS',
                 property: property,
-                value: 'POLYGON(' +
-                sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon))) + ')'
+                value: 'POLYGON' +
+                sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))
             };
         case 'MULTIPOLYGON':
             var poly = 'MULTIPOLYGON' +
@@ -64,47 +105,6 @@ function generateAnyGeoFilter(property, model) {
                 value: ''
             };
     }
-}
-
-function bboxToCQLPolygon(model) {
-    if (model.locationType === 'usng'){
-        return [
-            model.mapWest + ' ' + model.mapSouth,
-            model.mapWest + ' ' + model.mapNorth,
-            model.mapEast + ' ' + model.mapNorth,
-            model.mapEast + ' ' + model.mapSouth,
-            model.mapWest + ' ' + model.mapSouth
-        ];
-    } else {
-        return [
-            model.west + ' ' + model.south,
-            model.west + ' ' + model.north,
-            model.east + ' ' + model.north,
-            model.east + ' ' + model.south,
-            model.west + ' ' + model.south
-        ];
-    }
-}
-
-function polygonToCQLPolygon(model) {
-    var cqlPolygon = model.map(function (point) {
-        return point[0] + ' ' + point[1];
-    });
-    if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
-        cqlPolygon.push(cqlPolygon[0]);
-    }
-    return cqlPolygon;
-}
-
-function polygonToCQLMultiPolygon(model) {
-    return model.map(function(polygon) {return [polygonToCQLPolygon(polygon)]});
-}
-
-function lineToCQLLIne(model) {
-    var cqlLINE = model.map(function (point) {
-        return point[0] + ' ' + point[1];
-    });
-    return cqlLINE;
 }
 
 function buildIntersectOrCQL(shapes) {
@@ -276,7 +276,7 @@ function arrayFromPolygonWkt(wkt) {
     // Handle POLYGON with no internal rings (i.e. holes)
     if (wkt.startsWith("POLYGON")) {
       const polygon = wkt.match(/\(\([^\(\)]+\)\)/g);
-      return polygon.length == 1 ? arrayFromPartialWkt(polygon[0]) : [];
+      return polygon.length === 1 ? arrayFromPartialWkt(polygon[0]) : [];
     }
 
     // Handle MULTIPOLYGON with no internal rings (i.e. holes)

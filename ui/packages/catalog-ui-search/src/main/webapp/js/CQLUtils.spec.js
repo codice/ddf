@@ -27,14 +27,7 @@ const mockMetacardDefinitions = {
             multivalued: false
         }
     }
-}
-
-function assertMultiPolygon(actual, expected) {
-  expect(actual.length).equals(expected.length);
-  actual.forEach((polygon, i) => {
-    assertPolygon(polygon, expected[i]);
-  });
-}
+};
 
 function assertPolygon(actual, expected) {
   expect(actual.length).equals(expected.length);
@@ -42,6 +35,13 @@ function assertPolygon(actual, expected) {
       let expectedPoint = expected[i];
       expect(point[0]).equals(expectedPoint[0]);
       expect(point[1]).equals(expectedPoint[1]);
+  });
+}
+
+function assertMultiPolygon(actual, expected) {
+  expect(actual.length).equals(expected.length);
+  actual.forEach((polygon, i) => {
+    assertPolygon(polygon, expected[i]);
   });
 }
 
