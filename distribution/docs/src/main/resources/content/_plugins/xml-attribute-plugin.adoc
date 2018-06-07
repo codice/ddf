@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: XML Attribute Security Policy Plugin
-:link: _xml_attribute_security_policy_plugin
+:link: {developing-prefix}xml_attribute_security_policy_plugin
 :plugintypes: policy
 :summary: Finds security attributes contained in a metacard's metadata.
 

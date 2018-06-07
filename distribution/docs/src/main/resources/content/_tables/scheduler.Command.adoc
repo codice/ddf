@@ -5,7 +5,7 @@
 :application: ${ddf-platform}
 :summary: Platform Command Scheduler.
 
-.[[ddf.platform.scheduler.Command]]Platform Command Scheduler
+.[[_ddf.platform.scheduler.Command]]Platform Command Scheduler
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 |Name

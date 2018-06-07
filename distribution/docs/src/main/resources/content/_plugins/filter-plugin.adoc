@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: Filter Plugin
-:link: _filter_plugin
+:link: {developing-prefix}filter_plugin
 :plugintypes: access
 :summary: Performs filtering on query responses as they pass through the framework.
 

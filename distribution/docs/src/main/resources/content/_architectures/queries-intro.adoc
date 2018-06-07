@@ -5,7 +5,7 @@
 :order: 02
 :summary: Introduction to Queries.
 
-Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<_introduction_to_federation_and_sources,Sources>>. 
+Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>. 
 
 Query objects have two major components:
 

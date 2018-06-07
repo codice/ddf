@@ -3,10 +3,10 @@
 :type: table
 :status: published
 :application: ${ddf-catalog}
-:link: _url_resource_reader
+:link: {developing-prefix}url_resource_reader
 :summary: URL Resource Reader
 
-.[[ddf.catalog.resource.impl.URLResourceReader]]URL Resource Reader
+.[[_ddf.catalog.resource.impl.URLResourceReader]]URL Resource Reader
 [cols="1,1m,1,3,1" options="header"]
 |===
 |Name

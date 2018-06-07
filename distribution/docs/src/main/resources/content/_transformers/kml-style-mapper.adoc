@@ -24,7 +24,7 @@ The KML Style Mapper is installed by default with a standard installation in the
 The properties below describe how to configure a style mapping.
 The configuration name is `Spatial KML Style Map Entry`.
 
-See <<org.codice.ddf.spatial.kml.style,KML Style Mapper configurations>> for all possible configurations.
+See <<{application-prefix}org.codice.ddf.spatial.kml.style,KML Style Mapper configurations>> for all possible configurations.
 
 .KML Style Mapper Example Values
 [source,xml,linenums]

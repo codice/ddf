@@ -92,8 +92,8 @@ To ensure proper configuration of keystore, truststore, and certificates, follow
 Jump to the steps referenced in the diagram:
 
 .Certificate Workflow Steps
-. <<_adding_an_existing_server_keystore,Adding an Existing Keystore>>
-. <<_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>
-. <<_adding_an_existing_server_truststore,Adding an Existing Truststore>>
-. <<_creating_a_server_keystore,Creating a Server Keystore>>
-.. <<_creating_a_server_truststore,Creating a Server Truststore>>
+. <<{managing-prefix}adding_an_existing_server_keystore,Adding an Existing Keystore>>
+. <<{managing-prefix}creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>
+. <<{managing-prefix}adding_an_existing_server_truststore,Adding an Existing Truststore>>
+. <<{managing-prefix}creating_a_server_keystore,Creating a Server Keystore>>
+.. <<{managing-prefix}creating_a_server_truststore,Creating a Server Truststore>>

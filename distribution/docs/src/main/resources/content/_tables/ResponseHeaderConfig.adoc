@@ -5,7 +5,7 @@
 :application: ${ddf-platform}
 :summary: HTTP Response Security response configurations.
 
-.[[org.codice.ddf.security.response.filter.ResponseHeaderConfig]]HTTP Response Security
+.[[_org.codice.ddf.security.response.filter.ResponseHeaderConfig]]HTTP Response Security
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

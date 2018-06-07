@@ -270,7 +270,7 @@ global configuration in Admin Console.
 Saved searches are search criteria that are created and saved by a user. Each saved search has a
 name that was defined by the user, and the search can be executed at a later time or be scheduled
 for execution. Bookmarked records that the user elected to save for future use are returned
-as part of a search. These queries can be saved to a <<Workspaces, workspace>>, which is a
+as part of a search. These queries can be saved to a <<_Workspaces, workspace>>, which is a
 collection of searches and records created by a user. Complete the following procedure to create
 a saved search.
 

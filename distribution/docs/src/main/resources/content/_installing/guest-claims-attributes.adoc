@@ -11,5 +11,5 @@
 ****
 Setting the attributes on the *Configure Guest Claim Attributes* page determines the minimum claims attributes (and, therefore, permissions) available to a guest, or not signed-in, user.
 
-To change this later, see <<_configuring_guest_claim_attributes,Configuring Guest Claim Attributes>>.
+To change this later, see <<{managing-prefix}configuring_guest_claim_attributes,Configuring Guest Claim Attributes>>.
 ****

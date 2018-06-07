@@ -128,7 +128,7 @@ Log events can be filtered by:
 
 * Log level (`ERROR`, `WARNING`, etc).
 ** The LogViewer will display at the currently configured log level for the Karaf logs.
-*** See <<controlling_log_level, Controlling Log Level>> to change log level.
+*** See <<{managing-prefix}controlling_log_level, Controlling Log Level>> to change log level.
 * Log message text.
 * Bundle generating the message.
 

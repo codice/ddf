@@ -8,7 +8,7 @@
 == {title}
 
 To view invalid metacards, query for them through ${catalog-ui}.
-Viewing will require ${branding}-administrator privileges, if <<_hiding_errors_or_warnings_from_queries, Catalog Federation Strategy>> is configured to filter invalid metacards.
+Viewing will require ${branding}-administrator privileges, if <<{managing-prefix}hiding_errors_or_warnings_from_queries, Catalog Federation Strategy>> is configured to filter invalid metacards.
 
 . Navigate to *${catalog-ui}* (\${secure_url}/search).
 . Select *Advanced Search*.

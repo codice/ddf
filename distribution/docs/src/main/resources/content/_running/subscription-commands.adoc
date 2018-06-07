@@ -12,7 +12,7 @@
 The subscriptions commands are installed when the Catalog application is installed.
 ====
 
-.[[subscription_command_descriptions]]Subscription Command Descriptions
+.[[_subscription_command_descriptions]]Subscription Command Descriptions
 [cols="1m,4" options="header"]
 |===
 

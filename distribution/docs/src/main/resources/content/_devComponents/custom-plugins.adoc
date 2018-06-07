@@ -19,7 +19,7 @@ The following types of plugins can be created:
 |Plugin Interface
 |Invocation Order
 
-|<<_pre_authorization_plugins,Pre-Authorization>>
+|<<{architecture-prefix}pre_authorization_plugins,Pre-Authorization>>
 |ddf.catalog.plugin.PreAuthorizationPlugin
 |Before any security rules are applied.
 
@@ -31,7 +31,7 @@ The following types of plugins can be created:
 |ddf.catalog.plugin.AccessPlugin
 |Directly after any policy plugins
 
-|<<_pre_ingest_plugins,Pre-Ingest>>
+|<<{architecture-prefix}pre_ingest_plugins,Pre-Ingest>>
 |ddf.catalog.plugin.PreIngestPlugin
 |Before the Create/Update/Delete method is sent to the Catalog Provider.
 
@@ -138,7 +138,7 @@ Develop a custom Pre-Ingest Plugin.
 +
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example*
-`<service ref="[[SamplePreIngestPlugin]]" interface="ddf.catalog.plugin.PreIngestPlugin" />`
+`<service ref="SamplePreIngestPlugin" interface="ddf.catalog.plugin.PreIngestPlugin" />`
 
 ===== Implementing Post-Ingest Plugins
 
@@ -157,7 +157,7 @@ Develop a custom Post-Ingest Plugin.
 
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example*
-`<service ref="[[SamplePostIngestPlugin]]" interface="ddf.catalog.plugin.PostIngestPlugin" />`
+`<service ref="SamplePostIngestPlugin" interface="ddf.catalog.plugin.PostIngestPlugin" />`
 
 ===== Implementing Pre-Query Plugins
 
@@ -172,7 +172,7 @@ Develop a custom Pre-Query Plugin
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
 . Export the service to the OSGi registry. +
-`<service ref="[[SamplePreQueryPlugin]]" interface="ddf.catalog.plugin.PreQueryPlugin" />`
+`<service ref="SamplePreQueryPlugin" interface="ddf.catalog.plugin.PreQueryPlugin" />`
 
 ===== Implementing Post-Query Plugins
 
@@ -188,7 +188,7 @@ Develop a custom Post-Query Plugin
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
 . Export the service to the OSGi registry. +
-`<service ref="[[SamplePostQueryPlugin]]" interface="ddf.catalog.plugin.PostQueryPlugin" />`
+`<service ref="SamplePostQueryPlugin" interface="ddf.catalog.plugin.PostQueryPlugin" />`
 
 ===== Implementing Pre-Delivery Plugins
 
@@ -209,7 +209,7 @@ StopProcessingException;`
 
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example* +
-`<service ref="[[SamplePreDeliveryPlugin]]" interface="ddf.catalog.plugin.PreDeliveryPlugin" />`
+`<service ref="SamplePreDeliveryPlugin" interface="ddf.catalog.plugin.PreDeliveryPlugin" />`
 
 ===== Implementing Pre-Subscription Plugins
 
@@ -238,7 +238,7 @@ Develop a custom Pre-Resource Plugin.
 .Blueprint descriptor example
 [source,xml]
 ----
-<service ref="[[SamplePreResourcePlugin]]" interface="ddf.catalog.plugin.PreResourcePlugin" />
+<service ref="SamplePreResourcePlugin" interface="ddf.catalog.plugin.PreResourcePlugin" />
 ----
 
 ===== Implementing Post-Resource Plugins
@@ -259,7 +259,7 @@ Develop a custom Post-Resource Plugin.
 .Blueprint descriptor example
 [source,xml]
 ----
-<]]" inter"[[SamplePostResourcePlugin]]" interface="ddf.catalog.plugin.PostResourcePlugin" />
+<]]" inter"[[SamplePostResourcePlugin" interface="ddf.catalog.plugin.PostResourcePlugin" />
 ----
 
 ===== Implementing Policy Plugins
@@ -281,7 +281,7 @@ Develop a custom Policy Plugin.
 
 . Export the service to the OSGi registry.  +
 *Blueprint descriptor example* +
-`<]]" inter"[[SamplePolicyPlugin]]" interface="ddf.catalog.plugin.PolicyPlugin" />`
+`<]]" inter"[[SamplePolicyPlugin" interface="ddf.catalog.plugin.PolicyPlugin" />`
 
 ===== Implementing Access Plugins
 
@@ -302,4 +302,4 @@ Develop a custom Access Plugin.
 
 . Export the service to the OSGi registry.  +
 *Blueprint descriptor example* +
-`<]]" inter"[[SampleAccessPlugin]]" interface="ddf.catalog.plugin.AccessPlugin" />`
+`<]]" inter"[[SampleAccessPlugin" interface="ddf.catalog.plugin.AccessPlugin" />`

@@ -20,10 +20,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,11 +44,11 @@ public class DocumentationTest {
 
   private static final String BASE64_MISSING = "base64,\"";
 
-  private static final String HREF_ANCHOR = "href=\"#_";
+  private static final String HREF_ANCHOR = "href=\"#";
 
   private static final String CLOSE = "\"";
 
-  private static final String ID = " id=\"_";
+  private static final String ID = " id=\"";
 
   private static final String EMPTY_STRING = "";
 
@@ -81,23 +79,25 @@ public class DocumentationTest {
             .filter(f -> f.toString().endsWith(HTML_DIRECTORY))
             .collect(Collectors.toList());
 
-    Set<String> anchors = new HashSet<>();
-    Set<String> sections = new HashSet<>();
+    Set<String> anchors = new HashSet<>(); // list of all internal links
+    Set<String> sections = new HashSet<>(); // list of all internal link destinations
 
     for (Path path : docs) {
       Document doc = Jsoup.parse(path.toFile(), "UTF-8", EMPTY_STRING);
 
+      String thisDoc = StringUtils.substringAfterLast(path.toString(), "/");
       Elements elements = doc.body().getAllElements();
       for (Element element : elements) {
-        anchors.addAll(
-            Arrays.asList(
-                Optional.ofNullable(
-                        StringUtils.substringsBetween(element.toString(), HREF_ANCHOR, CLOSE))
-                    .orElse(new String[0])));
-        sections.addAll(
-            Arrays.asList(
-                Optional.ofNullable(StringUtils.substringsBetween(element.toString(), ID, CLOSE))
-                    .orElse(new String[0])));
+        if (!element
+                .toString()
+                .contains(
+                    ":") // this eliminates external links; this test does not check external links
+            && StringUtils.substringBetween(element.toString(), HREF_ANCHOR, CLOSE) != null) {
+          anchors.add(
+              thisDoc + "#" + StringUtils.substringBetween(element.toString(), HREF_ANCHOR, CLOSE));
+        }
+
+        sections.add(thisDoc + "#" + StringUtils.substringBetween(element.toString(), ID, CLOSE));
       }
     }
     anchors.removeAll(sections);

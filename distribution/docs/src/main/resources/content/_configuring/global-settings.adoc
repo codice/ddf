@@ -98,7 +98,7 @@ Changing these values without also changing the passwords of the JKS causes unde
 |String
 a|The hostname or IP address this system runs on.
 
-If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
+If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
 |localhost
 |Yes
 
@@ -148,7 +148,7 @@ NOTE: This *DOES* change the port the system runs on.
 |String
 a|The hostname or IP address used to advertise the system. Do not enter `localhost`. Possibilities include the address of a single node or that of a load balancer in a multi-node deployment.
 
-If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<_managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
+If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided. See <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>> for details.
 
 NOTE:
 Does not change the address the system runs on.
@@ -234,7 +234,7 @@ This value should not be changed from the factory default.
 |Thread Pool Size
 |org.codice.ddf.system.threadPoolSize
 |Integer
-|Size of thread pool used for handling UI queries, federating requests, and downloading resources. See <<_configuring_thread_pools,Configuring Thread Pools>>
+|Size of thread pool used for handling UI queries, federating requests, and downloading resources. See <<{managing-prefix}configuring_thread_pools,Configuring Thread Pools>>
 |128
 |Yes
 

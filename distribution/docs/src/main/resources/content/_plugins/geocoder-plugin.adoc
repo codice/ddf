@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: GeoCoder Plugin
-:link: _geocoder_plugin
+:link: {architecture-prefix}geocoder_plugin
 :plugintypes: preingest
 :summary: Populates the `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
 
@@ -30,4 +30,4 @@ To configure the GeoCoder Plugin:
 
 These are the available configurations:
 
-See <<org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin configurations>> for all possible configurations.
+See <<{application-prefix}org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin configurations>> for all possible configurations.

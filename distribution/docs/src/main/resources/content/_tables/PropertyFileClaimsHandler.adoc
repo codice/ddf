@@ -5,7 +5,7 @@
 :application: ${ddf-security}
 :summary: File Based Claims Handler.
 
-.[[org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler]]File Based Claims Handler
+.[[_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler]]File Based Claims Handler
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
