@@ -92,42 +92,42 @@
             type="Integer"
             default="60000"/>
 
-        <AD id="signIn"
+        <AD id="signInEnabled"
             name="Show Sign In"
             description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="task"
+        <AD id="taskEnabled"
             name="Show Tasks"
             description="Show task menu area for long running actions."
             type="Boolean"
             default="false"
             required="false"/>
 
-        <AD id="gazetteer"
+        <AD id="gazetteerEnabled"
             name="Show Gazetteer"
             description="Show gazetteer for searching place names."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="onlineGazetteer"
+        <AD id="onlineGazetteerEnabled"
             name="Use Online Gazetteer"
             description="Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="ingest"
+        <AD id="ingestEnabled"
             name="Show Uploader"
             description="Show upload menu for adding new record."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="externalAuthentication"
+        <AD id="externalAuthenticationEnabled"
             name="Use External Authentication"
             description="Use an external authentication point, such as IdP."
             type="Boolean"
@@ -140,7 +140,7 @@
             type="Boolean"
             default="true"/>
 
-        <AD id="isEditingAllowed"
+        <AD id="editingEnabled"
             name="Allow Editing"
             description="Allow editing capability to be visible in the UI."
             type="Boolean"
@@ -153,7 +153,7 @@
             default="true"
             required="false"/>
 
-        <AD id="enableLocalCatalog"
+        <AD id="localCatalogEnabled"
             name="Enable Local Catalog"
             description="Enables queries to the local catalog."
             type="Boolean"
@@ -177,27 +177,27 @@
             type="Boolean"
             default="true"/>
 
-        <AD id="isExperimental"
+        <AD id="experimentalEnabled"
             name="Enable Experimental Features"
             description="WARNING: Enables experimental features in the UI. This allows users to preview upcoming features."
             type="Boolean"
             default="false"/>
 
-        <AD id="showRelevanceScores"
+        <AD id="relevanceScoresEnabled"
             name="Show Relevance Scores"
             description="Toggle the display of relevance scores of search results."
             type="Boolean"
             default="false"
             required="false"/>
 
-        <AD id="showLogo"
+        <AD id="logoEnabled"
             name="Show Logo in Title Bar"
             description="Toggles the visibility of the logo in the menu bar."
             type="Boolean"
             default="false"
             required="false"/>
 
-        <AD id="enableUnknownErrorBox"
+        <AD id="unknownErrorBoxEnabled"
             name="Enable Unknown Error Box"
             description="Enable Unknown Error Box visibility."
             type="Boolean"
