@@ -213,9 +213,9 @@ const dev = (base, { main, auth, publicPath }) => merge.smart(base, {
     contentBase: resolve('src/main/resources/'),
     publicPath,
     proxy: {
-      './admin/**': proxyConfig({auth}),
-      './search/catalog/internal/**': proxyConfig({auth}),
-      './services/**': proxyConfig({auth}),
+      '/admin/**': proxyConfig({auth}),
+      '/**': proxyConfig({auth}),
+      '/services/**': proxyConfig({auth}),
       '/webjars/**': proxyConfig({auth})
     }
   },
