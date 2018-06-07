@@ -221,6 +221,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * <p>Only remove routes that this Content Directory Monitor created since the same CamelContext
    * is shared across all Content Directory Monitors.
    */
+  @SuppressWarnings(
+      "squid:S1172" /* The code parameter is required in blueprint-cm-1.0.7. See https://issues.apache.org/jira/browse/ARIES-1436. */)
   public void destroy(int code) {
     if (routeCollection == null) {
       return;
