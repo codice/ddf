@@ -358,7 +358,7 @@ module.exports = Marionette.LayoutView.extend({
                 case 'INTERSECTS':
                     var filterValue = typeof(filter.value) === 'string' ? filter.value : filter.value.value;
                     locationModel = new LocationModel({
-                        polygon: CQLUtils.arrayFromCQLGeometry(filterValue),
+                        polygon: CQLUtils.arrayFromPolygonWkt(filterValue),
                         color: color
                     });
                     this.map.showPolygonShape(locationModel);

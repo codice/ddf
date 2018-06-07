@@ -183,7 +183,7 @@ define([
                             break;
                         }
                         this.model.set({
-                            polygon: CQLUtils.arrayFromCQLGeometry(filterValue)
+                            polygon: CQLUtils.arrayFromPolygonWkt(filterValue)
                         });
                         wreqr.vent.trigger('search:polydisplay', this.model);
                         break;
