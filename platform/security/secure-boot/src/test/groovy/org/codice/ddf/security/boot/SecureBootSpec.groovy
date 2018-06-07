@@ -52,7 +52,7 @@ class SecureBootSpec  extends Specification {
 
         then:
         1 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 
     def 'System boots when security manager enabled and ddf installed outside of user home dir'() {
@@ -71,7 +71,7 @@ class SecureBootSpec  extends Specification {
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 
     def 'System boots when security manager disabled and ddf installed inside of user home dir'() {
@@ -89,7 +89,7 @@ class SecureBootSpec  extends Specification {
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 
     def 'System boots when security manager disabled and ddf installed outside of user home dir'() {
@@ -107,7 +107,7 @@ class SecureBootSpec  extends Specification {
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 
     def 'SystemService throws exception when asked to halt and forcefully exits'() {
@@ -222,7 +222,7 @@ class SecureBootSpec  extends Specification {
 
         then:
         1 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 
     /**
@@ -250,6 +250,6 @@ class SecureBootSpec  extends Specification {
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> null
+        0 * secureBoot.systemExit(_)
     }
 }
