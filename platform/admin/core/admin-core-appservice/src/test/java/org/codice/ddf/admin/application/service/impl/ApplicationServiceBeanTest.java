@@ -15,7 +15,6 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -223,23 +222,11 @@ public class ApplicationServiceBeanTest {
   }
 
   @Test
-  public void testInstallProfileNoRefreshFalse() throws Exception {
+  public void testInstallProfile() throws Exception {
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
             testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
-    serviceBean.installProfile("profile-name", false);
-
-    ArgumentCaptor<EnumSet<FeaturesService.Option>> captor = ArgumentCaptor.forClass(EnumSet.class);
-    verify(mockFeaturesService).installFeature(eq("profile-name"), captor.capture());
-    assertThat(captor.getValue(), is(empty()));
-  }
-
-  @Test
-  public void testInstallProfileNoRefreshTrue() throws Exception {
-    ApplicationServiceBean serviceBean =
-        new ApplicationServiceBean(
-            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
-    serviceBean.installProfile("profile-name", true);
+    serviceBean.installFeature("profile-name");
 
     ArgumentCaptor<EnumSet<FeaturesService.Option>> captor = ArgumentCaptor.forClass(EnumSet.class);
     verify(mockFeaturesService).installFeature(eq("profile-name"), captor.capture());

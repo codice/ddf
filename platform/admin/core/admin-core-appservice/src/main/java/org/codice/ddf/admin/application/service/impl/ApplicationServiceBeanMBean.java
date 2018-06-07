@@ -24,12 +24,20 @@ import java.util.Map;
 public interface ApplicationServiceBeanMBean {
 
   /**
-   * Starts the installation process for the selected profile.
+   * Installs the specified feature
    *
-   * @param profileName name or key of the profile to install.
-   * @param noRefresh ensures bundles already installed do not refresh.
+   * @param feature name to install.
    */
-  void installProfile(String profileName, boolean noRefresh);
+  @Deprecated
+  void installFeature(String feature);
+
+  /**
+   * Uninstalls the specified feature
+   *
+   * @param feature name to install.
+   */
+  @Deprecated
+  void uninstallFeature(String feature);
 
   /**
    * Creates an application list that has two attributes that describes relationships between

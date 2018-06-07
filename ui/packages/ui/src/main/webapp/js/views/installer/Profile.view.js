@@ -79,7 +79,7 @@ define([
             installProfile: function (profile, view) {
                 $.ajax({
                     type: 'GET',
-                    url: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installProfile(java.lang.String,boolean)/' + profile + "/true",
+                    url: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String,boolean)/' + profile,
                     dataType: 'JSON',
                     success: function (data) {
                         if(data.status === 200) {
