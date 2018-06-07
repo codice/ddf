@@ -1,0 +1,24 @@
+:title: Attributes Added by Attribute Overrides
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How attribute overrides add attributes to metacards.
+:order: 03
+
+=== {title}
+
+<<_overriding_attributes,Attribute overriding>> is the act of replacing existing attributes with a new value.
+
+When ingesting from the <<_content_directory_monitor,Content Directory Monitor>>, attribute overrides can be configured by <<_configuring_the_content_directory_monitor,configuring the Content Directory Monitor>>.
+
+When querying from certain <<_connecting_to_sources,sources>>, attribute overrides can be configured for these specific source types:
+
+* <<_federated_source_for_atlassian_confluence_r,Federated Source for Atlassian Confluence>>
+* <<_csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>
+* <<_gmd_csw_source,GMD CSW Federated Source>>
+
+[NOTE]
+====
+If an attempt is made to override an attribute that has not been injected, the attribute will not be added to the metacard.
+See <<_attributes_added_by_attribute_injection,attributes added by attribute injection>> for more information about injecting attributes.
+====

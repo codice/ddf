@@ -1,0 +1,15 @@
+:title: Attributes Added by Pre-Ingest Plugins
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How pre-ingest plugins add attributes to metacards.
+:order: 05
+
+=== {title}
+
+The <<_pre_ingest_plugins,pre-ingest plugins>> are responsible for setting attribute fields on resulting metacards after the document has been transformed.
+
+* The <<_expiration_date_pre_ingest_plugin,expiration date pre-ingest plugin>> adds or updates expiration dates which can be used later for archiving old data.
+* The <<_geocoder_plugin,geocoder plugin>> is responsible for populating the Metacard’s `Location.COUNTRY_CODE` attribute if the Metacard has an associated location. If the metacard’s country code is already populated, the plugin will not override it.
+* The <<_identification_plugin,identification plugin>> assigns IDs to registry metacards and adds/updates IDs on create and update.
+* The <<_metacard_groomer,metacard groomer>> plugin adds/updates ID's and timestamps to the created metacard.
