@@ -104,7 +104,7 @@ module.exports = Backbone.AssociatedModel.extend({
     handleChange: function (model) {
         if (model !== undefined &&
             _.intersection(Object.keys(model.changedAttributes()), [
-                'result', 'saved', 'metacard.modified', 'id', 'subscribed'
+                'result', 'saved', 'metacard.modified', 'id', 'subscribed', 'serverPageIndex'
             ]).length === 0) {
             this.set('saved', false);
         }
