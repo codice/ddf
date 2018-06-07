@@ -45,14 +45,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSysProp
         System.properties.'user.home' = userHomeSysProp
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { securityManager }
+        secureBoot.securityManagerEnabled() >> securityManager
 
         when:
         secureBoot.init()
 
         then:
         1 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 
     def 'System boots when security manager enabled and ddf installed outside of user home dir'() {
@@ -64,14 +64,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSysProp
         System.properties.'user.home' = userHomeSysProp
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { securityManager }
+        secureBoot.securityManagerEnabled() >> securityManager
 
         when:
         secureBoot.init()
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 
     def 'System boots when security manager disabled and ddf installed inside of user home dir'() {
@@ -82,14 +82,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSysProp
         System.properties.'user.home' = userHomeSysProp
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { null }
+        secureBoot.securityManagerEnabled() >> null
 
         when:
         secureBoot.init()
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 
     def 'System boots when security manager disabled and ddf installed outside of user home dir'() {
@@ -100,14 +100,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSysProp
         System.properties.'user.home' = userHomeSysProp
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { null }
+        secureBoot.securityManagerEnabled() >> null
 
         when:
         secureBoot.init()
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 
     def 'SystemService throws exception when asked to halt and forcefully exits'() {
@@ -120,14 +120,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSysProp
         System.properties.'user.home' = userHomeSysProp
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { securityManager }
+        secureBoot.securityManagerEnabled() >> securityManager
 
         when:
         secureBoot.init()
 
         then:
         1 * systemService.halt('0') >> { throw exception }
-        1 * secureBoot.systemExit(exception) >> { return }
+        1 * secureBoot.systemExit(exception) >> null
     }
 
     def 'System exits normally when attempting to read invalid ddf.home'() {
@@ -215,14 +215,14 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSymLink.toString()
         System.properties.'user.home' = tomPennyHomeDir.toString()
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> { securityManager }
+        secureBoot.securityManagerEnabled() >> securityManager
 
         when:
         secureBoot.init()
 
         then:
         1 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 
     /**
@@ -243,15 +243,13 @@ class SecureBootSpec  extends Specification {
         System.properties.'ddf.home' = ddfHomeSymLink.toString()
         System.properties.'user.home' = tomPennyHomeDir.toString()
         def secureBoot = Spy(SecureBoot, constructorArgs: [systemService])
-        secureBoot.securityManagerEnabled() >> {
-            securityManager
-        }
+        secureBoot.securityManagerEnabled() >> securityManager
 
         when:
         secureBoot.init()
 
         then:
         0 * systemService.halt('0')
-        0 * secureBoot.systemExit(_) >> { return }
+        0 * secureBoot.systemExit(_) >> null
     }
 }
