@@ -24,25 +24,29 @@ import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.types.Core;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.Subject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.shiro.SecurityUtils;
@@ -53,6 +57,7 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -77,6 +82,8 @@ public class SearchFormsApplication implements SparkApplication {
 
   private final EndpointUtil util;
 
+  private final FilterBuilder filterBuilder;
+
   private final boolean readOnly;
 
   private static final String RESP_MSG = "message";
@@ -86,10 +93,14 @@ public class SearchFormsApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
 
   public SearchFormsApplication(
-      CatalogFramework catalogFramework, TemplateTransformer transformer, EndpointUtil util) {
+      FilterBuilder filterBuilder,
+      CatalogFramework catalogFramework,
+      TemplateTransformer transformer,
+      EndpointUtil util) {
     this.catalogFramework = catalogFramework;
     this.transformer = transformer;
     this.util = util;
+    this.filterBuilder = filterBuilder;
     this.readOnly = !SearchFormsLoader.enabled();
   }
 
@@ -274,37 +285,51 @@ public class SearchFormsApplication implements SparkApplication {
   }
 
   private Map<String, Object> doCreateOrUpdate(Response response, Metacard metacard)
-      throws IngestException, SourceUnavailableException {
+      throws IngestException, SourceUnavailableException, FederationException,
+          UnsupportedQueryException {
     if (metacard == null) {
       response.status(400);
       return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
     }
 
-    Map<String, Metacard> allTemplateMetacards =
-        Stream.concat(
-                util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)
-                    .values()
-                    .stream()
-                    .map(Result::getMetacard)
-                    .filter(Objects::nonNull),
-                util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)
-                    .values()
-                    .stream()
-                    .map(Result::getMetacard)
-                    .filter(Objects::nonNull))
-            .collect(Collectors.toMap(Metacard::getId, Function.identity()));
-
+    // Going to check to see if the metacard exists or not
+    Metacard oldMetacard = null;
     String id = metacard.getId();
-    Metacard oldMetacard = allTemplateMetacards.get(id);
+    oldMetacard = getMetacardIfExistsOrNull(id);
+    if (oldMetacard != null) {
+      for (AttributeDescriptor descriptor :
+          oldMetacard.getMetacardType().getAttributeDescriptors()) {
+        Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
+        if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+          continue;
+        }
+        oldMetacard.setAttribute(metacardAttribute);
+      }
+    }
+
     // The UI should not send an ID during a PUT unless the metacard already exists
     if (id != null && oldMetacard != null) {
-      metacard.setAttribute(new AttributeImpl(Core.CREATED, oldMetacard.getCreatedDate()));
-      metacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
-      catalogFramework.update(new UpdateRequestImpl(id, metacard));
+      catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
       return ImmutableMap.of(RESP_MSG, "Successfully updated");
     }
     catalogFramework.create(new CreateRequestImpl(metacard));
     return ImmutableMap.of(RESP_MSG, "Successfully created");
+  }
+
+  public Metacard getMetacardIfExistsOrNull(String id)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
+    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
+    Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
+
+    QueryResponse queryResponse =
+        catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter), false));
+
+    if (!queryResponse.getResults().isEmpty()) {
+      return queryResponse.getResults().get(0).getMetacard();
+    }
+
+    return null;
   }
 
   @FunctionalInterface

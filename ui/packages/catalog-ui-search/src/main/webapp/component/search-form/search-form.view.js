@@ -59,9 +59,7 @@ module.exports = Marionette.LayoutView.extend({
                     type: 'new-form',
                     associatedFormModel: this.model,
                     title: this.model.get('name'),
-                    filterTree: this.model.get('filterTemplate'),
-                    accessGroups: this.model.get('accessGroups'),
-                    accessIndividuals: this.model.get('accessIndividuals')
+                    filterTree: this.model.get('filterTemplate')
                 });
                 if (oldType === 'new-form') {
                     this.options.queryModel.trigger('change:type');
@@ -94,9 +92,7 @@ module.exports = Marionette.LayoutView.extend({
                     src: (this.model.get('querySettings') && this.model.get('querySettings').src) || '',
                     federation: (this.model.get('querySettings') && this.model.get('querySettings').federation) || 'enterprise',
                     sorts: sorts,
-                    'detail-level': (this.model.get('querySettings') && this.model.get('querySettings')['detail-level']) || 'allFields',
-                    accessGroups: this.model.get('accessGroups'),
-                    accessIndividuals: this.model.get('accessIndividuals')
+                    'detail-level': (this.model.get('querySettings') && this.model.get('querySettings')['detail-level']) || 'allFields'
                 });
                 if (oldType  === 'custom') {
                     this.options.queryModel.trigger('change:type');
@@ -110,6 +106,5 @@ module.exports = Marionette.LayoutView.extend({
     },
     triggerCloseDropdown: function() {
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        this.options.queryModel.trigger('closeDropDown');
     }
 });

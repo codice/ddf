@@ -27,9 +27,9 @@ module.exports =  Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('search-form-interactions'),
         className: 'composed-menu',
-        modelEvents: {
-            'change': 'render'
-        },
+        modelEvents: { 
+            'change': 'render' 
+        }, 
         events: {
             'click .interaction-default': 'handleMakeDefault',
             'click .interaction-clear': 'handleClearDefault',
@@ -133,19 +133,15 @@ module.exports =  Marionette.ItemView.extend({
             });
         },
         handleShare: function() {
-            lightboxInstance.model.updateTitle('Query Template Sharing');
+            lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle);
             lightboxInstance.model.open();
             lightboxInstance.lightboxContent.show(new QueryTemplateSharing({
-                model: this.model,
-                permissions: {
-                    'accessIndividuals': this.model.get('accessIndividuals'),
-                    'accessGroups': this.model.get('accessGroups')
-                }
+                model: this.options.modelForComponent
             }));
             this.handleClick();
         },
         isSystemTemplate: function() {
-            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'System Template');
+            this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'system');
         },
         handleEdit: function() {
             if(this.model.get('type') === 'custom')

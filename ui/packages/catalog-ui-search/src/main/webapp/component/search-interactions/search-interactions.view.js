@@ -43,7 +43,7 @@ module.exports = Marionette.LayoutView.extend({
         'click > .interaction-type-advanced': 'triggerTypeAdvanced'
     },
     onRender: function(){
-        this.listenTo(this.model, 'change:type', this.triggerCloseDropdown);
+        this.listenTo(this.model, 'change:type closeDropdown', this.triggerCloseDropdown);
         this.generateSearchFormSelector();
         if(properties.hasExperimentalEnabled()) { 
             this.generateResultFormSelector() 

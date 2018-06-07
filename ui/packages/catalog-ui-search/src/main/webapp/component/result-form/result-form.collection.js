@@ -27,19 +27,7 @@
      url: '/search/catalog/internal/forms/result',
      contentType: 'application/json',
      success: function(data) {
-         //Find templates with the same id but different property maps (because we should trust the server)
-         let updatedTemplates = data.filter(
-             incomingTemplate => _.any(resultTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id && !_.isEqual(cachedTemplate, incomingTemplate))
-         );
-         //Find templates that are new
-         let newTemplates = data.filter(
-             incomingTemplate => resultTemplates.length === 0 || !_.any(resultTemplates, (cachedTemplate) => cachedTemplate.id === incomingTemplate.id)
-         );
-         //Replace updated templates in their corresponding indices
-         _.each(updatedTemplates, 
-             updatedTemplate => resultTemplates[_.findIndex(resultTemplates, (cachedTemplate) => cachedTemplate.id === updatedTemplate.id)] = updatedTemplate
-         );
-         resultTemplates = resultTemplates.concat(newTemplates);
+         resultTemplates = data;
          promiseIsResolved = true;
      }
  });
@@ -84,7 +72,7 @@
                   description: resultForm.description,
                   created: resultForm.created,
                   creator: resultForm.creator,
-                  createdBy: resultForm.owner,
+                  createdBy: resultForm.creator,
                   accessGroups: resultForm.accessGroups,
                   accessIndividuals: resultForm.accessIndividuals
               };
@@ -113,11 +101,6 @@
             this.doneLoading();
         });
       }
-   },
-   checkIfOwnerOrSystem: function (template) {
-     let myEmail = user.get('user').get('email')
-     let templateCreator = template.creator
-     return myEmail === templateCreator || templateCreator === 'System Template'
    },
    addResultForm: function (newForm) {
      this.get('resultForms').add(newForm)

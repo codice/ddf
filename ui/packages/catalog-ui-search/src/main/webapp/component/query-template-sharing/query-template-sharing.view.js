@@ -123,8 +123,8 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     getSharingByEmail: function () {
-        return this.options.permissions.accessIndividuals != undefined ? 
-            this.options.permissions.accessIndividuals
+        return this.model.get('accessIndividuals') != undefined ? 
+            this.model.get('accessIndividuals')
             .map(function (email) {
                 return { value: email }
             }) : [];
@@ -132,8 +132,8 @@ module.exports = Marionette.LayoutView.extend({
     getSharingByRole: function () {
         let view = this;
 
-        let roles = this.options.permissions.accessGroups != undefined ? 
-            this.options.permissions.accessGroups
+        let roles = this.model.get('accessGroups') != undefined ? 
+            this.model.get('accessGroups')
             .map(function (group) {
                 return group;
             }) : [];
@@ -183,7 +183,8 @@ module.exports = Marionette.LayoutView.extend({
         this.updateSharingPermissions(templatePerms)
     },
     updateSharingPermissions: function(templatePerms) {
-        let sharingEndpoint = `/search/catalog/internal/sharing/${this.model.id}`
+        let sharingEndpoint = `/search/catalog/internal/sharing/${this.model.get('id')}`
+        this.updateUserPermissions(templatePerms);
         $.ajax({
             url: sharingEndpoint,
             contentType: "application/json; charset=utf-8",
@@ -192,17 +193,13 @@ module.exports = Marionette.LayoutView.extend({
             data: JSON.stringify(templatePerms),
             context: this,
             success: function(data) {
-                this.message('Success!', 'Sharing Settings Saved for Query Template', 'success');
                 this.cleanup();
             }
         });
     },
-    message: function(title, message, type) {
-        announcement.announce({
-            title: title,
-            message: message,
-            type: type
-        });
+    updateUserPermissions: function(templatePerms) {
+        this.model.set('accessIndividuals', templatePerms['security.access-individuals']);
+        this.model.set('accessGroups', templatePerms['security.access-groups']);
     },
     cleanup: function () {
         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');

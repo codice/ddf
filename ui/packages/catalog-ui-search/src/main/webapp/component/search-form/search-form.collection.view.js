@@ -12,12 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- var Marionette = require('marionette');
- var _ = require('underscore');
- var $ = require('jquery');
- var SearchFormView = require('./search-form.view');
- var CustomElements = require('js/CustomElements');
+/*global require*/
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const SearchFormView = require('./search-form.view');
+const SearchFormCollection = require('./search-form.collection');
+const CustomElements = require('js/CustomElements');
 
  module.exports = Marionette.CollectionView.extend({
     childView: SearchFormView,
@@ -28,6 +29,7 @@
     childViewOptions: function() {
         return {
             queryModel: this.options.queryModel,
+            sharingLightboxTitle: 'Search Form Sharing',
             collectionWrapperModel: this.options.collectionWrapperModel
         };
     }

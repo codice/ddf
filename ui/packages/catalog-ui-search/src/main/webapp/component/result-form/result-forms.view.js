@@ -14,40 +14,29 @@
  **/
 /* global setTimeout */
 const SearchFormViews = require('component/search-form/search-form.view')
+const properties = require('properties')
+const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
+const lightboxInstance = lightboxResultInstance.generateNewLightbox();
+const QueryResult = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.view') : {}
+const SearchFormModel = require('component/search-form/search-form.js')
+const CustomElements = require('js/CustomElements')
 
 module.exports = SearchFormViews.extend({
   initialize: function () {
     SearchFormViews.prototype.initialize.call(this)
   },
   changeView: function () {
-    let oldType = this.options.queryModel.get('type')
-    switch (this.model.get('type')) {
-      case 'new-result':
-        this.options.queryModel.set({
-          type: 'new-result',
-          resultTitle: '',
-          formId: this.model.get('id'),
-          accessGroups: [],
-          accessIndividuals: [],
-          descriptors: [],
-          description: ''
-        })
-        break
-      case 'result':
-        this.options.queryModel.set({
-          type: 'result',
-          resultTitle: this.model.get('name'),
-          formId: this.model.get('id'),
-          accessGroups: this.model.get('accessGroups'),
-          accessIndividuals: this.model.get('accessIndividuals'),
-          descriptors: this.model.get('descriptors'),
-          description: this.model.get('description')
-        })
-        break
+    if (properties.hasExperimentalEnabled()) {
+      this.triggerCloseDropdown();
+      lightboxInstance.model.updateTitle(this.model.get('type') === 'new-result' ? '' : this.model.get('name'));
+      lightboxInstance.model.open();
+      lightboxInstance.lightboxContent.show(new QueryResult({
+        model: this.model.get('type') === 'new-result' ? new SearchFormModel({name: ''}) : this.model,
+      }));
     }
-    if (oldType === this.model.get('type')) {
-      this.options.queryModel.trigger('change:type')
-    }
-    this.triggerCloseDropdown()
+  },
+  triggerCloseDropdown: function() {
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
+    this.options.queryModel.trigger('closeDropdown');
   }
 })

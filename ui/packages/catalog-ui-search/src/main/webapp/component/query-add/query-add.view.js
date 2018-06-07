@@ -53,6 +53,7 @@ module.exports = Marionette.LayoutView.extend({
     initialize: function () {
         this.model = new Query.Model();
         this.listenTo(this.model, 'resetToDefaults change:type', this.reshow);
+        this.listenTo(this.model, 'closeDropdown', this.closeDropdown);
         this.listenForSave();
     },
     reshow: function() {
@@ -72,10 +73,6 @@ module.exports = Marionette.LayoutView.extend({
                 break;
             case 'custom':
                 this.showCustom();
-                break;
-            case 'new-result': //pass through case statement
-            case 'result':
-                this.showResult();
                 break;
         }
     },
@@ -105,17 +102,6 @@ module.exports = Marionette.LayoutView.extend({
             model: this.model
         }));
     },
-    showResult: function () {
-        if(properties.hasExperimentalEnabled())
-        {   
-            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-            lightboxInstance.model.updateTitle(this.model.get('resultTitle'));
-            lightboxInstance.model.open();
-            lightboxInstance.lightboxContent.show(new QueryResult({
-                    model: this.model,
-            }));
-        }
-    },
     handleEditOnShow: function () {
         if (this.$el.hasClass('is-editing')) {
             this.edit();
@@ -136,7 +122,28 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     focus: function () {
+        this.autoLoadDefaultIfSet();
         this.queryContent.currentView.focus();
+    },
+    autoLoadDefaultIfSet: function () {
+        let userDefaultTemplate = user.getQuerySettings().get('template');
+        if (userDefaultTemplate) {
+            let sorts = userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].sorts;
+            if (sorts) {
+                sorts = sorts.map(sort => ({ attribute: sort.split(',')[0], direction: sort.split(',')[1] }));
+            }
+            this.model.set({
+                        type: 'custom',
+                        title: userDefaultTemplate['name'],
+                        filterTree: userDefaultTemplate['filterTemplate'],
+                        src: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].src) || '',
+                        federation: (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings'].federation) || 'enterprise',
+                        sorts: sorts, 
+                        'detail-level': (userDefaultTemplate['querySettings'] && userDefaultTemplate['querySettings']['detail-level']) || 'allFields'
+                    });
+
+            this.showCustom();
+        }
     },
     edit: function () {
         this.$el.addClass('is-editing');
@@ -147,14 +154,13 @@ module.exports = Marionette.LayoutView.extend({
         this.onBeforeShow();
     },
     save: function () {
-        //A new form is not necessarily a finished query, so skip saving the rest of the normal stuff
+        this.queryContent.currentView.save();
+        this.queryTitle.currentView.save();
         if (this.$el.hasClass('is-form-builder')) {
             this.saveTemplateToBackend();
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
             return;
         }
-        this.queryContent.currentView.save();
-        this.queryTitle.currentView.save();
         if (store.getCurrentQueries().get(this.model) === undefined) {
             store.getCurrentQueries().add(this.model);
         }
@@ -224,12 +230,19 @@ module.exports = Marionette.LayoutView.extend({
     },
     saveTemplateToBackend: function() {
         let loadingView = new LoadingView();
+        let _this = this;
+        let _user = user;
         $.ajax({
             url: '/search/catalog/internal/forms/query',
             data: JSON.stringify(this.getQueryAsQueryTemplate()),
             method: 'PUT',
             contentType: 'application/json',
             customErrorHandling: true
+        })
+        .done((data, textStatus, jqxhr) => {
+            _this.model.set({
+                type: 'custom'
+            })
         })
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({
@@ -254,5 +267,8 @@ module.exports = Marionette.LayoutView.extend({
             .on('saveQuery.' + CustomElements.getNamespace(), function (e) {
                 this.saveRun();
             }.bind(this));
+    },
+    closeDropdown: function() {
+        this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
     }
 });

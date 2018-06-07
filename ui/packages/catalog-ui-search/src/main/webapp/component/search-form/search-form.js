@@ -23,6 +23,7 @@
         type: "custom",
         id: undefined,
         filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
+        descriptors: [],
         accessIndividuals: [],
         accessGroups: [],
         querySettings: {}

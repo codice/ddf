@@ -49,14 +49,11 @@ public class FormTemplate extends CommonTemplate {
   public FormTemplate(
       Metacard metacard,
       FilterNode root,
-      List<Serializable> accessIndividuals,
-      List<Serializable> accessGroups,
+      Map<String, List<Serializable>> securityAttributes,
       String creator,
       Map<String, Object> querySettings) {
-    super(metacard);
+    super(metacard, securityAttributes);
     this.root = root;
-    this.accessIndividuals = accessIndividuals;
-    this.accessGroups = accessGroups;
     this.creator = creator;
     this.querySettings = querySettings;
   }

@@ -31,7 +31,8 @@
      },
      childViewOptions: function() {
         return {
-            queryModel: this.options.model
+            queryModel: this.options.model,
+            sharingLightboxTitle: 'Search Form Sharing'
         };
      },
  });
