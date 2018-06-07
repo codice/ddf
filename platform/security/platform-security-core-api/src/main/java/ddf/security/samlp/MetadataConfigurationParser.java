@@ -121,37 +121,10 @@ public class MetadataConfigurationParser {
     List<EntityDescriptor> entityDescriptors = new ArrayList<>();
     entityDescriptorString = entityDescriptorString.trim();
     if (entityDescriptorString.startsWith(HTTPS) || entityDescriptorString.startsWith(HTTP)) {
-      if (entityDescriptorString.startsWith(HTTP)) {
-        LOGGER.warn(
-            "Retrieving metadata via HTTP instead of HTTPS. The metadata configuration is unsafe!!!");
-      }
-      PropertyResolver propertyResolver = new PropertyResolver(entityDescriptorString);
-      HttpTransport httpTransport = new NetHttpTransport();
-
-      ExecutorService executor =
-          Executors.newSingleThreadExecutor(
-              StandardThreadFactoryBuilder.newThreadFactory("metadataConfigParserThread"));
-      ListeningExecutorService service = MoreExecutors.listeningDecorator(executor);
-
-      addHttpCallback(propertyResolver, httpTransport, service, executor);
-      try {
-        if (!service.isShutdown() && !service.awaitTermination(30, TimeUnit.SECONDS)) {
-          LOGGER.debug("Executor service shutdown timed out");
-        }
-      } catch (InterruptedException e) {
-        LOGGER.debug("Problem shutting down executor", e);
-        service.shutdown();
-        Thread.currentThread().interrupt();
-      }
+      retrieveEntityDescriptorViaHttp(entityDescriptorString);
     } else if (entityDescriptorString.startsWith(FILE + System.getProperty("ddf.home"))) {
-      String pathStr = StringUtils.substringAfter(entityDescriptorString, FILE);
-      Path path = Paths.get(pathStr);
-      if (Files.isReadable(path)) {
-        try (InputStream fileInputStream = Files.newInputStream(path)) {
-          entityDescriptors =
-              readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8"));
-        }
-      }
+      entityDescriptors =
+          retrieveEntityDescriptorViaFile(entityDescriptorString, entityDescriptors);
     } else if (entityDescriptorString.startsWith("<") && entityDescriptorString.endsWith(">")) {
       entityDescriptors = readEntityDescriptors(new StringReader(entityDescriptorString));
     } else {
@@ -160,6 +133,43 @@ public class MetadataConfigurationParser {
 
     if (!entityDescriptors.isEmpty()) {
       entityDescriptors.forEach(this::processEntityDescriptor);
+    }
+  }
+
+  private List<EntityDescriptor> retrieveEntityDescriptorViaFile(
+      String entityDescriptorString, List<EntityDescriptor> entityDescriptors) throws IOException {
+    String pathStr = StringUtils.substringAfter(entityDescriptorString, FILE);
+    Path path = Paths.get(pathStr);
+    if (Files.isReadable(path)) {
+      try (InputStream fileInputStream = Files.newInputStream(path)) {
+        entityDescriptors = readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8"));
+      }
+    }
+    return entityDescriptors;
+  }
+
+  private void retrieveEntityDescriptorViaHttp(String entityDescriptorString) throws IOException {
+    if (entityDescriptorString.startsWith(HTTP)) {
+      LOGGER.warn(
+          "Retrieving metadata via HTTP instead of HTTPS. The metadata configuration is unsafe!!!");
+    }
+    PropertyResolver propertyResolver = new PropertyResolver(entityDescriptorString);
+    HttpTransport httpTransport = new NetHttpTransport();
+
+    ExecutorService executor =
+        Executors.newSingleThreadExecutor(
+            StandardThreadFactoryBuilder.newThreadFactory("metadataConfigParserThread"));
+    ListeningExecutorService service = MoreExecutors.listeningDecorator(executor);
+
+    addHttpCallback(propertyResolver, httpTransport, service, executor);
+    try {
+      if (!service.isShutdown() && !service.awaitTermination(30, TimeUnit.SECONDS)) {
+        LOGGER.debug("Executor service shutdown timed out");
+      }
+    } catch (InterruptedException e) {
+      LOGGER.debug("Problem shutting down executor", e);
+      service.shutdown();
+      Thread.currentThread().interrupt();
     }
   }
 
