@@ -24,6 +24,8 @@ import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -294,10 +296,20 @@ public class SearchFormsApplication implements SparkApplication {
     Metacard oldMetacard = null;
     String id = metacard.getId();
     oldMetacard = getMetacardIfExistsOrNull(id);
+    if (oldMetacard != null) {
+      for (AttributeDescriptor descriptor :
+          oldMetacard.getMetacardType().getAttributeDescriptors()) {
+        Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
+        if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+          continue;
+        }
+        oldMetacard.setAttribute(metacardAttribute);
+      }
+    }
 
     // The UI should not send an ID during a PUT unless the metacard already exists
     if (id != null && oldMetacard != null) {
-      catalogFramework.update(new UpdateRequestImpl(id, metacard));
+      catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
       return ImmutableMap.of(RESP_MSG, "Successfully updated");
     }
     catalogFramework.create(new CreateRequestImpl(metacard));
@@ -306,7 +318,6 @@ public class SearchFormsApplication implements SparkApplication {
 
   public Metacard getMetacardIfExistsOrNull(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    Metacard metacard = null;
     Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
     Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
     Filter filter = filterBuilder.allOf(idFilter, tagsFilter);
@@ -315,11 +326,10 @@ public class SearchFormsApplication implements SparkApplication {
         catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter), false));
 
     if (!queryResponse.getResults().isEmpty()) {
-      Result result = queryResponse.getResults().get(0);
-      metacard = result.getMetacard();
+      return queryResponse.getResults().get(0).getMetacard();
     }
 
-    return metacard;
+    return null;
   }
 
   @FunctionalInterface

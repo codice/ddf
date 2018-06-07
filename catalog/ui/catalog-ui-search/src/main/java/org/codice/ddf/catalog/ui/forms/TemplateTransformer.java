@@ -13,29 +13,17 @@
  */
 package org.codice.ddf.catalog.ui.forms;
 
-import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_LIST;
-import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_FILTER;
-
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -56,8 +44,6 @@ import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
 import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
-import org.codice.ddf.catalog.ui.util.EndpointUtil;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,17 +60,11 @@ public class TemplateTransformer {
 
   private final CatalogFramework catalogFramework;
 
-  private final EndpointUtil util;
-
   private final FilterBuilder filterBuilder;
 
   public TemplateTransformer(
-      FilterBuilder filterBuilder,
-      EndpointUtil util,
-      CatalogFramework catalogFramework,
-      FilterWriter writer) {
+      FilterBuilder filterBuilder, CatalogFramework catalogFramework, FilterWriter writer) {
     this.filterBuilder = filterBuilder;
-    this.util = util;
     this.writer = writer;
     this.catalogFramework = catalogFramework;
   }
@@ -96,16 +76,17 @@ public class TemplateTransformer {
   /** Convert the JSON representation of a FormTemplate to a QueryTemplateMetacard. */
   @Nullable
   public Metacard toQueryTemplateMetacard(Map<String, Object> formTemplate) {
-    Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
-    String title = (String) formTemplate.get("title");
-    String description = (String) formTemplate.get("description");
-
-    if (filterJson == null) {
-      return null;
-    }
-
-    TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
     try {
+      Map<String, Object> filterJson = (Map) formTemplate.get("filterTemplate");
+      String title = (String) formTemplate.get("title");
+      String description = (String) formTemplate.get("description");
+      String id = (String) formTemplate.get("id");
+
+      if (filterJson == null) {
+        return null;
+      }
+
+      TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
       VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
       JAXBElement filter = visitor.getResult();
       if (!filter.getDeclaredType().equals(FilterType.class)) {
@@ -116,7 +97,6 @@ public class TemplateTransformer {
         return null;
       }
 
-      String id = (String) formTemplate.get("id");
       QueryTemplateMetacard metacard =
           (id == null)
               ? new QueryTemplateMetacard(title, description)
@@ -129,29 +109,11 @@ public class TemplateTransformer {
         metacard.setQuerySettings(querySettings);
       }
 
-      Result result = metacardAlreadyExists(id, filterBuilder, catalogFramework);
-
-      // Perform update of old Metacard if already exists
-      if (result != null) {
-        Metacard oldMetacard = null;
-        oldMetacard = result.getMetacard();
-        oldMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
-        oldMetacard.setAttribute(new AttributeImpl(Core.TITLE, title));
-        oldMetacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, description));
-        oldMetacard.setAttribute(new AttributeImpl(QUERY_TEMPLATE_FILTER, filterXml));
-        return oldMetacard;
-      }
       return metacard;
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
     } catch (FilterProcessingException e) {
       LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
-    } catch (SourceUnavailableException e) {
-      LOGGER.error("Source unavailable, {}", e.getMessage());
-    } catch (FederationException e) {
-      LOGGER.error("Error during federation, {}", e.getMessage());
-    } catch (UnsupportedQueryException e) {
-      LOGGER.error("Query unsupported, {}", e.getMessage());
     }
     return null;
   }
@@ -219,34 +181,6 @@ public class TemplateTransformer {
             : new AttributeGroupMetacard(fieldFilter.getTitle(), fieldFilter.getDescription(), id);
 
     metacard.setGroupDescriptors(fieldFilter.getDescriptors());
-    Result result = null;
-
-    try {
-      result = metacardAlreadyExists(id, filterBuilder, catalogFramework);
-    } catch (SourceUnavailableException e) {
-      LOGGER.error("Source unavailable, {}", e.getMessage());
-      return null;
-    } catch (FederationException e) {
-      LOGGER.error("Error during federation, {}", e.getMessage());
-      return null;
-    } catch (UnsupportedQueryException e) {
-      LOGGER.error("Query unsupported, {}", e.getMessage());
-      return null;
-    }
-
-    // Perform update of old Metacard if already exists
-    if (result != null) {
-      Metacard oldMetacard = null;
-      oldMetacard = result.getMetacard();
-      oldMetacard.setAttribute(new AttributeImpl(Core.MODIFIED, new Date()));
-      oldMetacard.setAttribute(new AttributeImpl(Core.TITLE, fieldFilter.getTitle()));
-      oldMetacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, fieldFilter.getDescription()));
-      oldMetacard.setAttribute(
-          new AttributeImpl(
-              ATTRIBUTE_GROUP_LIST,
-              (List<Serializable>) new ArrayList<Serializable>(fieldFilter.getDescriptors())));
-      return oldMetacard;
-    }
     return metacard;
   }
 
@@ -298,22 +232,5 @@ public class TemplateTransformer {
 
     return ImmutableMap.of(
         Security.ACCESS_INDIVIDUALS, accessIndividuals, Security.ACCESS_GROUPS, accessGroups);
-  }
-
-  private static Result metacardAlreadyExists(
-      String id, FilterBuilder filterBuilder, CatalogFramework catalogFramework)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
-    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
-    Filter queryFilter = filterBuilder.allOf(idFilter, tagsFilter);
-
-    QueryResponse queryResponse =
-        catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter), false));
-
-    if (queryResponse.getResults().isEmpty()) {
-      return null;
-    }
-
-    return queryResponse.getResults().get(0);
   }
 }
