@@ -7,4 +7,4 @@
 
 == {title}
 
-During a query, resulting metacards will go through <<_attributes_added_by_attribute_overrides,attribute overrides>>.
+During a query, resulting metacards will go through <<_attributes_added_by_attribute_overrides,Attribute Overrides>>.

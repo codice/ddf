@@ -7,9 +7,9 @@
 
 == {title}
 
-During ingest, a metacard is first created and populated by parsing the ingested resource with an <<_attributes_added_by_input_transformers,input transformer>>.
-Then <<_attributes_added_by_attribute_injection,attributes are injected>> into the metacard, followed by <<_attributes_added_by_attribute_overrides,attribute overrides>>.
-Finally the metacard is passed through a series of <<_attributes_added_by_pre_authorization_plugins,pre-authorization plugins>> and <<_attributes_added_by_pre_ingest_plugins,pre-ingest plugins>>.
+During ingest, a metacard is first created and populated by parsing the ingested resource with an <<_attributes_added_by_input_transformers,Input Transformer>>.
+Then <<_attributes_added_by_attribute_injection,Attributes are Injected>> into the metacard, followed by <<_attributes_added_by_attribute_overrides,Attribute Overrides>>.
+Finally the metacard is passed through a series of <<_attributes_added_by_pre_authorization_plugins,Pre-Authorization Plugins>> and <<_attributes_added_by_pre_ingest_plugins,Pre-Ingest Plugins>>.
 
 .Ingest Attribute Flow
 [ditaa,ingest-attribute-flow]

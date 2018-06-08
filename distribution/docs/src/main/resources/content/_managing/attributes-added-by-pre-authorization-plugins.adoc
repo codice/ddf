@@ -7,7 +7,7 @@
 
 === {title}
 
-The <<_pre_authorization_plugins,pre-authorization plugins>> provides an opportunity to take action before any security rules are applied.
+The <<_pre_authorization_plugins,Pre-Authorization Plugins>> provides an opportunity to take action before any security rules are applied.
 
-* The <<_metacard_ingest_network_plugin,metacard ingest network plugin>> is a configurable plugin that allows the conditional insertion of new attributes on metacards during ingest based on network information from the ingest request.
-See <<_configuring_the_metacard_ingest_network_plugin,configuring the metacard ingest network plugin>> for configuration details.
+* The <<_metacard_ingest_network_plugin,Metacard Ingest Network Plugin>> is a configurable plugin that allows the conditional insertion of new attributes on metacards during ingest based on network information from the ingest request.
+See <<_configuring_the_metacard_ingest_network_plugin,Configuring the Metacard Ingest Network Plugin>> for configuration details.

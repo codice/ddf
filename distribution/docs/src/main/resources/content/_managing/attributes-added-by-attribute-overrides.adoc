@@ -7,11 +7,11 @@
 
 === {title}
 
-<<_overriding_attributes,Attribute overriding>> is the act of replacing existing attributes with a new value.
+<<_overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
 
-When ingesting from the <<_content_directory_monitor,Content Directory Monitor>>, attribute overrides can be configured by <<_configuring_the_content_directory_monitor,configuring the Content Directory Monitor>>.
+When ingesting from the <<_content_directory_monitor,Content Directory Monitor>>, attribute overrides can be configured by <<_configuring_the_content_directory_monitor,Configuring the Content Directory Monitor>>.
 
-When querying from certain <<_connecting_to_sources,sources>>, attribute overrides can be configured for these specific source types:
+When querying from certain <<_connecting_to_sources,Sources>>, attribute overrides can be configured for these specific source types:
 
 * <<_federated_source_for_atlassian_confluence_r,Federated Source for Atlassian Confluence>>
 * <<_csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>
