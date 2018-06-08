@@ -35,6 +35,10 @@ public final class WfsTransformerProcessor {
     this.transformerServiceList = transformerServiceList;
   }
 
+  public void setActiveFeatureMemberNodeName(WfsMetadata metadata, String featureMemberNodeName) {
+    metadata.setActiveFeatureMemberNodeName(featureMemberNodeName);
+  }
+
   public Optional<Metacard> apply(String featureMember, WfsMetadata metadata) {
 
     if (StringUtils.isEmpty(featureMember)) {

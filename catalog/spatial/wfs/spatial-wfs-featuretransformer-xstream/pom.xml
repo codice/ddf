@@ -174,17 +174,17 @@
                     <limit>
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.79</minimum>
+                      <minimum>0.70</minimum>
                     </limit>
                     <limit>
                       <counter>BRANCH</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.69</minimum>
+                      <minimum>0.60</minimum>
                     </limit>
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.52</minimum>
+                      <minimum>0.40</minimum>
                     </limit>
 
                   </limits>

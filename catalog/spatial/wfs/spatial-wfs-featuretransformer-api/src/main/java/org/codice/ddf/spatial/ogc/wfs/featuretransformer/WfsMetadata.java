@@ -34,6 +34,11 @@ public interface WfsMetadata<T> {
   /** @return an unmodifiable list of objects describing the FeatureMember */
   Collection<T> getDescriptors();
 
-  /** @return the names of the XML response nodes containing a single feature member */
+  /** @return list of all feature node names in this WFS GetCapabilities */
   List<String> getFeatureMemberNodeNames();
+
+  /** @return the name of the XML response node containing a single feature member */
+  String getActiveFeatureMemberNodeName();
+
+  void setActiveFeatureMemberNodeName(String featureMemberNodeName);
 }

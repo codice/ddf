@@ -39,6 +39,9 @@ public final class WfsRouteBuilder extends RouteBuilder {
         .streamCaching()
         .split(body(), new MetacardListAggregationStrategy())
         .setHeader("featureMemberNodeName", simple("${body}"))
+        .bean(
+            "wfsTransformerProcessor",
+            "setActiveFeatureMemberNodeName(${header.metadata}, ${header.featureMemberNodeName})")
         .setBody(header("xml"))
         .split(
             body().tokenizeXML("${header.featureMemberNodeName}", "FeatureCollection"),

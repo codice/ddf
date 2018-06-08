@@ -30,7 +30,7 @@
     <reference-list id="metacardTypeEnhancerList"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer"
                     availability="optional"/>
-    
+
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <reference id="metacardTypeRegistry" interface="org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry"/>

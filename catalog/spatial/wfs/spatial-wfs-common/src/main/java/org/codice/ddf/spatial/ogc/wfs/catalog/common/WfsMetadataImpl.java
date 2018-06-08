@@ -29,6 +29,8 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
 
   private List<String> featureMemberNodeNames;
 
+  private String activeFeatureMemberNodeName;
+
   private final Class<T> descriptorClass;
 
   public WfsMetadataImpl(
@@ -41,6 +43,10 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
     this.descriptorClass = descriptorClass;
     this.featureMemberNodeNames = featureMemberNodeNames;
     this.descriptors = new HashSet<>();
+
+    if (featureMemberNodeNames != null && featureMemberNodeNames.size() > 0) {
+      this.activeFeatureMemberNodeName = featureMemberNodeNames.get(0);
+    }
   }
 
   @Override
@@ -69,5 +75,14 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
 
   public Class<T> getDescriptorClass() {
     return descriptorClass;
+  }
+
+  public String getActiveFeatureMemberNodeName() {
+    return activeFeatureMemberNodeName;
+  }
+
+  @Override
+  public void setActiveFeatureMemberNodeName(String featureMemberNodeName) {
+    activeFeatureMemberNodeName = featureMemberNodeName;
   }
 }
