@@ -280,12 +280,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>ddf-common</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.osgi</groupId>
             <artifactId>platform-osgi-condpermadmin</artifactId>
             <version>${project.version}</version>
