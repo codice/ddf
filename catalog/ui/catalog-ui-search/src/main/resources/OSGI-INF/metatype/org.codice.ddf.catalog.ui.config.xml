@@ -175,7 +175,7 @@
             name="Enable Query Feedback"
             description="Enable the query comments option."
             type="Boolean"
-            default="true"/>
+            default="false"/>
 
         <AD id="experimentalEnabled"
             name="Enable Experimental Features"

@@ -79,7 +79,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String terrainEndpoint;
 
-  private Boolean editingEnabled = false;
+  private Boolean editingEnabled = true;
 
   private Boolean signInEnabled = true;
 
