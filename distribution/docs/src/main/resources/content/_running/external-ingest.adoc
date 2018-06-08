@@ -50,3 +50,6 @@ A resource can also be ingested with metacard metadata associated with it using 
 ----
 curl -k -X POST -i -H "Content-Type: multipart/mixed" -F parse.resource=@/path/to/resource -F parse.metadata=@/path/to/metacard ${secure_url}/services/catalog
 ----
+
+More information about the ingest operations can be found in the ingest log.
+The default location of the log is `${home_directory}/data/log/ingest_error.log`.

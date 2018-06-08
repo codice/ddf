@@ -116,6 +116,17 @@ Data can be ingested via ${catalog-ui}.
 . Drag and drop file(s) or click to open a navigation window.
 . After selecting the file(s) to be uploaded, select *Start* to begin uploading.
 
+Files are processed individually with a visual status indication of each upload.
+If there are any failures, the user is notified with a message on that specific product.
+More information about the uploads can be found in the ingest log.
+The default location of the log is `${home_directory}/data/log/ingest_error.log`.
+
+[NOTE]
+====
+Uploaded products may be marked with Validation Warnings or Errors.
+<<_configuring_errors_and_warnings,Additional configuration>> may be needed to view these products in searches.
+====
+
 === Searching with ${catalog-ui}
 
 The Search pane has two tabs: *Search* and *Bookmarks*.
