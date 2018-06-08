@@ -575,7 +575,7 @@ public class CreateOperations {
         Metacard overrideMetacard = contentItem.getMetacard();
 
         Metacard updatedMetacard =
-            OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true, true);
+            OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true);
 
         updatedMetacard.setAttribute(
             new AttributeImpl(Metacard.RESOURCE_URI, contentItem.getUri()));

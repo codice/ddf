@@ -22,19 +22,24 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.types.Media;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -100,7 +105,7 @@ public class OverrideAttributesSupportTest {
   }
 
   @Test
-  public void testOverrideAttributesOther() throws URISyntaxException {
+  public void testOverrideAttributes() throws URISyntaxException {
     List<ContentItem> contentItems = new ArrayList<>();
     Map<String, Metacard> metacardMap = new HashMap<>();
     MetacardImpl metacard = new MetacardImpl();
@@ -125,32 +130,7 @@ public class OverrideAttributesSupportTest {
     assertThat(metacardMap.get("original").getTitle(), is("updated"));
     assertThat(metacardMap.get("original").getResourceURI().toString(), is("content:newstuff"));
     assertThat(metacardMap.get("original").getId(), is("original"));
-    assertThat(metacardMap.get("original").getMetacardType().getName(), is("other"));
-  }
-
-  @Test
-  public void testOverrideMetacardIgnoreType() throws URISyntaxException {
-    MetacardImpl metacard = new MetacardImpl();
-    metacard.setMetadata("original");
-    metacard.setTitle("original");
-    metacard.setId("original");
-    metacard.setResourceURI(new URI("content:stuff"));
-    MetacardImpl overrideMetacard =
-        new MetacardImpl(
-            new MetacardTypeImpl("other", metacard.getMetacardType().getAttributeDescriptors()));
-    overrideMetacard.setTitle("updated");
-    overrideMetacard.setId("updated");
-    overrideMetacard.setMetadata("updated");
-    overrideMetacard.setResourceURI(new URI("content:newstuff"));
-
-    Metacard updatedMetacard =
-        OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true, false);
-
-    assertThat(updatedMetacard.getMetadata(), is("updated"));
-    assertThat(updatedMetacard.getTitle(), is("updated"));
-    assertThat(updatedMetacard.getResourceURI().toString(), is("content:newstuff"));
-    assertThat(updatedMetacard.getId(), is("original"));
-    assertThat(updatedMetacard.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacardMap.get("original").getMetacardType().getName(), is("ddf.metacard"));
   }
 
   @Test
@@ -169,13 +149,76 @@ public class OverrideAttributesSupportTest {
     overrideMetacard.setResourceURI(new URI("content:newstuff"));
 
     Metacard updatedMetacard =
-        OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, false, false);
+        OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, false);
 
     assertThat(updatedMetacard.getMetadata(), is("updated"));
     assertThat(updatedMetacard.getTitle(), is("updated"));
     assertThat(updatedMetacard.getResourceURI().toString(), is("content:newstuff"));
     assertThat(updatedMetacard.getId(), is("original"));
-    assertThat(updatedMetacard.getMetacardType().getName(), is("other"));
+    assertThat(updatedMetacard.getMetacardType().getName(), is("ddf.metacard"));
+  }
+
+  @Test
+  public void testOverrideMetacardOnlyFill() throws URISyntaxException {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setMetadata("original");
+    metacard.setId("original");
+    metacard.setResourceURI(new URI("content:stuff"));
+    MetacardImpl overrideMetacard =
+        new MetacardImpl(
+            new MetacardTypeImpl("other", metacard.getMetacardType().getAttributeDescriptors()));
+    overrideMetacard.setTitle("updated");
+    overrideMetacard.setId("updated");
+    overrideMetacard.setMetadata("updated");
+    overrideMetacard.setResourceURI(new URI("content:newstuff"));
+
+    Metacard updatedMetacard =
+        OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true);
+
+    assertThat(updatedMetacard.getMetadata(), is("original"));
+    assertThat(updatedMetacard.getTitle(), is("updated"));
+    assertThat(updatedMetacard.getResourceURI().toString(), is("content:stuff"));
+    assertThat(updatedMetacard.getId(), is("original"));
+    assertThat(updatedMetacard.getMetacardType().getName(), is("ddf.metacard"));
+  }
+
+  @Test
+  public void testOverrideMetacardDescriptors() throws URISyntaxException {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setMetadata("original");
+    metacard.setTitle("original");
+    metacard.setId("original");
+    metacard.setResourceURI(new URI("content:stuff"));
+    MetacardImpl overrideMetacard =
+        new MetacardImpl(
+            new MetacardTypeImpl(
+                "other",
+                metacard.getMetacardType(),
+                new MediaAttributes().getAttributeDescriptors()));
+    overrideMetacard.setTitle("updated");
+    overrideMetacard.setId("updated");
+    overrideMetacard.setMetadata("updated");
+    overrideMetacard.setResourceURI(new URI("content:newstuff"));
+    overrideMetacard.setAttribute(Media.DURATION, 1.0);
+
+    Metacard updatedMetacard =
+        OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, false);
+
+    assertThat(updatedMetacard.getMetadata(), is("updated"));
+    assertThat(updatedMetacard.getTitle(), is("updated"));
+    assertThat(updatedMetacard.getResourceURI().toString(), is("content:newstuff"));
+    assertThat(updatedMetacard.getId(), is("original"));
+    assertThat(updatedMetacard.getMetacardType().getName(), is("ddf.metacard"));
+    Set<AttributeDescriptor> allAttributes =
+        new HashSet<>(metacard.getMetacardType().getAttributeDescriptors());
+    allAttributes.addAll(overrideMetacard.getMetacardType().getAttributeDescriptors());
+    assertThat(
+        updatedMetacard.getMetacardType().getAttributeDescriptors().size(),
+        is(allAttributes.size()));
+    allAttributes.removeAll(updatedMetacard.getMetacardType().getAttributeDescriptors());
+    assertThat(allAttributes.size(), is(0));
+
+    assertThat(updatedMetacard.getAttribute(Media.DURATION).getValue(), is(1.0));
   }
 
   @Test

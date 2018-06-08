@@ -16,9 +16,9 @@ package ddf.catalog.impl.operations;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -43,23 +43,21 @@ public class OverrideAttributesSupport {
       Metacard currentMetacard = metacardMap.get(contentItem.getId());
       Metacard overrideMetacard = contentItem.getMetacard();
 
-      Metacard updatedMetacard = overrideMetacard(currentMetacard, overrideMetacard, false, false);
+      Metacard updatedMetacard = overrideMetacard(currentMetacard, overrideMetacard, false);
 
       metacardMap.put(contentItem.getId(), updatedMetacard);
     }
   }
 
   public static Metacard overrideMetacard(
-      Metacard currentMetacard,
-      Metacard overrideMetacard,
-      boolean ignoreType,
-      boolean onlyFillNull) {
-    MetacardType updatedMetacardType = currentMetacard.getMetacardType();
-    if (!ignoreType && !MetacardImpl.BASIC_METACARD.equals(overrideMetacard.getMetacardType())) {
-      updatedMetacardType = overrideMetacard.getMetacardType();
-    }
+      Metacard currentMetacard, Metacard overrideMetacard, boolean onlyFillNull) {
 
-    Metacard updatedMetacard = new MetacardImpl(currentMetacard, updatedMetacardType);
+    MetacardImpl updatedMetacard = new MetacardImpl(currentMetacard);
+    updatedMetacard.setType(
+        new MetacardTypeImpl(
+            currentMetacard.getMetacardType().getName(),
+            currentMetacard.getMetacardType(),
+            overrideMetacard.getMetacardType().getAttributeDescriptors()));
 
     addAttributes(updatedMetacard, overrideMetacard, onlyFillNull);
     return updatedMetacard;
@@ -67,7 +65,7 @@ public class OverrideAttributesSupport {
 
   private static void addAttributes(
       Metacard metacard, Metacard otherMetacard, boolean onlyFillNull) {
-    otherMetacard
+    metacard
         .getMetacardType()
         .getAttributeDescriptors()
         .stream()

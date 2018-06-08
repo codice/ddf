@@ -71,7 +71,9 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.inject.AttributeInjectorImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -731,6 +733,8 @@ public class CatalogFrameworkImplTest {
             });
 
     when(metacardType.getAttributeDescriptor(Metacard.TITLE)).thenReturn(stringAttributeDescriptor);
+    when(metacardType.getAttributeDescriptors())
+        .thenReturn(Collections.singleton(new CoreAttributes().getAttributeDescriptor(Core.TITLE)));
 
     newCard.setType(metacardType);
 
@@ -807,6 +811,8 @@ public class CatalogFrameworkImplTest {
             });
 
     when(metacardType.getAttributeDescriptor(Metacard.TITLE)).thenReturn(dateAttributeDescriptor);
+    when(metacardType.getAttributeDescriptors())
+        .thenReturn(Collections.singleton(new CoreAttributes().getAttributeDescriptor(Core.TITLE)));
 
     newCard.setType(metacardType);
 
