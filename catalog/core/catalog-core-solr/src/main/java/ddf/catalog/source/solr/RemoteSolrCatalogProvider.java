@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.CollectionUtils;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationStore;
 import org.slf4j.Logger;
@@ -100,7 +99,6 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
     if (resolver == null) {
       resolver = new DynamicSchemaResolver(anyTextAttributes, Collections.emptyList());
     }
-    if (CollectionUtils.isNotEmpty(anyTextAttributes)) {}
     this.provider =
         new SolrCatalogProvider(client, filterAdapter, solrFilterDelegateFactory, resolver);
   }

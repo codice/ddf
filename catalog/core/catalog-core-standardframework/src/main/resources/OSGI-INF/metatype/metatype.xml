@@ -61,7 +61,7 @@
         <AD name="URL" id="url" required="true" type="String" />
     </OCD>
 
-    <OCD name="Solr Cache" id="solrCatalogCache">
+    <OCD name="Solr Cache" id="ddf.catalog.cache.solr.impl.SolrCache">
         <AD
           description="Optional. Specify a list of attributes that should be used for anyText queries instead of the default of all STRING attributes. This is a whitelist of attributes."
           name="AnyText Query Attributes" id="anyTextAttributes" required="true"
@@ -90,8 +90,8 @@
         <Object ocdref="ddf.catalog.impl.operations.QueryOperations"></Object>
     </Designate>
 
-    <Designate pid="solrCatalogCache">
-        <Object ocdref="solrCatalogCache"/>
+    <Designate pid="ddf.catalog.cache.solr.impl.SolrCache">
+        <Object ocdref="ddf.catalog.cache.solr.impl.SolrCache"/>
     </Designate>
 
 

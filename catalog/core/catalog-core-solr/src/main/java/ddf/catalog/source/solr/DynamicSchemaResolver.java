@@ -255,10 +255,7 @@ public class DynamicSchemaResolver {
       String key = e.getKey();
       fieldsCache.add(key);
       if (key.endsWith(SchemaFields.TEXT_SUFFIX)) {
-        String attributeName = key;
-        if (key.contains("_")) {
-          attributeName = key.substring(0, key.indexOf('_'));
-        }
+        String attributeName = key.substring(0, key.indexOf(SchemaFields.TEXT_SUFFIX));
         if (StringUtils.isNotBlank(attributeName) && shouldAddAnyTextAttribute(attributeName)) {
           anyTextFieldsCache.add(key);
         }
