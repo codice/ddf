@@ -733,7 +733,7 @@ public class DynamicSchemaResolver {
         fieldsCache.add(
             ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(format));
         if (anyTextAttributesWhitelist.contains(ad.getName())) {
-          anyTextFieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
+          anyTextFieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX);
         }
       }
     }

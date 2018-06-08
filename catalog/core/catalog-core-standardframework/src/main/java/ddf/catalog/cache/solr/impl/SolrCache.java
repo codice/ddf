@@ -30,7 +30,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.SchemaFields;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
-import ddf.catalog.source.solr.SolrMetacardClient;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class SolrCache implements SolrCacheMBean {
 
   private final SolrClient client;
 
-  private final SolrMetacardClient metacardClient;
+  private final CacheSolrMetacardClient metacardClient;
 
   private final AtomicBoolean dirty = new AtomicBoolean(false);
 
@@ -299,9 +298,7 @@ public class SolrCache implements SolrCacheMBean {
     if (CollectionUtils.isNotEmpty(anyTextAttributes)) {
       this.anyTextAttributes.addAll(anyTextAttributes);
     }
-    if (metacardClient instanceof CacheSolrMetacardClient) {
-      ((CacheSolrMetacardClient) metacardClient).setAnyTextAttributes(anyTextAttributes);
-    }
+    metacardClient.setAnyTextAttributes(anyTextAttributes);
   }
 
   Set<ContentType> getContentTypes() {
