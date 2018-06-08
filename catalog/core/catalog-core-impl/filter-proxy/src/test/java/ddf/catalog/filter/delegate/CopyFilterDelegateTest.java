@@ -698,9 +698,6 @@ public class CopyFilterDelegateTest {
     assertNotSame(filterIn, filterCopy);
 
     assertFilterContentsEqual(filterIn, filterCopy);
-
-    // Verify filter contents (attributes, operands, etc) are identical
-    // assertThat(filterCopy, is(filterIn));
   }
 
   private void assertFilterContentsEqual(Filter filterIn, Filter filterCopy) {

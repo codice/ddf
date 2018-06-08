@@ -16,7 +16,6 @@ package ddf.metrics.reporting.internal.rrd4j;
 import ddf.metrics.reporting.internal.MetricsGraphException;
 import ddf.metrics.reporting.internal.MetricsRetriever;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,15 +30,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.apache.poi.hslf.model.Picture;
-import org.apache.poi.hslf.model.Slide;
-import org.apache.poi.hslf.model.TextBox;
-import org.apache.poi.hslf.model.TextRun;
-import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -433,53 +428,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
   }
 
   @Override
-  public OutputStream createPptData(
-      String metricName, String rrdFilename, long startTime, long endTime)
-      throws IOException, MetricsGraphException {
-    LOGGER.trace("ENTERING: createPptData");
-
-    SlideShow ppt = new SlideShow();
-    byte[] graph = createGraph(metricName, rrdFilename, startTime, endTime);
-    MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
-    createSlide(ppt, metricName, graph, metricData);
-
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ppt.write(bos);
-    bos.close();
-
-    LOGGER.trace("EXITING: createPptData");
-
-    return bos;
-  }
-
-  @Override
-  public OutputStream createPptReport(
-      List<String> metricNames, String metricsDir, long startTime, long endTime)
-      throws IOException, MetricsGraphException {
-    LOGGER.trace("ENTERING: createPptReport");
-
-    SlideShow ppt = new SlideShow();
-
-    Collections.sort(metricNames);
-
-    for (String metricName : metricNames) {
-      String rrdFilename = getRrdFilename(metricsDir, metricName);
-
-      byte[] graph = createGraph(metricName, rrdFilename, startTime, endTime);
-      MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
-      createSlide(ppt, metricName, graph, metricData);
-    }
-
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ppt.write(bos);
-    bos.close();
-
-    LOGGER.trace("EXITING: createPptReport");
-
-    return bos;
-  }
-
-  @Override
   public String createJsonData(String metricName, String rrdFilename, long startTime, long endTime)
       throws IOException, MetricsGraphException {
     LOGGER.trace("ENTERING: createJsonData");
@@ -738,14 +686,14 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     Sheet sheet = wb.createSheet(displayableMetricName);
 
     Font headerFont = wb.createFont();
-    headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+    headerFont.setBold(true);
     CellStyle columnHeadingsStyle = wb.createCellStyle();
     columnHeadingsStyle.setFont(headerFont);
 
     CellStyle bannerStyle = wb.createCellStyle();
     bannerStyle.setFont(headerFont);
     bannerStyle.setFillForegroundColor(HSSFColor.PALE_BLUE.index);
-    bannerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
+    bannerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
     int rowCount = 0;
 
@@ -898,77 +846,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     LOGGER.trace("EXITING: getMetricData");
 
     return metricData;
-  }
-
-  /**
-   * Adds a slide containing the metric's graph to the PowerPoint slide deck. The title is usually
-   * the metric's name and is usually in camelCase format. This will be converted to individual,
-   * capitalized words to the slide's title. The metric's data is used to determine the total count
-   * across all of the metric's data, which is displayed at the bottom of the slide, under the
-   * graph.
-   *
-   * @param ppt the PowerPoint slide deck to add this slide to
-   * @param title the title for this slide
-   * @param graph the metric's graph to be added to this slide
-   * @param metricData the metric's data
-   * @throws IOException
-   * @throws MetricsGraphException
-   */
-  private void createSlide(SlideShow ppt, String title, byte[] graph, MetricData metricData)
-      throws IOException, MetricsGraphException {
-    LOGGER.trace("ENTERING: createSlide");
-
-    if (LOGGER.isDebugEnabled()) {
-      java.awt.Dimension pgsize = ppt.getPageSize();
-      int pgx = pgsize.width; // slide width (720)
-      int pgy = pgsize.height; // slide height (540)
-      LOGGER.debug("ppt page width = {}", pgx);
-      LOGGER.debug("ppt page height = {}", pgy);
-    }
-
-    // Convert title, if it is in camelCase, to individual words with each word
-    // starting with a capital letter
-    String slideTitle = convertCamelCase(title);
-
-    Slide slide = ppt.createSlide();
-
-    // Add the title to the slide
-    TextBox titleTextBox = slide.addTitle();
-    TextRun textRun = titleTextBox.getTextRun();
-    textRun.getRichTextRuns()[0].setFontSize(32);
-    titleTextBox.setText(slideTitle);
-    titleTextBox.setHorizontalAlignment(TextBox.AlignCenter);
-
-    // Add the metric's graph to the slide
-    int idx = ppt.addPicture(graph, Picture.PNG);
-    Picture pict = new Picture(idx);
-
-    // set graph's position and size in the slide
-    // (Be sure to maintain aspect ratio for the image when specifying the
-    // width and height. Refer to width and height values used in createGraph())
-    pict.setAnchor(new Rectangle(20, 100, 650, 325));
-    slide.addShape(pict);
-
-    // If metric has a total count, add it under the graph on the slide
-    if (metricData.hasTotalCount()) {
-      TextBox totalCountTextBox = new TextBox();
-      textRun = totalCountTextBox.getTextRun();
-      textRun.getRichTextRuns()[0].setFontSize(14);
-      totalCountTextBox.setText("Total Count: " + metricData.getTotalCount());
-      totalCountTextBox.setHorizontalAlignment(TextBox.AlignLeft);
-
-      // x,y values determined relative to x,y of graph's anchor position
-      // and the height of the graph
-      totalCountTextBox.setAnchor(new Rectangle(20, 450, 250, 80));
-      slide.addShape(totalCountTextBox);
-    }
-
-    LOGGER.trace("EXITING: createSlide");
-  }
-
-  public void setMetricsMaxThreshold(double metricsMaxThreshold) {
-    LOGGER.trace("Setting metricsMaxThreshold = {}", metricsMaxThreshold);
-    this.metricsMaxThreshold = metricsMaxThreshold;
   }
 
   private void dumpData(

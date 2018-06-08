@@ -199,7 +199,6 @@
                             spatial-ogc-common,
                             spatial-csw-common,
                             spatial-csw-transformer,
-                            gt-cql,
                             catalog-core-api-impl,
                             platform-util,
                             security-rest-cxfwrapper,

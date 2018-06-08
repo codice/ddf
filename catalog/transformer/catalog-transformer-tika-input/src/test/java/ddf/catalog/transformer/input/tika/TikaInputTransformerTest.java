@@ -239,8 +239,8 @@ public class TikaInputTransformerTest {
   @Test
   public void testJavaClass() throws Exception {
     InputStream stream =
-        Thread.currentThread()
-            .getContextClassLoader()
+        TikaInputTransformerTest.class
+            .getClassLoader()
             .getResourceAsStream("CatalogFrameworkImpl.class");
     Metacard metacard = transform(stream);
     assertNotNull(metacard);

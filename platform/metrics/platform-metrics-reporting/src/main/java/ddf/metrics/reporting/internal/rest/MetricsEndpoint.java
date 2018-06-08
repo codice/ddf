@@ -284,19 +284,6 @@ public class MetricsEndpoint {
         throw new MetricsEndpointException(
             "Cannot create XLS data for specified metric.", Response.Status.BAD_REQUEST);
       }
-    } else if (outputFormat.equalsIgnoreCase("ppt")) {
-      LOGGER.trace("Retrieving PPT-formatted data for metric {}", metricName);
-      try (OutputStream os =
-          metricsRetriever.createPptData(metricName, rrdFilename, startTime, endTime)) {
-        InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-        ResponseBuilder responseBuilder = Response.ok(is);
-        responseBuilder.type("application/vnd.ms-powerpoint");
-        response = responseBuilder.build();
-      } catch (IOException | MetricsGraphException e) {
-        LOGGER.info("Could not create PPT data for specified metric");
-        throw new MetricsEndpointException(
-            "Cannot create PPT data for metric for specified metric.", Response.Status.BAD_REQUEST);
-      }
     } else if (outputFormat.equalsIgnoreCase("xml")) {
       LOGGER.trace("Retrieving XML-formatted data for metric {}", metricName);
       try {
@@ -484,19 +471,6 @@ public class MetricsEndpoint {
           InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
           ResponseBuilder responseBuilder = Response.ok(is);
           responseBuilder.type("application/vnd.ms-excel");
-          responseBuilder.header("Content-Disposition", dispositionString);
-          response = responseBuilder.build();
-        }
-      } else if (outputFormat.equalsIgnoreCase("ppt")) {
-        if (StringUtils.isNotEmpty(summaryInterval)) {
-          throw new MetricsEndpointException(
-              "Summary interval not allowed for ppt format", Response.Status.BAD_REQUEST);
-        }
-        try (OutputStream os =
-            metricsRetriever.createPptReport(metricNames, metricsDir, startTime, endTime)) {
-          InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-          ResponseBuilder responseBuilder = Response.ok(is);
-          responseBuilder.type("application/vnd.ms-powerpoint");
           responseBuilder.header("Content-Disposition", dispositionString);
           response = responseBuilder.build();
         }

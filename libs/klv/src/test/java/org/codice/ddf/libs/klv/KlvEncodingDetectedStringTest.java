@@ -22,7 +22,7 @@ import org.codice.ddf.libs.klv.data.text.KlvEncodingDetectedString;
 import org.junit.Test;
 
 public class KlvEncodingDetectedStringTest {
-  private String testString = "test";
+  private String testString = "USA";
 
   @Test
   public void testUtf8CountryCodeRemainsUTF8()
@@ -34,9 +34,18 @@ public class KlvEncodingDetectedStringTest {
   }
 
   @Test
-  public void testUtf16CountryCodeIsHandled()
+  public void testUtf16beCountryCodeIsHandled()
       throws UnsupportedEncodingException, KlvDecodingException {
     byte[] bytes = testString.getBytes("UTF-16BE");
+
+    KlvEncodingDetectedString klvEncodingDetectedstring = createTestString("test", bytes);
+    assertThat(klvEncodingDetectedstring.getValue(), is(testString));
+  }
+
+  @Test
+  public void testUtf16leCountryCodeIsHandled()
+      throws UnsupportedEncodingException, KlvDecodingException {
+    byte[] bytes = testString.getBytes("UTF-16LE");
 
     KlvEncodingDetectedString klvEncodingDetectedstring = createTestString("test", bytes);
     assertThat(klvEncodingDetectedstring.getValue(), is(testString));

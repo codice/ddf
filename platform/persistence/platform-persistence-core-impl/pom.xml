@@ -157,7 +157,6 @@
                             platform-util,
                             commons-codec,
                             commons-collections4,
-                            gt-cql,
                             solr-factory,
                             solr-query,
                             solr-dependencies,
@@ -228,6 +227,8 @@
                             org.xml.sax,
                             org.xml.sax.ext,
                             org.xml.sax.helpers,
+                            org.geotools.filter.text.cql2,
+                            org.geotools.filter.text.ecql,
                             !jline
                         </Import-Package>
                     </instructions>

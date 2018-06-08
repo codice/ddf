@@ -297,31 +297,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     Expression expr1 = visit(filter.getExpression1(), extraData);
     Expression expr2 = visit(filter.getExpression2(), expr1);
 
-    // work around since Solr Provider doesn't support greater on temporal  (DDF-311)
-    if (isTemporalQuery(expr1, expr2)) {
-      // also not supported by provider (DDF-311)
-      // TODO: work around 1: return getFactory(extraData).after(expr1, expr2);
-      Object val = null;
-      Expression other = null;
-      if (expr2 instanceof Literal) {
-        val = ((Literal) expr2).getValue();
-        other = expr1;
-      } else if (expr1 instanceof Literal) {
-        val = ((Literal) expr1).getValue();
-        other = expr2;
-      }
-
-      if (val != null) {
-        Date orig = (Date) val;
-        orig.setTime(orig.getTime() + 1);
-        Instant start = new DefaultInstant(new DefaultPosition(orig));
-        Instant end = new DefaultInstant(new DefaultPosition(new Date()));
-        DefaultPeriod period = new DefaultPeriod(start, end);
-        Literal literal = getFactory(extraData).literal(period);
-        return getFactory(extraData).during(other, literal);
-      }
-    }
-
     return getFactory(extraData).greater(expr1, expr2);
   }
 

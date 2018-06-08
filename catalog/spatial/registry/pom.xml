@@ -138,7 +138,7 @@
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
                 <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-                <version>1.1.0_4</version>
+                <version>1.1.0_5</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
@@ -163,6 +163,7 @@
             <dependency>
                 <groupId>org.jvnet.jaxb2_commons</groupId>
                 <artifactId>jaxb2-basics-runtime</artifactId>
+                <version>${jaxb2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

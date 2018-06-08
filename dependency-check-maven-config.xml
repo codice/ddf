@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
-    <!-- FIXME - Temporary suppression. Remove when DDF-3871 has been completed -->
+
+    <!-- False positive against Tika -->
     <suppress>
-        <notes>Temporarily suppressing until goetools has been upgraded</notes>
+        <notes>These CVEs are against versions less than 1.18 and we're on 1.18. False positives</notes>
+        <cve>CVE-2016-6809</cve>
         <cve>CVE-2018-1335</cve>
     </suppress>
 

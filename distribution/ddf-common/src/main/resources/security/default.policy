@@ -196,7 +196,7 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
-grant codeBase "file:/woodstox-core-asl/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler" {
+grant codeBase "file:/woodstox-core-asl/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -267,6 +267,7 @@ grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apach
 }
 
 grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jolokia" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
@@ -294,7 +295,7 @@ grant codeBase "file:/security-rest-authentication/security-core-api/security-co
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-soap/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api" {
+grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-soap/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api/security-filter-csrf" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -526,4 +527,15 @@ grant {
     permission javax.management.MBeanTrustPermission "register";
 
     permission org.osgi.service.cm.ConfigurationPermission "*", "configure";
+
+    //Linux specific permissions
+    permission java.io.FilePermission "/dev", "read";
+    permission java.io.FilePermission "/proc", "read";
+    permission java.io.FilePermission "/sys", "read";
+    permission java.io.FilePermission "/dev/-", "read";
+    permission java.io.FilePermission "/proc/-", "read";
+    permission java.io.FilePermission "/sys/-", "read";
+    permission java.io.FilePermission "/etc/hosts", "read";
+    permission java.io.FilePermission "/etc/hostname", "read";
+    permission java.io.FilePermission "/etc/resolv.conf", "read";
 };

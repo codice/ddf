@@ -27,7 +27,6 @@
         <info.ganglia.gmetric4j.version>1.0.7</info.ganglia.gmetric4j.version>
         <org.slf4j.version>1.7.7</org.slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        <jts.version>1.14.0</jts.version>
         <dropwizard.version>3.2.2</dropwizard.version>
     </properties>
     <dependencies>
@@ -44,12 +43,10 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-io</artifactId>
-            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>

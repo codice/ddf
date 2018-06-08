@@ -136,28 +136,6 @@ public interface MetricsRetriever {
       throws IOException, MetricsGraphException;
 
   /**
-   * Retrieves the metric's data as a PPT (PowerPoint) formatted stream from the specified RRD file
-   * over the specified time range. This PPT stream will consist of a single slide containing:
-   *
-   * <ul>
-   *   <li>a title based on the metric's name
-   *   <li>a PNG-formatted graph of the metric's data
-   *   <li>if the metric has a total count, then this will be in the last row of the spreadsheet
-   * </ul>
-   *
-   * @param metricName name of the metric to retrieve data for
-   * @param rrdFilename name of the RRD file to retrieve the metric's data from
-   * @param startTime start time, in seconds since Unix epoch, to retrieve metric's data
-   * @param endTime end time, in seconds since Unix epoch, to retrieve metric's data
-   * @return PPT-formatted stream of the metric's data
-   * @throws IOException
-   * @throws MetricsGraphException
-   */
-  public OutputStream createPptData(
-      String metricName, String rrdFilename, long startTime, long endTime)
-      throws IOException, MetricsGraphException;
-
-  /**
    * Retrieves the metric's data as a JSON formatted string from the specified RRD file over the
    * specified time range.
    *
@@ -215,23 +193,5 @@ public interface MetricsRetriever {
       long startTime,
       long endTime,
       String summaryInterval)
-      throws IOException, MetricsGraphException;
-
-  /**
-   * Returns a PPT (PowerPoint) formatted stream over the specified time range that contains one
-   * slide for each metric. Refer to the createPptData() method for a description of what each slide
-   * would contain.
-   *
-   * @param metricNames names of the metrics to retrieve data for
-   * @param metricsDir directory containing all of the metrics' RRD files, typically
-   *     <DDF_INSTALL_DIR>/data/metrics
-   * @param startTime start time, in seconds since Unix epoch, to retrieve metric's data
-   * @param endTime end time, in seconds since Unix epoch, to retrieve metric's data
-   * @return PPT-formatted stream of all metrics' data
-   * @throws IOException
-   * @throws MetricsGraphException
-   */
-  public OutputStream createPptReport(
-      List<String> metricNames, String metricsDir, long startTime, long endTime)
       throws IOException, MetricsGraphException;
 }

@@ -15,7 +15,6 @@ package org.codice.ddf.opensearch.endpoint.query;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -750,14 +749,6 @@ public class OpenSearchQueryTest {
     AndImpl topFilter = (AndImpl) filter;
     List<Filter> spatialFilters = topFilter.getChildren();
     assertThat(spatialFilters.size(), is(5));
-    assertThat(
-        spatialFilters,
-        containsInAnyOrder(
-            D_WITHIN_FILTER,
-            INTERSECTS_FILTER,
-            INTERSECTS_FILTER,
-            INTERSECTS_FILTER_2,
-            GEOMETRY_COLLECTION));
 
     for (Filter spatialFilter : spatialFilters) {
       if (spatialFilter instanceof DWithinImpl) {

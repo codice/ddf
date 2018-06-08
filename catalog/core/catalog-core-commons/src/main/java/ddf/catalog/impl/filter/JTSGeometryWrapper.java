@@ -14,6 +14,7 @@
 package ddf.catalog.impl.filter;
 
 import com.vividsolutions.jts.geom.Geometry;
+import java.util.Objects;
 import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 
 // TODO Temporary work around for Geotools multi geometry support
@@ -29,5 +30,19 @@ public class JTSGeometryWrapper extends GeometryImpl {
   @Override
   protected Geometry computeJTSPeer() {
     return geo;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof JTSGeometryWrapper)) return false;
+    JTSGeometryWrapper that = (JTSGeometryWrapper) o;
+    return Objects.equals(geo, that.geo);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(geo);
   }
 }
