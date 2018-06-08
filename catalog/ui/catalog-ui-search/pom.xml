@@ -297,6 +297,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <!-- Bulk XML test resources more concise without the header -->
                     <excludes>src/test/resources/forms/</excludes>
