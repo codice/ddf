@@ -16,6 +16,8 @@ package ddf.catalog.solr.provider;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.source.solr.RemoteSolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
+import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.solr.factory.SolrClientFactory;
 
 /** Catalog Provider that interfaces with Solr */
@@ -29,5 +31,14 @@ public class SolrCatalogProvider extends RemoteSolrCatalogProvider {
         clientFactory.newClient(SOLR_CATALOG_CORE_NAME),
         solrFilterDelegateFactory,
         null);
+  }
+
+  public void setAnyTextAttributes(List<String> anyTextAttributes) {
+    super.resolver = null;
+    this.anyTextAttributes.clear();
+    if (CollectionUtils.isNotEmpty(anyTextAttributes)) {
+      this.anyTextAttributes.addAll(anyTextAttributes);
+    }
+    init();
   }
 }

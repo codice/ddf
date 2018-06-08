@@ -126,6 +126,8 @@ public class DynamicSchemaResolver {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
+  private static final String ANY_ATTRIBUTE = "*";
+
   static {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     try {
@@ -148,6 +150,8 @@ public class DynamicSchemaResolver {
 
   protected Set<String> anyTextFieldsCache = new HashSet<>();
 
+  protected Set<String> anyTextAttributesWhitelist = new HashSet<>();
+
   protected SchemaFields schemaFields;
 
   protected Cache<String, MetacardType> metacardTypesCache =
@@ -156,9 +160,18 @@ public class DynamicSchemaResolver {
   protected Cache<String, byte[]> metacardTypeNameToSerialCache =
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
+  protected List<String> additionalFields = new ArrayList<>();
+
   private Processor processor = new Processor(new Config());
 
-  public DynamicSchemaResolver(List<String> additionalFields) {
+  public DynamicSchemaResolver(
+      List<String> anyTextAttributeWhitelist, List<String> additionalFields) {
+    if (anyTextAttributeWhitelist != null) {
+      this.anyTextAttributesWhitelist.addAll(anyTextAttributeWhitelist);
+    }
+    if (additionalFields != null) {
+      this.additionalFields.addAll(additionalFields);
+    }
     this.schemaFields = new SchemaFields();
 
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
@@ -167,15 +180,19 @@ public class DynamicSchemaResolver {
         Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
     fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
 
-    anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
+    if (shouldAddAnyTextAttribute(Metacard.METADATA)) {
+      anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
+    }
     Set<String> basicTextAttributes =
         MetacardImpl.BASIC_METACARD
             .getAttributeDescriptors()
             .stream()
             .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
+            .filter(descriptor -> shouldAddAnyTextAttribute(descriptor.getName()))
             .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
             .collect(Collectors.toSet());
     anyTextFieldsCache.addAll(basicTextAttributes);
+
     fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
 
@@ -190,7 +207,7 @@ public class DynamicSchemaResolver {
   }
 
   public DynamicSchemaResolver() {
-    this(Collections.emptyList());
+    this(Collections.emptyList(), Collections.emptyList());
   }
 
   /**
@@ -238,7 +255,13 @@ public class DynamicSchemaResolver {
       String key = e.getKey();
       fieldsCache.add(key);
       if (key.endsWith(SchemaFields.TEXT_SUFFIX)) {
-        anyTextFieldsCache.add(key);
+        String attributeName = key;
+        if (key.contains("_")) {
+          attributeName = key.substring(0, key.indexOf('_'));
+        }
+        if (StringUtils.isNotBlank(attributeName) && shouldAddAnyTextAttribute(attributeName)) {
+          anyTextFieldsCache.add(key);
+        }
       }
     }
   }
@@ -698,7 +721,9 @@ public class DynamicSchemaResolver {
                 + schemaFields.getFieldSuffix(format)
                 + getSpecialIndexSuffix(format)
                 + SchemaFields.HAS_CASE);
-        anyTextFieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
+        if (shouldAddAnyTextAttribute(ad.getName())) {
+          anyTextFieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
+        }
       }
 
       if (format.equals(AttributeFormat.XML)) {
@@ -710,6 +735,9 @@ public class DynamicSchemaResolver {
                 + SchemaFields.HAS_CASE);
         fieldsCache.add(
             ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(format));
+        if (anyTextAttributesWhitelist.contains(ad.getName())) {
+          anyTextFieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
+        }
       }
     }
   }
@@ -843,6 +871,22 @@ public class DynamicSchemaResolver {
     }
 
     return newAttributeDescriptors;
+  }
+
+  private boolean shouldAddAnyTextAttribute(String attributeName) {
+    if (CollectionUtils.isEmpty(anyTextAttributesWhitelist)
+        || anyTextAttributesWhitelist.contains(ANY_ATTRIBUTE)) {
+      LOGGER.trace("Should add {} : TRUE", attributeName);
+      return true;
+    } else {
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace(
+            "Should add {} : {}",
+            attributeName,
+            anyTextAttributesWhitelist.contains(attributeName));
+      }
+      return anyTextAttributesWhitelist.contains(attributeName);
+    }
   }
 
   public String getSortKey(String field) {

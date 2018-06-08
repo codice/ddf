@@ -22,6 +22,7 @@ import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +46,7 @@ class CacheSolrMetacardClient extends SolrMetacardClientImpl {
         client,
         catalogFilterAdapter,
         solrFilterDelegateFactory,
-        new DynamicSchemaResolver(ADDITIONAL_FIELDS));
+        new DynamicSchemaResolver(Collections.emptyList(), ADDITIONAL_FIELDS));
   }
 
   @Override
