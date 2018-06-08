@@ -63,7 +63,7 @@ public class SPMetadataParser {
 
       spMap.putAll(
           metadataConfigurationParser
-              .getEntryDescriptions()
+              .getEntityDescriptors()
               .entrySet()
               .stream()
               .map(

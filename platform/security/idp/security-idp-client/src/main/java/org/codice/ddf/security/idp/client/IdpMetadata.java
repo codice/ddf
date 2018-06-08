@@ -82,7 +82,7 @@ public class IdpMetadata {
     }
   }
 
-  private void initSingleSignOut() {
+  private void initSingleLogout() {
     IDPSSODescriptor descriptor = getDescriptor();
     if (descriptor != null) {
 
@@ -235,7 +235,7 @@ public class IdpMetadata {
       LOGGER.debug("Error parsing SSO metadata", e);
       return null;
     }
-    processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
+    processMap.putAll(metadataConfigurationParser.getEntityDescriptors());
 
     return processMap;
   }
@@ -259,12 +259,12 @@ public class IdpMetadata {
   }
 
   public String getSingleLogoutBinding() {
-    initSingleSignOut();
+    initSingleLogout();
     return singleLogoutBinding;
   }
 
   public String getSingleLogoutLocation() {
-    initSingleSignOut();
+    initSingleLogout();
     return singleLogoutLocation;
   }
 

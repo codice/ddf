@@ -23,6 +23,7 @@ import ddf.security.liberty.paos.impl.RequestUnmarshaller;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
+import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.impl.RelayStates;
 import java.io.IOException;
@@ -524,7 +525,7 @@ public class IdpHandler implements AuthenticationHandler {
 
     authnRequest.setDestination(idpMetadata.getSingleSignOnLocation());
 
-    authnRequest.setProtocolBinding(idpMetadata.getSingleSignOnBinding());
+    authnRequest.setProtocolBinding(SamlProtocol.POST_BINDING);
     authnRequest.setNameIDPolicy(
         SamlpRequestComponentBuilder.createNameIDPolicy(
             true, SAML2Constants.NAMEID_FORMAT_PERSISTENT, spIssuerId));

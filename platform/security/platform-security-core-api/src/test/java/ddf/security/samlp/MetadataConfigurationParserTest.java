@@ -47,7 +47,8 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public class MetadataConfigurationParserTest {
 
-  private Path descriptorPath;
+  private Path entityDescriptorPath;
+  private Path entitiesDescriptorPath;
 
   private HttpServer server;
 
@@ -62,8 +63,10 @@ public class MetadataConfigurationParserTest {
     MockitoAnnotations.initMocks(this);
     OpenSAMLUtil.initSamlEngine();
 
-    descriptorPath =
+    entityDescriptorPath =
         Paths.get(getClass().getResource("/etc/metadata/entityDescriptor.xml").toURI());
+    entitiesDescriptorPath =
+        Paths.get(getClass().getResource("/etc/metadata/entitiesDescriptor.xml").toURI());
     System.setProperty("ddf.home", "");
 
     this.server =
@@ -93,33 +96,48 @@ public class MetadataConfigurationParserTest {
   }
 
   private void metadataFolderEntities(Consumer<EntityDescriptor> updateCallback) throws Exception {
-    System.setProperty("ddf.home", descriptorPath.getParent().getParent().getParent().toString());
+    System.setProperty(
+        "ddf.home", entityDescriptorPath.getParent().getParent().getParent().toString());
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.emptyList(), updateCallback);
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
-    assertThat(entities.size(), is(1));
+    assertThat(entities.size(), is(3));
   }
 
   @Test
-  public void testMetadataFile() throws Exception {
-    metadataFile(null);
+  public void testMetadataFileForEntityDescriptor() throws Exception {
+    metadataFile(entityDescriptorPath, null, 1);
   }
 
   @Test
-  public void testMetadataFileCallback() throws Exception {
+  public void testMetadataFileCallbackForEntityDescriptor() throws Exception {
     AtomicBoolean invoked = new AtomicBoolean(false);
-    metadataFile(ed -> invoked.set(true));
+    metadataFile(entityDescriptorPath, ed -> invoked.set(true), 1);
     assertThat("Callback was not invoked", invoked.get());
   }
 
-  private void metadataFile(Consumer<EntityDescriptor> updateCallback) throws IOException {
+  @Test
+  public void testMetadataFileForEntitiesDescriptor() throws Exception {
+    metadataFile(entitiesDescriptorPath, null, 2);
+  }
+
+  @Test
+  public void testMetadataFileCallbackForEntitieDescriptor() throws Exception {
+    AtomicBoolean invoked = new AtomicBoolean(false);
+    metadataFile(entitiesDescriptorPath, ed -> invoked.set(true), 2);
+    assertThat("Callback was not invoked", invoked.get());
+  }
+
+  private void metadataFile(
+      Path filePath, Consumer<EntityDescriptor> updateCallback, int expectedSize)
+      throws IOException {
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(
-            Collections.singletonList("file:" + descriptorPath.toString()), updateCallback);
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+            Collections.singletonList("file:" + filePath.toString()), updateCallback);
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
-    assertThat(entities.size(), is(1));
+    assertThat(entities.size(), is(expectedSize));
   }
 
   @Test
@@ -137,20 +155,21 @@ public class MetadataConfigurationParserTest {
   private void metadataString(Consumer<EntityDescriptor> updateCallback) throws IOException {
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(
-            Collections.singletonList(IOUtils.toString(descriptorPath.toUri())), updateCallback);
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+            Collections.singletonList(IOUtils.toString(entityDescriptorPath.toUri())),
+            updateCallback);
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
     assertThat(entities.size(), is(1));
   }
 
   @Test
   public void testMetadataHttp() throws Exception {
-    serverRespondsWith(IOUtils.toString(descriptorPath.toUri()));
+    serverRespondsWith(IOUtils.toString(entityDescriptorPath.toUri()));
 
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
 
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
     while (entities.size() != 1) {
       TimeUnit.MILLISECONDS.sleep(10);
@@ -163,7 +182,7 @@ public class MetadataConfigurationParserTest {
   public void testMetadataBadString() throws Exception {
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("bad xml"));
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
     assertThat(entities.size(), is(0));
   }
@@ -172,14 +191,14 @@ public class MetadataConfigurationParserTest {
   public void testMetadataBadFile() throws Exception {
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("file:bad path"));
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
 
     assertThat(entities.size(), is(0));
   }
 
   @Test
   public void testRootElementNoCacheDuration() throws Exception {
-    String xml = IOUtils.toString(descriptorPath.toUri());
+    String xml = IOUtils.toString(entityDescriptorPath.toUri());
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
@@ -190,7 +209,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testRootElementValidUntil() throws Exception {
-    String xml = IOUtils.toString(descriptorPath.toUri());
+    String xml = IOUtils.toString(entityDescriptorPath.toUri());
     DateTime validUntil = DateTime.now().plusYears(1);
     String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil.toDate());
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);
@@ -203,7 +222,7 @@ public class MetadataConfigurationParserTest {
     serverRespondsWith(xml);
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
-    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntityDescriptors();
     String key = "https://localhost:8993/services/idp/login";
     assertThat("Missing SAML entity. Test cannot proceed.", entities, hasKey(key));
     return entities.get(key);
