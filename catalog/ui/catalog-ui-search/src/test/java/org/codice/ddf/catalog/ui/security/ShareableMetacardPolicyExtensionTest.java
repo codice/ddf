@@ -14,8 +14,8 @@
 package org.codice.ddf.catalog.ui.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,11 +32,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.shiro.authz.Permission;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ShareableMetacardPolicyExtensionTest {
 
-  private static final Permission SYSTEM_ROLE =
+  private static final Permission DEFAULT_SYSTEM_ROLE =
       makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of("system-user"));
 
   private static final Set<String> VALUES = ImmutableSet.of("value1", "value2", "value3");
@@ -65,47 +66,6 @@ public class ShareableMetacardPolicyExtensionTest {
     extension = new ShareableMetacardPolicyExtension(config, subjectIdentity);
   }
 
-  private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
-    return new CollectionPermission() {
-      @Override
-      public boolean implies(Permission p) {
-        return fn.test((KeyValuePermission) p);
-      }
-    };
-  }
-
-  private static CollectionPermission subjectFrom(List<Permission> ps) {
-    return makeSubject(
-        (KeyValuePermission p2) ->
-            ps.stream().filter((p1) -> p1.equals(p2)).findFirst().isPresent());
-  }
-
-  private static CollectionPermission subjectFrom(Permission p) {
-    return subjectFrom(ImmutableList.of(p));
-  }
-
-  private static KeyValuePermission makePermission(String key, Set<String> values) {
-    return new KeyValuePermission(key, values) {
-      @Override
-      public boolean equals(Object obj) {
-        KeyValuePermission permission = (KeyValuePermission) obj;
-        return permission.getKey().equals(this.getKey())
-            && permission.getValues().equals(this.getValues());
-      }
-
-      @Override
-      public int hashCode() {
-        return 0;
-      }
-    };
-  }
-
-  private static KeyValueCollectionPermission coll(List<Permission> permissions) {
-    KeyValueCollectionPermission match = mock(KeyValueCollectionPermission.class);
-    doReturn(permissions).when(match).getPermissionList();
-    return match;
-  }
-
   @Test
   public void testSharedMetacardTagShouldAlwaysBeImplied() {
     List<Permission> before = ImmutableList.of(RANDOM);
@@ -115,7 +75,8 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(RANDOM)));
+    // The policy extension did not remove ("imply") any of the permissions
+    assertThat(after, is(before));
   }
 
   @Test
@@ -152,7 +113,7 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(before));
   }
 
   @Test
@@ -178,23 +139,24 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(before));
   }
 
   @Test
   public void testSystemShouldImplyAll() {
     List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
-    CollectionPermission subject = subjectFrom(SYSTEM_ROLE);
+    CollectionPermission subject = subjectFrom(DEFAULT_SYSTEM_ROLE);
 
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of()));
+    assertThat(after, is(empty()));
   }
 
   @Test
-  public void testOwnerShouldImplAll() {
+  // TODO: Understand distinction with testMatchOneOnwerShouldImplyAll
+  public void testOwnerShouldImplyAll() {
     List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject =
@@ -203,7 +165,7 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of()));
+    assertThat(after, is(empty()));
   }
 
   @Test
@@ -220,7 +182,7 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of()));
+    assertThat(after, is(empty()));
   }
 
   @Test
@@ -237,7 +199,7 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of()));
+    assertThat(after, is(empty()));
   }
 
   @Test
@@ -252,7 +214,7 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of()));
+    assertThat(after, is(empty()));
   }
 
   @Test
@@ -267,6 +229,82 @@ public class ShareableMetacardPolicyExtensionTest {
     List<Permission> after =
         extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
-    assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
+    assertThat(after, is(before));
+  }
+
+  @Test
+  @Ignore
+  // TODO: Understand distinction
+  public void testMatchOneOwnerShouldImplyAll() {
+    List<Permission> before = ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM);
+
+    CollectionPermission subject =
+        subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
+
+    List<Permission> after =
+        extension.isPermittedMatchOne(subject, coll(before), coll(before)).getPermissionList();
+
+    assertThat(after, is(empty()));
+  }
+
+  private static KeyValueCollectionPermission coll(List<Permission> permissions) {
+    KeyValueCollectionPermission match = new KeyValueCollectionPermission();
+    match.addAll(permissions);
+    return match;
+  }
+
+  private static CollectionPermission subjectFrom(Permission p) {
+    return makeSubject(p::equals);
+  }
+
+  private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
+    return new TestPredicateCollectionPermission(fn);
+  }
+
+  private static KeyValuePermission makePermission(String key, Set<String> values) {
+    return new TestKeyValuePermission(key, values);
+  }
+
+  /**
+   * An implementation of {@link CollectionPermission} that implies based upon the provided {@link
+   * Predicate}.
+   */
+  private static class TestPredicateCollectionPermission extends CollectionPermission {
+    private final Predicate<KeyValuePermission> predicate;
+
+    TestPredicateCollectionPermission(Predicate<KeyValuePermission> predicate) {
+      super();
+      this.predicate = predicate;
+    }
+
+    @Override
+    public boolean implies(Permission p) {
+      return predicate.test((KeyValuePermission) p);
+    }
+  }
+
+  /**
+   * Simple {@link KeyValuePermission} that overrides {@link #equals(Object)} for the sake of
+   * testing.
+   */
+  private static class TestKeyValuePermission extends KeyValuePermission {
+    TestKeyValuePermission(String key, Set<String> values) {
+      super(key, values);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof KeyValuePermission)) {
+        return false;
+      }
+      KeyValuePermission permission = (KeyValuePermission) obj;
+      return permission.getKey().equals(this.getKey())
+          && permission.getValues().equals(this.getValues());
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
   }
 }
