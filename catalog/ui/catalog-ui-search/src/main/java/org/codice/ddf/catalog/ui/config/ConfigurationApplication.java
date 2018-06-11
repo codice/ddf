@@ -734,7 +734,7 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public void setOnlineGazetteerEnabled(Boolean onlineGazetteerEnabled) {
-    onlineGazetteerEnabled = onlineGazetteerEnabled;
+    this.onlineGazetteerEnabled = onlineGazetteerEnabled;
   }
 
   public Boolean getIngestEnabled() {
