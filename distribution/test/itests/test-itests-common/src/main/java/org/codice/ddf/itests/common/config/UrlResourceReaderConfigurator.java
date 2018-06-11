@@ -15,6 +15,7 @@ package org.codice.ddf.itests.common.config;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,8 @@ public class UrlResourceReaderConfigurator {
 
   private static final String PID = "ddf.catalog.resource.impl.URLResourceReader";
 
+  private static final String ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY = "rootResourceDirectories";
+
   private ConfigurationAdmin configAdmin;
 
   public UrlResourceReaderConfigurator(ConfigurationAdmin configAdmin) {
@@ -37,21 +40,54 @@ public class UrlResourceReaderConfigurator {
   }
 
   public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
+    Set<String> newRootResourceDirs = ImmutableSet.<String>builder().add(rootResourceDirs).build();
+
     Configuration configuration = configAdmin.getConfiguration(PID, null);
+
+    if (configuration == null) {
+      LOGGER.warn(
+          "{} configuration was null, cannot update {}",
+          PID,
+          ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY);
+      return;
+    }
+
+    if (configuration.getProperties() != null) {
+      Set<String> currentRootResourceDirs =
+          ImmutableSet.copyOf(
+              (Collection<String>)
+                  configuration.getProperties().get(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY));
+
+      LOGGER.debug(
+          "{} {}, current value: {}, new value: {}",
+          PID,
+          ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY,
+          currentRootResourceDirs,
+          newRootResourceDirs);
+
+      if (rootResourceDirsEqual(currentRootResourceDirs, newRootResourceDirs)) {
+        LOGGER.debug(
+            "{} {} unchanged, skipping update", PID, ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY);
+        return;
+      }
+    }
+
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    Set<String> rootResourceDirectories =
-        ImmutableSet.<String>builder().add(rootResourceDirs).build();
-    properties.put("rootResourceDirectories", rootResourceDirectories);
+    properties.put(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY, newRootResourceDirs);
     configuration.update(properties);
+
     for (int i = 0; i < 5; i++) {
       Configuration updatedConfig = configAdmin.getConfiguration(PID, null);
+
       if (updatedConfig
           .getProperties()
-          .get("rootResourceDirectories")
-          .equals(rootResourceDirectories)) {
+          .get(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY)
+          .equals(newRootResourceDirs)) {
         break;
       }
+
       boolean interrupted = false;
+
       try {
         TimeUnit.SECONDS.sleep(5);
       } catch (InterruptedException e) {
@@ -62,6 +98,13 @@ public class UrlResourceReaderConfigurator {
         }
       }
     }
-    LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties());
+
+    LOGGER.debug("{} properties after update: {}", PID, configuration.getProperties());
+  }
+
+  private boolean rootResourceDirsEqual(
+      Set<String> currentRootResourceDirs, Set<String> newRootResourceDirs) {
+    return (currentRootResourceDirs.size() == newRootResourceDirs.size())
+        && newRootResourceDirs.containsAll(currentRootResourceDirs);
   }
 }

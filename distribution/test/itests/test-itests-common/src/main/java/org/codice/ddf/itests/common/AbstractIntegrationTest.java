@@ -66,6 +66,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
@@ -77,6 +78,8 @@ import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
 import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
+import org.junit.rules.Stopwatch;
+import org.junit.runner.Description;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
@@ -149,6 +152,8 @@ public abstract class AbstractIntegrationTest {
   protected static String ddfHome;
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
+
+  @Rule public Stopwatch stopwatch = new TestMethodTimer();
 
   @Inject protected ConfigurationAdmin configAdmin;
 
@@ -1015,6 +1020,18 @@ public abstract class AbstractIntegrationTest {
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  private static class TestMethodTimer extends Stopwatch {
+    @Override
+    protected void succeeded(long nanos, Description description) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "{} execution time: {}",
+            description.getMethodName(),
+            DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(nanos), "HH:mm:ss.S"));
       }
     }
   }
