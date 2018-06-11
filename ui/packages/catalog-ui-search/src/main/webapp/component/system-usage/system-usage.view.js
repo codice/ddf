@@ -23,7 +23,7 @@ var $ = require('jquery');
 
 function getSrc() {
     return '<html class="is-iframe" style="font-size: '+preferences.get('fontSize')+'px">' +
-    '<link href="css/styles.' + document.querySelector('link[href*="css/styles."]').href.split('css/styles.')[1] + '" rel="stylesheet">' +
+    '<link href="styles.' + document.querySelector('link[href*="styles."]').href.split('styles.')[1] + '" rel="stylesheet">' +
     properties.ui.systemUsageMessage +
     '</html>';
 }
