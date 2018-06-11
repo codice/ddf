@@ -53,11 +53,7 @@ import us.bpsm.edn.EdnSyntaxException;
 import us.bpsm.edn.parser.Parser;
 import us.bpsm.edn.parser.Parsers;
 
-/**
- * Stores external configuration properties.
- *
- * @author ddf.isgs@lmco.com
- */
+/** Stores external configuration properties. */
 @Path("/")
 public class ConfigurationStore {
 

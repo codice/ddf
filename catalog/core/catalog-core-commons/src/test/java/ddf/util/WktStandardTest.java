@@ -30,7 +30,6 @@ import org.junit.Test;
  *
  * @author Ashraf Barakat
  * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
  */
 public class WktStandardTest {
 

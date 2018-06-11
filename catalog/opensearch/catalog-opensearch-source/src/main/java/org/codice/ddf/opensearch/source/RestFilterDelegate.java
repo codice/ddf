@@ -21,7 +21,6 @@ import java.util.List;
  * Used to find Filter objects that can be fulfilled by a DDF REST request.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class RestFilterDelegate extends SimpleFilterDelegate<RestUrl> {
 

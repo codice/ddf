@@ -22,8 +22,6 @@ import ddf.catalog.data.Metacard;
  *   <li>a method of creating, updating, and deleting subscriptions.
  *   <li>a method of broadcasting events when {@link Metacard}s are created, updated, or deleted.
  * </ul>
- *
- * @author ddf.isgs@lmco.com
  */
 public interface EventProcessor {
 

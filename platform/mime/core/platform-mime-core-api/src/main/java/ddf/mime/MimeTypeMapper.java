@@ -19,7 +19,7 @@ import java.io.InputStream;
  * Interface defining a mapper that accesses {@link MimeTypeResolver}s to retieve file extension for
  * a given mime type, and vice versa.
  *
- * @author Hugh Rodgers, Lockheed Martin
+ * @author Hugh Rodgers
  * @author ddf.isgs@lmco.com
  */
 public interface MimeTypeMapper {

@@ -44,7 +44,6 @@ import org.osgi.framework.InvalidSyntaxException;
  * SubjectCommands} that Catalog Commands can use.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public abstract class CatalogCommands extends SubjectCommands {
 

@@ -19,8 +19,7 @@ import org.opengis.filter.Filter;
  * Continues the fluent API to create {@link Filter} based on a particular {@link
  * ddf.catalog.data.Attribute}
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface ExpressionBuilder extends EqualityExpressionBuilder {
 

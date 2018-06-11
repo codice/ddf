@@ -46,7 +46,6 @@ import org.codice.ddf.configuration.SystemInfo;
  * Catalog plug-in to capture metrics on catalog operations.
  *
  * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
  */
 public final class CatalogMetrics
     implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {

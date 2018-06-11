@@ -15,11 +15,7 @@ package ddf.catalog.operation;
 
 import java.util.List;
 
-/**
- * Further specification of {@link Response} for an {@link Update} request.
- *
- * @author michael.menousek@lmco.com
- */
+/** Further specification of {@link Response} for an {@link Update} request. */
 public interface UpdateResponse extends Response<UpdateRequest> {
   /**
    * Get the {@link Update}s that occurred

@@ -85,8 +85,7 @@ import org.slf4j.LoggerFactory;
  * </tr>
  * </table>
  *
- * @author Sam Patel, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Sam Patel
  */
 public class FrameworkProducer extends DefaultProducer {
 

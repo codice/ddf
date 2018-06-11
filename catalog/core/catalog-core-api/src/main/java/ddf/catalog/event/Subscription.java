@@ -22,8 +22,6 @@ import org.opengis.filter.Filter;
  *
  * <p>Since the {@code Subscription} extends the {@link Filter} class, the {@code Subscription} must
  * conform to the OGC Filter structure.
- *
- * @author ddf.isgs@lmco.com
  */
 public interface Subscription extends Filter, Federatable {
 

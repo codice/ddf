@@ -18,8 +18,7 @@ import org.opengis.filter.Filter;
 /**
  * Complete the fluent API to build a spatial {@link Filter}
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface SpatialExpressionBuilder {
 

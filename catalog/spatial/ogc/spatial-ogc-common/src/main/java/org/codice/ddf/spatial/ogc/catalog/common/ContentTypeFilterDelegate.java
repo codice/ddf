@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
  * Extracts list of content types from filter
  *
  * @author Jason Smith
- * @author ddf.isgs@lmco.com
  */
 public class ContentTypeFilterDelegate extends SimpleFilterDelegate<List<ContentType>> {
 

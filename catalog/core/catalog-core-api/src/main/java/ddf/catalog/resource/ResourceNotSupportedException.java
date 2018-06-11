@@ -21,8 +21,6 @@ package ddf.catalog.resource;
  * or value not supported by the {@link CatalogFramework} or {@link ResourceReader}. Also, when the
  * resource URI has a scheme that the {@link ResourceReader} or {@link CatalogFramework} doesn't
  * support.
- *
- * @author michael.menousek@lmco.com
  */
 public class ResourceNotSupportedException extends Exception {
 

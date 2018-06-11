@@ -17,7 +17,7 @@ package ddf.mime;
  * Interface defining an OSGi service that can map a list of file extensions to their corresponding
  * mime types, and vice versa.
  *
- * @author Hugh Rodgers, Lockheed Martin
+ * @author Hugh Rodgers
  * @author ddf.isgs@lmco.com
  */
 public interface MimeTypeResolver {

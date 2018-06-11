@@ -19,8 +19,7 @@ import org.opengis.filter.Filter;
 /**
  * Finishes the fluent API to create a Temporal Range {@link Filter}
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface TemporalRangeExpressionBuilder {
 

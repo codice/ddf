@@ -22,8 +22,6 @@ import java.util.Map;
  * The {@code QueryResponseTransformer} is used to transform a list of {@link
  * ddf.catalog.data.Result} objects from a {@link SourceResponse}. For example, if the list of
  * results contains XML data, the entire list can be transformed to HTML data.
- *
- * @author ddf.isgs@lmco.com
  */
 public interface QueryResponseTransformer {
 

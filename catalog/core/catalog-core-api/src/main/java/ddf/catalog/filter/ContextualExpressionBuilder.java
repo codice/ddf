@@ -18,8 +18,7 @@ import org.opengis.filter.Filter;
 /**
  * Completes building a {@link Filter} based on Contextual relevance
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface ContextualExpressionBuilder {
 

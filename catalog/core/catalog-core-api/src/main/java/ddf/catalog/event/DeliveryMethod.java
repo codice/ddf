@@ -19,7 +19,6 @@ import ddf.catalog.data.Metacard;
  * The DeliveryMethod provides the operation (created, updated, deleted) of how a {@link Metacard}
  * can be delivered.
  *
- * @author ddf.isgs@lmco.com
  * @see Subscription
  */
 public interface DeliveryMethod {

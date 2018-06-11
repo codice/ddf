@@ -30,9 +30,8 @@ import org.slf4j.LoggerFactory;
  * Consumer for the custom Camel CatalogComponent. This {@link Consumer} would map to a Camel <from>
  * route node with a URI like <code>catalog:inputtransformer</code>
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public class InputTransformerConsumer extends TransformerConsumer implements InputTransformer {
   private static final transient Logger LOGGER =

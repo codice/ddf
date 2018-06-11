@@ -15,10 +15,7 @@ package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
 
-/**
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
- */
+/** @author Michael Menousek */
 public interface NumericalRangeExpressionBuilder {
 
   /**

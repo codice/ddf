@@ -42,8 +42,6 @@ public interface AttributeType<T extends Serializable> extends Serializable {
   /**
    * {@link java.util.Enumeration} used to indicate formats of {@link Attribute}s. Because JDK 1.6
    * cannot switch on <code>instanceof</code>, an {@link java.util.Enumeration} is used instead.
-   *
-   * @author michael.menousek@lmco.com
    */
   public enum AttributeFormat {
 

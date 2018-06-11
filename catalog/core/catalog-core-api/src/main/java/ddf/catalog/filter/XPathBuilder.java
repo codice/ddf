@@ -18,8 +18,7 @@ import org.opengis.filter.Filter;
 /**
  * Builds XPath {@link Filter}s
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface XPathBuilder extends XPathBasicBuilder {
 

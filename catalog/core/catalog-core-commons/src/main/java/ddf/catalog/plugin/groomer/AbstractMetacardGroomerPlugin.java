@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * Abstract class that can be extended to create another rule set for grooming a metacard.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
 

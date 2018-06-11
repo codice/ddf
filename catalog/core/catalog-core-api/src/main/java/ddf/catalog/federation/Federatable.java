@@ -15,11 +15,7 @@ package ddf.catalog.federation;
 
 import java.util.Set;
 
-/**
- * Interface describing an object that can be federated with other {@link Source}s
- *
- * @author ddf.isgs@lmco.com
- */
+/** Interface describing an object that can be federated with other {@link Source}s */
 public interface Federatable {
 
   /**

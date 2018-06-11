@@ -59,7 +59,6 @@ import org.opengis.filter.Filter;
  * Tests {@link CatalogMetrics}
  *
  * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
  */
 public class CatalogMetricsTest {
 

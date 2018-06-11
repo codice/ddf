@@ -19,9 +19,8 @@ import ddf.catalog.data.Metacard;
  * A service that validates a Metacard and provides information if problems exist with the Metacard
  * data.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author Ashraf Barakat, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
+ * @author Ashraf Barakat
  */
 public interface MetacardValidator {
 

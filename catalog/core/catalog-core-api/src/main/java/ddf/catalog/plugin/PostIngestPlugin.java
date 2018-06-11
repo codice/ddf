@@ -20,8 +20,6 @@ import ddf.catalog.operation.UpdateResponse;
 /**
  * Marker interface for services that wish to be called after any {@link CreateResponse}, {@link
  * UpdateResponse}, or {@link DeleteResponse} is about to be returned to an endpoint.
- *
- * @author michael.menousek@lmco.com
  */
 public interface PostIngestPlugin {
 

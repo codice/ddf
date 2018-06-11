@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
  * Represents the component that manages {@link CatalogEndpoint} and resolves to <code>catalog
  * </code> custom scheme in Camel route nodes.
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public class CatalogComponent extends DefaultComponent {
   public static final String ID_PARAMETER = "id";

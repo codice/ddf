@@ -23,7 +23,6 @@ import java.util.Map.Entry;
  * Metacard/Attribute pair will only update a single Metacard.
  *
  * @see ddf.catalog.source.CatalogProvider
- * @author ddf.isgs@lmco.com
  */
 public interface UpdateRequest extends Request {
 

@@ -16,11 +16,7 @@ package ddf.catalog.plugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Update;
 
-/**
- * The PreDeliveryPlugin is executed prior to an event being delivered.
- *
- * @author michael.menousek@lmco.com
- */
+/** The PreDeliveryPlugin is executed prior to an event being delivered. */
 public interface PreDeliveryPlugin {
 
   /**

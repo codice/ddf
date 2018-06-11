@@ -23,8 +23,6 @@ import org.opengis.filter.expression.PropertyName;
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link
  * ddf.catalog.filter.FilterBuilder} instead to create filters.
- *
- * @author ddf.isgs@lmco.com
  */
 public class PropertyIsEqualToLiteral implements PropertyIsEqualTo {
 

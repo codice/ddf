@@ -17,8 +17,7 @@ package ddf.camel.component.catalog.framework;
  * The exception thrown when problems in {@link
  * ddf.camel.component.catalog.framework.FrameworkProducer} are detected.
  *
- * @author Sam Patel, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Sam Patel
  */
 public class FrameworkProducerException extends Exception {
 

@@ -21,11 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
- *
- * @author ddf.isgs@lmco.com
- */
+/** Constants for basic types, both {@link MetacardType} and {@link AttributeType} */
 public class BasicTypes {
 
   /** A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE} . */

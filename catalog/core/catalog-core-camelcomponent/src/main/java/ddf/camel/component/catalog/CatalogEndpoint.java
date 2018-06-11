@@ -34,9 +34,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a Camel endpoint for the custom <code>catalog</code> Camel route node.
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public class CatalogEndpoint extends DefaultEndpoint implements MultipleConsumersSupport {
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogEndpoint.class);

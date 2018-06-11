@@ -16,8 +16,6 @@ package ddf.catalog.resource;
 /**
  * ResourceNotFoundException is thrown when a {@link ResourceReader} is unable to find a {@link
  * Resource}.
- *
- * @author michael.menousek@lmco.com
  */
 public class ResourceNotFoundException extends Exception {
 

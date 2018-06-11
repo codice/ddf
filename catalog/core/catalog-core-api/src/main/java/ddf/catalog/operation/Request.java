@@ -16,11 +16,7 @@ package ddf.catalog.operation;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Marker interface to differentiate {@link Request}s from {@link Response}s.
- *
- * @author michael.menousek@lmco.com
- */
+/** Marker interface to differentiate {@link Request}s from {@link Response}s. */
 public interface Request extends Operation {
 
   /**

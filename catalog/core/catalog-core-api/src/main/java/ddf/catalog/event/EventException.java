@@ -16,8 +16,6 @@ package ddf.catalog.event;
 /**
  * The exception thrown to capture problems during the PubSub operations create, update, and delete
  * of subscriptions.
- *
- * @author ddf.isgs@lmco.com
  */
 public class EventException extends Exception {
 

@@ -16,10 +16,7 @@ package ddf.services.schematron;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
 import java.util.List;
 
-/**
- * @author Shaun Morris, Lockheed Martin
- * @author ddf.isgs@lmco.com
- */
+/** @author Shaun Morris */
 public class SchematronValidationException extends ValidationExceptionImpl {
 
   private static final long serialVersionUID = 1L;

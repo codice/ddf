@@ -17,11 +17,7 @@ import ddf.catalog.data.Result;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Query status should come back in the properties.
- *
- * @author michael.menousek@lmco.com
- */
+/** Query status should come back in the properties. */
 public interface SourceResponse extends Response<QueryRequest> {
 
   /**

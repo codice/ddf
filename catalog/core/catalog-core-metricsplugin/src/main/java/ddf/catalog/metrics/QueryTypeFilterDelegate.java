@@ -20,7 +20,6 @@ import java.util.List;
  * Filter delegate to determine the types of filter features being used.
  *
  * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
  */
 public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 

@@ -91,7 +91,6 @@ import org.osgi.framework.ServiceReference;
  * Tests parts of the {@link OpenSearchSource}
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class OpenSearchSourceTest {
 

@@ -18,8 +18,6 @@ import ddf.catalog.data.Metacard;
 /**
  * Represents an update of a single {@link Metacard}, which has an older (previous) version and a
  * new (current) version.
- *
- * @author michael.menousek@lmco.com
  */
 public interface Update {
   /**

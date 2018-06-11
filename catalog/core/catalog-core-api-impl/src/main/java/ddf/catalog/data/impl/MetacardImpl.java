@@ -66,8 +66,6 @@ import org.slf4j.LoggerFactory;
  * <p>For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
  * Guidelines</a>.
- *
- * @author ddf.isgs@lmco.com
  */
 public class MetacardImpl implements Metacard {
 

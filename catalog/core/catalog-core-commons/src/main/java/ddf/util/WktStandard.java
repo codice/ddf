@@ -28,8 +28,6 @@ import org.apache.commons.lang.StringUtils;
  * <code>MULTIPOINT ((0 0), (10 10))</code> is in the normalized format. Some systems require a
  * different format of MULTIPOINT. The previous example would denormalize as <code>
  * MULTIPOINT (0 0, 10 10)</code>
- *
- * @author ddf.isgs@lmco.com
  */
 public class WktStandard {
 

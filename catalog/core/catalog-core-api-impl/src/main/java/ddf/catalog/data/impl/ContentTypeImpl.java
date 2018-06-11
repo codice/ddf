@@ -20,8 +20,6 @@ import java.net.URI;
  * This class is a common implementation of the {@link ContentType} interface.
  *
  * <p>It is used to return the list of {@link ContentType}s currently stored in a {@link Source}.
- *
- * @author ddf.isgs@lmco.com
  */
 public class ContentTypeImpl implements ContentType {
 

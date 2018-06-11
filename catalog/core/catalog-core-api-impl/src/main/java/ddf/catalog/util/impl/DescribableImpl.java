@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Default implementation of the Describable interface, providing basic setter/getter methods for a
  * describable item's ID, title, version, organization, and description.
- *
- * @author ddf.isgs@lmco.com
  */
 public abstract class DescribableImpl implements Describable {
 

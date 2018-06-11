@@ -31,7 +31,6 @@ import java.util.List;
  * Proxy bundle.
  *
  * @param <T> Generic type that the FilterDelegate will return as a final result
- * @author ddf.isgs@lmco.com
  * @see FilterAdapter
  */
 public abstract class FilterDelegate<T> {

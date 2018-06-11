@@ -21,8 +21,7 @@ import org.xml.sax.helpers.NamespaceSupport;
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link
  * ddf.catalog.filter.FilterBuilder} instead to create filters.
  *
- * @author Phillip Klinefelter, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Phillip Klinefelter
  */
 public class PropertyNameImpl implements PropertyName {
 
