@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.condpermadmin;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,14 @@ public class PermissionActivator implements BundleActivator {
     File policyDirFile = new File(policyDir);
     List<ParsedPolicy> parsedPolicies = new ArrayList<>();
     for (File file : Objects.requireNonNull(policyDirFile.listFiles())) {
-      parsedPolicies.add(new Parser(false).parse(file));
+      ParsedPolicy parse = null;
+      try {
+        parse = new Parser(false).parse(file);
+      } catch (Exception e) {
+        systemExit(file);
+      }
+
+      parsedPolicies.add(parse);
     }
     ConditionalPermissionUpdate conditionalPermissionUpdate =
         conditionalPermissionAdmin.newConditionalPermissionUpdate();
@@ -112,6 +120,13 @@ public class PermissionActivator implements BundleActivator {
     }
 
     conditionalPermissionUpdate.commit();
+  }
+
+  @VisibleForTesting
+  @SuppressWarnings("squid:S106" /* Logging subsystem not yet initialized */)
+  void systemExit(File file) {
+    System.out.printf("%nUnable to parse policy file, %s. Please fix and try again.%n", file);
+    System.exit(1);
   }
 
   ConditionalPermissionAdmin getConditionalPermissionAdmin(BundleContext bundleContext) {
