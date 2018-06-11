@@ -42,7 +42,10 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
+import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
+import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -64,6 +67,8 @@ public class WorkspaceServiceImplTest {
 
   private WorkspaceServiceImpl workspaceService;
 
+  private PersistentStore persistentStore;
+
   @Before
   public void setup() {
     catalogFramework = mock(CatalogFramework.class);
@@ -71,20 +76,29 @@ public class WorkspaceServiceImplTest {
     workspaceTransformer = mock(WorkspaceTransformer.class);
     filterService = mock(FilterService.class);
     securityService = mock(SecurityService.class);
+    persistentStore = mock(PersistentStore.class);
     WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
 
     when(workspaceMetacardFilter.filter(any())).thenReturn(true);
 
     workspaceService =
         new WorkspaceServiceImpl(
-            catalogFramework, filterBuilder, workspaceTransformer, filterService, securityService);
+            catalogFramework,
+            filterBuilder,
+            workspaceTransformer,
+            filterService,
+            securityService,
+            persistentStore);
   }
 
   private void mockCatalogFrameworkQuery(String id, String subject)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
     when(securityService.addSystemSubject(any()))
         .thenReturn(Collections.singletonMap(SecurityConstants.SECURITY_SUBJECT, subject));
+
+    mockWorkspaceTagFilter();
 
     QueryResponse queryResponse = mock(QueryResponse.class);
     Result result = mock(Result.class);
@@ -94,25 +108,32 @@ public class WorkspaceServiceImplTest {
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
     when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    when(persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE))
+        .thenReturn(Collections.singletonList(Collections.singletonMap("id_txt", id)));
 
     when(result.getMetacard()).thenReturn(metacard);
 
     List<Result> resultList = Collections.singletonList(result);
     when(queryResponse.getResults()).thenReturn(resultList);
-
     when(catalogFramework.query(any())).thenReturn(queryResponse);
+    Filter metacardIdFilter = mock(Filter.class);
+    And andFilter = mock(And.class);
+    Filter workspaceTagFilter = mockWorkspaceTagFilter();
+    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
+    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
+    Or orFilter = mock(Or.class);
+    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
   }
 
   @Test
   public void testGetWorkspaceMetacards()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
     String id = "123";
     String subject = "subject";
 
     mockCatalogFrameworkQuery(id, subject);
-
-    mockWorkspaceTagFilter();
 
     List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
 
@@ -142,7 +163,8 @@ public class WorkspaceServiceImplTest {
 
   @Test
   public void testGetWorkspaceMetacardsByWorkspaceId()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
     String id = "123";
     String subject = "subject";
@@ -172,10 +194,12 @@ public class WorkspaceServiceImplTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testGetWorkspaceMetacardsByWorkspaceIdWithException()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
     String id = "123";
 
+    mockCatalogFrameworkQuery(id, "subject");
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
     Filter workspaceTagFilter = mockWorkspaceTagFilter();
@@ -205,17 +229,16 @@ public class WorkspaceServiceImplTest {
    * @throws UnsupportedQueryException
    * @throws SourceUnavailableException
    * @throws FederationException
+   * @throws PersistenceException
    */
   @SuppressWarnings("unchecked")
   @Test
   public void testGetWorkspaceMetacardsWithException()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
+    mockCatalogFrameworkQuery("123", "subject");
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
-
-    Filter filter = mock(Filter.class);
-
-    when(filterService.buildWorkspaceTagFilter()).thenReturn(filter);
 
     List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
 
