@@ -18,7 +18,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
 
-public class EmbeddedQueryMetacardsHandler implements EmbeddedMetacardsHandler {
+public class EmbeddedQueryMetacardsHandler extends EmbeddedMetacardsHandler {
   @Override
   public String getKey() {
     return WorkspaceConstants.WORKSPACE_QUERIES;

@@ -186,10 +186,6 @@ public class WorkspaceTransformerImpl implements WorkspaceTransformer {
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (left, right) -> left));
   }
 
-  public Map<String, Object> transform(Metacard workspaceMetacard) {
-    return transform(workspaceMetacard, workspaceMetacard);
-  }
-
   @Override
   public List<Map<String, Object>> transform(List<Metacard> metacards) {
     return metacards.stream().map(this::transform).collect(Collectors.toList());

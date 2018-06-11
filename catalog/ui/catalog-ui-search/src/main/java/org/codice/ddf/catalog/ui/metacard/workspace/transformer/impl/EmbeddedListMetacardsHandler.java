@@ -31,7 +31,7 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacard
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 
-public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
+public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
 
   @VisibleForTesting static final String ACTIONS_KEY = "actions";
@@ -52,8 +52,7 @@ public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
     final List<Map<String, Object>> listActions = getListActions(workspaceMetacard);
 
     final Optional<List> listMetacardsOptional =
-        EmbeddedMetacardsHandler.super.metacardValueToJsonValue(
-            transformer, metacardXMLStrings, workspaceMetacard);
+        super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
 
     listMetacardsOptional.ifPresent(
         listMetacards ->
@@ -77,7 +76,7 @@ public class EmbeddedListMetacardsHandler implements EmbeddedMetacardsHandler {
         .map(Map.class::cast)
         .forEach(this::removeExternalListAttributes);
 
-    return EmbeddedMetacardsHandler.super.jsonValueToMetacardValue(transformer, metacardJsonData);
+    return super.jsonValueToMetacardValue(transformer, metacardJsonData);
   }
 
   private void removeExternalListAttributes(Map listMetacardMap) {

@@ -16,7 +16,7 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
 
-public class SrcToQuerySources implements WorkspaceKeyTransformation {
+public class SrcToQuerySources extends WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
     return QueryMetacardTypeImpl.QUERY_SOURCES;

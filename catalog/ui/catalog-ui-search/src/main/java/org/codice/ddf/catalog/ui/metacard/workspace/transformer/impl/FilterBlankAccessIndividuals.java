@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
-public class FilterBlankAccessIndividuals implements WorkspaceValueTransformation<List, List> {
+public class FilterBlankAccessIndividuals extends WorkspaceValueTransformation<List, List> {
   @Override
   public String getKey() {
     return Security.ACCESS_INDIVIDUALS;

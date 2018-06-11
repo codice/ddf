@@ -28,20 +28,20 @@ import java.util.stream.Collectors;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
-public interface EmbeddedMetacardsHandler extends WorkspaceValueTransformation<List, List> {
+public abstract class EmbeddedMetacardsHandler extends WorkspaceValueTransformation<List, List> {
 
   @Override
-  default Class<List> getMetacardValueType() {
+  public Class<List> getMetacardValueType() {
     return List.class;
   }
 
   @Override
-  default Class<List> getJsonValueType() {
+  public Class<List> getJsonValueType() {
     return List.class;
   }
 
   @Override
-  default Optional<List> metacardValueToJsonValue(
+  public Optional<List> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
     return Optional.of(
         ((List<Object>) metacardXMLStrings)
@@ -54,7 +54,7 @@ public interface EmbeddedMetacardsHandler extends WorkspaceValueTransformation<L
   }
 
   @Override
-  default Optional<List> jsonValueToMetacardValue(
+  public Optional<List> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, List metacardJsonData) {
     return Optional.of(
         ((List<Object>) metacardJsonData)
@@ -75,5 +75,5 @@ public interface EmbeddedMetacardsHandler extends WorkspaceValueTransformation<L
    * @return the {@link MetacardType} that the XML strings and JSON-style data maps are expected to
    *     describe.
    */
-  MetacardType getMetacardType();
+  public abstract MetacardType getMetacardType();
 }

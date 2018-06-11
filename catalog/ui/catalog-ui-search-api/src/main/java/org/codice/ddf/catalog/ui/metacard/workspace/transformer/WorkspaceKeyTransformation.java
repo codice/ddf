@@ -27,25 +27,26 @@ import java.util.Optional;
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
-public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Object, Object> {
+public abstract class WorkspaceKeyTransformation
+    implements WorkspaceTransformation<Object, Object> {
   @Override
-  default Class<Object> getMetacardValueType() {
+  public Class<Object> getMetacardValueType() {
     return Object.class;
   }
 
   @Override
-  default Class<Object> getJsonValueType() {
+  public Class<Object> getJsonValueType() {
     return Object.class;
   }
 
   @Override
-  default Optional<Object> metacardValueToJsonValue(
+  public Optional<Object> metacardValueToJsonValue(
       WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
     return Optional.of(metacardValue);
   }
 
   @Override
-  default Optional<Object> jsonValueToMetacardValue(
+  public Optional<Object> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, Object jsonValue) {
     return Optional.of(jsonValue);
   }

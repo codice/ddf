@@ -19,7 +19,7 @@ import java.util.Optional;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
-public class RemoveMetacardTags implements WorkspaceValueTransformation<Object, Object> {
+public class RemoveMetacardTags extends WorkspaceValueTransformation<Object, Object> {
   @Override
   public String getKey() {
     return Core.METACARD_TAGS;

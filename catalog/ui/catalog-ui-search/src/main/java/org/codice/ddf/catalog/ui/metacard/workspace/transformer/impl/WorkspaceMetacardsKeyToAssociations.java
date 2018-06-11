@@ -17,7 +17,7 @@ import ddf.catalog.data.types.Associations;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
 
-public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransformation {
+public class WorkspaceMetacardsKeyToAssociations extends WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
     return Associations.RELATED;
