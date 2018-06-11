@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPPart;
@@ -255,7 +256,10 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                     entry.getKey(),
                     // CXF Expects pairs of <String, List<String>>
                     entry.getValue() instanceof List
-                        ? (List) entry.getValue()
+                        ? ((List<Object>) entry.getValue())
+                            .stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.toList())
                         : Lists.newArrayList(String.valueOf(entry.getValue()))));
 
       } else {
