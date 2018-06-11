@@ -18,6 +18,8 @@ package ddf.catalog.plugin;
  * will not allow an operation to continue. <br>
  * An example use of would be for a {@link PreIngestPlugin} to throw this exception if a {@link
  * ddf.catalog.data.Metacard} does not validate against a particular schema.
+ *
+ * @author Michael Menousek
  */
 public class StopProcessingException extends Exception {
 

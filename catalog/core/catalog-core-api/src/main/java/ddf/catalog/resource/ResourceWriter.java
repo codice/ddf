@@ -17,7 +17,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
-/** The ResourceWriter is used to store a {@link Resource}. */
+/**
+ * The ResourceWriter is used to store a {@link Resource}.
+ *
+ * @author Michael Menousek
+ */
 public interface ResourceWriter {
 
   /**
