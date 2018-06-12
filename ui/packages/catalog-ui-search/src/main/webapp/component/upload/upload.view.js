@@ -57,19 +57,27 @@ define([
                     const queryForMetacards = new Query.Model({
                         cql: cql.write({
                             type: 'OR',
-                            filters: upload.get('uploads').filter(function(file){
-                                return file.id;
+                            filters: _.flatten(upload.get('uploads').filter(function(file){
+                                return file.id || file.get('children') !== undefined;
                             }).map(function(file){
-                                return {
-                                    type: '=',
-                                    value: file.id,
-                                    property: '"id"'
-                                };
+                                if (file.get('children') !== undefined) {
+                                    return file.get('children').map((child) => ({
+                                        type: '=',
+                                        value: child,
+                                        property: '"id"'
+                                    }));
+                                } else {
+                                    return {
+                                        type: '=',
+                                        value: file.id,
+                                        property: '"id"'
+                                    };
+                                }
                             }).concat({
                                 type: '=',
                                 value: '-1',
                                 property: '"id"'
-                            })
+                            }))
                         }),
                         federation: 'enterprise'
                     });
