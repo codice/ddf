@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
@@ -53,25 +54,26 @@ public class XStreamWfs11FeatureTransformerTest {
   private XStreamWfs11FeatureTransformer transformer;
 
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     transformer = new XStreamWfs11FeatureTransformer();
     transformer.setMetacardTypeRegistry(mockMetacardTypeRegistry());
   }
 
   @Test
-  public void testMetacardMappers() {
+  public void testMetacardMappers() throws IOException {
     transformer.setMetacardMappers(Collections.singletonList(mockMetacardMapper()));
 
-    InputStream inputStream =
-        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"));
-    Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
+    try (InputStream inputStream =
+        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
+      Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
 
-    assertThat(metacardOptional.isPresent(), equalTo(true));
-    assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+      assertThat(metacardOptional.isPresent(), equalTo(true));
+      assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+    }
   }
 
   @Test
-  public void testFeatureConverters() {
+  public void testFeatureConverters() throws IOException {
     FeatureConverterFactory featureConverterFactory = mock(FeatureConverterFactory.class);
     when(featureConverterFactory.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
 
@@ -79,12 +81,13 @@ public class XStreamWfs11FeatureTransformerTest {
     when(featureConverterFactory.createConverter()).thenReturn(featureConverter);
     transformer.setFeatureConverterFactories(Collections.singletonList(featureConverterFactory));
 
-    InputStream inputStream =
-        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"));
-    Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
+    try (InputStream inputStream =
+        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
+      Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata());
 
-    assertThat(metacardOptional.isPresent(), equalTo(true));
-    assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+      assertThat(metacardOptional.isPresent(), equalTo(true));
+      assertThat(metacardOptional.get().getAttribute("title"), notNullValue());
+    }
   }
 
   @Test
@@ -94,12 +97,15 @@ public class XStreamWfs11FeatureTransformerTest {
     assertThat(metacardOptional.isPresent(), equalTo(false));
   }
 
-  private WfsMetacardTypeRegistry mockMetacardTypeRegistry() {
+  private WfsMetacardTypeRegistry mockMetacardTypeRegistry() throws IOException {
     WfsMetacardTypeRegistry metacardTypeRegistry = mock(WfsMetacardTypeRegistry.class);
 
     XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+
     InputStream inputStream = getClass().getResourceAsStream("/Neverland_FeatureType.xsd");
     XmlSchema schema = schemaCollection.read(new StreamSource(inputStream));
+    inputStream.close();
+
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema,

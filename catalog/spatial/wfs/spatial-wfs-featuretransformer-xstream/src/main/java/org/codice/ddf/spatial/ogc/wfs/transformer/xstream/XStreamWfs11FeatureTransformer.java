@@ -73,7 +73,6 @@ public class XStreamWfs11FeatureTransformer implements FeatureTransformer<Featur
       metacard = (Metacard) xStream.fromXML(document);
     } catch (XStreamException e) {
       LOGGER.trace("Failed to parse FeatureMember into Metacard", e);
-      LOGGER.error("failed to parse", e);
     }
 
     return Optional.ofNullable(metacard);
