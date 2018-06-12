@@ -37,10 +37,14 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,6 +105,25 @@ public class MetadataConfigurationParser {
       buildEntityDescriptor(entityDescriptor);
     }
     Path metadataFolder = Paths.get(ddfHome, ETC_FOLDER, METADATA_ROOT_FOLDER);
+
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                privilegedParseEntityDescriptions(metadataFolder);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      if (!(e.getException() instanceof IOException)) {
+        LOGGER.warn(
+            "Unexpected exception type - {}", e.getException().getClass(), e.getException());
+        throw new IOException("Runtime exception occurred reading entity descriptors");
+      }
+      throw (IOException) e.getException();
+    }
+  }
+
+  private void privilegedParseEntityDescriptions(Path metadataFolder) throws IOException {
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(metadataFolder)) {
       for (Path path : directoryStream) {
         if (Files.isReadable(path)) {
@@ -140,12 +163,33 @@ public class MetadataConfigurationParser {
       String entityDescriptorString, List<EntityDescriptor> entityDescriptors) throws IOException {
     String pathStr = StringUtils.substringAfter(entityDescriptorString, FILE);
     Path path = Paths.get(pathStr);
+    try {
+      entityDescriptors =
+          AccessController.doPrivileged(
+                  (PrivilegedExceptionAction<Optional<List<EntityDescriptor>>>)
+                      () -> privilegedRetrieveEntityDescriptorViaFile(path))
+              .orElse(entityDescriptors);
+    } catch (PrivilegedActionException e) {
+      if (!(e.getException() instanceof IOException)) {
+        LOGGER.warn(
+            "Unexpected exception type - {}", e.getException().getClass(), e.getException());
+        throw new IOException("Runtime exception occurred reading entity descriptors");
+      }
+      throw (IOException) e.getException();
+    }
+
+    return entityDescriptors;
+  }
+
+  private Optional<List<EntityDescriptor>> privilegedRetrieveEntityDescriptorViaFile(Path path)
+      throws IOException {
     if (Files.isReadable(path)) {
       try (InputStream fileInputStream = Files.newInputStream(path)) {
-        entityDescriptors = readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8"));
+        return Optional.of(readEntityDescriptors(new InputStreamReader(fileInputStream, "UTF-8")));
       }
     }
-    return entityDescriptors;
+
+    return Optional.empty();
   }
 
   private void retrieveEntityDescriptorViaHttp(String entityDescriptorString) throws IOException {
