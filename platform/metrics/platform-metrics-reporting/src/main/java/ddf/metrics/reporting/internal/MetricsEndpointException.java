@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response.Status;
  *
  * @since 2.1.0
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  */
 public class MetricsEndpointException extends WebApplicationException {
   /** The Constant serialVersionUID. */

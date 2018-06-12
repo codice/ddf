@@ -18,7 +18,6 @@ package ddf.metrics.collector;
  *
  * @since 2.1.0
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  */
 public class CollectorException extends Exception {
   /** The Constant serialVersionUID. */

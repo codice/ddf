@@ -19,7 +19,6 @@ package ddf.metrics.reporting.internal;
  *
  * @since 2.1.0
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  */
 public class MetricsGraphException extends Exception {
   /** The Constant serialVersionUID. */

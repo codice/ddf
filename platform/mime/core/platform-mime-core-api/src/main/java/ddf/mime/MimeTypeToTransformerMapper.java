@@ -16,10 +16,7 @@ package ddf.mime;
 import java.util.List;
 import javax.activation.MimeType;
 
-/**
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- */
+/** @author Ashraf Barakat */
 public interface MimeTypeToTransformerMapper {
 
   public static final String MIME_TYPE_KEY = "mime-type";

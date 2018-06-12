@@ -19,8 +19,6 @@ import ddf.catalog.data.BinaryContent;
  * A Resource represents an item (e.g. image, video, document, etc.) that has been posted for
  * sharing. A {@link ddf.catalog.data.Metacard} is created to provide metadata about a Resource,
  * which can be accessed via a {@link ResourceReader}.
- *
- * @author LMCO
  */
 public interface Resource extends BinaryContent {
 

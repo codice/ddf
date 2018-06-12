@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
  * a list of file extensions to their corresponding mime types, and vice versa.
  *
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  * @since 2.1.0
  */
 public class TikaMimeTypeResolver implements MimeTypeResolver {

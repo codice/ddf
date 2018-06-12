@@ -18,7 +18,6 @@ package ddf.mime;
  * mime types, and vice versa.
  *
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  */
 public interface MimeTypeResolver {
   /**

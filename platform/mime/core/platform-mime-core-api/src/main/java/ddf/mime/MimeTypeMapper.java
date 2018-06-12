@@ -20,7 +20,6 @@ import java.io.InputStream;
  * a given mime type, and vice versa.
  *
  * @author Hugh Rodgers
- * @author ddf.isgs@lmco.com
  */
 public interface MimeTypeMapper {
   /**
