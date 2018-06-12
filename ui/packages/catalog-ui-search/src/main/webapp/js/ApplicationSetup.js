@@ -40,7 +40,8 @@ require([
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'js/Autocomplete',
-    'backbone.customFunctions'
+    'backbone.customFunctions',
+    'js/extensions/backbone.listenTo.ts'
 ], function(_, Backbone, Marionette, properties, hbs, announcement) {
 
     let getShortErrorMessage = function (error) {
