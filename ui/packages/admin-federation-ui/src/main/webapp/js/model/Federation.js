@@ -14,32 +14,29 @@
 define([
         'backbone',
         'backboneassociation'
-    ],
-    function (Backbone) {
-        "use strict";
+  ],
+  function (Backbone) {
+    "use strict";
 
-        return Backbone.AssociatedModel.extend({
-         defaults: {
-            selectedTab: "sources",
-            url: "../sources",
-            tabs: {
-              sources: {
-                title: "Sources",
-                url: "../sources"
-              },
-              local: {
-                title: "Local Registry",
-                url: "../registry/local"
-              },
-              remote: {
-                title: "Remote Registry",
-                url: "../registry/remote"
-              }
-            }
+    return Backbone.AssociatedModel.extend({
+     defaults: {
+        selectedTab: "sources",
+        url: "../sources",
+        tabs: {
+          sources: {
+            title: "Sources",
+            url: "../sources"
           },
-          initialize: function () {}
-        });
-
-
-
+          local: {
+            title: "Local Registry",
+            url: "../registry/local"
+          },
+          remote: {
+            title: "Remote Registry",
+            url: "../registry/remote"
+          }
+        }
+      },
+      initialize: function () {}
     });
+ });

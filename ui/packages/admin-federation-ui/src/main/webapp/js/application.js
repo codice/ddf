@@ -29,16 +29,12 @@ define([
         return ich[template](data);
     };
 
-    
-
     Application.App = new Marionette.Application();
 
     //add regions
     Application.App.addRegions({
         mainRegion: 'main'
     });
-
-   
 
     return Application;
 });

@@ -14,12 +14,11 @@
  **/
 /*global define*/
 define([
-        'wreqr',
         'js/application',
         'js/view/Federation.view.js',
         'js/model/Federation.js'
     ],
-    function (wreqr, Application, FederationView, FederationModel) {
+    function (Application, FederationView, FederationModel) {
 
         Application.App.module('Federation', function (FederationModule, App, Backbone, Marionette) {
 

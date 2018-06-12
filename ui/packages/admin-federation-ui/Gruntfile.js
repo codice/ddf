@@ -140,7 +140,7 @@ module.exports = function (grunt) {
             },
             livereload: {
                 options: {livereload: true},
-                files: ['target/webapp/css/index.css'
+                files: ['target/webapp/css/styles.css'
                     // this one is more dangerous, tends to reload the page if one file changes
                     // probably too annoying to be useful, uncomment if you want to try it out
 //                    '<%= jshint.files %>'

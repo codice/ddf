@@ -19,12 +19,10 @@ define([
         'backbone',
         'underscore',
         'jquery',
-        'q',
-        'wreqr',
         'text!templates/federationPage.handlebars',
         'iframeresizer'
     ],
-    function (ich, Marionette, Backbone, _, $, Q, wreqr, federationPage) {
+    function (ich, Marionette, Backbone, _, $, federationPage) {
 
         ich.addTemplate('federationPage', federationPage);
 

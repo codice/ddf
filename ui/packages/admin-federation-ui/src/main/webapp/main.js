@@ -18,57 +18,30 @@
     require.config({
 
         paths: {
-
-            bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: '/webjars/q/1.4.1/q',
-
             // backbone
-            backbone: '/webjars/backbone/1.1.2/backbone',
-            backbonerelational: '/webjars/backbone-relational/0.8.8/backbone-relational',
-            backboneassociation: '/webjars/backbone-associations/0.6.2/backbone-associations-min',
-            underscore: '/webjars/underscore/1.8.3/underscore-min',
-            marionette: '/webjars/marionette/1.8.8/lib/backbone.marionette.min',
-            // TODO test combining
-            modelbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-            collectionbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
-            poller: '/webjars/backbone-poller/1.1.3/backbone.poller',
-            iframeresizer: '/webjars/iframe-resizer/2.6.2/js/iframeResizer.min',
+            backbone: '../../webjars/backbone/1.1.2/backbone',
+            backboneassociation: '../../webjars/backbone-associations/0.6.2/backbone-associations-min',
+            underscore: '../../webjars/underscore/1.8.3/underscore-min',
+            marionette: '../../webjars/marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
-            jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
-            multiselect: '/webjars/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: '/webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-            fileupload: '/webjars/jquery-file-upload/9.5.7/js/jquery.fileupload',
-            fileuploadiframe: '/webjars/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
+            jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
 
             // handlebars
-            handlebars: '/webjars/handlebars/4.0.10/handlebars.min',
+            handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '/webjars/requirejs-plugins/1.0.3/lib/text',
-            css: '/webjars/require-css/0.1.10/css',
-
-            // datatables
+            text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+            css: '../../webjars/require-css/0.1.10/css',
+            iframeresizer: '../../webjars/iframe-resizer/2.6.2/js/iframeResizer.min'
 
         },
         shim: {
-
             backbone: {
                 deps: ['underscore', 'jquery'],
                 exports: 'Backbone'
             },
-            modelbinder: {
-                deps: ['underscore', 'jquery', 'backbone']
-            },
-            collectionbinder: {
-                deps: ['modelbinder']
-            },
-            poller: {
-                deps: ['underscore', 'backbone']
-            },
-            backbonerelational: ['backbone'],
             backboneassociation: ['backbone'],
             marionette: {
                 deps: ['jquery', 'underscore', 'backbone'],
@@ -83,16 +56,7 @@
             icanhaz: {
                 deps: ['handlebars', 'jquery'],
                 exports: 'ich'
-            },
-
-            perfectscrollbar: ['jquery'],
-
-            multiselect: ['jquery'],
-            fileupload: ['jquery', 'jqueryui'],
-
-            jqueryui: ['jquery'],
-            bootstrap: ['jqueryui']
-
+            }
         },
 
         waitSeconds: 200
@@ -102,13 +66,8 @@
     require([
         'jquery',
         'backbone',
-        'marionette',
-        'icanhaz',
         'js/application',
-        '../../admin/js/HandlebarsHelpers',
-        'modelbinder',
-        'bootstrap'
-    ], function ($, Backbone, Marionette, ich, Application) {
+    ], function ($, Backbone, Application) {
 
 
         var app = Application.App;
@@ -116,8 +75,6 @@
         // Backbone.history.
         app.on('initialize:after', function () {
             Backbone.history.start();
-            //bootstrap call for tabs
-            $('tabs').tab();
         });
 
         if (window) {
@@ -135,9 +92,7 @@
         // Actually start up the application.
         app.start();
 
-        require(['js/module'], function () {
-            $("#page-loading").addClass('hide');
-        });
+        require(['js/module']);
 
     });
 }());
