@@ -19,18 +19,19 @@ var template = require('./navigator.hbs');
 var wreqr = require('wreqr');
 var properties = require('properties');
 var store = require('js/store');
-var router = require('component/router/router');
 var metacard = require('component/metacard/metacard');
 var SaveView = require('component/save/workspaces/workspaces-save.view');
 var UnsavedIndicatorView = require('component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view');
 var sources = require('component/singletons/sources-instance');
+const plugin = require('plugins/navigator');
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = plugin(Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('navigator'),
     regions: {
         workspacesIndicator: '.workspaces-indicator',
-        workspacesSave: '.workspaces-save'
+        workspacesSave: '.workspaces-save',
+        extensions: '.navigation-extensions'
     },
     events: {
         'click .choice-product': 'handleWorkspaces',
@@ -40,7 +41,7 @@ module.exports = Marionette.LayoutView.extend({
         'click .choice-upload': 'handleUpload',
         'click .choice-sources': 'handleSources',
         'click .choice-about': 'handleAbout',
-        'click .navigation-choice': 'closeSlideout',
+        'click .navigation-choice': 'closeSlideout'
     },
     initialize: function(){
         this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
@@ -51,7 +52,12 @@ module.exports = Marionette.LayoutView.extend({
     onBeforeShow: function(){
         this.workspacesSave.show(new SaveView());
         this.workspacesIndicator.show(new UnsavedIndicatorView());
+        const extensions = this.getExtensions();
+        if (extensions) {
+            this.extensions.show(extensions);
+        }
     },
+    getExtensions: function(){},
     handleWorkspaces: function(){
         wreqr.vent.trigger('router:navigate', {
             fragment: 'workspaces',
@@ -133,4 +139,4 @@ module.exports = Marionette.LayoutView.extend({
             recent: workspaceJSON || metacardJSON
         };
     }
-});
+}));

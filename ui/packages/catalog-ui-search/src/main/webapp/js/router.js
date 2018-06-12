@@ -16,98 +16,102 @@ const wreqr = require('wreqr')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const store = require('js/store')
-const ConfirmationView = require('component/confirmation/confirmation.view')
 const Application = require('application')
 const ContentView = require('component/content/content.view')
 const HomeView = require('component/workspaces/workspaces.view')
 const MetacardView = require('component/metacard/metacard.view')
-const Query = require('js/model/Query')
-const cql = require('js/cql')
-const alertInstance = require('component/alert/alert')
 const AlertView = require('component/alert/alert.view')
 const IngestView = require('component/ingest/ingest.view')
 const router = require('component/router/router')
-const user = require('component/singletons/user-instance')
 const UploadView = require('component/upload/upload.view')
-const NavigatorView = require('component/navigator/navigator.view')
 const SourcesView = require('component/sources/sources.view')
 const AboutView = require('component/about/about.view')
 const NotFoundView = require('component/notfound/notfound.view')
-const properties = require('properties')
-const announcement = require('component/announcement')
 const RouterView = require('component/router/router.view');
+const plugin = require('plugins/router')
 
+const openWorkspace = {pattern: 'workspaces/:id'}
 Application.App.workspaceRegion.show(new RouterView({
     component: ContentView,
     routes: ['openWorkspace']
 }));
 
+const home = {pattern: '(?*)'}
+const workspaces = {pattern: 'workspaces(/)'}
 Application.App.workspacesRegion.show(new RouterView({
     component: HomeView,
     routes: ['workspaces', 'home']
 }));
 
+const openMetacard = {pattern: 'metacards/:id'}
 Application.App.metacardRegion.show(new RouterView({
     component: MetacardView,
     routes: ['openMetacard']
 }));
 
+const openUpload = {pattern: 'uploads/:id'}
 Application.App.uploadRegion.show(new RouterView({
     component: UploadView,
     routes: ['openUpload']
 }));
 
+const notFound = {pattern: '*path'}
 Application.App.notFoundRegion.show(new RouterView({
     component: NotFoundView,
     routes: ['notFound']
 }));
 
+const openAbout = {pattern: 'about(/)'}
 Application.App.aboutRegion.show(new RouterView({
     component: AboutView,
     routes: ['openAbout']
 }));
 
+const openSources = {pattern: 'sources(/)'}
 Application.App.sourcesRegion.show(new RouterView({
     component: SourcesView,
     routes: ['openSources']
 }));
 
+const openIngest = {pattern: 'ingest(/)'}
 Application.App.ingestRegion.show(new RouterView({
     component: IngestView,
     routes: ['openIngest']
 }));
 
+const openAlert = {pattern: 'alerts/:id'}
 Application.App.alertRegion.show(new RouterView({
     component: AlertView,
     routes: ['openAlert']
 }));
 
-var Router = Marionette.AppRouter.extend({
-    controller: {
-            openWorkspace() {},
-            home() {},
-            workspaces() {},
-            openMetacard() {},
-            openAlert() {},
-            openIngest() {},
-            openUpload() {},
-            openSources() {},
-            openAbout() {},
-            notFound() {}
-    },
-    appRoutes: {
-        'workspaces/:id': 'openWorkspace',
-        '(?*)': 'home',
-        'workspaces(/)': 'workspaces',
-        'metacards/:id': 'openMetacard',
-        'alerts/:id': 'openAlert',
-        'ingest(/)': 'openIngest',
-        'uploads/:id': 'openUpload',
-        'sources(/)': 'openSources',
-        'about(/)': 'openAbout',
-        '*path': 'notFound'
-    },
+const routes = plugin({
+    openWorkspace,
+    home,
+    workspaces,
+    openMetacard,
+    openAlert,
+    openIngest,
+    openUpload,
+    openSources,
+    openAbout,
+    notFound
+}, Application.App)
+
+const controller = Object.keys(routes).reduce((route, key) => {
+    route[key] = () => {}
+    return route
+}, {})
+
+const appRoutes = Object.keys(routes).reduce((route, key) => {
+    const { pattern } = routes[key]
+    route[pattern] = key
+    return route
+}, {})
+
+const Router = Marionette.AppRouter.extend({
+    controller,
+    appRoutes,
     initialize: function(){
         if (window.location.search.indexOf('lowBandwidth') !== -1) {
             router.set({
@@ -127,7 +131,7 @@ var Router = Marionette.AppRouter.extend({
         }.bind(this), 0);
     },
     handleNavigate: function(args){
-            this.navigate(args.fragment, args.options);
+        this.navigate(args.fragment, args.options);
     },
     onRoute: function(name, path, args){
         this.updateRoute(name, path, args);
