@@ -39,8 +39,8 @@ define([
             defaults: {
                 isKey: false
             },
-            deleteUrl: '../admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
-            postUrl: '../admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+            deleteUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
+            postUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
             postOperation: 'addTrustedCertificate',
             validate: function () {
                 var alias = this.get('alias');
