@@ -18,6 +18,7 @@ define([
     var Tabs = Backbone.Model.extend({
         defaults: {
             tabs: {},
+            tabsOptions: {},
             activeTab: undefined
         },
         initialize: function(){
@@ -37,6 +38,11 @@ define([
         },
         getActiveView: function(){
             return this.get('tabs')[this.getActiveTab()];
+        },
+        getActiveViewOptions: function () {
+            if (this.get('tabsOptions')) {
+                return this.get('tabsOptions')[this.getActiveTab()];
+            }
         }
     });
 

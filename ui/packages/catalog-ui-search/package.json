@@ -83,7 +83,6 @@
   },
   "main": "src/main/webapp/js/ApplicationSetup.js",
   "alias": {
-    "marionette": "backbone.marionette",
     "Backbone.ModelBinder": "backbone.modelbinder/Backbone.ModelBinder",
     "cesium$": "cesium/Build/Cesium/Cesium.js"
   },
