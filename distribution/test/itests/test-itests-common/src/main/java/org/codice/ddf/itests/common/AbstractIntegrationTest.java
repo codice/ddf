@@ -143,6 +143,11 @@ public abstract class AbstractIntegrationTest {
 
   public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(10);
 
+  private static final String UNABLE_TO_DETERMINE_EXAM_DIR_ERROR =
+      "Unable to determine current exam directory";
+
+  private static final String KARAF_HOME = "{karaf.home}";
+
   protected static ServerSocket placeHolderSocket;
 
   protected static Integer basePort;
@@ -918,7 +923,7 @@ public abstract class AbstractIntegrationTest {
             try {
               return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
             } catch (IOException e) {
-              throw new RuntimeException("Unable to determine current exam directory", e);
+              throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
             }
           };
 
@@ -927,12 +932,12 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
-            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
             .orElseGet(super::getOption);
       } catch (IOException e) {
-        throw new RuntimeException("Unable to determine current exam directory", e);
+        throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
       }
     }
   }
@@ -960,7 +965,7 @@ public abstract class AbstractIntegrationTest {
             try {
               return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
             } catch (IOException e) {
-              throw new RuntimeException("Unable to determine current exam directory", e);
+              throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
             }
           };
 
@@ -969,7 +974,7 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
-            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
             .map(s -> s.replace("c:", "C:"))
@@ -977,7 +982,7 @@ public abstract class AbstractIntegrationTest {
             .map(s -> s + "/")
             .orElseGet(super::getOption);
       } catch (IOException e) {
-        throw new RuntimeException("Unable to determine current exam directory", e);
+        throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
       }
     }
   }
@@ -1005,7 +1010,7 @@ public abstract class AbstractIntegrationTest {
             try {
               return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
             } catch (IOException e) {
-              throw new RuntimeException("Unable to determine current exam directory", e);
+              throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
             }
           };
 
@@ -1014,12 +1019,12 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
-            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
             .map(s -> s + File.separator)
             .orElseGet(super::getOption);
       } catch (IOException e) {
-        throw new RuntimeException("Unable to determine current exam directory", e);
+        throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
       }
     }
   }
@@ -1029,7 +1034,8 @@ public abstract class AbstractIntegrationTest {
     protected void succeeded(long nanos, Description description) {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(
-            "{} execution time: {}",
+            "{}.{} execution time: {}",
+            description.getClassName(),
             description.getMethodName(),
             DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(nanos), "HH:mm:ss.S"));
       }

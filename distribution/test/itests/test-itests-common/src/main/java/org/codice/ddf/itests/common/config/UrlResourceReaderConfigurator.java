@@ -13,12 +13,14 @@
  */
 package org.codice.ddf.itests.common.config;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.with;
+
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -40,23 +42,12 @@ public class UrlResourceReaderConfigurator {
   }
 
   public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
-    Set<String> newRootResourceDirs = ImmutableSet.<String>builder().add(rootResourceDirs).build();
-
+    Collection<String> newRootResourceDirs =
+        ImmutableSet.<String>builder().add(rootResourceDirs).build();
     Configuration configuration = configAdmin.getConfiguration(PID, null);
+    Collection<String> currentRootResourceDirs = getCurrentRootResourceDirs(configuration);
 
-    if (configuration == null) {
-      LOGGER.warn(
-          "{} configuration was null, cannot update {}",
-          PID,
-          ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY);
-      return;
-    }
-
-    if (configuration.getProperties() != null) {
-      Set<String> currentRootResourceDirs =
-          ImmutableSet.copyOf(
-              (Collection<String>)
-                  configuration.getProperties().get(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY));
+    if (currentRootResourceDirs != null) {
 
       LOGGER.debug(
           "{} {}, current value: {}, new value: {}",
@@ -72,39 +63,61 @@ public class UrlResourceReaderConfigurator {
       }
     }
 
+    updateUrlResourceReaderRootDirs(configuration, newRootResourceDirs);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Collection<String> getCurrentRootResourceDirs(Configuration configuration) {
+    Dictionary<String, Object> properties = configuration.getProperties();
+
+    if (properties == null) {
+      return null;
+    }
+
+    Object currentRootResourceDirs = properties.get(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY);
+
+    if (!(currentRootResourceDirs instanceof Collection)) {
+      return null;
+    }
+
+    return (Collection<String>) currentRootResourceDirs;
+  }
+
+  private void updateUrlResourceReaderRootDirs(
+      Configuration configuration, Collection<String> newRootResourceDirs) {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY, newRootResourceDirs);
-    configuration.update(properties);
 
-    for (int i = 0; i < 5; i++) {
-      Configuration updatedConfig = configAdmin.getConfiguration(PID, null);
-
-      if (updatedConfig
-          .getProperties()
-          .get(ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY)
-          .equals(newRootResourceDirs)) {
-        break;
-      }
-
-      boolean interrupted = false;
-
-      try {
-        TimeUnit.SECONDS.sleep(5);
-      } catch (InterruptedException e) {
-        interrupted = true;
-      } finally {
-        if (interrupted) {
-          Thread.currentThread().interrupt();
-        }
-      }
+    try {
+      configuration.update(properties);
+    } catch (IOException e) {
+      throw new UncheckedIOException(
+          String.format(
+              "Unexpected failure updating [%s %s] configuration!",
+              PID, ROOT_RESOURCE_DIRECTORIES_PROPERTY_KEY),
+          e);
     }
+
+    with()
+        .pollInterval(1, SECONDS)
+        .await()
+        .atMost(30, SECONDS)
+        .until(() -> propertyIsUpdated(configuration, newRootResourceDirs));
 
     LOGGER.debug("{} properties after update: {}", PID, configuration.getProperties());
   }
 
+  private boolean propertyIsUpdated(
+      Configuration configuration, Collection<String> expectedRootResourceDirs) {
+
+    return rootResourceDirsEqual(
+        getCurrentRootResourceDirs(configuration), expectedRootResourceDirs);
+  }
+
   private boolean rootResourceDirsEqual(
-      Set<String> currentRootResourceDirs, Set<String> newRootResourceDirs) {
-    return (currentRootResourceDirs.size() == newRootResourceDirs.size())
+      Collection<String> currentRootResourceDirs, Collection<String> newRootResourceDirs) {
+    return (currentRootResourceDirs != null)
+        && (currentRootResourceDirs.size() == newRootResourceDirs.size())
         && newRootResourceDirs.containsAll(currentRootResourceDirs);
   }
 }
