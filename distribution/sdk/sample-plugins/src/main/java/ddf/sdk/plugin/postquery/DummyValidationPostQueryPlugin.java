@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates the query results from a query as a PostQueryPLugin
  *
- * @author Shaun Morris, Lockheed Martin
+ * @author Shaun Morris
  */
 public class DummyValidationPostQueryPlugin implements PostQueryPlugin {
   private static final Logger LOGGER =

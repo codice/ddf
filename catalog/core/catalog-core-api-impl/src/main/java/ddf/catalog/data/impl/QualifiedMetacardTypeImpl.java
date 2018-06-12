@@ -25,7 +25,6 @@ import java.util.Set;
  * removed in a future version of the library. </b>
  *
  * @author Ian Barnett
- * @author ddf.isgs@lmco.com
  */
 public class QualifiedMetacardTypeImpl extends MetacardTypeImpl implements QualifiedMetacardType {
 

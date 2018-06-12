@@ -21,7 +21,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * Default implementation of the {@link Result} interface, which is a {@link Metacard} catalog entry
  * wrapped with the extra attributes {@code relevanceScore} and {@code distanceInMeters}.
  *
- * @author ddf.isgs@lmco.com
  * @since 1.0
  */
 public class ResultImpl implements Result {

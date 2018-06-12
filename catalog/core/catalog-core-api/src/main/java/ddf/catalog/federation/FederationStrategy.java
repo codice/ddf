@@ -27,8 +27,6 @@ import java.util.List;
  * ddf.catalog.operation.SourceResponse}s return then do a mass sort, or to return the results back
  * to the client as soon as they are received back from a {@link
  * ddf.catalog.source.FederatedSource}.
- *
- * @author ddf.isgs@lmco.com
  */
 public interface FederationStrategy {
 

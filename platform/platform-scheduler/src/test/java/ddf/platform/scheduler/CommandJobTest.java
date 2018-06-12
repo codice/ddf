@@ -38,7 +38,6 @@ import org.quartz.JobExecutionContext;
  * Tests the {@link CommandJob} class.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class CommandJobTest {
 

@@ -32,8 +32,6 @@ import java.util.Map;
  *   <li/>Include a Service property with name "id" ({@link ddf.catalog.Constants#SERVICE_ID}) and a
  *       {@link String} value uniquely identifying the particular implementation
  * </ul>
- *
- * @author ddf.isgs@lmco.com
  */
 public interface MetacardTransformer {
 

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * services
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMapper {
 

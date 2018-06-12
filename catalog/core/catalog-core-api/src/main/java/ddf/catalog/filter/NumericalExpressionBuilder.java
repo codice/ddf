@@ -18,8 +18,7 @@ import org.opengis.filter.Filter;
 /**
  * Completes the fluent API to create {@link Filter} based on a numerical value.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface NumericalExpressionBuilder {
 

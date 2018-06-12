@@ -19,10 +19,9 @@ import java.util.List;
  * Thrown to indicate that a validation operation could not be completed. Provides information in
  * the form of a summary message, a list of error messages, and a list of warnings.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author Shaun Morris, Lockheed Martin
- * @author Ashraf Barakat, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
+ * @author Shaun Morris
+ * @author Ashraf Barakat
  */
 public abstract class ValidationException extends Exception {
 

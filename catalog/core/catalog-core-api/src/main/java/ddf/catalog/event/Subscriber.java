@@ -17,8 +17,6 @@ package ddf.catalog.event;
  * A Subscriber is used to identify a service that is capable of deleting subscriptions. The
  * Subscriber must have created the subscription being deleted and maintained a reference to its
  * ServiceRegistration in order to be able to delete the subscription.
- *
- * @author ddf.isgs@lmco.com
  */
 public interface Subscriber {
   /**

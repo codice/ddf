@@ -16,8 +16,7 @@ package ddf.mime;
 /**
  * Exception thrown when a {@link MimeTypeResolver} encounters problems during its execution.
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
  */
 public class MimeTypeResolutionException extends Exception {
   /** The Constant serialVersionUID. */

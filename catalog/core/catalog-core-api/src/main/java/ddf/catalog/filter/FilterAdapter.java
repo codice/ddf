@@ -37,7 +37,6 @@ import org.opengis.filter.Filter;
  *
  * A reference implementation is provided with the DDF Core in the Filter Proxy bundle.
  *
- * @author ddf.isgs@lmco.com
  * @see FilterDelegate
  */
 public interface FilterAdapter {

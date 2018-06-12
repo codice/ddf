@@ -32,8 +32,7 @@ import org.slf4j.LoggerFactory;
  * Consumer for the custom Camel CatalogComponent. This {@link org.apache.camel.Consumer} would map
  * to a Camel <from> route node with a URI like <code>catalog:queryresponsetransformer</code>
  *
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author William Miller
  */
 public class TransformerConsumer extends DefaultConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransformerConsumer.class);

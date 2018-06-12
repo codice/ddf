@@ -17,11 +17,7 @@ import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * A request to delete {@link Metacard}s from the {@link ddf.catalog.source.CatalogProvider}
- *
- * @author ddf.isgs@lmco.com
- */
+/** A request to delete {@link Metacard}s from the {@link ddf.catalog.source.CatalogProvider} */
 public interface DeleteRequest extends Request {
 
   public static final String DELETE_BY_ID = Metacard.ID;

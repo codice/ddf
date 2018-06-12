@@ -16,8 +16,7 @@ package ddf.catalog.filter;
 /**
  * Builds XPath-based Contextual {@link org.opengis.filter.Filter}s.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface XPathBasicBuilder {
 

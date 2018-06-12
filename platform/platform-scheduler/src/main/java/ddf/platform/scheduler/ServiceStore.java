@@ -21,7 +21,6 @@ import java.util.Map;
  * from a single location.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class ServiceStore {
 

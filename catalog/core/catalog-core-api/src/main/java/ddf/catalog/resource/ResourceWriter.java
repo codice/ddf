@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * The ResourceWriter is used to store a {@link Resource}.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface ResourceWriter {
 

@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
  * Executes Felix/Karaf commands when called as a Quartz {@link Job}
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class CommandJob implements Job {
 

@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * Schedules a Command task
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class ScheduledCommandTask implements ScheduledTask {
 

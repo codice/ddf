@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
  * . Leverages default Camel Conversions that can convert any type into an {@link
  * java.io.InputStream}
  *
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author William Miller
  */
 public class BinaryContentStringTypeConverter extends TypeConverterSupport {
 

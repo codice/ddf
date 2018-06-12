@@ -16,8 +16,6 @@ package ddf.catalog.event;
 /**
  * The exception thrown when problems creating a subscription are detected due to invalid data in
  * the {@link Subscription}, such as a missing {@link DeliveryMethod}.
- *
- * @author ddf.isgs@lmco.com
  */
 public class InvalidSubscriptionException extends EventException {
 

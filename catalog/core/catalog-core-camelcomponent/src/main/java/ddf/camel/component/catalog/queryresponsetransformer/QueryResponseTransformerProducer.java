@@ -34,8 +34,7 @@ import org.slf4j.LoggerFactory;
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
  * to a Camel <to> route node with a URI like <code>catalog:queryresponsetransformer</code>
  *
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author William Miller
  */
 public class QueryResponseTransformerProducer extends TransformerProducer {
   private static final Logger LOGGER =

@@ -20,8 +20,7 @@ import org.opengis.filter.Filter;
  * Completes the fluent API to create a {@link org.opengis.filter.PropertyIsEqualTo} {@link Filter}
  * .
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface EqualityExpressionBuilder {
 

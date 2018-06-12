@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
  * in the properties object in the JSON. See geojson.org for the GeoJSON specification.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  * @see MetacardTransformer
  * @see Metacard
  * @see Attribute

@@ -17,8 +17,7 @@ package ddf.metrics.collector;
  * Exception thrown when a {@link Collector} encounters problems during its execution.
  *
  * @since 2.1.0
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
  */
 public class CollectorException extends Exception {
   /** The Constant serialVersionUID. */

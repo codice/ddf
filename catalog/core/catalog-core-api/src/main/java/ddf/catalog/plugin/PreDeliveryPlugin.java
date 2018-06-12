@@ -19,7 +19,7 @@ import ddf.catalog.operation.Update;
 /**
  * The PreDeliveryPlugin is executed prior to an event being delivered.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface PreDeliveryPlugin {
 

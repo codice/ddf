@@ -22,7 +22,6 @@ import java.net.URL;
  * Builds DDF REST URL. Limited to single metacard retrieval.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class RestUrl {
 

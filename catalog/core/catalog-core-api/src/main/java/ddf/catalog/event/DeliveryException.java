@@ -16,8 +16,6 @@ package ddf.catalog.event;
 /**
  * The exception thrown when problems are detected during the delivery of a created, updated, or
  * deleted event.
- *
- * @author ddf.isgs@lmco.com
  */
 public class DeliveryException extends EventException {
 

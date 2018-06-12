@@ -26,8 +26,7 @@ import org.opengis.filter.Or;
  *
  * <p>This method of creating {@link Filter} instances is strongly recommended.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface FilterBuilder {
 

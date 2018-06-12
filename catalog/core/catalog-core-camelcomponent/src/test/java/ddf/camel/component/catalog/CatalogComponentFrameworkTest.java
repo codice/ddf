@@ -102,8 +102,7 @@ import org.springframework.util.Assert;
  * </tr>
  * </table>
  *
- * @author Sam Patel, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Sam Patel
  */
 public class CatalogComponentFrameworkTest extends CamelTestSupport {
 

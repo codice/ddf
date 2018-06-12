@@ -18,8 +18,7 @@ package ddf.metrics.reporting.internal;
  * encounters problems during its graphing.
  *
  * @since 2.1.0
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
  */
 public class MetricsGraphException extends Exception {
   /** The Constant serialVersionUID. */

@@ -19,8 +19,7 @@ import org.opengis.filter.Filter;
  * Continues the fluent API to create a Spatial {@link Filter}. Extends {@link
  * SpatialExpressionBuilder} to add the ability to buffer the shape.
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface BufferedSpatialExpressionBuilder extends SpatialExpressionBuilder {
 

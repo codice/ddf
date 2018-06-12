@@ -20,7 +20,7 @@
         specifications for query searches.
     </Description>
     <Tags>ddf opensearch query</Tags>
-    <Contact>ddf.isgs@lmco.com</Contact>
+
 
     <!-- TODO replace ddf-url and port with real values -->
     <Url type="application/atom+xml"

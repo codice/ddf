@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
  *     uri="catalog:inputtransformer?id=text/xml;id=identity"
  *     </code>
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public class CatalogComponentResolver implements ComponentResolver {
   private static final transient Logger LOGGER =

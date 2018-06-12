@@ -22,7 +22,6 @@ import java.util.List;
  *
  * @version 2.0
  * @since 2.0
- * @author Lockheed Martin IS&GS
  */
 public interface CreateRequest extends Request {
   /**

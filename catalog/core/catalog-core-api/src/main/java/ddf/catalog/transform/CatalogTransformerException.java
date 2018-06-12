@@ -16,8 +16,6 @@ package ddf.catalog.transform;
 /**
  * The exception thrown when problems transforming a {@link ddf.catalog.operation.QueryResponse} are
  * detected.
- *
- * @author ddf.isgs@lmco.com
  */
 public class CatalogTransformerException extends Exception {
 

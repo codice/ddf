@@ -13,11 +13,7 @@
  */
 package ddf.catalog.federation;
 
-/**
- * This exception should be thrown when general federation issues arise.
- *
- * @author ddf.isgs@lmco.com
- */
+/** This exception should be thrown when general federation issues arise. */
 public class FederationException extends Exception {
 
   /** The constant serialVersionUID. */

@@ -26,10 +26,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 
-/**
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
- */
+/** @author Michael Menousek */
 public class GeotoolsFilterBuilder implements FilterBuilder {
   private final FilterFactory factory = new FilterFactoryImpl();
 

@@ -20,8 +20,7 @@ import org.opengis.filter.Filter;
  * Completes the fluent API to build a temporal {@link Filter} using an instant in time (vs a
  * bounded range)
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface TemporalInstantExpressionBuilder {
 

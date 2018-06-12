@@ -28,7 +28,7 @@ import java.util.Set;
  * <p>For example the {@link URLResourceReader} obtains a {@link Resource} based on supported {@link
  * URI} schemes.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface ResourceReader extends Describable {
 

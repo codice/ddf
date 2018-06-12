@@ -20,7 +20,6 @@ import java.util.Map;
  * expose them as Services.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public interface ScheduledTask {
 

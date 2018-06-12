@@ -22,7 +22,7 @@ package ddf.catalog.resource;
  * resource URI has a scheme that the {@link ResourceReader} or {@link CatalogFramework} doesn't
  * support.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public class ResourceNotSupportedException extends Exception {
 

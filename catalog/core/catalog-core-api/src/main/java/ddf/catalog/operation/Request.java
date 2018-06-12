@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Marker interface to differentiate {@link Request}s from {@link Response}s.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface Request extends Operation {
 

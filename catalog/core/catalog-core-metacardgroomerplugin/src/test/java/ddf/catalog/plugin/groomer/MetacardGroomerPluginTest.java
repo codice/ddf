@@ -66,7 +66,6 @@ import org.junit.Test;
  * Tests the class {@link StandardMetacardGroomerPlugin}
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class MetacardGroomerPluginTest {
   private static final String DEFAULT_TITLE = "Flagstaff";

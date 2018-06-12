@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * provided by other objects.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public class ActionProviderRegistryProxy {
 

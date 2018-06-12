@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
  * Apache Tika mime type resolution packaged as a {@link MimeTypeResolver} OSGi service that can map
  * a list of file extensions to their corresponding mime types, and vice versa.
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
  * @since 2.1.0
  */
 public class TikaMimeTypeResolver implements MimeTypeResolver {

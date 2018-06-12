@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Further specification of {@link Response} for an {@link Update} request.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface UpdateResponse extends Response<UpdateRequest> {
   /**

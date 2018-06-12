@@ -28,8 +28,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * <p>For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
  * Guidelines</a>.
- *
- * @author ddf.isgs@lmco.com
  */
 public class AttributeDescriptorImpl implements AttributeDescriptor {
 

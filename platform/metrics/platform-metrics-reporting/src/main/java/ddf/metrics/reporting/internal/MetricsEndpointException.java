@@ -22,8 +22,7 @@ import javax.ws.rs.core.Response.Status;
  * problems during its graphing.
  *
  * @since 2.1.0
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
  */
 public class MetricsEndpointException extends WebApplicationException {
   /** The Constant serialVersionUID. */

@@ -24,7 +24,6 @@ import org.apache.abdera.ext.geo.Position;
  * Abstract class that represents the geometric portion of GeoJSON.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public abstract class CompositeGeometry {
 

@@ -87,7 +87,6 @@ import org.w3c.dom.Element;
  * (if applicable).
  *
  * @author rodgersh
- * @author ddf.isgs@lmco.com
  */
 public class RrdMetricsRetriever implements MetricsRetriever {
 

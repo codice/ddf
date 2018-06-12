@@ -29,9 +29,8 @@ import org.slf4j.LoggerFactory;
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
  * to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public abstract class TransformerProducer extends DefaultProducer {
 

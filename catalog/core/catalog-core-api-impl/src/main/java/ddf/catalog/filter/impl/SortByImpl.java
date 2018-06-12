@@ -20,8 +20,6 @@ import org.opengis.filter.sort.SortOrder;
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use {@link
  * ddf.catalog.filter.FilterBuilder} instead to create filters.
- *
- * @author ddf.isgs@lmco.com
  */
 public class SortByImpl implements SortBy {
 

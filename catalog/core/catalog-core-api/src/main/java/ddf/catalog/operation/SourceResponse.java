@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Query status should come back in the properties.
  *
- * @author michael.menousek@lmco.com
+ * @author Michael Menousek
  */
 public interface SourceResponse extends Response<QueryRequest> {
 

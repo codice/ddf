@@ -17,8 +17,7 @@ package ddf.catalog.filter;
  * Starts the fluent API to create {@link org.opengis.filter.Filter} based on a particular {@link
  * ddf.catalog.data.Attribute}
  *
- * @author Michael Menousek, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Michael Menousek
  */
 public interface AttributeBuilder extends ExpressionBuilder {
 

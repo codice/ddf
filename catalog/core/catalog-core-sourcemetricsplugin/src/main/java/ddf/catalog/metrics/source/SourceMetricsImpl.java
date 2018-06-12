@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
  * unless an administrator manually deletes it.
  *
  * @author rodgersh
- * @author ddf.isgs@lmco.com
  */
 public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederatedQueryPlugin {
 

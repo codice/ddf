@@ -33,7 +33,6 @@ import java.util.Set;
  * ddf.catalog.source.CatalogProvider} interfaces.
  *
  * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
  */
 public abstract class CatalogFacade implements Describable {
 

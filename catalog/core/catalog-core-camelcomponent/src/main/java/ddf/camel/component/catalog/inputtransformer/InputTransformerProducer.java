@@ -38,9 +38,8 @@ import org.slf4j.LoggerFactory;
  * org.apache.camel.Producer} would map to a Camel <to> route node with a URI like <code>
  * catalog:inputtransformer</code>
  *
- * @author Hugh Rodgers, Lockheed Martin
- * @author William Miller, Lockheed Martin
- * @author ddf.isgs@lmco.com
+ * @author Hugh Rodgers
+ * @author William Miller
  */
 public class InputTransformerProducer extends TransformerProducer {
   private static final Logger LOGGER = LoggerFactory.getLogger(InputTransformerProducer.class);

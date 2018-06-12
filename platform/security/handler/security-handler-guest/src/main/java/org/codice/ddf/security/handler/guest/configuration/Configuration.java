@@ -30,11 +30,7 @@ import org.codice.ddf.branding.BrandingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Stores external configuration properties.
- *
- * @author ddf.isgs@lmco.com
- */
+/** Stores external configuration properties. */
 @Path("/")
 public class Configuration {
   private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
