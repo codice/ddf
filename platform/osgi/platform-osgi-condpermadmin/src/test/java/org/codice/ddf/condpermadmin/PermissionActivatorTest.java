@@ -188,6 +188,20 @@ public class PermissionActivatorTest {
     permissionActivator.start(mock(BundleContext.class));
   }
 
+  @Test(expected = RuntimeException.class)
+  public void malformedPolicyFile() throws Exception {
+    File malformedPolicy = temporaryFolder.newFile("security/badformat.policy");
+    FileOutputStream malformedOutStream = new FileOutputStream(malformedPolicy);
+    InputStream malformedStream =
+        PermissionActivatorTest.class.getResourceAsStream("/badformat.policy");
+    IOUtils.copy(malformedStream, malformedOutStream);
+    IOUtils.closeQuietly(malformedOutStream);
+    IOUtils.closeQuietly(malformedStream);
+
+    PermissionActivatorForTest permissionActivator = new PermissionActivatorForTest();
+    permissionActivator.start(mock(BundleContext.class));
+  }
+
   private class PermissionActivatorForTest extends PermissionActivator {
     SecurityAdmin securityAdmin;
 
@@ -198,6 +212,11 @@ public class PermissionActivatorTest {
         securityAdmin = new SecurityAdmin(equinoxSecurityManager, permissionData);
       }
       return securityAdmin;
+    }
+
+    @Override
+    void systemExit(File file) {
+      throw new RuntimeException("Expected System Exit");
     }
   }
 }
