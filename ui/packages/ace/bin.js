@@ -55,6 +55,11 @@ program
   .action(wrap('./lib/test'))
 
 program
+  .command('lint')
+  .description('run codice linter')
+  .action(wrap('./lib/lint'))
+
+program
   .command('pom')
   .description('verify/fix the root pom')
   .option('-f, --fix', 'sync pom with packages')

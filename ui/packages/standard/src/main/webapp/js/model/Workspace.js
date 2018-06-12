@@ -65,7 +65,7 @@ define([
                     collectionType: Workspace.WorkspaceList
                 }
             ],
-            url: '/service/workspaces',
+            url: '../../service/workspaces',
             useAjaxSync: false,
             initialize: function() {
                 if(!this.get('workspaces')) {

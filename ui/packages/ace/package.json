@@ -12,8 +12,10 @@
     "format": "standard --fix"
   },
   "dependencies": {
+    "@ljharb/eslint-config": "12.2.1",
     "archiver": "2.1.1",
     "babel-core": "6.26.0",
+    "babel-eslint": "8.2.3",
     "babel-loader": "7.1.4",
     "babel-plugin-istanbul": "4.1.6",
     "babel-plugin-transform-react-jsx-source": "6.22.0",
@@ -27,6 +29,10 @@
     "console-polyfill": "0.3.0",
     "cross-spawn": "6.0.5",
     "css-loader": "0.28.11",
+    "eslint": "4.19.1",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.12.0",
+    "eslint-plugin-node": "6.0.1",
     "exports-loader": "0.7.0",
     "extract-text-webpack-plugin": "4.0.0-beta.0",
     "file-loader": "1.1.11",
@@ -64,6 +70,7 @@
     "worker-loader": "1.1.1"
   },
   "devDependencies": {
+    "eslint-plugin-codice-linter": "*",
     "standard": "8.6.0"
   }
 }

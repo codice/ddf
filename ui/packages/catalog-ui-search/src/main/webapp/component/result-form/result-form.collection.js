@@ -24,7 +24,7 @@
  let promiseIsResolved = false;
  const resultTemplatePromise = () => $.ajax({
      type: 'GET',
-     url: '/search/catalog/internal/forms/result',
+     url: './internal/forms/result',
      contentType: 'application/json',
      success: function(data) {
          resultTemplates = data;

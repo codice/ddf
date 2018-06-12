@@ -205,13 +205,13 @@ define([
         updateNode: function (options) {
             return this.syncNode(this.updateUrl, this, 'updateLocalEntry(java.util.Map)', options);
         },
-        syncNode: function (url, arguments, operation, options) {
+        syncNode: function (url, args, operation, options) {
             var data = {
                 type: 'EXEC',
                 mbean: 'org.codice.ddf.registry:type=FederationAdminMBean',
                 operation: operation
             };
-            data.arguments = [arguments];
+            data.arguments = [args];
             data = JSON.stringify(data);
             var response = $.ajax({
                 type: 'POST',
