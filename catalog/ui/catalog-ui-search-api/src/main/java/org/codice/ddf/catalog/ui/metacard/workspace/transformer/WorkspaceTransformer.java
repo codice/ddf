@@ -51,9 +51,7 @@ public interface WorkspaceTransformer {
    * @return a new JSON-style {@link Map} containing the results of {@link WorkspaceTransformation}s
    *     performed on the given workspace {@link Metacard}'s data
    */
-  default Map<String, Object> transform(Metacard workspaceMetacard) {
-    return transform(workspaceMetacard, workspaceMetacard);
-  }
+  Map<String, Object> transform(Metacard workspaceMetacard);
 
   /**
    * Transforms the given {@link Metacard} {@code metacard} into a JSON-style key-value pair {@link

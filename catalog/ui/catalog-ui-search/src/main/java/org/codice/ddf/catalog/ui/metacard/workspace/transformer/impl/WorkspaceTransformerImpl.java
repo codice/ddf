@@ -156,6 +156,11 @@ public class WorkspaceTransformerImpl implements WorkspaceTransformer {
     return workspaceMetacard;
   }
 
+  @Override
+  public Map<String, Object> transform(Metacard workspaceMetacard) {
+    return transform(workspaceMetacard, workspaceMetacard);
+  }
+
   @Nullable
   private Map.Entry<String, Object> getEntryFromDescriptor(
       Metacard metacard, AttributeDescriptor descriptor) {
