@@ -88,6 +88,10 @@
 
     <service interface="ddf.catalog.data.MetacardType">
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
+        <service-properties>
+            <entry key="name" value="queryMetacardType"/>
+            <entry key="id" value="queryMetacardType"/>
+        </service-properties>
     </service>
 
     <service interface="ddf.catalog.data.MetacardType">
