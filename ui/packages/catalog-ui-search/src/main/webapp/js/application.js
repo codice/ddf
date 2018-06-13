@@ -30,18 +30,6 @@ define([
     var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
-    // Set up the main regions that will be available at the Application level.
-    Application.App.addRegions({
-        workspacesRegion: '#workspaces',
-        workspaceRegion: '#workspace',
-        metacardRegion: '#metacard',
-        sourcesRegion: '#sources',
-        alertRegion: '#alert',
-        ingestRegion: '#ingest',
-        uploadRegion: '#upload',
-        aboutRegion: '#about',
-        notFoundRegion: '#notfound'
-    });
     const $faviconElement = $('#favicon');
     const $loadingElement = $('#loading');
     const $header = $('header');
