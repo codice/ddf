@@ -152,6 +152,8 @@ grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-securit
 }
 
 grant codeBase "file:/org.apache.karaf.shell.ssh/org.apache.sshd.core" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}host.key", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}branding-ssh.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.shell.cfg", "read";
