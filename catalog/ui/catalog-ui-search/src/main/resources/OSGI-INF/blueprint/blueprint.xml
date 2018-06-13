@@ -88,10 +88,6 @@
 
     <service interface="ddf.catalog.data.MetacardType">
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
-        <service-properties>
-            <entry key="name" value="queryMetacardType"/>
-            <entry key="id" value="queryMetacardType"/>
-        </service-properties>
     </service>
 
     <service interface="ddf.catalog.data.MetacardType">
@@ -240,15 +236,18 @@
     <service ref="removeBlankAccessIndividualsTransformation"
              interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
 
+    <bean id="workspaceTransformations" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
+                    availability="optional">
+        <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
+    </reference-list>
+
     <bean id="workspaceTransformer"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl">
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
         <argument ref="endpointUtil"/>
-        <argument>
-            <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
-                            availability="optional"/>
-        </argument>
+        <argument ref="workspaceTransformations"/>
     </bean>
 
     <service ref="workspaceTransformer"

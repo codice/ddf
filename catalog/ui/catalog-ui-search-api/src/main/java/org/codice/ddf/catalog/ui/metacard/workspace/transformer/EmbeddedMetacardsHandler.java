@@ -40,6 +40,25 @@ public abstract class EmbeddedMetacardsHandler extends WorkspaceValueTransformat
     return List.class;
   }
 
+  /**
+   * Wrap the given {@link Metacard} inside a new metacard with {@link #getMetacardType() the
+   * metacard type expected for this transformation}. This is necessary to prevent XML
+   * transformation classes from incorrectly setting the transformed {@link Metacard}'s {@link
+   * MetacardType}.
+   *
+   * @param metacard the {@link Metacard} to be wrapped and typed.
+   * @return a {@link Metacard} wrapping the given {@code metacard} with {@link #getMetacardType()
+   *     the appropriate metacard type}.
+   */
+  private Metacard setMetacardType(Metacard metacard) {
+    Metacard newMetacard = new MetacardImpl(getMetacardType());
+    getMetacardType()
+        .getAttributeDescriptors()
+        .forEach(
+            descriptor -> newMetacard.setAttribute(metacard.getAttribute(descriptor.getName())));
+    return newMetacard;
+  }
+
   @Override
   public Optional<List> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
@@ -49,6 +68,7 @@ public abstract class EmbeddedMetacardsHandler extends WorkspaceValueTransformat
             .filter(String.class::isInstance)
             .map(String.class::cast)
             .map(transformer::xmlToMetacard)
+            .map(this::setMetacardType)
             .map(metacard -> transformer.transform(workspaceMetacard, metacard))
             .collect(Collectors.toList()));
   }

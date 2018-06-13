@@ -88,7 +88,7 @@ public class WorkspaceTransformerImpl implements WorkspaceTransformer {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getMetacardKey()))
-        .findAny()
+        .findFirst()
         .map(transformation -> metacardEntryToJsonEntry(entry, transformation, workspaceMetacard))
         .orElse(Optional.of(entry));
   }
@@ -115,7 +115,7 @@ public class WorkspaceTransformerImpl implements WorkspaceTransformer {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getJsonKey()))
-        .findAny()
+        .findFirst()
         .map(transformation -> jsonEntryToMetacardEntry(entry, transformation))
         .orElse(Optional.of(entry));
   }
