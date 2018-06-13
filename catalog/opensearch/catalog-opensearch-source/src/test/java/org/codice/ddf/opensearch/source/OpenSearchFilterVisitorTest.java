@@ -244,8 +244,6 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testDWithinCqlFilter() throws CQLException {
-    final double lon = 1.0;
-    final double lat = 2.0;
     final double radius = 1;
     DWithin dWithinFilter =
         (DWithin)
@@ -267,8 +265,8 @@ public class OpenSearchFilterVisitorTest {
         result.getPointRadiusSearches(),
         contains(
             allOf(
-                hasProperty("lon", is(lon)),
-                hasProperty("lat", is(lat)),
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
                 hasProperty("radius", is(radius)))));
   }
 

@@ -99,7 +99,7 @@ Area between the geometries are also included in the bounding box. Hence widen t
 
 |geometry
 |geometry
-|Pulled from the ${branding} query and combine as a geometry collection if multiple spatial query exist.
+|Pulled from the ${branding} query and combined as a geometry collection if multiple spatial query exist.
 
 |polygon
 |polygon

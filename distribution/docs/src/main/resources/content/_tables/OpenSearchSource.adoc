@@ -48,7 +48,7 @@
 |parameters
 |String
 |Query parameters to use with the OpenSearch connection.
-|q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort
+|q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort
 |true
 
 |Always perform local query
