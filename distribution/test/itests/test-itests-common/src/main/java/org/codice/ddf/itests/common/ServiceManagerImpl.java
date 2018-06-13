@@ -14,6 +14,7 @@
 package org.codice.ddf.itests.common;
 
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
@@ -495,7 +496,8 @@ public class ServiceManagerImpl implements ServiceManager {
     boolean available = false;
 
     while (!available) {
-      Response response = get(path);
+      Response response =
+          given().header("X-Requested-With", "XMLHttpRequest").header("Origin", path).get(path);
       available = response.getStatusCode() == 200 && response.getBody().asString().length() > 0;
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Response body: {}", response.getBody().asString());

@@ -337,6 +337,13 @@
         <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
     </feature>
 
+    <feature name="security-filter-csrf" version="${project.version}"
+             description="CSRF Filter for web applications.">
+        <feature>security-core-api</feature>
+        <feature>platform-filter-delegate</feature>
+        <bundle>mvn:ddf.security.filter/security-filter-csrf/${project.version}</bundle>
+    </feature>
+
     <feature name="security-filter-login" version="${project.version}"
              description="Login Filter for web applications.">
         <feature>security-core</feature>
@@ -577,6 +584,7 @@
         <feature>security-expansion-metacard-attributes</feature>
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
+        <feature>security-filter-csrf</feature>
         <feature>security-filter-login</feature>
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>

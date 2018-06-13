@@ -124,7 +124,11 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   }
 
   private static RequestSpecification asGuest() {
-    return given().log().all().header("Content-Type", "application/json");
+    return given()
+        .log()
+        .all()
+        .header("Content-Type", "application/json")
+        .header("X-Requested-With", "XMLHttpRequest");
   }
 
   private static RequestSpecification asUser(String username, String password) {
@@ -134,7 +138,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         .header("Content-Type", "application/json")
         .auth()
         .preemptive()
-        .basic(username, password);
+        .basic(username, password)
+        .header("X-Requested-With", "XMLHttpRequest");
   }
 
   private static RequestSpecification asAdmin() {
@@ -144,7 +149,8 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         .header("Content-Type", "application/json")
         .auth()
         .preemptive()
-        .basic("admin", "admin");
+        .basic("admin", "admin")
+        .header("X-Requested-With", "XMLHttpRequest");
   }
 
   private static ResponseSpecification expect(RequestSpecification req, int status) {
@@ -154,14 +160,17 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testGuestCantCreateWorkspace() throws Exception {
     Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
-    expect(asGuest().body(stringify(workspace)), 404).post(workspacesApi());
+    expect(asGuest().header("Origin", workspacesApi()).body(stringify(workspace)), 404)
+        .post(workspacesApi());
   }
 
   @Test
   public void testGuestCanCreateWorkspacesForOthers() {
     Map<String, String> workspace =
         ImmutableMap.of("title", "my workspace", Core.METACARD_OWNER, "a@b.c");
-    Response res = expect(asGuest().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asGuest().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -171,7 +180,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testAdminCanCreateWorkspace() {
     Map<String, String> workspace = ImmutableMap.of("title", "my workspace");
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -181,13 +192,15 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
   @Test
   public void testGuestCantViewUnsharedWorkspace() {
     Map<String, Object> workspace = Collections.emptyMap();
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 404).get(workspacesApi() + "/" + id);
+    expect(asGuest().header("Origin", workspacesApi()), 404).get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -195,13 +208,15 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Map<String, Object> workspace =
         ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of("guest"));
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 200).get(workspacesApi() + "/" + id);
+    expect(asGuest().header("Origin", workspacesApi()), 200).get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -210,14 +225,17 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         ImmutableMap.of(
             SecurityAttributes.ACCESS_INDIVIDUALS, ImmutableList.of("random@localhost.local"));
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
 
-    expect(asGuest(), 404).get(workspacesApi() + "/" + id);
-    expect(asUser("random", "password"), 200).get(workspacesApi() + "/" + id);
+    expect(asGuest().header("Origin", workspacesApi()), 404).get(workspacesApi() + "/" + id);
+    expect(asUser("random", "password").header("Origin", workspacesApi()), 200)
+        .get(workspacesApi() + "/" + id);
   }
 
   @Test
@@ -226,7 +244,12 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         ImmutableMap.of(SecurityAttributes.ACCESS_GROUPS, ImmutableList.of("guest"));
 
     Response res =
-        expect(asUser("random", "password").body(stringify(workspace)), 201).post(workspacesApi());
+        expect(
+                asUser("random", "password")
+                    .header("Origin", workspacesApi())
+                    .body(stringify(workspace)),
+                201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -234,6 +257,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
     expect(
             asUser("random", "password")
+                .header("Origin", workspacesApi())
                 .body(stringify(ImmutableMap.of(Core.METACARD_OWNER, "random@localhost.local"))),
             200)
         .put(workspacesApi() + "/" + id);
@@ -244,7 +268,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<String> metacards = ImmutableList.of("item1", "item2");
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_METACARDS, metacards);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -264,7 +290,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<Map<String, Object>> queries = ImmutableList.of(query);
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -284,7 +312,9 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     List<Map<String, Object>> queries = ImmutableList.of(query);
     Map<String, Object> workspace = ImmutableMap.of(WORKSPACE_QUERIES, queries);
 
-    Response res = expect(asAdmin().body(stringify(workspace)), 201).post(workspacesApi());
+    Response res =
+        expect(asAdmin().header("Origin", workspacesApi()).body(stringify(workspace)), 201)
+            .post(workspacesApi());
 
     Map body = parse(res);
     String id = (String) body.get("id");
@@ -299,8 +329,12 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Set<String> expectedQueryTemplateTitles =
         new HashSet<>(ImmutableSet.of("Contact Name", "Imagery Only"));
 
-    Response httpRes1 = expect(asUser("srogers", "password1"), 200).get(queryTemplatesApi());
-    Response httpRes2 = expect(asUser("srogers", "password1"), 200).get(resultTemplatesApi());
+    Response httpRes1 =
+        expect(asUser("srogers", "password1").header("Origin", queryTemplatesApi()), 200)
+            .get(queryTemplatesApi());
+    Response httpRes2 =
+        expect(asUser("srogers", "password1").header("Origin", resultTemplatesApi()), 200)
+            .get(resultTemplatesApi());
 
     assertTemplateDataStructures(JsonPath.from(httpRes1.getBody().asString()));
 

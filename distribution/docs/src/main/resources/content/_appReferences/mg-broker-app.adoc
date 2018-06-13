@@ -66,7 +66,7 @@ Once both servers are started, the following command can be run using curl or a 
 [source,bash]
 ----
 sh
-curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22<FQDN>%22/ReplicaSync --user admin:admin --insecure
+curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22<FQDN>%22/ReplicaSync --user admin:admin --header "Origin: ${secure_url}" --header "X-Requested-With: XMLHttpRequest" --insecure
 ----
 
 .Example ReplicaSync JSON Response
@@ -100,7 +100,7 @@ Additionally, for more details about the health of the cluster, the following co
 [source]
 ----
 sh
-curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22<FQDN>%22,component=cluster-connections,name=%22broker-cluster%22/Topology --user admin:admin --insecure
+curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22<FQDN>%22,component=cluster-connections,name=%22broker-cluster%22/Topology --user admin:admin --header "Origin: ${secure_url}" --header "X-Requested-With: XMLHttpRequest" --insecure
 ----
 
 This endpoint returns diagnostic info about the cluster that can be used for troubleshooting. Values of interest in the response are the `node=2` value which is a count of the nodes in the cluster and the port/host values for each node.

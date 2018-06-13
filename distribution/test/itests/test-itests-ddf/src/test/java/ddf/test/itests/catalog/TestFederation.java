@@ -932,6 +932,8 @@ public class TestFederation extends AbstractIntegrationTest {
         .auth()
         .preemptive()
         .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
         .when()
         .get(ADMIN_ALL_SOURCES_PATH.getUrl())
         .then()
@@ -950,6 +952,8 @@ public class TestFederation extends AbstractIntegrationTest {
             .auth()
             .preemptive()
             .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
             .when()
             .get(ADMIN_ALL_SOURCES_PATH.getUrl())
             .asString();
@@ -967,6 +971,8 @@ public class TestFederation extends AbstractIntegrationTest {
     given()
         .auth()
         .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", ADMIN_STATUS_PATH.getUrl())
         .when()
         .get(ADMIN_STATUS_PATH.getUrl() + openSearchPid)
         .then()
@@ -988,6 +994,8 @@ public class TestFederation extends AbstractIntegrationTest {
         given()
             .auth()
             .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Origin", ADMIN_ALL_SOURCES_PATH.getUrl())
             .when()
             .get(ADMIN_ALL_SOURCES_PATH.getUrl())
             .asString();
@@ -1006,6 +1014,8 @@ public class TestFederation extends AbstractIntegrationTest {
     given()
         .auth()
         .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", ADMIN_STATUS_PATH.getUrl())
         .when()
         .get(ADMIN_STATUS_PATH.getUrl() + connectedSourcePid)
         .then()
@@ -1670,13 +1680,19 @@ public class TestFederation extends AbstractIntegrationTest {
 
     // This query will put the ingested metacards from the BeforeExam method into the cache
     given()
+        .log()
+        .all()
         .contentType("application/json")
         .auth()
         .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", cqlUrl)
         .body(srcRequest)
         .when()
         .post(cqlUrl)
         .then()
+        .log()
+        .all()
         .statusCode(200);
 
     // CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
@@ -2843,6 +2859,8 @@ public class TestFederation extends AbstractIntegrationTest {
         .contentType("application/json")
         .auth()
         .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", cqlUrl)
         .body(cacheRequest)
         .when()
         .post(cqlUrl)

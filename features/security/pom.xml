@@ -218,6 +218,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.filter</groupId>
+            <artifactId>security-filter-csrf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.filter</groupId>
             <artifactId>security-filter-login</artifactId>
             <version>${project.version}</version>
         </dependency>

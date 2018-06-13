@@ -82,4 +82,3 @@ export default ({ entry, marks, expandedHash, dispatch }) => {
     </tr>
   )
 }
-

@@ -114,7 +114,10 @@ export const fetch = () => (dispatch, getState) => {
   ].join('/')
 
   window.fetch(url, {
-    credentials: 'same-origin'
+    credentials: 'same-origin',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
   }).then((res) => res.json())
     .then((json) => {
       const config = fromJS(json)
@@ -157,7 +160,8 @@ export const save = () => (dispatch, getState) => {
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
     },
     body: JSON.stringify(body)
   }

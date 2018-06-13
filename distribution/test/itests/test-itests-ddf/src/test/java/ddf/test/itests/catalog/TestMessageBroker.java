@@ -261,6 +261,8 @@ public class TestMessageBroker extends AbstractIntegrationTest {
         .auth()
         .preemptive()
         .basic(ADMIN_USERNAME, ADMIN_PASSWORD)
+        .header("X-Requested-With", "XMLHttpRequest")
+        .header("Origin", operationUrl)
         .when()
         .get(operationUrl)
         .asString();

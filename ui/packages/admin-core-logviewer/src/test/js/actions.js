@@ -82,4 +82,3 @@ test('append with new logs', (t) => {
 
   fetch(getLogs)(dispatch, getState)
 })
-

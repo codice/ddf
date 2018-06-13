@@ -44,7 +44,12 @@ export const fetch = () => (dispatch) => {
     '(service.pid=org.codice.ddf.catalog.ui.config)'
   ].join('/')
 
-  window.fetch(url, { credentials: 'same-origin' })
+  window.fetch(url, {
+    credentials: 'same-origin',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
     .then((res) => res.json())
     .then((json) => {
       const config = fromJS(json).getIn(configPath)
