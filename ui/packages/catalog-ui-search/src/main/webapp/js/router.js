@@ -30,72 +30,45 @@ const NotFoundView = require('component/notfound/notfound.view')
 const RouterView = require('component/router/router.view');
 const plugin = require('plugins/router')
 
-const openWorkspace = {pattern: 'workspaces/:id'}
-Application.App.workspaceRegion.show(new RouterView({
-    component: ContentView,
-    routes: ['openWorkspace']
-}));
+let regionName = 0;
+const addRoute = function(component, routes) {
+    regionName++;
+    const newRegion = $('<div></div>');
+    $('#content').append(newRegion);
+    Application.App.addRegions({
+        [regionName]: {
+            el: newRegion
+        }
+    });
+    Application.App[regionName].show(new RouterView({
+        component,
+        routes
+    }), {
+        replaceElement: true
+    });
+}
 
-const home = {pattern: '(?*)'}
-const workspaces = {pattern: 'workspaces(/)'}
-Application.App.workspacesRegion.show(new RouterView({
-    component: HomeView,
-    routes: ['workspaces', 'home']
-}));
-
-const openMetacard = {pattern: 'metacards/:id'}
-Application.App.metacardRegion.show(new RouterView({
-    component: MetacardView,
-    routes: ['openMetacard']
-}));
-
-const openUpload = {pattern: 'uploads/:id'}
-Application.App.uploadRegion.show(new RouterView({
-    component: UploadView,
-    routes: ['openUpload']
-}));
-
-const notFound = {pattern: '*path'}
-Application.App.notFoundRegion.show(new RouterView({
-    component: NotFoundView,
-    routes: ['notFound']
-}));
-
-const openAbout = {pattern: 'about(/)'}
-Application.App.aboutRegion.show(new RouterView({
-    component: AboutView,
-    routes: ['openAbout']
-}));
-
-const openSources = {pattern: 'sources(/)'}
-Application.App.sourcesRegion.show(new RouterView({
-    component: SourcesView,
-    routes: ['openSources']
-}));
-
-const openIngest = {pattern: 'ingest(/)'}
-Application.App.ingestRegion.show(new RouterView({
-    component: IngestView,
-    routes: ['openIngest']
-}));
-
-const openAlert = {pattern: 'alerts/:id'}
-Application.App.alertRegion.show(new RouterView({
-    component: AlertView,
-    routes: ['openAlert']
-}));
+addRoute(ContentView, ['openWorkspace']);
+addRoute(HomeView, ['workspaces', 'home']);
+addRoute(MetacardView, ['openMetacard']);
+addRoute(UploadView, ['openUpload']);
+addRoute(NotFoundView, ['notFound']);
+addRoute(AboutView, ['openAbout']);
+addRoute(SourcesView, ['openSources']);
+addRoute(IngestView, ['openIngest']);
+addRoute(AlertView, ['openAlert']);
 
 const routes = plugin({
-    openWorkspace,
-    home,
-    workspaces,
-    openMetacard,
-    openAlert,
-    openIngest,
-    openUpload,
-    openSources,
-    openAbout,
-    notFound
+    openWorkspace: {pattern: 'workspaces/:id'},
+    home: {pattern: '(?*)'},
+    workspaces: {pattern: 'workspaces(/)'},
+    openMetacard: {pattern: 'metacards/:id'},
+    openAlert: {pattern: 'alerts/:id'},
+    openIngest: {pattern: 'ingest(/)'},
+    openUpload: {pattern: 'uploads/:id'},
+    openSources: {pattern: 'sources(/)'},
+    openAbout: {pattern: 'about(/)'},
+    notFound: {pattern: '*path'}
 }, Application.App)
 
 const controller = Object.keys(routes).reduce((route, key) => {

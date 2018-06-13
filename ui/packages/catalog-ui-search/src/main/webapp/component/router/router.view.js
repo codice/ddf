@@ -34,9 +34,9 @@ const RouterView = Marionette.LayoutView.extend({
     handleRoute: function(){
         if (this.options.routes.indexOf(router.toJSON().name) !== -1){
             this.showRoute();
-            this.$el.parent().removeClass('is-hidden');
+            this.$el.removeClass('is-hidden');
         } else {
-            this.$el.parent().addClass('is-hidden');
+            this.$el.addClass('is-hidden');
         }
     },
     showRoute: function() {

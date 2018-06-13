@@ -1,3 +1,18 @@
 @{customElementNamespace}router {
     .customElement;
+
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    width: 100%;
+    opacity: 1;
+    transition: opacity @coreTransitionTime linear;
+    transform: translateX(0%);
+
+    &.is-hidden {
+        display: block !important;
+        opacity: 0;
+        transform: translateX(-100%);
+    }
 }
