@@ -116,10 +116,8 @@ public class InputTransformerProducer extends TransformerProducer {
                           "Did not find an InputTransformer for MIME Type [%s] and %s [%s]",
                           mimeType, MimeTypeToTransformerMapper.ID_KEY, transformerId)));
     } catch (IOException e) {
-      LOGGER.debug("Failed to get mimeType by reading input stream", e);
+      throw new CatalogTransformerException("Unable to transform incoming product", e);
     }
-
-    throw new CatalogTransformerException("Unable to transform incoming product");
   }
 
   private Optional<Metacard> generateMetacard(
