@@ -153,8 +153,19 @@ public class IdentityNodeInitialization {
                 extrinsicObjectType.setName(internationalStringTypeHelper.create(siteName)));
     Metacard identityMetacard = getRegistryMetacardFromRegistryPackage(registryPackage);
     if (identityMetacard != null) {
+      copyTransientAttributes(identityMetacard, metacard);
       federationAdminService.updateRegistryEntry(identityMetacard);
     }
+  }
+
+  private void copyTransientAttributes(Metacard updateMetacard, Metacard existingMetacard) {
+    RegistryObjectMetacardType.TRANSIENT_ATTRIBUTES
+        .stream()
+        .filter(
+            key ->
+                updateMetacard.getAttribute(key) == null
+                    && existingMetacard.getAttribute(key) != null)
+        .forEach(key -> updateMetacard.setAttribute(existingMetacard.getAttribute(key)));
   }
 
   private void createIdentityNode() throws FederationAdminException {
