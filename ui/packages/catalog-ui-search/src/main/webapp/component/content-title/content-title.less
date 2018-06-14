@@ -1,6 +1,7 @@
 @{customElementNamespace}content-title{
   .customElement;
   position: relative;
+ 
 
   .title-display {
     display: inline-block;
@@ -15,6 +16,7 @@
     font-family: inherit;
     margin: 0px;
     overflow: hidden;
+    width: auto;
   }
   
   .title-display:empty::before {
@@ -30,6 +32,7 @@
     right: 0px;
     top: 3px;
     background: @backgroundNavigation;
+    font-size: @minimumFontSize;
     transform: scale(1);
     opacity: 1;
     transition: padding @coreTransitionTime ease-out @coreTransitionTime, transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
@@ -47,9 +50,9 @@
     min-width: 1px;
     background: @backgroundNavigation !important;
     border: none !important;
-    font-size: @largeFontSize;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: @minimumFontSize;
+    //overflow: hidden;
+    //text-overflow: ellipsis;
     width: 100%;
     cursor: pointer;
     transition: padding @coreTransitionTime ease-out;

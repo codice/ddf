@@ -2,7 +2,7 @@
   display: block;
   width: 100%;
   white-space: nowrap;
-  padding: @minimumSpacing;
+  padding: @mediumSpacing;
   position: relative;
 
   .property-label,
@@ -29,30 +29,32 @@
     max-width: ~'calc(100% - @{minimumButtonSize})';
     margin: 0px;
     line-height: 1.4;
-    padding: @minimumSpacing 0px;
-    min-height: @minimumButtonSize;
+    padding: 0px;
+    min-height: (@minimumButtonSize - (@minimumButtonSize/4));
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: normal;
     white-space: normal;
+    color: fade(contrast(@backgroundDropdown), 80%);
   }
 
   .property-revert {
     display: none;
   }
 
-  .property-revert {
+  .property-revert.is-button {
     font-size: @mediumFontSize;
-    vertical-align: bottom;
-    color: orange;
+    color: @positive-color; 
+    opacity: 1;
+    padding-left: 5px;
   }
 
   .property-revert:hover {
-    color: shade(orange, 10%);
+    color: lighten(@positive-color, 10%);
   }
 
   .property-revert:focus {
-    color: shade(orange, 25%);
+    color: lighten(@positive-color, 25%);
   }
 
   .input-validation:nth-of-type(2){

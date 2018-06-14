@@ -4,20 +4,29 @@
     white-space: nowrap;
     overflow: hidden;
 
+    button > span.fa {
+        font-size: @minimumFontSize;
+    }
+
+    button > span.fa-user {
+        margin-right: 7px;
+    }
+
     .navigation-item {
         display: inline-block;
-        width: @minimumButtonSize;
+        min-width: @minimumButtonSize;
         height: 100%;
         text-align: center;
         vertical-align: top;
     }
 
     .navigation-item.item-user {
-        padding: 0px @minimumSpacing;
+        padding: 0px @mediumSpacing;
         max-width: 9rem + @navigation-right-usericon;
         width: auto;
         overflow: hidden;
         text-overflow: ellipsis;
+        border-left: 1px solid fade(contrast(@backgroundNavigation), 30%);
     }
 
     .alerts-badge {
@@ -37,27 +46,32 @@
     .user-unique {
         white-space: nowrap;
         vertical-align: top;
-        position: relative;
+        position: relative; 
+        // font-size: @minimumFontSize;
     }
 
     .user-unique span:first-of-type {
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: top;
-        max-width: 9rem - @navigation-right-usericon;
-        padding-right: @navigation-right-usericon;
-    }
-
-    .user-unique span:nth-of-type(2){
         position: absolute;
-        right: 0px;
+        left: 0px;
         top: 50%;
-        display: inline-block;
+        // display: inline-block;
         width: @navigation-right-usericon;
         line-height: inherit !important;
         vertical-align: top;
         transform: translateY(-50%);
+        font-size: @minimumFontSize;
+
+        
+    }
+
+    .user-unique span:nth-of-type(2){
+        // display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: top;
+        max-width: 9rem - @navigation-right-usericon;
+        padding-left: @navigation-right-usericon;
+        font-size: @minimumFontSize;
     }
 
 }

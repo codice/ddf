@@ -3,19 +3,26 @@
   white-space: nowrap;
   background-color: inherit;
   font-size: 0px;
+  border: 0px;
 
   button {
     vertical-align: top;
-    opacity: @minimumOpacity;
     min-width: @minimumButtonSize;
     min-height: @minimumButtonSize;
-    border: 1px solid transparent;
-    background-color: inherit;
+    border: 1px solid fade(@primary-color, 30%); //change the border on the "off" button
+    background-color: contrast(@backgroundDropdown, fade(@primary-color, 30%), fade(@primary-color, 45%));
     padding: 0px 10px;
+    color: contrast(@backgroundDropdown, fade(contrast(@primary-color), 100%), fade(contrast(@primary-color), 50%));
+    font-weight: 300;
   }
 
   button.is-selected {
     opacity: 1;
+    background: @primary-color;
+    border: 1px solid @primary-color; // Changes the border of the "on" button
+    color: contrast(@primary-color);
+    font-weight: 300;
+    cursor: pointer;
   }
 
   button[disabled] {
@@ -33,11 +40,13 @@
 }
 
 @{customElementNamespace}radio.is-editing:hover {
-  button.is-selected {
-    opacity: @minimumOpacity;
-  }
-
   button:hover {
     opacity: 1;
+    background-color: contrast(@backgroundDropdown, fade(@primary-color, 40%), fade(@primary-color, 55%));
+  }
+
+  button.is-selected {
+    cursor: pointer;
+    background: @primary-color;
   }
 }

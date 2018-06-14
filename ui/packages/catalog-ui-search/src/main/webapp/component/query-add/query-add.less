@@ -3,8 +3,19 @@
     min-width: @minimumScreenSize;
     overflow: hidden;
 
+    > form > .editor-content > .content-footer {
+        padding-left: (@mediumSpacing + .625rem);
+        padding-right: (@mediumSpacing + .625rem);
+        margin-bottom: (@mediumSpacing + .625rem);
+    }
+
     > form > .editor-content > .content-footer button {
         width: 100%;
+        font-size: @minimumFontSize;
+    }
+
+    > form > .editor-content > .content-footer button > span {
+        font-size: @minimumFontSize;
     }
 
     > form > .editor-content > .content-form {

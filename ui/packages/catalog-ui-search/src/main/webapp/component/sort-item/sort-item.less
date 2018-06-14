@@ -57,12 +57,13 @@
   }
 
   .sort-properties {
-    width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing})';
+    // width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing})';
+    width: 100%;
   }
 
   .sort-remove {
     position: absolute;
-    right: 0px;
+    right: @mediumSpacing;
     top: 50%;
     transform: translateY(-50%);
     height: @minimumButtonSize;
@@ -75,6 +76,10 @@
 @{customElementNamespace}sort-item.is-non-directional-sort {
   .sort-direction {
     display: none;
+  }
+
+  .sort-properties {
+    max-width: 80%;
   }
 }
 

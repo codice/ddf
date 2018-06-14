@@ -5,6 +5,7 @@
   height: 2*@minimumLineSize;
   white-space: nowrap;
 
+
   > div {
     display: inline-block;
     vertical-align: top;
@@ -17,6 +18,7 @@
     transition: padding 1*@coreTransitionTime ease-out;
     padding-right: 3*@minimumButtonSize;
     max-width: 100%;
+    border-left: 1px solid fade(contrast(@backgroundNavigation), 20%);
   }
 
   > .content-interactions,
@@ -39,6 +41,7 @@
 
   > .content-adhoc {
     width: auto;
+    border-left: 1px solid fade(contrast(@backgroundNavigation), 30%);
   }
 }
 
@@ -60,5 +63,6 @@
   .content-title {
     transition-delay: 10*@coreTransitionTime;
     padding-right: 2*@minimumButtonSize;
+    // 
   }
 }

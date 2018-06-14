@@ -96,11 +96,22 @@
   cursor: -webkit-grab;
 }
 
-.is-input(@contrastColor: white) {
-  @{customElementNamespace}metacard-preview {
+.mixin2(@contrastColor: white) when(@theme = light), (@theme = sea) {
+  .is-input,
+  input,
+  input.form-control,
+  .select2-container--default .select2-selection--single,
+  @{customElementNamespace}input.is-range {
     color: @contrastColor;
-    background: fade(@contrastColor, 10%);
+    background: white;
+    border: 1px solid fade(@contrastColor, 20%);
+    outline: none;
+    border-radius: @border-radius;
   }
+
+}
+
+.mixin2(@contrastColor: white) when(default()) {
   .is-input,
   input,
   input.form-control,
@@ -108,10 +119,19 @@
   @{customElementNamespace}input.is-range {
     color: @contrastColor;
     background: fade(@contrastColor, 10%);
-    border: 2px solid fade(@contrastColor, 10%);
+    border: 1px solid fade(@contrastColor, 10%);
     outline: none;
     border-radius: @border-radius;
   }
+}
+
+.is-input(@contrastColor: white) {
+  @{customElementNamespace}metacard-preview {
+    color: @contrastColor;
+    //background: fade(@contrastColor, 10%);
+    background: @customBackgroundInput;
+  }
+  .mixin2(@contrastColor);
   input::placeholder,
   input::-ms-input-placeholder {
     color: fadeout(@contrastColor, 50%);
@@ -120,6 +140,7 @@
   .ui-multiselect.ui-widget {
     color: @contrastColor;
     background: fade(@contrastColor, 5%);
+    //background: @customBackgroundInput;
     border-color: fade(@contrastColor, 5%);
   }
   label.btn {
@@ -142,12 +163,12 @@
       background: fade(@contrastColor, 5%);
     }
   }
-  @{customElementNamespace}radio {
-    border: 1px solid fade(@contrastColor, 40%);
-    button + button {
-      border-left: 1px solid fade(@contrastColor, 40%);
-    }
-  }
+  // @{customElementNamespace}radio {
+  //   border: 1px solid fade(@contrastColor, 40%);
+  //   button + button {
+  //     border-left: 1px solid fade(@contrastColor, 40%);
+  //   }
+  // }
   @{customElementNamespace}histogram {
     .hovertext rect, .hovertext path, .axistext path {
       fill: @backgroundDropdown !important;
@@ -177,11 +198,15 @@
       background: fade(contrast(@contrastColor), 40%);
     }
     .lm_tabs .lm_tab {
-      border: 1px solid fade(@contrastColor, 10%);
+      border-left: 1px solid fade(@contrastColor, 10%);
+      border-right: 1px solid fade(@contrastColor, 10%);
+      border-bottom: 1px solid fade(@contrastColor, 10%);
+      background: fade(@contrastColor, 10%) !important;
     }
     .lm_tab.lm_active {
       color: @contrastColor !important;
-      background: fade(@contrastColor, 0%) !important;
+      background: fade(@backgroundContent, 100%) !important;
+     // background-color: @backgroundContent;
       border-bottom: none;
     }
     .lm_tabs .lm_tab:hover {

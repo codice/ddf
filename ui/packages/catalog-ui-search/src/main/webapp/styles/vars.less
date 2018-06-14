@@ -47,7 +47,8 @@
 @minimumDividerSize: @dividerHeight + 2*@minimumSpacing;
 
 //opacity
-@minimumOpacity: 0.6;
+@minimumOpacity: 0.3;
+@mediumOpacity: 0.6;
 
 @import 'fonts.less';
 
@@ -64,12 +65,14 @@
 @customFavoriteColor: #d1d179;
 
 //color usage
+
 @customBackgroundNavigation: #252529;
 @customBackgroundAccentContent: #2A2A2E;
 @customBackgroundDropdown: #35353a;
 @customBackgroundContent: #35353a;
 @customBackgroundModal: #252529;
 @customBackgroundSlideout: #252529;
+@customBackgroundInput: white;
 
 .theme() when (@theme = dark), (default()) {
     //color palette
@@ -115,11 +118,11 @@
 
     //color usage
     @backgroundNavigation: #3c6dd5;
-    @backgroundAccentContent: rgb(237, 249, 252);
-    @backgroundDropdown: rgb(243, 253, 255);
-    @backgroundContent: rgb(243, 253, 255);
-    @backgroundModal: rgb(237, 249, 252);
-    @backgroundSlideout: rgb(237, 249, 252);
+    @backgroundAccentContent: #f1f1f1;
+    @backgroundDropdown: #f8f8f8;
+    @backgroundContent: #f8f8f8;
+    @backgroundModal: #f1f1f1;
+    @backgroundSlideout: #f1f1f1;
 }
 
 .theme() when (@theme = custom) {

@@ -1,5 +1,6 @@
 //golden layout theming only, other styles should go below in their own nest
 @{customElementNamespace}golden-layout {
+    
     .lm_maximised ~ .lm_item{
         display: none;
     }
@@ -8,11 +9,16 @@
         background: inherit !important;
     }
 
+    .lm_header {
+        border-bottom: 1px solid fade(contrast(@backgroundAccentContent), 5%);
+    }
+
     .lm_header,
     .lm_items {
         position: relative;
         z-index: 1;
     }
+
     .lm_items {
         z-index: 0;
     }
@@ -26,10 +32,14 @@
 
     .lm_tabs .lm_tab {
         opacity: .4;
+        z-index: 10 !important;
     }
 
     .lm_tab.lm_active {
         opacity: 1;
+        z-index: 15 !important;
+        border-bottom: 1px solid @backgroundContent !important;
+        height: @minimumButtonSize !important;
     }
 
     .lm_tabdropdown_list {
@@ -56,7 +66,7 @@
         display: inline-block !important;
         width: @minimumButtonSize !important;
         vertical-align: top;
-        font-size: @largeFontSize !important;
+        font-size: @minimumFontSize !important;
         background: none !important;
         opacity: @minimumOpacity !important;
     }
@@ -153,7 +163,7 @@
     }
 
     .lm_header .lm_tab {
-        font-size: @largeFontSize;
+        font-size: @minimumFontSize;
     }
 
     .lm_tab {
