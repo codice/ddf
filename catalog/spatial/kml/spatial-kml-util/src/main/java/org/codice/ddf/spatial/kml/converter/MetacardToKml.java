@@ -51,7 +51,7 @@ public class MetacardToKml {
           "WKT was null or empty. Unable to preform KML Transform on Metacard.");
     }
 
-    com.vividsolutions.jts.geom.Geometry geo = createJtsGeoFromWkt(wkt);
+    com.vividsolutions.jts.geom.Geometry geo = getJtsGeoFromWkt(wkt);
     return getKmlGeoFromJtsGeo(geo);
   }
 
@@ -115,8 +115,14 @@ public class MetacardToKml {
     return KmlFactory.createPoint().addToCoordinates(jtsPoint.getX(), jtsPoint.getY());
   }
 
-  public static com.vividsolutions.jts.geom.Geometry createJtsGeoFromWkt(final String wkt)
+  public static com.vividsolutions.jts.geom.Geometry getJtsGeoFromWkt(final String wkt)
       throws CatalogTransformerException {
+
+    if (StringUtils.isBlank(wkt)) {
+      throw new CatalogTransformerException(
+          "WKT was null or empty. Unable to preform KML Transform on Metacard.");
+    }
+
     try {
       return WKT_READER_THREAD_LOCAL.get().read(wkt);
     } catch (ParseException e) {
