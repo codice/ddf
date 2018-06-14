@@ -100,6 +100,13 @@ public class TransformVisitorJsonTest {
     assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
   }
 
+  @Test
+  public void testVariety3() throws Exception {
+    getRootXmlFilterNode("hybrid", "hybrid-example-3.xml").accept(visitor);
+    assertParentNode(visitor.getResult(), "AND", 6);
+    assertLeafNode(visitor.getResult().getChildren().get(2), "LIKE", "name", "Bob");
+  }
+
   private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {
     File dir = new File(FILTER_RESOURCES_DIR.toURI());
     if (!dir.exists()) {

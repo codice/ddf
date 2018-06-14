@@ -128,8 +128,10 @@ public class VisitableXmlElementImplTest {
 
   @Test
   public void testPropertyIsLikeType() {
-    parameterizedMappingVerification(
-        PropertyIsLikeType.class, (v) -> verify(v).visitPropertyIsLikeType(eq(node)));
+    PropertyIsLikeType propertyIsLikeType = new PropertyIsLikeType();
+    propertyIsLikeType.setMatchCase(true);
+    propertyIsLikeTypeVerification(
+        propertyIsLikeType, (v) -> verify(v).visitPropertyIsLikeType(eq(node)));
   }
 
   @Test
@@ -158,6 +160,16 @@ public class VisitableXmlElementImplTest {
     verify(mockElement).getDeclaredType();
     assertOnVisitFunction.accept(mockVisitor);
     verifyNoMoreInteractions(mockVisitor, mockElement);
+  }
+
+  private void propertyIsLikeTypeVerification(
+      Object value, Consumer<FilterVisitor2> assertOnVisitFunction) {
+    when(mockElement.getDeclaredType()).thenReturn(PropertyIsLikeType.class);
+    when(mockElement.getValue()).thenReturn(value);
+    node.accept(mockVisitor);
+
+    verify(mockElement).getDeclaredType();
+    assertOnVisitFunction.accept(mockVisitor);
   }
 
   private static class VisitableXmlElementImplUnderTest extends VisitableXmlElementImpl<Object> {

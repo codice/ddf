@@ -45,7 +45,9 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder beginBinaryComparisonType(String operator);
 
-  FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase);
+  FlatFilterBuilder beginPropertyIsLikeType(String operator);
+
+  FlatFilterBuilder beginPropertyIsILikeType(String operator);
 
   FlatFilterBuilder beginBinaryTemporalType(String operator);
 

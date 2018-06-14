@@ -107,9 +107,15 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   @Override
   public void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
-    // For now, will always choose ILIKE
-    // For system templates defined in XML, matchCase="true" will be ignored
-    builder.beginPropertyIsLikeType(visitable.getName(), false);
+    builder.beginPropertyIsLikeType(visitable.getName());
+    visitable.getValue().forEach(v -> v.accept(this));
+    builder.endTerminalType();
+  }
+
+  @Override
+  public void visitPropertyIsILikeType(VisitableElement<List<VisitableElement<?>>> visitable) {
+    traceName(visitable);
+    builder.beginPropertyIsILikeType(visitable.getName());
     visitable.getValue().forEach(v -> v.accept(this));
     builder.endTerminalType();
   }
