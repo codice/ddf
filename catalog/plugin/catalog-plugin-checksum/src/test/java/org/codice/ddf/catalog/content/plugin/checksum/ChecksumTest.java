@@ -20,11 +20,14 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.plugin.PluginExecutionException;
@@ -154,5 +157,41 @@ public class ChecksumTest {
     } catch (PluginExecutionException e) {
       assertThat(e.getCause(), instanceOf(IOException.class));
     }
+  }
+
+  @Test
+  public void testProcessCreateDerivedContentDoesNotSetAttribute() throws Exception {
+    Metacard metacard = mock(Metacard.class);
+    ContentItem mockContentItem = mock(ContentItem.class);
+    when(mockContentItem.getQualifier()).thenReturn("some-qualifier");
+    when(mockContentItem.getMetacard()).thenReturn(metacard);
+
+    List<ContentItem> mockContentItems = new ArrayList<>();
+    mockContentItems.add(mockContentItem);
+
+    CreateStorageRequest mockCreateRequest = mock(CreateStorageRequest.class);
+    when(mockCreateRequest.getContentItems()).thenReturn(mockContentItems);
+
+    checksum.process(mockCreateRequest);
+
+    verify(metacard, never()).setAttribute(any(Attribute.class));
+  }
+
+  @Test
+  public void testProcessUpdateDerivedContentDoesNotSetAttribute() throws Exception {
+    Metacard metacard = mock(Metacard.class);
+    ContentItem mockContentItem = mock(ContentItem.class);
+    when(mockContentItem.getQualifier()).thenReturn("some-qualifier");
+    when(mockContentItem.getMetacard()).thenReturn(metacard);
+
+    List<ContentItem> mockContentItems = new ArrayList<>();
+    mockContentItems.add(mockContentItem);
+
+    UpdateStorageRequest mockUpdateRequest = mock(UpdateStorageRequest.class);
+    when(mockUpdateRequest.getContentItems()).thenReturn(mockContentItems);
+
+    checksum.process(mockUpdateRequest);
+
+    verify(metacard, never()).setAttribute(any(Attribute.class));
   }
 }
