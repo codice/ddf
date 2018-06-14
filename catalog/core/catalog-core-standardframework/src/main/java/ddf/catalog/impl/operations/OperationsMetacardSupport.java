@@ -147,16 +147,20 @@ public class OperationsMetacardSupport {
           fileName = updateFileExtension(mimeTypeRaw, fileName);
         }
 
-        Metacard metacard =
-            metacardFactory.generateMetacard(mimeTypeRaw, contentItem.getId(), fileName, tmpPath);
+        Metacard metacard;
+        boolean qualifiedContent = StringUtils.isNotEmpty(contentItem.getQualifier());
+        if (qualifiedContent) {
+          metacard = contentItem.getMetacard();
+        } else {
+          metacard =
+              metacardFactory.generateMetacard(mimeTypeRaw, contentItem.getId(), fileName, tmpPath);
+        }
         metacardMap.put(metacard.getId(), metacard);
 
         ContentItem generatedContentItem =
             new ContentItemImpl(
                 metacard.getId(),
-                StringUtils.isNotEmpty(contentItem.getQualifier())
-                    ? contentItem.getQualifier()
-                    : "",
+                qualifiedContent ? contentItem.getQualifier() : "",
                 com.google.common.io.Files.asByteSource(tmpPath.toFile()),
                 mimeTypeRaw,
                 fileName,

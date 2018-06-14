@@ -35,6 +35,7 @@ class OperationsMetacardSupportSpec extends Specification {
     private Metacard generatedMetacard
     private UuidGenerator uuidGenerator
     private InputTransformer transformer
+    private MetacardFactory metacardFactory
 
     def setup() {
         System.setProperty("bad.files", "")
@@ -60,7 +61,7 @@ class OperationsMetacardSupportSpec extends Specification {
             defaultAttributeValueRegistry = this.defaultAttributeValueRegistry
         }
 
-        def metacardFactory = new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator)
+        metacardFactory = new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator)
         opsMetacard = new OperationsMetacardSupport(frameworkProperties, metacardFactory)
     }
 
@@ -247,5 +248,31 @@ class OperationsMetacardSupportSpec extends Specification {
         then:
         !ContentItem.DEFAULT_MIME_TYPE.equals(mimeType)
         "text/plain".equals(mimeType)
+    }
+
+    def 'test derived content does not have metacard generated'() {
+        setup:
+        def id = 'ABC123'
+        def metacardMap = [:]
+        def metacard = Mock(Metacard) {
+            getId() >> id
+        }
+        def contentItem = Mock(ContentItem) {
+            getQualifier() >> 'some-qualifier'
+            getMetacard() >> metacard
+            getId() >> id
+            getFilename() >> 'joe.txt'
+            getInputStream() >> { new ByteArrayInputStream('hello'.bytes) }
+            getMimeTypeRawData() >> 'application/octet-stream'
+        }
+        def tmpContentPaths = [:]
+
+        when:
+        opsMetacard.generateMetacardAndContentItems([contentItem], metacardMap, [], tmpContentPaths)
+
+        then:
+        0 * metacardFactory.generateMetacard(_ as String, _ as String, _ as String, _ as Path)
+        metacardMap.size() == 1
+        metacardMap.get(id) == metacard
     }
 }
