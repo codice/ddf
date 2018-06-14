@@ -7,8 +7,22 @@
   text-align: center;
   padding: 5px 0;
 
+  .buttons-container {
+    position: relative;
+  }
+
+  .buttons-left {
+    position: absolute;
+    left: 0;
+  }
+
+  .buttons-right {
+    position: absolute;
+    right: 0;
+  }
+
   button {
-    width: 10%;
+    width: @minimumButtonSize;
 
     &.server-next, 
     &.server-previous {
@@ -22,7 +36,8 @@
   }
 
   .status {
-    padding: 0 10px;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
   }
 
 }
