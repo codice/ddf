@@ -11,7 +11,6 @@
  **/
 /*global define, window, setTimeout, location*/
 /* eslint-disable no-undefined */
-
 const wreqr = require('wreqr')
 const $ = require('jquery')
 const Backbone = require('backbone')
@@ -49,7 +48,7 @@ const addRoute = function(component, routes) {
 }
 
 addRoute(ContentView, ['openWorkspace']);
-addRoute(HomeView, ['workspaces', 'home']);
+addRoute(HomeView, ['home']);
 addRoute(MetacardView, ['openMetacard']);
 addRoute(UploadView, ['openUpload']);
 addRoute(NotFoundView, ['notFound']);
@@ -58,33 +57,54 @@ addRoute(SourcesView, ['openSources']);
 addRoute(IngestView, ['openIngest']);
 addRoute(AlertView, ['openAlert']);
 
-const routes = plugin({
-    openWorkspace: {pattern: 'workspaces/:id'},
-    home: {pattern: '(?*)'},
-    workspaces: {pattern: 'workspaces(/)'},
-    openMetacard: {pattern: 'metacards/:id'},
-    openAlert: {pattern: 'alerts/:id'},
-    openIngest: {pattern: 'ingest(/)'},
-    openUpload: {pattern: 'uploads/:id'},
-    openSources: {pattern: 'sources(/)'},
-    openAbout: {pattern: 'about(/)'},
-    notFound: {pattern: '*path'}
-}, Application.App)
+const routeDefinitions = {
+    ...plugin({
+        openWorkspace: {
+            patterns: ['workspaces/:id'],
+            component: ContentView
+        },
+        home: {
+            patterns: ['(?*)', 'workspaces(/)'],
+            component: HomeView
+        }, 
+        openMetacard: {
+            patterns: ['metacards/:id'],
+            component: MetacardView
+        },
+        openAlert: {
+            patterns: ['alerts/:id'],
+            component: AlertView
+        },
+        openIngest: {
+            patterns: ['ingest(/)'],
+            component: IngestView
+        },
+        openUpload: {
+            patterns: ['uploads/:id'],
+            component: UploadView
+        },
+        openSources: {
+            patterns: ['sources(/)'],
+            component: SourcesView
+        },
+        openAbout: {
+            patterns: ['about(/)'],
+            component: AboutView
+        }
+    }),
+    // needs to be last based on how backbone router works, otherwise this route always wins
+    notFound: {
+        patterns: ['*path'],
+        component: NotFoundView
+    }    
+};
 
-const controller = Object.keys(routes).reduce((route, key) => {
-    route[key] = () => {}
-    return route
-}, {})
-
-const appRoutes = Object.keys(routes).reduce((route, key) => {
-    const { pattern } = routes[key]
-    route[pattern] = key
-    return route
-}, {})
-
-const Router = Marionette.AppRouter.extend({
-    controller,
-    appRoutes,
+const Router = Backbone.Router.extend({
+    routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
+        const { patterns } = routeDefinitions[key]
+        patterns.forEach((pattern) => routesBlob[pattern] = key);
+        return routesBlob
+    }, {}),
     initialize: function(){
         if (window.location.search.indexOf('lowBandwidth') !== -1) {
             router.set({
@@ -92,6 +112,7 @@ const Router = Marionette.AppRouter.extend({
             });
         }
         this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
+        this.on('route', this.onRoute, this);
         /*
             HACK:  listeners for the router aren't setup (such as the onRoute or controller)
                 until after initialize is done.  SetTimeout (with timeout of 0) pushes this
@@ -106,8 +127,8 @@ const Router = Marionette.AppRouter.extend({
     handleNavigate: function(args){
         this.navigate(args.fragment, args.options);
     },
-    onRoute: function(name, path, args){
-        this.updateRoute(name, path, args);
+    onRoute: function(name, args){
+        this.updateRoute(name, _.invert(this.routes)[name], args);
     },
     updateRoute: function(name, path, args){
         router.set({
