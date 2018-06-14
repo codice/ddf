@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.checksum.ChecksumProvider;
 
 public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin {
@@ -56,6 +57,12 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
 
   private void runChecksum(List<ContentItem> contentItems) throws PluginExecutionException {
     for (ContentItem contentItem : contentItems) {
+      if (StringUtils.isNotEmpty(contentItem.getQualifier())) {
+        // We are dealing with a derived resource, and this Metacard's checksum should reflect the
+        // original products
+        continue;
+      }
+
       try (InputStream inputStream = contentItem.getInputStream()) {
         // calculate checksum so that it can be added as an attribute on metacard
         String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
