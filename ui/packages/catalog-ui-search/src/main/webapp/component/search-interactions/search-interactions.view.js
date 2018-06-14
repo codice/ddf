@@ -14,19 +14,16 @@
  **/
 /*global define*/
 const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
 const template = require('./search-interactions.hbs');
 const CustomElements = require('js/CustomElements');
-const lightboxInstance = require('component/lightbox/lightbox.view.instance');
 const SearchSettingsDropdownView = require('component/dropdown/search-settings/dropdown.search-settings.view');
 const DropdownModel = require('component/dropdown/dropdown');
 const SearchFormSelectorDropdownView = require('component/dropdown/search-form-selector/dropdown.search-form-selector.view');
-const _merge = require('lodash/merge');
 const ConfirmationView = require('component/confirmation/confirmation.view');
 const user = require('component/singletons/user-instance');
 const properties = require('properties');
 const ResultFormSelectorDropdownView = properties.hasExperimentalEnabled() ? require('component/dropdown/result-form-selector/dropdown.result-form-selector.view') : {};
+const SearchFormInteractionsView = require('component/search-form-interactions/search-form-interactions.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -36,21 +33,26 @@ module.exports = Marionette.LayoutView.extend({
         searchType: '.interaction-type',
         resultType: '.interaction-result-type',
         searchAdvanced: '.interaction-type-advanced',
+        customInteractions: '.interaction-custom',
         searchSettings: '.interaction-settings'
     },
     events: {
         'click > .interaction-reset': 'triggerReset',
         'click > .interaction-type-advanced': 'triggerTypeAdvanced'
     },
-    onRender: function(){
+    onRender(){
         this.listenTo(this.model, 'change:type closeDropdown', this.triggerCloseDropdown);
+        this.listenTo(this.model, 'change:type', this.triggerRender);
         this.generateSearchFormSelector();
         if(properties.hasExperimentalEnabled()) { 
             this.generateResultFormSelector() 
         }
+        if(this.model.get('type') === 'custom') {
+            this.generateCustomFormSelector();
+        }
         this.generateSearchSettings();
     },
-    generateResultFormSelector: function() {
+    generateResultFormSelector() {
         this.resultType.show(new ResultFormSelectorDropdownView({
             model: new DropdownModel(),
             modelForComponent: this.model,
@@ -58,7 +60,7 @@ module.exports = Marionette.LayoutView.extend({
             replaceElement: true
         });
     },
-    generateSearchFormSelector: function() {
+    generateSearchFormSelector() {
         this.searchType.show(new SearchFormSelectorDropdownView({
             model: new DropdownModel(),
             modelForComponent: this.model,
@@ -67,7 +69,7 @@ module.exports = Marionette.LayoutView.extend({
             replaceElement: true
         });
     },
-    generateSearchSettings: function() {
+    generateSearchSettings() {
         this.searchSettings.show(new SearchSettingsDropdownView({
             model: new DropdownModel(),
             modelForComponent: this.model,
@@ -77,10 +79,21 @@ module.exports = Marionette.LayoutView.extend({
             replaceElement: true
         });
     },
-    triggerCloseDropdown: function() {
+    generateCustomFormSelector() {
+        this.customInteractions.show(new SearchFormInteractionsView({
+            model: new DropdownModel(),
+            modelForComponent: this.model,
+            collectionWrapperModel: this.options.collectionWrapperModel,
+            queryModel: this.options.queryModel,
+            dropdownCompanionBehaviors: {
+                navigation: {}
+            }
+        }));
+    },
+    triggerCloseDropdown() {
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
     },
-    triggerReset: function() {
+    triggerReset() {
         this.listenTo(ConfirmationView.generateConfirmation({
             prompt: 'Are you sure you want to reset the search?',
             no: 'Cancel',
@@ -94,7 +107,7 @@ module.exports = Marionette.LayoutView.extend({
             }
         }.bind(this));
     },
-    triggerTypeAdvanced: function() {
+    triggerTypeAdvanced() {
         let oldType = this.model.get('type');
         if (oldType === 'custom' || oldType === 'new-form') {
             this.model.set('title', 'Search Name');
@@ -104,9 +117,13 @@ module.exports = Marionette.LayoutView.extend({
         user.savePreferences();
         this.triggerCloseDropdown();
     },
+    triggerRender() {
+        this.render();
+    },
     serializeData() {
         return {
-            experimental: properties.hasExperimentalEnabled()
+            experimental: properties.hasExperimentalEnabled(),
+            type: this.model.get('type')
         };
     }
 });
