@@ -172,6 +172,10 @@
 
         <!-- Endorsed Libraries -->
         <fileSet>
+            <directory>${setup.folder}/endorsed</directory>
+            <outputDirectory>/lib/endorsed</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${setup.folder}/ext</directory>
             <outputDirectory>/lib/ext</outputDirectory>
         </fileSet>

@@ -208,6 +208,14 @@
                                         acdebugger-backdoor-${acdebugger.version}.jar
                                     </destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.servicemix.bundles</groupId>
+                                    <artifactId>org.apache.servicemix.bundles.xerces</artifactId>
+                                    <version>2.11.0_1</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/endorsed
+                                    </outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
