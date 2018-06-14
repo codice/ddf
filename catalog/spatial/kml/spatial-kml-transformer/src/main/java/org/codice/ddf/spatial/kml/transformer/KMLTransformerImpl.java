@@ -16,7 +16,7 @@ package org.codice.ddf.spatial.kml.transformer;
 import static java.util.Collections.emptyList;
 import static org.codice.ddf.spatial.kml.converter.MetacardToKml.addJtsGeoPointsToKmlGeo;
 import static org.codice.ddf.spatial.kml.converter.MetacardToKml.createJtsGeoFromWkt;
-import static org.codice.ddf.spatial.kml.converter.MetacardToKml.createKmlGeoFromJtsGeo;
+import static org.codice.ddf.spatial.kml.converter.MetacardToKml.getKmlGeoFromJtsGeo;
 import static org.codice.ddf.spatial.kml.util.KmlTransformations.encloseKml;
 
 import com.github.jknack.handlebars.Handlebars;
@@ -284,7 +284,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private Geometry getKmlGeoWithPointsFromWkt(String wkt) throws CatalogTransformerException {
     final com.vividsolutions.jts.geom.Geometry jtsGeo = createJtsGeoFromWkt(wkt);
-    Geometry kmlGeo = createKmlGeoFromJtsGeo(jtsGeo);
+    Geometry kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
     kmlGeo = addJtsGeoPointsToKmlGeo(jtsGeo, kmlGeo);
     return kmlGeo;
   }

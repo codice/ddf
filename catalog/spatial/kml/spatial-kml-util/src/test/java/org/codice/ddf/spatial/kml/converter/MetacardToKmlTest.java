@@ -39,7 +39,7 @@ public class MetacardToKmlTest {
 
   @Test
   public void wktPointToKmlPoint() throws CatalogTransformerException {
-    final Point kmlGeoFromWkt = (Point) MetacardToKml.createKmlGeoFromWkt("POINT (2 3)");
+    final Point kmlGeoFromWkt = (Point) MetacardToKml.getKmlGeoFromWkt("POINT (2 3)");
     final List<Coordinate> coordinates = kmlGeoFromWkt.getCoordinates();
     assertThat(coordinates, hasSize(1));
     assertThat(coordinates.get(0).getLatitude(), is(3.0));

@@ -45,14 +45,14 @@ public class MetacardToKml {
    * @return
    * @throws CatalogTransformerException
    */
-  public static Geometry createKmlGeoFromWkt(final String wkt) throws CatalogTransformerException {
+  public static Geometry getKmlGeoFromWkt(final String wkt) throws CatalogTransformerException {
     if (StringUtils.isBlank(wkt)) {
       throw new CatalogTransformerException(
           "WKT was null or empty. Unable to preform KML Transform on Metacard.");
     }
 
     com.vividsolutions.jts.geom.Geometry geo = createJtsGeoFromWkt(wkt);
-    return createKmlGeoFromJtsGeo(geo);
+    return getKmlGeoFromJtsGeo(geo);
   }
 
   public static Geometry addJtsGeoPointsToKmlGeo(
@@ -63,7 +63,7 @@ public class MetacardToKml {
     return kmlGeo;
   }
 
-  public static Geometry createKmlGeoFromJtsGeo(com.vividsolutions.jts.geom.Geometry jtsGeometry)
+  public static Geometry getKmlGeoFromJtsGeo(com.vividsolutions.jts.geom.Geometry jtsGeometry)
       throws CatalogTransformerException {
     Geometry kmlGeometry;
     if (POINT_TYPE.equals(jtsGeometry.getGeometryType())) {
@@ -87,7 +87,7 @@ public class MetacardToKml {
       throws CatalogTransformerException {
     List<Geometry> kmlGeos = new ArrayList<>();
     for (int i = 0; i < jtsGeo.getNumGeometries(); i++) {
-      kmlGeos.add(createKmlGeoFromJtsGeo(jtsGeo.getGeometryN(i)));
+      kmlGeos.add(getKmlGeoFromJtsGeo(jtsGeo.getGeometryN(i)));
     }
     return KmlFactory.createMultiGeometry().withGeometry(kmlGeos);
   }
