@@ -38,6 +38,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -46,8 +47,6 @@ public class FeatureTransformationServiceTest {
   private static final int FEATURE_MEMBER_COUNT = 10;
 
   private CamelContext camelContext;
-
-  private Endpoint endpoint;
 
   private BiFunction<InputStream, WfsMetadata, List<Metacard>> featureTransformationService;
 
@@ -64,9 +63,14 @@ public class FeatureTransformationServiceTest {
     camelContext.addRoutes(new WfsRouteBuilder());
     camelContext.setErrorHandlerBuilder(new NoErrorHandlerBuilder());
 
-    endpoint = camelContext.getEndpoint(WfsRouteBuilder.FEATURECOLLECTION_ENDPOINT_URL);
+    Endpoint endpoint = camelContext.getEndpoint(WfsRouteBuilder.FEATURECOLLECTION_ENDPOINT_URL);
     featureTransformationService = ProxyHelper.createProxy(endpoint, BiFunction.class);
     camelContext.start();
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    this.camelContext.stop();
   }
 
   @Test

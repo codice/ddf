@@ -452,7 +452,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   }
 
   private Serializable getValueForAttributeFormat(
-      AttributeType.AttributeFormat attributeFormat, String value) {
+      AttributeType.AttributeFormat attributeFormat, final String value) {
 
     Serializable serializable = null;
     switch (attributeFormat) {
@@ -480,9 +480,9 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
         break;
       case GEOMETRY:
         LOGGER.trace("Unescape the geometry: {}", value);
-        value = StringEscapeUtils.unescapeXml(value);
-        LOGGER.debug("Geometry value after it has been xml unescaped: {}", value);
-        String wkt = getWktFromGeometry(value);
+        String newValue = StringEscapeUtils.unescapeXml(value);
+        LOGGER.debug("Geometry value after it has been xml unescaped: {}", newValue);
+        String wkt = getWktFromGeometry(newValue);
         LOGGER.debug("String wkt value: {}", wkt);
         serializable = wkt;
         break;
