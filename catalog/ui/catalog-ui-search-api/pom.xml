@@ -44,10 +44,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <!-- Bulk XML test resources more concise without the header -->
-                    <excludes>src/test/resources/forms/</excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -55,10 +51,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            ddf.catalog.data,
-                            *
-                        </Import-Package>
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer
                         </Export-Package>
