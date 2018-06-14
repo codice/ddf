@@ -112,7 +112,7 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param maxTimeout Maximum timeout (msec) for query to respond (default: mt=30000).
    * @param startIndex Index of first result to return. Integer >= 0 (default: start=1).
    * @param count Number of results to retrieve per page (default: count=10).
-   * @param geometry WKT Geometries (Support POINT and POLYGON).
+   * @param geometry WKT Geometries.
    * @param bbox Comma-delimited list of lat/lon (deg) bounding box coordinates (geo format:
    *     geo:bbox ~ West,South,East,North).
    * @param polygon Comma-delimited list of lat/lon (deg) pairs, in clockwise order around the
@@ -263,7 +263,6 @@ public class OpenSearchEndpoint implements OpenSearch {
    * @param radius - the radius for a point radius search
    * @param lat - the latitude of the point.
    * @param lon - the longitude of the point.
-   * @return - the spatialCriterion created, can be null
    */
   private void addSpatialFilter(
       OpenSearchQuery query,
@@ -276,13 +275,19 @@ public class OpenSearchEndpoint implements OpenSearch {
     if (StringUtils.isNotBlank(geometry)) {
       LOGGER.trace("Adding SpatialCriterion geometry: {}", geometry);
       query.addGeometrySpatialFilter(geometry.trim());
-    } else if (StringUtils.isNotBlank(bbox)) {
+    }
+
+    if (StringUtils.isNotBlank(bbox)) {
       LOGGER.trace("Adding SpatialCriterion bbox: {}", bbox);
       query.addBBoxSpatialFilter(bbox.trim());
-    } else if (StringUtils.isNotBlank(polygon)) {
+    }
+
+    if (StringUtils.isNotBlank(polygon)) {
       LOGGER.trace("Adding SpatialCriterion polygon: {}", polygon);
       query.addPolygonSpatialFilter(polygon.trim());
-    } else if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
+    }
+
+    if (StringUtils.isNotBlank(lat) && StringUtils.isNotBlank(lon)) {
       if (StringUtils.isBlank(radius)) {
         LOGGER.debug("Adding default radius {}", DEFAULT_RADIUS);
         query.addPointRadiusSpatialFilter(lon.trim(), lat.trim(), DEFAULT_RADIUS);

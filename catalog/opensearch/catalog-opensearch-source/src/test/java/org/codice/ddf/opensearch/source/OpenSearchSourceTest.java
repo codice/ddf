@@ -117,6 +117,7 @@ public class OpenSearchSourceTest {
           "lon",
           "radius",
           "bbox",
+          "geometry",
           "polygon",
           "dtstart",
           "dtend",

@@ -38,7 +38,7 @@ public class Polygon extends MultiPoint {
     return new Polygon(buildPolygon(coordinates));
   }
 
-  protected static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
+  public static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
 
     // according to the GeoJson specification, first ring is the exterior
     LinearRing exterior =

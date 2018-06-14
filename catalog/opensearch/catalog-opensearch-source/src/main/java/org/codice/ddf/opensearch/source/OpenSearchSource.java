@@ -21,6 +21,7 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -118,6 +119,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   protected static final String PASSWORD_PROPERTY = "password";
+
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
@@ -726,7 +729,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   @VisibleForTesting
-  Bundle getBundle() {
+  protected Bundle getBundle() {
     return FrameworkUtil.getBundle(this.getClass());
   }
 
@@ -983,31 +986,20 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private final Polygon polygon;
     private final PointRadius pointRadius;
 
-    public SpatialSearch(Geometry geometry) {
+    public SpatialSearch(
+        @Nullable Geometry geometry,
+        @Nullable BoundingBox boundingBox,
+        @Nullable Polygon polygon,
+        @Nullable PointRadius pointRadius) {
+
+      if (geometry == null && boundingBox == null && polygon == null && pointRadius == null) {
+        throw new IllegalArgumentException(
+            "All spatial criteria are null. Unable to create a spatial search");
+      }
+
       this.geometry = geometry;
-      boundingBox = null;
-      polygon = null;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(BoundingBox boundingBox) {
-      geometry = null;
       this.boundingBox = boundingBox;
-      polygon = null;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(Polygon polygon) {
-      geometry = null;
-      boundingBox = null;
       this.polygon = polygon;
-      pointRadius = null;
-    }
-
-    public SpatialSearch(PointRadius pointRadius) {
-      geometry = null;
-      boundingBox = null;
-      polygon = null;
       this.pointRadius = pointRadius;
     }
 
@@ -1033,61 +1025,84 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   }
 
   /**
-   * Method to combine spatial searches into either a polygon or a point-radius search. OpenSearch
-   * endpoints will ignore multiple spatial query parameters. This method has been refactored out
-   * and is protected so that downstream projects may try to implement another algorithm (e.g.
-   * best-effort) to combine searches.
+   * Method to combine spatial searches into either geometry collection or a bounding box.
+   * OpenSearch endpoints and the query framework allow for multiple spatial query parameters. This
+   * method has been refactored out and is protected so that downstream projects may try to
+   * implement another algorithm (e.g. best-effort) to combine searches.
    *
-   * @return null if the searches cannot be combined, or a {@linkSpatialSearch} with one search that
-   *     is the combination of all of the spatial criteria
+   * @return null if there is no search specified, or a {@linkSpatialSearch} with one search that is
+   *     the combination of all of the spatial criteria
    */
   @Nullable
   protected SpatialSearch createCombinedSpatialSearch(
       final Queue<PointRadius> pointRadiusSearches, final Queue<Geometry> geometrySearches) {
-    final boolean filterContainedSomePointRadiusCriteria =
-        CollectionUtils.isNotEmpty(pointRadiusSearches);
-    final boolean filterContainedSomePolygonSearchCriteria =
-        CollectionUtils.isNotEmpty(geometrySearches);
+    Geometry geometrySearch = null;
+    BoundingBox boundingBox = null;
+    PointRadius pointRadius = null;
+    SpatialSearch spatialSearch = null;
 
-    if (filterContainedSomePointRadiusCriteria && filterContainedSomePolygonSearchCriteria) {
-      LOGGER.debug(
-          "Ignoring all spatial searches because combining spatial and point radius searches is not yet implemented.");
-      return null;
+    Set<Geometry> combinedGeometrySearches = new HashSet<>(geometrySearches);
+
+    if (CollectionUtils.isNotEmpty(pointRadiusSearches)) {
+      /**
+       * if there is only one point radius search, and it is not to be converted to bounding box,
+       * retain this point radius search as point radius search
+       */
+      if (!shouldConvertToBBox && pointRadiusSearches.size() == 1) {
+        pointRadius = pointRadiusSearches.remove();
+      } else {
+        /**
+         * There is multiple point radius or in need to convert to bounding box Convert all
+         * pointRadiusSearch into an (rough approximation) polygon (square) using Vincenty's formula
+         * (direct) and the WGS-84 approximation of the Earth Collect all these polygon to a
+         * collection for later processing *
+         */
+        for (PointRadius search : pointRadiusSearches) {
+          /**
+           * first convert to a bounding box approximation, extract the coordinates and build a
+           * geometry polygon
+           */
+          BoundingBox bbox = BoundingBoxUtils.createBoundingBox(search);
+          List bboxCoordinate = BoundingBoxUtils.getBoundingBoxCoordinatesList(bbox);
+          List<List> coordinates = new ArrayList<>();
+          coordinates.add(bboxCoordinate);
+          combinedGeometrySearches.add(ddf.geo.formatter.Polygon.buildPolygon(coordinates));
+          LOGGER.debug(
+              "Point radius searches are converts it to a (rough approximation) square using Vincenty's formula (direct)");
+        }
+      }
     }
 
-    if (!filterContainedSomePointRadiusCriteria && filterContainedSomePolygonSearchCriteria) {
-      if (CollectionUtils.size(geometrySearches) > 1) {
-        LOGGER.debug(
-            "Ignoring all polygon searches because combining polygon searches is not yet implemented.");
-        return null;
+    if (CollectionUtils.isNotEmpty(combinedGeometrySearches)) {
+      // if there is more than one geometry, create a geometry collection
+      if (combinedGeometrySearches.size() > 1) {
+        geometrySearch =
+            GEOMETRY_FACTORY.createGeometryCollection(
+                combinedGeometrySearches.toArray(new Geometry[0]));
+      } else {
+        geometrySearch = combinedGeometrySearches.iterator().next();
       }
 
-      final Geometry geometry = geometrySearches.remove();
-      if (!(geometry instanceof Polygon)) {
-        LOGGER.debug(
-            "Ignoring geometry search because only polygon searches are currently supported.");
-        return null;
+      /**
+       * If convert to bounding box is enabled, extracts the approximate envelope. In the case of
+       * multiple geometry, a large approximate envelope encompassing all of the geometry is
+       * returned. Area between the geometries are also included in this spatial search. Hence widen
+       * the search area.
+       */
+      if (shouldConvertToBBox) {
+        if (combinedGeometrySearches.size() > 1) {
+          LOGGER.debug(
+              "An approximate envelope encompassing all the geometry is returned. Area between the geometries are also included in this spatial search. Hence widen the search area.");
+        }
+        boundingBox = BoundingBoxUtils.createBoundingBox((Polygon) geometrySearch.getEnvelope());
+        geometrySearch = null;
       }
-
-      final Polygon polygon = (Polygon) geometry;
-      return shouldConvertToBBox
-          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(polygon))
-          : new SpatialSearch(polygon);
     }
 
-    if (filterContainedSomePointRadiusCriteria) {
-      if (CollectionUtils.size(pointRadiusSearches) > 1) {
-        LOGGER.debug(
-            "Ignoring all spatial searches because combining point radius-searches is not yet implemented.");
-        return null;
-      }
-
-      final PointRadius pointRadius = pointRadiusSearches.remove();
-      return shouldConvertToBBox
-          ? new SpatialSearch(BoundingBoxUtils.createBoundingBox(pointRadius))
-          : new SpatialSearch(pointRadius);
+    if (geometrySearch != null || boundingBox != null || pointRadius != null) {
+      // Geo Draft 2 default always geometry instead of polygon
+      spatialSearch = new SpatialSearch(geometrySearch, boundingBox, null, pointRadius);
     }
-
-    return null;
+    return spatialSearch;
   }
 }

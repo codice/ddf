@@ -64,14 +64,21 @@ import org.opengis.filter.temporal.TOverlaps;
 
 public class OpenSearchFilterVisitorTest {
 
-  private static final double WKT_LON = 1;
+  private static final double WKT_LON = 1.1;
 
-  private static final double WKT_LAT = 2;
+  private static final double WKT_LAT = 2.2;
 
-  private static final String WKT_POINT = "POINT(" + WKT_LON + " " + WKT_LAT + ")";
+  private static final String WKT_POINT = "POINT (" + WKT_LON + " " + WKT_LAT + ")";
 
   private static final String WKT_POLYGON =
       "POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))";
+
+  private static final String WKT_MULTI_POLYGON =
+      "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), "
+          + "((20 35, 10 30, 10 10, 30 5, 45 20, 20 35), "
+          + "(30 20, 20 15, 20 25, 30 20)))";
+  private static final String WKT_GEO_COLLECTION =
+      "GEOMETRYCOLLECTION (POINT (4 6), LINESTRING (4 6, 7 10))";
 
   private static final String TEST_STRING = "test";
 
@@ -237,8 +244,6 @@ public class OpenSearchFilterVisitorTest {
 
   @Test
   public void testDWithinCqlFilter() throws CQLException {
-    final double lon = 1.0;
-    final double lat = 2.0;
     final double radius = 1;
     DWithin dWithinFilter =
         (DWithin)
@@ -260,8 +265,8 @@ public class OpenSearchFilterVisitorTest {
         result.getPointRadiusSearches(),
         contains(
             allOf(
-                hasProperty("lon", is(lon)),
-                hasProperty("lat", is(lat)),
+                hasProperty("lon", is(WKT_LON)),
+                hasProperty("lat", is(WKT_LAT)),
                 hasProperty("radius", is(radius)))));
   }
 
@@ -331,6 +336,7 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(containsFilter, openSearchFilterVisitorObject);
     assertThat(result.getPointRadiusSearches(), is(empty()));
+    assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_POINT))));
   }
 
   @Test
@@ -359,6 +365,43 @@ public class OpenSearchFilterVisitorTest {
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
     assertThat(result.getPointRadiusSearches(), is(empty()));
+    assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_POINT))));
+  }
+
+  @Test
+  public void testIntersectsWithMultipolygon() {
+    Intersects intersectsFilter =
+        (Intersects)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .intersecting()
+                .wkt(WKT_MULTI_POLYGON);
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
+    assertThat(result.getPointRadiusSearches(), is(empty()));
+    assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_MULTI_POLYGON))));
+  }
+
+  @Test
+  public void testIntersectsWithCollection() {
+    Intersects intersectsFilter =
+        (Intersects)
+            geotoolsFilterBuilder
+                .attribute(SPATIAL_ATTRIBUTE_NAME)
+                .intersecting()
+                .wkt(WKT_GEO_COLLECTION);
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
+    assertThat(result.getPointRadiusSearches(), is(empty()));
+    assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_GEO_COLLECTION))));
   }
 
   @Test

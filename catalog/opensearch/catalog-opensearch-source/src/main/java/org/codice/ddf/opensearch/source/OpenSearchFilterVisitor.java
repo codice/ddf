@@ -14,6 +14,7 @@
 package org.codice.ddf.opensearch.source;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import ddf.catalog.data.Metacard;
@@ -27,6 +28,7 @@ import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
+import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.temporal.object.DefaultInstant;
@@ -483,8 +485,11 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     } else if (geometryExpression instanceof Polygon) {
       Polygon polygon = (Polygon) literalWrapper.evaluate(null);
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
+    } else if (geometryExpression instanceof GeometryImpl) {
+      Geometry polygon = ((GeometryImpl) geometryExpression).getJTSGeometry();
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else {
-      LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
+      LOGGER.debug("Unsupported filter constraint");
     }
   }
 
