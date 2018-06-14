@@ -45,21 +45,25 @@ public class MetacardToKml {
    * @return
    * @throws CatalogTransformerException
    */
-  public static Geometry getKmlGeoFromWkt(final String wkt) throws CatalogTransformerException {
+  public static Geometry createKmlGeoFromWkt(final String wkt) throws CatalogTransformerException {
     if (StringUtils.isBlank(wkt)) {
       throw new CatalogTransformerException(
           "WKT was null or empty. Unable to preform KML Transform on Metacard.");
     }
 
-    com.vividsolutions.jts.geom.Geometry geo = readGeoFromWkt(wkt);
-    Geometry kmlGeo = createKmlGeometry(geo);
-    if (!POINT_TYPE.equals(geo.getGeometryType())) {
-      kmlGeo = addPointToKmlGeo(kmlGeo, geo.getCoordinate());
+    com.vividsolutions.jts.geom.Geometry geo = createJtsGeoFromWkt(wkt);
+    return createKmlGeoFromJtsGeo(geo);
+  }
+
+  public static Geometry addJtsGeoPointsToKmlGeo(
+      com.vividsolutions.jts.geom.Geometry jtsGeo, Geometry kmlGeo) {
+    if (!POINT_TYPE.equals(jtsGeo.getGeometryType())) {
+      kmlGeo = addJtsCoordinateToKmlGeo(kmlGeo, jtsGeo.getCoordinate());
     }
     return kmlGeo;
   }
 
-  private static Geometry createKmlGeometry(com.vividsolutions.jts.geom.Geometry jtsGeometry)
+  public static Geometry createKmlGeoFromJtsGeo(com.vividsolutions.jts.geom.Geometry jtsGeometry)
       throws CatalogTransformerException {
     Geometry kmlGeometry;
     if (POINT_TYPE.equals(jtsGeometry.getGeometryType())) {
@@ -83,7 +87,7 @@ public class MetacardToKml {
       throws CatalogTransformerException {
     List<Geometry> kmlGeos = new ArrayList<>();
     for (int i = 0; i < jtsGeo.getNumGeometries(); i++) {
-      kmlGeos.add(createKmlGeometry(jtsGeo.getGeometryN(i)));
+      kmlGeos.add(createKmlGeoFromJtsGeo(jtsGeo.getGeometryN(i)));
     }
     return KmlFactory.createMultiGeometry().withGeometry(kmlGeos);
   }
@@ -111,7 +115,7 @@ public class MetacardToKml {
     return KmlFactory.createPoint().addToCoordinates(jtsPoint.getX(), jtsPoint.getY());
   }
 
-  private static com.vividsolutions.jts.geom.Geometry readGeoFromWkt(final String wkt)
+  public static com.vividsolutions.jts.geom.Geometry createJtsGeoFromWkt(final String wkt)
       throws CatalogTransformerException {
     try {
       return WKT_READER_THREAD_LOCAL.get().read(wkt);
@@ -120,7 +124,7 @@ public class MetacardToKml {
     }
   }
 
-  private static Geometry addPointToKmlGeo(
+  private static Geometry addJtsCoordinateToKmlGeo(
       Geometry kmlGeo, com.vividsolutions.jts.geom.Coordinate vertex) {
     if (null != vertex) {
       de.micromata.opengis.kml.v_2_2_0.Point kmlPoint =
