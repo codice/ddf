@@ -17,6 +17,35 @@ const Marionette = require('marionette');
 const template = require('./router.hbs');
 const CustomElements = require('js/CustomElements');
 const router = require('component/router/router');
+const routeComponents = {}; 
+
+const getRouteComponent = (routeDefinitions, routeName) => {
+    return routeComponents[routeName] || new routeDefinitions[routeName].component();
+};
+
+const addToRouteComponents = (routeName, component) => {
+    routeComponents[routeName] = routeComponents[routeName] || component;
+};
+
+const showRenderedRouteComponent = (routerView, component) => {
+    routerView.routerComponent.attachHtml(component, true);
+    routerView.routerComponent.attachView(component);
+};
+
+const showUnrenderedRouteComponent = (routerView, component) => {
+    routerView.routerComponent.show(component, { replaceElement: true, preventDestroy: true });
+};
+
+const showRouteComponent = (routerView, component) => {
+    component.isRendered === true ? showRenderedRouteComponent(routerView, component) : showUnrenderedRouteComponent(routerView, component);
+};
+
+const showRoute = function() {
+    const routeName = router.toJSON().name;
+    const routeComponent = getRouteComponent(this.options.routeDefinitions, routeName);
+    addToRouteComponents(routeName, routeComponent);
+    showRouteComponent(this, routeComponent);
+}
 
 const RouterView = Marionette.LayoutView.extend({
     template: template,
@@ -25,24 +54,10 @@ const RouterView = Marionette.LayoutView.extend({
         routerComponent: '> .router-component' 
     },
     initialize: function () {
-        if (this.options.routes === undefined || this.options.component === undefined) {
-            throw "Route and component must be passed in as options.";
+        if (this.options.routeDefinitions === undefined) {
+            throw "Route definitions must be passed in as an option.";
         }
-        this.listenTo(router, 'change', this.handleRoute);
-        this.handleRoute();
-    },
-    handleRoute: function(){
-        if (this.options.routes.indexOf(router.toJSON().name) !== -1){
-            this.showRoute();
-            this.$el.removeClass('is-hidden');
-        } else {
-            this.$el.addClass('is-hidden');
-        }
-    },
-    showRoute: function() {
-        if (this.routerComponent.currentView===undefined) {
-           this.routerComponent.show(new this.options.component(), { replaceElement: true });
-        }
+        this.listenTo(router, 'change', showRoute);
     }
 });
 

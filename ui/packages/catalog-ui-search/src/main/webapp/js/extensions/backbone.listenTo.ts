@@ -18,6 +18,10 @@ const listenTo = Backbone.View.prototype.listenTo;
  */
 Backbone.View.prototype.listenTo = function(obj: any, name: string, callback: Function) {
     return listenTo.call(this, obj, name, function() {
+        if (callback === undefined) {
+            console.warn(`Found no callback for listener in ${this.tagName}`);
+            return;
+        }
         if (this.isDestroyed !== true) {
             const a1 = arguments[0], a2 = arguments[1], a3 = arguments[2];
             switch (arguments.length) {

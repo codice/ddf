@@ -14,90 +14,62 @@
 const wreqr = require('wreqr')
 const $ = require('jquery')
 const Backbone = require('backbone')
-const Marionette = require('marionette')
 const Application = require('application')
-const ContentView = require('component/content/content.view')
-const HomeView = require('component/workspaces/workspaces.view')
-const MetacardView = require('component/metacard/metacard.view')
-const AlertView = require('component/alert/alert.view')
-const IngestView = require('component/ingest/ingest.view')
 const router = require('component/router/router')
-const UploadView = require('component/upload/upload.view')
-const SourcesView = require('component/sources/sources.view')
-const AboutView = require('component/about/about.view')
-const NotFoundView = require('component/notfound/notfound.view')
 const RouterView = require('component/router/router.view');
 const plugin = require('plugins/router')
 
-let regionName = 0;
-const addRoute = function(component, routes) {
-    regionName++;
-    const newRegion = $('<div></div>');
-    $('#content').append(newRegion);
-    Application.App.addRegions({
-        [regionName]: {
-            el: newRegion
-        }
-    });
-    Application.App[regionName].show(new RouterView({
-        component,
-        routes
+const initializeRoutes = function(routeDefinitions) {
+    Application.App.router.show(new RouterView({
+        routeDefinitions
     }), {
         replaceElement: true
     });
 }
 
-addRoute(ContentView, ['openWorkspace']);
-addRoute(HomeView, ['home']);
-addRoute(MetacardView, ['openMetacard']);
-addRoute(UploadView, ['openUpload']);
-addRoute(NotFoundView, ['notFound']);
-addRoute(AboutView, ['openAbout']);
-addRoute(SourcesView, ['openSources']);
-addRoute(IngestView, ['openIngest']);
-addRoute(AlertView, ['openAlert']);
-
 const routeDefinitions = {
     ...plugin({
         openWorkspace: {
             patterns: ['workspaces/:id'],
-            component: ContentView
+            component: require('component/content/content.view')
         },
         home: {
             patterns: ['(?*)', 'workspaces(/)'],
-            component: HomeView
+            component: require('component/workspaces/workspaces.view')
         }, 
         openMetacard: {
             patterns: ['metacards/:id'],
-            component: MetacardView
+            component: require('component/metacard/metacard.view')
         },
         openAlert: {
             patterns: ['alerts/:id'],
-            component: AlertView
+            component: require('component/alert/alert.view')
         },
         openIngest: {
             patterns: ['ingest(/)'],
-            component: IngestView
+            component: require('component/ingest/ingest.view')
         },
         openUpload: {
             patterns: ['uploads/:id'],
-            component: UploadView
+            component: require('component/upload/upload.view')
         },
         openSources: {
             patterns: ['sources(/)'],
-            component: SourcesView
+            component: require('component/sources/sources.view')
         },
         openAbout: {
             patterns: ['about(/)'],
-            component: AboutView
+            component: require('component/about/about.view')
         }
     }),
     // needs to be last based on how backbone router works, otherwise this route always wins
     notFound: {
         patterns: ['*path'],
-        component: NotFoundView
+        component: require('component/notfound/notfound.view')
     }    
 };
+
+initializeRoutes(routeDefinitions);
 
 const Router = Backbone.Router.extend({
     routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
