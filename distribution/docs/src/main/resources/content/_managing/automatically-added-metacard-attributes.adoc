@@ -2,7 +2,7 @@
 :type: dataManagementIntro
 :status: published
 :summary: How attributes are automatically added to metacards.
-:order: 04
+:order: 05
 
 == {title}
 

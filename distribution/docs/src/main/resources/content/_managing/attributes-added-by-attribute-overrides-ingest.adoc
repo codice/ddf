@@ -1,0 +1,15 @@
+:title: Attributes Added by Attribute Overrides (Ingest)
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How attribute overrides add attributes to metacards during ingest.
+:order: 04
+
+=== {title}
+
+<<_overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
+
+Attribute overrides can be configured for the <<_content_directory_monitor,Content Directory Monitor>>.
+
+Note that the attribute must be part of the metacard's <<_metacard_type,Metacard Type>> before it can be overridden. +
+See <<_attributes_added_by_attribute_injection,Attributes Added By Attribute Injection>> for more information about injecting attributes into the metacard type.

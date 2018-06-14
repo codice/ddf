@@ -7,8 +7,8 @@
 
 == {title}
 
-During ingest, a metacard is first created and populated by parsing the ingested resource with an <<_attributes_added_by_input_transformers,Input Transformer>>.
-Then <<_attributes_added_by_attribute_injection,Attributes are Injected>> into the metacard, followed by <<_attributes_added_by_attribute_overrides,Attribute Overrides>>.
+A metacard is first created and populated by parsing the ingested resource with an <<_attributes_added_by_input_transformers,Input Transformer>>. +
+Then <<_attributes_added_by_attribute_injection,Attributes Are Injected>>, <<_developing_default_attribute_types,Default Attribute Types>> are applied, and <<_attributes_added_by_attribute_overrides_ingest,Attribute are Overridden>>. +
 Finally the metacard is passed through a series of <<_attributes_added_by_pre_authorization_plugins,Pre-Authorization Plugins>> and <<_attributes_added_by_pre_ingest_plugins,Pre-Ingest Plugins>>.
 
 .Ingest Attribute Flow
@@ -20,27 +20,32 @@ Finally the metacard is passed through a series of <<_attributes_added_by_pre_au
 | \----------------/  |                        |
 |                     v                        |
 | /------------------------------------------\ |
-| |c369        Input Transformers            | |
+| |c369      Input Transformers              | |
 | \------------------------------------------/ |
 |                     |                        |
 |                     v                        |
 | /------------------------------------------\ |
-| |c369        Attribute Injection           | |
+| |c369      Attribute Injection             | |
 | \------------------------------------------/ |
 |                     |                        |
 |                     v                        |
 | /------------------------------------------\ |
-| |c369        Attribute Overrides           | |
+| |c369    Default Attribute Types           | |
 | \------------------------------------------/ |
 |                     |                        |
 |                     v                        |
 | /------------------------------------------\ |
-| |c369     Pre Authorization Plugins        | |
+| |c369      Attribute Overrides             | |
 | \------------------------------------------/ |
 |                     |                        |
 |                     v                        |
 | /------------------------------------------\ |
-| |c369        Pre Ingest Plugins            | |
+| |c369    Pre Authorization Plugins         | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369       Pre Ingest Plugins             | |
 | \------------------------------------------/ |
 |                     |                        |
 |                     v                        |

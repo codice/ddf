@@ -7,22 +7,20 @@
 
 === {title}
 
-<<_available_input_transformers,Input Transformers>> create and populate metacards from a resource.
+<<_available_input_transformers,Input Transformers>> create and populate metacards by parsing a resource.
+See <<_file_format_specific_attributes,File Format Specific Attributes>> to see the attributes used for specific file formats.
 
 {branding} chooses which input transformer to use by:
 
-. Resolving the mimetype for the resource. This is done by trying the following steps in order until a proper mimetype is found:
-  .. Extracting an optionally given mimetype with the resource.
-  .. Passing the resource's file extension to a <<_mime_type_mapper,Mimetype Mapper>>.
-  .. Using https://tika.apache.org/[Apache Tika].
-  .. Manually parsing the resource's file contents for the first character (for example: if the file starts with `<`, it is assumed to be XML).
-. Gathering all of the input transformers associated with the resolved mimetype.
+. Resolving the mimetype for the resource.
+. Gathering all of the input transformers associated with the resolved mimetype. See <<_all_file_formats_supported,Supported File Formats>> for a list of supported mimetypes.
 . Iterating through the transformers until a successful transformation is performed.
 
-The first transformer that can successfully create a metacard from the ingested resource is chosen. If no transformer can successfully transform the resource, the ingestion process fails.
+The first transformer that can successfully create a metacard from the ingested resource is chosen.
+If no transformer can successfully transform the resource, the ingest process fails.
 
-There are a couple of exceptions to this strategy, dependent on the method of ingest:
-
-* Single resource ingest through <<_using_intrigue,Intrigue>> only performs the first step of resolving the mimetype.
-* The in-place <<_configuring_the_content_directory_monitor,Content Directory Monitor>> can be passed an optional `transformerId` to use. If not, it only performs the first step of resolving the mimetype, and defaults to `application/octet-stream` if no mimetype could be found.
-* The <<_ingest_command,Ingest Command>> can be passed an optional `transformerId` to use, and defaults to the XML input transformer if no id could be found.
+[IMPORTANT]
+====
+Each of the ingest methods have their own subtle differences when resolving the resource's mimetype/input transformer. +
+For example: a resource ingested through Intrigue may not produce the same metacard attributes as the same resource ingested through the Content Directory Monitor.
+====
