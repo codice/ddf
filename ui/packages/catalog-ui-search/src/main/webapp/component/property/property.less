@@ -55,6 +55,13 @@
     color: shade(orange, 25%);
   }
 
+  .property-required {
+    display: none;
+    font-size: @minimumFontSize;
+    vertical-align: top;
+    color: @negative-color;
+  }
+
   .input-validation:nth-of-type(2){
     display: none;
   }
@@ -107,7 +114,6 @@
   }
 }
 
-
 @{customElementNamespace}property.only-editing {
   .if-viewing {
     max-height: @minimumButtonSize;
@@ -116,6 +122,12 @@
 
 @{customElementNamespace}property.is-editing.is-changed:not(.is-readOnly) {
   .property-revert {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}property.is-editing.is-required:not(.is-readOnly) {
+  .property-required {
     display: inline-block;
   }
 }

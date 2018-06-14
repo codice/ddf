@@ -37,7 +37,8 @@ define([
             showValidationIssues: true,
             showLabel: true,
             onlyEditing: false,
-            initializeToDefault: false
+            initializeToDefault: false,
+            required: false
         },
         setDefaultValue: function(){
             if (this.get('initializeToDefault')){
@@ -141,6 +142,9 @@ define([
         },
         isMultivalued: function(){
             return this.get('multivalued');
+        },
+        isRequired: function(){
+            return this.get('required');
         },
         isHomogeneous: function(){
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;

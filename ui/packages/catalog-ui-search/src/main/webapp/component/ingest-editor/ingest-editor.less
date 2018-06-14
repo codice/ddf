@@ -1,0 +1,42 @@
+@{customElementNamespace}ingest-editor {
+  .customElement;
+  animation: new-ingest-editor .250s 1 ease-in-out;
+  padding: 10px;
+  overflow: hidden;
+
+  .ingest-editor-title {
+    font-size: @mediumFontSize;
+    line-height: @minimumButtonSize;
+    width:100%;
+  }
+
+  .ingest-editor-properties {
+    display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+    width: 100%;
+    overflow: auto;
+    height: ~"calc(100% - 2*@{minimumButtonSize} - 6px)";
+  }
+
+  .ingest-editor-footer {
+    height: @minimumButtonSize;
+    white-space: nowrap;
+
+    > button {
+      height: 100%;
+      display: inline-block;
+    }
+    > .ingest-editor-clear {
+      width: 100%;
+    }
+  }
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}ingest-editor {
+    overflow: auto;
+
+    .ingest-editor-properties {
+      max-height: none;
+    }
+  }
+}

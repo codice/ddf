@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -211,6 +212,68 @@ public class ConfigurationApplication implements SparkApplication {
   private String customBackgroundModal;
 
   private String customBackgroundSlideout;
+
+  private List<String> editorAttributes = Collections.emptyList();
+  private List<String> requiredAttributes = Collections.emptyList();
+  private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
+
+  public List<String> getEditorAttributes() {
+    return editorAttributes;
+  }
+
+  public void setEditorAttributes(List<String> editorAttributes) {
+    this.editorAttributes = editorAttributes;
+  }
+
+  public List<String> getRequiredAttributes() {
+    return requiredAttributes;
+  }
+
+  public void setRequiredAttributes(List<String> requiredAttributes) {
+    this.requiredAttributes = requiredAttributes;
+  }
+
+  public Map<String, Set<String>> getAttributeEnumMap() {
+    return attributeEnumMap;
+  }
+
+  public void setAttributeEnumMap(Map<String, Set<String>> attributeEnumMap) {
+    this.attributeEnumMap = attributeEnumMap;
+  }
+
+  public void setAttributeEnumMap(List<String> entries) {
+    List<String> displayedAttributes = new ArrayList<>();
+    Map<String, Set<String>> attributeValueEnums = new HashMap<>();
+
+    for (String entry : entries) {
+      if (entry.isEmpty()) {
+        continue;
+      }
+
+      String[] kvPair = entry.split("=", 2);
+      String attrName = kvPair[0];
+      displayedAttributes.add(attrName);
+
+      if (kvPair.length == 2) {
+        Set<String> valueSet =
+            attributeValueEnums.containsKey(attrName)
+                ? attributeValueEnums.get(attrName)
+                : new LinkedHashSet<>();
+        for (String value : kvPair[1].split(",")) {
+          String trimmedValue = value.trim();
+          if (trimmedValue.length() > 0) {
+            valueSet.add(value.trim());
+          }
+        }
+        if (!valueSet.isEmpty()) {
+          attributeValueEnums.put(attrName, valueSet);
+        }
+      }
+    }
+
+    setEditorAttributes(displayedAttributes);
+    setAttributeEnumMap(attributeValueEnums);
+  }
 
   public ConfigurationApplication() {}
 
@@ -423,6 +486,9 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("customBackgroundModal", customBackgroundModal);
     config.put("customBackgroundSlideout", customBackgroundSlideout);
     config.put("disableUnknownErrorBox", !unknownErrorBoxEnabled);
+    config.put("editorAttributes", getEditorAttributes());
+    config.put("requiredAttributes", getRequiredAttributes());
+    config.put("enums", getAttributeEnumMap());
     return config;
   }
 

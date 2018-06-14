@@ -58,6 +58,7 @@ define([
         onRender: function () {
             this.handleEdit();
             this.handleReadOnly();
+            this.handleRequired();
             this.handleConflictingAttributeDefinition();
             this.handleValue();
             this.handleRevert();
@@ -87,6 +88,13 @@ define([
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
+        },
+        handleRequired: function () {
+            if (this.model.isRequired()) {
+                this.$el.addClass('is-required');
+            } else {
+                this.$el.removeClass('is-required');
+            }
         },
         handleEdit: function () {
             this.$el.toggleClass('is-editing', this.model.get('isEditing'));

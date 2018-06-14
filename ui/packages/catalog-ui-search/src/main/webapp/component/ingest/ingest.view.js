@@ -21,6 +21,7 @@ var template = require('./ingest.hbs');
 var CustomElements = require('js/CustomElements');
 var router = require('component/router/router');
 var IngestDetails = require('component/ingest-details/ingest-details.view');
+var IngestEditor = require('component/ingest-editor/ingest-editor.view');
 var properties = require('properties');
 
 module.exports = Marionette.LayoutView.extend({
@@ -30,7 +31,14 @@ module.exports = Marionette.LayoutView.extend({
     events: {},
     ui: {},
     regions: {
-        ingestDetails: '.ingest-details'
+        ingestDetails: '.ingest-details',
+        ingestEditor: '.ingest-editor',
+    },
+    detailsView: undefined,
+    editorView: undefined,
+    childEvents: {
+        'ingestDetails:new' : 'showNewIngest',
+        'ingestDetails:before:start': 'beforeStartIngest'
     },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
@@ -44,6 +52,16 @@ module.exports = Marionette.LayoutView.extend({
         this.handleRoute();
     },
     onBeforeShow: function() {
-        this.ingestDetails.show(new IngestDetails({url: '/services/catalog/'}));
+        this.editorView = new IngestEditor();
+        this.ingestEditor.show(this.editorView);
+        this.detailsView = new IngestDetails({url: '/services/catalog/'});
+        this.ingestDetails.show(this.detailsView);
+
+        if (properties.editorAttributes.length == 0) {
+            this.ingestEditor.$el.hide();
+        }
+    },
+    beforeStartIngest: function () {
+        this.detailsView.setOverrides(this.editorView.toJSON());
     }
 });
