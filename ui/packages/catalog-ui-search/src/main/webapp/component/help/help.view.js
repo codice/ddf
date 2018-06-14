@@ -221,7 +221,7 @@ define([
             this.removeOldHints();
             this.hintOn = true;
             this.$el.addClass('is-shown');
-            var $elementsWithHints = $('[data-help]').not('#content > div.is-hidden [data-help]');
+            var $elementsWithHints = $('[data-help]').not('.is-hidden [data-help]');
             $elementsWithHints = _.shuffle($elementsWithHints);
             this.addUntoggleElement();
             this.paintHints($elementsWithHints);

@@ -29,14 +29,19 @@ define([
 ], function ($, _, Marionette, Backbone, properties, maptype, banner) {
     var Application = {};
     Application.App = new Marionette.Application();
+    Application.App.addRegions({
+        router: '#router',
+        header: 'header',
+        footer: 'footer'
+    });
     Application.AppModel = new Backbone.Model(properties);
     const $faviconElement = $('#favicon');
     const $loadingElement = $('#loading');
-    const $header = $('header');
-    const $footer = $('footer');
 
     const BannerView = Marionette.ItemView.extend({
-        tagName: 'header',
+        tagName: function () {
+            return this.options.tagName;
+        },
         template: banner,
         model: Application.AppModel,
         events: {
@@ -63,18 +68,14 @@ define([
 
     //setup the header
     Application.App.addInitializer(function () {
-        const headerView = new BannerView();
-        headerView.render();
-        $header.append(headerView.el);
+        Application.App.header.show(new BannerView({tagName: 'header'}), {replaceElement: true});
         if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== "")) {
             $('body').addClass('has-header');
         }
     });
     //setup the footer
     Application.App.addInitializer(function () {
-        const footerView = new BannerView();
-        footerView.render();
-        $footer.append(footerView.el);
+        Application.App.footer.show(new BannerView({tagName: 'footer'}), {replaceElement: true});
         if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').footer && Application.AppModel.get('ui').footer !== "")) {
             $('body').addClass('has-footer');
         }

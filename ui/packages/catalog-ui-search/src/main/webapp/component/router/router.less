@@ -1,18 +1,22 @@
 @{customElementNamespace}router {
     .customElement;
+}
 
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
-    width: 100%;
-    opacity: 1;
-    transition: opacity @coreTransitionTime linear;
-    transform: translateX(0%);
-
-    &.is-hidden {
-        display: block !important;
-        opacity: 0;
-        transform: translateX(-100%);
+// need to figure out why there are issues using animations / transitions while the lightbox is open (might be a browser bug)
+html.open-lightbox {
+    @{customElementNamespace}router {
+        * {
+            transition: none;
+            animation: none;
+        }
     }
+}
+
+body.has-header @{customElementNamespace}router,
+body.has-footer @{customElementNamespace}router {
+  height: ~'calc(100% - 1.5rem)';
+}
+
+body.has-header.has-footer @{customElementNamespace}router {
+  height: ~'calc(100% - 3rem)';
 }
