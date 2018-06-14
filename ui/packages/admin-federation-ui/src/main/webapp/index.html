@@ -19,18 +19,15 @@
 <head>
     <title>Federation</title>
     <meta http-equiv="x-ua-compatible" content="IE=Edge">
-    <!-- Stylesheets -->
-    <link href="../../webjars/css/ddf-theme-flatly.css" rel="stylesheet">
-    <link href="css/styles.css?bust=${timestamp}" rel="stylesheet">
-
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="../../webjars/html5shiv/3.7.3/dist/html5shiv.js"></script>
     <![endif]-->
+    <link href="../../webjars/css/ddf-theme-flatly.css" rel="stylesheet">
 </head>
 <body>
 <main class="container" role="main"></main>
-<script src="../../webjars/requirejs/2.3.3/require.js"></script>
-<script>require({ urlArgs: "bust=${timestamp}" }, ["main"], function () {});</script>
+<script data-main="main" src="../../webjars/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
+<script data-main="main" src="../../webjars/iframe-resizer/2.6.2/js/iframeResizer.min.js"></script>
 </body>
 </html>

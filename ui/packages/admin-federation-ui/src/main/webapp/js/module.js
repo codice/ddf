@@ -51,6 +51,5 @@ define([
                 FederationModule.contentController.show();
             });
 
-
         });
     });

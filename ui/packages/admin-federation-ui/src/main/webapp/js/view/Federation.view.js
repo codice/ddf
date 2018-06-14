@@ -12,22 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define require*/
 define([
-        'icanhaz',
         'marionette',
         'backbone',
         'underscore',
         'jquery',
-        'text!templates/federationPage.handlebars',
-        'iframeresizer'
+        'templates/federationPage.handlebars'
     ],
-    function (ich, Marionette, Backbone, _, $, federationPage) {
+    function (Marionette, Backbone, _, $, federationPage) {
 
-        ich.addTemplate('federationPage', federationPage);
-
-        return Marionette.Layout.extend({
-            template: 'federationPage',
+        return Marionette.LayoutView.extend({
+            template: federationPage,
             initialize: function () {
                 _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(this.model, 'change', this.render);
@@ -35,13 +31,14 @@ define([
             events: {
               'click .tab-item': 'updateTab'
             },
-            onRender: function () {
-                $('iframe').iFrameResize();
+            onShow: function () {
                 $('#'+this.model.get('selectedTab')).addClass('is-active');
             },
             updateTab: function (e) {
+                $('#'+this.model.get('selectedTab')).removeClass('is-active');
                 this.model.set('selectedTab', e.target.id);
                 this.model.set('url', this.model.get('tabs')[this.model.get('selectedTab')].url);
+                $('#'+this.model.get('selectedTab')).addClass('is-active');
             }
         });
 

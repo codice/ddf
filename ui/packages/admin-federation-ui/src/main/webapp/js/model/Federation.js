@@ -13,7 +13,7 @@
 
 define([
         'backbone',
-        'backboneassociation'
+        'backbone-associations'
   ],
   function (Backbone) {
     "use strict";
