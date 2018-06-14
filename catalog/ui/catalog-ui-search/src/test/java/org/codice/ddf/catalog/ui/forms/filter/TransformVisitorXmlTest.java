@@ -92,6 +92,16 @@ public class TransformVisitorXmlTest {
   @Test
   public void testVisitVarietyFilter2() throws Exception {
     getRootJsonFilterNode("hybrid", "hybrid-example-2.json").accept(visitor);
+    assertVisitVarietyFilter(visitor, false);
+  }
+
+  @Test
+  public void testVisitVarietyFilter3() throws Exception {
+    getRootJsonFilterNode("hybrid", "hybrid-example-3.json").accept(visitor);
+    assertVisitVarietyFilter(visitor, true);
+  }
+
+  private void assertVisitVarietyFilter(TransformVisitor<JAXBElement> visitor, boolean matchCase) {
     forElement(visitor.getResult())
         .withBinding(FilterType.class)
         .forElement(FilterType::getLogicOps)
@@ -118,11 +128,16 @@ public class TransformVisitorXmlTest {
                                 .withBinding(BinaryTemporalOpType.class)
                                 .verifyExpressionOrAny(BinaryTemporalOpType::getExpressionOrAny)
                                 .withData("created", EXPECTED_DATE),
-                        depth2Child3 ->
-                            forElement(depth2Child3)
-                                .withBinding(PropertyIsLikeType.class)
-                                .verifyExpression(PropertyIsLikeType::getExpression)
-                                .withData("name", "Bob")));
+                        depth2Child3 -> {
+                          forElement(depth2Child3)
+                              .withBinding(PropertyIsLikeType.class)
+                              .verifyExpression(PropertyIsLikeType::getExpression)
+                              .withData("name", "Bob");
+                          forElement(depth2Child3)
+                              .withBinding(PropertyIsLikeType.class)
+                              .verifyMatchCase(PropertyIsLikeType::getMatchCase)
+                              .withValue(matchCase);
+                        }));
   }
 
   private static VisitableElement getRootJsonFilterNode(String... resourceRoute) throws Exception {

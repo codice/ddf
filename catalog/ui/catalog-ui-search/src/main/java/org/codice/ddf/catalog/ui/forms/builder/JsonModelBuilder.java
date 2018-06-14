@@ -154,16 +154,13 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    if (!PROPERTY_IS_LIKE.equals(operator)) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
-    }
-    // For now, will always choose ILIKE
-    String jsonOperator = (matchCase) ? LIKE : ILIKE;
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
-    return this;
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator) {
+    return beginPropertyIsLikeTypeBasic(operator, LIKE);
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsILikeType(String operator) {
+    return beginPropertyIsLikeTypeBasic(operator, ILIKE);
   }
 
   @Override
@@ -272,5 +269,15 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     if (nodeInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
     }
+  }
+
+  private FlatFilterBuilder beginPropertyIsLikeTypeBasic(String operator, String filterType) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    if (!PROPERTY_IS_LIKE.equals(operator)) {
+      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
+    }
+    nodeInProgress = new FilterNodeImpl(filterType);
+    return this;
   }
 }

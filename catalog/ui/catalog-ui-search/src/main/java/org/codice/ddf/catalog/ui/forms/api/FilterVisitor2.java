@@ -63,6 +63,8 @@ public interface FilterVisitor2 {
 
   void visitPropertyIsLikeType(VisitableElement<List<VisitableElement<?>>> visitable);
 
+  void visitPropertyIsILikeType(VisitableElement<List<VisitableElement<?>>> visitable);
+
   void visitPropertyIsNullType(VisitableElement<VisitableElement<?>> visitable);
 
   void visitPropertyIsNilType(VisitableElement<VisitableElement<?>> visitable);
