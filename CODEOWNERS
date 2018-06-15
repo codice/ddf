@@ -98,9 +98,9 @@ platform/security/		                @codice/security @stustison
 platform/util/			                @stustison
 
 
-#
+###############################
 # CODICE WHITELIST ENTRIES -- leave at bottom of file
-#
+###############################
 
 
 # PLATFORM
@@ -220,8 +220,8 @@ catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/IngestException.j
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/InternalIngestException.java @codice/whitelist
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/RemoteSource.java @codice/whitelist
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/Source.java @codice/whitelist
-catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceDescriptor.
-catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceMetrics.java @codice/whitelist TODO (RCZ) ?? this valid?
+catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceDescriptor.java
+catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceMetrics.java @codice/whitelist
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceMonitor.java @codice/whitelist
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/SourceUnavailableException.java @codice/whitelist
 catalog/core/catalog-core-api/src/main/java/ddf/catalog/source/UnsupportedQueryException.java @codice/whitelist
@@ -324,3 +324,9 @@ catalog/spatial/wfs/spatial-wfs-api/src/main/java/org/codice/ddf/spatial/ogc/wfs
 catalog/spatial/wfs/spatial-wfs-api/src/main/java/org/codice/ddf/spatial/ogc/wfs/v1_0_0/catalog/converter/FeatureConverterFactory.java @codice/whitelist
 
 catalog/spatial/wfs/spatial-wfs-api/src/main/java/org/codice/ddf/spatial/ogc/wfs/v2_0_0/catalog/converter/FeatureConverterFactory.java @codice/whitelist
+
+
+###############################
+# CODICE SECURITY ENTRY -- leave at bottom of file
+###############################
+distribution/ddf-common/src/main/resources/security @codice/security @stustison
