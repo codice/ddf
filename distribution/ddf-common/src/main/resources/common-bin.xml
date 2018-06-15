@@ -69,7 +69,7 @@
                     **/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar
                 </exclude>
                 <exclude>
-                    **/org/eclipse/platform/org.eclipse.osgi/3.11.3/org.eclipse.osgi-3.11.3.jar
+                    **/org/eclipse/platform/org.eclipse.osgi/3.12.50/org.eclipse.osgi-3.12.50.jar
                 </exclude>
 
                 <!-- excluding jars we don't need that have OWASP vulnerabilities -->
@@ -175,6 +175,7 @@
             <directory>${setup.folder}/endorsed</directory>
             <outputDirectory>/lib/endorsed</outputDirectory>
         </fileSet>
+
         <fileSet>
             <directory>${setup.folder}/ext</directory>
             <outputDirectory>/lib/ext</outputDirectory>
@@ -275,10 +276,10 @@
         <fileSet>
             <directory>${setup.folder}/libraryOverrides</directory>
             <outputDirectory>
-                /system/org/eclipse/platform/org.eclipse.osgi/3.11.3
+                /system/org/eclipse/platform/org.eclipse.osgi/3.12.50
             </outputDirectory>
             <includes>
-                <include>org.eclipse.osgi-3.11.3.jar</include>
+                <include>org.eclipse.osgi-3.12.50.jar</include>
             </includes>
         </fileSet>
         <fileSet>
