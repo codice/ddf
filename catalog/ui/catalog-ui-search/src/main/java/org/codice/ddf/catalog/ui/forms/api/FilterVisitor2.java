@@ -41,6 +41,8 @@ public interface FilterVisitor2 {
   // Value References bind to String instead of their own specific type
   void visitString(VisitableElement<String> visitable);
 
+  void visitLiteralProperty(VisitableElement<?> visitable);
+
   void visitLiteralType(VisitableElement<List<Serializable>> visitable);
 
   // Traversal for the time being will assume NO embedded functions / currying support

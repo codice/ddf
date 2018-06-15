@@ -57,7 +57,11 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder setProperty(String property);
 
+  FlatFilterBuilder setLiteralProperty(Object literalProperty);
+
   FlatFilterBuilder setValue(String value);
 
   FlatFilterBuilder setTemplatedValues(Map<String, Object> templateProps);
+
+  FlatFilterBuilder setFunctionValues(Map<String, Object> functionProperties);
 }

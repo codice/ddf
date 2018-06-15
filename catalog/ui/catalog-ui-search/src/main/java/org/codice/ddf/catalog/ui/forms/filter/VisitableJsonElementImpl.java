@@ -59,9 +59,11 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           // Fake operators to give a flat structure an XML-like "embedded" structure
           .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
           .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
+          .put("LITERAL_PROPERTY", FilterVisitor2::visitLiteralProperty)
           // Logical operator mapping
           .put("AND", FilterVisitor2::visitBinaryLogicType)
           .put("OR", FilterVisitor2::visitBinaryLogicType)
+          .put("NOT", FilterVisitor2::visitUnaryLogicType)
           // Temporal operator mapping
           .put("BEFORE", FilterVisitor2::visitBinaryTemporalType)
           .put("AFTER", FilterVisitor2::visitBinaryTemporalType)
@@ -101,8 +103,10 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
       return;
     }
 
-    if (node.isLeaf()) {
+    if (node.hasChildren()) {
       this.value = wrap(node.getProperty(), node.getValue());
+    } else if (node.isFunction()) {
+      this.value = wrap(node.getFunctionArguments(), Boolean.valueOf(node.getValue()));
     } else {
       this.value = wrap(node.getChildren());
     }
@@ -139,6 +143,14 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
         new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
         new VisitableJsonElementImpl(
             FAKE_VALUE_OPERATOR, templateProperties, FilterVisitor2::visitFunctionType));
+  }
+
+  private static List<VisitableElement<?>> wrap(
+      Map<String, Object> functionArguments, Boolean functionTarget) {
+    return Arrays.asList(
+        new VisitableJsonElementImpl("LITERAL_PROPERTY", functionTarget),
+        new VisitableJsonElementImpl(
+            FAKE_VALUE_OPERATOR, functionArguments, FilterVisitor2::visitFunctionType));
   }
 
   private static List<VisitableElement<?>> wrap(List<FilterNode> children) {

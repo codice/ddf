@@ -48,6 +48,12 @@ public interface FilterNode {
    */
   String getOperator();
 
+  boolean hasChildren();
+
+  boolean isFunction();
+
+  Map<String, Object> getFunctionArguments();
+
   /**
    * If this node is a non-terminal node, fetch its list of children.
    *

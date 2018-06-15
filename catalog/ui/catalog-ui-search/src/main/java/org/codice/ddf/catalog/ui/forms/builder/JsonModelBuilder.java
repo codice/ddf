@@ -209,6 +209,11 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   @Override
+  public FlatFilterBuilder setLiteralProperty(Object literalProperty) {
+    throw new RuntimeException("not implemented");
+  }
+
+  @Override
   public JsonModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
@@ -221,6 +226,12 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
+    return this;
+  }
+
+  @Override
+  public FlatFilterBuilder setFunctionValues(Map<String, Object> functionProperties) {
+    // throw new RuntimeException("not implemented");
     return this;
   }
 

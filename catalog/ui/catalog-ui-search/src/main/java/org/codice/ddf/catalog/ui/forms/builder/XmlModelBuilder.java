@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.builder;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
@@ -38,6 +41,7 @@ import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
+import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
@@ -218,6 +222,20 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
+  public XmlModelBuilder setLiteralProperty(Object literalProperty) {
+
+    LiteralType literalType =
+        FACTORY.createLiteralType().withContent((Serializable) literalProperty.toString());
+
+    if (literalProperty instanceof Boolean) {
+      literalType.withType(new QName("http://www.w3.org/2001/XMLSchema", "boolean"));
+    }
+
+    supplierInProgress.setLiteralProperty(FACTORY.createLiteral(literalType));
+    return this;
+  }
+
+  @Override
   public XmlModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
@@ -251,6 +269,44 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
                     FACTORY.createLiteral(
                         new LiteralType()
                             .withContent(Collections.singleton(Boolean.toString(isReadOnly)))))));
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder setFunctionValues(Map<String, Object> functionProperties) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+
+    String filterFunctionName = (String) functionProperties.get("filterFunctionName");
+    List<Object> params = (List<Object>) functionProperties.get("params");
+
+    List<JAXBElement<?>> args =
+        params
+            .stream()
+            .map(
+                new Function<Object, JAXBElement<?>>() {
+                  @Override
+                  public JAXBElement<?> apply(Object o) {
+
+                    LiteralType literalType =
+                        new LiteralType().withContent((Serializable) o.toString());
+
+                    if (o instanceof Integer) {
+                      literalType.withType(
+                          new QName("http://www.w3.org/2001/XMLSchema", "integer"));
+                    } else if (o instanceof String) {
+                      literalType.withType(new QName("http://www.w3.org/2001/XMLSchema", "string"));
+                    }
+
+                    return FACTORY.createLiteral(literalType);
+                  }
+                })
+            .collect(Collectors.toList());
+
+    supplierInProgress.setValue(
+        FACTORY.createFunction(
+            new FunctionType().withName(filterFunctionName).withExpression(args)));
+
     return this;
   }
 
@@ -304,6 +360,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
     private final MultiNodeReducer reducer;
     private JAXBElement<String> propertyNode = null;
+    private JAXBElement<LiteralType> literalProperty = null;
     private JAXBElement<?> valueNode;
 
     TerminalNodeSupplier(final MultiNodeReducer reducer) {
@@ -316,6 +373,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       this.propertyNode = propertyNode;
     }
 
+    public void setLiteralProperty(JAXBElement<LiteralType> literal) {
+      this.literalProperty = literal;
+    }
+
     public void setValue(JAXBElement<?> valueNode) {
       notNull(valueNode);
       this.valueNode = valueNode;
@@ -323,10 +384,17 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     @Override
     public JAXBElement<?> get() {
-      notNull(propertyNode);
+      // TODO need to have either a propertyNode or literlaPropertyNode, but not both
+      // notNull(propertyNode);
       notNull(valueNode);
       List<JAXBElement<?>> terminals = new ArrayList<>();
-      terminals.add(propertyNode);
+
+      if (propertyNode != null) {
+        terminals.add(propertyNode);
+      } else {
+        terminals.add(literalProperty);
+      }
+
       terminals.add(valueNode);
       return reducer.apply(terminals);
     }
@@ -415,6 +483,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
+    }
+
+    private static UnaryLogicOpType unaryLogicOpType(FunctionType functionType) {
+      return new UnaryLogicOpType().withFunction(functionType);
     }
 
     private static BinaryComparisonOpType binaryComparisonType(List<JAXBElement<?>> children) {

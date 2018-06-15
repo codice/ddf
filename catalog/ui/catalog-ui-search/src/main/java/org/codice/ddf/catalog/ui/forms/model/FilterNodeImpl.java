@@ -99,6 +99,21 @@ public class FilterNodeImpl implements FilterNode {
   }
 
   @Override
+  public boolean hasChildren() {
+    throw new RuntimeException("not implemented");
+  }
+
+  @Override
+  public boolean isFunction() {
+    throw new RuntimeException("not implemented");
+  }
+
+  @Override
+  public Map<String, Object> getFunctionArguments() {
+    throw new RuntimeException("not implemented");
+  }
+
+  @Override
   public List<FilterNode> getChildren() {
     if (isLeaf()) {
       throw new IllegalStateException("Leaf nodes do not have children");
