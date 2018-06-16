@@ -21,12 +21,11 @@ define([
     './metacard.hbs',
     'js/CustomElements',
     'component/router/router',
-    'component/navigation/metacard/navigation.metacard.view',
     'component/metacard/metacard',
     'component/golden-layout/golden-layout.view',
     'js/model/Query',
     'js/cql'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, NavigationView,
+], function (wreqr, Marionette, _, $, template, CustomElements, router,
             metacardInstance, GoldenLayoutMetacardView, Query, cql) {
 
     let queryForMetacard;
@@ -34,14 +33,7 @@ define([
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('metacard'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
         regions: {
-            metacardMenu: '.metacard-menu',
             detailsTabular: '.details-tabular',
         },
         initialize: function(){
@@ -98,7 +90,6 @@ define([
             this.handleResultChange();
         },
         onBeforeShow: function(){
-            this.metacardMenu.show(new NavigationView());
             this.detailsTabular.show(new GoldenLayoutMetacardView({
                 selectionInterface: metacardInstance,
                 configName: 'goldenLayoutMetacard'

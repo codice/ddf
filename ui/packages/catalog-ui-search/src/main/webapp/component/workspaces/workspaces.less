@@ -3,10 +3,15 @@
 
   .changeBackground(@backgroundContent);
 
-  .home-content {
+  > .home-content,
+  > .home-save {
     display: inline-block;
     width: 100%;
-    max-height: ~'calc(100% - 2*@{minimumLineSize} - 10px)';
+    vertical-align: top;
+  }
+
+  .home-content {
+    max-height: 100%;
     overflow: auto;
   }
 
@@ -16,13 +21,11 @@
   }
 
   .home-save {
-    width: 100%;
+    position: relative;
+    left: 0px;
     opacity: 1;
     transform: scale(1) translateY(-100%);
     opacity: 1;
-    position: relative;
-    top: 0%;
-    left: 0%;
     transition: transform @coreTransitionTime ease-out, 
         opacity @coreTransitionTime ease-out,
         left 0s ease-out @coreTransitionTime;

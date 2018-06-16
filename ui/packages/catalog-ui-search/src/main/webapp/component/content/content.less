@@ -1,5 +1,4 @@
 @{customElementNamespace}content {
-  @panelTwoSpacing: 20px;
   @panelOneWidth: 9.55*@minimumButtonSize;
 
   .customElement;
@@ -7,17 +6,7 @@
   position: relative;
   z-index: @zIndexContent;
 
-  > .content-menu {
-    width: 100%;
-    height: 2*@minimumLineSize;
-  }
-
-  .content-content{
-    height: ~'calc(100% - 2*@{minimumLineSize})';
-    position: relative;
-  }
-
-  .content-panelOne {
+  .content-left {
     .changeBackground(@backgroundAccentContent);
     border-right: 1px solid fade(contrast(@backgroundAccentContent), 5%);
     width: @panelOneWidth;
@@ -26,7 +15,7 @@
     transition: width @coreTransitionTime ease-in-out;
   }
 
-  .content-panelThree {
+  .content-right {
     width: ~'calc(100% - @{panelOneWidth})';
     transition: width @coreTransitionTime ease-in-out;
     .changeBackground(@backgroundContent);
@@ -34,7 +23,7 @@
     top: 0%;
   }
 
-  .content-panel {
+  > div {
     position: absolute;
     height: 100%;
     vertical-align: top;

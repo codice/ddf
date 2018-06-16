@@ -20,7 +20,6 @@ define([
     'jquery',
     'js/CustomElements',
     '../content.view',
-    'component/navigation/workspace/navigation.workspace.view',
     'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
@@ -33,55 +32,34 @@ define([
     'component/upload/upload',
     'component/result-selector/result-selector.view',
     'component/golden-layout/golden-layout.view'
-], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
+], function (wreqr, Marionette, _, $, CustomElements, ContentView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, uploadInstance,
             ResultSelectorView, VisualizationView) {
 
-    var debounceTime = 25;
-
     return ContentView.extend({
         className: 'is-upload',
-        modelEvents: {
-        },
-        events: {
-            'click .content-panelTwo-close': 'unselectQueriesAndResults'
-        },
-        ui: {
-        },
-        regions: {
-            'menu': '.content-menu',
-            'panelOne': '.content-panelOne',
-            'panelTwo': '.content-panelTwo-content',
-            'panelTwoTitle': '.content-panelTwo-title',
-            'panelThree': '.content-panelThree'
-        },
         initialize: function(){
             this._mapView = new VisualizationView({
                 selectionInterface: uploadInstance,
                 configName: 'goldenLayoutUpload'
             });
-            this.listenTo(uploadInstance, 'change:currentUpload', this.updatePanelOne);
+            this.listenTo(uploadInstance, 'change:currentUpload', this.updateContentLeft);
         },
         onRender: function(){
-            this.updatePanelOne();
-            this.hidePanelTwo();
+            this.updateContentLeft();
             if (this._mapView){
-                this.panelThree.show(this._mapView);
+                this.contentRight.show(this._mapView);
             }
         },
-        updatePanelOne: function(){
-            this.panelOne.show(new ResultSelectorView({
+        updateContentLeft: function(){
+            this.contentLeft.show(new ResultSelectorView({
                 model: uploadInstance.get('currentQuery'),
                 selectionInterface: uploadInstance
             }));
-            this.hidePanelTwo();
-        },
-        updatePanelTwo: function(){
         },
         unselectQueriesAndResults: function(){
             uploadInstance.clearSelectedResults();
-        },
-        _mapView: undefined
+        }
     });
 });

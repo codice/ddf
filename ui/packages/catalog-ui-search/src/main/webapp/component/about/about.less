@@ -1,14 +1,12 @@
 @{customElementNamespace}about {
     .customElement;
-    overflow: hidden;
+    overflow: auto;
     .changeBackground(@backgroundContent);
 
     .about-content {
         margin: auto;
         max-width: 1200px;
         padding: @minimumSpacing 100px;
-        overflow: auto;
-        height: ~'calc(100% - 2*@{minimumLineSize})';
     }
     
     .content-version,

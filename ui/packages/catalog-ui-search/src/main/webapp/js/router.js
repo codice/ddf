@@ -31,41 +31,72 @@ const routeDefinitions = {
     ...plugin({
         openWorkspace: {
             patterns: ['workspaces/:id'],
-            component: require('component/content/content.view')
+            component: require('component/content/content.view'),
+            menu: {
+                component: require('component/workspace-menu/workspace-menu.view')
+            }
         },
         home: {
             patterns: ['(?*)', 'workspaces(/)'],
-            component: require('component/workspaces/workspaces.view')
+            component: require('component/workspaces/workspaces.view'),
+            menu: {
+                component: require('component/workspaces-menu/workspaces-menu.view')
+            }
         }, 
         openMetacard: {
             patterns: ['metacards/:id'],
-            component: require('component/metacard/metacard.view')
+            component: require('component/metacard/metacard.view'),
+            menu: {
+                component: require('component/metacard-menu/metacard-menu.view')
+            }
         },
         openAlert: {
             patterns: ['alerts/:id'],
-            component: require('component/alert/alert.view')
+            component: require('component/alert/alert.view'),
+            menu: {
+                component: require('component/alert-menu/alert-menu.view')
+            }
         },
         openIngest: {
             patterns: ['ingest(/)'],
-            component: require('component/ingest/ingest.view')
+            component: require('component/ingest/ingest.view'),
+            menu: {
+                classes: 'is-bold',
+                text: 'Upload'
+            }
         },
         openUpload: {
             patterns: ['uploads/:id'],
-            component: require('component/upload/upload.view')
+            component: require('component/upload/upload.view'),
+            menu: {
+                component: require('component/upload-menu/upload-menu.view')
+            }
         },
         openSources: {
             patterns: ['sources(/)'],
-            component: require('component/sources/sources.view')
+            component: require('component/sources/sources.view'),
+            menu: {
+                classes: 'is-bold',
+                text: 'Sources'
+            }
         },
         openAbout: {
             patterns: ['about(/)'],
-            component: require('component/about/about.view')
+            component: require('component/about/about.view'),
+            menu: {
+                classes: 'is-bold',
+                text: 'About'
+            }
         }
     }),
     // needs to be last based on how backbone router works, otherwise this route always wins
     notFound: {
         patterns: ['*path'],
-        component: require('component/notfound/notfound.view')
+        component: require('component/notfound/notfound.view'),
+        menu: {
+            classes: 'is-bold',
+            text: 'Page Not Found'
+        }
     }    
 };
 

@@ -1,5 +1,14 @@
 @{customElementNamespace}router {
     .customElement;
+    overflow: hidden;
+
+    > .router-navigation {
+        height: 2*@minimumLineSize;
+    }
+
+    > .router-content {
+        height: ~'calc(100% - 2*@{minimumLineSize})';
+    }
 }
 
 // need to figure out why there are issues using animations / transitions while the lightbox is open (might be a browser bug)

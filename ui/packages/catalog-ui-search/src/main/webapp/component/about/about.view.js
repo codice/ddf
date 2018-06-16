@@ -20,22 +20,12 @@ var $ = require('jquery');
 var template = require('./about.hbs');
 var CustomElements = require('js/CustomElements');
 var router = require('component/router/router');
-var NavigationView = require('component/navigation/about/navigation.about.view');
 var properties = require('properties');
 var moment = require('moment');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('about'),
-    modelEvents: {},
-    events: {},
-    ui: {},
-    regions: {
-        aboutMenu: '.about-menu'
-    },
-    onBeforeShow: function() {
-        this.aboutMenu.show(new NavigationView());
-    },
     serializeData() {
         return {
             properties,

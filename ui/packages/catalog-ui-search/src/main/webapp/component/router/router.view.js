@@ -17,47 +17,43 @@ const Marionette = require('marionette');
 const template = require('./router.hbs');
 const CustomElements = require('js/CustomElements');
 const router = require('component/router/router');
+const NavigationView = require('component/navigation/navigation.view');
 const routeComponents = {}; 
-
-const getRouteComponent = (routeDefinitions, routeName) => {
-    return routeComponents[routeName] || new routeDefinitions[routeName].component();
-};
-
-const addToRouteComponents = (routeName, component) => {
-    routeComponents[routeName] = routeComponents[routeName] || component;
-};
-
-const showRenderedRouteComponent = (routerView, component) => {
-    routerView.routerComponent.attachHtml(component, true);
-    routerView.routerComponent.attachView(component);
-};
-
-const showUnrenderedRouteComponent = (routerView, component) => {
-    routerView.routerComponent.show(component, { replaceElement: true, preventDestroy: true });
-};
-
-const showRouteComponent = (routerView, component) => {
-    component.isRendered === true ? showRenderedRouteComponent(routerView, component) : showUnrenderedRouteComponent(routerView, component);
-};
-
-const showRoute = function() {
-    const routeName = router.toJSON().name;
-    const routeComponent = getRouteComponent(this.options.routeDefinitions, routeName);
-    addToRouteComponents(routeName, routeComponent);
-    showRouteComponent(this, routeComponent);
-}
 
 const RouterView = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('router'),
     regions: {
-        routerComponent: '> .router-component' 
+        navigation: '> .router-navigation',
+        content: '> .router-content'
     },
     initialize: function () {
         if (this.options.routeDefinitions === undefined) {
             throw "Route definitions must be passed in as an option.";
         }
-        this.listenTo(router, 'change', showRoute);
+        this.listenTo(router, 'change', this.showRoute);
+    },
+    showRoute() {
+        const routeName = router.toJSON().name;
+        const routeComponent = routeComponents[routeName] || new this.options.routeDefinitions[routeName].component();
+        routeComponents[routeName] = routeComponents[routeName] || routeComponent;
+        if (routeComponent.isRendered === true) {
+            this.showRenderedRouteComponent(routeComponent);
+        } else {
+            this.showUnrenderedRouteComponent(routeComponent);
+        }
+    },
+    showRenderedRouteComponent: function(component) {
+        this.content.attachHtml(component, false);
+        this.content.attachView(component);
+    },
+    showUnrenderedRouteComponent: function(component) {
+        this.content.show(component, { replaceElement: false, preventDestroy: true });
+    },
+    onBeforeShow: function() {
+        this.navigation.show(new NavigationView({
+            routeDefinitions: this.options.routeDefinitions
+        }));
     }
 });
 

@@ -20,26 +20,18 @@ define([
     './upload.hbs',
     'js/CustomElements',
     'component/router/router',
-    'component/navigation/upload/navigation.upload.view',
     'component/content/upload/content.upload.view',
     'js/model/Query',
     'js/cql',
     'component/singletons/user-instance',
     'component/upload/upload'
-], function (Marionette, _, $, template, CustomElements, router, NavigationView,
+], function (Marionette, _, $, template, CustomElements, router,
              uploadContentView, Query, cql, user, uploadInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('upload'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
         regions: {
-            uploadMenu: '.upload-menu',
             uploadDetails: '.upload-details'
         },
         initialize: function(){
@@ -102,7 +94,6 @@ define([
             }
         },
         showSubViews: function() {
-            this.uploadMenu.show(new NavigationView());
             this.uploadDetails.show(new uploadContentView());
         }
     });
