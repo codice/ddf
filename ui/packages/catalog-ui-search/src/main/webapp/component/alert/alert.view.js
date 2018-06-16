@@ -20,26 +20,18 @@ define([
     './alert.hbs',
     'js/CustomElements',
     'component/router/router',
-    'component/navigation/alert/navigation.alert.view',
     'component/content/alert/content.alert.view',
     'js/model/Query',
     'js/cql',
     'component/singletons/user-instance',
     'component/alert/alert'
-], function (Marionette, _, $, template, CustomElements, router, NavigationView,
+], function (Marionette, _, $, template, CustomElements, router,
              AlertContentView, Query, cql, user, alertInstance) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('alert'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
         regions: {
-            alertMenu: '.alert-menu',
             alertDetails: '.alert-details'
         },
         initialize: function(){
@@ -92,7 +84,6 @@ define([
            }
         },
         showSubViews() {
-            this.alertMenu.show(new NavigationView());
             this.alertDetails.show(new AlertContentView());
         }
     });

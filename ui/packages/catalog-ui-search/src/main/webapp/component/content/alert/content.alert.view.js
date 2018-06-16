@@ -20,7 +20,6 @@ define([
     'jquery',
     'js/CustomElements',
     '../content.view',
-    'component/navigation/workspace/navigation.workspace.view',
     'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
@@ -33,56 +32,35 @@ define([
     'component/alert/alert',
     'component/result-selector/result-selector.view',
     'component/golden-layout/golden-layout.view'
-], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
+], function (wreqr, Marionette, _, $, CustomElements, ContentView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, alertInstance,
             ResultSelectorView, VisualizationView) {
 
-    var debounceTime = 25;
-
     return ContentView.extend({
         className: 'is-alert',
-        modelEvents: {
-        },
-        events: {
-            'click .content-panelTwo-close': 'unselectQueriesAndResults'
-        },
-        ui: {
-        },
-        regions: {
-            'menu': '.content-menu',
-            'panelOne': '.content-panelOne',
-            'panelTwo': '.content-panelTwo-content',
-            'panelTwoTitle': '.content-panelTwo-title',
-            'panelThree': '.content-panelThree'
-        },
         initialize: function(){
             this._mapView = new VisualizationView({
                 selectionInterface: alertInstance,
                 configName: 'goldenLayoutAlert'
             });
-            this.listenTo(alertInstance, 'change:currentAlert', this.updatePanelOne);
+            this.listenTo(alertInstance, 'change:currentAlert', this.updateContentLeft);
         },
         onRender: function(){
-            this.updatePanelOne();
-            this.hidePanelTwo();
+            this.updateContentLeft();
             if (this._mapView){
-                this.panelThree.show(this._mapView);
+                this.contentRight.show(this._mapView);
             }
         },
-        updatePanelOne: function(){
-            this.panelOne.show(new ResultSelectorView({
+        updateContentLeft: function(){
+            this.contentLeft.show(new ResultSelectorView({
                 model: alertInstance.get('currentQuery'),
                 selectionInterface: alertInstance
             }));
-            this.hidePanelTwo();
-        },
-        updatePanelTwo: function(){
         },
         unselectQueriesAndResults: function(){
             alertInstance.clearSelectedResults();
-        },
-        _mapView: undefined
+        }
 
     });
 });

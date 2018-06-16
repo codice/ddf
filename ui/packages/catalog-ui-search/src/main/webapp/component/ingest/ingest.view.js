@@ -20,7 +20,6 @@ var $ = require('jquery');
 var template = require('./ingest.hbs');
 var CustomElements = require('js/CustomElements');
 var router = require('component/router/router');
-var NavigationView = require('component/navigation/ingest/navigation.ingest.view');
 var IngestDetails = require('component/ingest-details/ingest-details.view');
 var properties = require('properties');
 
@@ -31,7 +30,6 @@ module.exports = Marionette.LayoutView.extend({
     events: {},
     ui: {},
     regions: {
-        ingestMenu: '.ingest-menu',
         ingestDetails: '.ingest-details'
     },
     initialize: function() {
@@ -46,7 +44,6 @@ module.exports = Marionette.LayoutView.extend({
         this.handleRoute();
     },
     onBeforeShow: function() {
-        this.ingestMenu.show(new NavigationView());
         this.ingestDetails.show(new IngestDetails({url: '/services/catalog/'}));
     }
 });

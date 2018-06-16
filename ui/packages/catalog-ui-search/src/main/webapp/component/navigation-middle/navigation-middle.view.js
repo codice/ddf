@@ -14,16 +14,23 @@
  **/
 /*global require*/
 var Marionette = require('marionette');
-var template = require('./ingest-menu.hbs');
-var CustomElements = require('js/CustomElements');
+var template = require('./navigation-middle.hbs');
+var CustomElements = require('CustomElements');
+const router = require('component/router/router');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
-    tagName: CustomElements.register('ingest-menu'),
-    modelEvents: {},
-    events: {},
-    ui: {},
-    regions: {},
-    initialize: function() {
+    tagName: CustomElements.register('navigation-middle'),
+    serializeData: function() {
+        const routeName = router.toJSON().name;
+        let menuClasses, menuText;
+        if (routeName !== undefined) {
+            menuClasses = this.options.routeDefinitions[routeName].menu.classes;
+            menuText = this.options.routeDefinitions[routeName].menu.text;
+        }
+        return {
+            menuClasses,
+            menuText
+        };
     }
 });

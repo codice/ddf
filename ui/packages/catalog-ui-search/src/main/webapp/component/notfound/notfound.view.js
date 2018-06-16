@@ -17,24 +17,15 @@ const Marionette = require('marionette');
 const template = require('./notfound.hbs');
 const CustomElements = require('js/CustomElements');
 const router = require('component/router/router');
-const NavigationView = require('component/navigation/navigation.view');
 const NavigatorView = require('component/navigator/navigator.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('notfound'),
-    modelEvents: {},
-    events: {},
-    ui: {},
     regions: {
         content: '> .content > .navigator',
-        menu: '> .menu'
     },
     onBeforeShow: function() {
-        this.menu.show(new NavigationView({
-            navigationMiddleText: 'Page Not Found',
-            navigationMiddleClasses: 'is-bold'
-        }));
         this.content.show(new NavigatorView({}));
     },
     serializeData: function() {

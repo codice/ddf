@@ -21,12 +21,10 @@ define([
     './workspaces.hbs',
     'js/CustomElements',
     'component/router/router',
-    'component/navigation/workspaces/navigation.workspaces.view',
     'component/workspaces-templates/workspaces-templates.view',
     'component/workspaces-items/workspaces-items.view',
     'js/store'
-], function (wreqr, Marionette, _, $, template, CustomElements, router, WorkspacesMenuView, 
-    WorkspacesTemplatesView, WorkspacesItemsView, store) {
+], function (wreqr, Marionette, _, $, template, CustomElements, router, WorkspacesTemplatesView, WorkspacesItemsView, store) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -43,7 +41,6 @@ define([
         ui: {
         },
         regions: {
-            menu: '.home-menu',
             templates: '.home-templates',
             items: '.home-items'
         },
@@ -62,7 +59,6 @@ define([
             this.templates.currentView.focus();
         },
         onRender: function(){
-            this.menu.show(new WorkspacesMenuView());
             this.templates.show(new WorkspacesTemplatesView());
             this.items.show(new WorkspacesItemsView());
             this.handleRoute();

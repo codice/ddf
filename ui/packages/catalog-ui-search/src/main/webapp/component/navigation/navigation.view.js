@@ -17,11 +17,13 @@ var Marionette = require('marionette');
 var template = require('./navigation.hbs');
 var CustomElements = require('CustomElements');
 var NavigationLeftView = require('component/navigation-left/navigation-left.view');
+var NavigationMiddleView = require('component/navigation-middle/navigation-middle.view');
 var NavigationRightView = require('component/navigation-right/navigation-right.view');
 var store = require('js/store');
 var wreqr = require('wreqr');
 var sources = require('component/singletons/sources-instance');
 var properties = require('properties');
+const router = require('component/router/router');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -40,11 +42,19 @@ module.exports = Marionette.LayoutView.extend({
         this.handleSaved();
         this.handleSources();
         this.handleLogo();
+        this.listenTo(router, 'change', this.showNavigationMiddle);
     },
     showNavigationMiddle: function(){
-        //override in extensions
-        if (this.options.navigationMiddleComponent) {
-            this.navigationMiddle.show(new this.options.navigationMiddleComponent());
+        const routeName = router.toJSON().name;
+        if (routeName === undefined) {
+            return;
+        }
+        if (this.options.routeDefinitions[routeName].menu.component) {
+            this.navigationMiddle.show(new this.options.routeDefinitions[routeName].menu.component());
+        } else {
+            this.navigationMiddle.show(new NavigationMiddleView({
+                routeDefinitions: this.options.routeDefinitions
+            }));
         }
     },
     onBeforeShow: function(){
