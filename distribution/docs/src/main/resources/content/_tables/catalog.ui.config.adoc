@@ -463,4 +463,29 @@ thumbnail
 |#252529
 |true
 
+|Upload Editor: Attribute Configuration
+|attributeEnumMap
+|String
+|List of attributes to show in the upload editor. See <<_catalog_taxonomy_definitions,Catalog Taxonomy>>
+for a list of supported attributes.
+
+Supported entry syntax: +
+1. `attribute` +
+2. `attribute=value1,value2,...`
+
+Using the first syntax, the editor will attempt to determine the appropriate control to display
+based on the attribute datatype.
+The second syntax will force the editor to use a dropdown selector populated with the provided
+values. This is intended for use with String datatypes, which by default may be assigned any value.
+|
+|false
+
+|Upload Editor: Required Attributes
+|requiredAttributes
+|String
+|List of attributes which must be set before an upload is permitted. If an attribute is
+listed as required but not shown in the editor, it will be ignored.
+|
+|false
+
 |===
