@@ -246,14 +246,17 @@ public class ConfigurationApplication implements SparkApplication {
     Map<String, Set<String>> attributeValueEnums = new HashMap<>();
 
     for (String entry : entries) {
-      if (entry.isEmpty()) {
+      if (StringUtils.isBlank(entry)) {
         continue;
       }
 
       String[] kvPair = entry.split("=", 2);
-      String attrName = kvPair[0];
-      displayedAttributes.add(attrName);
+      String attrName = kvPair[0].trim();
+      if (attrName.isEmpty()) {
+        continue;
+      }
 
+      displayedAttributes.add(attrName);
       if (kvPair.length == 2) {
         Set<String> valueSet =
             attributeValueEnums.containsKey(attrName)

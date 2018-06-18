@@ -44,7 +44,7 @@ define([
         onBeforeShow: function() {
             this.editorProperties.show(PropertyCollectionView.generateFilteredPropertyCollectionView(
                 properties.editorAttributes,
-                properties.requiredAttributes,
+                [],
             ));
             this.editorProperties.currentView.$el.addClass("is-list");
             this.$el.addClass('is-editing');

@@ -167,13 +167,15 @@ public class ConfigurationApplicationTest {
             "",
             "unrestrictedAttribute",
             "restrictedAttributeWithEmptyEnum=",
-            "restrictedAttributeWithSpaces=list,of,  possible  ,values",
+            "=blank,attribute,name",
+            " restrictedAttributeWithSpaces  = list,of,  possible  ,values",
             "restrictedAttributeWithDuplicates=duplicate, duplicate, values, values"));
     Map<String, Set<String>> attributeEnumMap = configurationApplication.getAttributeEnumMap();
 
     assertThat(configurationApplication.getEditorAttributes().size(), is(4));
     assertThat(attributeEnumMap.size(), is(2));
     assertThat(attributeEnumMap, not(hasKey("restrictedAttributeWithEmptyEnum")));
+    assertThat(attributeEnumMap, not(hasKey("")));
     assertThat(attributeEnumMap.get("restrictedAttributeWithSpaces"), hasItem("possible"));
     assertThat(attributeEnumMap.get("restrictedAttributeWithDuplicates").size(), is(2));
   }
