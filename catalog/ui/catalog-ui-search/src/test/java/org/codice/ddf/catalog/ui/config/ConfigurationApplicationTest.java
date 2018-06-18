@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
@@ -178,5 +179,14 @@ public class ConfigurationApplicationTest {
     assertThat(attributeEnumMap, not(hasKey("")));
     assertThat(attributeEnumMap.get("restrictedAttributeWithSpaces"), hasItem("possible"));
     assertThat(attributeEnumMap.get("restrictedAttributeWithDuplicates").size(), is(2));
+  }
+
+  @Test
+  public void testSetRequiredAttributes() {
+    configurationApplication.setRequiredAttributes(Arrays.asList("", "attribute"));
+    List<String> requiredAttributes = configurationApplication.getRequiredAttributes();
+
+    assertThat(requiredAttributes.size(), is(1));
+    assertThat(requiredAttributes, hasItem("attribute"));
   }
 }

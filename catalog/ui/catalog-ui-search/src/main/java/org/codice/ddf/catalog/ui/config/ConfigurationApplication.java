@@ -230,7 +230,12 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public void setRequiredAttributes(List<String> requiredAttributes) {
-    this.requiredAttributes = requiredAttributes;
+    this.requiredAttributes = new ArrayList<>();
+    for (String entry : requiredAttributes) {
+      if (StringUtils.isNotBlank(entry)) {
+        this.requiredAttributes.add(entry);
+      }
+    }
   }
 
   public Map<String, Set<String>> getAttributeEnumMap() {

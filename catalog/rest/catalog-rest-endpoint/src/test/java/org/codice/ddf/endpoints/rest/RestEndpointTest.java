@@ -14,6 +14,7 @@
 package org.codice.ddf.endpoints.rest;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
@@ -46,7 +47,9 @@ import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -528,6 +531,57 @@ public class RestEndpointTest {
 
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("<meta>beta</meta>"));
     assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
+  }
+
+  @Test
+  public void testParseAttachmentsWithAttributeOverrides()
+      throws IngestException, SourceUnavailableException {
+    CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
+
+    when(attributeRegistry.lookup(Topic.KEYWORD))
+        .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
+    when(attributeRegistry.lookup(Core.LOCATION))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
+
+    List<Attachment> attachments = new ArrayList<>();
+    ContentDisposition contentDisposition =
+        new ContentDisposition("form-data; name=parse.resource; filename=/path/to/metacard.txt");
+    Attachment attachment =
+        new Attachment(
+            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+    ContentDisposition contentDisposition1 =
+        new ContentDisposition("form-data; name=parse.location");
+    Attachment attachment1 =
+        new Attachment(
+            "parse.location",
+            new ByteArrayInputStream("POINT(0 0)".getBytes()),
+            contentDisposition1);
+    ContentDisposition contentDisposition2 =
+        new ContentDisposition("form-data; name=parse.topic.keyword");
+    Attachment attachment2 =
+        new Attachment(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword1".getBytes()),
+            contentDisposition2);
+    ContentDisposition contentDisposition3 =
+        new ContentDisposition("form-data; name=parse.topic.keyword");
+    Attachment attachment3 =
+        new Attachment(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword2".getBytes()),
+            contentDisposition3);
+    attachments.add(attachment);
+    attachments.add(attachment1);
+    attachments.add(attachment2);
+    attachments.add(attachment3);
+
+    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+        restEndpoint.parseAttachments(attachments, null);
+    Metacard metacard = attachmentInfoAndMetacard.getRight();
+
+    assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
+    assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
   }
 
   @Test
