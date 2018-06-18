@@ -29,6 +29,8 @@
             <directory>${project.build.directory}/docs/html</directory>
             <includes>
                 <include>documentation.html</include>
+                <include>introduction.html</include>
+                <include>quickstart.html</include>
             </includes>
             <outputDirectory>html</outputDirectory>
         </fileSet>
@@ -38,24 +40,8 @@
             <directory>${project.build.directory}/docs/pdf</directory>
             <includes>
                 <include>documentation.pdf</include>
-            </includes>
-            <outputDirectory>pdf</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <fileMode>0644</fileMode>
-            <directoryMode>0755</directoryMode>
-            <directory>${project.build.directory}/docs/html</directory>
-            <includes>
-                <include>introduction.html</include>
-            </includes>
-            <outputDirectory>html</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <fileMode>0644</fileMode>
-            <directoryMode>0755</directoryMode>
-            <directory>${project.build.directory}/docs/pdf</directory>
-            <includes>
                 <include>introduction.pdf</include>
+                <include>quickstart.pdf</include>
             </includes>
             <outputDirectory>pdf</outputDirectory>
         </fileSet>

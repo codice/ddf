@@ -44,6 +44,7 @@ The GeoJSON input transformer only converts "feature" objects into metacards bec
 A geometry object alone does not contain enough information to create a metacard.
 Additionally, the input transformer currently does not handle ``FeatureCollection``s.
 
+
 [IMPORTANT]
 ====
 .Cannot create Metacard from this limited GeoJSON

@@ -6,7 +6,7 @@
 
 Follow the below steps to start and stop ${branding}.
 
-.Memory Considerations[[jvm-memory-configuration]]
+.Memory Considerations[[_jvm_memory_configuration]]
 [NOTE]
 ====
 If the ${branding} will be running memory-intensive applications, consider increasing the java memory. The java memory can be changed by updating the setenv script:
@@ -219,7 +219,7 @@ root${at-symbol}localhost# update-rc.d -f ${branding-lowercase}-service defaults
 +
 [NOTE]
 ====
-If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<_java_requirements_quick_install,Java Requirements (Quick Install)>>
+If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<_java_requirements,Java Requirements>>
 ====
 
 ===== Karaf Documentation

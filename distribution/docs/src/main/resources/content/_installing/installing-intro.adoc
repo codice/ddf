@@ -101,6 +101,8 @@ Chrome
 
 =====
 
+[[{managing-prefix}java_requirements]]
+
 .Java Requirements
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.

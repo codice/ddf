@@ -1,24 +1,13 @@
 :title: Installing (Quick Start)
 :type: quickStart
+:level: section
+:parent: Quick Start Tutorial
+:section: quickStart
 :status: published
 :summary: Installation of an example instance.
 :order: 00
 
-This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
-
-[NOTE]
-====
-This tutorial is intended for setting up a test, demonstration, or trial installation of ${branding}.
-For more complete installation and configuration steps, see <<_installing,Installing>>.
-====
-
-These steps will demonstrate:
-
-- [*] <<_quick_install_prerequisites,Prerequisites>>.
-- [*] <<_quick_install_of_${branding-lowercase},Quick Install of ${branding}>>.
-- [*] <<_ingesting_sample_data,Ingesting Data>>.
-
-=== Quick Install Prerequisites
+== {title}
 
 These are the basic requirements to set up the environment to run a ${branding}.
 
@@ -27,13 +16,12 @@ These are the basic requirements to set up the environment to run a ${branding}.
 For security reasons, ${branding} cannot be started from a user's home directory. If attempted, the system will automatically shut down.
 ====
 
-==== Hardware Requirements (Quick Install)
-
+=== Quick Install Prerequisites
+.Hardware Requirements (Quick Install)
 * At least 4096MB of memory for ${branding}.
-** This amount can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>.
+** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
 
-==== Java Requirements (Quick Install)
-
+.Java Requirements (Quick Install)
 Set up Java to run ${branding}.
 
 * Install/Upgrade to Java 8 x64 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]

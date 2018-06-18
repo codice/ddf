@@ -1,0 +1,25 @@
+:title: Quick Start Tutorial
+:type: quickStart
+:level: intro
+:section: quickStart
+:parent: na
+:status: published
+:summary: Installation of an example instance.
+:order: 00
+
+== {title}
+
+This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
+
+[NOTE]
+====
+This tutorial is intended for setting up a test, demonstration, or trial installation of ${branding}.
+For complete installation and configuration steps, see <<{managing-prefix}installing,Installing>>.
+====
+
+These steps will demonstrate:
+
+- [*] <<{quickstart-prefix}quick_install_prerequisites,Prerequisites>>.
+- [*] <<{quickstart-prefix}quick_install_of_${branding-lowercase},Quick Install of ${branding}>>.
+- [*] <<{quickstart-prefix}ingesting_sample_data,Ingesting Data>>.
+

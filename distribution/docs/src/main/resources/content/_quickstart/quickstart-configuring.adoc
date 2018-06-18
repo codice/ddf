@@ -1,10 +1,13 @@
 :title: Configuring (Quick Start)
 :type: quickStart
+:level: section
+:parent: Quick Start Tutorial
+:section: quickStart
 :status: published
 :summary: Set configurations for an example instance.
 :order: 02
 
-=== Configuring (Quick Start)
+== Configuring (Quick Start)
 
 Set the configurations needed to run ${branding}.
 
@@ -13,7 +16,7 @@ Set the configurations needed to run ${branding}.
 . Enter the default username of `admin` and the password of `admin`.
 . Follow the installer prompts for a standard installation.
 .. Click start to begin the setup process.
-.. Configure <<_guest_interceptor,guest claims attributes>> or use defaults.
+.. Configure <<{managing-prefix}guest_interceptor,guest claims attributes>> or use defaults.
 ... See <<Configuring Guest Access>> for more information about the Guest user.
 ... *All users will be automatically granted these permissions.*
 ... *Guest users will not be able to ingest data with more restrictive markings than the guest claims.*
@@ -21,7 +24,7 @@ Set the configurations needed to run ${branding}.
 .. Select *Standard Installation*.
 ... This step may take several minutes to complete.
 .. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
-... See <<_certificates_quick_start,Certificates (Quick Start)>> for more details.
+... See <<{quickstart-prefix}certificates_quick_start,Certificates (Quick Start)>> for more details.
 .. Click *Next*
 .. Click *Finish*
 
