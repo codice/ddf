@@ -26,11 +26,11 @@
     <modules>
         <module>spatial-wfs-api</module>
         <module>spatial-wfs-metacardtype-registry-api</module>
+        <module>spatial-wfs-featuretransformer-api</module>
         <module>spatial-wfs-common</module>
         <module>spatial-wfs-converter</module>
         <module>spatial-wfs-source</module>
         <module>spatial-wfs-mapper</module>
-        <module>spatial-wfs-featuretransformer-api</module>
         <module>spatial-wfs-featuretransformer</module>
         <module>spatial-wfs-metacardtype-registry</module>
         <module>1.0.0</module>
