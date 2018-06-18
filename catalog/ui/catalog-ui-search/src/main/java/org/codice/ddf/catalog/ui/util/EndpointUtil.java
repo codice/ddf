@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.util;
 
+import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
@@ -27,8 +28,10 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -76,6 +79,7 @@ import org.geotools.factory.GeoTools;
 import org.geotools.filter.FunctionFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -178,6 +182,7 @@ public class EndpointUtil {
 
   public Map<String, Result> getMetacardsByFilter(String tagFilter) {
     Filter filter = filterBuilder.attribute(Metacard.TAGS).is().like().text(tagFilter);
+
     ResultIterable resultIterable =
         resultIterable(
             catalogFramework,
@@ -186,10 +191,12 @@ public class EndpointUtil {
                     filter,
                     1,
                     pageSize,
-                    SortBy.NATURAL_ORDER,
+                    new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
                     false,
                     TimeUnit.SECONDS.toMillis(10)),
-                false));
+                false,
+                null,
+                additionalSort(new HashMap<>(), Core.ID, SortOrder.ASCENDING)));
     return resultIterable
         .stream()
         .collect(
@@ -235,10 +242,12 @@ public class EndpointUtil {
                     queryFilter,
                     1,
                     pageSize,
-                    SortBy.NATURAL_ORDER,
+                    new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
                     false,
                     TimeUnit.SECONDS.toMillis(10)),
-                false));
+                false,
+                null,
+                additionalSort(new HashMap<>(), Core.ID, SortOrder.ASCENDING)));
 
     return resultIterable
         .stream()
@@ -247,6 +256,13 @@ public class EndpointUtil {
                 result -> result.getMetacard().getId(),
                 Function.identity(),
                 EndpointUtil::firstInWinsMerge));
+  }
+
+  private Map<String, Serializable> additionalSort(
+      Map<String, Serializable> properties, String propertyName, SortOrder order) {
+    SortBy[] additionalSorts = {new SortByImpl(propertyName, order)};
+    properties.put(ADDITIONAL_SORT_BYS, additionalSorts);
+    return properties;
   }
 
   public Map<String, Object> getMetacardTypeMap() {
