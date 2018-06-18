@@ -11,6 +11,13 @@
  *
  **/
  --}}
+<div class="status">
+    {{pages}}
+</div>
+
+<div class="buttons-container">
+
+<div class="buttons-left">
 {{#if showPreviousServerPage}}
     <button class="server-previous is-primary">
         <span class="fa fa-angle-double-left"/>
@@ -24,11 +31,9 @@
         <i class="fa fa-angle-left" aria-hidden="true"></i>
     </button>
 {{/if}}
+</div>
 
-<span class="status">
-    {{pages}}
-</span>
-
+<div class="buttons-right">
 {{#if showNextServerPage}}
     <button class="server-next is-primary">
         <span>More</span>
@@ -42,3 +47,6 @@
         <i class="fa fa-angle-double-right" aria-hidden="true"></i>
     </button>
 {{/if}}
+</div>
+
+</div>
