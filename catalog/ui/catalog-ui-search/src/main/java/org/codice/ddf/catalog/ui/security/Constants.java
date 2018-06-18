@@ -17,14 +17,14 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupType;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateType;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 
 public class Constants {
 
   public static final Set<String> SHAREABLE_TAGS =
       ImmutableSet.of(
           AttributeGroupType.ATTRIBUTE_GROUP_TAG,
-          WorkspaceAttributes.WORKSPACE_TAG,
+          WorkspaceConstants.WORKSPACE_TAG,
           QueryTemplateType.QUERY_TEMPLATE_TAG);
 
   public static final String SYSTEM_TEMPLATE = "system-template";

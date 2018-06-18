@@ -25,14 +25,14 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
  * @param <M> See {@link WorkspaceTransformation}.
  * @param <J> See {@link WorkspaceTransformation}.
  */
-public interface WorkspaceValueTransformation<M, J> extends WorkspaceTransformation<M, J> {
+public abstract class WorkspaceValueTransformation<M, J> implements WorkspaceTransformation<M, J> {
   @Override
-  default String getJsonKey() {
+  public String getJsonKey() {
     return getKey();
   }
 
   @Override
-  default String getMetacardKey() {
+  public String getMetacardKey() {
     return getKey();
   }
 
@@ -40,5 +40,5 @@ public interface WorkspaceValueTransformation<M, J> extends WorkspaceTransformat
    * @return the String representing both the JSON-style key and the metacard attribute name used by
    *     this {@link WorkspaceTransformation}
    */
-  String getKey();
+  public abstract String getKey();
 }

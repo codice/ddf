@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.authz.Permission;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -81,7 +81,7 @@ public class ShareableMetacardAccessPluginTest {
 
     Map<String, Serializable> attrs = ImmutableMap.of(Core.ID, id, Core.METACARD_OWNER, "guest");
     ShareableMetacardImpl testMetacard = ShareableMetacardImpl.create(attrs);
-    testMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    testMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     Map<String, Metacard> updates = ImmutableMap.of(id, testMetacard);
     UpdateRequest update = mockUpdateRequest(updates);
@@ -114,8 +114,8 @@ public class ShareableMetacardAccessPluginTest {
                 SecurityAttributes.ACCESS_GROUPS,
                 ImmutableSet.of("admin", "guest")));
 
-    before.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    after.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    before.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    after.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
 
@@ -158,8 +158,8 @@ public class ShareableMetacardAccessPluginTest {
                 SecurityAttributes.ACCESS_GROUPS,
                 ImmutableSet.of("admin", "guest")));
 
-    before.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    after.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    before.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    after.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
 
@@ -178,8 +178,8 @@ public class ShareableMetacardAccessPluginTest {
     ShareableMetacardImpl after =
         ShareableMetacardImpl.create(ImmutableMap.of(Core.ID, id, Core.METACARD_OWNER, "user2"));
 
-    before.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
-    after.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    before.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    after.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
 
     UpdateRequest update = mockUpdateRequest(ImmutableMap.of(id, after));
 

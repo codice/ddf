@@ -11,13 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,20 +26,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
-
   @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
+
   @VisibleForTesting static final String ACTIONS_KEY = "actions";
 
   private static final Set<String> EXTERNAL_LIST_ATTRIBUTES = Collections.singleton(ACTIONS_KEY);
+
   private final ActionRegistry actionRegistry;
 
   public EmbeddedListMetacardsHandler(ActionRegistry actionRegistry) {
-    super(WorkspaceAttributes.WORKSPACE_LISTS, ListMetacardImpl.TYPE);
     this.actionRegistry = actionRegistry;
   }
 
@@ -104,5 +106,15 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
               return actionMap;
             })
         .collect(toList());
+  }
+
+  @Override
+  public String getKey() {
+    return WorkspaceConstants.WORKSPACE_LISTS;
+  }
+
+  @Override
+  public MetacardType getMetacardType() {
+    return ListMetacardImpl.TYPE;
   }
 }

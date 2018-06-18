@@ -11,40 +11,39 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.util.Optional;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
-/**
- * This partial implementation of {@link WorkspaceTransformation} contains default implementations
- * of value transformation related interface methods that accept any Objects and return the same
- * values. Implementations of this interface are therefore only able to change the key between a
- * metacard attribute and a JSON-style key-value pair; the value remains consistent.
- *
- * <p><b> This code is experimental. While this interface is functional and tested, it may change or
- * be removed in a future version of the library. </b>
- */
-public interface WorkspaceKeyTransformation extends WorkspaceTransformation<Object, Object> {
+public class RemoveMetacardTags extends WorkspaceValueTransformation<Object, Object> {
   @Override
-  default Class<Object> getMetacardValueType() {
+  public String getKey() {
+    return Core.METACARD_TAGS;
+  }
+
+  @Override
+  public Class<Object> getMetacardValueType() {
     return Object.class;
   }
 
   @Override
-  default Class<Object> getJsonValueType() {
+  public Class<Object> getJsonValueType() {
     return Object.class;
   }
 
   @Override
-  default Optional<Object> metacardValueToJsonValue(
+  public Optional<Object> metacardValueToJsonValue(
       WorkspaceTransformer transformer, Object metacardValue, Metacard workspaceMetacard) {
     return Optional.of(metacardValue);
   }
 
   @Override
-  default Optional<Object> jsonValueToMetacardValue(
+  public Optional<Object> jsonValueToMetacardValue(
       WorkspaceTransformer transformer, Object jsonValue) {
-    return Optional.of(jsonValue);
+    return Optional.empty();
   }
 }

@@ -11,21 +11,22 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
+import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.types.Security;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceValueTransformation;
 
-public class FilterBlankAccessIndividuals implements WorkspaceValueTransformation<List, List> {
+public class QuerySortsParser extends WorkspaceValueTransformation<List, List> {
   @Override
-  public String getKey() {
-    return Security.ACCESS_INDIVIDUALS;
+  public Class<List> getJsonValueType() {
+    return List.class;
   }
 
   @Override
@@ -34,8 +35,23 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
   }
 
   @Override
-  public Class<List> getJsonValueType() {
-    return List.class;
+  public String getKey() {
+    return QueryMetacardTypeImpl.QUERY_SORTS;
+  }
+
+  @Override
+  public Optional<List> jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
+    return Optional.of(
+        ((List<Object>) jsonValue)
+            .stream()
+            .filter(Map.class::isInstance)
+            .map(Map.class::cast)
+            .map(
+                sortsObject ->
+                    sortsObject.getOrDefault("attribute", "")
+                        + ","
+                        + sortsObject.getOrDefault("direction", ""))
+            .collect(Collectors.toList()));
   }
 
   @Override
@@ -46,12 +62,14 @@ public class FilterBlankAccessIndividuals implements WorkspaceValueTransformatio
             .stream()
             .filter(String.class::isInstance)
             .map(String.class::cast)
-            .filter(StringUtils::isNotBlank)
+            .map(
+                sortString -> {
+                  final String[] sortParameters = sortString.split(",");
+                  return ImmutableMap.<String, String>builder()
+                      .put("attribute", sortParameters[0])
+                      .put("direction", sortParameters[1])
+                      .build();
+                })
             .collect(Collectors.toList()));
-  }
-
-  @Override
-  public Optional<List> jsonValueToMetacardValue(WorkspaceTransformer transformer, List jsonValue) {
-    return Optional.of(jsonValue);
   }
 }

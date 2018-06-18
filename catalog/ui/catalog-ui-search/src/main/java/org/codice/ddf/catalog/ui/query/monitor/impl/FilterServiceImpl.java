@@ -16,7 +16,7 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
 import java.util.Date;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.opengis.filter.Filter;
 
@@ -34,7 +34,7 @@ public class FilterServiceImpl implements FilterService {
         .attribute(Metacard.TAGS)
         .is()
         .like()
-        .text(WorkspaceAttributes.WORKSPACE_TAG);
+        .text(WorkspaceConstants.WORKSPACE_TAG);
   }
 
   @Override

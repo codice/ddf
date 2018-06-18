@@ -11,13 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import ddf.catalog.data.types.Associations;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
 
-public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransformation {
+public class WorkspaceMetacardsKeyToAssociations extends WorkspaceKeyTransformation {
   @Override
   public String getMetacardKey() {
     return Associations.RELATED;
@@ -25,6 +25,6 @@ public class WorkspaceMetacardsKeyToAssociations implements WorkspaceKeyTransfor
 
   @Override
   public String getJsonKey() {
-    return WorkspaceAttributes.WORKSPACE_METACARDS;
+    return WorkspaceConstants.WORKSPACE_METACARDS;
   }
 }

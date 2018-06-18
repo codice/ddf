@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformer;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
@@ -35,12 +35,14 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation;
+import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WorkspaceTransformer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceTransformer.class);
+public class WorkspaceTransformerImpl implements WorkspaceTransformer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceTransformerImpl.class);
 
   private final CatalogFramework catalogFramework;
 
@@ -50,7 +52,7 @@ public class WorkspaceTransformer {
 
   private final List<WorkspaceTransformation> transformations;
 
-  public WorkspaceTransformer(
+  public WorkspaceTransformerImpl(
       CatalogFramework catalogFramework,
       InputTransformer inputTransformer,
       EndpointUtil endpointUtil,
@@ -86,7 +88,7 @@ public class WorkspaceTransformer {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getMetacardKey()))
-        .findAny()
+        .findFirst()
         .map(transformation -> metacardEntryToJsonEntry(entry, transformation, workspaceMetacard))
         .orElse(Optional.of(entry));
   }
@@ -113,7 +115,7 @@ public class WorkspaceTransformer {
     return transformations
         .stream()
         .filter(transformation -> entry.getKey().equals(transformation.getJsonKey()))
-        .findAny()
+        .findFirst()
         .map(transformation -> jsonEntryToMetacardEntry(entry, transformation))
         .orElse(Optional.of(entry));
   }
@@ -135,6 +137,7 @@ public class WorkspaceTransformer {
     }
   }
 
+  @Override
   public void transformIntoMetacard(Map<String, Object> json, Metacard init) {
     json.entrySet()
         .stream()
@@ -146,10 +149,16 @@ public class WorkspaceTransformer {
         .forEach(entry -> addAttributeValue(init, entry));
   }
 
+  @Override
   public Metacard transform(Map<String, Object> json) {
     WorkspaceMetacardImpl workspaceMetacard = new WorkspaceMetacardImpl();
     transformIntoMetacard(json, workspaceMetacard);
     return workspaceMetacard;
+  }
+
+  @Override
+  public Map<String, Object> transform(Metacard workspaceMetacard) {
+    return transform(workspaceMetacard, workspaceMetacard);
   }
 
   @Nullable
@@ -165,6 +174,7 @@ public class WorkspaceTransformer {
     }
   }
 
+  @Override
   public Map<String, Object> transform(Metacard workspaceMetacard, Metacard metacard) {
     return Optional.of(metacard)
         .map(Metacard::getMetacardType)
@@ -181,14 +191,12 @@ public class WorkspaceTransformer {
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (left, right) -> left));
   }
 
-  public Map<String, Object> transform(Metacard workspaceMetacard) {
-    return transform(workspaceMetacard, workspaceMetacard);
-  }
-
+  @Override
   public List<Map<String, Object>> transform(List<Metacard> metacards) {
     return metacards.stream().map(this::transform).collect(Collectors.toList());
   }
 
+  @Override
   public String metacardToXml(Metacard metacard) {
     try (InputStream stream = catalogFramework.transform(metacard, "xml", null).getInputStream()) {
       return IOUtils.toString(stream, Charset.defaultCharset());
@@ -197,6 +205,7 @@ public class WorkspaceTransformer {
     }
   }
 
+  @Override
   public Metacard xmlToMetacard(String xml) {
     try (InputStream is = IOUtils.toInputStream(xml, Charset.defaultCharset())) {
       return inputTransformer.transform(is);

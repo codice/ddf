@@ -11,19 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
-import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceKeyTransformation;
-
-public class SrcToQuerySources implements WorkspaceKeyTransformation {
-  @Override
-  public String getMetacardKey() {
-    return QueryMetacardTypeImpl.QUERY_SOURCES;
-  }
-
-  @Override
-  public String getJsonKey() {
-    return "src";
+/** A Runtime exception class for workspace transformers */
+public class WorkspaceTransformException extends RuntimeException {
+  public WorkspaceTransformException(Exception e) {
+    super(e);
   }
 }

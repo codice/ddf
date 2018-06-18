@@ -11,11 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.metacard.workspace.transformations;
+package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 
 import static java.util.Collections.singletonList;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedListMetacardsHandler.ACTIONS_KEY;
-import static org.codice.ddf.catalog.ui.metacard.workspace.transformations.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.ACTIONS_KEY;
+import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

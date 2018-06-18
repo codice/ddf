@@ -122,7 +122,7 @@ import org.codice.ddf.catalog.ui.metacard.notes.NoteMetacard;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteUtil;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -443,7 +443,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String email = getSubjectEmail();
           Map<String, Result> workspaceMetacards =
-              util.getMetacardsByFilter(WorkspaceAttributes.WORKSPACE_TAG);
+              util.getMetacardsByFilter(WorkspaceConstants.WORKSPACE_TAG);
 
           // NOTE: the isEmpty is to guard against users with no email (such as guest).
           Set<String> ids =

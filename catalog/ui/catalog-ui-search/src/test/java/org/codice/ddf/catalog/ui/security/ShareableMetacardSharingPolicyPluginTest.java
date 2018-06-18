@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupType;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateType;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
+import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class ShareableMetacardSharingPolicyPluginTest {
   @Test
   public void testOwnerOnCreate() throws Exception {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
-    shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    shareableMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
     shareableMetacard.setOwner(EMAIL);
     PolicyResponse response = plugin.processPreCreate(shareableMetacard, properties);
     assertThat(response.itemPolicy(), is(Collections.emptyMap()));
@@ -56,7 +56,7 @@ public class ShareableMetacardSharingPolicyPluginTest {
   @Test
   public void testOwnerOnUpdate() throws Exception {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
-    shareableMetacard.setTags(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    shareableMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
     shareableMetacard.setOwner(EMAIL);
     PolicyResponse response = plugin.processPreUpdate(shareableMetacard, properties);
     assertThat(
@@ -67,8 +67,8 @@ public class ShareableMetacardSharingPolicyPluginTest {
                 ImmutableSet.of(EMAIL),
                 AttributeGroupType.ATTRIBUTE_GROUP_TAG,
                 Collections.singleton(AttributeGroupType.ATTRIBUTE_GROUP_TAG),
-                WorkspaceAttributes.WORKSPACE_TAG,
-                Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG),
+                WorkspaceConstants.WORKSPACE_TAG,
+                Collections.singleton(WorkspaceConstants.WORKSPACE_TAG),
                 QueryTemplateType.QUERY_TEMPLATE_TAG,
                 Collections.singleton(QueryTemplateType.QUERY_TEMPLATE_TAG))));
   }
