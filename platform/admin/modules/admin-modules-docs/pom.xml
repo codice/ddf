@@ -61,7 +61,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             !org.eclipse.jetty.websocket.*,
-                            !sun.reflect,
                             *
                         </Import-Package>
                         <Export-Package/>
