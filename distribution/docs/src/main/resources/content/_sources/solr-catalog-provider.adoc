@@ -11,153 +11,118 @@
 
 == {title}
 
-The Solr Catalog Provider is included with a standard installation of ${branding}.
-The following are the three ways to configure the Solr Catalog Provider:
+The Solr Catalog Provider is included with a standard installation of ${branding}. There are several configurations available:
 
-<<_http_solr,HTTP Solr>> (default):: Used with an external (HTTP) Solr server.
+.[[_internal_solr]]Internally Managed Solr Server (default):: ${branding} comes bundled with a customized distribution
+of Apache Solr. This Solr distribution includes the configuration files needed for
+the Solr cores and special JAR libraries used by ${branding}.
+This installation is referred to as _internally managed_
+because the ${branding} scripts attempt to start and stop this Solr server.
+Considerations include:
 
-Embedded Solr:: Used with an embedded Solr server with no HTTP interface.
+* No configuration necessary. Simply start ${branding} and ${branding} manages starting and
+stopping the Solr server.
+* Backup can be performed using ${branding} console's `backup` command.
+* This configuration cannot be scaled larger than the single Solr server.
+* All data is located inside the {$branding} home directory. If the Solr index grows
+  large, the storage volume may run low on space.
 
-<<_solr_cloud,Solr Cloud>>:: Used with a cluster of Solr servers.
+.Installing Internally Managed Solr
+No installation is required because ${branding} includes a distribution of Apache Solr.
 
-If not using Solr Cloud, whenever the {branding} Solr ingests data, it creates an index for it in the data directory.
-This data indexing enables the data to be searchable by the {branding} Solr. The data in the data directory can then be persisted by performing a `commit` on the {branding} Solr.
-When the {branding} Solr is restarted, it reloads the data to get back the index.
+.Configuring Internally Managed Solr
+Although the default settings should be sufficient for most purposes, some options
+can be configured for an internally managed Solr.
 
-.[[_http_solr]]HTTP Solr
-The HTTP Solr is an external Apache Solr server instance.
-There are two possible installations for the HTTP Solr configuration:
+.Enabling Remote Requests
+Solr is configured to reject all remote requests by default. It is only accessible locally.
+This is a necessary part of a secure configuration.
 
-Internal (default):: Points to an Apache Solr server that runs in the same container as {branding}.
-External:: Points to an Apache Solr server in a different container or on a different system.
+It might be necessary to enable remote requests when troubleshooting a ${branding} installation.
+To enabled remote requests:
 
-.HTTP Solr Internal Deployment
-[ditaa,http-solr-internal-diagram,png]
-....
- Container (JVM)
- +=----------------+
- |                 |
- | /-----\         |
- | |cDEF |         |
- | | DDF +--\      |
- | |     |  |http  |
- | \-----/  |      |
- |          |      |
- |          v      |
- |      +--------+ |
- |      |SolrcFF0| |
- |      +--------+ |
- |                 |
- +-----------------+
-....
+. For *NIX systems, edit the file `${home_directory}/bin/ddf`
+. Change the property `SOLR_REQUIRE_TWO_WAY_TLS` to `SOLR_REQUIRE_TWO_WAY_TLS=false`
+. Restart ${branding}
 
-.HTTP Solr External Deployment
-[ditaa,http-solr-external-diagram,png]
-....
- Container (JVM)
- +=----------------+
- |                 |
- | /-----\         |
- | |cDEF |         |  +--------+
- | | DDF +----------->|SolrcFF0|
- | |     |   http  |  +--------+
- | \-----/         |
- |                 |
- +-----------------+
-....
-
-.When to Use HTTP Solr
-The HTTP Solr configuration is good for most use cases. See below for details.
-
-.HTTP Solr Tradeoffs
-* Solr Admin UI can be used.
-* Backup can be performed manually or using the Backup command.
-* External installation allows isolation of data storage.
-* Requires additional protection to be secured.
-* Not scalable.
-* External installation has network overhead
-
-.Installing HTTP Solr
-
-By default, the ${ddf-solr} application installs a Solr server inside the same container as {branding}.
-To install an External Solr server, refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide[Apache Solr Reference Guide].
-
-.Configuring HTTP Solr
+.Configuring Solr Transport Layer Security
+The default configuration does not use
+Transport Layer Security (TLS) between ${branding} and Solr. TLS adds overhead to Solr interactions
+and should not be necessary because Solr and ${branding} are running on the same host.
+To enable TLS:
 
 . Edit the `${home_directory}/etc/system.properties`
-.. Comment out the Solr Client Configuration for *Cloud Solr Client* and *Embedded Solr Client* sections.
-.. Uncomment the section for the *Http Solr Client*.
+. Change the property `solr.http.url` to read `https://` instead of `http://`
+. Restart ${branding}
 
-[NOTE]
-====
-To point to an External Solr server instead of the default Internal one, put the url in `solr.http.url` (see below for example).
-Also, two jar files need to be added to the Solr installation as described in <<Installing Solr Cloud,Installing Solr Cloud>>.
-====
+.Require Two-way (Client) Authentication
+This option is only meaningful if Solr and ${branding} communicate via the HTTPS protocol.
+The default configuration is secure and requires client authentication
+if the HTTPS protocol is used.
 
-.system.properties
-----
+Two-way authentication means the server (Solr) must trust the client (${branding}). If Solr
+did not trust ${branding}, Solr would reject all requests
+from ${branding} and all other the unauthenticated clients. Internally managed Solr and
+${branding} share the same key store and trust store, and therefore trust each other implicitly.
+However, web browsers that do not present a certificate that ${branding} trusts are not
+permitted to connect directly to the Solr server. In this situation, the browser displays the message
+ `ERR_SSL_PROTOCOL_ERROR`
 
-solr.client = HttpSolrClient
-solr.http.url = https://solr-host-name:8993/solr
-solr.data.dir = ${karaf.home}/data/solr
+It might be necessary to disable client authentication when troubleshooting a ${branding} installation.
+To disable client authentication:
 
-----
+. For *NIX systems, edit the file `${home_directory}/bin/ddf`
+. Change the property `SOLR_REQUIRE_TWO_WAY_TLS` to `SOLR_REQUIRE_TWO_WAY_TLS=false`
+. Restart ${branding}
 
-.[[_http_solr]]Embedded Solr
-The Embedded Solr is an embedded, local Apache Solr server instance.
-It is a local instance that is a lightweight Catalog Provider solution.
-However, it does not provide a Solr Admin UI or a REST-like HTTP/XML and JSON API.
-If that is necessary, see <<HTTP Solr,HTTP Solr>> or <<Solr Cloud,Solr Cloud>>.
+.Internally Managed Solr Server System Properties (default values)
+ ----
+ solr.client=HttpSolrClient
+ solr.http.port=8994
+ solr.http.url=http://localhost:${solr.http.port}/solr
+ solr.managed=true
+ ----
 
-.Embedded Solr Deployment
-[ditaa,embedded-solr-diagram,png]
-....
- Container (JVM)
- +=-----------------+
- |                  |
- | /--------------\ |
- | |cDEF          | |
- | | DDF          | |
- | |              | |
- | |  +---------+ | |
- | |  |Solr cFF0| | |
- | |  +---------+ | |
- | |              | |
- | \--------------/ |
- |                  |
- |                  |
- +------------------+
-....
+.[[_external_solr]]Externally Managed Solr Server:: In this configuration, ${branding} communicates with a
+Solr server that is started, stopped, and otherwise administrated independently of ${branding}.
+Some considerations of this configuration are:
 
-.When to Use the Embedded Solr
-The Embedded Solr configuration is great for demonstrations, training exercises, or for sparse querying and ingesting. See below for details.
+* The externally managed Solr server can be located on any host. ${branding} uses
+ HTTP/HTTPS to communicate with a remote Solr server.
+* An administrator is responsible for managing lifecycle of the Solr server.
+* Security considerations when communicating over a network.
+* Possible performance issues because of network latency and bandwidth.
 
-.Embedded Solr Tradeoffs
-* Requires no installation and very little configuration.
-* No HTTP connection required. As a result, there is no network overhead.
-* Not scalable.
-* There is no Solr Admin UI.
-* Backup must be performed manually.
+.Installing Externally Managed Solr
+To install a  Solr server, refer to
+https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide[Apache Solr Reference Guide].
 
-.Installing Embedded Solr
-
-No installation required. Follow the Configuring section below and restart the {branding}.
-
-.Configuring Embedded Solr
+.Configuring ${branding} For Externally Managed Solr
 . Edit the `${home_directory}/etc/system.properties`
+.. Change the property `solr.http.port` to the port used by the Solr server
+.. Change the property `solr.http.url` to the URL used by the Solr server. Remember to use
+`${solr.http.port}` to specify the port,
+.. Change the property `solr.managed` to *false*, or remove the property entirely.
+. Two additional JAR files need to be added to the Solr installation as described in
+ <<Installing Solr Cloud,Installing Solr Cloud>>
 
-.. Comment out the Solr Client Configuration for *Cloud Solr Client* and *Http Solr Client* sections.
-.. Uncomment the section for the *Embedded Solr Client*:
-
-.system.properties
+.Externally Managed Solr Server System Properties (example values)
 ----
-solr.client = EmbeddedSolrServer
-solr.data.dir = ${karaf.home}/data/solr
+solr.client=HttpSolrClient
+solr.http.port=8983
+solr.http.url=https://host:${solr.http.port}/solr
 ----
 
-.[[_solr_cloud]]Solr Cloud
-Solr Cloud is a cluster of Solr Server instances that are fault tolerant and highly available.
-Each Solr Server instance in Solr Cloud provides a Solr Admin UI.
+.[[_solr_cloud]]Solr Cloud:: Solr Cloud is a cluster of distributed Solr servers used for high
+availability and scalability. If the ${branding} needs to be available with little or no downtime,
+ then the Solr Cloud configuration should be used. The general considerations for selecting
+  this configuration are:
+
+ * SolrCloud can scale to support over 2 billion indexed documents.
+ * Has network overhead and requires additional protection to be secure.
+ * Installation is more involved (requires Zookeeper)
+ * Configuration and administration is more complex due to replicate, sharding, etc.
+ * No way to backup currently, but will automatically recover from system failure.
 
 Configuration shared between Solr Server instances is managed by Zookeeper.
 Zookeeper helps manage the overall structure.
@@ -189,17 +154,6 @@ Solr Cloud is currently in Beta version.
 Bugs and feature changes may affect the final release.
 ====
 
-.When to Use Solr Cloud
-If the ${branding} needs to be accessible for a higher than normal period with low downtime, then Solr Cloud should be used. See below for details.
-
-.Solr Cloud Tradeoffs
-* Scalable. Can exceed ~2 billion indexed documents.
-* Solr Admin UI can be used.
-* Has network overhead and requires additional protection to be secure.
-* Installation is more involved (requires Zookeeper)
-* Configuration and administration is more complex due to replicate, sharding, etc.
-* No way to backup currently, but will automatically recover from system failure.
-
 [NOTE]
 ====
 The instructions on setting up Solr Cloud for ${branding} only include setup in a *NIX environment.
@@ -228,7 +182,7 @@ Before starting the install procedure, download the extension jars. The jars are
 geospatial and xpath queries and need to be installed on every Solr server instance after the Solr
 Cloud installation instructions have been followed.
 
-The jars can be found here:
+The JARs can be found here:
 
 .. http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.12_1/jts-1.12_1.jar
 .. http://artifacts.codice.org/service/local/artifact/maven/content?r=public&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
@@ -247,12 +201,12 @@ The two shards enables the document mapping to be restored if one shard becomes 
 
 .Configuring Solr Cloud
 . On the ${branding} server, edit `${home_directory}/etc/system.properties`:
-.. Comment out the Solr Client Configuration for *Http Solr Client* and *Embedded Solr Client* sections.
+.. Comment out the Solr Client Configuration for *Http Solr Client* section.
 .. Uncomment the section for the *Cloud Solr Client*:
 .. Set `solr.cloud.zookeeper` to `<ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>`
 .. Set `solr.data.dir` to the desired data directory.
 
-.system.properties
+.Solr Cloud System Properties
 ----
 solr.client = CloudSolrClient
 solr.data.dir = ${karaf.home}/data/solr

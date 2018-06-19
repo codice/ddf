@@ -428,27 +428,33 @@ Thumbs.db
 
 6+^h|[[SolrProperties]]Solr Catalog Provider Properties
 
-|Solr Client
+|Solr Catalog Client
 |solr.client
 |String
-|Solr Catalog Provider selected.
-|HttpSolrClient, CloudSolrClient, EmbeddedSolrServer
+|Type of Solr configuration
+|HttpSolrClient
 |Yes
 
-|Solr Data Directory
-|solr.data.dir
-|String
-|Solr Data Directory
-|${home_directory}/data/solr
+|Solr server HTTP port
+|solr.http.port
+|Integer
+|Solr server's port.
+|8994
 |Yes
 
-|Solr Catalog Provider Url
+|Solr server URL
 |solr.http.url
 |String
-|Url for a HTTP Solr server (required for HTTP Solr)
-|${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}
-:${org.codice.ddf.system.httpsPort}/solr
-|No
+|URL for a HTTP Solr server (required for HTTP Solr)
+|http://localhost:${solr.http.port}/solr
+|Yes
+
+|${branding} manages starting/stopping Solr server
+|solr.managed
+|boolean
+|true
+|Set to true if ${branding} manages starting and stopping of Solr server. Set to `false` if Solr is externally managed.
+|Yes
 
 |Zookeeper Nodes
 |solr.cloud.zookeeper

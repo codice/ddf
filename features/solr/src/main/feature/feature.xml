@@ -21,7 +21,7 @@
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
     <feature name="solr" version="${project.version}"
-             description="Standalone Solr Server">
+             description="Standalone Solr Server" install="manual">
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
@@ -72,6 +72,11 @@
     <feature name="persistence-core" version="${project.version}"
              description="Internal Persistence Core Implementation">
         <feature version="${project.version}">solr</feature>
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
+        <!-- for GeoTools -->
+        <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>

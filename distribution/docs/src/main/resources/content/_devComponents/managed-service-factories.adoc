@@ -159,7 +159,6 @@ realms=[ \
 requiredAttributes=[ \
   "/\=", \
   "/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
-  "/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   "/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   "/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   ]

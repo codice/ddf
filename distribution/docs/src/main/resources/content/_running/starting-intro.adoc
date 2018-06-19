@@ -225,4 +225,3 @@ If the system fails to start automatically on boot with any messages about the J
 ===== Karaf Documentation
 
 Because ${branding} is built on top of Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation].
-
