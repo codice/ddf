@@ -30,10 +30,19 @@
     text-align: right;
   }
 
-  > .table-options > button {
+  > .table-options > button.is-button {
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
-    padding: 0px 10px;
+    font-size: @minimumFontSize;
+    padding: 0px 0px 0px (2 * @largeSpacing);
+    margin-top: @mediumSpacing;
+    color: fade(contrast(@backgroundContent), 80%);
+    opacity: 1;
+  }
+
+  > .table-options > button.is-button span.fa {
+    color: fade(mix(contrast(@backgroundContent), @primary-color), 60%);
+    margin-right: 3px;
   }
 
   @{customElementNamespace}table-visibility,

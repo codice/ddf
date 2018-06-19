@@ -11,10 +11,13 @@
  *
  **/
  --}}
+
+ <h2>Rearrange Columns</h2>
  <div class="rearrange-columns">
 {{#each this}}
     <div class="column {{#if hidden}}is-hidden-column{{/if}} {{#if notCurrentlyAvailable}}is-unavailable-column{{/if}}" data-propertyid="{{id}}" data-propertytext="{{label}}{{#unless label}}{{id}}{{/unless}}">
         <span class="column-text">
+        <span class="fa fa-bars"></span>
         {{label}}
         {{#unless label}}
             {{id}}
