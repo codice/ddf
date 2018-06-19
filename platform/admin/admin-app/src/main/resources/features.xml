@@ -48,6 +48,7 @@
     <feature name="admin-modules-docs" version="${project.version}"
              description="Documentation Module">
         <feature>admin-ui</feature>
+        <bundle>mvn:com.sparkjava/spark-core/${spark.version}</bundle>
         <bundle>mvn:ddf.admin.modules/admin-docs-ui/${project.version}</bundle>
     </feature>
 
