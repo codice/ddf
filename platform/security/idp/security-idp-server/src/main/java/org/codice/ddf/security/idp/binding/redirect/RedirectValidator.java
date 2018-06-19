@@ -80,7 +80,8 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
         }
         boolean result =
             getSimpleSign()
-                .validateSignature(signedParts.toString(), signature, signingCertificate);
+                .validateSignature(
+                    signatureAlgorithm, signedParts.toString(), signature, signingCertificate);
         if (!result) {
           throw new ValidationException("Signature verification failed for redirect binding.");
         }

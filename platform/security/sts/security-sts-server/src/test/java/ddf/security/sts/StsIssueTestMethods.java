@@ -403,6 +403,7 @@ public class StsIssueTestMethods {
   private List<WSSecurityEngineResult> processToken(SecurityToken token)
       throws WSSecurityException {
     RequestData requestData = new RequestData();
+    requestData.setWsDocInfo(new WSDocInfo(token.getToken().getOwnerDocument()));
     WSSConfig wssConfig = WSSConfig.getNewInstance();
     requestData.setWssConfig(wssConfig);
     /*DDF-733
@@ -414,8 +415,7 @@ public class StsIssueTestMethods {
     requestData.setSigVerCrypto(crypto);
 
     Processor processor = new SAMLTokenProcessor();
-    return processor.handleToken(
-        token.getToken(), requestData, new WSDocInfo(token.getToken().getOwnerDocument()));
+    return processor.handleToken(token.getToken(), requestData);
   }
 
   // Enum defining the Port Types

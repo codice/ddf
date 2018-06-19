@@ -144,6 +144,13 @@
                                     <destFileName>pro-grade-${pro-grade.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
+                                    <groupId>javax.annotation</groupId>
+                                    <artifactId>javax.annotation-api</artifactId>
+                                    <version>${javax.annotation-api.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>javax.annotation-api-${javax.annotation-api.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
                                     <groupId>ddf.platform.osgi</groupId>
                                     <artifactId>platform-osgi-condpermadmin</artifactId>
                                     <version>${project.version}</version>

@@ -387,6 +387,7 @@ public class LoginFilter implements SecurityFilter {
         credential.setSamlAssertion(assertion);
 
         RequestData requestData = new RequestData();
+        requestData.setWsDocInfo(new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
         requestData.setSigVerCrypto(crypto);
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         requestData.setWssConfig(wssConfig);
@@ -400,13 +401,11 @@ public class LoginFilter implements SecurityFilter {
         if (assertion.isSigned()) {
           // Verify the signature
           WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor =
-              new WSSSAMLKeyInfoProcessor(
-                  requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+              new WSSSAMLKeyInfoProcessor(requestData);
           assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
 
           assertion.parseSubject(
-              new WSSSAMLKeyInfoProcessor(
-                  requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument())),
+              new WSSSAMLKeyInfoProcessor(requestData),
               requestData.getSigVerCrypto(),
               requestData.getCallbackHandler());
         }
@@ -421,9 +420,7 @@ public class LoginFilter implements SecurityFilter {
       if (firstLogin) {
         boolean hasSecurityAuditRole =
             Arrays.stream(System.getProperty("security.audit.roles").split(","))
-                .filter(subject::hasRole)
-                .findFirst()
-                .isPresent();
+                .anyMatch(subject::hasRole);
         if (hasSecurityAuditRole) {
           SecurityLogger.audit("Subject has logged in with admin privileges", subject);
         }

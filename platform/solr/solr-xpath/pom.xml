@@ -35,7 +35,7 @@
                             <include>org.codice:lux</include>
                             <include>net.sf.saxon:Saxon-HE</include>
                             <include>org.codehaus.woodstox:stax2-api</include>
-                            <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                            <include>com.fasterxml.woodstox:woodstox-core</include>
                         </includes>
                     </artifactSet>
                     <filters>

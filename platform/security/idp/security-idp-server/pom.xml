@@ -209,8 +209,8 @@
                 <version>${xmlsec.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.woodstox</groupId>
-                <artifactId>woodstox-core-asl</artifactId>
+                <groupId>com.fasterxml.woodstox</groupId>
+                <artifactId>woodstox-core</artifactId>
                 <version>${woodstox.core.version}</version>
             </dependency>
             <dependency>
@@ -247,6 +247,7 @@
                         <Import-Package>
                             !org.abego.treelayout.*,
                             com.sun.management;resolution:=optional,
+                            javax.annotation;version="[1.1,2)",
                             *
                         </Import-Package>
                         <Export-Package/>

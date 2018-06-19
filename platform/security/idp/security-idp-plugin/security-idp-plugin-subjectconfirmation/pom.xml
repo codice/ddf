@@ -69,6 +69,10 @@
               platform-util,
               platform-util-unavailableurls
             </Embed-Dependency>
+            <Import-Package>
+              javax.annotation;version="[1.1,2)",
+              *
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

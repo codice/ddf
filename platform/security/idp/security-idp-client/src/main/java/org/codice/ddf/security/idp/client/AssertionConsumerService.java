@@ -234,7 +234,10 @@ public class AssertionConsumerService {
                   URLEncoder.encode(signatureAlgorithm, StandardCharsets.UTF_8.name()));
           signaturePasses =
               simpleSign.validateSignature(
-                  signedMessage, signature, idpMetadata.getSigningCertificate());
+                  signatureAlgorithm,
+                  signedMessage,
+                  signature,
+                  idpMetadata.getSigningCertificate());
         } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
           LOGGER.debug("Failed to validate AuthN response signature.", e);
         }

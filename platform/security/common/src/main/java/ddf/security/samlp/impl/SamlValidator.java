@@ -126,7 +126,7 @@ public abstract class SamlValidator {
           .append(URLEncoder.encode(builder.sigAlgo, StandardCharsets.UTF_8.name()));
 
       if (!builder.simpleSign.validateSignature(
-          signedParts.toString(), builder.signature, builder.signingCertificate)) {
+          builder.sigAlgo, signedParts.toString(), builder.signature, builder.signingCertificate)) {
         throw new ValidationException("Signature verification failed for redirect binding.");
       }
     } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {

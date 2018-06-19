@@ -16,9 +16,9 @@ package ddf.security.service.impl;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import java.security.Principal;
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -82,20 +82,23 @@ public final class SecurityAssertionStore {
                 new SecurityToken(
                     id,
                     samlAssertionWrapper.getElement(),
-                    samlAssertionWrapper.getSaml2().getIssueInstant().toDate(),
-                    samlAssertionWrapper.getSaml2().getConditions().getNotOnOrAfter().toDate());
+                    Instant.ofEpochMilli(
+                        samlAssertionWrapper.getSaml2().getIssueInstant().getMillis()),
+                    Instant.ofEpochMilli(
+                        samlAssertionWrapper
+                            .getSaml2()
+                            .getConditions()
+                            .getNotOnOrAfter()
+                            .getMillis()));
           } else {
             // we don't know how long this should last or when it was created, so just
             // set it to 1 minute
             // This shouldn't happen unless someone sets up a third party STS with weird
             // settings.
-            Date date = new Date();
+            Instant now = Instant.now();
             token =
                 new SecurityToken(
-                    id,
-                    samlAssertionWrapper.getElement(),
-                    date,
-                    new Date(date.getTime() + TimeUnit.MINUTES.toMillis(1)));
+                    id, samlAssertionWrapper.getElement(), now, now.plus(Duration.ofMinutes(1L)));
           }
           tokenStore.add(token);
         }

@@ -119,6 +119,7 @@
         <bundle>mvn:io.netty/netty-transport-native-epoll/${netty41-version}
         </bundle>
         <bundle>mvn:io.netty/netty-transport-native-kqueue/${netty.version}</bundle>
+        <bundle>mvn:io.netty/netty-transport-native-unix-common/${netty.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
     </feature>
 
