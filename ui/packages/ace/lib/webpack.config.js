@@ -183,7 +183,7 @@ const proxyConfig = ({target = 'https://localhost:8993', auth}) => ({
   target,
   ws: true,
   secure: false,
-  changeOrigin: true,
+  changeOrigin: false,
   onProxyRes: handleProxyRes,
   auth
 })
