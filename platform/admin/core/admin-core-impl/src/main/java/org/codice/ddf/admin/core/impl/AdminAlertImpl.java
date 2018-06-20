@@ -30,6 +30,7 @@ import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.system.alerts.Alert;
+import org.codice.ddf.system.alerts.NoticePriority;
 import org.codice.ddf.system.alerts.SystemNotice;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -75,6 +76,15 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
       }
     } catch (PersistenceException pe) {
       LOGGER.debug("Error retrieving system alert.", pe);
+
+      return Collections.singletonList(
+          new Alert(
+                  "solr",
+                  NoticePriority.CRITICAL,
+                  "Persistent Storage Not Responding. Could Not Retrieve Alerts.",
+                  Collections.singleton(
+                      "Critical alerts may be present, but not displayed because the persistent storage is not responding."))
+              .getProperties());
     }
     alerts.sort(
         (map1, map2) ->

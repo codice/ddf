@@ -111,7 +111,7 @@ public class AdminAlertImplTest {
   public void testGetAlertsPersistentStoreError() throws Exception {
     when(persistentStore.get(eq("alerts"), any())).thenThrow(new PersistenceException("error"));
     List<Map<String, Object>> alertList = adminAlert.getAlerts();
-    assertThat(alertList.size(), equalTo(0));
+    assertThat(alertList.size(), equalTo(1));
   }
 
   @Test
