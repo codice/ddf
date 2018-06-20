@@ -19,7 +19,11 @@ const Application = require('application')
 const router = require('component/router/router')
 const RouterView = require('component/router/router.view');
 const plugin = require('plugins/router')
-const routeDefinitions = plugin(require('!./router/routes-loader!js/router/routes.js'));
+// notfound route needs to come at the end otherwise no other routes will work
+const routeDefinitions = {
+    ...plugin(require('!./router/routes-loader!js/router/routes.js')),
+    ...require('!./router/routes-loader!js/router/routes-notfound.js')
+}
 
 const initializeRoutes = function(routeDefinitions) {
     Application.App.router.show(new RouterView({
