@@ -45,9 +45,11 @@ define([
             items: '.home-items'
         },
         initialize: function(){
-            this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
             this.handleSaved();
+        },
+        onFirstRender() {
+            this.listenTo(router, 'change', this.handleRoute);
         },
         handleRoute: function(){
             var routerName = router.toJSON().name;

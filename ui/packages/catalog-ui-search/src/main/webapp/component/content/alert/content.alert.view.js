@@ -44,6 +44,8 @@ define([
                 selectionInterface: alertInstance,
                 configName: 'goldenLayoutAlert'
             });
+        },
+        onFirstRender() {
             this.listenTo(alertInstance, 'change:currentAlert', this.updateContentLeft);
         },
         onRender: function(){

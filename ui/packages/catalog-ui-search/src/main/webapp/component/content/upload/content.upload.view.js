@@ -44,6 +44,8 @@ define([
                 selectionInterface: uploadInstance,
                 configName: 'goldenLayoutUpload'
             });
+        },
+        onFirstRender() {
             this.listenTo(uploadInstance, 'change:currentUpload', this.updateContentLeft);
         },
         onRender: function(){

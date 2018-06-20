@@ -9,6 +9,7 @@ const merge = require('webpack-merge')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin')
+const WebpackBundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const resolve = (place) => path.resolve(place)
 const nodeResolve = (place) => require.resolve(place)
@@ -52,6 +53,10 @@ const base = ({ alias = {}, env }) => ({
     globalObject: 'this'
   },
   plugins: [
+    new WebpackBundleAnalyzerPlugin({
+      openAnalyzer: false,
+      analyzerMode: 'static'
+    }),
     new webpack.DefinePlugin(gitEnv()),
     new HtmlWebpackPlugin({
       title: 'My App',

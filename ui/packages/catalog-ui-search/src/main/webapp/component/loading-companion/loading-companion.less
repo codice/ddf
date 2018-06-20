@@ -72,18 +72,18 @@
 
 @keyframes loading-companion {
   0% {
-    transform: scale(1) translate3d(-50%, -@largeSpacing, 0);
+    transform: scale(1) translate3d(-50%, -2*@largeSpacing, 0);
   }
   40% {
-    transform: scale(1) translate3d(-50%, 50%, 0);
+    transform: scale(1) translate3d(-50%, 50%, 0) translate3d(-50%, @largeSpacing/2, 0);
   }
   50% {
-    transform: scale(1) translate3d(-50%, 50%, 0);
+    transform: scale(1) translate3d(-50%, 50%, 0) translate3d(-50%, @largeSpacing/2, 0);
   }
   60% {
-    transform: scale(1) translate3d(-50%, 50%, 0);
+    transform: scale(1) translate3d(-50%, 50%, 0) translate3d(-50%, @largeSpacing/2, 0);
   }
   100% {
-    transform: scale(1) translate3d(-50%, calc(100% + 4*@largeSpacing), 0);
+    transform: scale(1) translate3d(-50%, 100%, 0) translate3d(-50%, 2*@largeSpacing, 0);
   } 
 }

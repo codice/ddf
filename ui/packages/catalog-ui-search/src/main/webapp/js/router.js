@@ -12,12 +12,14 @@
 /*global define, window, setTimeout, location*/
 /* eslint-disable no-undefined */
 const wreqr = require('wreqr')
+const _ = require('underscore');
 const $ = require('jquery')
 const Backbone = require('backbone')
 const Application = require('application')
 const router = require('component/router/router')
 const RouterView = require('component/router/router.view');
 const plugin = require('plugins/router')
+const routeDefinitions = plugin(require('!./router/routes-loader!js/router/routes.js'));
 
 const initializeRoutes = function(routeDefinitions) {
     Application.App.router.show(new RouterView({
@@ -27,82 +29,28 @@ const initializeRoutes = function(routeDefinitions) {
     });
 }
 
-const routeDefinitions = {
-    ...plugin({
-        openWorkspace: {
-            patterns: ['workspaces/:id'],
-            component: require('component/content/content.view'),
-            menu: {
-                component: require('component/workspace-menu/workspace-menu.view')
-            }
-        },
-        home: {
-            patterns: ['(?*)', 'workspaces(/)'],
-            component: require('component/workspaces/workspaces.view'),
-            menu: {
-                component: require('component/workspaces-menu/workspaces-menu.view')
-            }
-        }, 
-        openMetacard: {
-            patterns: ['metacards/:id'],
-            component: require('component/metacard/metacard.view'),
-            menu: {
-                component: require('component/metacard-menu/metacard-menu.view')
-            }
-        },
-        openAlert: {
-            patterns: ['alerts/:id'],
-            component: require('component/alert/alert.view'),
-            menu: {
-                component: require('component/alert-menu/alert-menu.view')
-            }
-        },
-        openIngest: {
-            patterns: ['ingest(/)'],
-            component: require('component/ingest/ingest.view'),
-            menu: {
-                classes: 'is-bold',
-                text: 'Upload'
-            }
-        },
-        openUpload: {
-            patterns: ['uploads/:id'],
-            component: require('component/upload/upload.view'),
-            menu: {
-                component: require('component/upload-menu/upload-menu.view')
-            }
-        },
-        openSources: {
-            patterns: ['sources(/)'],
-            component: require('component/sources/sources.view'),
-            menu: {
-                classes: 'is-bold',
-                text: 'Sources'
-            }
-        },
-        openAbout: {
-            patterns: ['about(/)'],
-            component: require('component/about/about.view'),
-            menu: {
-                classes: 'is-bold',
-                text: 'About'
-            }
-        }
-    }),
-    // needs to be last based on how backbone router works, otherwise this route always wins
-    notFound: {
-        patterns: ['*path'],
-        component: require('component/notfound/notfound.view'),
-        menu: {
-            classes: 'is-bold',
-            text: 'Page Not Found'
-        }
-    }    
-};
+const onComponentResolution = function(deferred, component) {
+    this.component = this.component || new component();
+    deferred.resolve(this.component);
+}
 
 initializeRoutes(routeDefinitions);
 
 const Router = Backbone.Router.extend({
+    preloadRoutes() {
+        Object.keys(routeDefinitions).forEach(this.preloadRoute);
+    },
+    preloadFragment(fragment) {
+        this.preloadRoute(this.getRouteNameFromFragment(fragment));
+    },
+    preloadRoute(routeName) {
+        routeDefinitions[routeName].preload();
+    },
+    getRouteNameFromFragment(fragment) {
+        return this.routes[_.find(Object.keys(this.routes), (routePattern) => {
+            return this._routeToRegExp(routePattern).test(fragment);
+        })];
+    },
     routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
         const { patterns } = routeDefinitions[key]
         patterns.forEach((pattern) => routesBlob[pattern] = key);
@@ -114,6 +62,7 @@ const Router = Backbone.Router.extend({
                 lowBandwidth: true
             });
         }
+        this.listenTo(wreqr.vent, 'router:preload', this.handlePreload);
         this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
         this.on('route', this.onRoute, this);
         /*
@@ -126,6 +75,9 @@ const Router = Backbone.Router.extend({
             Backbone.history.fragment = undefined;
             this.navigate(currentFragment, {trigger: true});
         }.bind(this), 0);
+    },
+    handlePreload({fragment}) {
+        this.preloadFragment(fragment);
     },
     handleNavigate: function(args){
         this.navigate(args.fragment, args.options);

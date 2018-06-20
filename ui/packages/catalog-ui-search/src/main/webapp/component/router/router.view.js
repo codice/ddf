@@ -18,7 +18,7 @@ const template = require('./router.hbs');
 const CustomElements = require('js/CustomElements');
 const router = require('component/router/router');
 const NavigationView = require('component/navigation/navigation.view');
-const routeComponents = {}; 
+const RouteView = require('component/route/route.view');
 
 const RouterView = Marionette.LayoutView.extend({
     template: template,
@@ -31,27 +31,12 @@ const RouterView = Marionette.LayoutView.extend({
         if (this.options.routeDefinitions === undefined) {
             throw "Route definitions must be passed in as an option.";
         }
-        this.listenTo(router, 'change', this.showRoute);
-    },
-    showRoute() {
-        const routeName = router.toJSON().name;
-        const routeComponent = routeComponents[routeName] || new this.options.routeDefinitions[routeName].component();
-        routeComponents[routeName] = routeComponents[routeName] || routeComponent;
-        if (routeComponent.isRendered === true) {
-            this.showRenderedRouteComponent(routeComponent);
-        } else {
-            this.showUnrenderedRouteComponent(routeComponent);
-        }
-    },
-    showRenderedRouteComponent: function(component) {
-        this.content.attachHtml(component, false);
-        this.content.attachView(component);
-    },
-    showUnrenderedRouteComponent: function(component) {
-        this.content.show(component, { replaceElement: false, preventDestroy: true });
     },
     onBeforeShow: function() {
         this.navigation.show(new NavigationView({
+            routeDefinitions: this.options.routeDefinitions
+        }));
+        this.content.show(new RouteView({
             routeDefinitions: this.options.routeDefinitions
         }));
     }

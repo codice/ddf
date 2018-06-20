@@ -17,8 +17,11 @@ define([
     'js/model/UploadBatch',
     'js/model/Query',
     'js/model/QueryResponse',
-    'js/model/QueryResult'
-], function (_, Backbone, Metacard, UploadBatch, Query, QueryResponse, QueryResult) {
+    'js/model/QueryResult',
+    'component/router/router',
+    'js/cql',
+    'component/singletons/user-instance'
+], function (_, Backbone, Metacard, UploadBatch, Query, QueryResponse, QueryResult, router, cql, user) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
@@ -64,10 +67,60 @@ define([
             completeActiveSearchResultsAttributes: [],
         },
         initialize: function(){
+            this.listenTo(router, 'change', this.handleRoute);
             this.set('currentResult', new QueryResponse());
             this.listenTo(this, 'change:currentUpload', this.clearSelectedResults);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
             this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
+            this.handleRoute();
+        },
+        handleRoute() {
+            const routerJSON = router.toJSON();
+            if (routerJSON.name === 'openUpload'){
+                var uploadId = routerJSON.args[0];
+                var upload = user.get('user').get('preferences').get('uploads').get(uploadId);
+                if (!upload) {
+                    router.notFound();
+                } else {
+                    const queryForMetacards = new Query.Model({
+                        cql: cql.write({
+                            type: 'OR',
+                            filters: _.flatten(upload.get('uploads').filter(function(file){
+                                return file.id || file.get('children') !== undefined;
+                            }).map(function(file){
+                                if (file.get('children') !== undefined) {
+                                    return file.get('children').map((child) => ({
+                                        type: '=',
+                                        value: child,
+                                        property: '"id"'
+                                    }));
+                                } else {
+                                    return {
+                                        type: '=',
+                                        value: file.id,
+                                        property: '"id"'
+                                    };
+                                }
+                            }).concat({
+                                type: '=',
+                                value: '-1',
+                                property: '"id"'
+                            }))
+                        }),
+                        federation: 'enterprise'
+                    });
+                    if (this.get('currentQuery')){
+                        this.get('currentQuery').cancelCurrentSearches();
+                    }
+                    queryForMetacards.startSearch();
+                    this.set({
+                        currentResult: queryForMetacards.get('result'),
+                        currentUpload: upload,
+                        currentQuery: queryForMetacards
+                    });
+                    this.trigger('change:currentUpload', upload);
+                }
+            }
         },
         updateActiveSearchResultsFullAttributes: function() {
             var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {

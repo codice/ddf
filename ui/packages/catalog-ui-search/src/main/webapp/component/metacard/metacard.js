@@ -16,8 +16,10 @@ define([
     'js/model/Metacard',
     'js/model/Query',
     'js/model/QueryResponse',
-    'js/model/QueryResult'
-], function (_, Backbone, Metacard, Query, QueryResponse, QueryResult) {
+    'js/model/QueryResult',
+    'js/cql',
+    'component/router/router'
+], function (_, Backbone, Metacard, Query, QueryResponse, QueryResult, cql, router) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
@@ -63,6 +65,37 @@ define([
             this.listenTo(this, 'change:currentResult', this.handleResultChange);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
             this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
+            this.listenTo(router, 'change', this.handleRoute);
+            this.handleRoute();
+        },
+        handleRoute() {
+            if (router.toJSON().name === 'openMetacard'){
+                const metacardId = router.toJSON().args[0];
+                const queryForMetacard = new Query.Model({
+                    cql: cql.write({
+                        type: 'AND',
+                        filters: [{
+                            type: '=',
+                            value: metacardId,
+                            property: '"id"'
+                        }, {
+                            type: 'ILIKE',
+                            value: '*',
+                            property: '"metacard-tags"'
+                        }]
+                    }),
+                    federation: 'enterprise'
+                });
+                if (this.get('currentQuery')){
+                    this.get('currentQuery').cancelCurrentSearches();
+                }
+                queryForMetacard.startSearch();
+                this.set({
+                    'currentMetacard': undefined,
+                    'currentResult': queryForMetacard.get('result'),
+                    'currentQuery': queryForMetacard
+                });
+            }
         },
         updateActiveSearchResultsFullAttributes: function() {
             var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {

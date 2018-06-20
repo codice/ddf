@@ -14,26 +14,15 @@
  **/
 /*global define*/
 define([
-    'wreqr',
     'marionette',
-    'underscore',
-    'jquery',
     './workspaces-menu.hbs',
     'js/CustomElements',
     'properties'
-], function (wreqr, Marionette, _, $, template, CustomElements, properties) {
+], function (Marionette, template, CustomElements, properties) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('workspaces-menu'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
-        initialize: function(){
-        },
         serializeData: function(){
             return properties;
         }
