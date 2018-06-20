@@ -15,3 +15,8 @@ Use the registry to subscribe to and federate with other instances of ${branding
 ====
 The *Node Information* and *Remote Registries* tabs appear in both the ${ddf-registry} application and the ${ddf-catalog} application.
 ====
+
+[NOTE]
+====
+For direct federation configuration, sources and registries can be configured at https://{FQDN}:{PORT}/admin/federation.
+====

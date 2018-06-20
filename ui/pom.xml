@@ -368,6 +368,11 @@
                                     <classifier>logviewer-ui</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>packages/admin-federation-ui/target/federation-admin-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>federation-admin-module</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>packages/admin-metrics-ui/target/metrics-module.jar</file>
                                     <type>jar</type>
                                     <classifier>metrics-module</classifier>
