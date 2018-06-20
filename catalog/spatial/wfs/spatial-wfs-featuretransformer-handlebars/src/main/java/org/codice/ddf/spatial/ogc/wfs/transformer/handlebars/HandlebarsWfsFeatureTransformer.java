@@ -66,6 +66,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.io.IOUtils;
 import org.boon.json.JsonException;
 import org.boon.json.JsonFactory;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer;
@@ -81,7 +82,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   private static final Logger LOGGER =
       LoggerFactory.getLogger(HandlebarsWfsFeatureTransformer.class);
 
-  private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
+  private static final XMLInputFactory XML_INPUT_FACTORY = XMLUtils.getInstance().getSecureXmlInputFactory();
 
   private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
