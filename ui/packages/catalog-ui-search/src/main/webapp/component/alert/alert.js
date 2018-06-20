@@ -17,8 +17,11 @@ define([
     'js/model/Alert',
     'js/model/Query',
     'js/model/QueryResponse',
-    'js/model/QueryResult'
-], function (_, Backbone, Metacard, Alert, Query, QueryResponse, QueryResult) {
+    'js/model/QueryResult',
+    'component/router/router',
+    'component/singletons/user-instance',
+    'js/cql'
+], function (_, Backbone, Metacard, Alert, Query, QueryResponse, QueryResult, router, user, cql) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
@@ -68,6 +71,46 @@ define([
             this.listenTo(this, 'change:currentAlert', this.clearSelectedResults);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
             this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
+            this.listenTo(router, 'change', this.handleRoute);
+            this.handleRoute();
+        },
+        handleRoute() {
+            const routerJSON = router.toJSON();
+            if (routerJSON.name === 'openAlert'){
+                var alertId = routerJSON.args[0];
+                var alert = user.get('user').get('preferences').get('alerts').get(alertId);
+                if (!alert) {
+                    router.notFound();
+                } else {
+                    const queryForMetacards = new Query.Model({
+                        cql: cql.write({
+                            type: 'OR',
+                            filters: alert.get('metacardIds').map(function(metacardId){
+                                return {
+                                    type: '=',
+                                    value: metacardId,
+                                    property: '"id"'
+                                };
+                            }).concat({
+                                type: '=',
+                                value: '-1',
+                                property: '"id"'
+                            })
+                        }),
+                        federation: 'enterprise'
+                    });
+                    if (this.get('currentQuery')){
+                        this.get('currentQuery').cancelCurrentSearches();
+                    }
+                    queryForMetacards.startSearch();
+                    this.set({
+                        currentResult: queryForMetacards.get('result'),
+                        currentAlert: alert,
+                        currentQuery: queryForMetacards
+                    });
+                    this.trigger('change:currentAlert', alert);
+                }
+            }
         },
         updateActiveSearchResultsAttributes: function(){
             var availableAttributes = this.get('activeSearchResults').reduce(function(currentAvailable, result) {

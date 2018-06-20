@@ -41,6 +41,12 @@ define([
         },
         events: {
             'click': 'handleChoice',
+            'mouseenter': 'preload'
+        },
+        preload: function() {
+            wreqr.vent.trigger('router:preload', {
+                fragment: 'workspaces/' + this.model.id
+            });
         },
         initialize: function(){
             this.listenTo(this.model, 'change:saved', this.handleSaved);

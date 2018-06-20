@@ -22,15 +22,9 @@ module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('navigation-middle'),
     serializeData: function() {
-        const routeName = router.toJSON().name;
-        let menuClasses, menuText;
-        if (routeName !== undefined) {
-            menuClasses = this.options.routeDefinitions[routeName].menu.classes;
-            menuText = this.options.routeDefinitions[routeName].menu.text;
-        }
         return {
-            menuClasses,
-            menuText
+            menuClass: this.options.classes,
+            menuText: this.options.text
         };
     }
 });

@@ -20,13 +20,10 @@ define([
     'jquery',
     './metacard.hbs',
     'js/CustomElements',
-    'component/router/router',
     'component/metacard/metacard',
-    'component/golden-layout/golden-layout.view',
-    'js/model/Query',
-    'js/cql'
-], function (wreqr, Marionette, _, $, template, CustomElements, router,
-            metacardInstance, GoldenLayoutMetacardView, Query, cql) {
+    'component/golden-layout/golden-layout.view'
+], function (wreqr, Marionette, _, $, template, CustomElements,
+            metacardInstance, GoldenLayoutMetacardView) {
 
     let queryForMetacard;
 
@@ -37,7 +34,6 @@ define([
             detailsTabular: '.details-tabular',
         },
         initialize: function(){
-            this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(metacardInstance, 'change:currentResult', this.handleResultChange);
             this.listenToCurrentMetacard();
         },
@@ -56,37 +52,7 @@ define([
             this.handleStatus();
             this.listenTo(metacardInstance.get('currentResult'), 'sync request error',  _.throttle(this.handleStatus, 60, {leading: false}));
         },
-        handleRoute: function(){
-            if (router.toJSON().name === 'openMetacard'){
-                const metacardId = router.toJSON().args[0];
-                const queryForMetacard = new Query.Model({
-                    cql: cql.write({
-                        type: 'AND',
-                        filters: [{
-                            type: '=',
-                            value: metacardId,
-                            property: '"id"'
-                        }, {
-                            type: 'ILIKE',
-                            value: '*',
-                            property: '"metacard-tags"'
-                        }]
-                    }),
-                    federation: 'enterprise'
-                });
-                if (metacardInstance.get('currentQuery')){
-                    metacardInstance.get('currentQuery').cancelCurrentSearches();
-                }
-                queryForMetacard.startSearch();
-                metacardInstance.set({
-                    'currentMetacard': undefined,
-                    'currentResult': queryForMetacard.get('result'),
-                    'currentQuery': queryForMetacard
-                });
-            }
-        },
         onRender: function() {
-            this.handleRoute();
             this.handleResultChange();
         },
         onBeforeShow: function(){

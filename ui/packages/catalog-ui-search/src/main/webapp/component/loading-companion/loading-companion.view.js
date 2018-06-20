@@ -51,17 +51,12 @@ define([
         },
         shown: false,
         stop: function(){
-            if (this.shown){
-                this.$el.animate({
+                this.$el.stop().animate({
                     opacity: 0
                 }, 500, function(){
                     this.destroy();
                 }.bind(this));
-            } else {
-                this.$el.one('shown.'+this.cid, function(){
-                    this.stop();
-                }.bind(this));
-            }
+            
         },
         onDestroy: function(){
             this.$el.remove();

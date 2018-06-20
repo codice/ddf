@@ -41,7 +41,8 @@ require([
     'js/ApplicationHelpers',
     'js/Autocomplete',
     'backbone.customFunctions',
-    'js/extensions/backbone.listenTo.ts'
+    'js/extensions/backbone.listenTo.ts',
+    'js/extensions/marionette.onFirstRender'
 ], function(_, Backbone, Marionette, properties, hbs, announcement) {
 
     let getShortErrorMessage = function (error) {

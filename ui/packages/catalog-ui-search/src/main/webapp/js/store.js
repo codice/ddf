@@ -17,8 +17,9 @@ define([
     'backbone-poller',
     'underscore',
     'js/model/Workspace.collection',
-    'component/content/content'
-], function ($, Backbone, poller, _, WorkspaceCollection, Content) {
+    'component/content/content',
+    'component/router/router'
+], function ($, Backbone, poller, _, WorkspaceCollection, Content, router) {
 
     return new (Backbone.Model.extend({
         initialize: function () {
@@ -49,6 +50,18 @@ define([
                 }
             });
             this.listenTo(this.get('content'), 'change:currentWorkspace', this.handleWorkspaceChange);
+            this.listenTo(router, 'change', this.handleRoute);
+            this.handleRoute();
+        },
+        handleRoute() {
+            if (router.toJSON().name==='openWorkspace'){
+                const workspaceId = router.get('args')[0];
+                if (this.get('workspaces').get(workspaceId)!==undefined) {
+                    this.setCurrentWorkspaceById(workspaceId);
+                } else {
+                    router.notFound();
+                }
+            }
         },
         clearOtherWorkspaces: function(workspaceId){
             this.get('workspaces').forEach(function(workspaceModel){

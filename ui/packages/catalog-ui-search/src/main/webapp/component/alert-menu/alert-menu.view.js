@@ -22,29 +22,17 @@ define([
     'js/CustomElements',
     'js/store',
     'component/alert/alert',
-    'js/Common',
-    'component/router/router'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, alertInstance, Common, router) {
+    'js/Common'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, alertInstance, Common) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('alert-menu'),
-        modelEvents: {
-        },
         events: {
             'click > .workspace-title': 'goToWorkspace'
         },
-        ui: {
-        },
-        initialize: function(){
-            this.listenTo(router, 'change', this.handleRoute);
-            this.handleRoute();
-        },
-        handleRoute: function(){
-            if (router.toJSON().name === 'openAlert'){
-                this.model = alertInstance.get('currentResult');
-                this.render();
-            }
+        onFirstRender: function(){
+            this.listenTo(alertInstance, 'change:currentAlert', this.render);
         },
         goToWorkspace: function(e){
             var workspaceId = $(e.currentTarget).attr('data-workspaceid');
@@ -56,6 +44,9 @@ define([
             });
         },
         serializeData: function(){
+            if (alertInstance.get('currentAlert') === undefined) {
+                return {};
+            }
             var alertJSON = alertInstance.get('currentAlert').toJSON();
             var workspace = store.get('workspaces').filter(function(workspace){
                 return workspace.get('queries').get(alertJSON.queryId);

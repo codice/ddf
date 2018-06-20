@@ -44,6 +44,8 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+        },
+        onFirstRender() {
             this.listenTo(this.model, 'change:currentWorkspace', this.updateSubViews);
             this.listenTo(this.model, 'change:currentWorkspace', this.handleSaved);
         },

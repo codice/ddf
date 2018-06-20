@@ -23,38 +23,25 @@ define([
     'js/CustomElements',
     'js/store',
     'component/metacard/metacard',
-    'component/metacard-title/metacard-title.view',
-    'component/router/router'
-], function (wreqr, Marionette, Backbone, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView, router) {
+    'component/metacard-title/metacard-title.view'
+], function (wreqr, Marionette, Backbone, _, $, template, CustomElements, store, metacardInstance, MetacardTitleView) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('metacard-menu'),
-        modelEvents: {
-        },
         events: {
             'click > .workspace-title': 'goToWorkspace'
-        },
-        ui: {
         },
         regions: {
             metacardTitle: '.metacard-title'
         },
-        initialize: function(){
-            this.listenTo(router, 'change', this.handleRoute);
-            this.listenTo(metacardInstance, 'change:currentMetacard', this.handleRoute);
-            this.handleRoute();
-        },
-        handleRoute: function(){
-            if (router.toJSON().name === 'openMetacard'){
-                this.model = metacardInstance.get('currentMetacard');
-                this.render();
-            }
+        onFirstRender: function(){
+            this.listenTo(metacardInstance, 'change:currentMetacard', this.render);
         },
         onRender: function(){
-            if (this.model){
+            if (metacardInstance.get('currentMetacard')){
                 this.metacardTitle.show(new MetacardTitleView({
-                    model: new Backbone.Collection(this.model)
+                    model: new Backbone.Collection(metacardInstance.get('currentMetacard'))
                 }));
             }
         },
@@ -70,8 +57,8 @@ define([
         serializeData: function(){
             var currentWorkspace = store.getCurrentWorkspace();
             var resultJSON, workspaceJSON;
-            if (this.model){
-                resultJSON = this.model.toJSON()
+            if (metacardInstance.get('currentMetacard')){
+                resultJSON = metacardInstance.get('currentMetacard').toJSON()
             }
             if (currentWorkspace){
                 workspaceJSON = currentWorkspace.toJSON()

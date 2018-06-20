@@ -29,16 +29,13 @@ define([
     'component/tabs/metacards/tabs-metacards.view',
     'js/Common',
     'component/metacard-title/metacard-title.view',
-    'component/router/router',
     'component/visualization/visualization.view',
     'component/query-title/query-title.view',
     'component/golden-layout/golden-layout.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
-             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, router, VisualizationView,
+             MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, VisualizationView,
             QueryTitleView, GoldenLayoutView) {
-
-    var debounceTime = 25;
 
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
@@ -52,24 +49,11 @@ define([
                 selectionInterface: store.get('content'),
                 configName: 'goldenLayout'
             });
-            this.listenTo(router, 'change', this.handleRoute);
+        },
+        onFirstRender() {
             this.listenTo(store.get('content'), 'change:currentWorkspace', this.updateContentLeft);
         },
-        handleRoute: function(){
-            if (router.toJSON().name==='openWorkspace'){
-                const workspaceId = router.get('args')[0];
-                if (store.get('workspaces').get(workspaceId)!==undefined) {
-                    this.$el.parent().removeClass('is-hidden');
-                    store.setCurrentWorkspaceById(workspaceId);
-                } else {
-                    router.notFound();
-                }
-            } else {
-                this.$el.parent().addClass('is-hidden');
-            }
-        },
         onRender: function(){
-            this.handleRoute();
             this.updateContentLeft();
             if (this._mapView){
                 this.contentRight.show(this._mapView);

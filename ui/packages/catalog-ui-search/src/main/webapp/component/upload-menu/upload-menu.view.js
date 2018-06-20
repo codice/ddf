@@ -22,30 +22,19 @@ define([
     'js/CustomElements',
     'js/store',
     'component/upload/upload',
-    'js/Common',
-    'component/router/router'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, uploadInstance, Common, router) {
+    'js/Common'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, uploadInstance, Common) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('upload-menu'),
-        modelEvents: {
-        },
-        events: {
-        },
-        ui: {
-        },
-        initialize: function(){
-            this.listenTo(router, 'change', this.handleRoute);
-            this.handleRoute();
-        },
-        handleRoute: function(){
-            if (router.toJSON().name === 'openUpload'){
-                this.model = uploadInstance.get('currentUpload');
-                this.render();
-            }
+        onFirstRender: function(){
+            this.listenTo(uploadInstance, 'change:currentUpload', this.render);
         },
         serializeData: function(){
+            if (uploadInstance.get('currentUpload') === undefined) {
+                return {};
+            }
             return {
                 when: Common.getMomentDate(uploadInstance.get('currentUpload').get('sentAt'))
             };

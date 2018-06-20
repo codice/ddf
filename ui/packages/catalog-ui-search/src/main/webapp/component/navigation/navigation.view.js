@@ -24,6 +24,7 @@ var wreqr = require('wreqr');
 var sources = require('component/singletons/sources-instance');
 var properties = require('properties');
 const router = require('component/router/router');
+const RouteView = require('component/route/route.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -42,20 +43,12 @@ module.exports = Marionette.LayoutView.extend({
         this.handleSaved();
         this.handleSources();
         this.handleLogo();
-        this.listenTo(router, 'change', this.showNavigationMiddle);
     },
     showNavigationMiddle: function(){
-        const routeName = router.toJSON().name;
-        if (routeName === undefined) {
-            return;
-        }
-        if (this.options.routeDefinitions[routeName].menu.component) {
-            this.navigationMiddle.show(new this.options.routeDefinitions[routeName].menu.component());
-        } else {
-            this.navigationMiddle.show(new NavigationMiddleView({
-                routeDefinitions: this.options.routeDefinitions
-            }));
-        }
+        this.navigationMiddle.show(new RouteView({
+            routeDefinitions: this.options.routeDefinitions,
+            isMenu: true
+        }));
     },
     onBeforeShow: function(){
         this.navigationLeft.show(new NavigationLeftView());
