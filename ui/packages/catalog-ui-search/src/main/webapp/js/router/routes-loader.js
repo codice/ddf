@@ -1,14 +1,6 @@
 module.exports = function (source, map) {
     this.cacheable()
     const routeDefinitions = eval(`${source}`);
-    routeDefinitions.notFound = {
-        patterns: ['*path'],
-        component: 'component/notfound/notfound.view',
-        menu: {
-          text: 'Page Not Found',
-          classes: 'is-bold'
-        }
-    };
     const routesObjectString = Object.keys(routeDefinitions).map((routeName) => {
       const { patterns, component, menu } = routeDefinitions[routeName];
       return `
