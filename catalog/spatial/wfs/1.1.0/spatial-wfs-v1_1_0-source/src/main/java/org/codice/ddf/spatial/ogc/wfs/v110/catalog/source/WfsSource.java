@@ -94,7 +94,6 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsMetadataImpl;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService;
@@ -103,7 +102,6 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeReq
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
-import org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.FeatureConverterFactoryV110;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.reader.XmlSchemaMessageBodyReaderWfs11;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -190,8 +188,6 @@ public class WfsSource extends AbstractWfsSource {
 
   private String[] nonQueryableProperties;
 
-  private List<FeatureConverterFactoryV110> featureConverterFactories;
-
   private Integer pollInterval;
 
   private Integer connectionTimeout;
@@ -215,8 +211,6 @@ public class WfsSource extends AbstractWfsSource {
   private String configurationPid;
 
   private String forcedFeatureType;
-
-  private WfsMessageBodyReader wfsMessageBodyReader;
 
   private List<MetacardTypeEnhancer> metacardTypeEnhancers;
 
@@ -669,12 +663,6 @@ public class WfsSource extends AbstractWfsSource {
     return ftMetacard;
   }
 
-  private void logFeatureType(QName featureType, String message) {
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(message, MetacardMapper.class.getSimpleName(), featureType);
-    }
-  }
-
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
     Wfs wfs = factory.getClient();
@@ -1013,10 +1001,6 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setForceSpatialFilter(String forceSpatialFilter) {
     this.forceSpatialFilter = forceSpatialFilter;
-  }
-
-  public void setFeatureConverterFactoryList(List<FeatureConverterFactoryV110> factories) {
-    this.featureConverterFactories = factories;
   }
 
   private String handleWebApplicationException(WebApplicationException wae) {

@@ -23,10 +23,6 @@
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <reference-list id="converterList"
-                    interface="org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.FeatureConverterFactoryV110"
-                    availability="optional"/>
-
     <reference-list id="metacardTypeEnhancerList"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer"
                     availability="optional"/>
@@ -58,7 +54,6 @@
             <property name="nonQueryableProperties">
                 <list/>
             </property>
-            <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>

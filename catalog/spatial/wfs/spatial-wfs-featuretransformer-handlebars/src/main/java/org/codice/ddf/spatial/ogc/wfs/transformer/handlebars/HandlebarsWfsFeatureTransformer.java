@@ -82,7 +82,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   private static final Logger LOGGER =
       LoggerFactory.getLogger(HandlebarsWfsFeatureTransformer.class);
 
-  private static final XMLInputFactory XML_INPUT_FACTORY = XMLUtils.getInstance().getSecureXmlInputFactory();
+  private static final XMLInputFactory XML_INPUT_FACTORY =
+      XMLUtils.getInstance().getSecureXmlInputFactory();
 
   private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
