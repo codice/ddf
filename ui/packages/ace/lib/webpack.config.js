@@ -55,7 +55,8 @@ const base = ({ alias = {}, env }) => ({
   plugins: [
     new WebpackBundleAnalyzerPlugin({
       openAnalyzer: false,
-      analyzerMode: 'static'
+      analyzerMode: 'static',
+      reportFilename: resolve('target/report.html')
     }),
     new webpack.DefinePlugin(gitEnv()),
     new HtmlWebpackPlugin({
