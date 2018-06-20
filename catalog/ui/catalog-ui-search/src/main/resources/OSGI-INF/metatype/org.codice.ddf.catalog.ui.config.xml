@@ -92,53 +92,116 @@
             type="Integer"
             default="60000"/>
 
-        <AD id="signIn"
+        <AD id="signInEnabled"
             name="Show Sign In"
             description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="task"
+        <AD id="taskEnabled"
             name="Show Tasks"
             description="Show task menu area for long running actions."
             type="Boolean"
             default="false"
             required="false"/>
 
-        <AD id="gazetteer"
+        <AD id="gazetteerEnabled"
             name="Show Gazetteer"
             description="Show gazetteer for searching place names."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="onlineGazetteer"
+        <AD id="onlineGazetteerEnabled"
             name="Use Online Gazetteer"
             description="Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="ingest"
+        <AD id="ingestEnabled"
             name="Show Uploader"
             description="Show upload menu for adding new record."
             type="Boolean"
             default="true"
             required="false"/>
 
-        <AD id="externalAuthentication"
+        <AD id="externalAuthenticationEnabled"
             name="Use External Authentication"
             description="Use an external authentication point, such as IdP."
             type="Boolean"
             default="false"
             required="false"/>
 
-        <AD id="cacheDisabled"
-            name="Disable Cache"
-            description="Locally cached results will not be returned in search results."
+        <AD id="cacheEnabled"
+            name="Enable Cache"
+            description="Locally cached results will be returned in search results."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="editingEnabled"
+            name="Allow Editing"
+            description="Allow editing capability to be visible in the UI."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="webSocketsEnabled"
+            name="Enable Web Sockets"
+            description="Enables use of Web Sockets"
+            type="Boolean"
+            default="true"
+            required="false"/>
+
+        <AD id="localCatalogEnabled"
+            name="Enable Local Catalog"
+            description="Enables queries to the local catalog."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="historicalSearchEnabled"
+            name="Enable Historical Search"
+            description="Enable searching for historical metacards."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="archiveSearchEnabled"
+            name="Enable Archive Search"
+            description="Enable searching for archived metacards."
+            type="Boolean"
+            default="true"/>
+
+        <AD id="queryFeedbackEnabled"
+            name="Enable Query Feedback"
+            description="Enable the query comments option."
+            type="Boolean"
+            default="false"/>
+
+        <AD id="experimentalEnabled"
+            name="Enable Experimental Features"
+            description="WARNING: Enables experimental features in the UI. This allows users to preview upcoming features."
+            type="Boolean"
+            default="false"/>
+
+        <AD id="relevanceScoresEnabled"
+            name="Show Relevance Scores"
+            description="Toggle the display of relevance scores of search results."
             type="Boolean"
             default="false"
+            required="false"/>
+
+        <AD id="logoEnabled"
+            name="Show Logo in Title Bar"
+            description="Toggles the visibility of the logo in the menu bar."
+            type="Boolean"
+            default="false"
+            required="false"/>
+
+        <AD id="unknownErrorBoxEnabled"
+            name="Enable Unknown Error Box"
+            description="Enable Unknown Error Box visibility."
+            type="Boolean"
+            default="true"
             required="false"/>
 
         <AD id="typeNameMapping"
@@ -200,18 +263,6 @@
             cardinality="10000"
             default="1800,3600,7200,14400,28800,57600,86400"/>
 
-        <AD id="isEditingAllowed"
-            name="Allow Editing"
-            description="Allow editing capability to be visible in the UI."
-            type="Boolean"
-            default="true"/>
-
-        <AD id="isExperimental"
-            name="Enable Experimental Features"
-            description="WARNING: Enables experimental features in the UI. This allows users to preview upcoming features."
-            type="Boolean"
-            default="false"/>
-
         <AD id="autoMergeTime"
             name="Auto Merge Time"
             description="Specifies the interval during which new results can be merged automatically. This is the time allowed since last merge (in milliseconds)."
@@ -223,36 +274,6 @@
             description="Specifies the number of results allowed per page on the client-side."
             type="Integer"
             default="25"/>
-
-        <AD id="webSocketsEnabled"
-            name="Enable Web Sockets"
-            description="Enables use of Web Sockets"
-            type="Boolean"
-            default="true"/>
-
-        <AD id="disableLocalCatalog"
-            name="Disable Local Catalog"
-            description="Disables queries to the local catalog."
-            type="Boolean"
-            default="false"/>
-
-        <AD id="historicalSearchDisabled"
-            name="Disable Historical Search"
-            description="Disable searching for historical metacards."
-            type="Boolean"
-            default="false"/>
-
-        <AD id="archiveSearchDisabled"
-            name="Disable Archive Search"
-            description="Disable searching for archived metacards."
-            type="Boolean"
-            default="false"/>
-
-        <AD id="queryFeedbackEnabled"
-            name="Enable Query Feedback"
-            description="Enable the query comments option."
-            type="Boolean"
-            default="true"/>
 
         <AD id="queryFeedbackEmailSubjectTemplate"
             name="Query Feedback Email Subject Template"
@@ -291,25 +312,11 @@
             type="String"
             default="Intrigue"/>
 
-        <AD id="showRelevanceScores"
-            name="Show Relevance Scores"
-            description="Toggle the display of relevance scores of search results."
-            type="Boolean"
-            default="false"
-            required="false"/>
-
         <AD id="relevancePrecision"
             name="Relevance Score Precision"
             description="Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345)."
             type="Integer"
             default="5"
-            required="false"/>
-
-        <AD id="showLogo"
-            name="Show Logo in Title Bar"
-            description="Toggles the visibility of the logo in the menu bar."
-            type="Boolean"
-            default="false"
             required="false"/>
 
         <AD id="theme"
@@ -377,13 +384,6 @@
             name="Background Slideout Color"
             type="String"
             default="#252529"/>
-
-        <AD id="disableUnknownErrorBox"
-            name="Disable Unknown Error Box"
-            description="Disable Unknown Error Box visibility."
-            type="Boolean"
-            default="false"
-            required="false"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

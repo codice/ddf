@@ -79,21 +79,39 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String terrainEndpoint;
 
-  private Boolean isEditingAllowed = false;
+  private Boolean editingEnabled = true;
 
-  private Boolean isSignIn = true;
+  private Boolean signInEnabled = true;
 
-  private Boolean isTask = false;
+  private Boolean taskEnabled = false;
 
-  private Boolean isGazetteer = true;
+  private Boolean gazetteerEnabled = true;
 
-  private Boolean isOnlineGazetteer = true;
+  private Boolean onlineGazetteerEnabled = true;
 
-  private Boolean isIngest = true;
+  private Boolean ingestEnabled = true;
 
-  private Boolean isCacheDisabled = false;
+  private Boolean cacheEnabled = true;
 
-  private Boolean disableUnknownErrorBox = false;
+  private Boolean unknownErrorBoxEnabled = true;
+
+  private Boolean externalAuthenticationEnabled = false;
+
+  private Boolean experimentalEnabled = false;
+
+  private Boolean webSocketsEnabled = true;
+
+  private Boolean localCatalogEnabled = true;
+
+  private Boolean queryFeedbackEnabled = false;
+
+  private Boolean relevanceScoresEnabled = false;
+
+  private Boolean logoEnabled = false;
+
+  private Boolean historicalSearchEnabled = true;
+
+  private Boolean archiveSearchEnabled = true;
 
   private BrandingPlugin branding;
 
@@ -115,27 +133,17 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String bingKey = "";
 
-  private Boolean isExternalAuthentication = false;
-
   private List<Long> scheduleFrequencyList;
 
   private Map<String, Set<String>> typeNameMapping = new HashMap<>();
 
-  private Boolean isExperimental = false;
-
   private Integer autoMergeTime = 1000;
-
-  private Boolean webSocketsEnabled = true;
 
   private String mapHome = "";
 
   private ObjectMapper objectMapper =
       JsonFactory.create(
           new JsonParserFactory(), new JsonSerializerFactory().includeNulls().includeEmpty());
-
-  private boolean disableLocalCatalog = false;
-
-  private boolean queryFeedbackEnabled = false;
 
   private String queryFeedbackEmailSubjectTemplate;
 
@@ -172,15 +180,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String uiName;
 
-  private Boolean showRelevanceScores = false;
-
   private Integer relevancePrecision = 5;
-
-  private Boolean showLogo = false;
-
-  private boolean historicalSearchDisabled = false;
-
-  private boolean archiveSearchDisabled = false;
 
   /** List of injected historian configurations. */
   private List<HistorianConfiguration> historianConfigurations;
@@ -363,8 +363,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     config.put("branding", getProductName());
     config.put("version", getProductVersion());
-    config.put("showWelcome", isSignIn);
-    config.put("showTask", isTask);
+    config.put("showWelcome", signInEnabled);
+    config.put("showTask", taskEnabled);
     config.put("format", format);
     config.put("timeout", timeout);
     config.put("resultCount", resultCount);
@@ -372,12 +372,12 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("typeNameMapping", typeNameMapping);
     config.put("terrainProvider", proxiedTerrainProvider);
     config.put("imageryProviders", getConfigImageryProviders());
-    config.put("gazetteer", isGazetteer);
-    config.put("onlineGazetteer", isOnlineGazetteer);
-    config.put("showIngest", isIngest);
+    config.put("gazetteer", gazetteerEnabled);
+    config.put("onlineGazetteer", onlineGazetteerEnabled);
+    config.put("showIngest", ingestEnabled);
     config.put("projection", projection);
     config.put("bingKey", bingKey);
-    config.put("externalAuthentication", isExternalAuthentication);
+    config.put("externalAuthentication", externalAuthenticationEnabled);
     config.put("readOnly", readOnly);
     config.put("summaryShow", summaryShow);
     config.put("resultShow", resultShow);
@@ -387,9 +387,9 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("attributeAliases", attributeAliases);
     config.put("sourcePollInterval", sourcePollInterval);
     config.put("scheduleFrequencyList", scheduleFrequencyList);
-    config.put("isEditingAllowed", isEditingAllowed);
-    config.put("isCacheDisabled", isCacheDisabled);
-    config.put("disableLocalCatalog", disableLocalCatalog);
+    config.put("isEditingAllowed", editingEnabled);
+    config.put("isCacheDisabled", !cacheEnabled);
+    config.put("disableLocalCatalog", !localCatalogEnabled);
     config.put("queryFeedbackEnabled", queryFeedbackEnabled);
     config.put("queryFeedbackEmailSubjectTemplate", queryFeedbackEmailSubjectTemplate);
     config.put("queryFeedbackEmailBodyTemplate", queryFeedbackEmailBodyTemplate);
@@ -397,16 +397,16 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
     config.put("defaultLayout", getDefaultLayoutConfig());
-    config.put("isExperimental", isExperimental);
+    config.put("isExperimental", experimentalEnabled);
     config.put("autoMergeTime", autoMergeTime);
     config.put("webSocketsEnabled", webSocketsEnabled);
     config.put("mapHome", mapHome);
     config.put("product", uiName);
-    config.put("showRelevanceScores", showRelevanceScores);
+    config.put("showRelevanceScores", relevanceScoresEnabled);
     config.put("relevancePrecision", relevancePrecision);
-    config.put("showLogo", showLogo);
-    config.put("isHistoricalSearchDisabled", historicalSearchDisabled);
-    config.put("isArchiveSearchDisabled", archiveSearchDisabled);
+    config.put("showLogo", logoEnabled);
+    config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
+    config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -422,7 +422,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("customBackgroundContent", customBackgroundContent);
     config.put("customBackgroundModal", customBackgroundModal);
     config.put("customBackgroundSlideout", customBackgroundSlideout);
-    config.put("disableUnknownErrorBox", disableUnknownErrorBox);
+    config.put("disableUnknownErrorBox", !unknownErrorBoxEnabled);
     return config;
   }
 
@@ -705,64 +705,64 @@ public class ConfigurationApplication implements SparkApplication {
     this.resultPageSize = resultPageSize;
   }
 
-  public Boolean getSignIn() {
-    return isSignIn;
+  public Boolean getSignInEnabled() {
+    return signInEnabled;
   }
 
-  public void setSignIn(Boolean isSignIn) {
-    this.isSignIn = isSignIn;
+  public void setSignInEnabled(Boolean signInEnabled) {
+    this.signInEnabled = signInEnabled;
   }
 
-  public Boolean getTask() {
-    return isTask;
+  public Boolean getTaskEnabled() {
+    return taskEnabled;
   }
 
-  public void setTask(Boolean isTask) {
-    this.isTask = isTask;
+  public void setTaskEnabled(Boolean taskEnabled) {
+    this.taskEnabled = taskEnabled;
   }
 
-  public Boolean getGazetteer() {
-    return isGazetteer;
+  public Boolean getGazetteerEnabled() {
+    return gazetteerEnabled;
   }
 
-  public void setGazetteer(Boolean isGazetteer) {
-    this.isGazetteer = isGazetteer;
+  public void setGazetteerEnabled(Boolean gazetteerEnabled) {
+    this.gazetteerEnabled = gazetteerEnabled;
   }
 
-  public Boolean getOnlineGazetteer() {
-    return isOnlineGazetteer;
+  public Boolean getOnlineGazetteerEnabled() {
+    return onlineGazetteerEnabled;
   }
 
-  public void setOnlineGazetteer(Boolean onlineGazetteer) {
-    isOnlineGazetteer = onlineGazetteer;
+  public void setOnlineGazetteerEnabled(Boolean onlineGazetteerEnabled) {
+    this.onlineGazetteerEnabled = onlineGazetteerEnabled;
   }
 
-  public Boolean getIngest() {
-    return this.isIngest;
+  public Boolean getIngestEnabled() {
+    return this.ingestEnabled;
   }
 
-  public void setIngest(Boolean isIngest) {
-    this.isIngest = isIngest;
+  public void setIngestEnabled(Boolean ingestEnabled) {
+    this.ingestEnabled = ingestEnabled;
   }
 
-  public void setCacheDisabled(Boolean cacheDisabled) {
-    this.isCacheDisabled = cacheDisabled;
+  public void setCacheEnabled(Boolean cacheEnabled) {
+    this.cacheEnabled = cacheEnabled;
   }
 
-  public Boolean getIsEditingAllowed() {
-    return this.isEditingAllowed;
+  public Boolean getEditingEnabled() {
+    return this.editingEnabled;
   }
 
-  public void setIsEditingAllowed(Boolean isEditingAllowed) {
-    this.isEditingAllowed = isEditingAllowed;
+  public void setEditingEnabled(Boolean editingEnabled) {
+    this.editingEnabled = editingEnabled;
   }
 
-  public void setDisableUnknownErrorBox(Boolean disableUnknownErrorBox) {
-    this.disableUnknownErrorBox = disableUnknownErrorBox;
+  public void setUnknownErrorBoxEnabled(Boolean unknownErrorBoxEnabled) {
+    this.unknownErrorBoxEnabled = unknownErrorBoxEnabled;
   }
 
-  public Boolean getDisableUnknownErrorBox() {
-    return disableUnknownErrorBox;
+  public Boolean getUnknownErrorBoxEnabled() {
+    return unknownErrorBoxEnabled;
   }
 
   public void setTypeNameMapping(String[] mappings) {
@@ -819,23 +819,23 @@ public class ConfigurationApplication implements SparkApplication {
     this.bingKey = bingKey;
   }
 
-  public Boolean getExternalAuthentication() {
-    return isExternalAuthentication;
+  public Boolean getExternalAuthenticationEnabled() {
+    return externalAuthenticationEnabled;
   }
 
-  public void setExternalAuthentication(Boolean isExternalAuthentication) {
-    this.isExternalAuthentication = isExternalAuthentication;
+  public void setExternalAuthenticationEnabled(Boolean externalAuthenticationEnabled) {
+    this.externalAuthenticationEnabled = externalAuthenticationEnabled;
   }
 
-  public boolean isDisableLocalCatalog() {
-    return disableLocalCatalog;
+  public Boolean getLocalCatalogEnabled() {
+    return localCatalogEnabled;
   }
 
-  public void setDisableLocalCatalog(boolean disableLocalCatalog) {
-    this.disableLocalCatalog = disableLocalCatalog;
+  public void setLocalCatalogEnabled(Boolean localCatalogEnabled) {
+    this.localCatalogEnabled = localCatalogEnabled;
   }
 
-  public void setQueryFeedbackEnabled(boolean queryFeedbackEnabled) {
+  public void setQueryFeedbackEnabled(Boolean queryFeedbackEnabled) {
     this.queryFeedbackEnabled = queryFeedbackEnabled;
   }
 
@@ -871,12 +871,12 @@ public class ConfigurationApplication implements SparkApplication {
     this.uiName = uiName;
   }
 
-  public Boolean getShowRelevanceScores() {
-    return this.showRelevanceScores;
+  public Boolean getRelevanceScoresEnabled() {
+    return this.relevanceScoresEnabled;
   }
 
-  public void setShowRelevanceScores(Boolean showRelevanceScores) {
-    this.showRelevanceScores = showRelevanceScores;
+  public void setRelevanceScoresEnabled(Boolean relevanceScoresEnabled) {
+    this.relevanceScoresEnabled = relevanceScoresEnabled;
   }
 
   public Integer getRelevancePrecision() {
@@ -889,12 +889,12 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
-  public Boolean getShowLogo() {
-    return showLogo;
+  public Boolean getLogoEnabled() {
+    return logoEnabled;
   }
 
-  public void setShowLogo(Boolean showLogo) {
-    this.showLogo = showLogo;
+  public void setLogoEnabled(Boolean logoEnabled) {
+    this.logoEnabled = logoEnabled;
   }
 
   public String getSpacingMode() {
@@ -929,12 +929,12 @@ public class ConfigurationApplication implements SparkApplication {
     this.webSocketsEnabled = webSocketsEnabled;
   }
 
-  public Boolean getIsExperimental() {
-    return isExperimental;
+  public Boolean getExperimentalEnabled() {
+    return experimentalEnabled;
   }
 
-  public void setIsExperimental(Boolean isExperimental) {
-    this.isExperimental = isExperimental;
+  public void setExperimentalEnabled(Boolean experimentalEnabled) {
+    this.experimentalEnabled = experimentalEnabled;
   }
 
   public String getMapHome() {
@@ -945,20 +945,20 @@ public class ConfigurationApplication implements SparkApplication {
     this.mapHome = mapHome;
   }
 
-  public boolean isHistoricalSearchDisabled() {
-    return historicalSearchDisabled;
+  public Boolean getHistoricalSearchEnabled() {
+    return historicalSearchEnabled;
   }
 
-  public void setHistoricalSearchDisabled(boolean historicalSearchDisabled) {
-    this.historicalSearchDisabled = historicalSearchDisabled;
+  public void setHistoricalSearchEnabled(Boolean historicalSearchEnabled) {
+    this.historicalSearchEnabled = historicalSearchEnabled;
   }
 
-  public boolean isArchiveSearchDisabled() {
-    return archiveSearchDisabled;
+  public Boolean getArchiveSearchEnabled() {
+    return archiveSearchEnabled;
   }
 
-  public void setArchiveSearchDisabled(boolean archiveSearchDisabled) {
-    this.archiveSearchDisabled = archiveSearchDisabled;
+  public void setArchiveSearchEnabled(Boolean archiveSearchEnabled) {
+    this.archiveSearchEnabled = archiveSearchEnabled;
   }
 
   public void setHistorianConfigurations(List<HistorianConfiguration> historians) {

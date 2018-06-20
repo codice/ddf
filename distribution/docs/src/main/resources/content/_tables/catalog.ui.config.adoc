@@ -104,52 +104,122 @@ Example:
 |true
 
 |Show Sign In
-|signIn
+|signInEnabled
 |Boolean
 |Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected.
 |true
 |false
 
 |Show Tasks
-|task
+|taskEnabled
 |Boolean
 |Show task menu area for long running actions.
 |false
 |false
 
 |Show Gazetteer
-|gazetteer
+|gazetteerEnabled
 |Boolean
 |Show gazetteer for searching place names.
 |true
 |false
 
 |Use Online Gazetteer
-|onlineGazetteer
+|onlineGazetteerEnabled
 |Boolean
 |Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue.
 |true
 |false
 
 |Show Uploader
-|ingest
+|ingestEnabled
 |Boolean
 |Show upload menu for adding new record.
 |true
 |false
 
 |Use External Authentication
-|externalAuthentication
+|externalAuthenticationEnabled
 |Boolean
 |Use an external authentication point, such as IdP.
 |false
 |false
 
-|Disable Cache
-|cacheDisabled
+|Enable Cache
+|cacheEnabled
 |Boolean
-|Locally cached results will not be returned in search results.
+|Locally cached results will be returned in search results.
+|true
 |false
+
+|Allow Editing
+|editingEnabled
+|Boolean
+|Allow editing capability to be visible in the UI.
+|true
+|true
+
+|Enable Web Sockets
+|webSocketsEnabled
+|Boolean
+|Enable Web Sockets.
+|true
+|false
+
+|Enable Local Catalog
+|localCatalogEnabled
+|Boolean
+|Enables queries to the local catalog.
+|true
+|true
+
+|Enable Historical Search
+|historicalSearchEnabled
+|Boolean
+|Enable searching for historical metacards.
+|true
+|true
+
+|Enable Archive Search
+|archiveSearchEnabled
+|Boolean
+|Enable searching for archived metacards.
+|true
+|true
+
+|Enable Query Feedback
+|queryFeedbackEnabled
+|Boolean
+|Enable the query comments option.
+|true
+|true
+
+|Enable Experimental Features
+|experimentalEnabled
+|Boolean
+|WARNING: Enables experimental features in the UI. This allows users to preview upcoming features.
+|false
+|true
+
+|Show Relevance Scores
+|relevanceScoresEnabled
+|Boolean
+|Toggle the display of relevance scores of search results.
+|false
+|false
+
+|Show Logo in Title Bar
+|logoEnabled
+|Boolean
+|Toggles the visibility of the logo in the menu bar.
+|false
+|false
+
+|Enable Unknown Error Box
+|unknownErrorBoxEnabled
+|Boolean
+|Enable Unknown Error Box visibility.
+|true
 |false
 
 |Type Name Mapping
@@ -234,20 +304,6 @@ thumbnail
 86400
 |true
 
-|Allow Editing
-|isEditingAllowed
-|Boolean
-|Allow editing capability to be visible in the UI.
-|true
-|true
-
-|Enable Experimental Features
-|isExperimental
-|Boolean
-|WARNING: Enables experimental features in the UI. This allows users to preview upcoming features.
-|false
-|true
-
 |Auto Merge Time
 |autoMergeTime
 |Integer
@@ -260,34 +316,6 @@ thumbnail
 |Integer
 |Specifies the number of results allowed per page on the client-side.
 |25
-|true
-
-|Disable Local Catalog
-|disableLocalCatalog
-|Boolean
-|Disables queries to the local catalog.
-|false
-|true
-
-|Disable Historical Search
-|historicalSearchDisabled
-|Boolean
-|Disable searching for historical metacards.
-|false
-|true
-
-|Disable Archive Search
-|archiveSearchDisabled
-|Boolean
-|Disable searching for archived metacards.
-|false
-|true
-
-|Enable Query Feedback
-|queryFeedbackEnabled
-|Boolean
-|Enable the query comments option.
-|true
 |true
 
 |Query Feedback Email Subject Template
@@ -344,25 +372,11 @@ thumbnail
 |Intrigue
 |true
 
-|Show Relevance Scores
-|showRelevanceScores
-|Boolean
-|Toggle the display of relevance scores of search results.
-|false
-|false
-
 |Relevance Score Precision
 |relevancePrecision
 |Integer
 |Set the number of digits to display in for each relevance score. The default is `5` (i.e. 12.345).
 |5
-|false
-
-|Show Logo in Title Bar
-|showLogo
-|Boolean
-|Toggles the visibility of the logo in the menu bar.
-|false
 |false
 
 |Theme
@@ -448,12 +462,5 @@ thumbnail
 |
 |#252529
 |true
-
-|Disable Unknown Error Box
-|disableUnknownErrorBox
-|Boolean
-|Disable Unknown Error Box visibility.
-|false
-|false
 
 |===
