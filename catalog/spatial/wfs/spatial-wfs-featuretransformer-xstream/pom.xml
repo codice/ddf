@@ -56,13 +56,11 @@
       <groupId>org.codice.ddf.spatial</groupId>
       <artifactId>spatial-wfs-v1_1_0-common</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.codice.ddf.spatial</groupId>
       <artifactId>spatial-wfs-v1_1_0-converter</artifactId>
       <version>${project.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.codice.ddf.spatial</groupId>
@@ -92,7 +90,7 @@
     <dependency>
       <groupId>org.jvnet.ogc</groupId>
       <artifactId>gml-v_3_1_1</artifactId>
-      <version>2.6.1</version>
+      <version>${jvnet-ogc.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jvnet.ogc</groupId>
@@ -102,7 +100,7 @@
     <dependency>
       <groupId>org.jvnet.ogc</groupId>
       <artifactId>filter-v_1_1_0</artifactId>
-      <version>2.6.1</version>
+      <version>${jvnet-ogc.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jvnet.ogc</groupId>

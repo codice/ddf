@@ -20,6 +20,7 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
+    <!-- Added service ranking to be a priority over the xstream feature transformer -->
     <cm:managed-service-factory id="handlebarsFeatureTransformer"
                                 factory-pid="Wfs_Templated_Mapping"
                                 interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="39">

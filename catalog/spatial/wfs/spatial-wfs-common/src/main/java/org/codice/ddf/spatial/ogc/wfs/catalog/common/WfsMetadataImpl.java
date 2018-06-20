@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 
 public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
@@ -44,7 +45,7 @@ public final class WfsMetadataImpl<T> implements WfsMetadata<T> {
     this.featureMemberNodeNames = featureMemberNodeNames;
     this.descriptors = new HashSet<>();
 
-    if (featureMemberNodeNames != null && featureMemberNodeNames.size() > 0) {
+    if (CollectionUtils.isNotEmpty(featureMemberNodeNames)) {
       this.activeFeatureMemberNodeName = featureMemberNodeNames.get(0);
     }
   }

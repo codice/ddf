@@ -61,7 +61,8 @@ public class XStreamWfs11FeatureTransformer implements FeatureTransformer<Featur
 
     FeatureTypeType featureType = null;
     for (FeatureTypeType ft : metadata.getDescriptors()) {
-      if (ft.getName().getLocalPart().equals(metadata.getActiveFeatureMemberNodeName())) {
+      if (ft.getName() != null
+          && metadata.getActiveFeatureMemberNodeName().equals(ft.getName().getLocalPart())) {
         featureType = ft;
       }
     }
