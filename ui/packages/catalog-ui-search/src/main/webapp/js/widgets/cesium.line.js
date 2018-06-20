@@ -19,9 +19,10 @@ define([
         'maptype',
         './notification.view',
         '@turf/turf',
-        './drawing.controller'
+        './drawing.controller',
+        'js/DistanceUtils'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, Turf, DrawingController) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, Turf, DrawingController, DistanceUtils) {
         "use strict";
         var Draw = {};
 
@@ -48,7 +49,7 @@ define([
             animationFrameId: undefined,
             initialize: function() {
                 this.updatePrimitive();
-                this.listenTo(this.model, 'change:line change:lineWidth', this.updatePrimitive);
+                this.listenTo(this.model, 'change:line change:lineWidth change:lineUnits', this.updatePrimitive);
                 this.listenForCameraChange();
             },
             modelEvents: {
@@ -59,7 +60,7 @@ define([
             },
             drawLine: function(model) {
                 var linePoints = model.toJSON().line;
-                var lineWidth = model.toJSON().lineWidth || 1;
+                var lineWidth = DistanceUtils.getDistanceInMeters(model.toJSON().lineWidth, model.get('lineUnits')) || 1;
                 if (!linePoints) {
                     return;
                 }

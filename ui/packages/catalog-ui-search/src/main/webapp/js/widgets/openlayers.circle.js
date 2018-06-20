@@ -24,10 +24,11 @@ define([
         '@turf/turf',
         '@turf/circle',
         './drawing.controller',
-        '../OpenLayersGeometryUtils'
+        '../OpenLayersGeometryUtils',
+        'js/DistanceUtils'
     ],
     function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
-              Terraformer, Turf, TurfCircle, DrawingController, olUtils) {
+              Terraformer, Turf, TurfCircle, DrawingController, olUtils, DistanceUtils) {
         "use strict";
 
         function translateFromOpenlayersCoordinate(coord){
@@ -51,7 +52,7 @@ define([
         Draw.CircleView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
-                this.listenTo(this.model, 'change:lat change:lon change:radius', this.updateGeometry);
+                this.listenTo(this.model, 'change:lat change:lon change:radius change:radiusUnits', this.updateGeometry);
                 this.updateGeometry(this.model);
             },
             setModelFromGeometry: function (geometry) {
@@ -59,7 +60,7 @@ define([
                 this.model.set({
                     lat: center[1],
                     lon: center[0],
-                    radius: geometry.getRadius() * this.map.getView().getProjection().getMetersPerUnit()
+                    radius: DistanceUtils.getDistanceFromMeters(geometry.getRadius() * this.map.getView().getProjection().getMetersPerUnit(), this.model.get('radiusUnits'))
                 });
             },
 
@@ -67,7 +68,7 @@ define([
                 if (model.get('lon') === undefined || model.get('lat') === undefined){
                     return undefined;
                 }
-                var rectangle = new ol.geom.Circle(translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]), model.get('radius') / this.map.getView().getProjection().getMetersPerUnit());
+                var rectangle = new ol.geom.Circle(translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]), DistanceUtils.getDistanceInMeters(model.get('radius'), model.get('radiusUnits')) / this.map.getView().getProjection().getMetersPerUnit());
                 return rectangle;
             },
 
