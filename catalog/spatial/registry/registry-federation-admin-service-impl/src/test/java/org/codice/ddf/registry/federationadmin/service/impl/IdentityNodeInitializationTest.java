@@ -203,6 +203,43 @@ public class IdentityNodeInitializationTest {
     identityNodeInitialization.init();
   }
 
+  @Test
+  public void testCopyTransitiveAttributes() throws Exception {
+    System.setProperty(SystemInfo.SITE_NAME, CHANGED_TEST_SITE_NAME);
+    RegistryPackageType registryPackageType = buildRegistryPackageType();
+
+    testMetacard.setAttribute(
+        new AttributeImpl(
+            Metacard.METADATA, metacardMarshaller.getRegistryPackageAsXml(registryPackageType)));
+    testMetacard.setAttribute(
+        new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
+    testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+    testMetacard.setAttribute(
+        new AttributeImpl(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE, true));
+    testMetacard.setAttribute(
+        new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE, true));
+    when(federationAdminService.getLocalRegistryIdentityMetacard())
+        .thenReturn(Optional.of(testMetacard));
+
+    ArgumentCaptor<Metacard> updatedMetacard = ArgumentCaptor.forClass(Metacard.class);
+    doNothing().when(federationAdminService).updateRegistryEntry(updatedMetacard.capture());
+
+    identityNodeInitialization.init();
+
+    assertThat(
+        updatedMetacard
+            .getValue()
+            .getAttribute(RegistryObjectMetacardType.REGISTRY_IDENTITY_NODE)
+            .getValue(),
+        is(true));
+    assertThat(
+        updatedMetacard
+            .getValue()
+            .getAttribute(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE)
+            .getValue(),
+        is(true));
+  }
+
   private Metacard getTestMetacard() {
     return new MetacardImpl(new RegistryObjectMetacardType());
   }
