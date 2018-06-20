@@ -17,7 +17,7 @@
 
     <OCD description="WFS Feature to Metacard Templated Mapping"
          name="WFS Feature to Metacard Templated Mapping"
-         id="Wfs_Templated_Mapping">
+         id="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars">
 
         <AD name="Feature Type" id="featureType" required="true" type="String"
             description="Feature Type. Format is {URI}local-name"/>
@@ -44,8 +44,8 @@
 
     </OCD>
 
-    <Designate pid="Wfs_Templated_Mapping"
-               factoryPid="Wfs_Templated_Mapping">
-        <Object ocdref="Wfs_Templated_Mapping"/>
+    <Designate pid="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars"
+               factoryPid="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars">
+        <Object ocdref="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars"/>
     </Designate>
 </metatype:MetaData>

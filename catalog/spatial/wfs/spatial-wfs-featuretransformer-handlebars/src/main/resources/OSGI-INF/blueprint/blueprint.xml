@@ -22,7 +22,7 @@
 
     <!-- Added service ranking to be a priority over the xstream feature transformer -->
     <cm:managed-service-factory id="handlebarsFeatureTransformer"
-                                factory-pid="Wfs_Templated_Mapping"
+                                factory-pid="org.codice.ddf.spatial.ogc.wfs.transformer.handlebars"
                                 interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformer" ranking="39">
 
         <cm:managed-component
