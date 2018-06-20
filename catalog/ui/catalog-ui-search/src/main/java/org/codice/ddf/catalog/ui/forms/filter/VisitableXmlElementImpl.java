@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import net.opengis.filter.v_2_0.AbstractIdType;
 import net.opengis.filter.v_2_0.BBOXType;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
@@ -44,6 +46,7 @@ import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,15 +241,30 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
       FunctionType functionType = (FunctionType) element.getValue();
-      this.value =
-          FunctionResolver.resolve(
-              functionType.getName(),
-              functionType
-                  .getExpression()
-                  .stream()
-                  .map(JAXBElement::getValue)
-                  .map(LiteralType.class::cast)
-                  .collect(Collectors.toList()));
+
+      this.value = new HashMap<>();
+      this.value.put("type", "FILTER_FUNCTION");
+      this.value.put("filterFunctionName", functionType.getName());
+      this.value.put(
+          "params",
+          functionType
+              .getExpression()
+              .stream()
+              .map(JAXBElement::getValue)
+              .map(LiteralType.class::cast)
+              .map(
+                  literalType ->
+                      literalType
+                          .getContent()
+                          .stream()
+                          .findFirst()
+                          .map(
+                              serializable -> {
+                                QName qName = literalType.getType();
+                                return QNameMapper.convert(serializable, qName);
+                              })
+                          .orElse(""))
+              .collect(Collectors.toList()));
     }
 
     @Override

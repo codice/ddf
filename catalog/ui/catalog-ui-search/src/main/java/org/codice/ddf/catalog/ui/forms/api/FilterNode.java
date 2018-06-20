@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.catalog.ui.forms.api;
 
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
+import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
 
 /**
  * Represents a single node in a filter data structure.
@@ -26,83 +26,19 @@ import javax.annotation.Nullable;
 public interface FilterNode {
 
   /**
-   * Determine if this filter node is terminal. Terminal filter nodes will safely return a property
-   * name and a target value.
-   *
-   * @return true if this node is terminal, false otherwise.
-   */
-  boolean isLeaf();
-
-  /**
-   * Determine if this filter node is templated. Templated filter nodes must be terminal. Templated
-   * filter nodes will safely return a map of template properties.
-   *
-   * @return true if this node is templated, false otherwise.
-   */
-  boolean isTemplated();
-
-  /**
    * Get the operator assocated with this node. Every node has an operator.
    *
    * @return this node's operator.
    */
   String getOperator();
 
-  boolean hasChildren();
+  void accept(Visitor visitor);
 
-  boolean isFunction();
+  interface Visitor {
+    void visit(IntermediateFilterNode filterNode);
 
-  Map<String, Object> getFunctionArguments();
+    void visit(LeafFilterNode filterNode);
 
-  /**
-   * If this node is a non-terminal node, fetch its list of children.
-   *
-   * @return a collection of filter nodes.
-   * @throws IllegalStateException if this node was a terminal node and does not have children.
-   * @throws IllegalArgumentException if invalid nodes were encountered while reading the children.
-   */
-  List<FilterNode> getChildren();
-
-  /**
-   * If this node is a templated node, fetch the properties associated with the template.
-   *
-   * @return a map of properties.
-   * @throws IllegalStateException if this node is not a templated node.
-   */
-  Map<String, Object> getTemplateProperties();
-
-  /**
-   * If this node is a terminal node, fetch the property name associated with this node.
-   *
-   * @return a property name, or null if the value has not been set.
-   * @throws IllegalStateException if this node is not a terminal node.
-   */
-  @Nullable
-  String getProperty();
-
-  /**
-   * If this node is a terminal node, fetch the target value associated with this node.
-   *
-   * @return the value associated with the property of this node, or null if the value has not been
-   *     set.
-   * @throws IllegalStateException if this node is not a terminal node.
-   */
-  @Nullable
-  String getValue();
-
-  /**
-   * Set this node's property name.
-   *
-   * @param property the property name to use.
-   * @throws NullPointerException if the given property name is null.
-   */
-  void setProperty(String property);
-
-  /**
-   * Set this node's target value.
-   *
-   * @param value the target value to use.
-   * @throws NullPointerException if the given target value is null.
-   */
-  void setValue(String value);
+    void visit(FunctionFilterNode filterNode);
+  }
 }

@@ -35,7 +35,7 @@ import org.boon.Boon;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
+import org.codice.ddf.catalog.ui.forms.model.FilterJsonNode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -159,7 +159,7 @@ public class TransformVisitorXmlTest {
       fail("File was not found " + jsonFile.getAbsolutePath());
     }
 
-    FilterNodeMapImpl node = new FilterNodeMapImpl(Boon.resourceMap(jsonFile.getPath()));
+    FilterJsonNode node = new FilterJsonNode(Boon.resourceMap(jsonFile.getPath()));
     return VisitableJsonElementImpl.create(node);
   }
 }

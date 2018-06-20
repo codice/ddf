@@ -26,9 +26,9 @@ import net.opengis.filter.v_2_0.PropertyIsBetweenType;
 import net.opengis.filter.v_2_0.PropertyIsNilType;
 import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.model.FilterJsonNode;
 
 /**
  * Notes on the JSON to XML mapping representation.
@@ -85,11 +85,11 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private final String name;
   private final Object value;
 
-  public static VisitableJsonElementImpl create(final FilterNode node) {
+  public static VisitableJsonElementImpl create(final FilterJsonNode node) {
     return new VisitableJsonElementImpl(node);
   }
 
-  private VisitableJsonElementImpl(final FilterNode node) {
+  private VisitableJsonElementImpl(final FilterJsonNode node) {
 
     this.visitMethod = VISIT_METHODS.get(node.getOperator());
     if (this.visitMethod == null) {
@@ -98,18 +98,29 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
     }
 
     this.name = node.getOperator();
-    if (node.isTemplated()) {
-      this.value = wrap(node.getProperty(), node.getTemplateProperties());
-      return;
-    }
 
-    if (node.hasChildren()) {
-      this.value = wrap(node.getProperty(), node.getValue());
-    } else if (node.isFunction()) {
-      this.value = wrap(node.getFunctionArguments(), Boolean.valueOf(node.getValue()));
+    if (node.isFunction()) {
+      this.value = handleFunctionNode(node);
+    } else if (node.isLeaf()) {
+      this.value = handleLeafNode(node);
+    } else if (node.hasChildren()) {
+      this.value = handleIntermediateNode(node);
     } else {
-      this.value = wrap(node.getChildren());
+      throw new FilterProcessingException(
+          "Encountered an unhandled node (not function, leaf or intermediate)");
     }
+  }
+
+  private Object handleIntermediateNode(FilterJsonNode node) {
+    return wrap(node.getChildrenNew());
+  }
+
+  private Object handleLeafNode(FilterJsonNode node) {
+    return wrap(node.getProperty(), node.getValue());
+  }
+
+  private Object handleFunctionNode(FilterJsonNode node) {
+    return wrap(node.getFunctionArguments(), Boolean.valueOf(node.getValue()));
   }
 
   private VisitableJsonElementImpl(final String operator, final Object value) {
@@ -138,14 +149,6 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private static List<VisitableElement<?>> wrap(
-      String property, Map<String, Object> templateProperties) {
-    return Arrays.asList(
-        new VisitableJsonElementImpl(FAKE_PROPERTY_OPERATOR, property),
-        new VisitableJsonElementImpl(
-            FAKE_VALUE_OPERATOR, templateProperties, FilterVisitor2::visitFunctionType));
-  }
-
-  private static List<VisitableElement<?>> wrap(
       Map<String, Object> functionArguments, Boolean functionTarget) {
     return Arrays.asList(
         new VisitableJsonElementImpl("LITERAL_PROPERTY", functionTarget),
@@ -153,7 +156,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
             FAKE_VALUE_OPERATOR, functionArguments, FilterVisitor2::visitFunctionType));
   }
 
-  private static List<VisitableElement<?>> wrap(List<FilterNode> children) {
+  private static List<VisitableElement<?>> wrap(List<FilterJsonNode> children) {
     return children.stream().map(VisitableJsonElementImpl::new).collect(Collectors.toList());
   }
 

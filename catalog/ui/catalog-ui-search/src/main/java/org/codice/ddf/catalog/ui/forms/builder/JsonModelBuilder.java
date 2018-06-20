@@ -23,12 +23,14 @@ import java.util.Map;
 import java.util.Set;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl;
+import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
 
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
  * for use on the frontend. Also supports building filter nodes with additional metadata in them,
- * such as {@link FilterNodeImpl}s in a templated state.
+ * such as {@link IntermediateFilterNode}s in a templated state.
  *
  * <p>As mentioned before, this object is single-use and only supports building a single model. It
  * cannot be modified by builder methods once the result has been retrieved by calling {@link
@@ -121,9 +123,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
     List<FilterNode> nodes = new ArrayList<>();
     if (rootNode == null) {
-      rootNode = new FilterNodeImpl(operator, nodes);
+      rootNode = new IntermediateFilterNode(operator, nodes);
     } else {
-      depth.peek().add(new FilterNodeImpl(operator, nodes));
+      depth.peek().add(new IntermediateFilterNode(operator, nodes));
     }
     depth.push(nodes);
     return this;
@@ -149,7 +151,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary comparison operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    nodeInProgress = new LeafFilterNode(jsonOperator);
     return this;
   }
 
@@ -172,7 +174,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary temporal operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    nodeInProgress = new LeafFilterNode(jsonOperator);
     return this;
   }
 
@@ -183,7 +185,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     if (!BINARY_SPATIAL_OPS.contains(operator)) {
       throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(operator);
+    nodeInProgress = new LeafFilterNode(operator);
     return this;
   }
 
@@ -204,7 +206,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setProperty(String property) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setProperty(property);
+
+    nodeInProgress.accept(new PropertySettingVisitor(property));
+
     return this;
   }
 
@@ -217,7 +221,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setValue(value);
+
+    nodeInProgress.accept(new ValueSettingVisitor(value));
+
     return this;
   }
 
@@ -225,13 +231,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
-    return this;
-  }
-
-  @Override
-  public FlatFilterBuilder setFunctionValues(Map<String, Object> functionProperties) {
-    // throw new RuntimeException("not implemented");
+    nodeInProgress = new FunctionFilterNode(nodeInProgress, templateProps);
     return this;
   }
 
@@ -288,7 +288,49 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     if (!PROPERTY_IS_LIKE.equals(operator)) {
       throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(filterType);
+    nodeInProgress = new LeafFilterNode(filterType);
     return this;
+  }
+
+  private static class ValueSettingVisitor implements FilterNode.Visitor {
+
+    private String value;
+
+    private ValueSettingVisitor(String value) {
+      this.value = value;
+    }
+
+    @Override
+    public void visit(IntermediateFilterNode filterNode) {}
+
+    @Override
+    public void visit(LeafFilterNode filterNode) {
+      filterNode.setValue(value);
+    }
+
+    @Override
+    public void visit(FunctionFilterNode filterNode) {
+      filterNode.setValue(value);
+    }
+  }
+
+  private static class PropertySettingVisitor implements FilterNode.Visitor {
+
+    private String property;
+
+    private PropertySettingVisitor(String property) {
+      this.property = property;
+    }
+
+    @Override
+    public void visit(IntermediateFilterNode filterNode) {}
+
+    @Override
+    public void visit(LeafFilterNode filterNode) {
+      filterNode.setProperty(property);
+    }
+
+    @Override
+    public void visit(FunctionFilterNode filterNode) {}
   }
 }

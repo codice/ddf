@@ -41,7 +41,7 @@ import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.codice.ddf.catalog.ui.forms.filter.TransformVisitor;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableJsonElementImpl;
 import org.codice.ddf.catalog.ui.forms.filter.VisitableXmlElementImpl;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeMapImpl;
+import org.codice.ddf.catalog.ui.forms.model.FilterJsonNode;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FieldFilter;
 import org.codice.ddf.catalog.ui.forms.model.pojo.FormTemplate;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public class TemplateTransformer {
       }
 
       TransformVisitor<JAXBElement> visitor = new TransformVisitor<>(new XmlModelBuilder());
-      VisitableJsonElementImpl.create(new FilterNodeMapImpl(filterJson)).accept(visitor);
+      VisitableJsonElementImpl.create(new FilterJsonNode(filterJson)).accept(visitor);
       JAXBElement filter = visitor.getResult();
       if (!filter.getDeclaredType().equals(FilterType.class)) {
         LOGGER.error(
