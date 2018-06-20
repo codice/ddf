@@ -83,7 +83,7 @@ final class FeatureAttributeEntry {
 
   private String applyTemplate(Map<String, String> map) {
     if (template == null) {
-      LOGGER.debug("Error applying template for entry: {}. The template is null.", toString());
+      LOGGER.debug("Error applying template for entry: {}. The template is null.", toStringValue);
       return null;
     }
     try {
