@@ -26,6 +26,8 @@ import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
 import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
 import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
@@ -46,6 +48,9 @@ import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
  * in a future version of the library.</i>
  */
 public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JsonModelBuilder.class);
+
   private static final Map<String, String> BINARY_COMPARE_MAPPING =
       ImmutableMap.<String, String>builder()
           .put("PropertyIsEqualTo", "=")
@@ -317,7 +322,11 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
 
     @Override
-    public void visit(IntermediateFilterNode filterNode) {}
+    public void visit(IntermediateFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the value of an IntermediateFilterNode, which doesn't support value attributes. value=[{}]",
+          value);
+    }
 
     @Override
     public void visit(LeafFilterNode filterNode) {
@@ -340,7 +349,11 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
 
     @Override
-    public void visit(IntermediateFilterNode filterNode) {}
+    public void visit(IntermediateFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the property of an IntermediateFilterNode, which doesn't support property attributes. property=[{}]",
+          property);
+    }
 
     @Override
     public void visit(LeafFilterNode filterNode) {
@@ -348,6 +361,10 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
 
     @Override
-    public void visit(FunctionFilterNode filterNode) {}
+    public void visit(FunctionFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the property of an FunctionFilterNode, which doesn't support property attributes. property=[{}]",
+          property);
+    }
   }
 }

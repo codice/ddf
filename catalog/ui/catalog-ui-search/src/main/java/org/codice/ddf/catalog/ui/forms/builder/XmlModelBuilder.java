@@ -47,6 +47,10 @@ import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
 
+  private static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
+
+  private static final String FUNCTION_PROPERTY_PARAMS = "params";
+
   /**
    * Helper interface for cleanly representing operations that condense a list of XML elements to a
    * single element. Use cases include the creation of logical op types in a filter structure, or
@@ -241,10 +245,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
         FACTORY.createLiteral(new LiteralType().withContent(Collections.singletonList(value))));
     return this;
   }
-
-  private static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
-
-  private static final String FUNCTION_PROPERTY_PARAMS = "params";
 
   @Override
   public XmlModelBuilder setFunctionValues(Map<String, Object> functionProperties) {

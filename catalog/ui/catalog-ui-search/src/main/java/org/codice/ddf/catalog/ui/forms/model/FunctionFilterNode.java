@@ -20,8 +20,15 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.boon.json.annotations.JsonProperty;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FunctionFilterNode implements FilterNode {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FunctionFilterNode.class);
+
+  private static final ThreadLocal<ValueVisitor> VALUE_VISITOR_THREAD_LOCAL =
+      ThreadLocal.withInitial(ValueVisitor::new);
 
   @JsonProperty("type")
   private final String operator;
@@ -39,7 +46,7 @@ public class FunctionFilterNode implements FilterNode {
 
     this.operator = node.getOperator();
 
-    ValueVisitor valueVisitor = new ValueVisitor();
+    ValueVisitor valueVisitor = VALUE_VISITOR_THREAD_LOCAL.get().clearValue();
     node.accept(valueVisitor);
     this.value = valueVisitor.getValue().orElse(null);
 
@@ -75,7 +82,10 @@ public class FunctionFilterNode implements FilterNode {
     private String value;
 
     @Override
-    public void visit(IntermediateFilterNode filterNode) {}
+    public void visit(IntermediateFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to get the value off an IntermediateFilterNode, which doesn't support value attributes.");
+    }
 
     @Override
     public void visit(LeafFilterNode filterNode) {
@@ -87,8 +97,13 @@ public class FunctionFilterNode implements FilterNode {
       value = filterNode.getValue();
     }
 
-    public Optional<String> getValue() {
+    private Optional<String> getValue() {
       return Optional.ofNullable(value);
+    }
+
+    private ValueVisitor clearValue() {
+      value = null;
+      return this;
     }
   }
 }
