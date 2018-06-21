@@ -35,7 +35,7 @@ define(['backbone',
                 this.getCronTime();
             },
             getUsageData: function() {
-                var url = "./jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/";
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/";
                 var that = this;
                 $.ajax({
                     url: url,
@@ -53,7 +53,7 @@ define(['backbone',
                 });
             },
             getCronTime: function() {
-                var url = "./jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/cronTime/";
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/cronTime/";
                 var that = this;
                 $.ajax({
                     url: url,
@@ -64,7 +64,7 @@ define(['backbone',
                 });
             },
             updateCronTime: function(time) {
-                var url = "./jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateCronTime/" + time;
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateCronTime/" + time;
                 var that = this;
                 $.ajax({
                     url: url,
@@ -115,7 +115,7 @@ define(['backbone',
             },
             submitUsageData : function(data) {
                 var that = this;
-                var url = "./jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateUserDataLimit/" + encodeURIComponent(JSON.stringify(data));
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateUserDataLimit/" + encodeURIComponent(JSON.stringify(data));
                 $.ajax({
                     url: url,
                     dataType: 'json',
@@ -135,7 +135,7 @@ define(['backbone',
                     if(!updatedModel) {
                         setTimeout(function() {
                             $.ajax({
-                                url : "./jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/",
+                                url : "../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/",
                                 success: function(data) {
                                     var receivedData = that.parseDataModel(data.value);
                                     var current = JSON.stringify(currentModel);

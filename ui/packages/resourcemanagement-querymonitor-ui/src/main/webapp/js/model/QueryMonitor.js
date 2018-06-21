@@ -35,7 +35,7 @@ define(['backbone',
                 });
             },
             stopSearch: function(uuid) {
-                var url = "./jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/" + uuid;
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/" + uuid;
                 $.ajax({
                     url: url,
                     dataType: 'json'
