@@ -34,6 +34,7 @@ define([
         initialize: function(options){
             this.applicationModel = options.applicationModel;
             this.listenTo(wreqr.vent, 'application:tabShown', this.handleTabShown);
+            this.listenTo(wreqr.vent, 'application:tabHidden', this.handleTabHidden);
         },
         onBeforeRender: function(){
             this.$el.attr('id', this.model.get('id'));
@@ -51,6 +52,11 @@ define([
                 view.tabContentInner.show(new IFrameView({
                     model: new Backbone.Model({url : iframeLocation})
                 }));
+            }
+        },
+        handleTabHidden: function(id) {
+            if (id === this.model.id) {
+                this.$el.removeClass('active in');
             }
         },
         handleTabShown: function(id){

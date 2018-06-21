@@ -33,6 +33,21 @@ define([
             tabs: '#tabs',
             tabContent: '#tabContent'
         },
+        events: {
+            'shown.bs.tab': 'tabShown'
+        },
+        tabShown: function(event){
+            if (this.$el.find('#tabs').find(event.target).length === 0) {
+                return;
+            }
+            var id = event.target.getAttribute('data-id');
+            this.tabs.currentView.children.each(function(childView) {
+                childView.$el.toggleClass('active', childView.model.id === id);
+            });
+            this.tabContent.currentView.children.each(function(childView) {
+                childView.$el.toggleClass('active in', childView.model.id === id);
+            });
+        },
         onRender: function() {
             this.tabs.show(new Marionette.CollectionView({
                 tagName: 'ul',
