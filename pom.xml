@@ -276,7 +276,7 @@ are essentially embedding a slightly modified version of felix -->
         <keyczar.version>0.66</keyczar.version>
         <cas.client.version>3.4.1</cas.client.version>
         <javax.inject.version>1</javax.inject.version>
-        <fabric8.version>3.0.11</fabric8.version>
+        <fabric8.version>3.0.12</fabric8.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
