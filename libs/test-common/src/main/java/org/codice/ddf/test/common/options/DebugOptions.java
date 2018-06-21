@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.test.common.options;
 
+import static java.lang.String.format;
 import static org.codice.ddf.test.common.options.LoggingOptions.logLevelOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 
@@ -21,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 /** Contains test options useful for debugging tests. */
@@ -56,8 +57,15 @@ public class DebugOptions extends BasicOptions {
   public static Option enableRemoteDebugging() {
     String port = getPortFinder().getPortAsString(DEBUG_PORT_KEY);
     recordConfiguration("%s=%s", DEBUG_PORT_KEY, port);
-    return KarafDistributionOption.debugConfiguration(
-        port, Boolean.getBoolean(WAIT_FOR_DEBUG_FLAG));
+    final String DEBUG_OPTS =
+        format(
+            "-Xrunjdwp:transport=dt_socket,server=y,suspend=%s,address=%s",
+            Boolean.getBoolean(WAIT_FOR_DEBUG_FLAG) ? "y" : "n", port);
+
+    // Since DDF uses a different start script than what pax exam expects karaf to use, we must set
+    // our own debug env variables
+    return new DefaultCompositeOption(
+        CoreOptions.environment("KARAF_DEBUG=true", "JAVA_DEBUG_OPTS=" + DEBUG_OPTS));
   }
 
   /**

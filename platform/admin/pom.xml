@@ -29,7 +29,6 @@
         <module>ui</module>
         <module>configurator</module>
         <module>modules</module>
-        <module>admin-app</module>
         <module>admin-configuration-configupdater</module>
     </modules>
     <build>
