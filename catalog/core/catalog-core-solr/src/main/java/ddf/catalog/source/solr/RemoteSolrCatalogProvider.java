@@ -30,6 +30,9 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -47,6 +50,16 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
+  private FilterAdapter filterAdapter;
+
+  private SolrClient client;
+
+  private SolrFilterDelegateFactory solrFilterDelegateFactory;
+
+  protected DynamicSchemaResolver resolver;
+
+  protected List<String> anyTextAttributes = new ArrayList<>();
+
   static {
     try (InputStream inputStream =
         RemoteSolrCatalogProvider.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
@@ -58,7 +71,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   protected static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-  private final SolrCatalogProvider provider;
+  private SolrCatalogProvider provider;
 
   /**
    * Constructor.
@@ -74,13 +87,20 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
       SolrClient client,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
       @Nullable DynamicSchemaResolver resolver) {
-    this.provider =
-        new SolrCatalogProvider(
-            client,
-            filterAdapter,
-            solrFilterDelegateFactory,
-            (resolver == null) ? new DynamicSchemaResolver() : resolver);
+    this.filterAdapter = filterAdapter;
+    this.client = client;
+    this.solrFilterDelegateFactory = solrFilterDelegateFactory;
+    this.resolver = resolver;
+    init();
     provider.maskId(getId());
+  }
+
+  protected void init() {
+    if (resolver == null) {
+      resolver = new DynamicSchemaResolver(anyTextAttributes, Collections.emptyList());
+    }
+    this.provider =
+        new SolrCatalogProvider(client, filterAdapter, solrFilterDelegateFactory, resolver);
   }
 
   @Override

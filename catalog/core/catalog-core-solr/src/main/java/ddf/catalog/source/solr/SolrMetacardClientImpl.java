@@ -111,7 +111,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final FilterAdapter filterAdapter;
 
-  private final DynamicSchemaResolver resolver;
+  private DynamicSchemaResolver resolver;
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
@@ -696,6 +696,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       queryBuilder.append(fieldName).append(":").append(QUOTE).append(id).append(QUOTE);
     }
     return queryBuilder.toString();
+  }
+
+  public void setAnyTextAttributes(List<String> anyTextAttributes) {
+    resolver = new DynamicSchemaResolver(anyTextAttributes, resolver.additionalFields);
   }
 
   private org.apache.solr.client.solrj.response.UpdateResponse softCommit(

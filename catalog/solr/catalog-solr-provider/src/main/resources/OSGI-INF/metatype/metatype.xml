@@ -25,6 +25,10 @@
                 description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
                 name="Disable Text Path indexing" id="disableTextPath" required="true"
                 type="Boolean" default="false"/>
+        <AD
+          description="Optional. Specify a list of attributes that should be used for anyText queries instead of the default of all STRING attributes. This is a whitelist of attributes."
+          name="AnyText Query Attributes" id="anyTextAttributes" required="true"
+          type="String" default="" cardinality="500"/>
     </OCD>
 
     <Designate pid="ddf.catalog.solr.provider.SolrCatalogProvider">

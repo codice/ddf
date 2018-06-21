@@ -42,6 +42,12 @@
         <argument>
             <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>
+
+        <cm:managed-properties persistent-id="ddf.catalog.cache.solr.impl.SolrCache"
+          update-strategy="container-managed"/>
+        <property name="anyTextAttributes">
+            <list/>
+        </property>
     </bean>
 
     <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">

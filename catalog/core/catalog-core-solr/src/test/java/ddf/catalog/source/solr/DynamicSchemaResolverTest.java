@@ -16,6 +16,8 @@ package ddf.catalog.source.solr;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -29,6 +31,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -38,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
@@ -46,6 +51,8 @@ import org.mockito.ArgumentCaptor;
 public class DynamicSchemaResolverTest {
 
   private static final int INITIAL_FIELDS_CACHE_COUNT = 8;
+
+  private static final String TXT = "_txt";
   /**
    * Verify that when a metacard type has attribute descriptors that inherit from
    * AttributeDescriptorImpl, the attribute descriptors are recreated as AttributeDescriptorsImpls
@@ -94,7 +101,8 @@ public class DynamicSchemaResolverTest {
 
   @Test
   public void testAdditionalFieldConstructorWithEmptyList() throws Exception {
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver(Collections.EMPTY_LIST);
+    DynamicSchemaResolver resolver =
+        new DynamicSchemaResolver(Collections.emptyList(), Collections.EMPTY_LIST);
     int fieldsCacheSize = resolver.fieldsCache.size();
 
     assertThat(fieldsCacheSize, equalTo(INITIAL_FIELDS_CACHE_COUNT));
@@ -109,12 +117,34 @@ public class DynamicSchemaResolverTest {
     additionalFields.add(someExtraField);
     additionalFields.add(anotherExtraField);
 
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver(additionalFields);
+    DynamicSchemaResolver resolver =
+        new DynamicSchemaResolver(Collections.emptyList(), additionalFields);
 
     assertThat(
         resolver.fieldsCache.size(), equalTo(INITIAL_FIELDS_CACHE_COUNT + additionalFields.size()));
     assertThat(resolver.fieldsCache, hasItem(someExtraField));
     assertThat(resolver.fieldsCache, hasItem(anotherExtraField));
+  }
+
+  @Test
+  public void testNoAnyTextFields() {
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
+    verifyDefaultAttributes(resolver);
+  }
+
+  @Test
+  public void testWildcardAnyTextFields() {
+    DynamicSchemaResolver resolver =
+        new DynamicSchemaResolver(Collections.singletonList("*"), Collections.emptyList());
+    verifyDefaultAttributes(resolver);
+  }
+
+  @Test
+  public void testSpecifiedAnyTextFields() {
+    DynamicSchemaResolver resolver =
+        new DynamicSchemaResolver(Collections.singletonList(Core.TITLE), Collections.emptyList());
+    assertThat(resolver.anyTextFieldsCache, hasSize(1));
+    assertThat(resolver.anyTextFieldsCache, hasItem(Core.TITLE + TXT));
   }
 
   private MetacardType deserializeMetacardType(byte[] serializedMetacardType)
@@ -125,5 +155,18 @@ public class DynamicSchemaResolverTest {
     IOUtils.closeQuietly(bais);
     IOUtils.closeQuietly(in);
     return metacardType;
+  }
+
+  private void verifyDefaultAttributes(DynamicSchemaResolver resolver) {
+    List<String> expectedDescriptors =
+        MetacardImpl.BASIC_METACARD
+            .getAttributeDescriptors()
+            .stream()
+            .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
+            .map(descriptor -> descriptor.getName() + TXT)
+            .collect(Collectors.toList());
+    String metadataAttr = Metacard.METADATA + TXT;
+    assertThat(resolver.anyTextFieldsCache, hasItems(expectedDescriptors.toArray(new String[0])));
+    assertThat(resolver.anyTextFieldsCache, hasItem(metadataAttr));
   }
 }
