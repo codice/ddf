@@ -61,6 +61,8 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
   private static final String INVALID_INVOCATION = "Could not find valid invocation for type: ";
 
+  private static final Boolean DEFAULT_MATCH_CASE = Boolean.TRUE;
+
   private static final Map<Class, BiConsumer<FilterVisitor2, VisitableXmlElementImpl>>
       VISIT_METHODS =
           ImmutableMap.<Class, BiConsumer<FilterVisitor2, VisitableXmlElementImpl>>builder()
@@ -504,8 +506,6 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
     return (PropertyIsLikeType) elementValue;
   }
-
-  private static final Boolean DEFAULT_MATCH_CASE = Boolean.TRUE;
 
   /** Get the match-case value. Return {@link #DEFAULT_MATCH_CASE} if the match-case is not set. */
   private static Boolean getMatchCase(PropertyIsLikeType propertyIsLikeType) {
