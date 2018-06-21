@@ -112,7 +112,7 @@ public class AdminAlertImplTest {
     when(persistentStore.get(eq("alerts"), any())).thenThrow(new PersistenceException("error"));
     List<Map<String, Object>> alertList = adminAlert.getAlerts();
     assertThat(alertList.size(), equalTo(1));
-    assertThat(alertList.get(0).get("source"), equalTo("solr"));
+    assertThat(alertList.get(0).get(Alert.SYSTEM_NOTICE_SOURCE_KEY), equalTo("solr"));
   }
 
   @Test
