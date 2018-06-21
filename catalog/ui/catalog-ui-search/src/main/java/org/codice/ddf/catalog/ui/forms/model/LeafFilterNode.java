@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import org.boon.json.annotations.JsonProperty;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
+/** Represents a comparison between a simple property and value. */
 public class LeafFilterNode implements FilterNode {
   @JsonProperty("type")
   private final String operator;

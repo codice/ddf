@@ -73,7 +73,7 @@ public class XmlModelBuilderTest {
         builder
             .beginBinaryComparisonType(JSON_EQUAL)
             .setProperty("name")
-            .setTemplatedValues(
+            .setFunctionValues(
                 FilterNodeAssertionSupport.createFunction(
                     "template.function", Arrays.asList("5", "id", true, false)))
             .endTerminalType()

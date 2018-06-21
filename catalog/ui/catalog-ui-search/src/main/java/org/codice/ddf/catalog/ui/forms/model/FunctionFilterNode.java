@@ -31,11 +31,11 @@ public class FunctionFilterNode implements FilterNode {
 
   @SuppressWarnings("FieldCanBeLocal" /* field needed for json serialization */)
   @JsonProperty("property")
-  private Map<String, Object> templateProperties;
+  private Map<String, Object> functionProperties;
 
-  public FunctionFilterNode(FilterNode node, Map<String, Object> templateProperties) {
+  public FunctionFilterNode(FilterNode node, Map<String, Object> functionProperties) {
     notNull(node);
-    notNull(templateProperties);
+    notNull(functionProperties);
 
     this.operator = node.getOperator();
 
@@ -43,7 +43,7 @@ public class FunctionFilterNode implements FilterNode {
     node.accept(valueVisitor);
     this.value = valueVisitor.getValue().orElse(null);
 
-    this.templateProperties = templateProperties;
+    this.functionProperties = functionProperties;
   }
 
   @Override
@@ -57,7 +57,7 @@ public class FunctionFilterNode implements FilterNode {
   }
 
   public Map<String, Object> getFunctionArguments() {
-    return templateProperties;
+    return functionProperties;
   }
 
   @Nullable

@@ -30,8 +30,6 @@ public class FilterJsonNode {
 
   private static final String VALUE = "value";
 
-  private static final String TEMPLATE_PROPERTIES = "templateProperties";
-
   private final String type;
 
   private final Map<String, Object> json;
@@ -50,10 +48,6 @@ public class FilterJsonNode {
 
   public boolean isLeaf() {
     return !(hasChildren() || isFunction());
-  }
-
-  public boolean isTemplated() {
-    return json.get(TEMPLATE_PROPERTIES) != null;
   }
 
   public String getOperator() {
@@ -82,14 +76,6 @@ public class FilterJsonNode {
         .map(Map.class::cast)
         .map(FilterJsonNode::new)
         .collect(Collectors.toList());
-  }
-
-  @SuppressWarnings("unchecked")
-  public Map<String, Object> getTemplateProperties() {
-    if (!isTemplated()) {
-      throw new IllegalStateException("Non-templated nodes do not have template properties");
-    }
-    return (Map<String, Object>) json.get(TEMPLATE_PROPERTIES);
   }
 
   @Nullable

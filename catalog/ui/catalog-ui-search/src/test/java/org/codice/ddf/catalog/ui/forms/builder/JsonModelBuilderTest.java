@@ -64,7 +64,7 @@ public class JsonModelBuilderTest {
         builder
             .beginBinaryComparisonType(XML_EQUAL)
             .setProperty("name")
-            .setTemplatedValues(templateProps)
+            .setFunctionValues(templateProps)
             .endTerminalType()
             .getResult();
 

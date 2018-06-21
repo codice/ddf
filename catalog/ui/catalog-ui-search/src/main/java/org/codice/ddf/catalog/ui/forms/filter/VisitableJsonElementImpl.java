@@ -54,16 +54,17 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
 
   private static final String FAKE_VALUE_OPERATOR = "VALUE";
 
+  private static final String FAKE_LITERAL_PROPERTY_OPERATOR = "LITERAL_PROPERTY";
+
   private static final Map<String, BiConsumer<FilterVisitor2, VisitableElement>> VISIT_METHODS =
       ImmutableMap.<String, BiConsumer<FilterVisitor2, VisitableElement>>builder()
           // Fake operators to give a flat structure an XML-like "embedded" structure
           .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
           .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
-          .put("LITERAL_PROPERTY", FilterVisitor2::visitLiteralProperty)
+          .put(FAKE_LITERAL_PROPERTY_OPERATOR, FilterVisitor2::visitLiteralProperty)
           // Logical operator mapping
           .put("AND", FilterVisitor2::visitBinaryLogicType)
           .put("OR", FilterVisitor2::visitBinaryLogicType)
-          .put("NOT", FilterVisitor2::visitUnaryLogicType)
           // Temporal operator mapping
           .put("BEFORE", FilterVisitor2::visitBinaryTemporalType)
           .put("AFTER", FilterVisitor2::visitBinaryTemporalType)
@@ -151,7 +152,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private static List<VisitableElement<?>> wrap(
       Map<String, Object> functionArguments, Boolean functionTarget) {
     return Arrays.asList(
-        new VisitableJsonElementImpl("LITERAL_PROPERTY", functionTarget),
+        new VisitableJsonElementImpl(FAKE_LITERAL_PROPERTY_OPERATOR, functionTarget),
         new VisitableJsonElementImpl(
             FAKE_VALUE_OPERATOR, functionArguments, FilterVisitor2::visitFunctionType));
   }

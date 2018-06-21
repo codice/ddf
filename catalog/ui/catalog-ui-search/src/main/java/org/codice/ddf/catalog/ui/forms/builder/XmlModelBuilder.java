@@ -40,7 +40,6 @@ import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
-import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
@@ -225,12 +224,11 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   @Override
   public XmlModelBuilder setLiteralProperty(Object literalProperty) {
 
-    LiteralType literalType =
-        FACTORY.createLiteralType().withContent((Serializable) literalProperty.toString());
+    LiteralType literalType = FACTORY.createLiteralType().withContent(literalProperty.toString());
 
     literalType.setType(QNameMapper.convert(literalProperty));
 
-    supplierInProgress.setLiteralProperty(FACTORY.createLiteral(literalType));
+    supplierInProgress.setLiteralPropertyNode(FACTORY.createLiteral(literalType));
 
     return this;
   }
@@ -244,24 +242,56 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     return this;
   }
 
+  private static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
+
+  private static final String FUNCTION_PROPERTY_PARAMS = "params";
+
   @Override
-  public XmlModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
+  public XmlModelBuilder setFunctionValues(Map<String, Object> functionProperties) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
+    validateFunctionProperties(functionProperties);
 
     supplierInProgress.setValue(
         FACTORY.createFunction(
             new FunctionType()
-                .withName((String) templateProps.get("filterFunctionName"))
-                .withExpression(
-                    ((List<Object>) templateProps.get("params"))
-                        .stream()
-                        .filter(Serializable.class::isInstance)
-                        .map(Serializable.class::cast)
-                        .map(this::createLiteralType)
-                        .map(FACTORY::createLiteral)
-                        .collect(Collectors.toList()))));
+                .withName(extractFunctionName(functionProperties))
+                .withExpression(extractFunctionParameters(functionProperties))));
     return this;
+  }
+
+  /** Call {@link #validateFunctionProperties(Map)} before calling this method. */
+  private String extractFunctionName(Map<String, Object> functionProperties) {
+    return (String) functionProperties.get(FUNCTION_PROPERTY_NAME);
+  }
+
+  /** Call {@link #validateFunctionProperties(Map)} before calling this method. */
+  @SuppressWarnings("unchecked")
+  private List<JAXBElement<?>> extractFunctionParameters(Map<String, Object> functionProperties) {
+    return ((List<Object>) functionProperties.get(FUNCTION_PROPERTY_PARAMS))
+        .stream()
+        .filter(Serializable.class::isInstance)
+        .map(Serializable.class::cast)
+        .map(this::createLiteralType)
+        .map(FACTORY::createLiteral)
+        .collect(Collectors.toList());
+  }
+
+  private void validateFunctionProperties(Map<String, Object> functionProperties) {
+
+    if (!(functionProperties.get(FUNCTION_PROPERTY_NAME) instanceof String)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Function properties must include the key \"%s\" with a String value",
+              FUNCTION_PROPERTY_NAME));
+    }
+
+    if (!(functionProperties.get(FUNCTION_PROPERTY_PARAMS) instanceof List)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Function properties must include the key \"%s\" with a List value",
+              FUNCTION_PROPERTY_PARAMS));
+    }
   }
 
   private LiteralType createLiteralType(Serializable serializable) {
@@ -320,7 +350,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
     private final MultiNodeReducer reducer;
     private JAXBElement<String> propertyNode = null;
-    private JAXBElement<LiteralType> literalProperty = null;
+    private JAXBElement<LiteralType> literalPropertyNode = null;
     private JAXBElement<?> valueNode;
 
     TerminalNodeSupplier(final MultiNodeReducer reducer) {
@@ -333,8 +363,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       this.propertyNode = propertyNode;
     }
 
-    public void setLiteralProperty(JAXBElement<LiteralType> literal) {
-      this.literalProperty = literal;
+    private void setLiteralPropertyNode(JAXBElement<LiteralType> literalPropertyNode) {
+      this.literalPropertyNode = literalPropertyNode;
     }
 
     public void setValue(JAXBElement<?> valueNode) {
@@ -344,14 +374,14 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     @Override
     public JAXBElement<?> get() {
-      validatePropertyNodeXorLiteralNode();
+      validatePropertyNodeXorLiteralPropertyNode();
       notNull(valueNode);
       List<JAXBElement<?>> terminals = new ArrayList<>();
 
       if (propertyNode != null) {
         terminals.add(propertyNode);
       } else {
-        terminals.add(literalProperty);
+        terminals.add(literalPropertyNode);
       }
 
       terminals.add(valueNode);
@@ -359,8 +389,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
 
     /** There must be a property node or a literal node, but not both. */
-    private void validatePropertyNodeXorLiteralNode() {
-      Validate.isTrue(propertyNode != null ^ literalProperty != null);
+    private void validatePropertyNodeXorLiteralPropertyNode() {
+      Validate.isTrue(propertyNode != null ^ literalPropertyNode != null);
     }
   }
 
@@ -447,10 +477,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
-    }
-
-    private static UnaryLogicOpType unaryLogicOpType(FunctionType functionType) {
-      return new UnaryLogicOpType().withFunction(functionType);
     }
 
     private static BinaryComparisonOpType binaryComparisonType(List<JAXBElement<?>> children) {

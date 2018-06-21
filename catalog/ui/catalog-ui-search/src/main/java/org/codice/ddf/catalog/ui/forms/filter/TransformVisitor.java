@@ -90,7 +90,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
       args.forEach((key, value) -> LOGGER.trace("Key: {} | Value: {}", key, value));
     }
 
-    builder.setTemplatedValues(args);
+    builder.setFunctionValues(args);
   }
 
   @Override

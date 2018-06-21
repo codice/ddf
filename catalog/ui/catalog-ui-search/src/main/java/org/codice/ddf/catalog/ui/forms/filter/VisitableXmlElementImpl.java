@@ -227,7 +227,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
   /**
    * Represents an element that contains a Filter Function. That is, the node has children that can
-   * be decomposed into a {@code Map<String, Object>} for the use of templates.
+   * be decomposed into a {@code Map<String, Object>} for the use of functions.
    *
    * <p>Function currying (embedded functions) is not yet supported.
    */

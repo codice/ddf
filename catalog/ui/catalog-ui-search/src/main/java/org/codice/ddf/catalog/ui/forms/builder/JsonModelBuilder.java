@@ -30,7 +30,7 @@ import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
  * for use on the frontend. Also supports building filter nodes with additional metadata in them,
- * such as {@link IntermediateFilterNode}s in a templated state.
+ * such as {@link FunctionFilterNode}s and {@link LeafFilterNode}s in a templated state.
  *
  * <p>As mentioned before, this object is single-use and only supports building a single model. It
  * cannot be modified by builder methods once the result has been retrieved by calling {@link
@@ -68,6 +68,12 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
 
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
+
+  private static final ThreadLocal<PropertySettingVisitor> PROPERTY_SETTING_VISITOR_THREAD_LOCAL =
+      ThreadLocal.withInitial(PropertySettingVisitor::new);
+
+  private static final ThreadLocal<ValueSettingVisitor> VALUE_SETTING_VISITOR_THREAD_LOCAL =
+      ThreadLocal.withInitial(ValueSettingVisitor::new);
 
   private final Deque<List<FilterNode>> depth;
 
@@ -207,14 +213,19 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
 
-    nodeInProgress.accept(new PropertySettingVisitor(property));
+    setPropertyOnNodeInProgress(property);
 
     return this;
   }
 
   @Override
   public FlatFilterBuilder setLiteralProperty(Object literalProperty) {
-    throw new RuntimeException("not implemented");
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+
+    setPropertyOnNodeInProgress(literalProperty.toString());
+
+    return this;
   }
 
   @Override
@@ -222,17 +233,21 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
 
-    nodeInProgress.accept(new ValueSettingVisitor(value));
+    nodeInProgress.accept(VALUE_SETTING_VISITOR_THREAD_LOCAL.get().setValue(value));
 
     return this;
   }
 
   @Override
-  public JsonModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
+  public JsonModelBuilder setFunctionValues(Map<String, Object> functionProperties) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress = new FunctionFilterNode(nodeInProgress, templateProps);
+    nodeInProgress = new FunctionFilterNode(nodeInProgress, functionProperties);
     return this;
+  }
+
+  private void setPropertyOnNodeInProgress(String property) {
+    nodeInProgress.accept(PROPERTY_SETTING_VISITOR_THREAD_LOCAL.get().setProperty(property));
   }
 
   private void verifyResultNotYetRetrieved() {
@@ -296,8 +311,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
 
     private String value;
 
-    private ValueSettingVisitor(String value) {
+    private ValueSettingVisitor setValue(String value) {
       this.value = value;
+      return this;
     }
 
     @Override
@@ -318,8 +334,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
 
     private String property;
 
-    private PropertySettingVisitor(String property) {
+    private PropertySettingVisitor setProperty(String property) {
       this.property = property;
+      return this;
     }
 
     @Override
