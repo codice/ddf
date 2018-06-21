@@ -3,7 +3,7 @@
 :status: published
 :parent: Security Framework
 :children: Security PEP Interceptor
-:order: 08
+:order: 09
 :summary: Security Token Service.
 
 The Security Token Service (STS) is a service running in ${branding} that generates SAML v2.0 assertions.

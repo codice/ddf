@@ -1,0 +1,65 @@
+:title: Federated Identity
+:type: securityFramework
+:status: published
+:parent: Security Framework
+:order: 10
+:summary: How a user's identity is shared with federated sources during queries
+
+Identity federation is the sharing of a user's identity and attributes among separate systems. In
+{branding}, it is used when performing federated queries - the user's identity is attached to outgoing
+requests, allowing federated sources to run queries as that user. This is critical because DDF must
+make authorization decisions for all queries, not just those initiated by the local node.
+
+To represent a user's identity when federating, {branding} uses a SAML assertion. This is the format
+used internally to represent all subjects (even unauthenticated subjects). When federating over REST,
+the assertion is simply attached as an HTTP header to the query request, and extracted by the
+federated source when the request is received. If the assertion is signed by a trusted cert, the
+federated source will then run the query as the user.
+
+The figure below shows a federated query between two instances of {branding} that support
+federated identity.
+
+[ditaa, federated_identity, png, ${image-width}]
+....
+                  /---------------------------\           /--------------------------\
+                  | cDEF       DDF            |           |     Federated Source     |
+/--------\        | +-----------------------+ |           | cDEF                     |
+|  User  +------->| |    Send request to    | |           | +----------------------+ |
+|  cDEF  | Search | |   Catalog Framework   | |  /------->| |   Recreate subject   | |
+\--------/        | +-----------------------+ |  | Query  | +----------------------+ |
+     ^            |             |             |  |        |             |            |
+     |            |             v             |  |        |             v            |
+     |            | +-----------------------+ |  |        | +----------------------+ |
+     |            | | Create HTTP request & | +--/        | | Run query as subject | |
+     |            | | attach SAML assertion | |           | +----------------------+ |
+     |            | +-----------------------+ |           |             |            |
+     |            |                           |           |             v            |
+     |            | +-----------------------+ |           | +----------------------+ |
+     \------------+ |     Filter results    | |<----------+ |    Filter results    | |
+                  | +-----------------------+ |  Filtered | +----------------------+ |
+                  \---------------------------/   results \--------------------------/
+....
+
+. The user submits a search to {branding}.
+. {branding} generates a catalog request and attaches the user's <<_subject,Subject>>. This
+Subject stores a SAML assertion, which is generated and signed by the
+<<_security_token_service, STS>>. The catalog request gets sent to the Catalog Framework.
+. The Catalog Framework extracts the SAML assertion stored by the Subject and sends an HTTP request
+to each federated source with the assertion included. When federating over REST, it places the
+assertion in the Authorization HTTP header.
+. A federated source receives this request and extracts the SAML assertion. It attempts to validate
+the signature and, if successful, proceeds to generate a Subject for the user who initiated the
+request.
+. The federated source then runs the query as this Subject.
+. The federated source <<_filtering,filters>> all results that the user is not authorized to view
+and returns these to {branding}.
+. {branding} takes the results from all sources and filters those that the user is not
+authorized to view. The remaining results are returned.
+
+NOTE: With federated identity, results are filtered both by the federated source and local DDF.
+This is important as each may have different authorization policies.
+
+WARNING: Support for federated identity was added in DDF 2.8.x. Federated sources older than this
+will not perform any filtering. Instead, they will return all available results and leave filtering
+up to the client.
+
