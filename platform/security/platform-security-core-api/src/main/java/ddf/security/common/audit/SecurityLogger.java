@@ -16,8 +16,11 @@ package ddf.security.common.audit;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import java.security.AccessController;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -42,6 +45,8 @@ public final class SecurityLogger {
           System.getProperty("org.codice.ddf.platform.requireAuditEncoding", "false"));
 
   private static final String SUBJECT = "Subject: ";
+
+  private static final String EXTRA_ATTRIBUTES_PROP = "security.logger.extra_attributes";
 
   private SecurityLogger() {}
 
@@ -76,15 +81,18 @@ public final class SecurityLogger {
   private static void requestIpAndPortAndUserMessage(
       Subject subject, Message message, StringBuilder messageBuilder) {
     String user = getUser(subject);
-    if (message != null) {
+    messageBuilder.append(SUBJECT).append(user);
+    appendConditionalAttributes(subject, messageBuilder);
+
+    if (message == null) {
+      messageBuilder.append(" ");
+    } else {
       HttpServletRequest servletRequest =
           (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
       // pull out the ip and port of the incoming connection so we know
       // who is trying to get access
       if (servletRequest != null) {
         messageBuilder
-            .append(SUBJECT)
-            .append(user)
             .append(" Request IP: ")
             .append(servletRequest.getRemoteAddr())
             .append(", Port: ")
@@ -92,14 +100,41 @@ public final class SecurityLogger {
             .append(" ");
       } else if (MessageUtils.isOutbound(message)) {
         messageBuilder
-            .append(SUBJECT)
-            .append(user)
             .append(" Outbound endpoint: ")
             .append(message.get(Message.ENDPOINT_ADDRESS))
             .append(" ");
       }
-    } else {
-      messageBuilder.append(SUBJECT).append(user).append(" ");
+    }
+  }
+
+  /**
+   * Appends any additional attributes as defined in the comma-delimited system property {@link
+   * #EXTRA_ATTRIBUTES_PROP}.
+   *
+   * @param subject the subject of the logging request
+   * @param messageBuilder buffer to which to append attribute text, if any
+   */
+  private static void appendConditionalAttributes(Subject subject, StringBuilder messageBuilder) {
+    String attributes = System.getProperty(EXTRA_ATTRIBUTES_PROP);
+    if (attributes == null) {
+      return;
+    }
+
+    if (subject == null) {
+      subject = ThreadContext.getSubject();
+    }
+
+    List<String> attributeList = Arrays.asList(attributes.split(","));
+    for (String attribute : attributeList) {
+      List<String> attributeValueList = SubjectUtils.getAttribute(subject, attribute);
+      if (CollectionUtils.isNotEmpty(attributeValueList)) {
+        messageBuilder.append(" ").append(attribute).append(" : ");
+        if (attributeValueList.size() > 1) {
+          messageBuilder.append(attributeValueList);
+        } else {
+          messageBuilder.append(attributeValueList.get(0));
+        }
+      }
     }
   }
 
