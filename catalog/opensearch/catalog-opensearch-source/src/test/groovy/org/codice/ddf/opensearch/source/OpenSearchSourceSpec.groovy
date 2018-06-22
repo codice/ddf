@@ -153,7 +153,7 @@ class OpenSearchSourceSpec extends Specification {
                 filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(0.0 0.0)", 804672), PROPERTY_IS_LIKE_FILTER, DURING_FILTER), //multiple point radius filter
                 filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),  //point radius and polygon filters
                 filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER, PROPERTY_IS_LIKE_FILTER, DURING_FILTER),  // multiple polygon filters
-                filterBuilder.allOf(GEOMETRY_COLLECTION, CONTAINS_FILTER, INTERSECTS_FILTER, D_WITHIN_FILTER),  // polygon, geometry, point radius filters
+                filterBuilder.anyOf(GEOMETRY_COLLECTION, CONTAINS_FILTER, INTERSECTS_FILTER, D_WITHIN_FILTER),  // polygon, geometry, point radius filters
 
                 /*not supported filters and supported filters*/
                 filterBuilder.allOf(NOT_SUPPORTED_DURING_FILTER, PROPERTY_IS_LIKE_FILTER),
@@ -218,9 +218,9 @@ class OpenSearchSourceSpec extends Specification {
                 D_WITHIN_FILTER,
                 CONTAINS_FILTER,
                 INTERSECTS_FILTER,
-                filterBuilder.allOf(D_WITHIN_FILTER, INTERSECTS_FILTER), // point-radius and polygon filters
-                filterBuilder.allOf(INTERSECTS_FILTER, CONTAINS_FILTER), // different polygon filters
-                filterBuilder.allOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(0.0 0.0)", 804672)) // different point-radius filters
+                filterBuilder.anyOf(D_WITHIN_FILTER, INTERSECTS_FILTER), // point-radius and polygon filters
+                filterBuilder.anyOf(INTERSECTS_FILTER, CONTAINS_FILTER), // different polygon filters
+                filterBuilder.anyOf(D_WITHIN_FILTER, filterBuilder.attribute(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM).is().withinBuffer().wkt("POINT(0.0 0.0)", 804672)) // different point-radius filters
         ]
         expectedQueryParameters << [
                 [start: ["1"], count: ["20"], mt: ["0"], bbox: ["0.9999550570408705,1.999954933135129,1.0000449429591296,2.000045066864871"], src: [""]],

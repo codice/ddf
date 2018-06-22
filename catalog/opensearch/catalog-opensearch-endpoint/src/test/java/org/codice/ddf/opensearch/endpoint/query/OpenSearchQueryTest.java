@@ -746,8 +746,7 @@ public class OpenSearchQueryTest {
     Filter filter = query.getFilter();
     assertThat(filter, notNullValue());
 
-    // TODO: fix as OR filter after https://codice.atlassian.net/browse/DDF-3857
-    AndImpl topFilter = (AndImpl) filter;
+    OrImpl topFilter = (OrImpl) filter;
     List<Filter> spatialFilters = topFilter.getChildren();
     assertThat(spatialFilters.size(), is(5));
     assertThat(

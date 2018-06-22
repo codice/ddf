@@ -86,6 +86,8 @@ public class OpenSearchQuery implements Query {
 
   private List<Filter> filters;
 
+  private List<Filter> spatialFilters;
+
   /**
    * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint to
    * DDF and will be used by sites to perform queries on their respective systems.
@@ -143,6 +145,7 @@ public class OpenSearchQuery implements Query {
 
     this.maxTimeout = maxTimeout;
     this.filters = new ArrayList<>();
+    this.spatialFilters = new ArrayList<>();
     this.siteIds = new HashSet<>();
   }
 
@@ -319,7 +322,7 @@ public class OpenSearchQuery implements Query {
               Double.parseDouble(radius),
               UomOgcMapping.METRE.name());
       LOGGER.trace("Adding spatial filter");
-      filters.add(filter);
+      spatialFilters.add(filter);
     }
   }
 
@@ -330,7 +333,7 @@ public class OpenSearchQuery implements Query {
       Filter filter =
           FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
       LOGGER.trace("Adding spatial filter");
-      filters.add(filter);
+      spatialFilters.add(filter);
     }
   }
 
@@ -446,18 +449,46 @@ public class OpenSearchQuery implements Query {
     return sortBy;
   }
 
+  /** @return a combined spatial, contextual and temporal filters together with a logical AND */
   public Filter getFilter() {
-    if (filters.size() > 1) {
-      // If multiple filters, then AND them all together
-      return FILTER_FACTORY.and(filters);
-    } else if (filters.size() == 1) {
+    List<Filter> combinedFilter = combineSpatialFilters();
+
+    if (combinedFilter.size() > 1) {
+      return FILTER_FACTORY.and(combinedFilter);
+    } else if (combinedFilter.size() == 1) {
       // If only one filter, then just return it
       // (AND'ing it would create an erroneous </ogc:and> closing tag)
-      return filters.get(0);
+      return combinedFilter.get(0);
     } else {
       // Otherwise, no filters
       return null;
     }
+  }
+
+  /**
+   * @return if spatialFilters is empty return filters else group spatialFilters with a logical OR
+   *     and add to filters
+   */
+  private List<Filter> combineSpatialFilters() {
+    List<Filter> combinedFilters;
+    if (spatialFilters.isEmpty()) {
+      combinedFilters = filters;
+    } else {
+      combinedFilters = combineSpatialFiltersWithLogicalOr();
+    }
+    return combinedFilters;
+  }
+
+  private List<Filter> combineSpatialFiltersWithLogicalOr() {
+    List<Filter> combinedFilters = new ArrayList<>();
+    combinedFilters.addAll(filters);
+
+    if (spatialFilters.size() == 1) {
+      combinedFilters.add(spatialFilters.get(0));
+    } else {
+      combinedFilters.add(FILTER_FACTORY.or(spatialFilters));
+    }
+    return combinedFilters;
   }
 
   @Override
