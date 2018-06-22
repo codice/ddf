@@ -135,6 +135,14 @@ public class VisitableXmlElementImplTest {
   }
 
   @Test
+  public void testPropertyIsILikeType() {
+    PropertyIsLikeType propertyIsLikeType = new PropertyIsLikeType();
+    propertyIsLikeType.setMatchCase(false);
+    propertyIsLikeTypeVerification(
+        propertyIsLikeType, (v) -> verify(v).visitPropertyIsILikeType(eq(node)));
+  }
+
+  @Test
   public void testPropertyIsNullType() {
     parameterizedMappingVerification(
         PropertyIsNullType.class, (v) -> verify(v).visitPropertyIsNullType(eq(node)));

@@ -112,9 +112,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer logicMapping = LOGICAL_OPS.get(operator);
-    if (logicMapping == null) {
-      throw new IllegalArgumentException("Invalid operator for logic comparison type: " + operator);
-    }
+    validateOperatorMapping(
+        logicMapping, "Invalid operator for logic comparison type: " + operator);
     logicOpCache.push(logicMapping);
     depth.push(new ArrayList<>());
     return this;
@@ -141,10 +140,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary comparison operator: " + operator);
-    }
+    validateOperatorMapping(
+        comparisonMapping, "Cannot find mapping for binary comparison operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
   }
@@ -154,9 +151,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
-    }
+    validateOperatorMapping(
+        comparisonMapping, "Cannot find mapping for like operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
   }
@@ -171,10 +167,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer temporalMapping = TERMINAL_OPS.get(operator);
-    if (temporalMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary temporal operator: " + operator);
-    }
+    validateOperatorMapping(
+        temporalMapping, "Cannot find mapping for binary temporal operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(temporalMapping);
     return null;
   }

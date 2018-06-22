@@ -18,7 +18,6 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -70,13 +69,7 @@ public class FilterNodeMapImpl implements FilterNode {
         .map(List.class::cast)
         .flatMap(List::stream)
         .map(Map.class::cast)
-        .map(
-            new Function<Map, FilterNodeMapImpl>() {
-              @Override
-              public FilterNodeMapImpl apply(Map json1) {
-                return new FilterNodeMapImpl(json1);
-              }
-            })
+        .map(FilterNodeMapImpl::new)
         .collect(Collectors.toList());
   }
 
