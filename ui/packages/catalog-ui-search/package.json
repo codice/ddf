@@ -27,6 +27,7 @@
     "@types/openlayers": "4.3.11",
     "ace": "*",
     "chai": "4.1.1",
+    "loader-utils": "1.1.0",
     "react-addons-test-utils": "15.2.1",
     "sinon": "5.0.7"
   },
