@@ -54,6 +54,15 @@ public interface ResourceCache {
   void put(Metacard metacard, Resource resource);
 
   /**
+   * Puts a {@link Resource} in the cache based on the given {@link Metacard} and the attributes
+   * of the {@link ResourceRequest}.
+   *
+   * @param metacard metacard that corresponds to the resource that was requested
+   * @param resource resource object associated with the provided {@link Metacard}
+   */
+  void put(Metacard metacard, ResourceRequest resourceRequest, Resource resource);
+
+  /**
    * Determines if the resource associated with the {@link Metacard} is present in the cache
    *
    * @param metacard metacard to use to find a matching resource
