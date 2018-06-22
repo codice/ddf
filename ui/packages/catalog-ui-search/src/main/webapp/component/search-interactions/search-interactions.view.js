@@ -40,17 +40,18 @@ module.exports = Marionette.LayoutView.extend({
         'click > .interaction-reset': 'triggerReset',
         'click > .interaction-type-advanced': 'triggerTypeAdvanced'
     },
+    initialize() {
+        this.listenTo(this.model, 'change:type', this.toggleCustomActions);
+    },
     onRender(){
         this.listenTo(this.model, 'change:type closeDropdown', this.triggerCloseDropdown);
-        this.listenTo(this.model, 'change:type', this.triggerRender);
         this.generateSearchFormSelector();
         if(properties.hasExperimentalEnabled()) { 
             this.generateResultFormSelector() 
         }
-        if(this.model.get('type') === 'custom') {
-            this.generateCustomFormSelector();
-        }
         this.generateSearchSettings();
+        this.generateCustomFormSelector();
+        this.toggleCustomActions();
     },
     generateResultFormSelector() {
         this.resultType.show(new ResultFormSelectorDropdownView({
@@ -117,13 +118,13 @@ module.exports = Marionette.LayoutView.extend({
         user.savePreferences();
         this.triggerCloseDropdown();
     },
-    triggerRender() {
-        this.render();
+    toggleCustomActions() {
+        const isCustom = this.model && this.model.get('type') === 'custom';
+        this.$el.toggleClass('is-custom', isCustom);
     },
     serializeData() {
         return {
-            experimental: properties.hasExperimentalEnabled(),
-            type: this.model.get('type')
+            experimental: properties.hasExperimentalEnabled()
         };
     }
 });
