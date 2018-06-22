@@ -46,7 +46,7 @@ module.exports = {
       },
       Literal (node) {
         let cometd = context.getAncestors().filter(parent => parent.type === 'CallExpression' && parent.callee && parent.callee.object && parent.callee.object.object && parent.callee.object.object.name === 'Cometd')
-        if (cometd.length === 0 && node.parent.type !== 'BinaryExpression' && typeof node.value === 'string' && node.value.match('^/\\w')) {
+        if (cometd.length === 0 && node.parent.type !== 'BinaryExpression' && typeof node.value === 'string' && node.value.match('^/\\w') && !node.value.match('/service/\\w')) {
           context.report(node, 'Do not use absolute URLs')
         }
       }

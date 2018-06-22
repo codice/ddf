@@ -24,7 +24,8 @@ ruleTester.run('no-absolute-urls', rule, {
     { code: "url = './services'" },
     { code: "Cometd.Comet.subscribe('/' + id, options.success)" },
     { code: "Cometd.Comet.subscribe('/channel')" },
-    { code: "url = '../services'" }
+    { code: "url = '../services'" },
+    { code: "url = '/service/cometdchannel'" }
   ],
 
   invalid: [{
