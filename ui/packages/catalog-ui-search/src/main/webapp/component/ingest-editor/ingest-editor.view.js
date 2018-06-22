@@ -53,11 +53,14 @@ define([
         clear: function() {
             this.editorProperties.currentView.revert();
         },
+        getPropertyCollectionView: function() {
+            return this.editorProperties.currentView;
+        },
         /*
             Return a map of attributes to their corresponding value arrays. Empty values are
             filtered, and only attributes with at least one non-empty value are returned.
          */
-        toJSON: function() {
+        getAttributeOverrides: function() {
             const attributeMap = this.editorProperties.currentView.toPropertyJSON().properties;
             return Object.keys(attributeMap).reduce(function(filteredMap, attribute) {
                 const values = attributeMap[attribute].filter((a) => a.trim().length > 0);
@@ -65,6 +68,6 @@ define([
                     ? _.extend(filteredMap, { [attribute]: values })
                     : filteredMap;
             }, {});
-        }
+        },
     });
 });

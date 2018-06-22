@@ -23,6 +23,7 @@ var router = require('component/router/router');
 var IngestDetails = require('component/ingest-details/ingest-details.view');
 var IngestEditor = require('component/ingest-editor/ingest-editor.view');
 var properties = require('properties');
+var announcement = require('component/announcement');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -34,11 +35,10 @@ module.exports = Marionette.LayoutView.extend({
         ingestDetails: '.ingest-details',
         ingestEditor: '.ingest-editor',
     },
-    detailsView: undefined,
-    editorView: undefined,
+    detailsView: {},
+    editorView: {},
     childEvents: {
-        'ingestDetails:new' : 'showNewIngest',
-        'ingestDetails:before:start': 'beforeStartIngest'
+        'ingestDetails:on:upload': 'preIngestValidation',
     },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
@@ -57,11 +57,23 @@ module.exports = Marionette.LayoutView.extend({
         this.detailsView = new IngestDetails({url: '/services/catalog/'});
         this.ingestDetails.show(this.detailsView);
 
-        if (properties.editorAttributes.length == 0) {
+        if (properties.editorAttributes.length === 0) {
             this.ingestEditor.$el.hide();
         }
     },
-    beforeStartIngest: function () {
-        this.detailsView.setOverrides(this.editorView.toJSON());
+    /* todo: Check for validation issues before uploading */
+    preIngestValidation: function () {
+        var propertyCollectionView = this.editorView.getPropertyCollectionView();
+        propertyCollectionView.updateRequiredPropertyHighlighting();
+        if (propertyCollectionView.hasBlankRequiredAttributes()) {
+            announcement.announce({
+                title: 'Upload not Permitted',
+                message: 'Please make sure all required attributes are set before uploading',
+                type: 'error'
+            });
+        } else {
+            this.detailsView.setOverrides(this.editorView.getAttributeOverrides());
+            this.detailsView.startUpload();
+        }
     }
 });

@@ -155,6 +155,28 @@ define([
             if (this.children.length > 0) {
                 this.children.first().focus();
             }
+        },
+        hasBlankRequiredAttributes() {
+            var hasBlankRequiredAttribute = false;
+            this.children.forEach(function(propertyView) {
+                if (propertyView.model.isRequired() && propertyView.model.isBlank()) {
+                    hasBlankRequiredAttribute = true;
+                    return;
+                }
+            });
+            return hasBlankRequiredAttribute;
+        },
+        /* Required properties should be highlighted if they are blank or have validation issues */
+        updateRequiredPropertyHighlighting() {
+            this.children.forEach(function(propertyView) {
+                if (propertyView.model.isRequired()) {
+                    if (propertyView.model.isBlank()) {
+                        propertyView.turnOnHighlighting();
+                    } else {
+                        propertyView.turnOffHighlighting();
+                    }
+                }
+            });
         }
     }, {
         //contains methods for generating property collection views from service responses

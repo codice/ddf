@@ -209,6 +209,12 @@ define([
             if (this._validationReport){
                 this.updateValidation(this._validationReport);
             }
+        },
+        turnOnHighlighting: function() {
+            this.$el.find('intrigue-input').addClass('has-validation-issues');
+        },
+        turnOffHighlighting: function() {
+            this.$el.find('intrigue-input').removeClass('has-validation-issues');
         }
     }, {
         getPropertyView: function(modelJSON){

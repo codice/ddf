@@ -25,9 +25,6 @@ var UploadBatchModel = require('js/model/UploadBatch');
 var userInstance = require('component/singletons/user-instance');
 var Common = require('js/Common');
 var UploadSummary = require('component/upload-summary/upload-summary.view');
-var MetacardDefinitions = require('component/singletons/metacard-definitions');
-var announcement = require('component/announcement');
-var properties = require('properties');
 
 function namespacedEvent(event, view) {
     return event + '.' + view.cid;
@@ -44,16 +41,18 @@ module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('ingest-details'),
     events: {
         'click > .details-footer .footer-clear': 'newUpload',
-        'click > .details-footer .footer-start': 'startUpload',
         'click > .details-footer .footer-cancel': 'cancelUpload',
         'click > .details-footer .footer-new': 'newUpload',
         'click > .details-dropzone .dropzone-text': 'addFiles'
+    },
+    triggers: {
+        'click > .details-footer .footer-start': 'ingestDetails:on:upload',
     },
     regions: {
         files: '> .details-files',
         summary: '> .details-summary'
     },
-    overrides: undefined,
+    overrides: {},
     dropzone: undefined,
     uploadBatchModel: undefined,
     dropzoneAnimationRequestDetails: undefined,
@@ -108,15 +107,11 @@ module.exports = Marionette.LayoutView.extend({
             autoProcessQueue: false,
             headers: this.options.extraHeaders,
             sending: function(file, xhr, formData)  {
-                for (var attribute in _this.overrides) {
-                    if (MetacardDefinitions.metacardTypes[attribute].multivalued) {
-                        _this.overrides[attribute].map(function(value) {
-                            formData.append('parse.' + attribute, value);
-                        });
-                    } else {
-                        formData.append('parse.' + attribute, _this.overrides[attribute][0]);
-                    }
-                }
+                _.each(_this.overrides, function(values, attribute) {
+                    _.each(values, function(value) {
+                        formData.append('parse.' + attribute, value);
+                    });
+                });
             }
         });
         if (this.options.handleUploadSuccess) {
@@ -140,18 +135,6 @@ module.exports = Marionette.LayoutView.extend({
         this.uploadBatchModel.clear();
     },
     startUpload: function() {
-        this.triggerMethod('ingestDetails:before:start');
-        for (var i = 0; i < properties.requiredAttributes.length; i++) {
-            var attrName = properties.requiredAttributes[i];
-            if (!this.overrides.hasOwnProperty(attrName)) {
-                announcement.announce({
-                    title: 'Required Attribute Missing',
-                    message: 'Please specify an attribute value for ' + attrName,
-                    type: 'error'
-                });
-                return;
-            }
-        }
         this.uploadBatchModel.start();
     },
     cancelUpload: function() {
