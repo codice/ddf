@@ -1,15 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# CONFIGURATION OPTIONS
-# -----------------------------------------------------------------------------
-
-# Use "true" or "false" to control these options.
-SOLR_REQUIRE_TWO_WAY_TLS=true
-
-# Set to false if Solr runs on a different host than DDF
+# For security reasons, an internally managed Solr configuration
+# should always deny remote requests unless debugging
+# or troubleshooting in a safe environment
 SOLR_DENY_REMOTE_REQUESTS=true
-
-# -----------------------------------------------------------------------------
 
 # Store arguments for use in local functions
 FIRST_ARGUMENT=$1
@@ -21,6 +15,9 @@ HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 
 # Declare Karaf executable's return code
 KARAF_EXEC_RC=-1
+# This variable is automatically set to true if
+# the function set_solr_https_properties() is called
+HTTPS=false
 
 # Useful files
 PROPERTIES_FILE=$HOME_DIR/etc/system.properties
@@ -33,25 +30,14 @@ get_property() {
     grep ^$1= "$PROPERTIES_FILE" | cut -d '=' -f2
 }
 
-# Return 0 (success/true) if the first two parameters are the same string, ignoring case
-equalsIgnoreCase() {
-  local RC=1
-  if [ `echo $1 | tr [:upper:] [:lower:]` =  `echo $2 | tr [:upper:] [:lower:]` ]; then
-    RC=0
-  fi
-  return $RC
-}
-
 
 refresh_properties() {
     # Extract values from Java properties file and construct Solr URL
+    SOLR_CLIENT=$(get_property solr.client)
     MANAGE_SOLR=$(get_property solr.managed)
     SOLR_PORT=$(get_property solr.http.port)
-    SOLR_CLIENT=$(get_property solr.client)
-    TEMPLATE=$(get_property solr.http.url)
-    PARTIAL_URL="$(echo $TEMPLATE | sed -e 's/\${solr.http.port}/PORT_PLACEHOLDER/')"
-    SOLR_URL=${PARTIAL_URL/"PORT_PLACEHOLDER"/$SOLR_PORT}
-}
+  }
+
 
 # Return 0 (success/true) if the Solr lifecycle should be managed by this script
 is_managing_solr() {
@@ -62,10 +48,6 @@ is_managing_solr() {
   return $RC
 }
 
-# Return 0 (success/true) if the input parameter is "https" (in any case)
-is_protocol_https() {
-   equalsIgnoreCase $1 https
-}
 
 # Return 0 (success/true) if ddf_on_error.sh created a restart file
 is_restarting() {
@@ -76,19 +58,12 @@ is_restarting() {
     return $RC
 }
 
-# Return 0 (success/true) if Solr must require client authentication for two-way TLS
-solr_client_auth_is_required() {
-    local RC=1
-    if is_managing_solr && is_protocol_https $SOLR_URL && [ $SOLR_REQUIRE_TWO_WAY_TLS = true ]; then
-        RC=0
-    fi
-    return $RC
-}
 
 # Return 0 (success/true) Solr should only accept requests from the same host
+# Only applies to managed Solr configurations
 solr_must_deny_remote_requests() {
     local RC=1
-    if is_managing_solr && [ $SOLR_DENY_REMOTE_REQUESTS = true ]; then
+    if [ $SOLR_DENY_REMOTE_REQUESTS = true ]; then
         RC=0
     fi
     return $RC
@@ -101,9 +76,10 @@ clear_restart_flag() {
 }
 
 # Set the appropriate option to prevent Solr from responding to remote requests
+# Only applies to managed Solr configurations
 deny_remote_connection_option() {
     if solr_must_deny_remote_requests;  then
-      if is_protocol_https $SOLR_URL; then
+      if [ $HTTPS = true ]; then
         echo "-Dsolr.jetty.host=127.0.0.1"
       else
         echo "-Djetty.host=127.0.0.1"
@@ -112,6 +88,7 @@ deny_remote_connection_option() {
 }
 
 # Start Solr using Solr's script
+# Only applies to managed Solr configurations
 start_solr() {
 
     # Does not check to see if Solr is running the Solr port; there is no guarantee
@@ -119,11 +96,14 @@ start_solr() {
     $SOLR_EXEC start -force -p $SOLR_PORT $(deny_remote_connection_option)
     local SOLR_START_RC=$?
         if [ "$SOLR_START_RC" -ne 0 ]; then
-            echo "WARNING! Solr start returned error code, please check Solr logs"
+            echo "WARNING. Solr start returned an error. Is Solr already running?"
+	    echo "Please check Solr logs for additional information"
+            echo ""
         fi
 }
 
 # Set special environment variables used by Solr to configure TLS
+# Only applies to managed Solr configurations
 set_solr_https_properties() {
 
       # Use the same key and trust stores as the DDF uses.
@@ -133,31 +113,37 @@ set_solr_https_properties() {
       export SOLR_SSL_TRUST_STORE=$HOME_DIR/$(get_property javax.net.ssl.trustStore)
       export SOLR_SSL_TRUST_STORE_PASSWORD=$(get_property javax.net.ssl.trustStorePassword)
       export SOLR_SSL_TRUST_STORE_TYPE=$(get_property javax.net.ssl.trustStoreType)
+
       # Require two-way TLS
-      export SOLR_SSL_NEED_CLIENT_AUTH=$SOLR_REQUIRE_TWO_WAY_TLS
+      export SOLR_SSL_NEED_CLIENT_AUTH=false
+
+      # Not used
       export SOLR_SSL_WANT_CLIENT_AUTH=false
+
+      # Set flag
+      HTTPS=true
 }
 
 
+# Only applies to managed Solr configurations
 set_solr_memory() {
     export SOLR_JAVA_MEM="-Xms512m -Xmx2g"
 }
 
+
+# Only applies to managed Solr configurations
 stop_solr() {
     $SOLR_EXEC stop -p $SOLR_PORT
 }
 
 print_messages() {
+    echo ""
     echo "Home directory is $HOME_DIR"
-    echo "Solr URL is $SOLR_URL"
     if is_managing_solr; then
-        echo "This scripts manages starting and stopping Solr"
+        echo "This script manages starting and stopping Solr"
     fi
     if solr_must_deny_remote_requests; then
-        echo "Solr will not accept remote requests"
-    fi
-    if solr_client_auth_is_required; then
-      echo "Solr will require client PKI authentication (two-way TLS)"
+        echo "Solr is configured to reject remote requests"
     fi
 
     # Provide a newline for good vertical space
@@ -179,9 +165,6 @@ attempt_startup() {
             # Exit code 83, for ascii code S, for Solr!
             exit 83
         fi
-        if is_protocol_https $SOLR_URL; then
-            set_solr_https_properties
-        fi
         set_solr_memory
         start_solr;
     else
@@ -194,11 +177,13 @@ attempt_startup() {
 }
 
 attempt_shutdown() {
+
+    if is_managing_solr; then
+        stop_solr
+    fi
+
     if is_restarting; then
-        echo "Restarting JVM..."
-        if is_managing_solr; then
-            stop_solr
-        fi
+        echo "Restarting processes..."
     else
         exit $KARAF_EXEC_RC
     fi
@@ -208,6 +193,10 @@ while true; do
     refresh_properties
     clear_restart_flag
     print_messages
+
+    # Uncomment next line to enable TLS for internally managed Solr
+    # set_solr_https_properties
+
     attempt_startup
     attempt_shutdown
 done
