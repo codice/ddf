@@ -16,6 +16,7 @@
 const Marionette = require('marionette');
 const template = require('./source-app.hbs');
 const CustomElements = require('js/CustomElements');
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view');
 
 module.exports = Marionette.LayoutView.extend({
     template,
@@ -30,5 +31,12 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleClick(){
          this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
+    },
+    onRender(){
+        LoadingCompanionView.beginLoading(this);
+
+        this.$el.find('iframe').on('load', function(){
+            LoadingCompanionView.endLoading(this);
+        }.bind(this));
     }
 });
