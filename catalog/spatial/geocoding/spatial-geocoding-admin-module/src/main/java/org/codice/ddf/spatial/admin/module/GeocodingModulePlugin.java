@@ -21,7 +21,7 @@ public class GeocodingModulePlugin extends AbstractApplicationPlugin {
 
   public GeocodingModulePlugin() {
     this.displayName = "GeoNames Configuration";
-    this.iframeLocation = URI.create("/admin/spatial-config/index.html");
+    this.iframeLocation = URI.create("./spatial-config/index.html");
     this.setAssociations(Arrays.asList("spatial-app"));
   }
 }

@@ -51,7 +51,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -569,7 +568,7 @@ public class MetricsEndpoint {
          */
 
         String metricsUrl =
-            SystemBaseUrl.EXTERNAL.getRootContext()
+            "../../services/"
                 + METRICS_SERVICE_BASE_URL
                 + "/"
                 + metricsName

@@ -18,7 +18,7 @@ define([
     var Task = {};
 
     Task.Model = Backbone.Model.extend({
-        url: '../../service/action',
+        url: '/service/action',
         useAjaxSync: false,
         initialize : function() {
             this.set("timestamp", moment(this.get("timestamp")));

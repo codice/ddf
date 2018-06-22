@@ -21,7 +21,7 @@ public class UndeliveredMessagesApplicationPlugin extends AbstractApplicationPlu
 
   public UndeliveredMessagesApplicationPlugin() {
     displayName = "Undelivered Messages";
-    iframeLocation = URI.create("/admin/undeliveredMessages/index.html");
+    iframeLocation = URI.create("./undeliveredMessages/index.html");
     setAssociations(Collections.singletonList("broker-app"));
   }
 }

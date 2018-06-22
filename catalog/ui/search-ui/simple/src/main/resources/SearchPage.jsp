@@ -105,7 +105,7 @@
 
 			<div class="span3">
 				<form id="searchForm" class="partialaffix span3 search-controls"
-					action="/services/catalog/query" method="get">
+					action="../../services/catalog/query" method="get">
 					<ul class="nav nav-list well well-small">
 						<input type="hidden" name="format" value="geojson"></input>
 						<input type="hidden" name="start" value="1"></input>

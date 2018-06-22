@@ -126,7 +126,7 @@ define([
     });
 
     User.Preferences = Backbone.AssociatedModel.extend({
-        url: '../../service/user',
+        url: '/service/user',
         relations: [
             {
                 type: Backbone.One,
@@ -166,7 +166,7 @@ define([
                 relatedModel: User.Model
             }
         ],
-        url: '../../service/user',
+        url: '/service/user',
         initialize: function () {
             var user = new User.Model();
             this.set('user', user);

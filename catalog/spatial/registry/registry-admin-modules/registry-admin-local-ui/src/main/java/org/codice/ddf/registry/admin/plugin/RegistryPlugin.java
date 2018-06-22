@@ -23,7 +23,7 @@ public class RegistryPlugin extends AbstractApplicationPlugin {
   /** Constructor. */
   public RegistryPlugin() {
     this.displayName = "Node Information";
-    this.iframeLocation = URI.create("/admin/registry/local/index.html");
+    this.iframeLocation = URI.create("./registry/local/index.html");
     List<String> apps = new ArrayList<>();
     apps.add("registry-app");
     apps.add("catalog-app");

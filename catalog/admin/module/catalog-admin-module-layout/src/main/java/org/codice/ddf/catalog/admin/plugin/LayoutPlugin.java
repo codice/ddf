@@ -23,7 +23,7 @@ public class LayoutPlugin extends AbstractApplicationPlugin {
   /** Constructor. */
   public LayoutPlugin() {
     this.displayName = "Layout";
-    this.iframeLocation = URI.create("/admin/default-layout/index.html");
+    this.iframeLocation = URI.create("./default-layout/index.html");
     List<String> apps = new ArrayList<>();
     apps.add("search-ui-app");
     this.setAssociations(apps);

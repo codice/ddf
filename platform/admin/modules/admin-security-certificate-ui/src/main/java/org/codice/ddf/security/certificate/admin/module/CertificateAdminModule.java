@@ -21,7 +21,7 @@ import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
 public class CertificateAdminModule extends AbstractApplicationPlugin {
   public CertificateAdminModule() {
     this.displayName = "Certificates";
-    this.iframeLocation = URI.create("/admin/certificate/index.html");
+    this.iframeLocation = URI.create("./certificate/index.html");
     List<String> apps = new ArrayList<String>();
     apps.add("security-services-app");
     this.setAssociations(apps);

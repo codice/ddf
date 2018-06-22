@@ -21,7 +21,7 @@ public class QueriesPlugin extends AbstractApplicationPlugin {
 
   public QueriesPlugin() {
     this.displayName = "Queries";
-    this.iframeLocation = URI.create("/admin/queries/index.html");
+    this.iframeLocation = URI.create("./queries/index.html");
     this.setAssociations(Arrays.asList("resourcemanagement-app"));
   }
 }

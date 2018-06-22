@@ -21,7 +21,7 @@ public class DataUsagePlugin extends AbstractApplicationPlugin {
 
   public DataUsagePlugin() {
     this.displayName = "Data Usage";
-    this.iframeLocation = URI.create("/admin/data-usage/index.html");
+    this.iframeLocation = URI.create("./data-usage/index.html");
     this.setAssociations(Arrays.asList("resourcemanagement-app"));
   }
 }

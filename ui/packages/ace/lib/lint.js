@@ -6,12 +6,12 @@ const fs = require('fs')
 module.exports = ({ args, pkg }) => {
   var htmlResults = { errorCount: 0, errors: [] }
   console.log(process.cwd())
-  var files = glob.sync('packages/*/src/**/*.html', { matchBase: true, realpath: true})
+  var files = glob.sync('packages/*/src/**/{*.html,*.handlebars}', { matchBase: true, realpath: true })
   console.log('files: ' + files.length)
   files.forEach(file => {
     try {
       var reportHtml = function (file, element, attribute, value) {
-        if (!value.startsWith('.')) {
+        if (!(value.startsWith('.') || value.startsWith('#')) && !(value.startsWith('javascript') || value.startsWith('{'))) {
           htmlResults.errors.push({ 'file': file, 'element': element, 'attribute': attribute, 'value': value })
           htmlResults.errorCount++
         }
@@ -22,6 +22,11 @@ module.exports = ({ args, pkg }) => {
       html('link').each((i, elem) => {
         if (elem.attribs.href) {
           reportHtml(file, 'link', 'href', elem.attribs.href)
+        }
+      })
+      html('a').each((i, elem) => {
+        if (elem.attribs.href) {
+          reportHtml(file, 'a', 'href', elem.attribs.href)
         }
       })
       html('script').each((i, elem) => {

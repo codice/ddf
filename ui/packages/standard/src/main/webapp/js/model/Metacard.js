@@ -249,7 +249,7 @@ define([
                     relatedModel: MetaCard.SourceStatus
                 }
             ],
-            url: "../../service/query",
+            url: "/service/query",
             parse: function (resp) {
                 if (resp.data) {
                     return resp.data;
