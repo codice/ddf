@@ -47,3 +47,4 @@ server*.js
 webpack*
 cometd.js
 cometd-web-example
+packages/linter
