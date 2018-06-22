@@ -32,10 +32,8 @@ module.exports = Marionette.CollectionView.extend({
     },
     tagName: CustomElements.register('filter-collection'),
     onBeforeRenderCollection: function() {
-        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
         this.sortable = Sortable.create(this.el, {
-            forceFallback: isFirefox,
-            handle: 'button.filter-rearrange',
+            handle: 'div.filter-rearrange',
             animation: 250,
             draggable: '>*',
             disabled: this.options.isForm && !this.options.isFormBuilder,
