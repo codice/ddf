@@ -25,7 +25,7 @@
              patterns will take precedence over included patterns. The pattern can be an exact,
              case-sensitive match, or '*' can be used as a wildcard.
             Ex: '*source' will match anything ending in 'source'."
-            required="true" type="String" default="*source*,*Source*,*service*,*Service*" cardinality="100"/>
+            type="String" default="*source*,*Source*,*service*,*Service*" cardinality="100"/>
 
         <AD name="Excluded FactoryPids:" id="excludeAsSource"
             description="LDAP patterns that will filter out ManagedServiceFactory pids being used to
@@ -33,7 +33,7 @@
             will not be listed as a configurable source type in the Sources tab of the Admin UI. The pattern
             can be an exact, case-sensitive match, or '*' can be used as a wildcard.
             Ex: '*source*' will match anything containing 'source'."
-            required="true" type="String" default="ddf.services.schematron.SchematronValidationServicer" cardinality="100"/>
+            type="String" default="ddf.services.schematron.SchematronValidationServicer,ddf.catalog.impl.action.SourceActionProviderImpl" cardinality="100"/>
 
     </OCD>
 

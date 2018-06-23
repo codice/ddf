@@ -91,8 +91,8 @@
     </service>
 
 
-    <cm:managed-service-factory id="Src_Action_Provider"
-                                factory-pid="Src_Action_Provider" interface="ddf.action.ActionProvider">
+    <cm:managed-service-factory id="ddf.catalog.impl.action.SourceActionProviderImpl"
+                                factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl" interface="ddf.action.ActionProvider">
         <service-properties>
             <entry key="id" value="catalog.data.source.simple"/>
         </service-properties>

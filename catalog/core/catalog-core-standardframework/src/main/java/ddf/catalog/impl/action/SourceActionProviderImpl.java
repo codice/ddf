@@ -66,6 +66,10 @@ public class SourceActionProviderImpl implements ActionProvider {
     return actionProviderId;
   }
 
+  public String getUrl() {
+    return url;
+  }
+
   public void setSourceId(String sourceId) {
     this.sourceId = sourceId;
   }
@@ -88,10 +92,18 @@ public class SourceActionProviderImpl implements ActionProvider {
 
   private Action toAction() {
     try {
-      return new ActionImpl(getId(), title, description, new URL(url));
+      return new ActionImpl(getId(), title, description, new URL(constructUrl()));
     } catch (MalformedURLException e) {
       LOGGER.debug("Unable to parse the action url: url={}", url, e);
       return null;
     }
+  }
+
+  /**
+   * Subclasses of {@link SourceActionProviderImpl} may override this method to alter the url. This
+   * base class returns the original url.
+   */
+  protected String constructUrl() {
+    return url;
   }
 }

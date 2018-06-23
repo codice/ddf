@@ -48,6 +48,7 @@
         <property name="excludeAsSource">
             <list>
                 <value>ddf.services.schematron.SchematronValidationService</value>
+                <value>ddf.catalog.impl.action.SourceActionProviderImpl</value>
             </list>
         </property>
     </bean>
