@@ -84,17 +84,20 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
+                                            <!-- includes a 5% buffer -->
+                                            <minimum>0.76</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
+                                            <!-- includes a 5% buffer -->
+                                            <minimum>0.71</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.71</minimum>
+                                            <!-- includes a 5% buffer -->
+                                            <minimum>0.67</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
