@@ -38,13 +38,6 @@ can be configured for an internally managed Solr.
 Solr is configured to reject all remote requests by default. It is only accessible locally.
 This is a necessary part of a secure configuration.
 
-It might be necessary to enable remote requests when troubleshooting a ${branding} installation.
-To enabled remote requests:
-
-. For *NIX systems, edit the file `${home_directory}/bin/ddf`
-. Change the property `SOLR_REQUIRE_TWO_WAY_TLS` to `SOLR_REQUIRE_TWO_WAY_TLS=false`
-. Restart ${branding}
-
 .Configuring Solr Transport Layer Security
 The default configuration does not use
 Transport Layer Security (TLS) between ${branding} and Solr. TLS adds overhead to Solr interactions
@@ -53,26 +46,6 @@ To enable TLS:
 
 . Edit the `${home_directory}/etc/system.properties`
 . Change the property `solr.http.url` to read `https://` instead of `http://`
-. Restart ${branding}
-
-.Require Two-way (Client) Authentication
-This option is only meaningful if Solr and ${branding} communicate via the HTTPS protocol.
-The default configuration is secure and requires client authentication
-if the HTTPS protocol is used.
-
-Two-way authentication means the server (Solr) must trust the client (${branding}). If Solr
-did not trust ${branding}, Solr would reject all requests
-from ${branding} and all other the unauthenticated clients. Internally managed Solr and
-${branding} share the same key store and trust store, and therefore trust each other implicitly.
-However, web browsers that do not present a certificate that ${branding} trusts are not
-permitted to connect directly to the Solr server. In this situation, the browser displays the message
- `ERR_SSL_PROTOCOL_ERROR`
-
-It might be necessary to disable client authentication when troubleshooting a ${branding} installation.
-To disable client authentication:
-
-. For *NIX systems, edit the file `${home_directory}/bin/ddf`
-. Change the property `SOLR_REQUIRE_TWO_WAY_TLS` to `SOLR_REQUIRE_TWO_WAY_TLS=false`
 . Restart ${branding}
 
 .Internally Managed Solr Server System Properties (default values)
@@ -94,23 +67,24 @@ Some considerations of this configuration are:
 * Possible performance issues because of network latency and bandwidth.
 
 .Installing Externally Managed Solr
-To install a  Solr server, refer to
-https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide[Apache Solr Reference Guide].
+To install a  Solr server, copy the folder ${home_directory}/solr to a folder accessible to
+the Solr server host. That ensures that additional JAR files and configuration information
+used by ${branding} is available to Solr. Start the Solr server with Solr's script file, or
+configure the host to start Solr as a service.
 
 .Configuring ${branding} For Externally Managed Solr
 . Edit the `${home_directory}/etc/system.properties`
 .. Change the property `solr.http.port` to the port used by the Solr server
 .. Change the property `solr.http.url` to the URL used by the Solr server. Remember to use
 `${solr.http.port}` to specify the port,
-.. Change the property `solr.managed` to *false*, or remove the property entirely.
-. Two additional JAR files need to be added to the Solr installation as described in
- <<Installing Solr Cloud,Installing Solr Cloud>>
+.. Change the property `solr.managed` to `false`, or remove the property entirely.
 
 .Externally Managed Solr Server System Properties (example values)
 ----
 solr.client=HttpSolrClient
 solr.http.port=8983
 solr.http.url=https://host:${solr.http.port}/solr
+solr.managed=false
 ----
 
 .[[_solr_cloud]]Solr Cloud:: Solr Cloud is a cluster of distributed Solr servers used for high

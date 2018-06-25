@@ -16,11 +16,15 @@ The internally managed Solr configuration is configured to be secure by default.
 hardening should be necessary.
 
 === Hardening an External Solr Server
+
 There is more than one way to configure the system to ensure secure communication between
 ${branding} and an external Solr server. If the external server runs on a different host than
 ${branding}, it is recommended that the Solr server be configured to use two-way TLS. See
 Apache Solr Reference Guide,
 https://lucene.apache.org/solr/guide/6_6/enabling-ssl.html#enabling-ssl[Enabling SSL]
+
+For an example of configuring a host to use two-way TLS, see the script function named
+`
 
 
 === Configuring Solr Encryption
