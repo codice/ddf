@@ -15,6 +15,7 @@ HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 
 # Declare Karaf executable's return code
 KARAF_EXEC_RC=-1
+
 # This variable is automatically set to true if
 # the function set_solr_https_properties() is called
 HTTPS=false
@@ -87,8 +88,8 @@ deny_remote_connection_option() {
     fi
 }
 
-# Start Solr using Solr's script
 # Only applies to managed Solr configurations
+# Start Solr using Solr's script
 start_solr() {
 
     # Does not check to see if Solr is running the Solr port; there is no guarantee
@@ -102,8 +103,8 @@ start_solr() {
         fi
 }
 
-# Set special environment variables used by Solr to configure TLS
 # Only applies to managed Solr configurations
+# Set special environment variables used by Solr to configure TLS
 set_solr_https_properties() {
 
       # Use the same key and trust stores as the DDF uses.
@@ -114,8 +115,9 @@ set_solr_https_properties() {
       export SOLR_SSL_TRUST_STORE_PASSWORD=$(get_property javax.net.ssl.trustStorePassword)
       export SOLR_SSL_TRUST_STORE_TYPE=$(get_property javax.net.ssl.trustStoreType)
 
-      # Require two-way TLS
-      export SOLR_SSL_NEED_CLIENT_AUTH=false
+      # Require two-way TLS. Change this value to false to disable client authentication.
+      # Only applies to managed Solr configurations
+      export SOLR_SSL_NEED_CLIENT_AUTH=true
 
       # Not used
       export SOLR_SSL_WANT_CLIENT_AUTH=false
@@ -125,7 +127,8 @@ set_solr_https_properties() {
 }
 
 
-# Only applies to managed Solr configurations
+# Only applies to managed Solr configurations.
+# Change these values to alter the memory avalable to the managed Solr JVM.
 set_solr_memory() {
     export SOLR_JAVA_MEM="-Xms512m -Xmx2g"
 }

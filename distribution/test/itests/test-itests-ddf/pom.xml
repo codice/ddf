@@ -13,9 +13,9 @@
  **/
 -->
 <project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.test.itests</groupId>
@@ -25,9 +25,9 @@
     <artifactId>test-itests-ddf</artifactId>
     <name>DDF :: Integration :: Test</name>
     <properties>
-        <solr.exec>
-            ${project.build.directory}/solr/bin/solr
-        </solr.exec>
+        <solr.script.dir>
+            ${project.build.directory}/solr/bin/
+        </solr.script.dir>
     </properties>
     <dependencies>
         <!-- Pax Exam Karaf container dependencies -->
@@ -292,7 +292,7 @@
                 </os>
             </activation>
             <properties>
-                <script.extension>.cmd</script.extension>
+                <solr.script.file>solr.cmd</solr.script.file>
             </properties>
         </profile>
         <profile>
@@ -303,7 +303,7 @@
                 </os>
             </activation>
             <properties>
-                <script.extension/>
+                <solr.script.file>solr</solr.script.file>
             </properties>
         </profile>
     </profiles>
@@ -349,13 +349,27 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>make-solr-executable</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>chmod</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>${solr.script.dir}${solr.script.file}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>start-solr</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${solr.exec}${script.extension}</executable>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
                             <arguments>
                                 <!--Restart to stop Solr is already running and the start it.-->
                                 <argument>start</argument>
@@ -377,7 +391,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${solr.exec}</executable>
+                            <executable>${solr.exec.dir}</executable>
                             <arguments>
                                 <argument>stop</argument>
                                 <argument>-p</argument>
