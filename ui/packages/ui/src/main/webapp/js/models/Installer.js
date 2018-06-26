@@ -131,12 +131,12 @@ define([
       wreqr.vent.trigger('modulePoller:stop');
       return $.ajax({
         type: 'GET',
-        url: that.uninstallUrl + 'admin-modules-installer/true',
+        url: that.uninstallUrl + 'admin-modules-installer',
         dataType: 'JSON'
       }).then(function () {
         return $.ajax({
           type: 'GET',
-          url: that.installUrl + 'admin-post-install-modules/true',
+          url: that.installUrl + 'admin-post-install-modules',
           dataType: 'JSON'
         }).then(function () {
           if (restart) {
