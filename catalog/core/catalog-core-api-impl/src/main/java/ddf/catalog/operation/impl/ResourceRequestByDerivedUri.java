@@ -13,36 +13,37 @@
  */
 package ddf.catalog.operation.impl;
 
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.ResourceRequest;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Map;
 
-public class ResourceRequestByProductUri extends OperationImpl implements ResourceRequest {
+public class ResourceRequestByDerivedUri extends OperationImpl implements ResourceRequest {
 
   protected String name;
 
   protected URI uri;
 
   /**
-   * Implements a ResourceRequestByProductUri and specifies the {@link URI}
+   * Implements a ResourceRequestByDerivedUri and specifies the {@link URI}
    *
    * @param uri the URI
    */
-  public ResourceRequestByProductUri(URI uri) {
+  public ResourceRequestByDerivedUri(URI uri) {
     this(uri, null);
   }
 
   /**
-   * Implements a ResourceRequestByProductUri and specifies the {@link URI} and a {@link Map} of
+   * Implements a ResourceRequestByDerivedUri and specifies the {@link URI} and a {@link Map} of
    * properties
    *
    * @param uri the URI
    * @param properties the properties
    */
-  public ResourceRequestByProductUri(URI uri, Map<String, Serializable> properties) {
+  public ResourceRequestByDerivedUri(URI uri, Map<String, Serializable> properties) {
     super(properties);
-    this.name = GET_RESOURCE_BY_PRODUCT_URI;
+    this.name = Core.DERIVED_RESOURCE_URI;
     this.uri = uri;
   }
 

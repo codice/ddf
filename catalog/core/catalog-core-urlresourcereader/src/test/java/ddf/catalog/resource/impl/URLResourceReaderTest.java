@@ -415,6 +415,34 @@ public class URLResourceReaderTest {
   }
 
   /**
+   * The same as {@link URLResourceReaderTest#testRetrieveQualifiedResource()} except with the
+   * "qualifier" property already appended. Tests that the {@link WebClient} is created with the
+   * correct URL.
+   */
+  @Test
+  public void testRetrieveQualifiedResourceWithQualifierAppended() throws Exception {
+    final String qualifierValue = "qualifierValue";
+    final String qualifierParam =
+        String.format("&%s=%s", ContentItem.QUALIFIER_KEYWORD, qualifierValue);
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME + qualifierParam);
+    final String expectedWebClientUri = uri.toString();
+    Response mockResponse = mock(Response.class);
+    when(mockWebClient.get()).thenReturn(mockResponse);
+    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+    map.put(
+        HttpHeaders.CONTENT_DISPOSITION,
+        Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+    when(mockResponse.getHeaders()).thenReturn(map);
+    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+    when(mockResponse.getEntity()).thenReturn(getBinaryData());
+
+    // verify that we got the entire resource
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, qualifierValue, 5, expectedWebClientUri);
+  }
+
+  /**
    * Tests that a Partial Content response that has the same byte offset as what was requested
    * returns an input stream starting at the requested byte offset.
    *
@@ -827,7 +855,7 @@ public class URLResourceReaderTest {
         is(expectedResponseResourceLength));
 
     assertThat(
-        "The web client should be created with uri=" + uri,
+        "The web client should be created with uri=" + expectedWebClientUri,
         resourceReader.capturedWebClientUri,
         equalTo(expectedWebClientUri));
   }

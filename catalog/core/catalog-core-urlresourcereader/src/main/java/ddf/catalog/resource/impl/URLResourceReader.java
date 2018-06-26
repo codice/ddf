@@ -261,14 +261,10 @@ public class URLResourceReader implements ResourceReader {
       LOGGER.debug("Resource URI is HTTP or HTTPS");
 
       final Serializable qualifierSerializable = properties.get(ContentItem.QUALIFIER_KEYWORD);
-      if (qualifierSerializable instanceof String) {
-        final String qualifier = (String) qualifierSerializable;
-        if (StringUtils.isNotBlank(qualifier)) {
-          resourceURI =
-              UriBuilder.fromUri(resourceURI)
-                  .queryParam(ContentItem.QUALIFIER_KEYWORD, qualifier)
-                  .build();
-        }
+      if (qualifierSerializable != null && qualifierSerializable instanceof String) {
+        resourceURI =
+            checkUriForCorrectQualifierParamAndAppendIfNeeded(
+                resourceURI, (String) qualifierSerializable);
       }
 
       String fileAddress = resourceURI.toURL().getFile();
@@ -293,11 +289,11 @@ public class URLResourceReader implements ResourceReader {
     } else {
       ResourceNotFoundException ce =
           new ResourceNotFoundException(
-              "Resource qualifier ( "
+              "Resource scheme ( "
                   + resourceURI.getScheme()
                   + " ) not valid. "
                   + URLResourceReader.TITLE
-                  + " requires a qualifier of "
+                  + " requires a scheme of "
                   + URL_HTTP_SCHEME
                   + " or "
                   + URL_HTTPS_SCHEME
@@ -305,6 +301,26 @@ public class URLResourceReader implements ResourceReader {
                   + URL_FILE_SCHEME);
       throw ce;
     }
+  }
+
+  private URI checkUriForCorrectQualifierParamAndAppendIfNeeded(URI resourceURI, String qualifier)
+      throws ResourceNotFoundException {
+    String[] params = resourceURI.getQuery().split("&");
+
+    for (String param : params) {
+      if (param.startsWith(ContentItem.QUALIFIER_KEYWORD)) {
+        if (!param.endsWith(qualifier)) {
+          throw new ResourceNotFoundException(
+              String.format(
+                  "The qualifier given in the arguments of a resource request (%s) didn't match the qualifier already on the uri %s",
+                  qualifier, resourceURI));
+        }
+        return resourceURI;
+      }
+    }
+    return UriBuilder.fromUri(resourceURI)
+        .queryParam(ContentItem.QUALIFIER_KEYWORD, qualifier)
+        .build();
   }
 
   private ResourceResponse retrieveFileProduct(

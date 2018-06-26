@@ -15,8 +15,10 @@ package ddf.catalog.impl.operations;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.LiteralImpl;
@@ -536,44 +538,13 @@ public class ResourceOperations extends DescribableImpl {
       Map<String, Serializable> requestProperties,
       boolean fanoutEnabled)
       throws ResourceNotSupportedException, ResourceNotFoundException {
-
     ResourceInfo resourceInfo;
-    Query query = null;
-    URI resourceUri = null;
-    String name = resourceRequest.getAttributeName();
-    Object value = resourceRequest.getAttributeValue();
-
-    validateResourceInfoRequest(name, value);
+    Query query;
+    String attributeName = resourceRequest.getAttributeName();
+    Object attributeValue = resourceRequest.getAttributeValue();
 
     try {
-      if (ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(name)) {
-        // because this is a get resource by product uri, we already
-        // have the product uri to return
-        LOGGER.debug("get resource by product uri");
-        resourceUri = (URI) value;
-        URI truncatedUri = resourceUri;
-        if (StringUtils.isNotBlank(resourceUri.getFragment())) {
-          resourceRequest
-              .getProperties()
-              .put(ContentItem.QUALIFIER_KEYWORD, resourceUri.getFragment());
-          try {
-            // Creating the truncated URL this way is important to preserve encoding!!
-            String uriString = resourceUri.toString();
-            truncatedUri = new URI(uriString.substring(0, uriString.lastIndexOf('#')));
-          } catch (URISyntaxException e) {
-            throw new ResourceNotFoundException(
-                "Could not resolve URI by doing a URI based query: " + value);
-          }
-        }
-        query = createPropertyStartsWithQuery(Metacard.RESOURCE_URI, truncatedUri.toString());
-      } else if (ResourceRequest.GET_RESOURCE_BY_ID.equals(name)) {
-        // since this is a get resource by id, we need to obtain the
-        // product URI
-        LOGGER.debug("get resource by id");
-        String metacardId = (String) value;
-        LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-        query = createMetacardIdQuery(metacardId);
-      }
+      query = createPropertyIsEqualToQuery(attributeName, attributeValue.toString());
 
       QueryRequest queryRequest =
           new QueryRequestImpl(
@@ -582,11 +553,23 @@ public class ResourceOperations extends DescribableImpl {
               Collections.singletonList(site == null ? this.getId() : site),
               resourceRequest.getProperties());
 
-      resourceInfo =
-          getResourceInfo(
-              queryRequest, resourceUri, requestProperties, federatedSite, fanoutEnabled);
-    } catch (UnsupportedQueryException | FederationException e) {
+      QueryResponse queryResponse = queryOperations.query(queryRequest, null, true, fanoutEnabled);
+      if (queryResponse.getResults().isEmpty()) {
+        throw new ResourceNotFoundException(
+            String.format(
+                "Could not find a metacard with a %s of %s.",
+                attributeName, attributeValue.toString()));
+      }
+      if (queryResponse.getResults().size() > 1) {
+        throw new UnsupportedQueryException(
+            String.format(
+                "found multiple metacards with a %s of %s.",
+                attributeName, attributeValue.toString()));
+      }
 
+      resourceInfo =
+          getResourceInfo(queryResponse, attributeValue, requestProperties, federatedSite);
+    } catch (UnsupportedQueryException | FederationException e) {
       throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE, e);
     }
 
@@ -598,54 +581,46 @@ public class ResourceOperations extends DescribableImpl {
   }
 
   private ResourceInfo getResourceInfo(
-      QueryRequest queryRequest,
-      URI uri,
+      QueryResponse queryResponse,
+      Object queriedAttributeValue,
       Map<String, Serializable> requestProperties,
-      StringBuilder federatedSite,
-      boolean fanoutEnabled)
-      throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
+      StringBuilder federatedSite)
+      throws ResourceNotFoundException, UnsupportedQueryException {
     Metacard metacard;
-    URI resourceUri = uri;
-    QueryResponse queryResponse = queryOperations.query(queryRequest, null, true, fanoutEnabled);
-    if (queryResponse.getResults().isEmpty()) {
-      throw new ResourceNotFoundException(
-          "Could not resolve source id for URI by doing a URI based query.");
-    }
+    URI resourceUri;
     metacard = queryResponse.getResults().get(0).getMetacard();
-    if (uri != null && queryResponse.getResults().size() > 1) {
-      for (Result result : queryResponse.getResults()) {
-        if (uri.equals(result.getMetacard().getResourceURI())) {
-          metacard = result.getMetacard();
-          break;
-        }
-      }
-    }
-    if (resourceUri == null) {
+
+    // If requestProperties contains a qualifier, then we're looking for a derived
+    // product so here we'll grab the derived uri from the metacard.
+    if (requestProperties != null
+        && requestProperties.get(ContentItem.QUALIFIER_KEYWORD) instanceof String
+        && StringUtils.isNotBlank((String) requestProperties.get(ContentItem.QUALIFIER_KEYWORD))) {
+      resourceUri =
+          getDerivedResourceUri(
+              metacard, (String) requestProperties.get(ContentItem.QUALIFIER_KEYWORD));
+
+    } else if (queriedAttributeValue
+        instanceof URI) { // if we're searching by URI use the given uri
+      resourceUri = (URI) queriedAttributeValue;
+
+    } else { // otherwise grab the resource uri from the metacard.
       resourceUri = metacard.getResourceURI();
     }
+
     federatedSite.append(metacard.getSourceId());
     LOGGER.debug(
         "Trying to lookup resource URI {} for metacardId: {}", resourceUri, metacard.getId());
 
-    if (!requestProperties.containsKey(Metacard.ID)) {
-      requestProperties.put(Metacard.ID, metacard.getId());
-    }
-    if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
-      requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
+    if (requestProperties != null) {
+      if (!requestProperties.containsKey(Metacard.ID)) {
+        requestProperties.put(Metacard.ID, metacard.getId());
+      }
+      if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+        requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
+      }
     }
 
     return new ResourceInfo(metacard, resourceUri);
-  }
-
-  private void validateResourceInfoRequest(String name, Object value)
-      throws ResourceNotSupportedException {
-    if (!(ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(name) && value instanceof URI)
-        && !(ResourceRequest.GET_RESOURCE_BY_ID.equals(name) && value instanceof String)) {
-      throw new ResourceNotSupportedException(
-          String.format(
-              "The GetResourceRequest with attribute name '%s' and value of class '%s' is not supported by this instance of the CatalogFramework.",
-              name, value.getClass()));
-    }
   }
 
   private Query anyTag(Query query, String site, boolean isEnterprise) {
@@ -755,16 +730,6 @@ public class ResourceOperations extends DescribableImpl {
         new PropertyIsEqualToLiteral(new PropertyNameImpl(propertyName), new LiteralImpl(literal)));
   }
 
-  protected Query createPropertyStartsWithQuery(String propertyName, String literal) {
-    return new QueryImpl(
-        frameworkProperties
-            .getFilterBuilder()
-            .attribute(propertyName)
-            .is()
-            .like()
-            .text(literal + FilterDelegate.WILDCARD_CHAR));
-  }
-
   /**
    * Validates that the {@link ResourceResponse} has a {@link ddf.catalog.resource.Resource} in it
    * that was retrieved, and that the original {@link ResourceRequest} is included in the response.
@@ -816,5 +781,51 @@ public class ResourceOperations extends DescribableImpl {
       throw new ResourceNotSupportedException(
           "Cannot perform getResource with null attribute value or null attributeName, either passed in from endpoint, or as output from PreResourcePlugin");
     }
+  }
+
+  private URI getDerivedResourceUri(Metacard metacard, String qualifier)
+      throws ResourceNotFoundException {
+    URI uriWithMatchingQualifier = null;
+    Attribute derivedResourcesAttribute = metacard.getAttribute(Core.DERIVED_RESOURCE_URI);
+
+    if (derivedResourcesAttribute == null) {
+      throw new ResourceNotFoundException(
+          String.format("No derived resource uri's on metacard \"%s\"", metacard.getId()));
+    }
+
+    for (Serializable ser : derivedResourcesAttribute.getValues()) {
+      if (!(ser instanceof String)) {
+        continue;
+      }
+
+      URI uri;
+      try {
+        uri = new URI((String) ser);
+      } catch (URISyntaxException e) {
+        LOGGER.debug(
+            String.format(
+                "Found derived URI without the proper syntax \"%s\" on metacard \"%s\"",
+                ser, metacard.getId()));
+        continue;
+      }
+      if (!uri.getFragment().equals(qualifier)) {
+        continue;
+      }
+      if (uriWithMatchingQualifier != null) {
+        throw new ResourceNotFoundException(
+            String.format(
+                "Found multiple URIs with the qualifier \"%s\" on metacard \"%s\"",
+                qualifier, metacard.getId()));
+      }
+      uriWithMatchingQualifier = uri;
+    }
+
+    if (uriWithMatchingQualifier == null) {
+      throw new ResourceNotFoundException(
+          String.format(
+              "Couldn't find a derived URI with the qualifier \"%s\" on metacard \"%s\"",
+              qualifier, metacard.getId()));
+    }
+    return uriWithMatchingQualifier;
   }
 }
