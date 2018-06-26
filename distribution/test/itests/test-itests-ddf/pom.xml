@@ -321,7 +321,7 @@
                 <executions>
                     <execution>
                         <id>unpack-solr</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -374,7 +374,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${solr.script.dir}${killsolr.script.file}</executable>
+                            <executable>${basedir}/${killsolr.script.file}</executable>
                             <arguments>
                                 <argument>${solr.port}</argument>
                             </arguments>
