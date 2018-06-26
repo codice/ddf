@@ -28,6 +28,7 @@
         <solr.script.dir>
             ${project.build.directory}/solr/bin/
         </solr.script.dir>
+        <solr.port>9994</solr.port>
     </properties>
     <dependencies>
         <!-- Pax Exam Karaf container dependencies -->
@@ -293,6 +294,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr.cmd</solr.script.file>
+                <solr.kill.file>killsolr.cmd</solr.kill.file>
             </properties>
         </profile>
         <profile>
@@ -304,6 +306,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr</solr.script.file>
+                <killsolr.script.file>killsolr</killsolr.script.file>
             </properties>
         </profile>
     </profiles>
@@ -365,6 +368,19 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>ensure-solr-is-stopped</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${solr.script.dir}${killsolr.script.file}</executable>
+                            <arguments>
+                                <argument>${solr.port}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>start-solr</id>
                         <phase>pre-integration-test</phase>
                         <goals>
@@ -375,17 +391,12 @@
                                 ${solr.script.dir}${solr.script.file}
                             </executable>
                             <arguments>
-                                <!--Restart to stop Solr is already running and the start it.-->
                                 <argument>start</argument>
                                 <argument>-p</argument>
-                                <!--The maven properties plugin reads the system properties file-->
-                                <!--and provides the solr.http.port property from it.-->
-                                <argument>9994</argument>
+                                <argument>${solr.port}</argument>
                                 <argument>-m</argument>
                                 <argument>512m</argument>
                             </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
                     <execution>
@@ -395,14 +406,12 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${solr.exec.dir}</executable>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
                             <arguments>
                                 <argument>stop</argument>
                                 <argument>-p</argument>
-                                <argument>9994</argument>
+                                <argument>${solr.port}</argument>
                             </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
                 </executions>

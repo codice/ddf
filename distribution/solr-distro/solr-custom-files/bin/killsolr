@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Requires 1 argument, the port on which Solr is running
+SOLR_PORT=$1
+SOLR_PID=""
+
+# Return code 0 (true) if Solr is running on the given port
+is_solr_running() {
+    jps -v | grep $SOLR_PORT > /dev/null
+}
+
+set_solr_pid() {
+    SOLR_PID=$(jps -v | grep $SOLR_PORT | cut -d " " -f 1)
+}
+
+if [ -z $SOLR_PORT ]; then
+    echo "Error. Include port number as first argument. Exiting."
+    exit 1
+fi
+
+if is_solr_running; then
+        set_solr_pid
+        kill -9 "$SOLR_PID"
+        echo "Terminating Solr PID=$SOLR_PID"
+    else
+        echo "Solr is not running on port $SOLR_PORT"
+fi
