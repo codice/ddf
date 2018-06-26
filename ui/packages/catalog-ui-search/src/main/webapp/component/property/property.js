@@ -150,15 +150,9 @@ define([
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
         },
         isBlank: function() {
-            var allValuesBlank = true;
-            var valueArray = this.getValue();
-            _.each(valueArray, function(value) {
-                if (value != undefined && value.trim().length > 0) {
-                    allValuesBlank = false;
-                    return;
-                }
+            return this.getValue().every(function(value) {
+                return value == null || value.trim().length == 0;
             });
-            return allValuesBlank;
         },
         onlyEditing: function(){
             return this.get('onlyEditing');

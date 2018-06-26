@@ -157,14 +157,9 @@ define([
             }
         },
         hasBlankRequiredAttributes() {
-            var hasBlankRequiredAttribute = false;
-            this.children.forEach(function(propertyView) {
-                if (propertyView.model.isRequired() && propertyView.model.isBlank()) {
-                    hasBlankRequiredAttribute = true;
-                    return;
-                }
+            return this.children.some(function(propertyView) {
+                return propertyView.model.isRequired() && propertyView.model.isBlank();
             });
-            return hasBlankRequiredAttribute;
         },
         /* Required properties should be highlighted if they are blank or have validation issues */
         updateRequiredPropertyHighlighting() {

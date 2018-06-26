@@ -25,7 +25,6 @@ var ListEditorView = require('component/list-editor/list-editor.view');
 var QueryFeedView = require('component/query-feed/query-feed.view');
 var ListInteractionsView = require('component/list-interactions/list-interactions.view');
 var lightboxInstance = require('component/lightbox/lightbox.view.instance');
-var IngestDetailsView = require('component/ingest-details/ingest-details.view');
 var ListAddTabsView = require('component/tabs/list-add/tabs-list-add.view');
 
 module.exports = Marionette.LayoutView.extend({
