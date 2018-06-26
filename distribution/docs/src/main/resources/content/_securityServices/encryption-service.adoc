@@ -5,6 +5,8 @@
 :order: 01
 :summary: Encrypts plain text.
 
+=== {title}
+
 ${branding} includes an encryption service to encrypt plain text such as passwords.
 
 ==== Encryption Command

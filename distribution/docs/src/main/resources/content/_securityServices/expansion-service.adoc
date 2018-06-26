@@ -5,12 +5,14 @@
 :order: 02
 :summary: Defines rulesets to map metacard and user attributes to more complete sets of values.
 
+=== {title}
+
 The expansion service defines rulesets to map metacard attributes and user attributes to more complete sets of values.
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
 ==== Configuring Expansion Service
 
-To use the expansion service, modify the following two files within the `${home_directory}/etc` directory:
+To use the expansion service, modify the following two files within the `${branding-lowercase}-<version>/etc/pdp` directory:
 
 * `${home_directory}/etc/pdp/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
 * `${home_directory}/etc/pdp/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
@@ -51,8 +53,8 @@ The following configuration file defines the rules shown above in the example ta
 ----
 # This defines the separator that will be used when the expansion string contains multiple
 # values - each will be separated by this string. The expanded string will be split at the
-# separator string and each resulting attributed added to the attribute set (duplicates are
-# suppressed). No value indicates the defualt value of ' ' (space).
+# separator string and each resulting attribute added to the attribute set (duplicates are
+# suppressed). No value indicates the default value of ' ' (space).
 separator=
 
 # The following rules define the attribute expansion to be performed. The rules are of the
