@@ -16,7 +16,7 @@ The internally managed Solr configuration is configured to be secure by default.
 hardening should be necessary. Internally managed Solr is configured to reject all remote requests
 by default. It is only accessible locally. This is a necessary part of a secure configuration.
 To enable remote requests for troubleshooting, edit the script
-file `ddf` (or the `ddf.cmd` file for Windows) and remove
+file `ddf` (or the `ddf.bat` file for Windows) and remove
 the `solr.jetty.host` and `jetty.host` parameters.
 
 
