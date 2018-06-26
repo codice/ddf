@@ -358,7 +358,9 @@
                             <executable>chmod</executable>
                             <arguments>
                                 <argument>+x</argument>
-                                <argument>${solr.script.dir}${solr.script.file}</argument>
+                                <argument>
+                                    ${solr.script.dir}${solr.script.file}
+                                </argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -369,7 +371,9 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${solr.script.dir}${solr.script.file}</executable>
+                            <executable>
+                                ${solr.script.dir}${solr.script.file}
+                            </executable>
                             <arguments>
                                 <!--Restart to stop Solr is already running and the start it.-->
                                 <argument>start</argument>
