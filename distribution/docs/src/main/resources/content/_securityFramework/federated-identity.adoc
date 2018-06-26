@@ -7,8 +7,8 @@
 
 Identity federation is the sharing of a user's identity and attributes among separate systems. In
 {branding}, it is used when performing federated queries - the user's identity is attached to outgoing
-requests, allowing federated sources to run queries as that user. This is critical because DDF must
-make authorization decisions for all queries, not just those initiated by the local node.
+requests, allowing federated sources to run queries as that user. This is critical because {branding}
+must make authorization decisions for all queries, not just those initiated by the local node.
 
 To represent a user's identity when federating, {branding} uses a SAML assertion. This is the format
 used internally to represent all subjects (even unauthenticated subjects). When federating over REST,
@@ -56,7 +56,7 @@ and returns these to {branding}.
 . {branding} takes the results from all sources and filters those that the user is not
 authorized to view. The remaining results are returned.
 
-NOTE: With federated identity, results are filtered both by the federated source and local DDF.
+NOTE: With federated identity, results are filtered both by the federated source and local {branding}.
 This is important as each may have different authorization policies.
 
 WARNING: Support for federated identity was added in DDF 2.8.x. Federated sources older than this
