@@ -13,7 +13,12 @@ to the <<_external_solr, externally managed Solr configuration>>.
 === Hardening an Internally Managed Solr Server
 
 The internally managed Solr configuration is configured to be secure by default. No additional
-hardening should be necessary.
+hardening should be necessary. Internally managed Solr is configured to reject all remote requests
+by default. It is only accessible locally. This is a necessary part of a secure configuration.
+To enable remote requests for troubleshooting, edit the script
+file `ddf` (or the `ddf.cmd` file for Windows) and remove
+the `solr.jetty.host` and `jetty.host` parameters.
+
 
 === Hardening an External Solr Server
 
@@ -22,9 +27,6 @@ ${branding} and an external Solr server. If the external server runs on a differ
 ${branding}, it is recommended that the Solr server be configured to use two-way TLS. See
 Apache Solr Reference Guide,
 https://lucene.apache.org/solr/guide/6_6/enabling-ssl.html#enabling-ssl[Enabling SSL]
-
-For an example of configuring a host to use two-way TLS, see the script function named
-`
 
 
 === Configuring Solr Encryption

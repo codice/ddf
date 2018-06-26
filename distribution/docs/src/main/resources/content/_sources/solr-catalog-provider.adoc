@@ -13,7 +13,8 @@
 
 The Solr Catalog Provider is included with a standard installation of ${branding}. There are several configurations available:
 
-.[[_internal_solr]]Internally Managed Solr Server (default):: ${branding} comes bundled with a customized distribution
+.[[_internal_solr]]Internally Managed Solr Server (default)::
+${branding} is bundled with a customized distribution
 of Apache Solr. This Solr distribution includes the configuration files needed for
 the Solr cores and special JAR libraries used by ${branding}.
 This installation is referred to as _internally managed_
@@ -34,10 +35,6 @@ No installation is required because ${branding} includes a distribution of Apach
 Although the default settings should be sufficient for most purposes, some options
 can be configured for an internally managed Solr.
 
-.Enabling Remote Requests
-Solr is configured to reject all remote requests by default. It is only accessible locally.
-This is a necessary part of a secure configuration.
-
 .Configuring Solr Transport Layer Security
 The default configuration does not use
 Transport Layer Security (TLS) between ${branding} and Solr. TLS adds overhead to Solr interactions
@@ -56,11 +53,12 @@ To enable TLS:
  solr.managed=true
  ----
 
-.[[_external_solr]]Externally Managed Solr Server:: In this configuration, ${branding} communicates with a
+.[[_external_solr]]Externally Managed Solr Server::
+In this configuration, ${branding} communicates with a
 Solr server that is started, stopped, and otherwise administrated independently of ${branding}.
 Some considerations of this configuration are:
 
-* The externally managed Solr server can be located on any host. ${branding} uses
+* The externally managed Solr server can be located on an external host. ${branding} uses
  HTTP/HTTPS to communicate with a remote Solr server.
 * An administrator is responsible for managing lifecycle of the Solr server.
 * Security considerations when communicating over a network.
@@ -87,7 +85,8 @@ solr.http.url=https://host:${solr.http.port}/solr
 solr.managed=false
 ----
 
-.[[_solr_cloud]]Solr Cloud:: Solr Cloud is a cluster of distributed Solr servers used for high
+.[[_solr_cloud]]Solr Cloud
+Solr Cloud is a cluster of distributed Solr servers used for high
 availability and scalability. If the ${branding} needs to be available with little or no downtime,
  then the Solr Cloud configuration should be used. The general considerations for selecting
   this configuration are:
@@ -95,7 +94,7 @@ availability and scalability. If the ${branding} needs to be available with litt
  * SolrCloud can scale to support over 2 billion indexed documents.
  * Has network overhead and requires additional protection to be secure.
  * Installation is more involved (requires Zookeeper)
- * Configuration and administration is more complex due to replicate, sharding, etc.
+ * Configuration and administration is more complex due to replication, sharding, etc.
  * No way to backup currently, but will automatically recover from system failure.
 
 Configuration shared between Solr Server instances is managed by Zookeeper.
