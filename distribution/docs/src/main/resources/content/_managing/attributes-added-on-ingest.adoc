@@ -1,0 +1,53 @@
+:title: Attributes Added on Ingest
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How attributes are automatically added to metacards during ingest.
+:order: 0
+
+== {title}
+
+A metacard is first created and populated by parsing the ingested resource with an <<_attributes_added_by_input_transformers,Input Transformer>>. +
+Then <<_attributes_added_by_attribute_injection,Attributes Are Injected>>, <<_developing_default_attribute_types,Default Attribute Types>> are applied, and <<_attributes_added_by_attribute_overrides_ingest,Attribute are Overridden>>. +
+Finally the metacard is passed through a series of <<_attributes_added_by_pre_authorization_plugins,Pre-Authorization Plugins>> and <<_attributes_added_by_pre_ingest_plugins,Pre-Ingest Plugins>>.
+
+.Ingest Attribute Flow
+[ditaa,ingest-attribute-flow]
+....
++----------------------------------------------+
+| /----------------\  |                    cCCC|
+| |     Ingest cDEF|  |                        |
+| \----------------/  |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369      Input Transformers              | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369      Attribute Injection             | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369    Default Attribute Types           | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369      Attribute Overrides             | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369    Pre Authorization Plugins         | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
+| /------------------------------------------\ |
+| |c369       Pre Ingest Plugins             | |
+| \------------------------------------------/ |
+|                     |                        |
+|                     v                        |
++----------------------------------------------+
+....

@@ -1,0 +1,26 @@
+:title: Attributes Added by Input Transformers
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How input tranformers add attributes to metacards.
+:order: 01
+
+=== {title}
+
+<<_available_input_transformers,Input Transformers>> create and populate metacards by parsing a resource.
+See <<_file_format_specific_attributes,File Format Specific Attributes>> to see the attributes used for specific file formats.
+
+{branding} chooses which input transformer to use by:
+
+. Resolving the mimetype for the resource.
+. Gathering all of the input transformers associated with the resolved mimetype. See <<_all_file_formats_supported,Supported File Formats>> for a list of supported mimetypes.
+. Iterating through the transformers until a successful transformation is performed.
+
+The first transformer that can successfully create a metacard from the ingested resource is chosen.
+If no transformer can successfully transform the resource, the ingest process fails.
+
+[IMPORTANT]
+====
+Each of the ingest methods have their own subtle differences when resolving the resource's mimetype/input transformer. +
+For example: a resource ingested through Intrigue may not produce the same metacard attributes as the same resource ingested through the Content Directory Monitor.
+====
