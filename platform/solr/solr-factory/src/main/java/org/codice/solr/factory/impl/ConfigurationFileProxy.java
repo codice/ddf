@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  *     <p>Abstraction layer for accessing files or directories on disk. Provides different
  *     implementations depending on if the code is run within an OSGi container or not.
  */
-@Deprecated
 public class ConfigurationFileProxy {
   public static final String DEFAULT_SOLR_CONFIG_PARENT_DIR = "etc";
 
