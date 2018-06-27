@@ -126,7 +126,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyLogicalNodeInProgress();
     verifyLogicalNodeHasChildren();
     JAXBElement result = logicOpCache.pop().apply(depth.pop());
-    if (!depth.isEmpty()) {
+    if (!depth.isEmpty() && depth.peek() != null) {
       depth.peek().add(result);
     } else {
       rootNode = result;
@@ -148,19 +148,15 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   @Override
   public FlatFilterBuilder beginPropertyIsLikeType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    validateOperatorMapping(
-        comparisonMapping, "Cannot find mapping for like operator: " + operator);
-    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
-    return this;
+    return beginPropertyIsLikeOrIsILike(operator);
   }
 
   @Override
   public FlatFilterBuilder beginPropertyIsILikeType(String operator) {
-    return beginPropertyIsLikeType(operator);
+    return beginPropertyIsLikeOrIsILike(operator);
   }
+
+
 
   @Override
   public FlatFilterBuilder beginBinaryTemporalType(String operator) {
@@ -197,7 +193,9 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     if (depth.isEmpty()) {
       rootNode = supplierInProgress.get();
     } else {
-      depth.peek().add(supplierInProgress.get());
+      if (depth.peek() != null) {
+        depth.peek().add(supplierInProgress.get());
+      }
     }
     supplierInProgress = null;
     return this;
@@ -277,7 +275,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   // Verify coverage: https://codice.atlassian.net/browse/DDF-3832
   private void verifyLogicalNodeHasChildren() {
-    if (!depth.isEmpty() && depth.peek().isEmpty()) {
+    if (!depth.isEmpty() && (depth.peek() == null || depth.peek().isEmpty())) {
       throw new IllegalStateException("Cannot end the logic node, no children provided");
     }
   }
@@ -293,6 +291,16 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     if (supplierInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
     }
+  }
+
+  private FlatFilterBuilder beginPropertyIsLikeOrIsILike(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
+    validateOperatorMapping(
+            comparisonMapping, "Cannot find mapping for like operator: " + operator);
+    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
+    return this;
   }
 
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
