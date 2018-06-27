@@ -161,16 +161,19 @@ define([
                 return propertyView.model.isRequired() && propertyView.model.isBlank();
             });
         },
-        /* Required properties should be highlighted if they are blank or have validation issues */
-        updateRequiredPropertyHighlighting() {
-            this.children.forEach(function(propertyView) {
-                if (propertyView.model.isRequired()) {
-                    if (propertyView.model.isBlank()) {
-                        propertyView.turnOnHighlighting();
-                    } else {
-                        propertyView.turnOffHighlighting();
-                    }
-                }
+        showRequiredWarnings() {
+            this.children.forEach((propertyView) => {
+                propertyView.showRequiredWarning();
+            });
+        },
+        hideRequiredWarnings() {
+            this.children.forEach((propertyView) => {
+                propertyView.hideRequiredWarning();
+            });
+        },
+        isValid() {
+            return this.children.every(function(propertyView) {
+                return propertyView.isValid();
             });
         }
     }, {
@@ -246,7 +249,8 @@ define([
                         type: metacardDefinitions.metacardTypes[property].type,
                         values: {},
                         multivalued: metacardDefinitions.metacardTypes[property].multivalued,
-                        required: properties.requiredAttributes.includes(property)
+                        required: properties.requiredAttributes.includes(property),
+                        initializeToDefault: true
                     });
                 }
             });
@@ -267,7 +271,7 @@ define([
                     type: metacardDefinitions.metacardTypes[property].type,
                     values: {},
                     multivalued: metacardDefinitions.metacardTypes[property].multivalued,
-                    required: properties.requiredAttributes.includes(property)
+                    required: false
                 });
             });
             return this.generateFilteredCollectionView(propertyArray, metacards);

@@ -54,6 +54,8 @@ define([
         },
         initialize: function() {
             this.turnOnLimitedWidth();
+            this.listenTo(this.model, 'change:showRequiredWarning', this.handleShowRequired);
+            this.listenTo(this.model, 'change:value change:showRequiredWarning', this.validateRequired)
         },
         onRender: function () {
             this.handleEdit();
@@ -118,6 +120,15 @@ define([
         revert: function(){
             this.model.revert();
             this.onBeforeShow();
+        },
+        isValid() {
+            return this.model.isValid();
+        },
+        showRequiredWarning() {
+            this.model.showRequiredWarning();
+        },
+        hideRequiredWarning() {
+            this.model.hideRequiredWarning();
         },
         save: function(){
             var value = this.$el.find('input').val();
@@ -210,11 +221,17 @@ define([
                 this.updateValidation(this._validationReport);
             }
         },
-        turnOnHighlighting: function() {
-            this.$el.find('intrigue-input').addClass('has-validation-issues');
+        handleShowRequired() {
+            this.$el.toggleClass('show-required-warning', this.model.get('showRequiredWarning'));
         },
-        turnOffHighlighting: function() {
-            this.$el.find('intrigue-input').removeClass('has-validation-issues');
+        validateRequired() {
+            if (this.model.isRequired()) {
+                if (this.model.isBlank()) {
+                    this.$el.addClass('failed-required-check');
+                } else {
+                    this.$el.removeClass('failed-required-check');
+                }
+            }
         }
     }, {
         getPropertyView: function(modelJSON){

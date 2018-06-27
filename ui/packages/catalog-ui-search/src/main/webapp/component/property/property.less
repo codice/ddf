@@ -88,6 +88,25 @@
     .background-gradient(rgba(0,0,0,.05), rgba(255,255,255,.05));
     z-index: 0;
   }
+
+  .for-error {
+    color: contrast(@negative-color);
+    overflow: hidden;
+    display: block;
+    line-height: @minimumLineSize;
+    text-align: left;
+    padding-left: @minimumSpacing;
+    background: @negative-color;
+    height: 0px;
+  }
+
+  &.failed-required-check.show-required-warning {
+    .for-error {
+      display: block;
+      height: auto;
+      white-space: normal;
+    }
+  }
 }
 
 @{customElementNamespace}property.is-editing.has-conflicting-definitions:not(.is-readOnly) {

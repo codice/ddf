@@ -35,6 +35,12 @@ define([
         getValue: function(){
             return this.get('value');
         },
+        setIsValid: function(isValid) {
+          this.get('property').set('isValid', isValid);
+        },
+        isValid() {
+            return this.get('property').isValid();
+        },
         getCalculatedType: function(){
             return this.get('property').getCalculatedType();
         },

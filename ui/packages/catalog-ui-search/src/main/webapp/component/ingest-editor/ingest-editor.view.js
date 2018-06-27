@@ -52,6 +52,7 @@ define([
         },
         clear: function() {
             this.editorProperties.currentView.revert();
+            this.editorProperties.currentView.hideRequiredWarnings();
         },
         getPropertyCollectionView: function() {
             return this.editorProperties.currentView;

@@ -27,6 +27,7 @@ define([
             _initialValue: '',
             readOnly: false,
             validation: undefined,
+            isValid: true,
             id: '',
             isEditing: false,
             bulk: false,
@@ -38,7 +39,8 @@ define([
             showLabel: true,
             onlyEditing: false,
             initializeToDefault: false,
-            required: false
+            required: false,
+            showRequiredWarning: false
         },
         setDefaultValue: function(){
             if (this.get('initializeToDefault')){
@@ -148,6 +150,15 @@ define([
         },
         isHomogeneous: function(){
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
+        },
+        isValid() {
+            return this.get('isValid');
+        },
+        showRequiredWarning() {
+            this.set('showRequiredWarning', true);
+        },
+        hideRequiredWarning() {
+            this.set('showRequiredWarning', false);
         },
         isBlank: function() {
             return this.getValue().every(function(value) {

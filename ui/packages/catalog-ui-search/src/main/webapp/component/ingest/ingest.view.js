@@ -37,9 +37,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     detailsView: {},
     editorView: {},
-    childEvents: {
-        'ingestDetails:on:upload': 'preIngestValidation',
-    },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
     },
@@ -53,27 +50,31 @@ module.exports = Marionette.LayoutView.extend({
     },
     onBeforeShow: function() {
         this.editorView = new IngestEditor();
+        this.detailsView = new IngestDetails({
+            url: '/services/catalog/',
+            preIngestValidator: this.validateAttributes.bind(this)
+        });
         this.ingestEditor.show(this.editorView);
-        this.detailsView = new IngestDetails({url: '/services/catalog/'});
         this.ingestDetails.show(this.detailsView);
 
         if (properties.editorAttributes.length === 0) {
             this.ingestEditor.$el.hide();
         }
     },
-    /* todo: Check for validation issues before uploading */
-    preIngestValidation: function () {
+    validateAttributes: function () {
         var propertyCollectionView = this.editorView.getPropertyCollectionView();
-        propertyCollectionView.updateRequiredPropertyHighlighting();
-        if (propertyCollectionView.hasBlankRequiredAttributes()) {
+        if (propertyCollectionView.hasBlankRequiredAttributes() || !propertyCollectionView.isValid()) {
             announcement.announce({
-                title: 'Upload not Permitted',
-                message: 'Please make sure all required attributes are set before uploading',
+                title: 'Some fields need attention',
+                message: 'Please address validation issues before uploading',
                 type: 'error'
             });
+            propertyCollectionView.showRequiredWarnings();
+            return false;
         } else {
             this.detailsView.setOverrides(this.editorView.getAttributeOverrides());
-            this.detailsView.startUpload();
+            propertyCollectionView.hideRequiredWarnings();
+            return true;
         }
     }
 });
