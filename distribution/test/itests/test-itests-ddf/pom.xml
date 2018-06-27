@@ -396,6 +396,7 @@
                                 <argument>${solr.port}</argument>
                                 <argument>-m</argument>
                                 <argument>512m</argument>
+                                <argument>-force</argument>
                             </arguments>
                         </configuration>
                     </execution>
