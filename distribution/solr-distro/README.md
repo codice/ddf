@@ -23,19 +23,13 @@ The `download-maven-plugin` will cache the Solr distribution zip file in the loc
 repository. 
 
 ### Creating the DDF custom Solr distribution
-Files that should be different from the base Solr distribution, or are needed in addition
-to the base Solr files should be places in the `solr-distro/solr-custom-files` 
-directory structure. The `maven-assembly-plugin` copies those files into modules's `target` (output)
-directory. 
-
-The `solr-distro/solr-custom-files` also uses the maven coordinates of JAR files that needs to be 
-included with the custome distribution. The plugin feteches those JARs like any other artifacts 
+The `maven-assembly-plugin` uses the maven coordinates of JAR files that need to be 
+included with the Solr distribution. The plugin fetches those JARs like any other artifacts 
 and copies them into the configured location.
 
 Finally the `maven-assembly-plugin` unzips the base Solr distribution into the 
-module's target directory. This step must comes after the other steps because 
-`maven-assembly-plugin` does NOT overwrite files, so the DDF custom files 
-and maven artifacts must be copied first. 
+module's target directory. This step should be last because 
+`maven-assembly-plugin` does NOT overwrite files.
 
 Finally, the maven-assembly-plugin creates a type _zip_ artifact and assigns it the 
 classifier `assembly`. This artifact is installed into the local repository where the 
@@ -45,8 +39,9 @@ but `maven-assembly-plugin` fails if a classifier is not provided.
 The maven-assembly-plugin will install the custom Solr distribution into the local repository as 
 soon as the distribution is built.
 
-**The custom Solr distribution is used by the integration tests. Therefore, the custom Solr distribution
- must be build before the integration tests attempt to unpack and run 
+**The custom Solr distribution is used by the integration tests. Therefore, 
+the custom Solr distribution
+must be build before the integration tests attempt to unpack and run 
 the customer Solr distribution.** Otherwise, the integration tests may fail. Or the integration 
 tests may use an older version of the custom Solr distribution from the local (or a remote)
 maven repository.

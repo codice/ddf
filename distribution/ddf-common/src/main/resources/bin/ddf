@@ -35,7 +35,6 @@ get_property() {
 refresh_properties() {
     # Extract values from Java properties file and construct Solr URL
     SOLR_CLIENT=$(get_property solr.client)
-    MANAGE_SOLR=$(get_property solr.managed)
     SOLR_PORT=$(get_property solr.http.port)
   }
 
@@ -43,7 +42,7 @@ refresh_properties() {
 # Return 0 (success/true) if the Solr lifecycle should be managed by this script
 is_managing_solr() {
   local RC=1
-  if [ $MANAGE_SOLR = true ]; then
+  if [ $SOLR_CLIENT = HttpSolrClient  ]; then
     RC=0
   fi
   return $RC
@@ -61,7 +60,6 @@ is_restarting() {
 
 
 # Return 0 (success/true) Solr should only accept requests from the same host
-# Only applies to managed Solr configurations
 solr_must_deny_remote_requests() {
     local RC=1
     if [ $SOLR_DENY_REMOTE_REQUESTS = true ]; then
@@ -77,7 +75,6 @@ clear_restart_flag() {
 }
 
 # Set the appropriate option to prevent Solr from responding to remote requests
-# Only applies to managed Solr configurations
 deny_remote_connection_option() {
     if solr_must_deny_remote_requests;  then
       if [ $HTTPS = true ]; then
@@ -88,7 +85,6 @@ deny_remote_connection_option() {
     fi
 }
 
-# Only applies to managed Solr configurations
 # Start Solr using Solr's script
 start_solr() {
 
@@ -103,7 +99,6 @@ start_solr() {
         fi
 }
 
-# Only applies to managed Solr configurations
 # Set special environment variables used by Solr to configure TLS
 set_solr_https_properties() {
 
@@ -116,7 +111,6 @@ set_solr_https_properties() {
       export SOLR_SSL_TRUST_STORE_TYPE=$(get_property javax.net.ssl.trustStoreType)
 
       # Require two-way TLS. Change this value to false to disable client authentication.
-      # Only applies to managed Solr configurations
       export SOLR_SSL_NEED_CLIENT_AUTH=true
 
       # Not used
@@ -127,14 +121,12 @@ set_solr_https_properties() {
 }
 
 
-# Only applies to managed Solr configurations.
-# Change these values to alter the memory avalable to the managed Solr JVM.
+# Change these values to alter the memory available to the managed Solr JVM.
 set_solr_memory() {
     export SOLR_JAVA_MEM="-Xms512m -Xmx2g"
 }
 
 
-# Only applies to managed Solr configurations
 stop_solr() {
     $SOLR_EXEC stop -p $SOLR_PORT
 }
@@ -160,19 +152,8 @@ start_karaf() {
 }
 
 attempt_startup() {
-    if is_managing_solr; then
-        if [ "$SOLR_CLIENT" != "HttpSolrClient" ]; then
-            echo "ERROR! solr.managed is set to true but the solr.client is not HttpSolrClient"
-            echo "Please set solr.managed to false if you are not using the HttpSolrClient and"
-            echo "do not want DDF to be managing the solr instance."
-            # Exit code 83, for ascii code S, for Solr!
-            exit 83
-        fi
         set_solr_memory
         start_solr;
-    else
-        echo "Solr is not managed"
-    fi
 
     # Process suspended while Karaf is running
     start_karaf
@@ -197,7 +178,7 @@ while true; do
     clear_restart_flag
     print_messages
 
-    # Uncomment next line to enable TLS for internally managed Solr
+    # Uncomment next line to enable TLS for managed Solr
     # set_solr_https_properties
 
     attempt_startup

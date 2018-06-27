@@ -449,12 +449,13 @@ Thumbs.db
 |http://localhost:${solr.http.port}/solr
 |Yes
 
-|${branding} manages starting/stopping Solr server
-|solr.managed
-|boolean
-|true
-|Set to true if ${branding} manages starting and stopping of Solr server. Set to `false` if Solr is externally managed.
+|Solr Data Directory
+|solr.data.dir
+|String
+|Directory for Solr core files
+|${karaf.home}/solr/server/solr
 |Yes
+
 
 |Zookeeper Nodes
 |solr.cloud.zookeeper

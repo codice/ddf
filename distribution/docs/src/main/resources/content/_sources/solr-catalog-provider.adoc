@@ -11,14 +11,12 @@
 
 == {title}
 
-The Solr Catalog Provider is included with a standard installation of ${branding}. There are several configurations available:
+The Solr Catalog Provider is included with a standard installation of ${branding}. There are two configurations available:
 
-.[[_internal_solr]]Internally Managed Solr Server (default)::
-${branding} is bundled with a customized distribution
-of Apache Solr. This Solr distribution includes the configuration files needed for
-the Solr cores and special JAR libraries used by ${branding}.
-This installation is referred to as _internally managed_
-because the ${branding} scripts attempt to start and stop this Solr server.
+.[[_internal_solr]]Solr Server (default)::
+${branding} is bundled with a distribution
+of Apache Solr. This distribution includes special JAR libraries used by ${branding}.
+This ${branding} scripts manage the starting and stopping of the Solr server.
 Considerations include:
 
 * No configuration necessary. Simply start ${branding} and ${branding} manages starting and
@@ -28,12 +26,12 @@ stopping the Solr server.
 * All data is located inside the {$branding} home directory. If the Solr index grows
   large, the storage volume may run low on space.
 
-.Installing Internally Managed Solr
+.Installing Solr Server
 No installation is required because ${branding} includes a distribution of Apache Solr.
 
-.Configuring Internally Managed Solr
+.Configuring Solr Server
 Although the default settings should be sufficient for most purposes, some options
-can be configured for an internally managed Solr.
+can be configured for Solr server.
 
 .Configuring Solr Transport Layer Security
 The default configuration does not use
@@ -45,45 +43,14 @@ To enable TLS:
 . Change the property `solr.http.url` to read `https://` instead of `http://`
 . Restart ${branding}
 
-.Internally Managed Solr Server System Properties (default values)
+.Solr Server System Properties (default values)
  ----
  solr.client=HttpSolrClient
  solr.http.port=8994
  solr.http.url=http://localhost:${solr.http.port}/solr
- solr.managed=true
+ solr.data.dir=_DO_NOT_EXPAND_${karaf.home}/solr/server/solr
  ----
 
-.[[_external_solr]]Externally Managed Solr Server::
-In this configuration, ${branding} communicates with a
-Solr server that is started, stopped, and otherwise administrated independently of ${branding}.
-Some considerations of this configuration are:
-
-* The externally managed Solr server can be located on an external host. ${branding} uses
- HTTP/HTTPS to communicate with a remote Solr server.
-* An administrator is responsible for managing lifecycle of the Solr server.
-* Security considerations when communicating over a network.
-* Possible performance issues because of network latency and bandwidth.
-
-.Installing Externally Managed Solr
-To install a  Solr server, copy the folder ${home_directory}/solr to a folder accessible to
-the Solr server host. That ensures that additional JAR files and configuration information
-used by ${branding} is available to Solr. Start the Solr server with Solr's script file, or
-configure the host to start Solr as a service.
-
-.Configuring ${branding} For Externally Managed Solr
-. Edit the `${home_directory}/etc/system.properties`
-.. Change the property `solr.http.port` to the port used by the Solr server
-.. Change the property `solr.http.url` to the URL used by the Solr server. Remember to use
-`${solr.http.port}` to specify the port,
-.. Change the property `solr.managed` to `false`, or remove the property entirely.
-
-.Externally Managed Solr Server System Properties (example values)
-----
-solr.client=HttpSolrClient
-solr.http.port=8983
-solr.http.url=https://host:${solr.http.port}/solr
-solr.managed=false
-----
 
 .[[_solr_cloud]]Solr Cloud
 Solr Cloud is a cluster of distributed Solr servers used for high
