@@ -20,7 +20,8 @@
 
 The {branding} Standard Search UI application allows a user to search for records in the local
 Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
-displayed on a globe, providing a visual representation of where the records were found.
+displayed on a globe, providing a visual representation of where the records were found. The Search
+UI is turned off by default; however, it can be turn on through the Admin UI.
 
 Located at the bottom of the left pane of the Search UI are two tabs: <<Search>> and
 <<Workspaces>>. The Search tab contains basic fields to query the Catalog and other sources. The
@@ -37,6 +38,15 @@ provides results based on the defined criteria and detailed information about ea
 Additionally, a user can save individual records that were returned by the query to a workspace, so
 they can be referenced in the future. The user can also save the search criteria to a workspace so
 the query can be run again.
+
+==== Turning on Search UI
+
+The Search UI is turned off by default, but can be turned on through the Admin UI.
+
+. Go to *Admin UI*
+. Go to *System* tab
+. Go to *Feature* tab
+. Install feature: *search-ui*
 
 ==== Search Criteria
 
