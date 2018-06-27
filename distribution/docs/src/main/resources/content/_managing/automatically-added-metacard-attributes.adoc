@@ -1,0 +1,9 @@
+:title: Automatically Added Metacard Attributes
+:type: dataManagementIntro
+:status: published
+:summary: How attributes are automatically added to metacards.
+:order: 05
+
+== {title}
+
+This section describes how attributes are automatically added to metacards.

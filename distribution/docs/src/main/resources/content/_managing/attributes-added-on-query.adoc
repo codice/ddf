@@ -1,0 +1,10 @@
+:title: Attributes Added on Query
+:type: dataManagement
+:status: published
+:parent: Automatically Added Metacard Attributes
+:summary: How attributes are automatically added to metacards during a query.
+:order: 07
+
+== {title}
+
+Metacards resulting from a query will undergo <<attributes_added_by_attribute_injection,Attribute Injection>>, then have their <<_attributes_added_by_attribute_overrides_query,Attributes Overridden>>.
