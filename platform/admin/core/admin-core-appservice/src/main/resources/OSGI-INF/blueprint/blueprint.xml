@@ -42,6 +42,7 @@
         <argument ref="appService"/>
         <argument ref="configurationAdmin"/>
         <argument ref="mBeanServer"/>
+        <argument ref="featuresService"/>
         <property name="applicationPlugins" ref="applicationPluginList"/>
     </bean>
 

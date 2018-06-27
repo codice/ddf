@@ -24,6 +24,22 @@ import java.util.Map;
 public interface ApplicationServiceBeanMBean {
 
   /**
+   * Installs the specified feature
+   *
+   * @param feature name to install.
+   */
+  @Deprecated
+  void installFeature(String feature);
+
+  /**
+   * Uninstalls the specified feature
+   *
+   * @param feature name to install.
+   */
+  @Deprecated
+  void uninstallFeature(String feature);
+
+  /**
    * Creates an application list that has two attributes that describes relationships between
    * applications (parent and children dependencies).
    *
