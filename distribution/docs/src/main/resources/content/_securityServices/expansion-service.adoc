@@ -12,7 +12,7 @@ For example if a user has an attribute "alphabet" that contained the value "full
 
 ==== Configuring Expansion Service
 
-To use the expansion service, modify the following two files within the `${branding-lowercase}-<version>/etc/pdp` directory:
+To use the expansion service, modify the following two files within the `${home_directory}/etc/pdp` directory:
 
 * `${home_directory}/etc/pdp/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
 * `${home_directory}/etc/pdp/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
