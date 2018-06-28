@@ -43,7 +43,7 @@ define([
         initialize: function(){
             if (this.model.get('property')){
                 this.listenTo(this.model.get('property'), 'change:isEditing', this.handleEdit);
-                this.listenTo(this.model.get('property'), 'change:isValid', this.handleValidation);
+                this.listenTo(this.model, 'change:isValid', this.handleValidation);
             }
         },
         serializeData: function () {

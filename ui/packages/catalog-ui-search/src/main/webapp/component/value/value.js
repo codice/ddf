@@ -20,6 +20,7 @@ define([
     return Backbone.AssociatedModel.extend({
         defaults: {
             value: undefined,
+            isValid: true,
             property: undefined
         },
         relations: [
@@ -35,11 +36,11 @@ define([
         getValue: function(){
             return this.get('value');
         },
-        setIsValid: function(isValid) {
-          this.get('property').set('isValid', isValid);
+        setIsValid: function(isValid){
+            this.set('isValid', isValid);
         },
-        isValid() {
-            return this.get('property').isValid();
+        isValid(){
+            return this.get('isValid');
         },
         getCalculatedType: function(){
             return this.get('property').getCalculatedType();

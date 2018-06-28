@@ -27,7 +27,6 @@ define([
             _initialValue: '',
             readOnly: false,
             validation: undefined,
-            isValid: true,
             id: '',
             isEditing: false,
             bulk: false,
@@ -152,7 +151,11 @@ define([
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
         },
         isValid() {
-            return this.get('isValid');
+            if (this.parents) {
+                return this.parents.every(function(value) {
+                    return value.isValid();
+                });
+            }
         },
         showRequiredWarning() {
             this.set('showRequiredWarning', true);
