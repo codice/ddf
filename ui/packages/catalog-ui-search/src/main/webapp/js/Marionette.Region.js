@@ -100,7 +100,7 @@ _.extend(Marionette.Region.prototype, {
             }
 
             // An array of views that we're about to display
-            var attachedRegion = Marionette.isNodeAttached(this.el);
+            var attachedRegion = Marionette.isNodeAttached(this.replaced ? this.currentView.el : this.el);
 
             // The views that we're about to attach to the document
             // It's important that we prevent _getNestedViews from being executed unnecessarily
