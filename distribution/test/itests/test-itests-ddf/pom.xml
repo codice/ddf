@@ -294,7 +294,6 @@
             </activation>
             <properties>
                 <solr.script.file>solr.cmd</solr.script.file>
-                <solr.kill.file>killsolr.cmd</solr.kill.file>
             </properties>
         </profile>
         <profile>
@@ -306,7 +305,6 @@
             </activation>
             <properties>
                 <solr.script.file>solr</solr.script.file>
-                <killsolr.script.file>killsolr</killsolr.script.file>
             </properties>
         </profile>
     </profiles>
@@ -374,8 +372,10 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${basedir}/${killsolr.script.file}</executable>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
                             <arguments>
+                                <argument>stop</argument>
+                                <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
                         </configuration>
