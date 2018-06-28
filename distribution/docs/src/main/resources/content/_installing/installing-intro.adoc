@@ -59,8 +59,8 @@ hosting a local catalog.
 |32 GB
 
 |Disk Space
-|2 GB
-|4 GB
+|40 GB
+|80 GB
 
 |Video Card
 |--
