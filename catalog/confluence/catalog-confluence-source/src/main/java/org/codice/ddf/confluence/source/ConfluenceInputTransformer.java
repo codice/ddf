@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.confluence.source;
 
+import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Security;
 import ddf.catalog.data.types.Topic;
@@ -59,18 +62,20 @@ public class ConfluenceInputTransformer implements InputTransformer {
 
   private MetacardType metacardType;
 
-  public ConfluenceInputTransformer(MetacardType type) {
-    metacardType = type;
+  private List<AttributeInjector> injectors;
+
+  public ConfluenceInputTransformer(MetacardType type, List<AttributeInjector> injectors) {
+    this.metacardType = type;
+    this.injectors = injectors;
   }
 
   @Override
-  public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
+  public Metacard transform(InputStream input) throws CatalogTransformerException {
     return transform(input, null);
   }
 
   @Override
-  public Metacard transform(InputStream input, String id)
-      throws IOException, CatalogTransformerException {
+  public Metacard transform(InputStream input, String id) throws CatalogTransformerException {
 
     Map<String, Object> json = getJsonObject(input);
 
@@ -78,7 +83,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
   }
 
   public List<Metacard> transformConfluenceResponse(InputStream input)
-      throws IOException, CatalogTransformerException {
+      throws CatalogTransformerException {
 
     Map<String, Object> json = getJsonObject(input);
     List<Metacard> metacards = new ArrayList<>();
@@ -91,7 +96,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
             e -> {
               try {
                 metacards.add(transformConfluenceResult(e, baseUrl, null));
-              } catch (IOException | CatalogTransformerException ex) {
+              } catch (CatalogTransformerException ex) {
                 LOGGER.error("Exception transforming confluence result.", ex);
               }
             });
@@ -99,9 +104,13 @@ public class ConfluenceInputTransformer implements InputTransformer {
   }
 
   private Metacard transformConfluenceResult(Object json, String baseUrl, String id)
-      throws IOException, CatalogTransformerException {
-    MetacardImpl metacard = new MetacardImpl(metacardType);
-
+      throws CatalogTransformerException {
+    MetacardType type =
+        new MetacardTypeImpl(metacardType.getName(), metacardType.getAttributeDescriptors());
+    for (AttributeInjector injector : injectors) {
+      type = injector.injectAttributes(type);
+    }
+    MetacardImpl metacard = new MetacardImpl(type);
     parseBasicInfo(metacard, json, id);
 
     parseBody(metacard, json, metacard.getAttribute(Topic.CATEGORY).getValue().toString());
@@ -152,9 +161,13 @@ public class ConfluenceInputTransformer implements InputTransformer {
   private void parseHistory(MetacardImpl metacard, Object json) throws CatalogTransformerException {
     Object history = getRequiredJsonElement(json, "history");
 
-    metacard.setModifiedDate(getDate(getRequiredJsonElement(history, "lastUpdated", "when")));
+    Date modified = getDate(getRequiredJsonElement(history, "lastUpdated", "when"));
+    metacard.setModifiedDate(modified);
+    metacard.setAttribute(Core.METACARD_MODIFIED, modified);
 
-    metacard.setCreatedDate(getDate(getRequiredJsonElement(history, "createdDate")));
+    Date created = getDate(getRequiredJsonElement(history, "createdDate"));
+    metacard.setCreatedDate(created);
+    metacard.setAttribute(Core.METACARD_CREATED, created);
 
     metacard.setAttribute(Contact.CREATOR_NAME, getString(history, "createdBy", "username"));
 

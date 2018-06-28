@@ -16,8 +16,17 @@ package org.codice.ddf.confluence.source;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
@@ -30,6 +39,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -42,7 +52,20 @@ public class ConfluenceInputTransformerTest {
 
   @Before
   public void setup() {
-    transformer = new ConfluenceInputTransformer(new MetacardTypeImpl("confluence", (List) null));
+    AttributeInjector injector = mock(AttributeInjector.class);
+    when(injector.injectAttributes(any(MetacardType.class)))
+        .thenReturn(
+            new MetacardTypeImpl(
+                "confluence",
+                MetacardImpl.BASIC_METACARD,
+                Collections.singleton(
+                    new AttributeDescriptorImpl(
+                        "injected.attribute", true, true, true, false, BasicTypes.STRING_TYPE))));
+    transformer =
+        new ConfluenceInputTransformer(
+            new MetacardTypeImpl(
+                "confluence", MetacardImpl.BASIC_METACARD.getAttributeDescriptors()),
+            Collections.singletonList(injector));
   }
 
   @Test
@@ -158,6 +181,8 @@ public class ConfluenceInputTransformerTest {
           mcard.getAttribute(Security.ACCESS_GROUPS).getValues().contains("ddf-developers"),
           is(true));
     }
+    assertThat(
+        mcard.getMetacardType().getAttributeDescriptor("injected.attribute"), notNullValue());
   }
 
   private Date getDate(String dateTime) {
