@@ -3,8 +3,6 @@
 <#list securityServices?sort_by("order") as ss>
 <#if ss.status == "published">
 
-=== ${ss.title}
-
 include::${ss.file}[]
 </#if>
 </#list>

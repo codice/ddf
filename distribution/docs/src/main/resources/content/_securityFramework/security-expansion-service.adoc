@@ -23,7 +23,7 @@ The result is returned to the caller.
 |Key (Attribute)
 2+^|Rules (original -> new)
 
-.3+|key1
+.3+^|key1
 |value1
 |replacement1
 
@@ -33,7 +33,7 @@ The result is returned to the caller.
 |value3
 |replacement3
 
-.2+|key2
+.2+^|key2
 |value1
 |replacement1
 
@@ -51,7 +51,7 @@ The examples below use the following collection of rulesets:
 |Key (Attribute)
 2+^|Rules (original -> new)
 
-.3+|Location
+.3+^|Location
 |Goodyear
 |Goodyear AZ
 
