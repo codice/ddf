@@ -346,7 +346,7 @@ grant codeBase "file:/catalog-solr-provider" {
 
 grant codeBase "file:/catalog-plugin-videothumbnail" {
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}Request method:-", "read,write,execute";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}-", "read,write,execute";
 }
 
 grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool" {
