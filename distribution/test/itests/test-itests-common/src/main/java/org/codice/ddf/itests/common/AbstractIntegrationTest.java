@@ -700,12 +700,15 @@ public abstract class AbstractIntegrationTest {
   }
 
   private Option[] configureSolr() {
+
     return options(
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "HttpSolrClient"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9994/solr"),
         editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.data.dir", "${karaf.home}/data/solr"),
+            SYSTEM_PROPERTIES_REL_PATH,
+            "solr.data.dir",
+            new File("target/solr/server/solr").getAbsolutePath()),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
   }
 
@@ -927,12 +930,23 @@ public abstract class AbstractIntegrationTest {
               throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
             }
           };
+      System.err.println("HomeAwareVmOption");
+      System.err.println(UNPACK_DIRECTORY.toString());
+      System.err.println(super.getOption());
+      System.err.println("------------------------------------*************---------------------");
+      File f = new File("target/");
+      System.err.println(f.getAbsolutePath());
 
       try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
         return dirContents
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  System.err.println(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
@@ -975,6 +989,11 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  System.err.println(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
@@ -1020,6 +1039,11 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  System.err.println(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
             .map(s -> s + File.separator)

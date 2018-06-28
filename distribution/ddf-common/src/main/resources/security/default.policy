@@ -180,7 +180,6 @@ grant codeBase "file:/org.apache.karaf.jaas.modules" {
 grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ingest_error.log", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}solr.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}artemis.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}security.log", "read,write";
     permission java.io.FilePermission "pax-logging.properties", "read";
@@ -338,12 +337,16 @@ grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standa
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
-    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute,read,write";
+}
+
+grant codeBase "file:/catalog-solr-provider" {
+    permission java.io.FilePermission  "<<ALL FILES>>", "read,write";
 }
 
 grant codeBase "file:/catalog-plugin-videothumbnail" {
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}-", "read,write,execute";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}Request method:-", "read,write,execute";
 }
 
 grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool" {
