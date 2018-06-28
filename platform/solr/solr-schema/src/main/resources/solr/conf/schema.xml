@@ -129,7 +129,7 @@
     -->
     <!--<field name="_root_"  type="string" indexed="true" stored="true" docValues="true"/>-->
 
-    <field name="id_txt" type="string" indexed="true" stored="true" required="true"/>
+    <field name="id_txt" type="string" indexed="true" stored="true" required="true" docValues="true"/>
     <field name="id_txt_tokenized" type="text_general" indexed="true" stored="false"
            required="false"/>
     <field name="id_txt_tokenized_has_case" type="text_general_has_case" indexed="true"
@@ -191,7 +191,7 @@
     <dynamicField name="*_geo" type="string" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false"
                   multiValued="true"/>
-    <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false"
                   multiValued="true"/>
     <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false"
@@ -205,16 +205,16 @@
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
 
     <!-- sort keys for the multivalued fields -->
-    <dynamicField name="*_int_sk" type="tint" indexed="true" stored="false"/>
-    <dynamicField name="*_lng_sk" type="tlong" indexed="true" stored="false"/>
-    <dynamicField name="*_shr_sk" type="tint" indexed="true" stored="false"/>
-    <dynamicField name="*_flt_sk" type="tfloat" indexed="true" stored="false"/>
-    <dynamicField name="*_dbl_sk" type="tdouble" indexed="true" stored="false"/>
-    <dynamicField name="*_tdt_sk" type="tdate" indexed="true" stored="false"/>
-    <dynamicField name="*_bln_sk" type="boolean" indexed="true" stored="false"/>
-    <dynamicField name="*_geo_sk" type="location" indexed="true" stored="false"/>
-    <dynamicField name="*_txt_sk" type="alphaNumericSort" indexed="true" stored="false"/>
-    <dynamicField name="*_xml_sk" type="alphaNumericSort" indexed="true" stored="false"/>
+    <dynamicField name="*_int_sk" type="tint" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_lng_sk" type="tlong" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_shr_sk" type="tint" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_flt_sk" type="tfloat" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_dbl_sk" type="tdouble" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_tdt_sk" type="tdate" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_bln_sk" type="boolean" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_txt_sk" type="string" indexed="true" stored="false" docValues="true"/>
+    <!-- stored is true until Solr 7.2+ which fixes SOLR-11532 -->
+    <dynamicField name="*_geo_sk" type="location" indexed="false" stored="true" docValues="true"/>
 
     <!-- DEPRECATED: The defaultSearchField is consulted by various query parsers when
      parsing a query string that isn't explicit about the field.  Machine (non-user)
@@ -579,8 +579,6 @@
         </analyzer>
     </fieldType>
 
-
-
     <!-- This is an example of using the KeywordTokenizer along
          With various TokenFilterFactories to produce a sortable field
          that does not include some properties of the source text
@@ -690,7 +688,7 @@
     <fieldType name="point" class="solr.PointType" dimension="2" subFieldSuffix="_d"/>
 
     <!-- A specialized field for geospatial search. If indexed, this fieldType must not be multivalued. -->
-    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+    <fieldType name="location" class="solr.LatLonPointSpatialField"/>
 
     <!-- An alternative geospatial field type new to Solr 4.  It supports multiValued and polygon shapes.
       For more information about this and other Spatial fields new to Solr 4, see:
