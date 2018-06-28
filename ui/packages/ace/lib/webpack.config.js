@@ -208,7 +208,6 @@ const dev = (base, { main, auth }) => merge.smart(base, {
   devServer: {
     hotOnly: true,
     inline: true,
-    host: 'localhost',
     disableHostCheck: true,
     historyApiFallback: true,
     contentBase: resolve('src/main/resources/'),
@@ -241,7 +240,7 @@ const test = (base, { main }) => merge.smart(base, {
   },
   devServer: {
     hot: true,
-    host: 'localhost'
+    disableHostCheck: true
   },
   plugins: [
     new HtmlWebpackPlugin(),
