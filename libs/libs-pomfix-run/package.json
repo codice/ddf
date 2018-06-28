@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "pom-fix -d ../../"
+    "test": "node target/pom-fix --dir ../../"
   },
   "author": "Codice",
   "license": "LGPL-3.0",
@@ -15,8 +15,6 @@
   "engines": {
     "node": ">=0.10.5"
   },
-  "dependencies": {
-    "pom-fix": "file:target/npm/pom-fix"
-  },
+  "dependencies": {},
   "private": true
 }
