@@ -290,6 +290,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     String searchPhrase = escapeSpecialCharacters(pattern);
+
+    if (Metacard.ANY_TEXT.equals(propertyName) && SOLR_WILDCARD_CHAR.equals(searchPhrase)) {
+      return new SolrQuery("*:*");
+    }
+
     if (searchPhrase.contains(SOLR_WILDCARD_CHAR)
         || searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)) {
       searchPhrase = "(" + searchPhrase + ")";

@@ -277,6 +277,20 @@ public class SolrFilterDelegateTest {
     stub(mockResolver.anyTextFields()).toReturn(Collections.singletonList("metadata_txt").stream());
     stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
 
+    String searchPhrase = "*";
+    String expectedQuery = "*:*";
+    boolean isCaseSensitive = false;
+
+    SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+
+    assertThat(isLikeQuery.getQuery(), is(expectedQuery));
+  }
+
+  @Test
+  public void testPropertyIsLikeTermAndWildcard() {
+    stub(mockResolver.anyTextFields()).toReturn(Collections.singletonList("metadata_txt").stream());
+    stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
+
     String searchPhrase = "abc-123*";
     String expectedQuery = "(" + WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc\\-123*))";
     boolean isCaseSensitive = false;
