@@ -31,9 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @deprecated Intrigue and simple search replace this functionality. Abstraction layer for
- *     accessing files or directories on disk. Provides different implementations depending on if
- *     the code is run within an OSGi container or not.
+ * @deprecated DDF is moving toward a standalone/solr cloud configuration instead of referencing the
+ *     UIs.
+ *     <p>Abstraction layer for accessing files or directories on disk. Provides different
+ *     implementations depending on if the code is run within an OSGi container or not.
  */
 @Deprecated
 public class ConfigurationFileProxy {

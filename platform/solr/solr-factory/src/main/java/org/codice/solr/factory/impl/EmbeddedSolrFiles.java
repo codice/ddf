@@ -34,8 +34,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * @deprecated Intrigue and simple search replace this functionality. Maintain embedded Solr
- *     configuration and schema files.
+ * @deprecated DDF is moving toward a standalone/solr cloud configuration instead of referencing the
+ *     UIs.
+ *     <p>Maintain embedded Solr configuration and schema files.
  *     <p><i>Note:</i> The corresponding {@link SolrConfig} and {@link IndexSchema} will be
  *     constructed the first time they are retrieved.
  */
