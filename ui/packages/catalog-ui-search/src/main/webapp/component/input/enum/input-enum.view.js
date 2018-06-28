@@ -56,7 +56,7 @@ define([
         listenForChange: function(){
             this.listenTo(this.enumRegion.currentView.model, 'change:value', function(){
                 this.model.set('value', this.getCurrentValue());
-                this.handleValidation();
+                this.validate();
             });
         },
         serializeData: function () {

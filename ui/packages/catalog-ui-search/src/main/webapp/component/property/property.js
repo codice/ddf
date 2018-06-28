@@ -162,7 +162,7 @@ define([
         },
         isBlank: function() {
             return this.getValue().every(function(value) {
-                return value == null || value.trim().length == 0;
+                return value == null || value.trim().length === 0;
             });
         },
         onlyEditing: function(){

@@ -18,6 +18,7 @@ import static org.boon.HTTP.APPLICATION_JSON;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.configuration.HistorianConfiguration;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -213,24 +215,24 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String customBackgroundSlideout;
 
-  private List<String> editorAttributes = Collections.emptyList();
-  private List<String> requiredAttributes = Collections.emptyList();
+  private Set<String> editorAttributes = Collections.emptySet();
+  private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
 
-  public List<String> getEditorAttributes() {
+  public Set<String> getEditorAttributes() {
     return editorAttributes;
   }
 
-  public void setEditorAttributes(List<String> editorAttributes) {
+  public void setEditorAttributes(Set<String> editorAttributes) {
     this.editorAttributes = editorAttributes;
   }
 
-  public List<String> getRequiredAttributes() {
+  public Set<String> getRequiredAttributes() {
     return requiredAttributes;
   }
 
   public void setRequiredAttributes(List<String> requiredAttributes) {
-    this.requiredAttributes = new ArrayList<>();
+    this.requiredAttributes = new LinkedHashSet<>();
     for (String entry : requiredAttributes) {
       if (StringUtils.isNotBlank(entry)) {
         this.requiredAttributes.add(entry);
@@ -246,9 +248,12 @@ public class ConfigurationApplication implements SparkApplication {
     this.attributeEnumMap = attributeEnumMap;
   }
 
+  public Set<String> extractValues(String valueString) {
+    return new LinkedHashSet<>(Splitter.on(',').trimResults().splitToList(valueString));
+  }
+
   public void setAttributeEnumMap(List<String> entries) {
-    List<String> displayedAttributes = new ArrayList<>();
-    Map<String, Set<String>> attributeValueEnums = new HashMap<>();
+    Map<String, Set<String>> mergedEntryMap = new LinkedHashMap<>();
 
     for (String entry : entries) {
       if (StringUtils.isBlank(entry)) {
@@ -256,31 +261,26 @@ public class ConfigurationApplication implements SparkApplication {
       }
 
       String[] kvPair = entry.split("=", 2);
-      String attrName = kvPair[0].trim();
-      if (attrName.isEmpty()) {
-        continue;
-      }
-
-      displayedAttributes.add(attrName);
-      if (kvPair.length == 2) {
-        Set<String> valueSet =
-            attributeValueEnums.containsKey(attrName)
-                ? attributeValueEnums.get(attrName)
-                : new LinkedHashSet<>();
-        for (String value : kvPair[1].split(",")) {
-          String trimmedValue = value.trim();
-          if (trimmedValue.length() > 0) {
-            valueSet.add(value.trim());
-          }
+      String attribute = kvPair[0].trim();
+      if (!attribute.isEmpty()) {
+        Set<String> values;
+        if (mergedEntryMap.containsKey(attribute)) {
+          values = mergedEntryMap.get(attribute);
+        } else {
+          values = new LinkedHashSet<>();
+          mergedEntryMap.put(attribute, values);
         }
-        if (!valueSet.isEmpty()) {
-          attributeValueEnums.put(attrName, valueSet);
+
+        if (kvPair.length == 2) {
+          values.addAll(Splitter.on(',').trimResults().omitEmptyStrings().splitToList(kvPair[1]));
         }
       }
     }
 
-    setEditorAttributes(displayedAttributes);
-    setAttributeEnumMap(attributeValueEnums);
+    Set<String> attributeSet = new LinkedHashSet<>(mergedEntryMap.keySet());
+    setEditorAttributes(attributeSet);
+    mergedEntryMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+    setAttributeEnumMap(mergedEntryMap);
   }
 
   public ConfigurationApplication() {}

@@ -55,7 +55,7 @@ define([
         initialize: function() {
             this.turnOnLimitedWidth();
             this.listenTo(this.model, 'change:showRequiredWarning', this.handleShowRequired);
-            this.listenTo(this.model, 'change:value change:showRequiredWarning', this.validateRequired)
+            this.listenTo(this.model, 'change:value change:showRequiredWarning', this.validateRequired);
         },
         onRender: function () {
             this.handleEdit();
