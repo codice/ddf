@@ -233,6 +233,35 @@
       color: @contrastColor;
     }
   }
+  @{reactNamespace}json {
+    textarea {
+      background: fade(@contrastColor, 10%);
+      border: 2px solid fade(@contrastColor, 10%);
+    }
+  }
+  @{reactNamespace}radio {
+    border: 1px solid fade(@contrastColor, 40%);
+    button + button {
+      border-left: 1px solid fade(@contrastColor, 40%);
+    }
+  }
+  @{reactNamespace}menu {
+    .input-menu-item.is-active {
+      background: fade(@contrastColor, 10%);
+    }
+
+    .input-menu-item.is-selected {
+      background: fade(@contrastColor, 5%);
+    }
+  }
+  @{customElementNamespace}location-old {
+    .input-location {
+      border: 1px solid fade(@contrastColor, 40%);
+    }
+    .input-location > .input-group > .input-group-addon {
+      border-right: 1px solid fade(@contrastColor, 40%);
+    }
+  }
 }
 
 .is-input();
