@@ -27,8 +27,9 @@
     "@types/openlayers": "4.3.11",
     "ace": "*",
     "chai": "4.1.1",
+    "enzyme": "3.3.0",
+    "enzyme-adapter-react-16": "1.1.1",
     "loader-utils": "1.1.0",
-    "react-addons-test-utils": "15.2.1",
     "sinon": "5.0.7"
   },
   "dependencies": {
@@ -63,9 +64,9 @@
     "openlayers": "4.6.5",
     "plotly.js": "1.10.5",
     "q": "1.5.0",
-    "react": "15.2.1",
-    "react-dom": "15.2.1",
-    "react-redux": "4.4.5",
+    "react": "16.4.1",
+    "react-dom": "16.4.1",
+    "react-redux": "5.0.7",
     "redux": "3.5.2",
     "redux-thunk": "2.1.0",
     "rpc-websockets": "4.0.0",

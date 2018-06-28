@@ -19,21 +19,22 @@ var $ = require('jquery');
 var connect = require('react-redux').connect;
 
 var dim = function (Component) {
-    return React.createClass({
-         getInitialState: function () {
-            return { rect: {} };
-        },
-        componentWillReceiveProps: function () {
-            this.setState({ rect: this.refs.el.getBoundingClientRect() });
-        },
-        render: function () {
+    return class extends React.Component {
+         constructor(props) {
+             super(props)
+             this.state = { rect: {} }
+         }
+        componentWillReceiveProps() {
+            this.setState({ rect: this.ref.getBoundingClientRect() });
+        }
+        render() {
             return (
-                <div ref='el'>
+                <div ref={(ref) => { this.ref = ref }}>
                     <Component {...this.props} boundingRect={this.state.rect} />
                 </div>
             );
         }
-    });
+    };
 };
 
 var Announcment = dim(function (props) {
@@ -66,11 +67,6 @@ var Announcments = function (props) {
     });
 
     return <div>{list}</div>;
-};
-
-Announcments.propTypes = {
-    list: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    onDismiss: React.PropTypes.func.isRequired
 };
 
 module.exports = connect(function (state) {
