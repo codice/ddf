@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.metacard.propertyjson
 
 import ddf.catalog.data.BinaryContent
+import ddf.catalog.data.Metacard
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.MediaAttributes
@@ -70,6 +71,7 @@ class PropertyJsonMetacardTransformerSpec extends Specification {
         metacard.setAttribute(MediaAttributes.BITS_PER_SAMPLE, bitspersample)
         def bitspersecond = 3.14159265358979323d
         metacard.setAttribute(MediaAttributes.BITS_PER_SECOND, bitspersecond)
+        metacard.setAttribute(Metacard.MODIFIED, dateFormat.format(created)) //date field with string value
 
 
         when:
@@ -87,6 +89,7 @@ class PropertyJsonMetacardTransformerSpec extends Specification {
         assert json.properties."${MediaAttributes.BITS_PER_SAMPLE}" == bitspersample
         assert json.properties."${MediaAttributes.BITS_PER_SECOND}" == bitspersecond
         assert json.properties.metadata == metadata
+        assert json.properties.modifiedDate == null
 
     }
 
