@@ -47,7 +47,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.security.auth.AuthPermission;
-import javax.validation.constraints.NotNull;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
@@ -160,18 +159,18 @@ public class Security {
    *     Callable} exception can be retrieved using the {@link
    *     InvocationTargetException#getCause()}.
    */
-  public <T> T runWithSubjectOrElevate(@NotNull Callable<T> codeToRun)
+  public <T> T runWithSubjectOrElevate(Callable<T> codeToRun)
       throws SecurityServiceException, InvocationTargetException {
     notNull(codeToRun, "Callable cannot be null");
 
     try {
-      try {
-        org.apache.shiro.subject.Subject subject = org.apache.shiro.SecurityUtils.getSubject();
-        return subject.execute(codeToRun);
-      } catch (IllegalStateException | UnavailableSecurityManagerException e) {
+      final org.apache.shiro.subject.Subject shiroSubject = getShiroSubject();
+
+      if (shiroSubject != null) {
+        return shiroSubject.execute(codeToRun);
+      } else {
         LOGGER.debug("No shiro subject available for running command, trying with Java Subject");
       }
-
       Subject subject = getSystemSubject();
 
       if (subject == null) {
@@ -344,6 +343,15 @@ public class Security {
       principals.add(new RolePrincipal(role));
     }
     return new javax.security.auth.Subject(true, principals, new HashSet(), new HashSet());
+  }
+
+  @Nullable
+  private org.apache.shiro.subject.Subject getShiroSubject() {
+    try {
+      return org.apache.shiro.SecurityUtils.getSubject();
+    } catch (IllegalStateException | UnavailableSecurityManagerException e) { // ignore
+    }
+    return null;
   }
 
   private BundleContext getBundleContext() {
