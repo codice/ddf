@@ -46,6 +46,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.security.auth.AuthPermission;
 import javax.validation.constraints.NotNull;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -78,6 +79,9 @@ public class Security {
       "Current user doesn't have sufficient privileges to run this command";
 
   private static final String KARAF_LOCAL_ROLE = "karaf.local.roles";
+
+  private static final AuthPermission GET_SYSTEM_SUBJECT_PERMISSION =
+      new AuthPermission("getSystemSubject");
 
   private Subject cachedSystemSubject;
 
@@ -118,12 +122,17 @@ public class Security {
    *
    * @return {@code true} if the Java {@link Subject} exists and has the admin role, {@code false}
    *     otherwise
+   * @throws SecurityException if a security manager exists and the {@link
+   *     javax.security.auth.AuthPermission AuthPermission("getSubject")} permission is not
+   *     authorized
    */
   public final boolean javaSubjectHasAdminRole() {
     javax.security.auth.Subject subject =
         javax.security.auth.Subject.getSubject(AccessController.getContext());
     if (subject != null) {
-      String localRoles = System.getProperty(KARAF_LOCAL_ROLE, "");
+      String localRoles =
+          AccessController.doPrivileged(
+              (PrivilegedAction<String>) () -> System.getProperty(KARAF_LOCAL_ROLE, ""));
       Collection<RolePrincipal> principals = new ArrayList<>();
       for (String role : localRoles.split(",")) {
         principals.add(new RolePrincipal(role));
@@ -143,6 +152,10 @@ public class Security {
    * @return value returned by the {@link Callable}
    * @throws SecurityServiceException if the current subject didn' have enough permissions to run
    *     the code
+   * @throws SecurityException if a security manager exists and the {@link
+   *     javax.security.auth.AuthPermission AuthPermission("getSystemSubject")} or {@link
+   *     javax.security.auth.AuthPermission AuthPermission("getSubject")} permissions are not
+   *     authorized
    * @throws InvocationTargetException wraps any exception thrown by {@link Callable#call()}. {@link
    *     Callable} exception can be retrieved using the {@link
    *     InvocationTargetException#getCause()}.
@@ -178,10 +191,18 @@ public class Security {
    * will not change between calls.
    *
    * @return system's {@link Subject} or {@code null} if unable to get the system's {@link Subject}
+   * @throws SecurityException if a security manager exists and the {@link
+   *     javax.security.auth.AuthPermission AuthPermission("getSystemSubject")} or {@link
+   *     javax.security.auth.AuthPermission AuthPermission("getSubject")} permissions are not
+   *     authorized
    */
   @Nullable
   public synchronized Subject getSystemSubject() {
+    final java.lang.SecurityManager security = System.getSecurityManager();
 
+    if (security != null) {
+      security.checkPermission(Security.GET_SYSTEM_SUBJECT_PERMISSION);
+    }
     if (!javaSubjectHasAdminRole()) {
       SecurityLogger.audit("Unable to retrieve system subject.");
       return null;
@@ -191,7 +212,8 @@ public class Security {
       return cachedSystemSubject;
     }
 
-    KeyStore keyStore = getSystemKeyStore();
+    KeyStore keyStore =
+        AccessController.doPrivileged((PrivilegedAction<KeyStore>) this::getSystemKeyStore);
     String alias = null;
     Certificate cert = null;
     try {
@@ -315,7 +337,9 @@ public class Security {
 
   private static javax.security.auth.Subject getAdminJavaSubject() {
     Set<Principal> principals = new HashSet<>();
-    String localRoles = System.getProperty(KARAF_LOCAL_ROLE, "");
+    String localRoles =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty(KARAF_LOCAL_ROLE, ""));
     for (String role : localRoles.split(",")) {
       principals.add(new RolePrincipal(role));
     }
