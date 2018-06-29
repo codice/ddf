@@ -25,14 +25,14 @@ define([
     'component/property/property',
     'component/dropdown/dropdown',
     'component/dropdown/dropdown.view',
-    'component/input/with-param/input-with-param.view',
+    'component/relative-time/relative-time.view',
     'component/value/value',
     'js/CQLUtils',
     'properties',
     'js/Common'
 ], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
-            InputWithParam, ValueModel, CQLUtils, properties, Common) {
+            RelativeTimeView, ValueModel, CQLUtils, properties, Common) {
 
     const generatePropertyJSON = (value, type, comparator) => {
         const propertyJSON = _.extend({},
@@ -59,7 +59,32 @@ define([
             propertyJSON.help =  'The distance (number of words) within which search terms must be found in order to match';
             delete propertyJSON.enum;
         }
+
+        // if we don't set this the property model will transform the value as if it's a date, clobbering the duration format
+        if (comparator === 'RELATIVE') {
+            propertyJSON.transformValue = false;
+        }
+
         return propertyJSON;
+    }
+
+    // Relative time view is needed for the relative date, multivalue for all else
+    const determineView = (comparator) => {
+        let necessaryView;
+        switch(comparator) {
+            case 'RELATIVE':
+                necessaryView = RelativeTimeView;
+            break;
+            default:
+                necessaryView = MultivalueView;
+            break;
+        }
+        return necessaryView;
+    }
+
+    // strip extra quotes
+    const stripQuotes = (property) => {
+        return property.replace(/^"(.+(?="$))"$/, '$1');
     }
 
     return Marionette.LayoutView.extend({
@@ -139,6 +164,7 @@ define([
             return {
                 BEFORE: 'BEFORE',
                 AFTER: 'AFTER',
+                RELATIVE: '=',
                 INTERSECTS: 'INTERSECTS',
                 CONTAINS: 'ILIKE',
                 MATCHCASE: 'LIKE',
@@ -156,6 +182,14 @@ define([
                 comparator[this.comparatorToCQL()[key]] = key;
             }
             return comparator;
+        },
+        // With the relative date comparator being the same as =, we need to try and differentiate them this way
+        getComparatorForFilter(filter) {
+            if (metacardDefinitions.metacardTypes[stripQuotes(filter.property)].type === 'DATE' && filter.type === '=') {
+                return 'RELATIVE';
+            } else {
+                return this.CQLtoComparator()[filter.type];
+            }
         },
         updateTypeDropdown: function(){
             this.filterAttribute.currentView.model.set('value', [this.model.get('type')]);
@@ -180,7 +214,7 @@ define([
                     this.toggleLocationClass(true);
                     break;
                 case 'DATE':
-                    if (['BEFORE', 'AFTER'].indexOf(currentComparator) === -1) {
+                    if (['BEFORE', 'AFTER', 'RELATIVE'].indexOf(currentComparator) === -1) {
                         this.model.set('comparator', 'BEFORE');
                     }
                     break;
@@ -216,8 +250,8 @@ define([
             const currentComparator = this.model.get('comparator');
             value = this.transformValue(value, currentComparator);
             const propertyJSON = generatePropertyJSON(value, this.model.get('type'), currentComparator);
-
-            this.filterInput.show(new MultivalueView({
+            const ViewToUse = determineView(currentComparator);
+            this.filterInput.show(new ViewToUse({
                 model: new PropertyModel(propertyJSON)
             }));
 
@@ -287,7 +321,7 @@ define([
                     this.model.set({
                         value: [filter.value],
                         type: filter.property.split('"').join(''),
-                        comparator: this.CQLtoComparator()[filter.type]
+                        comparator: this.getComparatorForFilter(filter)
                     });
                 }
 

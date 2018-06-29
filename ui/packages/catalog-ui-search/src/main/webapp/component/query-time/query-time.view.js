@@ -20,6 +20,7 @@ var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
 var CQLUtils = require('js/CQLUtils');
 var Common = require('js/Common');
+const RelativeTimeView = require('component/relative-time/relative-time.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -31,8 +32,7 @@ module.exports = Marionette.LayoutView.extend({
         basicTimeAfter: '.basic-time-after',
         basicTimeBetweenBefore: '.between-before',
         basicTimeBetweenAfter: '.between-after',
-        basicTimeRelativeValue: '.relative-value',
-        basicTimeRelativeUnit: '.relative-unit'
+        basicTimeRelative: '.basic-time-relative'
     },
     onBeforeShow: function () {
         this.turnOnEditing();
@@ -55,7 +55,7 @@ module.exports = Marionette.LayoutView.extend({
     constructFilter: function () {
         var filters = [];
         var timeRange = this.basicTime.currentView.model.getValue()[0];
-        var timeBefore, timeAfter, timeLast, timeUnit;
+        let timeBefore, timeAfter, relativeFunction;
         switch (timeRange) {
             case 'before':
                 timeBefore = this.basicTimeBefore.currentView.model.getValue()[0];
@@ -68,8 +68,7 @@ module.exports = Marionette.LayoutView.extend({
                 timeAfter = this.basicTimeBetweenAfter.currentView.model.getValue()[0];
                 break;
             case 'relative':
-                timeLast = Math.floor(this.basicTimeRelativeValue.currentView.model.getValue()[0]);
-                timeUnit = this.basicTimeRelativeUnit.currentView.model.getValue()[0];
+                relativeFunction = this.basicTimeRelative.currentView.getViewValue();
                 break;
         }
         if (timeBefore) {
@@ -98,15 +97,7 @@ module.exports = Marionette.LayoutView.extend({
             };
             filters.push(timeFilter);
         }
-        if (timeLast) {
-            var duration;
-            if (timeUnit === 'm' || timeUnit === 'h') {
-                duration = "PT" + timeLast + timeUnit.toUpperCase();
-            } else {
-                duration = "P" + timeLast + timeUnit.toUpperCase();
-            }
-
-            var relativeFunction = 'RELATIVE(' + duration + ')';
+        if (relativeFunction) {
             var timeDuration = {
                 type: 'OR',
                 filters: [
@@ -128,13 +119,6 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.toggleClass('is-timeRange-after', timeRange === 'after');
         this.$el.toggleClass('is-timeRange-between', timeRange === 'between');
         this.$el.toggleClass('is-timeRange-relative', timeRange === 'relative');
-
-        // Visibility of the 24 hour selector
-        var visible = (timeRange === 'between') ||
-            (timeRange === 'before') ||
-            (timeRange === 'after');
-
-        this.$el.toggleClass('is-time24hr', visible);
     },
     setupTimeBefore: function () {
         var currentBefore = '';
@@ -250,8 +234,7 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     setupTimeRelative: function () {
-        var currentLast = 1;
-        var currentUnit = '';
+        let currentUnit, currentLast;
         if (this.options.filter.anyDate) {
             this.options.filter.anyDate.forEach(function (subfilter) {
                 if (subfilter.type === '=') {
@@ -267,35 +250,11 @@ module.exports = Marionette.LayoutView.extend({
                 }
             });
         }
-        this.basicTimeRelativeValue.show(new PropertyView({
-            model: new Property({
-                value: [currentLast],
-                id: 'Last',
-                placeholder: 'Limit searches to between the present and this time.',
-                type: 'INTEGER'
-            })
+        this.basicTimeRelative.show(new RelativeTimeView({
+            value: {
+                currentLast,
+                currentUnit
+            }
         }));
-        this.basicTimeRelativeUnit.show(new PropertyView({
-            model: new Property({
-                value: [currentUnit || 'h'],
-                enum: [{
-                    label: 'Minutes',
-                    value: 'm'
-                }, {
-                    label: 'Hours',
-                    value: 'h'
-                }, {
-                    label: 'Days',
-                    value: 'd'
-                }, {
-                    label: 'Months',
-                    value: 'M'
-                }, {
-                    label: 'Years',
-                    value: 'y'
-                }],
-                id: 'Unit'
-            })
-        }))
     }
 });

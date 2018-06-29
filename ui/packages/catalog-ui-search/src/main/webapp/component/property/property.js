@@ -39,7 +39,8 @@ define([
             onlyEditing: false,
             initializeToDefault: false,
             required: false,
-            showRequiredWarning: false
+            showRequiredWarning: false,
+            transformValue: true
         },
         setDefaultValue: function(){
             if (this.get('initializeToDefault')){
@@ -86,7 +87,9 @@ define([
         initialize: function(){
             this._setCalculatedType();
             this.setDefaultValue();
-            this.transformValue();
+            if (this.get('transformValue')) {
+                this.transformValue();
+            }
             this._setInitialValue();
             this.setDefaultLabel();
             this.listenTo(this, 'change:value', this.updateHasChanged);

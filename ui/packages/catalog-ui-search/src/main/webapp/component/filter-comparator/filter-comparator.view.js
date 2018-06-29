@@ -23,7 +23,7 @@ define([
 ], function (Marionette, _, $, template, CustomElements, metacardDefinitions) {
 
     var geometryComparators = ['INTERSECTS'];
-    var dateComparators = ['BEFORE', 'AFTER'];
+    var dateComparators = ['BEFORE', 'AFTER', 'RELATIVE'];
     var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR'];
     var numberComparators = ['>','<','=','>=','<='];
     var booleanComparators = ['='];
