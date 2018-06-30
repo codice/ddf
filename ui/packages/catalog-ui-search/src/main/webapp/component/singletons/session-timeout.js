@@ -16,9 +16,10 @@ var Backbone = require('backbone');
 var $ = require('jquery');
 var _ = require('underscore');
 var properties = require('properties');
+var fetch = require('js/fetch');
 const featureDetection = require('./feature-detection');
 
-var invalidateUrl = '../../services/internal/session/invalidate?prevurl=';
+var invalidateUrl = './internal/session/invalidate?prevurl=';
 
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
@@ -101,7 +102,13 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         if (window.onbeforeunload != null) {
           window.onbeforeunload = null;
         }
-        window.location.replace(invalidateUrl + window.location.pathname);
+        fetch(invalidateUrl + window.location.pathname, {
+            redirect: "manual"
+        })
+        .then(response => response.text())
+        .then(text => {
+            window.location.replace(text);
+        });
     },
     renew: function () {
         this.hidePrompt();
