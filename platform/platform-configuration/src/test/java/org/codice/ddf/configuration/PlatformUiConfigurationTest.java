@@ -45,7 +45,7 @@ public class PlatformUiConfigurationTest {
   @Test
   public void testConfig() throws IOException {
     int timeout = 1234;
-    String wsOutput = configuration.getConfig();
+    String wsOutput = configuration.getConfigAsJsonString();
     Object obj = JSONValue.parse(wsOutput); // throws JSON Parse exception if not valid json.
     if (!(obj instanceof JSONObject)) {
       fail("PlatformUiConfiguration is not a JSON Object.");
@@ -70,7 +70,7 @@ public class PlatformUiConfigurationTest {
     configuration.setColor("color");
     configuration.setTimeout(timeout);
 
-    wsOutput = configuration.getConfig();
+    wsOutput = configuration.getConfigAsJsonString();
     obj = JSONValue.parse(wsOutput); // throws JSON Parse exception if not valid json.
     if (!(obj instanceof JSONObject)) {
       fail("PlatformUiConfiguration is not a JSON Object.");
