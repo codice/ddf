@@ -78,7 +78,6 @@ public class ConfluenceInputTransformer implements InputTransformer {
   public Metacard transform(InputStream input, String id) throws CatalogTransformerException {
 
     Map<String, Object> json = getJsonObject(input);
-
     return transformConfluenceResult(json, null, id);
   }
 
@@ -199,12 +198,6 @@ public class ConfluenceInputTransformer implements InputTransformer {
     ArrayList<String> associations = new ArrayList<>();
     if (StringUtils.isNotEmpty(baseUrl)) {
       associations.add(String.format("%s%s", baseUrl, getString(links, "webui")));
-      associations.add(baseUrl);
-    }
-
-    String space = getStringOrDefault(json, null, "space", "_links", "webui");
-    if (space != null) {
-      associations.add(baseUrl + space);
     }
 
     if (!associations.isEmpty()) {

@@ -3,6 +3,7 @@
   "type": "attachment",
   "status": "current",
   "title": "ddf-eclipse-code-formatter.xml",
+  "baseUrl": "https://codice.atlassian.net/wiki",
   "space": {
     "id": 1277953,
     "key": "DDF",
@@ -150,7 +151,8 @@
   "_links": {
     "webui": "/display/DDF/Formatting+Source+Code?preview=%2F1179681%2F1182017%2Fddf-eclipse-code-formatter.xml",
     "download": "/download/attachments/1179681/ddf-eclipse-code-formatter.xml?version=1&modificationDate=1379541042655&api=v2",
-    "self": "https://codice.atlassian.net/wiki/rest/api/content/att1182017"
+    "self": "https://codice.atlassian.net/wiki/rest/api/content/att1182017",
+    "base": "https://codice.atlassian.net/wiki"
   },
   "_expandable": {
     "childTypes": "",

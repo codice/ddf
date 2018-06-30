@@ -493,10 +493,7 @@ public class ConfluenceSourceTest {
     assertThat(mcard.getTitle(), is("Formatting Source Code"));
     assertThat(
         mcard.getAttribute(Associations.EXTERNAL).getValues(),
-        contains(
-            "https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code",
-            "https://codice.atlassian.net/wiki",
-            "https://codice.atlassian.net/wiki/spaces/DDF"));
+        contains("https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code"));
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue(), is("another"));
     assertThat(mcard.getAttribute(Contact.CONTRIBUTOR_NAME).getValue(), is("first.last"));
     assertThat(mcard.getAttribute(Media.TYPE).getValue(), is("text/html"));
