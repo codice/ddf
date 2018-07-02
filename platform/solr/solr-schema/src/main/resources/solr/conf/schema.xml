@@ -178,36 +178,40 @@
     <!--<dynamicField name="random_*" type="random" />-->
 
 
-    <dynamicField name="*_int" type="tint" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_lng" type="tlong" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_shr" type="tint" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_flt" type="tfloat" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_dbl" type="tdouble" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_tdt" type="tdate" indexed="true" stored="true" multiValued="true"/>
-    <dynamicField name="*_bln" type="boolean" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="*_int" type="pints" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_lng" type="plongs" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_shr" type="pints" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_flt" type="pfloats" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_dbl" type="pdoubles" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_tdt" type="pdates" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <dynamicField name="*_bln" type="boolean" indexed="true" stored="true" multiValued="true" docValues="true"/>
+
     <dynamicField name="*_geo" type="string" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false"
                   multiValued="true"/>
+
+    <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false"
                   multiValued="true"/>
-    <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false"
-                  multiValued="true"/>
-    <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false"
+                  multiValued="true"/>
+    <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false"
                   multiValued="true"/>
     <dynamicField name="*_txt_tokenized_has_case" type="text_general_has_case" indexed="true"
                   stored="false" multiValued="true"/>
+
     <dynamicField name="*_bin" type="binary" indexed="false" stored="true" multiValued="true"/>
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
 
     <!-- sort keys for the multivalued fields -->
-    <dynamicField name="*_int_sk" type="tint" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_lng_sk" type="tlong" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_shr_sk" type="tint" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_flt_sk" type="tfloat" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_dbl_sk" type="tdouble" indexed="false" stored="false" docValues="true"/>
-    <dynamicField name="*_tdt_sk" type="tdate" indexed="false" stored="false" docValues="true"/>
+    <!-- can remove non-geo sort keys with Solr 7.3+ thanks to SOLR-11854 -->
+    <dynamicField name="*_int_sk" type="pint" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_lng_sk" type="plong" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_shr_sk" type="pint" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_flt_sk" type="pfloat" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_dbl_sk" type="pdouble" indexed="false" stored="false" docValues="true"/>
+    <dynamicField name="*_tdt_sk" type="pdate" indexed="false" stored="false" docValues="true"/>
     <dynamicField name="*_bln_sk" type="boolean" indexed="false" stored="false" docValues="true"/>
     <dynamicField name="*_txt_sk" type="string" indexed="true" stored="false" docValues="true"/>
     <!-- stored is true until Solr 7.2+ which fixes SOLR-11532 -->
@@ -284,15 +288,33 @@
     -->
 
     <!--
-      Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
-
-      These fields support doc values, but they require the field to be
-      single-valued and either be required or have a default value.
+      Numeric field types that index values using KD-trees. *Point fields are faster and more efficient than Trie* fields both, at
+      search time and at index time, but some features are still not supported.
+      Point fields don't support FieldCache, so they must have docValues="true" if needed for sorting, faceting, functions, etc.
     -->
-    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
-    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+    <fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+    <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+    <fieldType name="pdouble" class="solr.DoublePointField" docValues="true"/>
+
+    <fieldType name="pints" class="solr.IntPointField" docValues="true" multiValued="true"/>
+    <fieldType name="pfloats" class="solr.FloatPointField" docValues="true" multiValued="true"/>
+    <fieldType name="plongs" class="solr.LongPointField" docValues="true" multiValued="true"/>
+    <fieldType name="pdoubles" class="solr.DoublePointField" docValues="true" multiValued="true"/>
+
+    <!--
+      Default numeric field types. For faster range queries, consider *PointFields (pint/pfloat/plong/pdouble), or the
+      tint/tfloat/tlong/tdouble types.
+    -->
+    <fieldType name="int" class="solr.TrieIntField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="float" class="solr.TrieFloatField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="long" class="solr.TrieLongField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="double" class="solr.TrieDoubleField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+
+    <fieldType name="ints" class="solr.TrieIntField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="floats" class="solr.TrieFloatField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="longs" class="solr.TrieLongField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="doubles" class="solr.TrieDoubleField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
 
     <!--
      Numeric field types that index each value at various levels of precision
@@ -303,11 +325,19 @@
      Smaller precisionStep values (specified in bits) will lead to more tokens
      indexed per value, slightly larger index size, and faster range queries.
      A precisionStep of 0 disables indexing at different precision levels.
+
+     Consider using pint/pfloat/plong/pdouble instead of Trie* fields if possible
     -->
-    <fieldType name="tint" class="solr.TrieIntField" precisionStep="8" positionIncrementGap="0"/>
-    <fieldType name="tfloat" class="solr.TrieFloatField" precisionStep="8" positionIncrementGap="0"/>
-    <fieldType name="tlong" class="solr.TrieLongField" precisionStep="8" positionIncrementGap="0"/>
-    <fieldType name="tdouble" class="solr.TrieDoubleField" precisionStep="8" positionIncrementGap="0"/>
+    <fieldType name="tint" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+    <fieldType name="tfloat" class="solr.TrieFloatField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+    <fieldType name="tlong" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+    <fieldType name="tdouble" class="solr.TrieDoubleField" docValues="true" precisionStep="8" positionIncrementGap="0"/>
+
+    <fieldType name="tints" class="solr.TrieIntField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tfloats" class="solr.TrieFloatField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tlongs" class="solr.TrieLongField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tdoubles" class="solr.TrieDoubleField" docValues="true" precisionStep="8" positionIncrementGap="0" multiValued="true"/>
+
 
     <!-- The format for this date field is of the form 1995-12-31T23:59:59Z, and
          is a more restricted form of the canonical representation of dateTime
@@ -328,13 +358,17 @@
                       the current day
                       
          Consult the TrieDateField javadocs for more information.
-
-         Note: For faster range queries, consider the tdate type
       -->
-    <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+    <!-- KD-tree versions of date fields -->
+    <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+    <fieldType name="pdates" class="solr.DatePointField" docValues="true" multiValued="true"/>
 
-    <!-- A Trie based date field for faster date range queries and date faceting. -->
-    <fieldType name="tdate" class="solr.TrieDateField" precisionStep="6" positionIncrementGap="0"/>
+    <fieldType name="date" class="solr.TrieDateField" docValues="true" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="dates" class="solr.TrieDateField" docValues="true" precisionStep="0" positionIncrementGap="0" multiValued="true"/>
+
+    <fieldType name="tdate" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0"/>
+    <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
+
 
 
     <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
