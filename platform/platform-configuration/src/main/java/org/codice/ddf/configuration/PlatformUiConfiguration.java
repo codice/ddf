@@ -20,6 +20,8 @@ import javax.ws.rs.Produces;
 import net.minidev.json.JSONObject;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configuration class for pid=ddf.platform.ui.config.
@@ -28,6 +30,8 @@ import org.codice.ddf.branding.BrandingRegistry;
  */
 @Path("/")
 public class PlatformUiConfiguration {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PlatformUiConfiguration.class);
 
   public static final String SYSTEM_USAGE_TITLE_CONFIG_KEY = "systemUsageTitle";
 
@@ -55,6 +59,10 @@ public class PlatformUiConfiguration {
 
   public static final String TIMEOUT_CONFIG_KEY = "timeout";
 
+  private static final int DEFAULT_TIMEOUT_MINUTES = 15;
+
+  private static final int MINIMUM_TIMEOUT_MINUTES = 2;
+
   private boolean systemUsageEnabled;
 
   private String systemUsageTitle;
@@ -71,7 +79,7 @@ public class PlatformUiConfiguration {
 
   private String background;
 
-  private int timeout;
+  private int timeout = DEFAULT_TIMEOUT_MINUTES;
 
   private Optional<BrandingRegistry> branding = Optional.empty();
 
@@ -182,7 +190,16 @@ public class PlatformUiConfiguration {
   }
 
   public void setTimeout(int timeout) {
-    this.timeout = timeout;
+    if (timeout >= MINIMUM_TIMEOUT_MINUTES) {
+      this.timeout = timeout;
+    } else {
+      LOGGER.warn(
+          "Received a timeout of {} minutes, which is less than the minimum timeout allowed of {}. Defaulting to {}.",
+          timeout,
+          MINIMUM_TIMEOUT_MINUTES,
+          DEFAULT_TIMEOUT_MINUTES);
+      this.timeout = DEFAULT_TIMEOUT_MINUTES;
+    }
   }
 
   public String getProductImage() {

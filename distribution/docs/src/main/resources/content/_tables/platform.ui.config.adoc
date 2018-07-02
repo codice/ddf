@@ -19,58 +19,65 @@
 |Enable System Usage Message
 |systemUsageEnabled
 |Boolean
-|Turns on a system usage message, which is shown when the Search Application is opened
+|Turns on a system usage message, which is shown when the Search Application is opened.
 |false
 |true
 
 |System Usage Message Title
 |systemUsageTitle
 |String
-|A title for the system usage Message when the application is opened
-|true
+|A title for the system usage Message when the application is opened.
 |
+|false
 
 |System Usage Message
 |systemUsageMessage
 |String
-|A system usage message to be displayed to the user each time the user opens the application
-|true
+|A system usage message to be displayed to the user each time the user opens the application.
 |
+|false
 
 |Show System Usage Message once per session
 |systemUsageOncePerSession
-|With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the search window is opened or refreshed.
 |Boolean
+|With this selected, the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the search window is opened or refreshed.
 |true
 |true
 
 |Header
 |header
-|Specifies the header text to be rendered on all pages.
 |String
-|true
+|Specifies the header text to be rendered on all pages.
 |
+|false
 
 |Footer
 |footer
-|Specifies the footer text to be rendered on all pages.
 |String
-|true
+|Specifies the footer text to be rendered on all pages.
 |
+|false
 
 |Text Color
 |color
-|Specifies the Text Color of the Header and Footer. Use html css colors or `#rrggbb`.
 |String
-|true
+|Specifies the Text Color of the Header and Footer. Use html css colors or `#rrggbb`.
 |
+|false
 
 |Background Color
 |background
-|Specifies the Background Color of the Header and Footer. Use html css colors or `#rrggbb`.
 |String
-|true
+|Specifies the Background Color of the Header and Footer. Use html css colors or `#rrggbb`.
 |
+|false
+
+|Session Timeout
+|timeout
+|Integer
+|Specifies the length of inactivity (in minutes) that will cause a user to be logged out automatically. This value must be 2 minutes or greater, as users are warned when only 1 minute remains. If a value of less than 2 minutes is used, the timeout is set to the default time of 15 minutes.
+|15
+|true
 
 |===
 
