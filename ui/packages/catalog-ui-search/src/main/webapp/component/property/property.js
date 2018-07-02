@@ -155,6 +155,8 @@ define([
                 return this.parents.every(function(value) {
                     return value.isValid();
                 });
+            } else {
+                return true;
             }
         },
         showRequiredWarning() {
