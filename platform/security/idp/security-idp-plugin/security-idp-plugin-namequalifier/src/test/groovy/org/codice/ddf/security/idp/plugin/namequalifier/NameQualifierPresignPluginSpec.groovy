@@ -100,7 +100,6 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> null
-        //response.getIssuer().getFormat() >> format
         assertions.add(assertion)
         assertion.getSubject() >> subject
         assertion.getSubject().getNameID() >> nameID
