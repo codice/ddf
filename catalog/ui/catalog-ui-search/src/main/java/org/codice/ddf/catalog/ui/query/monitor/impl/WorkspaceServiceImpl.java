@@ -18,7 +18,6 @@ import static org.apache.commons.lang3.Validate.notNull;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -31,16 +30,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
-import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
+import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
@@ -48,54 +50,57 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ThreadSafe
 public class WorkspaceServiceImpl implements WorkspaceService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceServiceImpl.class);
 
   private static final String ID_FIELD = "id_txt";
 
-  private static final int MAX_SUBSCRIPTIONS = 100;
-
   private final CatalogFramework catalogFramework;
 
-  private final FilterBuilder filterBuilder;
-
   private final WorkspaceTransformerImpl workspaceTransformer;
-
-  private final FilterService filterService;
 
   private final SecurityService securityService;
 
   private final PersistentStore persistentStore;
 
+  private final WorkspaceQueryBuilder workspaceQueryBuilder;
+
+  /** Use an AtomicInteger to make the class thread-safe. */
+  private final AtomicInteger maxSubscriptions = new AtomicInteger(0);
+
   /**
    * @param catalogFramework must be non-null
-   * @param filterBuilder must be non-null
    * @param workspaceTransformer must be non-null
-   * @param filterService must be non-null
    * @param securityService must be non-null
    * @param persistentStore must be non-null
    */
+  @SuppressWarnings("WeakerAccess" /* Needed by blueprint. */)
   public WorkspaceServiceImpl(
       CatalogFramework catalogFramework,
-      FilterBuilder filterBuilder,
       WorkspaceTransformerImpl workspaceTransformer,
-      FilterService filterService,
+      WorkspaceQueryBuilder workspaceQueryBuilder,
       SecurityService securityService,
-      PersistentStore persistentStore) {
+      PersistentStore persistentStore,
+      int maxSubscriptions) {
     notNull(catalogFramework, "catalogFramework must be non-null");
-    notNull(filterBuilder, "filterBuilder must be non-null");
     notNull(workspaceTransformer, "workspaceTransformer must be non-null");
-    notNull(filterService, "filterService must be non-null");
     notNull(securityService, "securityService must be non-null");
     notNull(persistentStore, "persistentStore must be non-null");
+    notNull(workspaceQueryBuilder, "workspaceQueryBuilder must be non-null");
 
     this.catalogFramework = catalogFramework;
-    this.filterBuilder = filterBuilder;
     this.workspaceTransformer = workspaceTransformer;
-    this.filterService = filterService;
     this.securityService = securityService;
     this.persistentStore = persistentStore;
+    this.maxSubscriptions.set(maxSubscriptions);
+    this.workspaceQueryBuilder = workspaceQueryBuilder;
+  }
+
+  @SuppressWarnings("unused" /* Needed by metatype. */)
+  public void setMaxSubscriptions(int maxSubscriptions) {
+    this.maxSubscriptions.set(maxSubscriptions);
   }
 
   @Override
@@ -105,12 +110,10 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         + securityService
         + ", catalogFramework="
         + catalogFramework
-        + ", filterBuilder="
-        + filterBuilder
         + ", workspaceTransformer="
         + workspaceTransformer
-        + ", filterService="
-        + filterService
+        + ", maxSubscriptions="
+        + maxSubscriptions.get()
         + '}';
   }
 
@@ -158,11 +161,11 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public List<WorkspaceMetacardImpl> getWorkspaceMetacards(Set<String> workspaceIds) {
 
-    final List<Filter> filters = createFilters(workspaceIds);
+    if (!workspaceIds.isEmpty()) {
 
-    if (!filters.isEmpty()) {
+      final Filter filter = workspaceQueryBuilder.createFilter(workspaceIds);
 
-      final QueryRequest queryRequest = createQueryRequest(filters);
+      final QueryRequest queryRequest = createQueryRequest(filter);
 
       try {
         return createWorkspaceMetacards(catalogFramework.query(queryRequest));
@@ -184,7 +187,13 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       List<Map<String, Object>> subscriptions =
           persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE);
-      ids = subscriptions.stream().map(s -> s.get(ID_FIELD).toString()).collect(Collectors.toSet());
+      ids =
+          subscriptions
+              .stream()
+              .map(subscription -> subscription.get(ID_FIELD))
+              .filter(Objects::nonNull)
+              .map(Object::toString)
+              .collect(Collectors.toSet());
     } catch (PersistenceException e) {
       LOGGER.warn("Failed to get subscriptions for workspaces: {}", e.getMessage());
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
@@ -193,17 +202,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
       return null;
     }
 
-    return createQueryRequest(createFilters(ids));
-  }
-
-  /**
-   * Create a query request for a list of filters where the filters are OR'ed together.
-   *
-   * @param filters filter list
-   * @return query request
-   */
-  private QueryRequest createQueryRequest(List<Filter> filters) {
-    return createQueryRequest(filterBuilder.anyOf(filters));
+    return createQueryRequest(workspaceQueryBuilder.createFilter(ids));
   }
 
   /**
@@ -214,25 +213,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    */
   private QueryRequest createQueryRequest(Filter filter) {
     QueryImpl query = new QueryImpl(filter);
-    query.setPageSize(MAX_SUBSCRIPTIONS);
+    query.setPageSize(maxSubscriptions.get());
     return new QueryRequestImpl(query, createProperties());
-  }
-
-  /**
-   * Create the filters for getting workspace metacards based on workspace ids.
-   *
-   * @param workspaceIds set of workspace ids
-   * @return list of filters
-   */
-  private List<Filter> createFilters(Set<String> workspaceIds) {
-    return workspaceIds
-        .stream()
-        .map(
-            id ->
-                filterBuilder.allOf(
-                    filterService.buildMetacardIdFilter(id),
-                    filterService.buildWorkspaceTagFilter()))
-        .collect(Collectors.toList());
   }
 
   @Override
