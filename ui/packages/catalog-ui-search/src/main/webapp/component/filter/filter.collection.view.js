@@ -33,7 +33,7 @@ module.exports = Marionette.CollectionView.extend({
     tagName: CustomElements.register('filter-collection'),
     onBeforeRenderCollection: function() {
         this.sortable = Sortable.create(this.el, {
-            handle: 'button.filter-rearrange',
+            handle: 'div.filter-rearrange',
             animation: 250,
             draggable: '>*',
             disabled: this.options.isForm && !this.options.isFormBuilder,
