@@ -38,7 +38,7 @@ public class NameQualifierPresignPlugin implements SamlPresignPlugin {
           "https://%s:%s/services/idp/login",
           SystemBaseUrl.INTERNAL.getHost(), SystemBaseUrl.INTERNAL.getHttpsPort());
 
-  private static final String PERSISTENT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent";
+  private static final String PERSISTENT = NameIDType.PERSISTENT;
 
   @Override
   public void processPresign(
@@ -47,12 +47,17 @@ public class NameQualifierPresignPlugin implements SamlPresignPlugin {
       List<String> spMetadata,
       Set<SamlProtocol.Binding> supportedBindings) {
 
-    if (response.getIssuer() != null) setNameQualifierIfPersistent(response.getIssuer());
+    if (response.getIssuer() != null) {
+
+      setNameQualifierIfPersistent(response.getIssuer());
+    }
 
     for (Assertion assertion : response.getAssertions()) {
 
-      if (assertion.getSubject() != null)
+      if (assertion.getSubject() != null) {
+
         setNameQualifierIfPersistent(assertion.getSubject().getNameID());
+      }
 
       setNameQualifierIfPersistent(assertion.getIssuer());
     }
@@ -61,7 +66,9 @@ public class NameQualifierPresignPlugin implements SamlPresignPlugin {
   private void setNameQualifierIfPersistent(NameIDType nameIDType) {
 
     if (nameIDType.getFormat() != null
-        && nameIDType.getFormat().equalsIgnoreCase(PERSISTENT.toUpperCase()))
+        && nameIDType.getFormat().equalsIgnoreCase(PERSISTENT.toUpperCase())) {
+
       nameIDType.setNameQualifier(NAME_QUALIFIER);
+    }
   }
 }

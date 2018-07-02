@@ -24,6 +24,7 @@ import org.opensaml.saml.saml2.core.NameID
 import spock.lang.Specification
 import org.apache.wss4j.common.saml.builder.SAML2Constants
 import org.opensaml.saml.saml2.core.NameIDPolicy
+import org.opensaml.saml.saml2.core.NameID
 
 class NameQualifierPresignPluginSpec extends Specification {
 
@@ -44,6 +45,7 @@ class NameQualifierPresignPluginSpec extends Specification {
 
     Subject subject = Mock(Subject)
     NameID nameID = Mock(NameID)
+    NameID nameIDNeg = Mock(NameID)
 
     NameIDPolicy nameIdPolicy = Mock(NameIDPolicy)
 
@@ -64,15 +66,11 @@ class NameQualifierPresignPluginSpec extends Specification {
         // set up authNReq
         authNReq.getIssuer() >> issuer
 
-        // set up issuer
-        response.getIssuer() >> issuer
-
         // set up subject
         assertion.getIssuer() >> issuer
 
         // set up basic response
         response.assertions >> assertions
-        //assertions.add(assertion)
 
         // set up the name id policy
         authNReq.getNameIDPolicy() >> nameIdPolicy;
@@ -82,6 +80,7 @@ class NameQualifierPresignPluginSpec extends Specification {
      def 'test name qualifier when issuer format is not null and is persistent'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >> format
         assertions.add(assertion)
         assertion.getSubject() >> subject
@@ -93,12 +92,33 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         then:
         1 * nameID.getFormat()
+        2 * issuer.setNameQualifier(NAME_QUALIFIER)
+
+    }
+
+    def 'test name qualifier when issuer format is null and is persistent'() {
+
+        setup:
+        response.getIssuer() >> null
+        //response.getIssuer().getFormat() >> format
+        assertions.add(assertion)
+        assertion.getSubject() >> subject
+        assertion.getSubject().getNameID() >> nameID
+        nameID.getFormat() >> PERSISTENT
+
+        when:
+        plugin.processPresign(response, authNReq, spMetadata, bindings)
+
+        then:
+        1 * nameID.getFormat()
+        0 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
 
     def 'test name qualifier when no assertions'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >> format
         assertion.getSubject() >> subject
         assertion.getSubject().getNameID() >> nameID
@@ -109,6 +129,8 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         then:
         0 * nameID.setNameQualifier(NAME_QUALIFIER)
+        0 * nameID.getFormat()
+
 
     }
 
@@ -116,6 +138,7 @@ class NameQualifierPresignPluginSpec extends Specification {
     def 'test name qualifier when issuer format is null'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >> null
         assertions.add(assertion)
 
@@ -130,6 +153,7 @@ class NameQualifierPresignPluginSpec extends Specification {
     def 'test name qualifier when issuer format is not persistent'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >>  NEGATIVE_TEST
         assertions.add(assertion)
 
@@ -144,6 +168,7 @@ class NameQualifierPresignPluginSpec extends Specification {
     def 'test name qualifier when assertion subject is null'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >> format
         assertions.add(assertion)
         assertion.getSubject() >> null
@@ -159,6 +184,7 @@ class NameQualifierPresignPluginSpec extends Specification {
     def 'test name qualifier when assertion subject is not null and name id is persistent'() {
 
         setup:
+        response.getIssuer() >> issuer
         response.getIssuer().getFormat() >> format
         assertions.add(assertion)
         assertion.getSubject() >> subject
@@ -169,6 +195,25 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         then:
         1 * nameID.getFormat()
+
+
+    }
+
+    def 'test name qualifier when assertion subject is not null and name id is not persistent'() {
+
+        setup:
+        response.getIssuer() >> issuer
+        response.getIssuer().getFormat() >> format
+        assertions.add(assertion)
+        assertion.getSubject() >> subject
+        assertion.getSubject().getNameID() >> nameIDNeg
+        nameIDNeg.getFormat() >> NEGATIVE_TEST
+
+        when:
+        plugin.processPresign(response, authNReq, spMetadata, bindings)
+
+        then:
+        0 * nameID.getFormat()
 
 
     }
