@@ -61,7 +61,7 @@ public class NameQualifierPresignPlugin implements SamlPresignPlugin {
   private void setNameQualifierIfPersistent(NameIDType nameIDType) {
 
     if (nameIDType.getFormat() != null
-        && nameIDType.getFormat().toUpperCase().contains(PERSISTENT.toUpperCase()))
+        && nameIDType.getFormat().equalsIgnoreCase(PERSISTENT.toUpperCase()))
       nameIDType.setNameQualifier(NAME_QUALIFIER);
   }
 }
