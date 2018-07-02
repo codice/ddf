@@ -163,7 +163,6 @@
             <dependency>
                 <groupId>org.jvnet.jaxb2_commons</groupId>
                 <artifactId>jaxb2-basics-runtime</artifactId>
-                <version>${jaxb2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

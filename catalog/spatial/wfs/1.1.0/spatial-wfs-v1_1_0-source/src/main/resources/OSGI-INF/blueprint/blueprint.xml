@@ -23,15 +23,15 @@
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <reference-list id="converterList"
-                    interface="org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.FeatureConverterFactoryV110"
-                    availability="optional"/>
-
     <reference-list id="metacardTypeEnhancerList"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer"
                     availability="optional"/>
-    
+
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <reference id="metacardTypeRegistry" interface="org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry"/>
+
+    <reference id="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService"/>
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsFederatedSource.id"
@@ -39,6 +39,9 @@
             interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
+            <argument ref="encryptionService"/>
+            <argument ref="metacardTypeRegistry"/>
+            <argument ref="featureTransformationService"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value=""/>
@@ -51,15 +54,14 @@
             <property name="nonQueryableProperties">
                 <list/>
             </property>
-            <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <argument ref="encryptionService"/>
             <property name="coordinateOrder" value="LAT_LON"/>
             <property name="metacardTypeEnhancers" ref="metacardTypeEnhancerList"/>
             <property name="srsName" value="EPSG:4326"/>
+
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

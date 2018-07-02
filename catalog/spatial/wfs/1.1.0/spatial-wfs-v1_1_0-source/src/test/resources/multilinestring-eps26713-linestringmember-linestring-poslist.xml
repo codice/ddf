@@ -15,7 +15,7 @@
                        xmlns:sf="http://www.openplans.org/spearfish"
                        numberOfFeatures="750"
                        timeStamp="2018-01-08T21:07:55.813Z">
-    <gml:featureMembers>
+    <gml:featureMember>
         <sf:roads gml:id="roads.1">
             <sf:the_geom>
                 <gml:MultiLineString srsName="urn:x-ogc:def:crs:EPSG:26713" srsDimension="2">
@@ -37,5 +37,5 @@
             <sf:cat>5</sf:cat>
             <sf:label>unimproved road</sf:label>
         </sf:roads>
-    </gml:featureMembers>
+    </gml:featureMember>
 </wfs:FeatureCollection>

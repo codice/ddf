@@ -71,6 +71,9 @@ public class GenericFeatureConverterWfs11 extends AbstractFeatureConverterWfs11 
   @Override
   public Object unmarshal(HierarchicalStreamReader hreader, UnmarshallingContext context) {
 
+    if ("featureMember".equals(hreader.getNodeName())) {
+      hreader.moveDown();
+    }
     LOGGER.trace("Entering: {} : unmarshal", this.getClass().getName());
     // Workaround for Xstream which seems to be having issues involving attributes with namespaces,
     // in that it cannot fetch the attributes value directly by name.

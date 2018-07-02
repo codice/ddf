@@ -11,23 +11,19 @@
  *
  **/
 -->
-<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
-                       xmlns:sf="http://www.openplans.org/spearfish"
-                       numberOfFeatures="750"
-                       timeStamp="2018-01-08T21:07:55.813Z">
-    <gml:featureMembers>
-        <sf:roads gml:id="roads.1">
-            <sf:the_geom>
-                <gml:Polygon>
-                    <gml:exterior>
-                        <gml:LinearRing>
-                            <gml:posList>
-                                45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45
-                            </gml:posList>
-                        </gml:LinearRing>
-                    </gml:exterior>
-                </gml:Polygon>
-            </sf:the_geom>
-        </sf:roads>
-    </gml:featureMembers>
-</wfs:FeatureCollection>
+<gml:featureMember xmlns:gml="http://www.opengis.net/gml"
+                   xmlns:sf="http://www.openplans.org/spearfish">
+    <sf:roads gml:id="roads.1">
+        <sf:the_geom>
+            <gml:Polygon>
+                <gml:exterior>
+                    <gml:LinearRing>
+                        <gml:posList>
+                            45.256 -110.45 46.46 -109.48 43.84 -109.86 45.256 -110.45
+                        </gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+            </gml:Polygon>
+        </sf:the_geom>
+    </sf:roads>
+</gml:featureMember>
