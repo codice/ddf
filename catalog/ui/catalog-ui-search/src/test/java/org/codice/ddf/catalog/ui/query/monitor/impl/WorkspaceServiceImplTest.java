@@ -28,7 +28,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
@@ -40,28 +39,24 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
-import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
+import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opengis.filter.And;
 import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
 
 public class WorkspaceServiceImplTest {
 
+  private static final int MAX_SUBSCRIPTIONS = 100;
+
   private CatalogFramework catalogFramework;
 
-  private FilterBuilder filterBuilder;
-
   private WorkspaceTransformerImpl workspaceTransformer;
-
-  private FilterService filterService;
 
   private SecurityService securityService;
 
@@ -69,14 +64,15 @@ public class WorkspaceServiceImplTest {
 
   private PersistentStore persistentStore;
 
+  private WorkspaceQueryBuilder workspaceQueryBuilder;
+
   @Before
   public void setup() {
     catalogFramework = mock(CatalogFramework.class);
-    filterBuilder = mock(FilterBuilder.class);
     workspaceTransformer = mock(WorkspaceTransformerImpl.class);
-    filterService = mock(FilterService.class);
     securityService = mock(SecurityService.class);
     persistentStore = mock(PersistentStore.class);
+    workspaceQueryBuilder = mock(WorkspaceQueryBuilder.class);
     WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
 
     when(workspaceMetacardFilter.filter(any())).thenReturn(true);
@@ -84,11 +80,11 @@ public class WorkspaceServiceImplTest {
     workspaceService =
         new WorkspaceServiceImpl(
             catalogFramework,
-            filterBuilder,
             workspaceTransformer,
-            filterService,
+            workspaceQueryBuilder,
             securityService,
-            persistentStore);
+            persistentStore,
+            MAX_SUBSCRIPTIONS);
   }
 
   private void mockCatalogFrameworkQuery(String id, String subject)
@@ -97,8 +93,6 @@ public class WorkspaceServiceImplTest {
 
     when(securityService.addSystemSubject(any()))
         .thenReturn(Collections.singletonMap(SecurityConstants.SECURITY_SUBJECT, subject));
-
-    mockWorkspaceTagFilter();
 
     QueryResponse queryResponse = mock(QueryResponse.class);
     Result result = mock(Result.class);
@@ -116,13 +110,8 @@ public class WorkspaceServiceImplTest {
     List<Result> resultList = Collections.singletonList(result);
     when(queryResponse.getResults()).thenReturn(resultList);
     when(catalogFramework.query(any())).thenReturn(queryResponse);
-    Filter metacardIdFilter = mock(Filter.class);
-    And andFilter = mock(And.class);
-    Filter workspaceTagFilter = mockWorkspaceTagFilter();
-    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
-    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
-    Or orFilter = mock(Or.class);
-    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
+    Filter filter = mock(Filter.class);
+    when(workspaceQueryBuilder.createFilter(Collections.singleton(id))).thenReturn(filter);
   }
 
   @Test
@@ -153,14 +142,6 @@ public class WorkspaceServiceImplTest {
     assertThat(workspaceMetacards.get(0).getId(), is(id));
   }
 
-  private Filter mockWorkspaceTagFilter() {
-    Filter workspaceTagFilter = mock(Filter.class);
-
-    when(filterService.buildWorkspaceTagFilter()).thenReturn(workspaceTagFilter);
-
-    return workspaceTagFilter;
-  }
-
   @Test
   public void testGetWorkspaceMetacardsByWorkspaceId()
       throws UnsupportedQueryException, SourceUnavailableException, FederationException,
@@ -170,20 +151,6 @@ public class WorkspaceServiceImplTest {
     String subject = "subject";
 
     mockCatalogFrameworkQuery(id, subject);
-
-    Filter workspaceTagFilter = mockWorkspaceTagFilter();
-
-    Filter metacardIdFilter = mock(Filter.class);
-
-    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
-
-    And andFilter = mock(And.class);
-
-    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
-
-    Or orFilter = mock(Or.class);
-
-    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
         workspaceService.getWorkspaceMetacards(Collections.singleton(id));
@@ -201,20 +168,6 @@ public class WorkspaceServiceImplTest {
 
     mockCatalogFrameworkQuery(id, "subject");
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
-
-    Filter workspaceTagFilter = mockWorkspaceTagFilter();
-
-    Filter metacardIdFilter = mock(Filter.class);
-
-    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
-
-    And andFilter = mock(And.class);
-
-    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
-
-    Or orFilter = mock(Or.class);
-
-    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
         workspaceService.getWorkspaceMetacards(Collections.singleton(id));
