@@ -356,8 +356,8 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     return Failsafe.with(
             new RetryPolicy()
                 .retryOn(Collections.singletonList(Exception.class))
-                .withMaxRetries(2)
-                .withBackoff(2, 10, TimeUnit.SECONDS))
+                .withMaxRetries(5)
+                .withBackoff(2, 60, TimeUnit.SECONDS))
         .get(() -> systemSubject.execute(func));
   }
 }
