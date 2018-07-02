@@ -6,6 +6,8 @@
     "pom-fix": "./bin/pom-fix"
   },
   "scripts": {
+    "prebuild": "mkdirp target",
+    "build": "browserify --node ./bin/pom-fix > target/pom-fix.js",
     "pretest": "standard lib/*.js test/*.js",
     "test": "tap test/"
   },
@@ -21,6 +23,8 @@
     "vkbeautify": "0.99.1"
   },
   "devDependencies": {
+    "browserify": "16.2.2",
+    "mkdirp": "0.5.1",
     "standard": "5.4.1",
     "tap": "5.8.0"
   },
