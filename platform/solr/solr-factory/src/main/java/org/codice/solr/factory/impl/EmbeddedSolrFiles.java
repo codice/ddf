@@ -34,11 +34,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Maintain embedded Solr configuration and schema files.
- *
- * <p><i>Note:</i> The corresponding {@link SolrConfig} and {@link IndexSchema} will be constructed
- * the first time they are retrieved.
+ * @deprecated Removing support for embedded and standalone Solr in the future.
+ *     <p>Maintain embedded Solr configuration and schema files.
+ *     <p><i>Note:</i> The corresponding {@link SolrConfig} and {@link IndexSchema} will be
+ *     constructed the first time they are retrieved.
  */
+@Deprecated
 class EmbeddedSolrFiles {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFiles.class);
 
