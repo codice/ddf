@@ -161,17 +161,18 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   @Override
   public List<WorkspaceMetacardImpl> getWorkspaceMetacards(Set<String> workspaceIds) {
 
-    if (!workspaceIds.isEmpty()) {
+    if (workspaceIds.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-      final Filter filter = workspaceQueryBuilder.createFilter(workspaceIds);
+    final Filter filter = workspaceQueryBuilder.createFilter(workspaceIds);
 
-      final QueryRequest queryRequest = createQueryRequest(filter);
+    final QueryRequest queryRequest = createQueryRequest(filter);
 
-      try {
-        return createWorkspaceMetacards(catalogFramework.query(queryRequest));
-      } catch (UnsupportedQueryException | FederationException | SourceUnavailableException e) {
-        LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
-      }
+    try {
+      return createWorkspaceMetacards(catalogFramework.query(queryRequest));
+    } catch (UnsupportedQueryException | FederationException | SourceUnavailableException e) {
+      LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
     }
 
     return Collections.emptyList();
@@ -198,7 +199,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
       LOGGER.warn("Failed to get subscriptions for workspaces: {}", e.getMessage());
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }
-    if (ids.size() == 0) {
+    if (ids.isEmpty()) {
       return null;
     }
 
