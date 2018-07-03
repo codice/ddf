@@ -27,14 +27,14 @@
 |cswUrl
 |String
 |URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
-|${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.system.rootContext}/csw
+|${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.rootContext}/csw
 |true
 
 |Event Service Address
 |eventServiceAddress
 |String
 |DDF Event Service endpoint.
-|${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.system.rootContext}/csw/subscription
+|${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.rootContext}/csw/subscription
 |false
 
 |Register for Events

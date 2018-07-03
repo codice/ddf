@@ -747,7 +747,7 @@ public class MetricsEndpointTest extends XMLTestCase {
 
   private MetricsEndpoint getEndpoint() {
     MetricsEndpoint me = new MetricsEndpoint();
-    System.setProperty(SystemBaseUrl.ROOT_CONTEXT, "/services");
+    System.setProperty(SystemBaseUrl.INTERNAL_ROOT_CONTEXT, "/services");
     System.setProperty(SystemInfo.SITE_NAME, "siteName");
     return me;
   }

@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 module.exports = function (source, map) {
-    const rootContext = path.join(this.rootContext, '/src/main/webapp/');
+    const rootContext = path.join(this.rootContext, 'src/main/webapp/');
     const options = {
         prefix: 'ddf/',
         resolve(filePath) {

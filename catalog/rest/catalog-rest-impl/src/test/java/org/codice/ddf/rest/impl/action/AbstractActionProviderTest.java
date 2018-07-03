@@ -59,7 +59,7 @@ public abstract class AbstractActionProviderTest {
     setProperty(SystemBaseUrl.EXTERNAL_PORT, port);
     setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, port);
     setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, protocol);
-    setProperty(SystemBaseUrl.ROOT_CONTEXT, contextRoot);
+    setProperty(SystemBaseUrl.INTERNAL_ROOT_CONTEXT, contextRoot);
     setProperty("org.codice.ddf.system.siteName", siteName);
   }
 
