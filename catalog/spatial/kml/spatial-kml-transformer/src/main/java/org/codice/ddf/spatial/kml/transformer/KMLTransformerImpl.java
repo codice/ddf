@@ -14,7 +14,9 @@
 package org.codice.ddf.spatial.kml.transformer;
 
 import static java.util.Collections.emptyList;
-import static org.codice.ddf.spatial.kml.converter.MetacardToKml.getKmlGeoFromWkt;
+import static org.codice.ddf.spatial.kml.converter.MetacardToKml.addJtsGeoPointsToKmlGeo;
+import static org.codice.ddf.spatial.kml.converter.MetacardToKml.getJtsGeoFromWkt;
+import static org.codice.ddf.spatial.kml.converter.MetacardToKml.getKmlGeoFromJtsGeo;
 import static org.codice.ddf.spatial.kml.util.KmlTransformations.encloseKml;
 
 import com.github.jknack.handlebars.Handlebars;
@@ -31,6 +33,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
+import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -182,7 +185,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     timeSpan.setBegin(effectiveTime);
     kmlPlacemark.setTimePrimitive(timeSpan);
 
-    kmlPlacemark.setGeometry(getKmlGeoFromWkt(entry.getLocation()));
+    kmlPlacemark.setGeometry(getKmlGeoWithPointsFromWkt(entry.getLocation()));
 
     String description = entry.getTitle();
     Handlebars handlebars = new Handlebars(templateLoader);
@@ -277,5 +280,12 @@ public class KMLTransformerImpl implements KMLTransformer {
         new ByteArrayInputStream(transformedKml.getBytes(StandardCharsets.UTF_8));
     LOGGER.trace("EXITING: ResponseQueue transform");
     return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
+  }
+
+  private Geometry getKmlGeoWithPointsFromWkt(String wkt) throws CatalogTransformerException {
+    final com.vividsolutions.jts.geom.Geometry jtsGeo = getJtsGeoFromWkt(wkt);
+    Geometry kmlGeo = getKmlGeoFromJtsGeo(jtsGeo);
+    kmlGeo = addJtsGeoPointsToKmlGeo(jtsGeo, kmlGeo);
+    return kmlGeo;
   }
 }
