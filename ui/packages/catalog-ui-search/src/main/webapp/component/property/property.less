@@ -91,20 +91,16 @@
 
   .for-error {
     color: contrast(@negative-color);
-    overflow: hidden;
-    display: block;
+    display: none;
     line-height: @minimumLineSize;
-    text-align: left;
     padding-left: @minimumSpacing;
     background: @negative-color;
-    height: 0px;
+    height: auto;
   }
 
   &.failed-required-check.show-required-warning {
     .for-error {
       display: block;
-      height: auto;
-      white-space: normal;
     }
   }
 }

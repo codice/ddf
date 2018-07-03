@@ -35,8 +35,6 @@ module.exports = Marionette.LayoutView.extend({
         ingestDetails: '.ingest-details',
         ingestEditor: '.ingest-editor',
     },
-    detailsView: {},
-    editorView: {},
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
     },
@@ -49,20 +47,18 @@ module.exports = Marionette.LayoutView.extend({
         this.handleRoute();
     },
     onBeforeShow: function() {
-        this.editorView = new IngestEditor();
-        this.detailsView = new IngestDetails({
-            url: '/services/catalog/',
-            preIngestValidator: this.validateAttributes.bind(this)
-        });
-        this.ingestEditor.show(this.editorView);
-        this.ingestDetails.show(this.detailsView);
-
-        if (properties.editorAttributes.length === 0) {
-            this.ingestEditor.$el.hide();
+        var isEditorShown = (properties.editorAttributes.length > 0);
+        this.$el.toggleClass('editor-hidden', !isEditorShown);
+        if (isEditorShown) {
+            this.ingestEditor.show(new IngestEditor());
         }
+        this.ingestDetails.show(new IngestDetails({
+            url: '/services/catalog/',
+            preIngestValidator: isEditorShown ? this.validateAttributes.bind(this) : undefined
+        }));
     },
     validateAttributes: function () {
-        var propertyCollectionView = this.editorView.getPropertyCollectionView();
+        var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView();
         if (propertyCollectionView.hasBlankRequiredAttributes() || !propertyCollectionView.isValid()) {
             announcement.announce({
                 title: 'Some fields need attention',
@@ -72,7 +68,7 @@ module.exports = Marionette.LayoutView.extend({
             propertyCollectionView.showRequiredWarnings();
             return false;
         } else {
-            this.detailsView.setOverrides(this.editorView.getAttributeOverrides());
+            this.ingestDetails.currentView.setOverrides(this.ingestEditor.currentView.getAttributeOverrides());
             propertyCollectionView.hideRequiredWarnings();
             return true;
         }
