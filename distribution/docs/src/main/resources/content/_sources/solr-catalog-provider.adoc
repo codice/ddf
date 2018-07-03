@@ -47,7 +47,7 @@ To enable TLS:
  ----
  solr.client=HttpSolrClient
  solr.http.port=8994
- solr.http.url=http://localhost:${solr.http.port}/solr
+ solr.http.url=http://localhost:_DO_NOT_EXPAND_${solr.http.port}/solr
  solr.data.dir=_DO_NOT_EXPAND_${karaf.home}/solr/server/solr
  ----
 
