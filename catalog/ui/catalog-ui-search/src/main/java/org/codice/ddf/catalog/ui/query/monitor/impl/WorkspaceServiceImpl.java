@@ -17,13 +17,15 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.util.impl.CatalogQueryException;
+import ddf.catalog.util.impl.QueryFunction;
+import ddf.catalog.util.impl.ResultIterable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -67,8 +69,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private final WorkspaceQueryBuilder workspaceQueryBuilder;
 
-  /** Use an AtomicInteger to make the class thread-safe. */
-  private final AtomicInteger maxSubscriptions = new AtomicInteger(0);
+  /** Use {@code volatile} to make the class thread-safe. */
+  private volatile int maxSubscriptions;
 
   /**
    * @param catalogFramework must be non-null
@@ -94,27 +96,20 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     this.workspaceTransformer = workspaceTransformer;
     this.securityService = securityService;
     this.persistentStore = persistentStore;
-    this.maxSubscriptions.set(maxSubscriptions);
+    this.maxSubscriptions = maxSubscriptions;
     this.workspaceQueryBuilder = workspaceQueryBuilder;
   }
 
   @SuppressWarnings("unused" /* Needed by metatype. */)
   public void setMaxSubscriptions(int maxSubscriptions) {
-    this.maxSubscriptions.set(maxSubscriptions);
+    this.maxSubscriptions = maxSubscriptions;
   }
 
   @Override
   public String toString() {
-    return "WorkspaceServiceImpl{"
-        + "securityService="
-        + securityService
-        + ", catalogFramework="
-        + catalogFramework
-        + ", workspaceTransformer="
-        + workspaceTransformer
-        + ", maxSubscriptions="
-        + maxSubscriptions.get()
-        + '}';
+    return String.format(
+        "WorkspaceServiceImpl{securityService=%s, catalogFramework=%s, workspaceTransformer=%s, maxSubscriptions=%d}",
+        securityService, catalogFramework, workspaceTransformer, maxSubscriptions);
   }
 
   @Override
@@ -124,13 +119,35 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     if (queryRequest != null) {
       try {
-        return createWorkspaceMetacards(catalogFramework.query(queryRequest));
-      } catch (UnsupportedQueryException | FederationException | SourceUnavailableException e) {
+        return createWorkspaceMetacards(query(queryRequest));
+      } catch (CatalogQueryException e) {
         LOGGER.warn("Error querying for workspaces", e);
       }
     }
 
     return Collections.emptyList();
+  }
+
+  private QueryResponse query(QueryRequest queryRequest) {
+    AtomicLong hitCount = new AtomicLong(0);
+
+    QueryFunction queryFunction =
+        qr -> {
+          SourceResponse sourceResponse = catalogFramework.query(qr);
+          hitCount.compareAndSet(0, sourceResponse.getHits());
+          return sourceResponse;
+        };
+
+    ResultIterable results =
+        ResultIterable.resultIterable(queryFunction, queryRequest, maxSubscriptions);
+
+    List<Result> resultList = results.stream().collect(Collectors.toList());
+
+    long totalHits = hitCount.get();
+
+    totalHits = totalHits != 0 ? totalHits : resultList.size();
+
+    return new QueryResponseImpl(queryRequest, resultList, totalHits);
   }
 
   /** Get the metacards from the query response and convert them to workspace metacards. */
@@ -170,8 +187,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     final QueryRequest queryRequest = createQueryRequest(filter);
 
     try {
-      return createWorkspaceMetacards(catalogFramework.query(queryRequest));
-    } catch (UnsupportedQueryException | FederationException | SourceUnavailableException e) {
+      return createWorkspaceMetacards(query(queryRequest));
+    } catch (CatalogQueryException e) {
       LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
     }
 
@@ -214,7 +231,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    */
   private QueryRequest createQueryRequest(Filter filter) {
     QueryImpl query = new QueryImpl(filter);
-    query.setPageSize(maxSubscriptions.get());
+    query.setPageSize(maxSubscriptions);
     return new QueryRequestImpl(query, createProperties());
   }
 
