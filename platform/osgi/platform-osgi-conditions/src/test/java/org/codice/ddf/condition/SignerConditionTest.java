@@ -29,7 +29,7 @@ import javax.security.auth.x500.X500Principal;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.ConditionInfo;
-import sun.security.x509.X509CertImpl;
+import sun.security.x509.X509CertImpl; // suppress checkstyle:IllegalImport required for testing
 
 public class SignerConditionTest {
 
