@@ -25,13 +25,88 @@
     padding: 20px;
   }
 
+  >.inspector-content .tabs-list {
+    background: fade(@primary-color, 25%);
+  }
+
+  > .inspector-content .editor-header {
+    background: fade(@primary-color, 10%);
+  }
+
+  > .inspector-content .editor-footer {
+    text-align: right;
+    margin-top: 0px;
+  }
+
+  > .inspector-content .editor-footer > button {
+    //max-width: 150px;
+    //display: inline-block;
+   width: auto;
+    padding: @minimumSpacing @largeSpacing;
+    display: inline-block;
+    margin: @minimumSpacing;
+    height: @minimumButtonSize;
+    line-height: @minimumFontSize;
+    border-radius: @border-radius;
+  }
+
+  > .inspector-content .editor-footer > button.is-positive,
+  > .inspector-content .editor-footer > button.is-negative {
+    display: none;
+  }
+
+  > .inspector-content .is-editing .editor-footer > button.is-positive,
+  > .inspector-content .is-editing .editor-footer > button.is-negative {
+    display: inline-block;
+  }
+
+  > .inspector-content .editor-footer > button > span.fa,
+  > .inspector-content .editor-footer > button > span {
+    font-size: @minimumFontSize;
+  }
+
+  @{customElementNamespace}property:nth-child(odd) {
+    background: contrast(@backgroundContent,white, fade(white, 8%));
+  }
+
+  @{customElementNamespace}property:nth-child(even) {
+    background: contrast(@backgroundContent, #f8f8f8, fade(white, 5%));
+  }
+
+  @{customElementNamespace}property {
+    border: solid 1px fade(contrast(@backgroundContent), 20%);
+    margin: 0;
+    padding:0;
+
+    .property-label {
+      max-width: 20%; 
+      display: inline-block;
+      text-align: right; //
+      line-height: 1;
+    }
+
+    .property-label label {
+       color: fade(contrast(@backgroundDropdown), 100%);
+       text-transform: uppercase; 
+       letter-spacing: 1px;
+       line-height: 1;
+       padding: 5px 10px;
+    }
+
+    .property-value {
+      max-width: 79%; //
+      display: inline-block;
+      border-left: solid 1px fade(contrast(@backgroundContent), 20%);
+      padding: 5px 10px;
+    }
+  }
+
 }
 
 @{customElementNamespace}inspector.is-empty {
   overflow: hidden;
 
   > .inspector-empty {
-    // display: block;
      display: flex;
      width: 100%;
      height: 100%;

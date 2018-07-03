@@ -95,17 +95,22 @@
     }
 
     .tabs-tab {
-      padding: 0px @minimumSpacing;
+      padding: 0px @largeSpacing;
       line-height: @minimumButtonSize;
       height: @minimumButtonSize;
       display: inline-block;
       border-bottom: 1px solid transparent;
       font-size: @minimumFontSize;
+      font-weight: 300;
+      color: fade(contrast(@backgroundContent), 70%);
+      //color: mix(@primary-color, white);
+      opacity: 1;
 
       &.is-active {
         opacity: 1;
         .is-bold();
         border-bottom: 1px solid;
+        color: contrast(@backgroundContent);
       }
 
       &:hover {

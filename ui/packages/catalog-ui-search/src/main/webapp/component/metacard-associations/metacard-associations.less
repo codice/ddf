@@ -2,13 +2,19 @@
   .customElement;
   overflow: hidden;
 
+
+  > .content-menu {
+    background: fade(@primary-color, 10%);
+  }
+
   > .editor-content {
     display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     width: 100%;
     text-align: center;
-    padding: 10px 20px;
+    padding: 0 10px;
     max-height: ~'calc(100% - 4*@{minimumButtonSize} - 40px)';
     overflow: auto;
+
     @{customElementNamespace}dropdown .dropdown-text {
       padding-left: 0px;
     }
@@ -21,16 +27,26 @@
   }
 
   > .list-header {
-    text-align: center;
-    padding: 10px 20px;
+    text-align: left;
+    margin: 0px 10px 0px 10px;
     white-space: nowrap;
+    font-size: 0px; // removes space between inline block elements.
+    letter-spacing: 0px;
+    font-weight: 600;
+
     > div {
       display: inline-block;
-      width: 33%;
-      padding: 10px 0px;
+      width: 33.333339%;
+      padding: 10px;
+      border: solid 1px fade(contrast(@backgroundContent), 20%);
+      font-size: @minimumFontSize;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: fade(@primary-color, 10%);
     }
+
     > div + div {
-      padding-left: 20px;
+      
     }
   }
 
@@ -41,6 +57,21 @@
 
   > .list-footer {
     padding: 10px 0px;
+    margin: (2 * @mediumSpacing) 10px 0px 10px;
+  }
+
+  > .list-footer > button {
+    max-width: 250px;
+    float: right;
+    margin-right: 2 * @minimumButtonSize;
+  }
+
+  > .list-footer > button > span {
+    font-size: @minimumFontSize;
+  }
+
+  > .list-footer .footer-add {
+    
   }
 
   > .list-footer button {
@@ -69,8 +100,12 @@
   .customElement;
 
   > .list-header {
-    width: ~'calc(100% - @{minimumButtonSize})';
+    width: ~'calc(100% - @{minimumButtonSize} - 20px)';
     padding-right: 40px;
+  }
+
+  > .list-header .association-remove {
+    margin: 10px;
   }
 
   > .list-footer .footer-text {
@@ -79,6 +114,7 @@
 
   > .list-footer button {
     display: block;
+    font-size: @minimumFontSize;
   }
   
   > .editor-footer {

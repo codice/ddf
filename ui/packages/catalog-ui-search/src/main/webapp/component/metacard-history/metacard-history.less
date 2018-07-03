@@ -1,31 +1,55 @@
 @{customElementNamespace}metacard-history {
   @buttonMargin: 10px;
-
   @valueWidth: 60%;
-
   .customElement;
-
   overflow: hidden;
+  margin: 0 auto;
 
   .metacardHistory-row {
     transition: padding @transitionTime linear;
+    background: contrast(@backgroundContent, #f8f8f8, fade(white, 5%));
+    margin: 0px 10px;
+    border: solid 1px fade(contrast(@backgroundContent),10%);
+
+    &:hover {
+      background: contrast(@backgroundContent, #f8f8f8, fade(white, 7%));
+    }
+
+    &.is-selected {
+      color: contrast(@backgroundContent);
+      background: contrast(@backgroundContent, #f8f8f8, fade(white, 10%));
+    }
   }
 
   .metacardHistory-header {
-    height: 50px;
+    margin: 10px 10px 0px 10px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: fade(@primary-color, 10%);
+
+    .metacardHistory-row {
+      background: transparent;
+      margin: 0;
+    }
   }
+
   .metacardHistory-body {
     display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     max-height: ~"calc(100% - @{minimumButtonSize}*2 - 20px - @{buttonMargin})";
     overflow: auto;
     overflow-x: hidden;
     width: 100%;
+    color: fade(contrast(@backgroundContent), 70%);
+    font-weight: 300;
   }
 
   .metacardHistory-cell {
     float: left;
     padding: 10px;
-    text-align: center;
+    text-align: left;
+    border-left: solid 1px fade(contrast(@backgroundContent),10%);
   }
 
   .metacardHistory-version {
@@ -43,14 +67,20 @@
   }
 
   button {
-    margin-top: @buttonMargin;
-    width: 100%;
-    text-align: center;
+    width: auto;
+    padding: @minimumSpacing @largeSpacing;
+    display: inline-block;
+    margin: @minimumSpacing;
     height: @minimumButtonSize;
-    display: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: @minimumFontSize;
+    border-radius: @border-radius;
+    text-align: center;
+    font-size: @minimumFontSize;
+    margin: @minimumSpacing auto;
+  }
+
+  button > span.fa {
+    font-size: @minimumFontSize;
   }
 
   &.has-selection {

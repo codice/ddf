@@ -17,6 +17,9 @@
 
   .property-label {
     text-align: right;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
     > div,
     > label {
       vertical-align: middle;
@@ -28,14 +31,13 @@
     .is-bold();
     max-width: ~'calc(100% - @{minimumButtonSize})';
     margin: 0px;
-    line-height: 1.4;
+    line-height: 1;
     padding: 0px;
     min-height: (@minimumButtonSize - (@minimumButtonSize/4));
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: normal;
     white-space: normal;
-    color: fade(contrast(@backgroundDropdown), 80%);
   }
 
   .property-revert {

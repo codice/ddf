@@ -31,7 +31,17 @@
       
       span {
         font-size: @mediumFontSize;
+        font-weight: 600;
       }
+    }
+
+    &.is-primary:hover {
+      background: saturate(@primary-color, 35%);
+    }
+
+    &.is-primary:disabled {
+      background: @primary-color;
+      opacity: .4;
     }
   }
 

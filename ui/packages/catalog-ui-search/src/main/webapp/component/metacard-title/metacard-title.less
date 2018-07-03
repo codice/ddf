@@ -3,6 +3,7 @@
   line-height: @minimumButtonSize;
   font-size: @largeFontSize;
   white-space: nowrap;
+  margin: (@mediumSpacing) 0;
 
   > div {
     display: inline-block;
@@ -15,6 +16,12 @@
     text-overflow: ellipsis;
     margin-right: 30px;
     white-space: nowrap;
+    font-size: @minimumFontSize;
+  }
+
+  > .metacard-title > .fa {
+    padding: @minimumSpacing;
+    opacity: .5;
   }
 
   > .metacard-interactions,
