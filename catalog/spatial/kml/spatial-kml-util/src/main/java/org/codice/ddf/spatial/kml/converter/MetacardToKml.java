@@ -25,6 +25,7 @@ import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
 public class MetacardToKml {
@@ -115,12 +116,12 @@ public class MetacardToKml {
     return KmlFactory.createPoint().addToCoordinates(jtsPoint.getX(), jtsPoint.getY());
   }
 
-  public static com.vividsolutions.jts.geom.Geometry getJtsGeoFromWkt(final String wkt)
+  public static com.vividsolutions.jts.geom.Geometry getJtsGeoFromWkt(@Nullable final String wkt)
       throws CatalogTransformerException {
 
     if (StringUtils.isBlank(wkt)) {
       throw new CatalogTransformerException(
-          "WKT was null or empty. Unable to preform KML Transform on Metacard.");
+          "WKT was null or empty. Unable to convert WKT to JTS Geometry.");
     }
 
     try {
