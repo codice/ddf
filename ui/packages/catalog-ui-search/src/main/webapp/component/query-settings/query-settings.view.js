@@ -24,14 +24,13 @@ const DropdownModel = require('component/dropdown/dropdown')
 const QuerySrcView = require('component/dropdown/query-src/dropdown.query-src.view')
 const PropertyView = require('component/property/property.view')
 const Property = require('component/property/property')
-const user = require('component/singletons/user-instance')
 const SortItemCollectionView = require('component/sort/sort.view')
-const ScheduleQueryView = require('component/query-schedule/query-schedule.view')
 const Common = require('js/Common')
 const properties = require('properties')
+const plugin = require('plugins/query-settings')
 const ResultForm = properties.hasExperimentalEnabled() ? require('component/result-form/result-form') : {}
 
-module.exports = Marionette.LayoutView.extend({
+module.exports = plugin(Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-settings'),
         modelEvents: {},
@@ -186,4 +185,4 @@ module.exports = Marionette.LayoutView.extend({
             store.setCurrentQuery(this.model);
             this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
         }
-    });
+    }));
