@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.codice.ddf.catalog.resource.download.internal.DownloadManager;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -118,6 +119,8 @@ public class FrameworkProperties {
   private DefaultAttributeValueRegistry defaultAttributeValueRegistry;
 
   private List<AttributeInjector> attributeInjectors = new ArrayList<>();
+
+  private List<DownloadManager> downloadManagers = new ArrayList<>();
 
   public List<CatalogProvider> getCatalogProviders() {
     return catalogProviders;
@@ -377,5 +380,21 @@ public class FrameworkProperties {
 
   public List<AttributeInjector> getAttributeInjectors() {
     return attributeInjectors;
+  }
+
+  public DownloadManager getDownloadManager() {
+    if (!downloadManagers.isEmpty()) {
+      return downloadManagers.get(0);
+    } else {
+      return reliableResourceDownloadManager;
+    }
+  }
+
+  public List<DownloadManager> getDownloadManagers() {
+    return downloadManagers;
+  }
+
+  public void setDownloadManagers(List<DownloadManager> downloadManagers) {
+    this.downloadManagers = downloadManagers;
   }
 }

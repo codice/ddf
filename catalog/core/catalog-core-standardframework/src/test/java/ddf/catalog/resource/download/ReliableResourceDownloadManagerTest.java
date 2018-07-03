@@ -61,6 +61,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

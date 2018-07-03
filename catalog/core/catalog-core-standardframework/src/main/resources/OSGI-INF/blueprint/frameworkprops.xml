@@ -40,6 +40,7 @@
         <property name="downloadsStatusEventPublisher" ref="retrieveStatusEventPublisher"/>
         <property name="reliableResourceDownloadManager"
                   ref="reliableResourceDownloadManager"/>
+        <property name="downloadManagers" ref="downloadManagerSortedList"/>
         <property name="preAuthorizationPlugins" ref="preAuthSortedList"/>
         <property name="policyPlugins" ref="policySortedList"/>
         <property name="accessPlugins" ref="accessSortedList"/>

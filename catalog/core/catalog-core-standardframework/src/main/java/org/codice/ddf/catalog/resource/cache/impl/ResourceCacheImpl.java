@@ -46,6 +46,18 @@ public class ResourceCacheImpl implements ResourceCache {
   }
 
   @Override
+  public void put(Metacard metacard, Resource resource) {
+    // NO OP
+    return;
+  }
+
+  @Override
+  public void put(Metacard metacard, ResourceRequest resourceRequest, Resource resource) {
+    // NO OP
+    return;
+  }
+
+  @Override
   public boolean contains(Metacard metacard) {
     Validate.notNull(metacard, "Metacard cannot be null");
     return contains(metacard, new ResourceRequestById(metacard.getId()));

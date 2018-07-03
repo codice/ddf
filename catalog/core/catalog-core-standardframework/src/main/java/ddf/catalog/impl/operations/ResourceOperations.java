@@ -43,7 +43,6 @@ import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.download.DownloadException;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
 import ddf.catalog.resourceretriever.RemoteResourceRetriever;
 import ddf.catalog.resourceretriever.ResourceRetriever;
@@ -60,6 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.catalog.resource.download.DownloadException;
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -384,9 +384,7 @@ public class ResourceOperations extends DescribableImpl {
 
       try {
         resourceResponse =
-            frameworkProperties
-                .getReliableResourceDownloadManager()
-                .download(resourceRequest, metacard, retriever);
+            frameworkProperties.getDownloadManager().download(resourceRequest, metacard, retriever);
       } catch (DownloadException e) {
         LOGGER.info("Unable to download resource", e);
       }
