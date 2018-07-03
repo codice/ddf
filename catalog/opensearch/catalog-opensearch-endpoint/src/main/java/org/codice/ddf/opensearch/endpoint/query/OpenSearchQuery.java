@@ -452,16 +452,13 @@ public class OpenSearchQuery implements Query {
 
   /** @return a combined spatial, contextual and temporal filters together with a logical AND */
   public Filter getFilter() {
-    Optional<Filter> spatialFiltersOption = getSpatialFilterOption();
-    if (spatialFiltersOption.isPresent()) {
-      return getFilterWithSpatial(spatialFiltersOption.get());
-    } else {
-      return getFilterWithoutSpatial();
-    }
+    return getSpatialFilterOption()
+        .map(filterOption -> getFilterWithSpatial(filterOption))
+        .orElseGet(this::getFilterWithoutSpatial);
   }
 
   private Optional<Filter> getSpatialFilterOption() {
-    if (spatialFilters == null || spatialFilters.isEmpty()) {
+    if (CollectionUtils.isEmpty(spatialFilters)) {
       return Optional.empty();
     } else if (spatialFilters.size() == 1) {
       return Optional.ofNullable(spatialFilters.get(0));

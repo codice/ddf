@@ -58,7 +58,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
   private static final String ONLY_AND_MSG =
       "The OpenSearch Source only supports AND operations for non-contextual criteria.";
 
-  private static final String NOT_UNSUPPORTED_MSG =
+  private static final String NOT_OPERATOR_UNSUPPORTED_MSG =
       "The OpenSearch Source does not support NOT operation.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchFilterVisitor.class);
@@ -402,7 +402,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
 
     if (NestedTypes.NOT.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      LOGGER.debug(NOT_UNSUPPORTED_MSG);
+      LOGGER.debug(NOT_OPERATOR_UNSUPPORTED_MSG);
       return;
     }
 
@@ -458,7 +458,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
 
     if (NestedTypes.NOT.equals(openSearchFilterVisitorObject.getCurrentNest())) {
-      LOGGER.debug(NOT_UNSUPPORTED_MSG);
+      LOGGER.debug(NOT_OPERATOR_UNSUPPORTED_MSG);
       return;
     }
 

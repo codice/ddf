@@ -1005,11 +1005,11 @@ public class OpenSearchFilterVisitorTest {
 
     final Queue<PointRadius> pointRadiusSearches = result.getPointRadiusSearches();
     assertThat(
-        "The OpenSearchFilterVisitorObject should contain contain two point-radius searches from the two unique point-radius filters in the AND filter.",
+        "The OpenSearchFilterVisitorObject should contain two point-radius searches from the two unique point-radius filters in the OR filter.",
         pointRadiusSearches,
         hasSize(2));
     assertThat(
-        "The OpenSearchFilterVisitorObject should contain contain the point-radius searches in the order that they appear in the AND filter.",
+        "The OpenSearchFilterVisitorObject should contain the point-radius searches in the order that they appear in the OR filter.",
         pointRadiusSearches,
         contains(
             allOf(
@@ -1023,11 +1023,11 @@ public class OpenSearchFilterVisitorTest {
 
     final Queue<Geometry> geometrySearches = result.getGeometrySearches();
     assertThat(
-        "The OpenSearchFilterVisitorObject should contain contain two geometry searches from the two unique geometry filters in the AND filter.",
+        "The OpenSearchFilterVisitorObject should contain contain two geometry searches from the two unique geometry filters in the OR filter.",
         geometrySearches,
         hasSize(2));
     assertThat(
-        "The OpenSearchFilterVisitorObject should contain contain the geometry searches in the order that they appear in the AND filter.",
+        "The OpenSearchFilterVisitorObject should contain contain the geometry searches in the order that they appear in the OR filter.",
         geometrySearches,
         contains(hasToString(is(WKT_POLYGON)), hasToString(is(anotherWktPolygon))));
   }

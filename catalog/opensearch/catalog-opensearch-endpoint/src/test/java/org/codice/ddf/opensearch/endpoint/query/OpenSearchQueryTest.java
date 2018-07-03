@@ -744,7 +744,7 @@ public class OpenSearchQueryTest {
     query.addPolygonSpatialFilter("-30,100,-35,100,-35,110,-30,110,-30,100");
 
     Filter filter = query.getFilter();
-    assertThat(filter, notNullValue());
+    assertThat(filter, instanceOf(OrImpl.class));
 
     OrImpl topFilter = (OrImpl) filter;
     List<Filter> spatialFilters = topFilter.getChildren();
