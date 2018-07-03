@@ -29,8 +29,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
@@ -59,6 +61,7 @@ import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.HttpUtils;
@@ -402,6 +405,10 @@ public class AssertionConsumerService {
   @Path("/metadata")
   @Produces("application/xml")
   public Response retrieveMetadata() throws WSSecurityException, CertificateEncodingException {
+    List<String> nameIdFormats = new ArrayList<>();
+    nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_PERSISTENT);
+    nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_UNSPECIFIED);
+    nameIdFormats.add(SAML2Constants.NAMEID_FORMAT_X509_SUBJECT_NAME);
     X509Certificate issuerCert =
         findCertificate(systemCrypto.getSignatureAlias(), systemCrypto.getSignatureCrypto());
     X509Certificate encryptionCert =
@@ -423,6 +430,7 @@ public class AssertionConsumerService {
             entityId,
             Base64.getEncoder().encodeToString(issuerCert.getEncoded()),
             Base64.getEncoder().encodeToString(encryptionCert.getEncoded()),
+            nameIdFormats,
             logoutLocation,
             assertionConsumerServiceLocation,
             assertionConsumerServiceLocation,
