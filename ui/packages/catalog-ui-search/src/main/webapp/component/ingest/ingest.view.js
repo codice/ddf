@@ -54,7 +54,7 @@ module.exports = Marionette.LayoutView.extend({
         }
         this.ingestDetails.show(new IngestDetails({
             url: '/services/catalog/',
-            preIngestValidator: isEditorShown ? this.validateAttributes.bind(this) : undefined
+            preIngestValidator: isEditorShown ? this.validateAttributes.bind(this) : null
         }));
     },
     validateAttributes: function () {
