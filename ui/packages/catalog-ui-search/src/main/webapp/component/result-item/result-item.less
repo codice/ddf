@@ -6,6 +6,14 @@
   position: relative;
   opacity: 1;
 
+  > .result-container {
+    border: solid fade(contrast(@backgroundAccentContent), 20%) 1px !important;
+    border-top: solid fade(contrast(@backgroundAccentContent), 20%) 1px !important;
+    border-top: solid fade(contrast(@backgroundAccentContent), 20%) 1px !important;
+    //background: fade(contrast(@backgroundAccentContent), 5%);
+    background: contrast(@backgroundAccentContent, fade(white, 50%), fade(white, 5%));
+  }
+
   .content-header {
     white-space: nowrap;
     line-height: @minimumLineSize;
@@ -22,6 +30,7 @@
     white-space: nowrap;
     text-align: right;
     height: @minimumButtonSize;
+    //border: solid 1px #e1e1e1;
 
     > .result-download {
       display: none;
