@@ -27,42 +27,31 @@ deny {
 
     // Load classes into any protection domain
     permission java.lang.RuntimePermission "createClassLoader";
-};
+}
 
-//
-// DDF Platform Migratable
-//
 grant
-  codeBase "file:/platform-migratable" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read, delete";
-
-    permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
-    permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
-
-    permission javax.management.MBeanServerPermission "createMBeanServer";
+  codeBase "file:/platform-migration" {
     permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}-", "read, write, delete";
+    permission java.io.FilePermission "${ddf.home}", "write, delete";
+    permission java.io.FilePermission "${ddf.home.perm}-", "write, delete";
 
     permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "karaf.restart.jvm", "write";
-};
+}
 
-//
-// DDF Security Migratable
-//
+grant
+  codeBase "file:/platform-migratable" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
+}
+
 grant
   codeBase "file:/security-migratable" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
-};
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}server${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}server${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}issuer${/}signature.properties", "read";
+}
 
 grant codeBase "file:/admin-core-appservice" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
@@ -382,7 +371,7 @@ grant codeBase "file:/platform-country-converter-local" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
 }
 
-grant codeBase "file:/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/security-servlet-session-expiry" {
+grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/security-servlet-session-expiry" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }
