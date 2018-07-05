@@ -27,6 +27,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,8 @@ public class CsrfFilter implements SecurityFilter {
 
   // List of context paths that require cross-site protections
   private List<String> protectedContexts;
+  // List of authorities that are treated as same-origin as the system
+  private List<String> trustedAuthorities;
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -55,15 +58,34 @@ public class CsrfFilter implements SecurityFilter {
     protectedContexts.add(JOLOKIA_CONTEXT);
     protectedContexts.add(INTRIGUE_CONTEXT);
     protectedContexts.add(WEBSOCKET_CONTEXT);
+
+    // internal authority system properties
+    String internalHostname = SystemBaseUrl.INTERNAL.getHost();
+    String internalHttpPort = SystemBaseUrl.INTERNAL.getHttpPort();
+    String internalHttpsPort = SystemBaseUrl.INTERNAL.getHttpsPort();
+
+    // external authority system properties
+    String externalHostname = SystemBaseUrl.EXTERNAL.getHost();
+    String externalHttpPort = SystemBaseUrl.EXTERNAL.getHttpPort();
+    String externalHttpsPort = SystemBaseUrl.EXTERNAL.getHttpsPort();
+
+    trustedAuthorities = new ArrayList<>();
+    // internal http & https authorities
+    trustedAuthorities.add(internalHostname + ":" + internalHttpPort);
+    trustedAuthorities.add(internalHostname + ":" + internalHttpsPort);
+
+    // external http & https authorities
+    trustedAuthorities.add(externalHostname + ":" + externalHttpPort);
+    trustedAuthorities.add(externalHostname + ":" + externalHttpsPort);
   }
 
   /**
-   * Checks that the origin or referer header of the request matches the target origin when
-   * attempting to access certain contexts. Also checks for the existence of anti-CSRF header
+   * Checks that the origin or referer header of the request matches a system trusted authority when
+   * attempting to access certain contexts. Also checks for the existence of an anti-CSRF header
    * "X-Requested-With". A 403 is returned and the request is stopped if one or more of these
-   * conditions are met: - No Origin or Referer header is present on the request. - Neither the
-   * Origin or Referer header match the target origin. - An X-Requested-With header is not present
-   * on the request.
+   * conditions are met: - Neither the Origin nor Referer header is present on the request. -
+   * Neither the Origin nor Referer header match a trusted authority. - The "X-Requested-With"
+   * header is not present on the request.
    *
    * @param request incoming http request
    * @param response response stream for returning the response
@@ -82,7 +104,6 @@ public class CsrfFilter implements SecurityFilter {
     // Begin CSRF checks if request is accessing a Cross-Site protected context
     if (protectedContexts.stream().anyMatch(targetContextPath::startsWith)) {
 
-      String targetOrigin = httpRequest.getRequestURL().toString();
       String sourceOrigin = httpRequest.getHeader(ORIGIN_HEADER);
       String sourceReferer = httpRequest.getHeader(REFERER_HEADER);
       String csrfHeader = httpRequest.getHeader(CSRF_HEADER);
@@ -90,21 +111,25 @@ public class CsrfFilter implements SecurityFilter {
       // Reject if no origin or referer header is present on the request
       if (sourceOrigin == null && sourceReferer == null) {
         respondForbidden(
-            httpResponse, "Incoming request did not have an Origin or Referer header.");
+            httpResponse,
+            "Cross-site check failure: Incoming request did not have an Origin or Referer header.");
         return;
       }
 
-      // Reject if neither the Origin or Referer header match the target origin
-      if (!isSameOrigin(sourceOrigin, targetOrigin) && !isSameOrigin(sourceReferer, targetOrigin)) {
+      // Reject if neither the Origin nor Referer header are a trusted authority
+      if (!isTrustedAuthority(sourceOrigin) && !isTrustedAuthority(sourceReferer)) {
         respondForbidden(
-            httpResponse, "Origin or Referer header of request did not match target origin.");
+            httpResponse,
+            "Cross-site check failure: Neither the Origin nor Referer header matched a system internal or external name.");
         return;
       }
 
       // Check for presence of anti-CSRF header
-      // WebSockets API does not allow for custom headers, origin check is sufficient
+      // WebSockets API does not allow for custom headers, authority check is sufficient
       if (!targetContextPath.startsWith(WEBSOCKET_CONTEXT) && csrfHeader == null) {
-        respondForbidden(httpResponse, "Request did not have required X-Requested-With header.");
+        respondForbidden(
+            httpResponse,
+            "Cross-site check failure: Request did not have required X-Requested-With header.");
         return;
       }
     }
@@ -114,23 +139,29 @@ public class CsrfFilter implements SecurityFilter {
   }
 
   /**
-   * Returns true if both URLs have the same host and port. If either are null or empty, false is
-   * returned
+   * Returns true if the supplied URL has an authority (hostname:port) that matches one of the
+   * system's trusted authorities. If the URL is blank or malformed, false is returned.
    *
    * @param source source URL
-   * @param target destination URL
    * @return true if matching, false if different or a parsing error occurs
    */
-  private Boolean isSameOrigin(String source, String target) {
-    if (StringUtils.isBlank(source) || StringUtils.isBlank(target)) {
+  private Boolean isTrustedAuthority(String source) {
+    if (StringUtils.isBlank(source)) {
       return false;
     } else {
       try {
-        String sourceOrigin = new URL(source).getAuthority();
-        String targetOrigin = new URL(target).getAuthority();
-        return (sourceOrigin.equals(targetOrigin));
+        URL url = new URL(source);
+        String sourceAuthority;
+        // if no port is specified, assume default http/https ports
+        if (url.getPort() == -1) {
+          sourceAuthority =
+              url.getHost() + ":" + (url.getProtocol().equals("https") ? "443" : "80");
+        } else {
+          sourceAuthority = url.getAuthority();
+        }
+        return (trustedAuthorities.stream().anyMatch(sourceAuthority::equals));
       } catch (MalformedURLException e) {
-        LOGGER.debug("Could not extract origin from URLs", e);
+        LOGGER.debug("Could not extract hostname and port from the request URL", e);
         return false;
       }
     }
@@ -139,8 +170,8 @@ public class CsrfFilter implements SecurityFilter {
   /**
    * Security audits, logs, and then responds with a 403.
    *
-   * @param httpResponse
-   * @param msg
+   * @param httpResponse response object
+   * @param msg logging & security audit message
    */
   private void respondForbidden(HttpServletResponse httpResponse, String msg) {
     SecurityLogger.audit(msg);
