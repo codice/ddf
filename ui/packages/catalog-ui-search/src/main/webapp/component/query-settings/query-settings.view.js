@@ -69,6 +69,7 @@ module.exports = plugin(Marionette.LayoutView.extend({
             {
                 this.renderResultForms(this.resultFormCollection.filteredList)
             }
+            this.setupExtensions();
         },
         renderResultForms: function(resultTemplates){
             resultTemplates = resultTemplates ? resultTemplates : []
@@ -93,13 +94,14 @@ module.exports = plugin(Marionette.LayoutView.extend({
                     model: detailLevelProperty
                 }));
                 this.resultForm.currentView.turnOnEditing();
-
-            const extensions = this.getExtensions()
-            if (extensions !== undefined) {
-                this.extensions.show(extensions)
-            }
         },
         getExtensions: function () {},
+        setupExtensions: function() {
+            const extensions = this.getExtensions();
+            if (extensions !== undefined) {
+                this.extensions.show(extensions);
+            }
+        },
         handleChangeDetailLevel: function (model, values) {
             $.each(model.get('enum'), (function (index, value) {
                 if (values[0] === value.value) {
