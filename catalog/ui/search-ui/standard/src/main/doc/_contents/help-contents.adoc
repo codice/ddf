@@ -18,6 +18,8 @@
 :link: _using_standard_search_ui
 :order: 02
 
+*DEPRECATED!* Standard Search UI has been deprecated.
+
 The {branding} Standard Search UI application allows a user to search for records in the local
 Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
 displayed on a globe, providing a visual representation of where the records were found. The Search
@@ -46,7 +48,7 @@ The Search UI is not installed by default, but can be installed through the Admi
 . Go to *Admin UI*
 . Go to *System* tab
 . Go to *Feature* tab
-. Install feature: *search-ui*
+. Install feature: *search-ui-deprecated*
 
 ==== Search Criteria
 
