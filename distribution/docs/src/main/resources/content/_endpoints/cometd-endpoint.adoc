@@ -5,6 +5,8 @@
 :summary: Enables asynchronous search capabilities.
 :implements: https://docs.cometd.org/current/reference/[CometD].
 
+${deprecated}
+
 The http://cometd.org[CometD] endpoint enables asychronous search capabilties.
 The CometD protocol is used to execute searches, retrieve results, and receive notifications.
 
