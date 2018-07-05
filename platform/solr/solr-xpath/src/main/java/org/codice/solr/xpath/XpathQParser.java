@@ -34,17 +34,10 @@ public class XpathQParser extends QParser {
   @Override
   public Query parse() throws SyntaxError {
     String qstr = getString();
-
     String defaultField = getParam(CommonParams.DF);
-    if (defaultField == null) {
-      defaultField = getReq().getSchema().getDefaultSearchFieldName();
-    }
 
     XpathQueryParser queryParser = new XpathQueryParser(this, defaultField);
-
-    queryParser.setDefaultOperator(
-        QueryParsing.getQueryParserDefaultOperator(
-            getReq().getSchema(), getParam(QueryParsing.OP)));
+    queryParser.setDefaultOperator(QueryParsing.parseOP(getParam(QueryParsing.OP)));
 
     return queryParser.parse(qstr);
   }

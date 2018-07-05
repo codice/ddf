@@ -35,14 +35,9 @@
             <version>${spatial4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-            <scope>test</scope>
+            <version>${jts.spatial4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -54,11 +49,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>spatial4j</Embed-Dependency>
-                        <Import-Package>
-                            !org.noggit,
-                            *
-                        </Import-Package>
+                        <Embed-Dependency>
+                            jts-core,
+                            spatial4j
+                        </Embed-Dependency>
+                        <Import-Package/>
                         <Export-Package>
                             org.codice.ddf.validator.wkt;version=${project.version}
                         </Export-Package>

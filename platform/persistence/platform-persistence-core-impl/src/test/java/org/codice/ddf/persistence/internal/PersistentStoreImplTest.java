@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -98,7 +99,7 @@ public class PersistentStoreImplTest {
     doc.addField("id_txt", "idvalue");
     docList.add(doc);
     when(response.getResults()).thenReturn(docList);
-    when(solrClient.query(any(), eq(SolrRequest.METHOD.POST))).thenReturn(response);
+    when(solrClient.query(any(), eq(METHOD.POST))).thenReturn(response);
     List<Map<String, Object>> items = persistentStore.get("testcore");
     assertThat(items.size(), equalTo(1));
     assertThat(items.get(0).get("id_txt"), equalTo("idvalue"));

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  *   <li>solr.data.dir: Absolute path to the directory where the Solr data will be stored
  * </ul>
  */
+@Deprecated
 public class EmbeddedSolrFactory implements SolrClientFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFactory.class);
 

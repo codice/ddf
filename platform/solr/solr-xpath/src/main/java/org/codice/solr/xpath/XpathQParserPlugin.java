@@ -32,11 +32,6 @@ public class XpathQParserPlugin extends QParserPlugin {
   }
 
   @Override
-  public String getSource() {
-    return "https://github.com/codice/ddf";
-  }
-
-  @Override
   public String getName() {
     return "xpath";
   }

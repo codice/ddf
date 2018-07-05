@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
  *   <li>https.cipherSuites: Cipher suites supported by the Solr server
  * </ul>
  */
+@Deprecated
 public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final String HTTPS_PROTOCOLS = "https.protocols";
   private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
@@ -135,12 +136,13 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
     createSolrCore(url, coreName, null, builder.build());
     try (final Closer closer = new Closer()) {
       final HttpSolrClient noRetryClient =
-          closer.with(new HttpSolrClient(coreUrl, builder.build()));
+          closer.with(new HttpSolrClient.Builder(coreUrl).withHttpClient(builder.build()).build());
       final HttpSolrClient retryClient =
           closer.with(
-              new HttpSolrClient(
-                  coreUrl,
-                  builder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build()));
+              new HttpSolrClient.Builder(coreUrl)
+                  .withHttpClient(
+                      builder.setRetryHandler(new SolrHttpRequestRetryHandler(coreName)).build())
+                  .build());
 
       return closer.returning(new PingAwareSolrClientProxy(retryClient, noRetryClient));
     }
@@ -260,7 +262,9 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
 
     try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
         HttpSolrClient client =
-            (httpClient != null ? new HttpSolrClient(url, httpClient) : new HttpSolrClient(url))) {
+            (httpClient != null
+                ? new HttpSolrClient.Builder(url).withHttpClient(httpClient).build()
+                : new HttpSolrClient.Builder(url).build())) {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));
       if (ping != null && ping.getStatusLine().getStatusCode() == 200) {

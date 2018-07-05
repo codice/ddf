@@ -18,10 +18,12 @@ import net.jodah.failsafe.RetryPolicy
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.CloudSolrClient
+import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider
 import org.apache.solr.client.solrj.request.CollectionAdminRequest
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.cloud.ClusterState
+import org.apache.solr.common.cloud.DocCollection
 import org.apache.solr.common.cloud.SolrZkClient
 import org.apache.solr.common.cloud.ZkStateReader
 import org.apache.solr.common.util.NamedList
@@ -197,9 +199,12 @@ class SolrCloudClientFactorySpec extends Specification {
 
     and:
       def zkClient = Mock(SolrZkClient)
-      def clusterState = Mock(ClusterState)
       def listResponse = Mock(NamedList)
       def createResponse = Mock(NamedList)
+      def clusterState = Mock(ClusterState) {
+        hasCollection(CORE) >> true
+        getCollection(CORE) >> Mock(DocCollection)
+      }
       def cloudClient = Mock(CloudSolrClient) {
         getZkStateReader() >> Mock(ZkStateReader) {
           getZkClient() >> zkClient
@@ -244,7 +249,7 @@ class SolrCloudClientFactorySpec extends Specification {
       1 * clusterState.hasCollection(CORE) >> true
 
     and: "verify zookeeper is consulted to see if the shards were started"
-      1 * clusterState.getSlices(CORE) >> ['shard'] * SOLR_SHARD_COUNT
+      1 * clusterState.getCollection(CORE).getSlices() >> ['shard'] * SOLR_SHARD_COUNT
 
     and: "close() is never called on the underlying client"
       0 * cloudClient.close()
@@ -264,6 +269,7 @@ class SolrCloudClientFactorySpec extends Specification {
       def initialDataDir = ConfigurationStore.instance.dataDirectoryPath
       def zkClient = Mock(SolrZkClient)
       def listResponse = Mock(NamedList)
+      def zkStateProvider = Mock(ZkClientClusterStateProvider)
       def cloudClient = Mock(CloudSolrClient) {
         getZkStateReader() >> Mock(ZkStateReader) {
           getZkClient() >> zkClient
@@ -286,8 +292,11 @@ class SolrCloudClientFactorySpec extends Specification {
     then: "verify zookeeper is consulted to see if the configuration exists"
       1 * zkClient.exists("/configs/$CORE", true) >> false
 
+    and: "the zookeeper state provider is the one we created"
+      1 * factory.newZkStateProvider(cloudClient) >> zkStateProvider
+
     and: "the config is uploaded to zookeeper"
-      1 * cloudClient.uploadConfig(*_) >> null
+      1 * zkStateProvider.uploadConfig(*_) >> null
 
     then: "verify zookeeper is consulted to see if the collection exists"
       1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> listResponse
@@ -350,6 +359,7 @@ class SolrCloudClientFactorySpec extends Specification {
       System.setProperty("solr.cloud.replicationFactor", SOLR_REPLICATION_FACTOR as String)
 
     and:
+      def zkStateProvider = Mock(ZkClientClusterStateProvider)
       def cloudClient = Mock(CloudSolrClient) {
         connect() >> null
         getZkStateReader() >> Mock(ZkStateReader) {
@@ -363,10 +373,16 @@ class SolrCloudClientFactorySpec extends Specification {
       }
 
     when:
-      def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
+    def createdClient = factory.createSolrCloudClient(SOLR_CLOUD_ZOOKEEPERS, CORE)
 
-    then: "fail when uploading the configuration"
-      1 * cloudClient.uploadConfig(*_) >> { throw exception }
+    then: "verify the Solr cloud client is created"
+      1 * factory.newCloudSolrClient(SOLR_CLOUD_ZOOKEEPERS) >> cloudClient
+
+    and: "the zookeeper state provider is the one we created"
+      1 * factory.newZkStateProvider(cloudClient) >> zkStateProvider
+
+    and: "the config is uploaded to zookeeper"
+      1 * zkStateProvider.uploadConfig(*_) >> null
 
     then: "verify the underlying client is closed"
       1 * cloudClient.close()
@@ -517,7 +533,9 @@ class SolrCloudClientFactorySpec extends Specification {
   @Unroll
   def 'test creating a Solr cloud client when failing to check if the collection is active because #collection_is_not_active_because'() {
     given:
-      def clusterState = Mock(ClusterState)
+      def clusterState = Mock(ClusterState) {
+        getCollection(CORE) >> Mock(DocCollection)
+      }
       def cloudClient = Mock(CloudSolrClient) {
         connect() >> null
         getZkStateReader() >> Mock(ZkStateReader) {
@@ -556,7 +574,7 @@ class SolrCloudClientFactorySpec extends Specification {
         }
         new RetryPolicy().withMaxRetries(MAX_RETRIES)
       }
-      expected_cluster_state_get_slices * clusterState.getSlices(CORE) >> ['shard'] * shard_count
+      expected_cluster_state_get_slices * clusterState.getCollection(CORE).getSlices() >> ['shard'] * shard_count
 
     then: "verify the underlying client is closed"
       1 * cloudClient.close()

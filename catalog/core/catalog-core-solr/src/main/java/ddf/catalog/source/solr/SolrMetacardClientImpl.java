@@ -64,7 +64,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -179,7 +179,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     long totalHits = 0;
 
     try {
-      QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+      QueryResponse solrResponse = client.query(query, METHOD.POST);
 
       SolrDocumentList docs = solrResponse.getResults();
       if (docs != null) {
@@ -264,7 +264,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     SolrQuery query = new SolrQuery();
     query.setQuery(queryString);
     try {
-      QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+      QueryResponse solrResponse = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponse.getResults();
 
       List<Metacard> results = new ArrayList<>();
@@ -306,7 +306,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     query.addFacetPivotField(contentTypeField + "," + contentTypeVersionField);
 
     try {
-      QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+      QueryResponse solrResponse = client.query(query, METHOD.POST);
       List<FacetField> facetFields = solrResponse.getFacetFields();
       for (Map.Entry<String, List<PivotField>> entry : solrResponse.getFacetPivot()) {
 
@@ -497,7 +497,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private int queryForNumberOfRows(SolrQuery query) throws SolrServerException, IOException {
     int numRows;
     query.setRows(0);
-    QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
+    QueryResponse solrResponse = client.query(query, METHOD.POST);
     numRows = Math.toIntExact(solrResponse.getResults().getNumFound());
     return numRows;
   }

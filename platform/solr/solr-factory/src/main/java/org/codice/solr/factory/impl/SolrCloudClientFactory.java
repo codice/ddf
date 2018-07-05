@@ -17,7 +17,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.FailsafeException;
@@ -27,6 +29,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.common.SolrException;
@@ -99,12 +102,11 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   }
 
   @VisibleForTesting
-  @SuppressWarnings({
-    "deprecation" /* Pre-existing code until redesigned */,
-    "squid:CallToDeprecatedMethod" /* Pre-existing code until redesigned */
-  })
   CloudSolrClient newCloudSolrClient(String zookeeperHosts) {
-    return new CloudSolrClient(zookeeperHosts);
+    return new CloudSolrClient.Builder(
+            Arrays.asList(zookeeperHosts.split(",")),
+            Optional.ofNullable(System.getProperty("solr.cloud.zookeeper.chroot")))
+        .build();
   }
 
   @VisibleForTesting
@@ -112,10 +114,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     return new RetryPolicy().withMaxRetries(30).withDelay(1, TimeUnit.SECONDS);
   }
 
-  @SuppressWarnings({
-    "deprecation" /* Pre-existing code until redesigned */,
-    "squid:CallToDeprecatedMethod" /* Pre-existing code until redesigned */
-  })
   private void createCollection(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     try {
@@ -131,11 +129,9 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       }
       if (!collections.contains(collection)) {
         response =
-            new CollectionAdminRequest.Create()
-                .setNumShards(shardCount)
+            CollectionAdminRequest.createCollection(collection, shardCount, shardCount)
                 .setMaxShardsPerNode(maximumShardsPerNode)
                 .setReplicationFactor(replicationFactor)
-                .setCollectionName(collection)
                 .process(client);
         if (!response.isSuccess()) {
           throw new SolrFactoryException(
@@ -154,8 +150,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   }
 
   @SuppressWarnings({
-    "deprecation" /* Pre-existing code until redesigned */,
-    "squid:CallToDeprecatedMethod" /* Pre-existing code until redesigned */
+    "deprecation" /* Pre-existing use of ConfigurationFileProxy until redesigned */,
+    "squid:CallToDeprecatedMethod" /* Pre-existing use of ConfigurationFileProxy until redesigned */
   })
   private void uploadCoreConfiguration(String collection, CloudSolrClient client)
       throws SolrFactoryException {
@@ -186,8 +182,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       Path configPath =
           Paths.get(configProxy.getDataDirectory().getAbsolutePath(), collection, "conf");
 
-      try {
-        client.uploadConfig(configPath, collection);
+      try (ZkClientClusterStateProvider zkStateProvider = newZkStateProvider(client)) {
+        zkStateProvider.uploadConfig(configPath, collection);
       } catch (IOException e) {
         throw new SolrFactoryException(
             "Failed to upload configurations for collection: " + collection, e);
@@ -195,10 +191,12 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
   }
 
-  @SuppressWarnings({
-    "deprecation" /* Pre-existing code until redesigned */,
-    "squid:CallToDeprecatedMethod" /* Pre-existing code until redesigned */
-  })
+  @VisibleForTesting
+  ZkClientClusterStateProvider newZkStateProvider(CloudSolrClient client) {
+    return new ZkClientClusterStateProvider(
+        client.getZkStateReader().getZkClient().getZkServerAddress());
+  }
+
   private boolean isCollectionReady(CloudSolrClient client, String collection) {
     try {
       boolean collectionCreated =
@@ -231,7 +229,12 @@ public class SolrCloudClientFactory implements SolrClientFactory {
                           failure))
               .get(
                   () ->
-                      client.getZkStateReader().getClusterState().getSlices(collection).size()
+                      client
+                              .getZkStateReader()
+                              .getClusterState()
+                              .getCollection(collection)
+                              .getSlices()
+                              .size()
                           == shardCount);
 
       if (!shardsStarted) {

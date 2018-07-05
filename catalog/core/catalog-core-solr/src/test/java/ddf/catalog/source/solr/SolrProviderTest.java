@@ -27,14 +27,19 @@ import ddf.catalog.source.solr.provider.SolrProviderUpdate;
 import ddf.catalog.source.solr.provider.SolrProviderXpath;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import org.apache.solr.client.solrj.embedded.JettyConfig;
+import org.apache.solr.cloud.MiniSolrCloudCluster;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.impl.ConfigurationFileProxy;
 import org.codice.solr.factory.impl.ConfigurationStore;
-import org.codice.solr.factory.impl.EmbeddedSolrFactory;
+import org.codice.solr.factory.impl.SolrCloudClientFactory;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.slf4j.Logger;
@@ -58,69 +63,68 @@ public class SolrProviderTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTest.class);
 
-  private static String cipherSuites;
+  @Rule @ClassRule public static TemporaryFolder baseDir = new TemporaryFolder();
 
-  private static String protocols;
+  private static SolrClient solrClient;
 
-  private static String threadPoolSize;
+  protected static SolrCatalogProvider provider = null;
 
-  private static SolrCatalogProvider provider = null;
+  private static MiniSolrCloudCluster miniSolrCloud;
 
   public static final String MASKED_ID = "scp";
 
   @BeforeClass
-  public static void setup() throws Exception {
-    cipherSuites = System.getProperty("https.cipherSuites");
-    protocols = System.getProperty("https.protocols");
-    System.setProperty(
-        "https.cipherSuites",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
-    System.setProperty("https.protocols", "TLSv1.1, TLSv1.2");
-    threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
-    System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
+  public static void beforeClass() throws Exception {
     LOGGER.info("RUNNING one-time setup.");
+
     ConfigurationStore store = ConfigurationStore.getInstance();
-    store.setInMemory(true);
     store.setForceAutoCommit(true);
     String solrDataPath = Paths.get("target/surefire/solr").toString();
     System.getProperty("solr.data.dir", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
     ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(store);
-    final SolrClient client =
-        new EmbeddedSolrFactory()
-            .newClient(
-                "catalog", "solrconfig-inmemory.xml", "schema.xml", store, configurationFileProxy);
+
+    miniSolrCloud =
+        new MiniSolrCloudCluster(
+            1, baseDir.getRoot().toPath(), JettyConfig.builder().setContext("/solr").build());
+
+    System.setProperty("solr.cloud.shardCount", "1");
+    System.setProperty("solr.cloud.replicationFactor", "1");
+    System.setProperty("solr.cloud.maxShardPerNode", "1");
+    System.setProperty("solr.cloud.zookeeper.chroot", "/solr");
+    System.setProperty("solr.cloud.zookeeper", miniSolrCloud.getZkServer().getZkHost());
+
+    SolrCloudClientFactory solrClientFactory = new SolrCloudClientFactory();
+    solrClient = solrClientFactory.newClient("catalog");
 
     Assert.assertThat(
         "Solr client is not available for testing",
-        client.isAvailable(30L, TimeUnit.SECONDS),
+        solrClient.isAvailable(30L, TimeUnit.SECONDS),
         Matchers.equalTo(true));
 
     provider =
         new SolrCatalogProvider(
-            client, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+            solrClient, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
-    // Mask the id, this is something that the CatalogFramework would
-    // usually do
+    // Mask the id, this is something that the CatalogFramework would usually do
     provider.setId(MASKED_ID);
   }
 
   @AfterClass
-  public static void teardown() {
-    if (threadPoolSize != null) {
-      System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
-    } else {
-      System.clearProperty("org.codice.ddf.system.threadPoolSize");
+  public static void afterClass() throws Exception {
+    System.clearProperty("solr.data.dir");
+    System.clearProperty("solr.cloud.shardCount");
+    System.clearProperty("solr.cloud.replicationFactor");
+    System.clearProperty("solr.cloud.maxShardPerNode");
+    System.clearProperty("solr.cloud.zookeeper.chroot");
+    System.clearProperty("solr.cloud.zookeeper");
+
+    if (miniSolrCloud != null) {
+      miniSolrCloud.shutdown();
     }
-    if (cipherSuites != null) {
-      System.setProperty("https.cipherSuites", cipherSuites);
-    } else {
-      System.clearProperty("https.cipherSuites");
-    }
-    if (protocols != null) {
-      System.setProperty("https.protocols", protocols);
-    } else {
-      System.clearProperty("https.protocols");
+
+    if (solrClient != null) {
+      solrClient.close();
     }
   }
 
