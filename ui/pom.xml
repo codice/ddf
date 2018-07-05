@@ -492,20 +492,16 @@
                                 <rule>
                                     <element>BUNDLE</element>
                                     <limits>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <minimum>0</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <minimum>0</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
-                                            <minimum>0</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>LINE</counter>
                                             <minimum>0</minimum>
                                         </limit>
                                     </limits>

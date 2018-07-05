@@ -111,17 +111,17 @@
                                     <element>BUNDLE</element>
                                     <!--These ratios are low because the FilterInjector class has low unit test coverage.-->
                                     <limits>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.65</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.45</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.53</minimum>

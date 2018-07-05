@@ -63,17 +63,17 @@
                                 <rule>
                                     <element>BUNDLE</element>
                                     <limits>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>.83</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>.50</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>.71</minimum>

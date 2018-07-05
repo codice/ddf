@@ -132,7 +132,7 @@
                                         is OS-specific. OS X coverage ratios have been left
                                         commented out for reference.
                                         -->
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <!--<minimum>0.90</minimum>-->
@@ -143,13 +143,13 @@
                                         because of some OS-specific code and try-with-resources (see
                                         https://github.com/jacoco/jacoco/issues/82).
                                         -->
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <!--<minimum>0.62</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <!--<minimum>0.67</minimum>-->
