@@ -44,6 +44,9 @@ define([
         listenForChange: function(){
              this.listenTo(this.locationRegion.currentView.model, 'change', this.triggerChange);   
         },
+        isValid: function(){
+             return this.locationRegion.currentView.isValid();
+        },
         initializeRadio: function(){
             this.locationRegion.show(new LocationView({
                 model: this.model

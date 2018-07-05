@@ -134,9 +134,6 @@ define([
             }
         },
         isValid: function(){
-            if (!this.model.showValidationIssues()){
-                return true;
-            }
             var value = getValue(this.model);
             var choice = this.model.get('property').get('enum').filter(function(choice){
                 return value.filter(function(subvalue){
