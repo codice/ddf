@@ -96,7 +96,7 @@ class NameQualifierPresignPluginSpec extends Specification {
 
     }
 
-    def 'test name qualifier when issuer format is null and is persistent'() {
+    def 'test name qualifier when nameid format is null and is persistent'() {
 
         setup:
         response.getIssuer() >> null
@@ -129,7 +129,6 @@ class NameQualifierPresignPluginSpec extends Specification {
         then:
         0 * nameID.setNameQualifier(NAME_QUALIFIER)
         0 * nameID.getFormat()
-
 
     }
 
@@ -195,7 +194,6 @@ class NameQualifierPresignPluginSpec extends Specification {
         then:
         1 * nameID.getFormat()
 
-
     }
 
     def 'test name qualifier when assertion subject is not null and name id is not persistent'() {
@@ -214,13 +212,6 @@ class NameQualifierPresignPluginSpec extends Specification {
         then:
         0 * nameID.getFormat()
 
-
     }
-
-
-
-
-
-
 
 }
