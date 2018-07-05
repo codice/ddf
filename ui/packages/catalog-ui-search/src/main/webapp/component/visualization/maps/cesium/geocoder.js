@@ -21,7 +21,7 @@ var properties = require('properties');
 
 // Note: using a non-secure resource will fail when running DDF with TLS.
 var geocoderOnlineEndpoint = 'https://nominatim.openstreetmap.org/search?format=json&q=';
-var geocoderOfflineEndpoint = '/services/REST/v1/Locations?jsonp=loadJsonp&key=0&query=';
+var geocoderOfflineEndpoint = './internal/REST/v1/Locations?jsonp=loadJsonp&key=0&query=';
 var onlineGazetteer = properties.onlineGazetteer;
 
 module.exports = Backbone.Model.extend({

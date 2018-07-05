@@ -121,9 +121,16 @@
         </bundle>
     </feature>
 
+    <feature name="spatial-geocoding-endpoint" version="${project.version}"
+             description="Spatial GeoCoding Endpoint.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-endpoint/${project.version}</bundle>
+    </feature>
+
     <feature name="webservice-gazetteer" version="${project.version}"
              description="Gazetteer service utilizing the Geonames.org web service.">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
+        <feature>spatial-geocoding-endpoint</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-websearch/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
@@ -131,14 +138,13 @@
     <feature name="offline-gazetteer" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
         <feature>catalog-solr-provider</feature>
+        <feature>spatial-geocoding-endpoint</feature>
         <bundle>mvn:org.codice.countrycode/converter/${countryconverter.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}
-        </bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
 
