@@ -122,10 +122,8 @@ public class EmbeddedListMetacardsHandlerTest {
     verifyActionList(listMetacardMap);
   }
 
-  private void verifyActionList(Map listMetacardMap) {
-    assertTrue(
-        "The list metacard map didn't contain the 'actions' key.",
-        listMetacardMap.containsKey(ACTIONS_KEY));
+  private void verifyActionList(Map<String, Object> listMetacardMap) {
+    assertThat(listMetacardMap, hasKey(ACTIONS_KEY));
     List<Map<String, Object>> listMetacardActions = (List) listMetacardMap.get(ACTIONS_KEY);
     assertThat(listMetacardActions, hasSize(1));
     final Map<String, Object> actionMap = listMetacardActions.get(0);
