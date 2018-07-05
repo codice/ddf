@@ -363,7 +363,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     } else {
       // it is optional so delete it as it was optional when we exported and wasn't on
       // disk so we want to make sure we end up without the file on disk after import
-      if (isMigratable()) { // but only if it is migratable to start with
+      if (isMigratable() && file.exists()) { // but only if it is migratable and exist to start with
         LOGGER.debug("Deleting {}...", debugString);
         // WAIT!! that could be a problem if the migratable ask for files it did not
         // export!!!!!!!!!!
