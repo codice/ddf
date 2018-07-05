@@ -23,7 +23,6 @@
     <bean id="sessionService"
           class="org.codice.ddf.security.servlet.expiry.SessionManagementService">
         <property name="securityManager" ref="securityManager"/>
-        <property name="rootContext" value="${org.codice.ddf.system.rootContext}"/>
     </bean>
 
     <jaxrs:server id=" restService" address="/internal/session">
