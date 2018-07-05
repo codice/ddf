@@ -7,17 +7,21 @@
   text-align: center;
   padding: 5px 0;
 
+  margin-top: @minimumSpacing;
+
   .buttons-container {
     position: relative;
   }
 
   .buttons-left {
     position: absolute;
+    top: 0;
     left: 0;
   }
 
   .buttons-right {
     position: absolute;
+    top: 0;
     right: 0;
   }
 
@@ -46,8 +50,10 @@
   }
 
   .status {
-    height: @minimumLineSize;
-    line-height: @minimumLineSize;
+    padding: 10px;
+    //height: @minimumLineSize;
+    //line-height: @minimumLineSize;
+    line-height: 1;
   }
 
 }
