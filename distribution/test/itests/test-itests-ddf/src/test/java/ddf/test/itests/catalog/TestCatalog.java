@@ -24,8 +24,7 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMeta
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
-import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
+import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
@@ -1436,17 +1435,20 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     getServiceManager().startFeature(true, "sample-filter");
 
+    // Configure the PDP
+    Map<String, Object> pdpProperties = new HashMap<String, Object>();
+    pdpProperties.putAll(
+        getServiceManager()
+            .getMetatypeDefaults("security-pdp-authzrealm", "ddf.security.pdp.realm.AuthzRealm"));
+    pdpProperties.put(
+        "matchAllMappings",
+        Arrays.asList(
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=point-of-contact"));
+
+    Dictionary<String, Object> authZProps = new Hashtable<>(pdpProperties);
+    Dictionary<String, Object> oldAuthZProps = configureAuthZRealm(authZProps, getAdminConfig());
+
     try {
-      // Configure the PDP
-      PdpProperties pdpProperties = new PdpProperties();
-      pdpProperties.put(
-          "matchAllMappings",
-          Arrays.asList(
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=point-of-contact"));
-      Configuration config =
-          configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-      Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
-      config.update(configProps);
       getServiceManager().waitForAllBundles();
 
       // Test with filtering with out point-of-contact
@@ -1458,10 +1460,7 @@ public class TestCatalog extends AbstractIntegrationTest {
       response.body(hasXPath(xPath));
 
     } finally {
-      Configuration config =
-          configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
-      Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
-      config.update(configProps);
+      configureAuthZRealm(oldAuthZProps, getAdminConfig());
       deleteMetacard(id1);
       getServiceManager().stopFeature(true, "sample-filter");
     }
@@ -1989,7 +1988,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             .replaceFirst("ddf\\.metacard", newMetacardTypeName)
             .replaceFirst("resource-uri", "new-attribute-required-2");
     String id = ingest(modifiedMetacardXml, "text/xml");
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
+    Dictionary<String, Object> showInvalidProperties =
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
     try {
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", id);
 
@@ -2023,7 +2023,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             return null;
           });
       getServiceManager().startFeature(true, "catalog-security-filter");
-      configureShowInvalidMetacards("false", "false", getAdminConfig());
+      configureShowInvalidMetacards(showInvalidProperties, getAdminConfig());
     }
   }
 
@@ -2347,6 +2347,8 @@ public class TestCatalog extends AbstractIntegrationTest {
   public void testTypeValidation() throws Exception {
     String invalidCardId = null;
     String validCardId = null;
+    Dictionary<String, Object> showInvalidProperties =
+        configureShowInvalidMetacards("true", "true", getAdminConfig());
     try {
       getServiceManager().stopFeature(true, "catalog-security-filter");
       final String newMetacardTypeName = "customtype1";
@@ -2367,7 +2369,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       invalidCardId = ingestXmlFromResource("/metacard-datatype-validation.xml");
 
-      configureShowInvalidMetacards("true", "true", getAdminConfig());
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", invalidCardId);
 
       getOpenSearch("xml", null, null, "q=*")
@@ -2405,7 +2406,7 @@ public class TestCatalog extends AbstractIntegrationTest {
       }
 
       getServiceManager().startFeature(true, "catalog-security-filter");
-      configureShowInvalidMetacardsReset();
+      configureShowInvalidMetacards(showInvalidProperties, getAdminConfig());
     }
   }
 
@@ -2672,18 +2673,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     return file;
   }
 
-  public void configureShowInvalidMetacardsReset() throws IOException {
-    configureShowInvalidMetacards("false", "true", getAdminConfig());
-  }
-
-  public void configureFilterInvalidMetacardsReset() throws IOException {
-    configureFilterInvalidMetacards("true", "false", getAdminConfig());
-  }
-
-  protected void configureEnforceValidityErrorsAndWarningsReset() throws IOException {
-    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
-  }
-
   private void verifyMetadataBackup() throws Exception {
     StringBuilder buffer =
         new StringBuilder(OPENSEARCH_PATH.getUrl())
@@ -2706,17 +2695,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .until(() -> path.toFile().exists());
 
     assertThat(path.toFile().exists(), is(true));
-  }
-
-  public class PdpProperties extends HashMap<String, Object> {
-
-    public static final String SYMBOLIC_NAME = "security-pdp-authzrealm";
-
-    public static final String FACTORY_PID = "ddf.security.pdp.realm.AuthzRealm";
-
-    public PdpProperties() {
-      this.putAll(getServiceManager().getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
-    }
   }
 
   public class CatalogPolicyProperties extends HashMap<String, Object> {
