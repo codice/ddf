@@ -1,15 +1,20 @@
 @{customElementNamespace}navigation-left {
     .customElement;
     position: relative;
-    overflow: hidden;
+    //overflow: hidden;
     cursor: pointer;
+    padding-left: 0.9375rem;
+    padding-right: 0.9375rem;
 
     button {
         text-align: center;
-        width: @minimumButtonSize + 0rem;
         height: 100%;
         padding-right: 0rem;
         transition: width @coreTransitionTime ease-out, padding @coreTransitionTime ease-out;
+    }
+
+    button > .fa-bars {
+        font-size: @minimumFontSize;
     }
 
     button > .navigation-indicator {

@@ -2,14 +2,28 @@
     .customElement;
     padding: 50px;
 
-    .column {
+    > h2 {
+        margin-bottom: @mediumSpacing;
+    }
+
+    > div.rearrange-columns > div.column {
      white-space: nowrap;
-     padding: 10px 20px;
+     padding: @mediumSpacing;
      position: relative;
      text-align: left;
-     .is-bold();
-     font-size: @largeFontSize;
+     // .is-bold();
+     font-size: @minimumFontSize;
      cursor: move;
+     //border: 1px solid contrast(@backgroundAccentContent) !important;
+     border: solid 1px fade(contrast(@backgroundAccentContent), 15%) !important;
+     // background: fade(contrast(@backgroundAccentContent), 5%);
+     background: @backgroundAccentContent;
+     margin-bottom: @mediumSpacing;
+    }
+
+    .column > span > .fa {
+        color: fade(contrast(@backgroundAccentContent), 30%);
+        margin-right: @mediumSpacing;
     }
 
     .column.is-hidden-column,
@@ -24,14 +38,24 @@
         overflow: auto;
     }
 
-    .rearrange-footer {
+    > .rearrange-footer {
         white-space: nowrap;
         font-size: 0px;
+        text-align: right;
 
         > button {
-            width: 50%;
-            padding: 0px 20px;
+            //width: 50%;
+            padding: @minimumSpacing @largeSpacing;
             display: inline-block;
+            margin-left: @largeSpacing;
+            height: @minimumButtonSize;
+            line-height: @minimumFontSize;
+            border-radius: @border-radius;
+        }
+
+        > button > span {
+            font-size: @minimumFontSize;
+            line-height: @minimumFontSize;
         }
     }
 

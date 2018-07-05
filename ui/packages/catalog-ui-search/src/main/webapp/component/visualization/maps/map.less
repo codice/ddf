@@ -37,17 +37,21 @@
   }
 
   .cesium-viewer-toolbar {
-    top: 0px; 
-    right: 0px;
+    top: 10px; 
+    right: 10px;
     padding-right: @minimumSpacing;
     .is-medium-font;
     background: inherit;
     line-height: @minimumButtonSize;
+    font-size: @minimumFontSize;
+    opacity: .85;
+
     .cesium-viewer-geocoderContainer,
     .geocoder-container {
       margin: 0px;
       vertical-align: top;
       height: @minimumButtonSize;
+ //     padding: @minimumButtonSize;
 
       form {
         height: 100%;
@@ -73,7 +77,7 @@
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
       display: inline-block;
-      margin-left: @mediumSpacing;
+      margin-left: @largeSpacing;
     }
   }
 

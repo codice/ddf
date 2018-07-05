@@ -4,6 +4,34 @@
   .resetIconLineHeight;
   .customElement;
 
+  > div > .fa-search {
+    font-size: 70px;
+    color: contrast(@backgroundAccentContent);
+    opacity: .2;
+  }
+
+  > div > .empty-title {
+    display: block;
+    font-size: @mediumFontSize;
+  }
+
+  > div > .empty-description {
+    display: block;
+    font-size: @minimumFontSize;
+    font-weight: 500;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    opacity: .5;
+  }
+
+  > div > .quick-add {
+    display: block;
+    max-width: 200px; 
+    margin: 0px auto;
+    padding: @minimumSpacing @largeSpacing;
+    font-size: @minimumFontSize;
+    font-weight: 300;
+  }
 
   > button {
     display: none;
@@ -37,6 +65,8 @@
   }
   .if-empty {
     display: block;
+    font-size: @minimumFontSize;
+    padding: @minimumButtonSize;
   }
 }
 
