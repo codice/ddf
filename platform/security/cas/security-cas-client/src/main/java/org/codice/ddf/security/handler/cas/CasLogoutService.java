@@ -27,6 +27,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,8 @@ public class CasLogoutService {
   }
 
   public void setCasServerLogoutUrl(String url) {
-    this.casServerLogoutUrl = url;
+    PropertyResolver resolver = new PropertyResolver(url);
+    this.casServerLogoutUrl = resolver.getResolvedString();
   }
 
   public String getCasServerLogoutUrl() {

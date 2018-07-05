@@ -44,6 +44,12 @@
         <property name="proxyReceptorUrl" value="/sso"/>
         <property name="proxyGrantingTicketStorage" ref="proxyStorage"/>
         <property name="redirectAfterValidation" value="true"/>
+        <!--
+        If true, the CAS client will include the user's session id in the service URL after
+        authentication. This can cause unintended sharing of session ids (via link sharing,
+        browser history, etc.) so should be disabled.
+        -->
+        <property name="encodeServiceUrl" value="false"/>
     </bean>
 
     <bean id="cas20ServiceTicketValidator"
@@ -92,7 +98,7 @@
         <cm:managed-properties persistent-id="ddf.security.cas"
                                update-strategy="container-managed"/>
         <property name="casServerLogoutUrl"
-                  value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:8443/cas/logout"/>
+                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8443/cas/logout"/>
     </bean>
 
     <jaxrs:server id="restService" address="/cas">

@@ -35,13 +35,13 @@
         </AD>
 
         <AD name="CAS Server Logout URL:" id="casServerLogoutUrl" required="true" type="String"
-            default="https://localhost:8443/cas/logout"
+            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8443/cas/logout"
             description="URL of the CAS logout page (generally ends in /logout). Authenticated users
                         are redirected to this URL upon logout.">
         </AD>
 
         <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
-            default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}/sso"
+            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/sso"
             description="The URL to which CAS should send proxy granting tickets when requested
              			      by the CAS client.">
         </AD>
