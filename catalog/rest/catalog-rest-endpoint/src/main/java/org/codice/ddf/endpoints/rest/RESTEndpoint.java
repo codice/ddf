@@ -928,7 +928,7 @@ public class RESTEndpoint implements RESTService {
           null);
     }
 
-    List<Attribute> attributes = new ArrayList<>(contentParts.size());
+    Map<String, AttributeImpl> attributeMap = new HashMap<>();
     Metacard metacard = null;
     AttachmentInfo attachmentInfo = null;
 
@@ -948,7 +948,7 @@ public class RESTEndpoint implements RESTService {
         } else if (name.equals("parse.metadata")) {
           metacard = parseMetadata(transformerParam, metacard, attachment, inputStream);
         } else {
-          parseOverrideAttributes(attributes, parsedName, inputStream);
+          parseOverrideAttributes(attributeMap, parsedName, inputStream);
         }
       } catch (IOException e) {
         LOGGER.debug(
@@ -965,7 +965,7 @@ public class RESTEndpoint implements RESTService {
     }
 
     Set<AttributeDescriptor> missingDescriptors = new HashSet<>();
-    for (Attribute attribute : attributes) {
+    for (Attribute attribute : attributeMap.values()) {
       if (metacard.getMetacardType().getAttributeDescriptor(attribute.getName()) == null) {
         attributeRegistry
             .lookup(attribute.getName())
@@ -985,20 +985,20 @@ public class RESTEndpoint implements RESTService {
   }
 
   private void parseOverrideAttributes(
-      List<Attribute> attributes, String parsedName, InputStream inputStream) {
+      Map<String, AttributeImpl> attributeMap, String parsedName, InputStream inputStream) {
     attributeRegistry
         .lookup(parsedName)
         .ifPresent(
             descriptor ->
                 parseAttribute(
-                    attributes,
+                    attributeMap,
                     parsedName,
                     inputStream,
                     descriptor.getType().getAttributeFormat()));
   }
 
   private void parseAttribute(
-      List<Attribute> attributes,
+      Map<String, AttributeImpl> attributeMap,
       String parsedName,
       InputStream inputStream,
       AttributeType.AttributeFormat attributeFormat) {
@@ -1015,41 +1015,49 @@ public class RESTEndpoint implements RESTService {
         return;
       }
 
+      AttributeImpl attribute;
+      if (attributeMap.containsKey(parsedName)) {
+        attribute = attributeMap.get(parsedName);
+      } else {
+        attribute = new AttributeImpl(parsedName, Collections.emptyList());
+        attributeMap.put(parsedName, attribute);
+      }
+
       if (attributeFormat == BINARY) {
-        attributes.add(new AttributeImpl(parsedName, bytes));
+        attribute.addValue(bytes);
         return;
       }
 
-      String attribute = new String(bytes, Charset.defaultCharset());
+      String value = new String(bytes, Charset.defaultCharset());
 
       switch (attributeFormat) {
         case XML:
         case GEOMETRY:
         case STRING:
-          attributes.add(new AttributeImpl(parsedName, attribute));
+          attribute.addValue(value);
           break;
         case BOOLEAN:
-          attributes.add(new AttributeImpl(parsedName, Boolean.valueOf(attribute)));
+          attribute.addValue(Boolean.valueOf(value));
           break;
         case SHORT:
-          attributes.add(new AttributeImpl(parsedName, Short.valueOf(attribute)));
+          attribute.addValue(Short.valueOf(value));
           break;
         case LONG:
-          attributes.add(new AttributeImpl(parsedName, Long.valueOf(attribute)));
+          attribute.addValue(Long.valueOf(value));
           break;
         case INTEGER:
-          attributes.add(new AttributeImpl(parsedName, Integer.valueOf(attribute)));
+          attribute.addValue(Integer.valueOf(value));
           break;
         case FLOAT:
-          attributes.add(new AttributeImpl(parsedName, Float.valueOf(attribute)));
+          attribute.addValue(Float.valueOf(value));
           break;
         case DOUBLE:
-          attributes.add(new AttributeImpl(parsedName, Double.valueOf(attribute)));
+          attribute.addValue(Double.valueOf(value));
           break;
         case DATE:
           try {
-            Instant instant = Instant.parse(attribute);
-            attributes.add(new AttributeImpl(parsedName, Date.from(instant)));
+            Instant instant = Instant.parse(value);
+            attribute.addValue(Date.from(instant));
           } catch (DateTimeParseException e) {
             LOGGER.debug("Unable to parse instant '{}'", attribute, e);
           }

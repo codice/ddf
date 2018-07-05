@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.catalog.ui.config;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.collection.IsMapContaining.hasKey;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -24,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Before;
@@ -154,5 +158,37 @@ public class ConfigurationApplicationTest {
   public void testsetAttributeAliases() throws Exception {
     configurationApplication.setAttributeAliases(Arrays.asList(" a = b ", " x = y "));
     assertThat(configurationApplication.getAttributeAliases(), is(Arrays.asList("a=b", "x=y")));
+  }
+
+  @Test
+  public void testSetAttributeEnumMap() {
+    configurationApplication.setAttributeEnumMap(
+        Arrays.asList(
+            "",
+            "unrestrictedAttribute",
+            "restrictedAttributeWithEmptyEnum=",
+            "=blank,attribute,name",
+            " restrictedAttributeWithSpaces  = list,of,  possible  ,values",
+            "restrictedAttributeWithDuplicates=duplicate, duplicate, values, values",
+            "duplicateAttribute=value1",
+            "duplicateAttribute=value2"));
+    Map<String, Set<String>> attributeEnumMap = configurationApplication.getAttributeEnumMap();
+
+    assertThat(configurationApplication.getEditorAttributes().size(), is(5));
+    assertThat(attributeEnumMap.size(), is(3));
+    assertThat(attributeEnumMap, not(hasKey("restrictedAttributeWithEmptyEnum")));
+    assertThat(attributeEnumMap, not(hasKey("")));
+    assertThat(attributeEnumMap.get("restrictedAttributeWithSpaces"), hasItem("possible"));
+    assertThat(attributeEnumMap.get("restrictedAttributeWithDuplicates").size(), is(2));
+    assertThat(attributeEnumMap.get("duplicateAttribute").size(), is(2));
+  }
+
+  @Test
+  public void testSetRequiredAttributes() {
+    configurationApplication.setRequiredAttributes(Arrays.asList("", "attribute"));
+    Set<String> requiredAttributes = configurationApplication.getRequiredAttributes();
+
+    assertThat(requiredAttributes.size(), is(1));
+    assertThat(requiredAttributes, hasItem("attribute"));
   }
 }

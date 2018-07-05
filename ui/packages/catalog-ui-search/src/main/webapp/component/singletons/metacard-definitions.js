@@ -189,7 +189,6 @@ define([
         metacardTypes: _.extendOwn({}, metacardStartingTypes),
         validation: {
         },
-        enums: {
-        }
+        enums: properties.enums
     }))();
 });

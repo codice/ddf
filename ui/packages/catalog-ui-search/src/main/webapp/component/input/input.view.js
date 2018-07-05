@@ -43,6 +43,7 @@ define([
         initialize: function(){
             if (this.model.get('property')){
                 this.listenTo(this.model.get('property'), 'change:isEditing', this.handleEdit);
+                this.listenTo(this.model, 'change:isValid', this.handleValidation);
             }
         },
         serializeData: function () {
@@ -52,7 +53,7 @@ define([
             this.handleEdit();
             this.handleReadOnly();
             this.handleValue();
-            this.handleValidation();
+            this.validate();
         },
         onAttach: function() {
             this.listenForChange();
@@ -60,11 +61,16 @@ define([
         listenForChange: function(){
             this.$el.on('change keyup input', function(){
                 this.model.set('value', this.getCurrentValue());
-                this.handleValidation();
+                this.validate();
             }.bind(this));
         },
+        validate() {
+            if (this.model.get('property')) {
+                this.model.setIsValid(this.isValid());
+            }
+        },
         handleValidation: function(){
-            this.$el.toggleClass('has-validation-issues', !this.isValid());
+            this.$el.toggleClass('has-validation-issues', !this.model.isValid());
         },
         isValid: function(){
             return true; //overwrite on a per input basis   

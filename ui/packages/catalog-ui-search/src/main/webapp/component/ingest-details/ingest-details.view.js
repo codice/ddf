@@ -41,15 +41,16 @@ module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('ingest-details'),
     events: {
         'click > .details-footer .footer-clear': 'newUpload',
-        'click > .details-footer .footer-start': 'startUpload',
         'click > .details-footer .footer-cancel': 'cancelUpload',
         'click > .details-footer .footer-new': 'newUpload',
-        'click > .details-dropzone .dropzone-text': 'addFiles'
+        'click > .details-dropzone .dropzone-text': 'addFiles',
+        'click > .details-footer .footer-start': 'startUpload'
     },
     regions: {
         files: '> .details-files',
         summary: '> .details-summary'
     },
+    overrides: {},
     dropzone: undefined,
     uploadBatchModel: undefined,
     dropzoneAnimationRequestDetails: undefined,
@@ -95,12 +96,21 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     setupDropzone() {
+        var _this = this;
         this.dropzone = new Dropzone(this.el.querySelector('.details-dropzone'), {
+            paramName: 'parse.resource',
             url: this.options.url,
             maxFilesize: 5000000, //MB
             method: 'post',
             autoProcessQueue: false,
-            headers: this.options.extraHeaders
+            headers: this.options.extraHeaders,
+            sending: function(file, xhr, formData)  {
+                _.each(_this.overrides, function(values, attribute) {
+                    _.each(values, function(value) {
+                        formData.append('parse.' + attribute, value);
+                    });
+                });
+            }
         });
         if (this.options.handleUploadSuccess) {
             this.dropzone.on('success', this.options.handleUploadSuccess);
@@ -123,7 +133,9 @@ module.exports = Marionette.LayoutView.extend({
         this.uploadBatchModel.clear();
     },
     startUpload: function() {
-        this.uploadBatchModel.start();
+        if (!this.options.preIngestValidator || this.options.preIngestValidator()) {
+            this.uploadBatchModel.start();
+        }
     },
     cancelUpload: function() {
         this.uploadBatchModel.cancel();
@@ -158,4 +170,7 @@ module.exports = Marionette.LayoutView.extend({
         this.stopListening(this.uploadBatchModel);
         this.unlistenToResize();
     },
+    setOverrides: function(json) {
+        this.overrides = json;
+    }
 });

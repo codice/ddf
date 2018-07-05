@@ -384,6 +384,18 @@
             name="Background Slideout Color"
             type="String"
             default="#252529"/>
+
+        <AD name="Upload Editor: Attribute Configuration" id="attributeEnumMap" required="false" type="String" cardinality="100"
+            default=""
+            description="List of attributes to show in the upload editor. By default, an attribute
+                         may be assigned any text value. Entries of the form 'attribute=value_1,...,value_n'
+                         will restrict input to the listed values.">
+        </AD>
+
+        <AD name="Upload Editor: Required Attributes" id="requiredAttributes" required="false" type="String" cardinality="100"
+            default=""
+            description="List of attributes a user must specify before uploading">
+        </AD>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

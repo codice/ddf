@@ -20,6 +20,7 @@
 </div>
 <div class="property-label">
     <div class="if-inline">
+        <span class="if-required fa fa-asterisk property-required"></span>
         <span class="if-editing fa fa-undo property-revert is-button"></span>
         <span class="property-validation fa fa-exclamation-triangle is-hidden"></span>
     </div>
@@ -31,10 +32,16 @@
         {{/if}}
     </label>
     <div class="if-block">
+        <span class="if-editing fa fa-asterisk property-required"></span>
         <span class="if-editing fa fa-undo property-revert is-button"></span>
         <span class="property-validation fa fa-exclamation-triangle is-hidden"></span>
     </div>
 </div>
 <div class="property-value">
 
+</div>
+<div class="for-error">
+  <div class="error-required">
+    <span class="fa fa-exclamation-triangle"></span> This field is required.
+  </div>
 </div>

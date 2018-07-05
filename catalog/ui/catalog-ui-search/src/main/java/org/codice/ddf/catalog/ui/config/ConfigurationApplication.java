@@ -18,6 +18,7 @@ import static org.boon.HTTP.APPLICATION_JSON;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.configuration.HistorianConfiguration;
@@ -26,6 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -211,6 +214,74 @@ public class ConfigurationApplication implements SparkApplication {
   private String customBackgroundModal;
 
   private String customBackgroundSlideout;
+
+  private Set<String> editorAttributes = Collections.emptySet();
+  private Set<String> requiredAttributes = Collections.emptySet();
+  private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
+
+  public Set<String> getEditorAttributes() {
+    return editorAttributes;
+  }
+
+  public void setEditorAttributes(Set<String> editorAttributes) {
+    this.editorAttributes = editorAttributes;
+  }
+
+  public Set<String> getRequiredAttributes() {
+    return requiredAttributes;
+  }
+
+  public void setRequiredAttributes(List<String> requiredAttributes) {
+    this.requiredAttributes = new LinkedHashSet<>();
+    for (String entry : requiredAttributes) {
+      if (StringUtils.isNotBlank(entry)) {
+        this.requiredAttributes.add(entry);
+      }
+    }
+  }
+
+  public Map<String, Set<String>> getAttributeEnumMap() {
+    return attributeEnumMap;
+  }
+
+  public void setAttributeEnumMap(Map<String, Set<String>> attributeEnumMap) {
+    this.attributeEnumMap = attributeEnumMap;
+  }
+
+  public Set<String> extractValues(String valueString) {
+    return new LinkedHashSet<>(Splitter.on(',').trimResults().splitToList(valueString));
+  }
+
+  public void setAttributeEnumMap(List<String> entries) {
+    Map<String, Set<String>> mergedEntryMap = new LinkedHashMap<>();
+
+    for (String entry : entries) {
+      if (StringUtils.isBlank(entry)) {
+        continue;
+      }
+
+      String[] kvPair = entry.split("=", 2);
+      String attribute = kvPair[0].trim();
+      if (!attribute.isEmpty()) {
+        Set<String> values;
+        if (mergedEntryMap.containsKey(attribute)) {
+          values = mergedEntryMap.get(attribute);
+        } else {
+          values = new LinkedHashSet<>();
+          mergedEntryMap.put(attribute, values);
+        }
+
+        if (kvPair.length == 2) {
+          values.addAll(Splitter.on(',').trimResults().omitEmptyStrings().splitToList(kvPair[1]));
+        }
+      }
+    }
+
+    Set<String> attributeSet = new LinkedHashSet<>(mergedEntryMap.keySet());
+    setEditorAttributes(attributeSet);
+    mergedEntryMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+    setAttributeEnumMap(mergedEntryMap);
+  }
 
   public ConfigurationApplication() {}
 
@@ -423,6 +494,9 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("customBackgroundModal", customBackgroundModal);
     config.put("customBackgroundSlideout", customBackgroundSlideout);
     config.put("disableUnknownErrorBox", !unknownErrorBoxEnabled);
+    config.put("editorAttributes", getEditorAttributes());
+    config.put("requiredAttributes", getRequiredAttributes());
+    config.put("enums", getAttributeEnumMap());
     return config;
   }
 

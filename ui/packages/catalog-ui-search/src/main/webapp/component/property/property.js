@@ -37,7 +37,9 @@ define([
             showValidationIssues: true,
             showLabel: true,
             onlyEditing: false,
-            initializeToDefault: false
+            initializeToDefault: false,
+            required: false,
+            showRequiredWarning: false
         },
         setDefaultValue: function(){
             if (this.get('initializeToDefault')){
@@ -142,8 +144,31 @@ define([
         isMultivalued: function(){
             return this.get('multivalued');
         },
+        isRequired: function(){
+            return this.get('required');
+        },
         isHomogeneous: function(){
             return !this.get('bulk') || Object.keys(this.get('values')).length <= 1;
+        },
+        isValid() {
+            if (this.parents) {
+                return this.parents.every(function(value) {
+                    return value.isValid();
+                });
+            } else {
+                return true;
+            }
+        },
+        showRequiredWarning() {
+            this.set('showRequiredWarning', true);
+        },
+        hideRequiredWarning() {
+            this.set('showRequiredWarning', false);
+        },
+        isBlank: function() {
+            return this.getValue().every(function(value) {
+                return value == null || value.trim().length === 0;
+            });
         },
         onlyEditing: function(){
             return this.get('onlyEditing');

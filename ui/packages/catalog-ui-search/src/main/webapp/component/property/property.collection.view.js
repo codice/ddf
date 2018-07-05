@@ -101,7 +101,7 @@ define([
             return {
                 properties: this.children.reduce(function(attributeToVal, childView) {
                     const json = childView.toJSON();
-                    const values = json.values.filter((n) => n != null).filter((n) => !Number.isNaN(n));
+                    const values = json.values.filter((n) => n != null && n.length > 0).filter((n) => !Number.isNaN(n));
                     return _.extend(attributeToVal, { [json.attribute]: values });
                 }, {})
             };
@@ -123,6 +123,19 @@ define([
             });
             return attributeArray;
         },
+        toPatchPropertyJSON: function() {
+            return {
+                properties: this.children.reduce(function(attributeToVal, childView) {
+                    const json = childView.toPatchJSON();
+                    if (typeof json === "undefined") {
+                        return attributeToVal;
+                    } else {
+                        const values = json.values.filter((n) => n != null).filter((n) => !Number.isNaN(n));
+                        return _.extend(attributeToVal, { [json.attribute]: json.values });
+                    }
+                }, {})
+            };
+        },
         clearValidation: function() {
             this.children.forEach(function(childView) {
                 childView.clearValidation();
@@ -139,7 +152,29 @@ define([
             });
         },
         focus: function() {
-            this.children.first().focus();
+            if (this.children.length > 0) {
+                this.children.first().focus();
+            }
+        },
+        hasBlankRequiredAttributes() {
+            return this.children.some(function(propertyView) {
+                return propertyView.model.isRequired() && propertyView.model.isBlank();
+            });
+        },
+        showRequiredWarnings() {
+            this.children.forEach((propertyView) => {
+                propertyView.showRequiredWarning();
+            });
+        },
+        hideRequiredWarnings() {
+            this.children.forEach((propertyView) => {
+                propertyView.hideRequiredWarning();
+            });
+        },
+        isValid() {
+            return this.children.every(function(propertyView) {
+                return propertyView.isValid();
+            });
         }
     }, {
         //contains methods for generating property collection views from service responses
@@ -200,6 +235,28 @@ define([
             PropertyCollectionView.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsOrder', PropertyCollectionView.updateSort);
             return PropertyCollectionView;
         },
+        generateFilteredPropertyCollectionView: function(propertyNames, metacards) {
+            var propertyArray = [];
+            propertyNames.forEach(function(property) {
+                if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
+                    propertyArray.push({
+                        enumFiltering: true,
+                        enum: metacardDefinitions.enums[property],
+                        validation: metacardDefinitions.validation[property],
+                        label: properties.attributeAliases[property],
+                        readOnly: metacardDefinitions.metacardTypes[property].readOnly,
+                        id: property,
+                        type: metacardDefinitions.metacardTypes[property].type,
+                        values: {},
+                        multivalued: metacardDefinitions.metacardTypes[property].multivalued,
+                        required: properties.requiredAttributes.includes(property),
+                        initializeToDefault: true
+                    });
+                }
+            });
+            return this.generateFilteredCollectionView(propertyArray, metacards);
+        },
+        /* Generates a collection view containing all properties from the metacard intersection */
         generateCollectionView: function(metacards){
             var propertyIntersection = this.determinePropertyIntersection(metacards);
             var propertyArray = [];
@@ -213,9 +270,14 @@ define([
                     id: property,
                     type: metacardDefinitions.metacardTypes[property].type,
                     values: {},
-                    multivalued: metacardDefinitions.metacardTypes[property].multivalued
+                    multivalued: metacardDefinitions.metacardTypes[property].multivalued,
+                    required: false
                 });
             });
+            return this.generateFilteredCollectionView(propertyArray, metacards);
+        },
+        /* Generates a collection view containing only properties in the propertyArray */
+        generateFilteredCollectionView: function(propertyArray, metacards) {
             propertyArray.forEach(function(property) {
                 metacards.forEach(function(metacard) {
                     var value = metacard[property.id];

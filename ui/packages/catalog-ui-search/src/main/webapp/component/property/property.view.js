@@ -54,10 +54,13 @@ define([
         },
         initialize: function() {
             this.turnOnLimitedWidth();
+            this.listenTo(this.model, 'change:showRequiredWarning', this.handleShowRequired);
+            this.listenTo(this.model, 'change:value change:showRequiredWarning', this.validateRequired);
         },
         onRender: function () {
             this.handleEdit();
             this.handleReadOnly();
+            this.handleRequired();
             this.handleConflictingAttributeDefinition();
             this.handleValue();
             this.handleRevert();
@@ -88,6 +91,13 @@ define([
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
+        handleRequired: function () {
+            if (this.model.isRequired()) {
+                this.$el.addClass('is-required');
+            } else {
+                this.$el.removeClass('is-required');
+            }
+        },
         handleEdit: function () {
             this.$el.toggleClass('is-editing', this.model.get('isEditing'));
         },
@@ -110,6 +120,15 @@ define([
         revert: function(){
             this.model.revert();
             this.onBeforeShow();
+        },
+        isValid() {
+            return this.model.isValid();
+        },
+        showRequiredWarning() {
+            this.model.showRequiredWarning();
+        },
+        hideRequiredWarning() {
+            this.model.hideRequiredWarning();
         },
         save: function(){
             var value = this.$el.find('input').val();
@@ -200,6 +219,18 @@ define([
         handleValidation: function(){
             if (this._validationReport){
                 this.updateValidation(this._validationReport);
+            }
+        },
+        handleShowRequired() {
+            this.$el.toggleClass('show-required-warning', this.model.get('showRequiredWarning'));
+        },
+        validateRequired() {
+            if (this.model.isRequired()) {
+                if (this.model.isBlank()) {
+                    this.$el.addClass('failed-required-check');
+                } else {
+                    this.$el.removeClass('failed-required-check');
+                }
             }
         }
     }, {

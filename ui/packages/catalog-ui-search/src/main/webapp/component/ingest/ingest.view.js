@@ -21,7 +21,9 @@ var template = require('./ingest.hbs');
 var CustomElements = require('js/CustomElements');
 var router = require('component/router/router');
 var IngestDetails = require('component/ingest-details/ingest-details.view');
+var IngestEditor = require('component/ingest-editor/ingest-editor.view');
 var properties = require('properties');
+var announcement = require('component/announcement');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -30,7 +32,8 @@ module.exports = Marionette.LayoutView.extend({
     events: {},
     ui: {},
     regions: {
-        ingestDetails: '.ingest-details'
+        ingestDetails: '.ingest-details',
+        ingestEditor: '.ingest-editor',
     },
     initialize: function() {
         this.listenTo(router, 'change', this.handleRoute);
@@ -44,6 +47,30 @@ module.exports = Marionette.LayoutView.extend({
         this.handleRoute();
     },
     onBeforeShow: function() {
-        this.ingestDetails.show(new IngestDetails({url: '/services/catalog/'}));
+        var isEditorShown = (properties.editorAttributes.length > 0);
+        this.$el.toggleClass('editor-hidden', !isEditorShown);
+        if (isEditorShown) {
+            this.ingestEditor.show(new IngestEditor());
+        }
+        this.ingestDetails.show(new IngestDetails({
+            url: '/services/catalog/',
+            preIngestValidator: isEditorShown ? this.validateAttributes.bind(this) : null
+        }));
+    },
+    validateAttributes: function () {
+        var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView();
+        if (propertyCollectionView.hasBlankRequiredAttributes() || !propertyCollectionView.isValid()) {
+            announcement.announce({
+                title: 'Some fields need attention',
+                message: 'Please address validation issues before uploading',
+                type: 'error'
+            });
+            propertyCollectionView.showRequiredWarnings();
+            return false;
+        } else {
+            this.ingestDetails.currentView.setOverrides(this.ingestEditor.currentView.getAttributeOverrides());
+            propertyCollectionView.hideRequiredWarnings();
+            return true;
+        }
     }
 });
