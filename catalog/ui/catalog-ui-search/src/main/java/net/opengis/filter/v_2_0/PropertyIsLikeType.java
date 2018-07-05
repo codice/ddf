@@ -51,7 +51,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 /**
  * TODO remove this class when https://codice.atlassian.net/browse/DDF-3926 is resolved
  *
- * Java class for PropertyIsLikeType complex type.
+ * <p>Java class for PropertyIsLikeType complex type.
  *
  * <p>The following schema fragment specifies the expected content contained within this class.
  *

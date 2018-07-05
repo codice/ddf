@@ -156,8 +156,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     return beginPropertyIsLikeOrIsILike(operator);
   }
 
-
-
   @Override
   public FlatFilterBuilder beginBinaryTemporalType(String operator) {
     verifyResultNotYetRetrieved();
@@ -298,7 +296,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
     validateOperatorMapping(
-            comparisonMapping, "Cannot find mapping for like operator: " + operator);
+        comparisonMapping, "Cannot find mapping for like operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
   }
