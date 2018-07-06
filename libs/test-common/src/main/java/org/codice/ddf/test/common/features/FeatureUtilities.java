@@ -69,8 +69,7 @@ public class FeatureUtilities {
     List<String> featureNames = new ArrayList<>();
 
     try (FileInputStream fi = new FileInputStream(new File(featureFilePath))) {
-      Document featuresFile =
-          XMLUtils.getInstance().getSecureDocumentBuilderFactory().newDocumentBuilder().parse(fi);
+      Document featuresFile = XMLUtils.getInstance().getSecureDocumentBuilder(false).parse(fi);
 
       NodeList features =
           (NodeList)
