@@ -190,4 +190,23 @@ class NameQualifierPresignPluginSpec extends Specification {
 
     }
 
+    def 'test name qualifier when assertion subject is not null and name id is null'() {
+
+        setup:
+        response.getIssuer() >> issuer
+        issuer.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
+        assertions.add(assertion)
+        assertion.getSubject() >> subject
+        subject.getNameID() >> null
+
+        when:
+        plugin.processPresign(response, authNReq, spMetadata, bindings)
+
+        then:
+        0 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+        2 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+
+    }
+
+
 }
