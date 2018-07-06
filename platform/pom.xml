@@ -344,6 +344,7 @@
         </plugins>
     </build>
     <modules>
+        <module>config</module>
         <module>platform-api</module>
         <module>branding-api</module>
         <module>util</module>
