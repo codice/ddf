@@ -34,6 +34,8 @@ const createClient = ({ auth, hostname, port }) =>
     req.end()
   })
 
+const defaultConfig = [{ properties: require('./default-wcpm-config.json') }]
+
 module.exports = async ({ args }) => {
   const auth = process.env.AUTH || args.auth || 'admin:admin'
   const hostname = process.env.HOST || args.host || 'localhost'
@@ -43,7 +45,7 @@ module.exports = async ({ args }) => {
   const pid = 'org.codice.ddf.security.policy.context.impl.PolicyManager'
 
   const { value } = JSON.parse(await exec('listServices'))
-  const [{ configurations }] = value.filter(({ id }) => id === pid)
+  const [{ configurations = defaultConfig }] = value.filter(({ id }) => id === pid)
   const [{ properties }] = configurations
 
   properties.authenticationTypes.shift()
