@@ -1,0 +1,54 @@
+---
+!schemaMime
+  version: 1
+  id: csw
+  name: CSW Content Resolver
+  priority: 24
+  customMimeTypes:
+    .xml: text/xml;id=csw
+  schema: http://www.opengis.net/cat/csw/2.0.2
+---
+!mime
+  version: 1
+  id: geojson
+  name: GeoJson Content Resolver
+  priority: 20
+  customMimeTypes:
+    .json: application/json;id=geojson
+---
+!mime
+  version: 1
+  id: nitf
+  name: NITF Content Resolver
+  priority: 23
+  customMimeTypes:
+    .nitf: image/nitf
+    .ntf: image/nitf
+    .nsf: image/nitf
+    .nsif: image/nitf
+    .r0: image/nitf
+    .r1: image/nitf
+    .r2: image/nitf
+    .r3: image/nitf
+    .r4: image/nitf
+    .r5: image/nitf
+    .r6: image/nitf
+    .r7: image/nitf
+---
+!schemaMime
+  version: 1
+  id: xml
+  name: XML Content Resolver
+  priority: 22
+  customMimeTypes:
+    .xml: text/xml
+  schema: urn:catalog:metacard
+---
+!mime
+  version: 1
+  id: bob
+  name: Bob Content Resolver
+  priority: 27
+  customMimeTypes:
+    .bob: application/bob
+...
