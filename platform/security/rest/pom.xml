@@ -24,6 +24,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>security-rest-cxfwrapper</module>
-        <module>security-rest-authentication</module>
+        <module>security-rest-authn-service</module>
+        <module>security-rest-authn-impl</module>
+        <module>security-rest-authn-endpoint</module>
     </modules>
 </project>
