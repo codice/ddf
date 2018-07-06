@@ -1,0 +1,26 @@
+---
+!cswFederationProfile
+  id: csw1
+  name: csw1
+  url: https://search:8993/services/csw
+  version: 1
+...
+
+---
+!cswFederationProfile
+  id: csw2
+  name: csw2
+  url: https://csw:8999/services/csw
+  version: 1
+...
+
+---
+!registry
+  id: 513th
+  name: 513th
+  url: https://dna:7452
+  push: true
+  pull: false
+  publish: false
+  version: 1
+...
