@@ -29,7 +29,7 @@ import org.apache.commons.collections4.IteratorUtils;
  * @param <V>
  */
 public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, Serializable {
-  private HashMap<K, V> map;
+  private final HashMap<K, V> map;
 
   public DictionaryMap(int initialCapacity, float loadFactor) {
     map = new HashMap<>(initialCapacity, loadFactor);
@@ -115,6 +115,11 @@ public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, 
   @Override
   public Set<Entry<K, V>> entrySet() {
     return map.entrySet();
+  }
+
+  @Override
+  public String toString() {
+    return map.toString();
   }
 
   public static <K, V> DictionaryMap<K, V> of(K k1, V v1) {

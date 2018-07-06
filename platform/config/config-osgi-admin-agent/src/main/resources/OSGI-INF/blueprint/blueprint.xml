@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="configAdmin"
+               interface="org.osgi.service.cm.ConfigurationAdmin"
+               availability="mandatory"/>
+
+    <reference id="mapper"
+               interface="org.codice.ddf.config.mapping.ConfigMappingService"
+               availability="mandatory"/>
+
+    <reference id="config"
+               interface="org.codice.ddf.config.ConfigService"
+               availability="mandatory"/>
+
+    <bean id="configAgent"
+          class="org.codice.ddf.config.agent.osgi.ConfigAdminAgent"
+          init-method="init"
+          destroy-method="close">
+        <cm:managed-properties persistent-id="org.codice.ddf.config.agent.osgi.ConfigAdminAgent"
+                               update-strategy="container-managed"/>
+        <argument ref="configAdmin"/>
+        <argument ref="mapper"/>
+        <argument ref="config"/>
+        <property name="factories">
+            <map>
+                <entry value="DDF_Custom_Mime_Type_Resolver">
+                    <key>
+                        <value type="java.lang.Class">org.codice.ddf.config.model.MimeTypeConfig
+                        </value>
+                    </key>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <service ref="configAgent">
+        <interfaces>
+            <value>org.codice.ddf.config.mapping.ConfigMappingListener</value>
+            <value>org.codice.ddf.config.ConfigListener</value>
+            <value>org.osgi.service.cm.SynchronousConfigurationListener</value>
+            <!-- TODO: might not be required since service listeners are registered directly with the bundle context -->
+            <value>org.osgi.framework.ServiceListener</value>
+        </interfaces>
+    </service>
+</blueprint>
