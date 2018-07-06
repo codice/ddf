@@ -46,6 +46,7 @@ import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,8 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
   private static final Logger LOGGER = LoggerFactory.getLogger(VisitableXmlElementImpl.class);
 
   private static final String INVALID_INVOCATION = "Could not find valid invocation for type: ";
+
+  private static final Boolean DEFAULT_MATCH_CASE = Boolean.TRUE;
 
   private static final Map<Class, BiConsumer<FilterVisitor2, VisitableXmlElementImpl>>
       VISIT_METHODS =
@@ -244,27 +247,33 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
       this.value = new HashMap<>();
       this.value.put("type", "FILTER_FUNCTION");
-      this.value.put("filterFunctionName", functionType.getName());
+      this.value.put(XmlModelBuilder.FUNCTION_PROPERTY_NAME, functionType.getName());
       this.value.put(
-          "params",
-          functionType
-              .getExpression()
-              .stream()
-              .map(JAXBElement::getValue)
-              .map(LiteralType.class::cast)
-              .map(
-                  literalType ->
-                      literalType
-                          .getContent()
-                          .stream()
-                          .findFirst()
-                          .map(
-                              serializable -> {
-                                QName qName = literalType.getType();
-                                return QNameMapper.convert(serializable, qName);
-                              })
-                          .orElse(""))
-              .collect(Collectors.toList()));
+          XmlModelBuilder.FUNCTION_PROPERTY_PARAMS, createFunctionPropertyParameters(functionType));
+    }
+
+    private List<Object> createFunctionPropertyParameters(FunctionType functionType) {
+      return functionType
+          .getExpression()
+          .stream()
+          .map(JAXBElement::getValue)
+          .map(LiteralType.class::cast)
+          .map(this::mapLiteralTypeToObject)
+          .collect(Collectors.toList());
+    }
+
+    private Object mapLiteralTypeToObject(LiteralType literalType) {
+      return literalType
+          .getContent()
+          .stream()
+          .findFirst()
+          .map(serializable -> convertLiteralTypeToObject(literalType, serializable))
+          .orElse("");
+    }
+
+    private Object convertLiteralTypeToObject(LiteralType literalType, Serializable serializable) {
+      QName qName = literalType.getType();
+      return QNameMapper.convert(serializable, qName);
     }
 
     @Override
@@ -522,8 +531,6 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
     return (PropertyIsLikeType) elementValue;
   }
-
-  private static final Boolean DEFAULT_MATCH_CASE = Boolean.TRUE;
 
   /** Get the match-case value. Return {@link #DEFAULT_MATCH_CASE} if the match-case is not set. */
   private static Boolean getMatchCase(PropertyIsLikeType propertyIsLikeType) {

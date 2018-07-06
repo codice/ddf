@@ -47,9 +47,9 @@ import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
 
-  private static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
+  public static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
 
-  private static final String FUNCTION_PROPERTY_PARAMS = "params";
+  public static final String FUNCTION_PROPERTY_PARAMS = "params";
 
   /**
    * Helper interface for cleanly representing operations that condense a list of XML elements to a
@@ -390,7 +390,9 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     /** There must be a property node or a literal node, but not both. */
     private void validatePropertyNodeXorLiteralPropertyNode() {
-      Validate.isTrue(propertyNode != null ^ literalPropertyNode != null);
+      Validate.isTrue(
+          propertyNode != null ^ literalPropertyNode != null,
+          "The property node must be non-null xor the literal property node must be non-null");
     }
   }
 

@@ -18,17 +18,16 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.boon.json.annotations.JsonProperty;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NotThreadSafe
 public class FunctionFilterNode implements FilterNode {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FunctionFilterNode.class);
-
-  private static final ThreadLocal<ValueVisitor> VALUE_VISITOR_THREAD_LOCAL =
-      ThreadLocal.withInitial(ValueVisitor::new);
 
   @JsonProperty("type")
   private final String operator;
@@ -46,7 +45,7 @@ public class FunctionFilterNode implements FilterNode {
 
     this.operator = node.getOperator();
 
-    ValueVisitor valueVisitor = VALUE_VISITOR_THREAD_LOCAL.get().clearValue();
+    ValueVisitor valueVisitor = new ValueVisitor();
     node.accept(valueVisitor);
     this.value = valueVisitor.getValue().orElse(null);
 
@@ -99,11 +98,6 @@ public class FunctionFilterNode implements FilterNode {
 
     private Optional<String> getValue() {
       return Optional.ofNullable(value);
-    }
-
-    private ValueVisitor clearValue() {
-      value = null;
-      return this;
     }
   }
 }

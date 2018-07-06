@@ -21,6 +21,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
+@NotThreadSafe
 public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonModelBuilder.class);
@@ -74,8 +76,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
 
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
 
-  private static final ThreadLocal<PropertySettingVisitor> PROPERTY_SETTING_VISITOR_THREAD_LOCAL =
-      ThreadLocal.withInitial(PropertySettingVisitor::new);
+  private final PropertySettingVisitor propertySettingVisitor = new PropertySettingVisitor();
 
   private static final ThreadLocal<ValueSettingVisitor> VALUE_SETTING_VISITOR_THREAD_LOCAL =
       ThreadLocal.withInitial(ValueSettingVisitor::new);
@@ -252,7 +253,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   private void setPropertyOnNodeInProgress(String property) {
-    nodeInProgress.accept(PROPERTY_SETTING_VISITOR_THREAD_LOCAL.get().setProperty(property));
+    nodeInProgress.accept(propertySettingVisitor.setProperty(property));
   }
 
   private void verifyResultNotYetRetrieved() {
