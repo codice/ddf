@@ -22,10 +22,11 @@ define([
         './notification.view',
         '@turf/turf',
         './drawing.controller',
-        '../OpenLayersGeometryUtils'
+        '../OpenLayersGeometryUtils',
+        'js/DistanceUtils'
     ],
     function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView,
-              Turf, DrawingController, olUtils) {
+              Turf, DrawingController, olUtils, DistanceUtils) {
         "use strict";
 
         function translateFromOpenlayersCoordinates(coords) {
@@ -60,7 +61,7 @@ define([
         Draw.LineView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
-                this.listenTo(this.model, 'change:line change:lineWidth', this.updatePrimitive);
+                this.listenTo(this.model, 'change:line change:lineWidth change:lineUnits', this.updatePrimitive);
                 this.updatePrimitive(this.model);
             },
             setModelFromGeometry: function (geometry) {
@@ -101,7 +102,7 @@ define([
                     // handles case where model changes to empty vars and we don't want to draw anymore
                     return;
                 }
-                var lineWidth = this.model.get('lineWidth') || 1;
+                var lineWidth = DistanceUtils.getDistanceInMeters(this.model.get('lineWidth'), this.model.get('lineUnits')) || 1;
 
                 var turfLine = Turf.lineString(translateFromOpenlayersCoordinates(rectangle.getCoordinates()));
                 var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
