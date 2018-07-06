@@ -303,7 +303,17 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-logout-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.servlet</groupId>
             <artifactId>security-servlet-logout</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-logout-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
