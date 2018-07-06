@@ -2,17 +2,31 @@
   .customElement;
   overflow: hidden;
   display: inline-block;
-  width: 18rem;
+  width: 31.3334%;
+  margin: 1.5%;
+  padding: 15px;
   height: 2*@minimumLineSize;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
   cursor: pointer;
+  position: relative;
+  background: fade(white, 5%);
+
+  .is-list.is-inline  {
+    border-left: 0px;
+  }
+
+  &:nth-child(3n + 1) {
+    margin-left: 0px;
+  }
+
+  &:nth-child(3n + 3) {
+    margin-right: 0px;
+  }
+  
   > div {
     display: inline-block;
     vertical-align: top;
   }
-  margin-bottom: @minimumSpacing;
-  margin-right: @largeSpacing;
-  position: relative;
+  
 
   .choice-details {
     width: 100%;

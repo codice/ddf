@@ -1,9 +1,12 @@
 @{customElementNamespace}workspaces-items {
   .customElement;
   position: relative;
+  padding: 2.5 * @largeSpacing;
+
 
   .header-hint {
     display: none;
+    font-size: @mediumFontSize;
   }
   
   .home-items-center {
@@ -13,15 +16,17 @@
   }
 
   .home-items-header {
-    font-size: @minimumFontSize;
-    .is-bold();
+    
+    //.is-bold();
     line-height: @minimumButtonSize;
+    margin-bottom: @mediumSpacing;
   }
 
   .header-menu {
     float: right;
     display: inline-block;
     text-align: center;
+    opacity: .7;
   }
 
   .menu-button {
