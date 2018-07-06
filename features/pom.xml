@@ -27,6 +27,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>config</module>
         <module>camel</module>
         <module>branding</module>
         <module>kernel</module>

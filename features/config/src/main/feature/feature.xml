@@ -1,0 +1,56 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="config-api" version="${project.version}"
+             description="Configuration API">
+        <bundle>mvn:ddf.config/config-api/${project.version}</bundle>
+        <bundle>mvn:ddf.config/config-model-api/${project.version}</bundle>
+        <bundle>mvn:ddf.config/config-mapping-api/${project.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+    </feature>
+
+    <feature name="config-mapping" version="${project.version}"
+             description="Configuration Mapping">
+        <feature>config-api</feature>
+        <bundle>mvn:ddf.config/config-mapping-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="config-admin-agent" version="${project.version}"
+             description="Configuration Admin Agent">
+        <feature>config-api</feature>
+        <bundle>mvn:ddf.config/config-osgi-admin-agent/${project.version}</bundle>
+    </feature>
+
+    <feature name="config-service" version="${project.version}"
+             description="Configuration Admin Agent">
+        <feature>config-api</feature>
+        <bundle>mvn:ddf.config/config-model-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.config/config-reader-api/${project.version}</bundle>
+        <bundle>mvn:ddf.config/config-reader-yaml/${project.version}</bundle>
+        <bundle>mvn:ddf.config/config-service/${project.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-collections4/${commons-collections4.version}</bundle>
+    </feature>
+
+    <feature name="config-framework" version="${project.version}"
+             description="Configuration framework for interfacing with the configuration framework.">
+        <feature>config-api</feature>
+        <feature>config-mapping</feature>
+        <feature>config-admin-agent</feature>
+        <feature>config-service</feature>
+    </feature>
+</features>
