@@ -22,37 +22,24 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.HttpHeaders;
 import com.jayway.restassured.RestAssured;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolver;
-import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.util.Arrays;
-import java.util.Map;
 import javax.inject.Inject;
-import org.codice.ddf.attachment.AttachmentParser;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MultivaluedMap;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.codice.ddf.rest.service.CatalogService;
 import org.codice.ddf.test.common.AbstractComponentTest;
 import org.codice.ddf.test.common.UrlBuilder;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.codice.ddf.test.common.annotations.MockOsgiService;
-import org.codice.ddf.test.common.annotations.MockOsgiService.Property;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
 import org.codice.ddf.test.common.configurators.ApplicationOptions;
 import org.codice.ddf.test.common.configurators.BundleOptionBuilder.BundleOption;
@@ -64,8 +51,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.opengis.filter.Filter;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -91,24 +76,7 @@ public class RestEndpointIT extends AbstractComponentTest {
 
   @Inject private BundleContext bundleContext;
 
-  @MockOsgiService private CatalogFramework catalogFramework;
-
-  @MockOsgiService private AttachmentParser attachmentParser;
-
-  @MockOsgiService private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
-
-  @MockOsgiService private AttributeRegistry attributeRegistry;
-
-  @MockOsgiService(answer = Answers.RETURNS_DEEP_STUBS)
-  private FilterBuilder filterBuilder;
-
-  @MockOsgiService(properties = {@Property(key = "name", value = "tikaMimeTypeResolver")})
-  private MimeTypeResolver mimeTypeResolver;
-
-  @MockOsgiService private MimeTypeMapper mimeTypeMapper;
-
-  @MockOsgiService(properties = {@Property(key = "id", value = "uuidGenerator")})
-  private UuidGenerator uuidGenerator;
+  @MockOsgiService private CatalogService catalogService;
 
   @BeforeExam
   public void setupClass() {
@@ -140,18 +108,15 @@ public class RestEndpointIT extends AbstractComponentTest {
     String contentText = "Content";
     byte[] contentBytes = contentText.getBytes();
 
-    Filter filter = mock(Filter.class);
-    QueryResponse queryResponse = mock(QueryResponse.class);
-    Result result = mock(Result.class);
-    Metacard metacard = mock(Metacard.class);
     BinaryContent content = mock(BinaryContent.class);
-
-    given(filterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId)).willReturn(filter);
-    given(catalogFramework.query(any(QueryRequest.class), any(FederationStrategy.class)))
-        .willReturn(queryResponse);
-    given(queryResponse.getResults()).willReturn(ImmutableList.of(result));
-    given(result.getMetacard()).willReturn(metacard);
-    given(catalogFramework.transform(same(metacard), eq("xml"), any(Map.class)))
+    given(
+            catalogService.getDocument(
+                anyString(),
+                anyString(),
+                anyString(),
+                any(URI.class),
+                any(MultivaluedMap.class),
+                any(HttpServletRequest.class)))
         .willReturn(content);
     given(content.getInputStream()).willReturn(new ByteArrayInputStream(contentBytes));
     given(content.getMimeTypeValue()).willReturn(contentType);
@@ -172,13 +137,16 @@ public class RestEndpointIT extends AbstractComponentTest {
   public void testGetInvalidMetacardId() throws Exception {
     String metacardId = "123";
 
-    Filter filter = mock(Filter.class);
-    QueryResponse queryResponse = mock(QueryResponse.class);
-
-    given(filterBuilder.attribute(Metacard.ID).is().equalTo().text(metacardId)).willReturn(filter);
-    given(catalogFramework.query(any(QueryRequest.class), any(FederationStrategy.class)))
-        .willReturn(queryResponse);
-    given(queryResponse.getResults()).willReturn(ImmutableList.of());
+    BinaryContent content = mock(BinaryContent.class);
+    given(
+            catalogService.getDocument(
+                anyString(),
+                anyString(),
+                anyString(),
+                any(URI.class),
+                any(MultivaluedMap.class),
+                any(HttpServletRequest.class)))
+        .willReturn(null);
 
     when()
         .get(restEndpointUrlBuilder.add(metacardId).build())
@@ -197,7 +165,8 @@ public class RestEndpointIT extends AbstractComponentTest {
         return super.getBundleOptions()
             .add("org.bouncycastle", "bcprov-jdk15on")
             .add("ddf.catalog.transformer", "catalog-transformer-attribute")
-            .add("ddf.catalog.core", "catalog-core-attachment");
+            .add("ddf.catalog.core", "catalog-core-attachment")
+            .add("ddf.catalog.rest", "catalog-rest-service");
       }
 
       @Override
@@ -216,9 +185,6 @@ public class RestEndpointIT extends AbstractComponentTest {
             .addFeatures("ddf.features", "utilities", utilitiesFeatures)
             .addFeatures("ddf.features", "kernel", kernelFeatures)
             .addFeatureFrom("ddf.thirdparty", "rest-assured", "feature", "rest-assured")
-            .addFeatureFrom(
-                "ddf.platform.util", "util-uuidgenerator-api", "feature", "uuidgenerator-api")
-            .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api-only")
             .addFeatureFrom(
                 "ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api-only");
       }

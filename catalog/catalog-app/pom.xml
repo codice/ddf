@@ -211,6 +211,16 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
