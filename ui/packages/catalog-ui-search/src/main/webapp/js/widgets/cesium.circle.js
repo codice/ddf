@@ -22,9 +22,10 @@ define([
         './notification.view',
         '@turf/turf',
         '@turf/circle',
-        './drawing.controller'
+        './drawing.controller',
+        'js/DistanceUtils'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle, DrawingController) {
+    function(Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype, NotificationView, Turf, TurfCircle, DrawingController, DistanceUtils) {
         "use strict";
         var DrawCircle = {};
 
@@ -40,7 +41,7 @@ define([
             initialize: function() {
                 this.mouseHandler = new Cesium.ScreenSpaceEventHandler(this.options.map.scene.canvas);
 
-                this.listenTo(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
+                this.listenTo(this.model, 'change:lat change:lon change:radius change:radiusUnits', this.updatePrimitive);
                 this.updatePrimitive(this.model);
             },
             enableInput: function() {
@@ -68,7 +69,7 @@ define([
                 var modelProp = {
                     lat: (mn.latitude * 180 / Math.PI).toFixed(14),
                     lon: (mn.longitude * 180 / Math.PI).toFixed(14),
-                    radius: radius
+                    radius: DistanceUtils.getDistanceFromMeters(radius, this.model.get('radiusUnits'))
 
                 };
 
@@ -116,7 +117,7 @@ define([
                 var color = this.model.get('color');
 
                 var centerPt = Turf.point([modelProp.lon, modelProp.lat]);
-                var circleToCheck = new TurfCircle(centerPt, modelProp.radius, 64, 'meters');
+                var circleToCheck = new TurfCircle(centerPt, DistanceUtils.getDistanceInMeters(modelProp.radius, modelProp.radiusUnits), 64, 'meters');
 
                 this.primitive = new Cesium.PolylineCollection();
                 this.primitive.add({
