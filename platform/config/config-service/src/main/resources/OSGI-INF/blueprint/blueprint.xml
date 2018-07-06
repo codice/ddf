@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+
+    <reference-list id="configListeners"
+                    interface="org.codice.ddf.config.ConfigListener"
+                    availability="optional"/>
+
+    <reference id="configReaderRef"
+               interface="org.codice.ddf.config.reader.ConfigReader"
+               filter="(format=yaml)"/>
+
+    <bean id="configServiceBean"
+          class="org.codice.ddf.config.service.impl.ConfigServiceImpl">
+        <argument ref="configReaderRef"/>
+        <argument ref="configListeners"/>
+        <argument>
+            <set>
+                <value>$[ddf.home]/etc/configs</value>
+            </set>
+        </argument>
+    </bean>
+
+    <!--
+      higher ranking to ensure we are consulted first. note that the config service will ensure we
+      only handle files that are from the configs folder and none other
+    -->
+    <service id="configService" ref="configServiceBean" ranking="1000">
+        <interfaces>
+            <value>org.apache.felix.fileinstall.ArtifactListener</value>
+            <value>org.apache.felix.fileinstall.ArtifactInstaller</value>
+            <value>org.codice.ddf.config.ConfigService</value>
+        </interfaces>
+    </service>
+</blueprint>
