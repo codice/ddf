@@ -108,6 +108,8 @@ export const save = () => (dispatch, getState) => {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'X-Requested-With': 'XMLHttpRequest'
     },
     body: JSON.stringify(body)
