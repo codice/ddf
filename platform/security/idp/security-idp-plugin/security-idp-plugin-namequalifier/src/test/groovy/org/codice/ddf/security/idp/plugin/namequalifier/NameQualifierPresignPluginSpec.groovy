@@ -15,14 +15,12 @@ package org.codice.ddf.security.idp.plugin.namequalifier
 
 import ddf.security.samlp.SamlProtocol
 import org.apache.wss4j.common.saml.OpenSAMLUtil
-import org.opensaml.saml.saml2.core.Assertion
+import spock.lang.Specification
 import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.core.Issuer
 import org.opensaml.saml.saml2.core.Response
 import org.opensaml.saml.saml2.core.Subject
-import org.opensaml.saml.saml2.core.NameID
-import spock.lang.Specification
-import org.apache.wss4j.common.saml.builder.SAML2Constants
+import org.opensaml.saml.saml2.core.Assertion
 import org.opensaml.saml.saml2.core.NameIDPolicy
 import org.opensaml.saml.saml2.core.NameID
 
@@ -49,11 +47,7 @@ class NameQualifierPresignPluginSpec extends Specification {
 
     NameIDPolicy nameIdPolicy = Mock(NameIDPolicy)
 
-    String format = new String(SAML2Constants.NAMEID_FORMAT_PERSISTENT)
-
     def NAME_QUALIFIER = 'https://localhost:8993/services/idp/login'
-
-    def PERSISTENT = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
 
     def NEGATIVE_TEST = 'negative test'
 
@@ -81,17 +75,17 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> format
+        issuer.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
         assertions.add(assertion)
         assertion.getSubject() >> subject
-        assertion.getSubject().getNameID() >> nameID
-        nameID.getFormat() >> PERSISTENT
+        subject.getNameID() >> nameID
+        nameID.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        1 * nameID.getFormat()
+        1 * nameID.setNameQualifier(NAME_QUALIFIER)
         2 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
@@ -102,14 +96,14 @@ class NameQualifierPresignPluginSpec extends Specification {
         response.getIssuer() >> null
         assertions.add(assertion)
         assertion.getSubject() >> subject
-        assertion.getSubject().getNameID() >> nameID
-        nameID.getFormat() >> PERSISTENT
+        subject.getNameID() >> nameID
+        nameID.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        1 * nameID.getFormat()
+        1 * nameID.setNameQualifier(NAME_QUALIFIER)
         0 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
@@ -118,17 +112,17 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> format
+        issuer.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
         assertion.getSubject() >> subject
-        assertion.getSubject().getNameID() >> nameID
-        nameID.getFormat() >> PERSISTENT
+        subject.getNameID() >> nameID
+        nameID.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
         0 * nameID.setNameQualifier(NAME_QUALIFIER)
-        0 * nameID.getFormat()
+        1 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
 
@@ -137,14 +131,14 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> null
+        issuer.getFormat() >> null
         assertions.add(assertion)
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.getFormat()
+        0 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
 
@@ -152,14 +146,14 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >>  NEGATIVE_TEST
+        issuer.getFormat() >>  NEGATIVE_TEST
         assertions.add(assertion)
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.getFormat()
+        0 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
 
@@ -167,7 +161,7 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> format
+        issuer.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
         assertions.add(assertion)
         assertion.getSubject() >> null
 
@@ -175,24 +169,7 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.getFormat()
-
-    }
-
-    def 'test name qualifier when assertion subject is not null and name id is persistent'() {
-
-        setup:
-        response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> format
-        assertions.add(assertion)
-        assertion.getSubject() >> subject
-        assertion.getSubject().getNameID() >> nameID
-
-        when:
-        plugin.processPresign(response, authNReq, spMetadata, bindings)
-
-        then:
-        1 * nameID.getFormat()
+        0 * nameID.setNameQualifier(NAME_QUALIFIER)
 
     }
 
@@ -200,17 +177,18 @@ class NameQualifierPresignPluginSpec extends Specification {
 
         setup:
         response.getIssuer() >> issuer
-        response.getIssuer().getFormat() >> format
+        issuer.getFormat() >> NameQualifierPresignPlugin.PERSISTENT
         assertions.add(assertion)
         assertion.getSubject() >> subject
-        assertion.getSubject().getNameID() >> nameIDNeg
+        subject.getNameID() >> nameIDNeg
         nameIDNeg.getFormat() >> NEGATIVE_TEST
 
         when:
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.getFormat()
+        0 * nameID.setNameQualifier(NAME_QUALIFIER)
+        2 * issuer.setNameQualifier(NAME_QUALIFIER)
 
     }
 
