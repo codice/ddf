@@ -47,8 +47,6 @@ class NameQualifierPresignPluginSpec extends Specification {
 
     NameIDPolicy nameIdPolicy = Mock(NameIDPolicy)
 
-    def NAME_QUALIFIER = 'https://localhost:8993/services/idp/login'
-
     def NEGATIVE_TEST = 'negative test'
 
     def setupSpec() {
@@ -85,8 +83,8 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        1 * nameID.setNameQualifier(NAME_QUALIFIER)
-        2 * issuer.setNameQualifier(NAME_QUALIFIER)
+        1 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+        2 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -103,8 +101,8 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        1 * nameID.setNameQualifier(NAME_QUALIFIER)
-        0 * issuer.setNameQualifier(NAME_QUALIFIER)
+        1 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+        0 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -121,8 +119,8 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.setNameQualifier(NAME_QUALIFIER)
-        1 * issuer.setNameQualifier(NAME_QUALIFIER)
+        0 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+        1 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -138,7 +136,7 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * issuer.setNameQualifier(NAME_QUALIFIER)
+        0 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -153,7 +151,7 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * issuer.setNameQualifier(NAME_QUALIFIER)
+        0 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -169,7 +167,7 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.setNameQualifier(NAME_QUALIFIER)
+        0 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 
@@ -187,8 +185,8 @@ class NameQualifierPresignPluginSpec extends Specification {
         plugin.processPresign(response, authNReq, spMetadata, bindings)
 
         then:
-        0 * nameID.setNameQualifier(NAME_QUALIFIER)
-        2 * issuer.setNameQualifier(NAME_QUALIFIER)
+        0 * nameID.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
+        2 * issuer.setNameQualifier(NameQualifierPresignPlugin.NAME_QUALIFIER)
 
     }
 

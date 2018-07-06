@@ -34,9 +34,7 @@ import org.opensaml.saml.saml2.core.Response;
 public class NameQualifierPresignPlugin implements SamlPresignPlugin {
 
   private static final String NAME_QUALIFIER =
-      String.format(
-          "https://%s:%s/services/idp/login",
-          SystemBaseUrl.INTERNAL.getHost(), SystemBaseUrl.INTERNAL.getHttpsPort());
+      SystemBaseUrl.INTERNAL.constructUrl("idp/login", true);
 
   private static final String PERSISTENT = NameIDType.PERSISTENT;
 
@@ -54,7 +52,7 @@ public class NameQualifierPresignPlugin implements SamlPresignPlugin {
 
     for (Assertion assertion : response.getAssertions()) {
 
-      if (assertion.getSubject() != null) {
+      if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
 
         setNameQualifierIfPersistent(assertion.getSubject().getNameID());
       }
