@@ -280,6 +280,11 @@
             <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-impl</artifactId>
             <version>${project.version}</version>
@@ -302,11 +307,6 @@
         <dependency>
             <groupId>ddf.security.servlet</groupId>
             <artifactId>security-servlet-logout-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.catalog;
 
-import static org.codice.ddf.rest.service.CatalogService.BYTES;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_ACCEPT_RANGES;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_CONTENT_DISPOSITION;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_CONTENT_LENGTH;
 import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.head;
@@ -48,8 +44,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.http.HttpStatus;
-import org.codice.ddf.rest.service.CatalogException;
 import org.codice.ddf.rest.service.CatalogService;
+import org.codice.ddf.rest.service.CatalogServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -64,6 +60,18 @@ public class CatalogApplication implements SparkApplication {
 
   private static final String JAVA_IO_TMPDIR = "java.io.tmpdir";
 
+  private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
+  private static final String HEADER_CONTENT_LENGTH = "Content-Length";
+
+  private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+
+  private static final String BYTES = "bytes";
+
+  private static final String CATALOG_ID_PATH = "/catalog/:id";
+
+  private static final String TRANSFORM = "transform";
+
   private CatalogService catalogService;
 
   public CatalogApplication(CatalogService catalogService) {
@@ -75,11 +83,12 @@ public class CatalogApplication implements SparkApplication {
     head(
         "/catalog/",
         (req, res) -> {
+          LOGGER.trace("Ping!");
           res.status(HttpStatus.SC_OK);
           return res;
         });
 
-    head("/catalog/:id", (req, res) -> getHeaders(req, res, null, req.params(":id")));
+    head(CATALOG_ID_PATH, (req, res) -> getHeaders(req, res, null, req.params(":id")));
 
     head(
         "/catalog/sources/:sourceid/:id",
@@ -88,7 +97,7 @@ public class CatalogApplication implements SparkApplication {
     get(
         "/catalog/sources",
         (req, res) -> {
-          final BinaryContent content = catalogService.getDocument();
+          final BinaryContent content = catalogService.getSourcesInfo();
 
           res.status(HttpStatus.SC_OK);
           res.body(IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
@@ -100,31 +109,27 @@ public class CatalogApplication implements SparkApplication {
         });
 
     get(
-        "/catalog/:id",
-        (req, res) -> getDocument(req, res, null, req.params(":id"), req.queryParams("transform")));
+        CATALOG_ID_PATH,
+        (req, res) -> getDocument(req, res, null, req.params(":id"), req.queryParams(TRANSFORM)));
 
     get(
         "/catalog/sources/:sourceid/:id",
         (req, res) ->
             getDocument(
-                req,
-                res,
-                req.params(":sourceid"),
-                req.params(":id"),
-                req.queryParams("transform")));
+                req, res, req.params(":sourceid"), req.params(":id"), req.queryParams(TRANSFORM)));
 
     post(
         "/catalog/metacard",
         (req, res) -> {
           try {
             final BinaryContent content =
-                catalogService.createMetacard(req.raw(), req.queryParams("transform"));
+                catalogService.createMetacard(req.raw(), req.queryParams(TRANSFORM));
 
             res.status(HttpStatus.SC_OK);
             res.body(IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
             res.type(content.getMimeTypeValue());
             return res;
-          } catch (CatalogException e) {
+          } catch (CatalogServiceException e) {
             return createBadRequestResponse(res, e.getMessage());
           }
         });
@@ -141,7 +146,7 @@ public class CatalogApplication implements SparkApplication {
                 res,
                 req.raw().getRequestURL(),
                 req.contentType(),
-                req.queryParams("transform"),
+                req.queryParams(TRANSFORM),
                 req.raw(),
                 new ByteArrayInputStream(req.bodyAsBytes()));
           }
@@ -152,7 +157,7 @@ public class CatalogApplication implements SparkApplication {
                 res,
                 req.raw().getRequestURL(),
                 req.contentType(),
-                req.queryParams("transform"),
+                req.queryParams(TRANSFORM),
                 null,
                 new ByteArrayInputStream(req.bodyAsBytes()));
           }
@@ -162,7 +167,7 @@ public class CatalogApplication implements SparkApplication {
         });
 
     put(
-        "/catalog/:id",
+        CATALOG_ID_PATH,
         (req, res) -> {
           if (req.contentType().startsWith("multipart/")) {
             req.attribute(
@@ -173,7 +178,7 @@ public class CatalogApplication implements SparkApplication {
                 res,
                 req.params(":id"),
                 req.contentType(),
-                req.queryParams("transform"),
+                req.queryParams(TRANSFORM),
                 req.raw(),
                 new ByteArrayInputStream(req.bodyAsBytes()));
           }
@@ -184,7 +189,7 @@ public class CatalogApplication implements SparkApplication {
                 res,
                 req.params(":id"),
                 req.contentType(),
-                req.queryParams("transform"),
+                req.queryParams(TRANSFORM),
                 null,
                 new ByteArrayInputStream(req.bodyAsBytes()));
           }
@@ -194,14 +199,16 @@ public class CatalogApplication implements SparkApplication {
         });
 
     delete(
-        "/catalog/:id",
+        CATALOG_ID_PATH,
         (req, res) -> {
           try {
             String id = req.params(":id");
             catalogService.deleteDocument(id);
-            return javax.ws.rs.core.Response.ok(id).build();
+            res.status(HttpStatus.SC_OK);
+            res.body(id);
+            return res;
 
-          } catch (CatalogException e) {
+          } catch (CatalogServiceException e) {
             return createBadRequestResponse(res, e.getMessage());
           }
         });
@@ -250,7 +257,7 @@ public class CatalogApplication implements SparkApplication {
         res.header(HEADER_CONTENT_LENGTH, String.valueOf(size));
       }
       return res;
-    } catch (CatalogException | URISyntaxException e) {
+    } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
     }
   }
@@ -314,7 +321,7 @@ public class CatalogApplication implements SparkApplication {
       }
 
       return res;
-    } catch (CatalogException | URISyntaxException e) {
+    } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
 
     } catch (DataUsageLimitExceededException e) {
@@ -344,7 +351,7 @@ public class CatalogApplication implements SparkApplication {
       res.status(HttpStatus.SC_OK);
       return res;
 
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(res, e.getMessage());
     }
   }
@@ -369,7 +376,7 @@ public class CatalogApplication implements SparkApplication {
       res.header(Metacard.ID, id);
       return res;
 
-    } catch (CatalogException | URISyntaxException e) {
+    } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
     }
   }

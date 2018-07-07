@@ -22,22 +22,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
+/** Catalog service interface */
 public interface CatalogService {
 
-  String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
-
-  String HEADER_CONTENT_LENGTH = "Content-Length";
-
-  String HEADER_ACCEPT_RANGES = "Accept-Ranges";
-
-  String BYTES = "bytes";
-
+  /**
+   * Retrieves header information regarding the entry specified by the id such as the Accept-Ranges
+   * and Content-Range headers.
+   */
   BinaryContent getHeaders(
       String sourceid, String id, URI absolutePath, MultivaluedMap<String, String> queryParameters)
-      throws CatalogException;
+      throws CatalogServiceException;
 
-  BinaryContent getDocument();
+  /** Retrieves information regarding available sources. */
+  BinaryContent getSourcesInfo();
 
+  /**
+   * Retrieves the metadata entry specified by the id from the federated source specified by
+   * sourceid. Transformer argument is optional, but is used to specify what format the data should
+   * be returned.
+   */
   BinaryContent getDocument(
       String encodedSourceId,
       String encodedId,
@@ -45,45 +48,53 @@ public interface CatalogService {
       URI absolutePath,
       MultivaluedMap<String, String> queryParameters,
       HttpServletRequest httpRequest)
-      throws CatalogException, DataUsageLimitExceededException;
+      throws CatalogServiceException, DataUsageLimitExceededException;
 
+  /** Creates a new metacard. */
   BinaryContent createMetacard(MultipartBody multipartBody, String transformerParam)
-      throws CatalogException;
+      throws CatalogServiceException;
 
+  /** Creates a new metacard. */
   BinaryContent createMetacard(HttpServletRequest httpServletRequest, String transformerParam)
-      throws CatalogException;
+      throws CatalogServiceException;
 
+  /** Updates the specified metadata entry with the provided metadata. */
   void updateDocument(
       String id,
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
       InputStream message)
-      throws CatalogException;
+      throws CatalogServiceException;
 
+  /** Updates the specified metadata entry with the provided metadata. */
   void updateDocument(
       String id,
       List<String> contentTypeList,
       HttpServletRequest httpServletRequest,
       String transformerParam,
       InputStream message)
-      throws CatalogException;
+      throws CatalogServiceException;
 
+  /** Creates a new metadata entry in the catalog. */
   String addDocument(
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
       InputStream message)
-      throws CatalogException;
+      throws CatalogServiceException;
 
+  /** Creates a new metadata entry in the catalog. */
   String addDocument(
       List<String> contentTypeList,
       HttpServletRequest httpServletRequest,
       String transformerParam,
       InputStream message)
-      throws CatalogException;
+      throws CatalogServiceException;
 
-  void deleteDocument(String id) throws CatalogException;
+  /** Deletes a record from the catalog. */
+  void deleteDocument(String id) throws CatalogServiceException;
 
+  /** Retrieves the file extension fro the specified Mime Type. */
   String getFileExtensionForMimeType(String mimeType);
 }

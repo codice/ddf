@@ -110,8 +110,8 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.service.CatalogException;
 import org.codice.ddf.rest.service.CatalogService;
+import org.codice.ddf.rest.service.CatalogServiceException;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -146,7 +146,11 @@ public class CatalogServiceImpl implements CatalogService {
 
   private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-  public static final int MAX_INPUT_SIZE = 65_536;
+  private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
+  private static final String NO_FILE_CONTENTS_ATT_FOUND = "No file contents attachment found";
+
+  private static final int MAX_INPUT_SIZE = 65_536;
 
   private UuidGenerator uuidGenerator;
 
@@ -178,21 +182,22 @@ public class CatalogServiceImpl implements CatalogService {
       CatalogFramework framework,
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry) {
-    LOGGER.trace("Constructing REST Endpoint");
+    LOGGER.trace("Constructing CatalogServiceImpl");
     this.catalogFramework = framework;
     this.attachmentParser = attachmentParser;
     this.attributeRegistry = attributeRegistry;
-    LOGGER.trace(("Rest Endpoint constructed successfully"));
+    LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
   BundleContext getBundleContext() {
     Bundle bundle = FrameworkUtil.getBundle(CatalogServiceImpl.class);
-    return bundle.getBundleContext();
+    return bundle == null ? null : bundle.getBundleContext();
   }
 
+  @Override
   public BinaryContent getHeaders(
       String sourceid, String id, URI absolutePath, MultivaluedMap<String, String> queryParameters)
-      throws CatalogException {
+      throws CatalogServiceException {
     QueryResponse queryResponse;
     Metacard card = null;
     LOGGER.trace("getHeaders");
@@ -256,18 +261,17 @@ public class CatalogServiceImpl implements CatalogService {
       } catch (UnsupportedQueryException e) {
         String errorMessage = "Specified query is unsupported.  Change query and resubmit: ";
         LOGGER.info(errorMessage, e);
-        throw new CatalogException(errorMessage);
-
+        throw new CatalogServiceException(errorMessage);
         // The catalog framework will throw this if any of the transformers blow up. We need to
         // catch this exception
         // here or else execution will return to CXF and we'll lose this message and end up with
         // a huge stack trace
         // in a GUI or whatever else is connected to this endpoint
       } catch (IllegalArgumentException e) {
-        throw new CatalogException(e.getMessage());
+        throw new CatalogServiceException(e.getMessage());
       }
     } else {
-      throw new CatalogException("No ID specified.");
+      throw new CatalogServiceException("No ID specified.");
     }
   }
 
@@ -279,7 +283,8 @@ public class CatalogServiceImpl implements CatalogService {
     return jsonObject;
   }
 
-  public BinaryContent getDocument() {
+  @Override
+  public BinaryContent getSourcesInfo() {
     JSONArray resultsList = new JSONArray();
     SourceInfoResponse sources;
     String sourcesString;
@@ -321,13 +326,11 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     sourcesString = JSONValue.toJSONString(resultsList);
-    final BinaryContent content =
-        new BinaryContentImpl(
-            new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
-
-    return content;
+    return new BinaryContentImpl(
+        new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
   }
 
+  @Override
   public BinaryContent getDocument(
       String encodedSourceId,
       String encodedId,
@@ -335,7 +338,7 @@ public class CatalogServiceImpl implements CatalogService {
       URI absolutePath,
       MultivaluedMap<String, String> queryParameters,
       HttpServletRequest httpRequest)
-      throws CatalogException, DataUsageLimitExceededException {
+      throws CatalogServiceException, DataUsageLimitExceededException {
 
     QueryResponse queryResponse;
     Metacard card = null;
@@ -416,7 +419,7 @@ public class CatalogServiceImpl implements CatalogService {
       } catch (UnsupportedQueryException e) {
         String errorMessage = "Specified query is unsupported.  Change query and resubmit: ";
         LOGGER.info(errorMessage, e);
-        throw new CatalogException(errorMessage);
+        throw new CatalogServiceException(errorMessage);
       } catch (DataUsageLimitExceededException e) {
         String errorMessage = "Unable to process request. Data usage limit exceeded: ";
         LOGGER.debug(errorMessage, e);
@@ -426,17 +429,18 @@ public class CatalogServiceImpl implements CatalogService {
         // we'll lose this message and end up with a huge stack trace in a GUI or whatever
         // else is connected to this endpoint
       } catch (RuntimeException | UnsupportedEncodingException e) {
-        String exceptionMessage = "Unknown error occurred while processing request: ";
+        String exceptionMessage = "Unknown error occurred while processing request.";
         LOGGER.info(exceptionMessage, e);
         throw new InternalServerErrorException(exceptionMessage);
       }
     } else {
-      throw new CatalogException("No ID specified.");
+      throw new CatalogServiceException("No ID specified.");
     }
   }
 
+  @Override
   public BinaryContent createMetacard(MultipartBody multipartBody, String transformerParam)
-      throws CatalogException {
+      throws CatalogServiceException {
     LOGGER.trace("ENTERING: createMetacard");
 
     String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
@@ -464,14 +468,16 @@ public class CatalogServiceImpl implements CatalogService {
         LOGGER.info("IOException reading stream from file attachment in multipart body", e);
       }
     } else {
-      LOGGER.debug("No file contents attachment found");
+      LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
     }
 
     return createMetacard(stream, contentType, transformerParam);
   }
 
+  @Override
   public BinaryContent createMetacard(
-      HttpServletRequest httpServletRequest, String transformerParam) throws CatalogException {
+      HttpServletRequest httpServletRequest, String transformerParam)
+      throws CatalogServiceException {
     LOGGER.trace("ENTERING: createMetacard");
 
     InputStream stream = null;
@@ -497,7 +503,7 @@ public class CatalogServiceImpl implements CatalogService {
           LOGGER.info("IOException reading stream from file attachment in multipart body", e);
         }
       } else {
-        LOGGER.debug("No file contents attachment found");
+        LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
       }
     } catch (ServletException | IOException e) {
       LOGGER.info("No file contents part found: ", e);
@@ -507,7 +513,8 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   private BinaryContent createMetacard(
-      InputStream stream, String contentType, String transformerParam) throws CatalogException {
+      InputStream stream, String contentType, String transformerParam)
+      throws CatalogServiceException {
     String transformer = DEFAULT_METACARD_TRANSFORMER;
     if (transformerParam != null) {
       transformer = transformerParam;
@@ -540,23 +547,24 @@ public class CatalogServiceImpl implements CatalogService {
       return content;
 
     } catch (MetacardCreationException | CatalogTransformerException e) {
-      throw new CatalogException("Unable to create metacard");
+      throw new CatalogServiceException("Unable to create metacard");
     }
   }
 
+  @Override
   public void updateDocument(
       String id,
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     LOGGER.trace("PUT");
 
     if (id == null || message == null) {
       String errorResponseString = "Both ID and content are needed to perform UPDATE.";
       LOGGER.info(errorResponseString);
-      throw new CatalogException(errorResponseString);
+      throw new CatalogServiceException(errorResponseString);
     }
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
@@ -565,26 +573,27 @@ public class CatalogServiceImpl implements CatalogService {
       if (CollectionUtils.isNotEmpty(contentParts)) {
         attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
       } else {
-        LOGGER.debug("No file contents attachment found");
+        LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
       }
     }
 
     updateDocument(attachmentInfoAndMetacard, id, contentTypeList, transformerParam, message);
   }
 
+  @Override
   public void updateDocument(
       String id,
       List<String> contentTypeList,
       HttpServletRequest httpServletRequest,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     LOGGER.trace("PUT");
 
     if (id == null || message == null) {
       String errorResponseString = "Both ID and content are needed to perform UPDATE.";
       LOGGER.info(errorResponseString);
-      throw new CatalogException(errorResponseString);
+      throw new CatalogServiceException(errorResponseString);
     }
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
@@ -594,7 +603,7 @@ public class CatalogServiceImpl implements CatalogService {
         if (CollectionUtils.isNotEmpty(contentParts)) {
           attachmentInfoAndMetacard = parseParts(contentParts, transformerParam);
         } else {
-          LOGGER.debug("No file contents attachment found");
+          LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
         }
       }
     } catch (ServletException | IOException e) {
@@ -610,7 +619,7 @@ public class CatalogServiceImpl implements CatalogService {
       List<String> contentTypeList,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     try {
       MimeType mimeType = getMimeType(contentTypeList);
 
@@ -646,22 +655,23 @@ public class CatalogServiceImpl implements CatalogService {
     } catch (MetacardCreationException | IngestException e) {
       String errorMessage = "Error cataloging updated metadata: ";
       LOGGER.info(errorMessage, e);
-      throw new CatalogException(errorMessage);
+      throw new CatalogServiceException(errorMessage);
     }
   }
 
+  @Override
   public String addDocument(
       List<String> contentTypeList,
       MultipartBody multipartBody,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     LOGGER.debug("POST");
 
     if (message == null) {
       String errorMessage = "No content found, cannot do CREATE.";
       LOGGER.info(errorMessage);
-      throw new CatalogException(errorMessage);
+      throw new CatalogServiceException(errorMessage);
     }
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
@@ -670,25 +680,26 @@ public class CatalogServiceImpl implements CatalogService {
       if (CollectionUtils.isNotEmpty(contentParts)) {
         attachmentInfoAndMetacard = parseAttachments(contentParts, transformerParam);
       } else {
-        LOGGER.debug("No file contents attachment found");
+        LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
       }
     }
 
     return addDocument(attachmentInfoAndMetacard, contentTypeList, transformerParam, message);
   }
 
+  @Override
   public String addDocument(
       List<String> contentTypeList,
       HttpServletRequest httpServletRequest,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     LOGGER.debug("POST");
 
     if (message == null) {
       String errorMessage = "No content found, cannot do CREATE.";
       LOGGER.info(errorMessage);
-      throw new CatalogException(errorMessage);
+      throw new CatalogServiceException(errorMessage);
     }
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard = null;
@@ -698,7 +709,7 @@ public class CatalogServiceImpl implements CatalogService {
         if (CollectionUtils.isNotEmpty(contentParts)) {
           attachmentInfoAndMetacard = parseParts(contentParts, transformerParam);
         } else {
-          LOGGER.debug("No file contents attachment found");
+          LOGGER.debug(NO_FILE_CONTENTS_ATT_FOUND);
         }
       }
     } catch (ServletException | IOException e) {
@@ -713,7 +724,7 @@ public class CatalogServiceImpl implements CatalogService {
       List<String> contentTypeList,
       String transformerParam,
       InputStream message)
-      throws CatalogException {
+      throws CatalogServiceException {
     try {
       LOGGER.debug("POST");
 
@@ -769,7 +780,7 @@ public class CatalogServiceImpl implements CatalogService {
       String errorMessage = "Error while storing entry in catalog: ";
       LOGGER.info(errorMessage, e);
       // Catalog framework logs these exceptions to the ingest logger so we don't have to.
-      throw new CatalogException(errorMessage);
+      throw new CatalogServiceException(errorMessage);
     } finally {
       IOUtils.closeQuietly(message);
     }
@@ -842,9 +853,7 @@ public class CatalogServiceImpl implements CatalogService {
     Set<AttributeDescriptor> missingDescriptors = new HashSet<>();
     for (Attribute attribute : attributeMap.values()) {
       if (metacard.getMetacardType().getAttributeDescriptor(attribute.getName()) == null) {
-        attributeRegistry
-            .lookup(attribute.getName())
-            .ifPresent(descriptor -> missingDescriptors.add(descriptor));
+        attributeRegistry.lookup(attribute.getName()).ifPresent(missingDescriptors::add);
       }
       metacard.setAttribute(attribute);
     }
@@ -1034,7 +1043,7 @@ public class CatalogServiceImpl implements CatalogService {
       MimeType mimeType = new MimeType(attachment.getContentType().toString());
       metacard = generateMetacard(mimeType, null, inputStream, transformer);
     } catch (MimeTypeParseException | MetacardCreationException e) {
-      LOGGER.debug("Unable to parse metadata {}", attachment.getContentType().toString());
+      LOGGER.debug("Unable to parse metadata {}", attachment.getContentType());
     } finally {
       IOUtils.closeQuietly(inputStream);
     }
@@ -1056,7 +1065,8 @@ public class CatalogServiceImpl implements CatalogService {
     return metacard;
   }
 
-  public void deleteDocument(String id) throws CatalogException {
+  @Override
+  public void deleteDocument(String id) throws CatalogServiceException {
     LOGGER.debug("DELETE");
     try {
       if (id != null) {
@@ -1068,7 +1078,7 @@ public class CatalogServiceImpl implements CatalogService {
       } else {
         String errorMessage = "ID of entry not specified, cannot do DELETE.";
         LOGGER.info(errorMessage);
-        throw new CatalogException(errorMessage);
+        throw new CatalogServiceException(errorMessage);
       }
     } catch (SourceUnavailableException ce) {
       String exceptionMessage =
@@ -1082,7 +1092,7 @@ public class CatalogServiceImpl implements CatalogService {
     } catch (IngestException e) {
       String errorMessage = "Error deleting entry from catalog: ";
       LOGGER.info(errorMessage, e);
-      throw new CatalogException(errorMessage);
+      throw new CatalogServiceException(errorMessage);
     }
   }
 
@@ -1200,6 +1210,7 @@ public class CatalogServiceImpl implements CatalogService {
     return mimeType;
   }
 
+  @Override
   public String getFileExtensionForMimeType(String mimeType) {
     String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
     LOGGER.debug("Mime Type [{}] resolves to file extension [{}].", mimeType, fileExtension);

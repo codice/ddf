@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.rest.impl;
 
-import static org.codice.ddf.rest.service.CatalogService.HEADER_CONTENT_DISPOSITION;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
@@ -50,8 +49,6 @@ import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Topic;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
@@ -101,7 +98,7 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.service.CatalogException;
+import org.codice.ddf.rest.service.CatalogServiceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -153,7 +150,7 @@ public class CatalogServiceImplTest {
           mock(MultipartBody.class),
           null,
           null);
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       assertEquals(e.getMessage(), "No content found, cannot do CREATE.");
     }
   }
@@ -388,7 +385,7 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl rest =
+    CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
@@ -399,7 +396,7 @@ public class CatalogServiceImplTest {
         .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
     when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
-    addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
+    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
 
     List<Attachment> attachments = new ArrayList<>();
     ContentDisposition contentDisposition =
@@ -418,7 +415,7 @@ public class CatalogServiceImplTest {
     attachments.add(attachment1);
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        rest.parseAttachments(attachments, "xml");
+        catalogServiceImpl.parseAttachments(attachments, "xml");
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
@@ -436,61 +433,10 @@ public class CatalogServiceImplTest {
         new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
     attachments.add(attachment3);
 
-    attachmentInfoAndMetacard = rest.parseAttachments(attachments, "xml");
+    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
 
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("<meta>beta</meta>"));
     assertThat(attachmentInfoAndMetacard.getRight().getAttribute("foo"), equalTo(null));
-  }
-
-  @Test
-  public void testParseAttachmentsWithAttributeOverrides()
-      throws IngestException, SourceUnavailableException {
-    CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-    RESTEndpoint restEndpoint = new RESTEndpoint(framework, attachmentParser, attributeRegistry);
-
-    when(attributeRegistry.lookup(Topic.KEYWORD))
-        .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
-    when(attributeRegistry.lookup(Core.LOCATION))
-        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
-
-    List<Attachment> attachments = new ArrayList<>();
-    ContentDisposition contentDisposition =
-        new ContentDisposition("form-data; name=parse.resource; filename=/path/to/metacard.txt");
-    Attachment attachment =
-        new Attachment(
-            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
-    ContentDisposition contentDisposition1 =
-        new ContentDisposition("form-data; name=parse.location");
-    Attachment attachment1 =
-        new Attachment(
-            "parse.location",
-            new ByteArrayInputStream("POINT(0 0)".getBytes()),
-            contentDisposition1);
-    ContentDisposition contentDisposition2 =
-        new ContentDisposition("form-data; name=parse.topic.keyword");
-    Attachment attachment2 =
-        new Attachment(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword1".getBytes()),
-            contentDisposition2);
-    ContentDisposition contentDisposition3 =
-        new ContentDisposition("form-data; name=parse.topic.keyword");
-    Attachment attachment3 =
-        new Attachment(
-            "parse.topic.keyword",
-            new ByteArrayInputStream("keyword2".getBytes()),
-            contentDisposition3);
-    attachments.add(attachment);
-    attachments.add(attachment1);
-    attachments.add(attachment2);
-    attachments.add(attachment3);
-
-    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        restEndpoint.parseAttachments(attachments, null);
-    Metacard metacard = attachmentInfoAndMetacard.getRight();
-
-    assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
-    assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
   }
 
   @Test
@@ -567,6 +513,108 @@ public class CatalogServiceImplTest {
   }
 
   @Test
+  public void testParseAttachmentsWithAttributeOverrides()
+      throws IngestException, SourceUnavailableException {
+    CatalogFramework framework = givenCatalogFramework();
+    CatalogServiceImpl catalogServiceImpl =
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+
+    when(attributeRegistry.lookup(Topic.KEYWORD))
+        .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
+    when(attributeRegistry.lookup(Core.LOCATION))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
+
+    List<Attachment> attachments = new ArrayList<>();
+    ContentDisposition contentDisposition =
+        new ContentDisposition("form-data; name=parse.resource; filename=/path/to/metacard.txt");
+    Attachment attachment =
+        new Attachment(
+            "parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+    ContentDisposition contentDisposition1 =
+        new ContentDisposition("form-data; name=parse.location");
+    Attachment attachment1 =
+        new Attachment(
+            "parse.location",
+            new ByteArrayInputStream("POINT(0 0)".getBytes()),
+            contentDisposition1);
+    ContentDisposition contentDisposition2 =
+        new ContentDisposition("form-data; name=parse.topic.keyword");
+    Attachment attachment2 =
+        new Attachment(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword1".getBytes()),
+            contentDisposition2);
+    ContentDisposition contentDisposition3 =
+        new ContentDisposition("form-data; name=parse.topic.keyword");
+    Attachment attachment3 =
+        new Attachment(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword2".getBytes()),
+            contentDisposition3);
+    attachments.add(attachment);
+    attachments.add(attachment1);
+    attachments.add(attachment2);
+    attachments.add(attachment3);
+
+    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+        catalogServiceImpl.parseAttachments(attachments, null);
+    Metacard metacard = attachmentInfoAndMetacard.getRight();
+
+    assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
+    assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
+  }
+
+  @Test
+  public void testParsePartsWithAttributeOverrides() throws Exception {
+    CatalogFramework framework = givenCatalogFramework();
+    CatalogServiceImpl catalogServiceImpl =
+        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
+
+    when(attributeRegistry.lookup(Topic.KEYWORD))
+        .thenReturn(Optional.of(new TopicAttributes().getAttributeDescriptor(Topic.KEYWORD)));
+    when(attributeRegistry.lookup(Core.LOCATION))
+        .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.LOCATION)));
+
+    List<Part> parts = new ArrayList<>();
+    Part part =
+        createPart(
+            "parse.resource",
+            new ByteArrayInputStream("Some Text".getBytes()),
+            "form-data; name=parse.resource; filename=/path/to/metacard.txt");
+    Part part1 =
+        createPart(
+            "parse.location",
+            new ByteArrayInputStream("POINT(0 0)".getBytes()),
+            "form-data; name=parse.location");
+
+    Part part2 =
+        createPart(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword1".getBytes()),
+            "form-data; name=parse.topic.keyword");
+    Part part3 =
+        createPart(
+            "parse.topic.keyword",
+            new ByteArrayInputStream("keyword2".getBytes()),
+            "form-data; name=parse.topic.keyword");
+
+    parts.add(part);
+    parts.add(part1);
+    parts.add(part2);
+    parts.add(part3);
+
+    HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+    when(httpServletRequest.getParts()).thenReturn(parts);
+
+    Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
+        catalogServiceImpl.parseParts(parts, null);
+    Metacard metacard = attachmentInfoAndMetacard.getRight();
+
+    assertThat(metacard.getAttribute(Core.LOCATION).getValues(), hasItem("POINT(0 0)"));
+    assertThat(metacard.getAttribute(Topic.KEYWORD).getValues(), hasItems("keyword1", "keyword2"));
+  }
+
+  @Test
   @SuppressWarnings({"unchecked"})
   public void testParseAttachmentsTooLarge()
       throws IOException, CatalogTransformerException, SourceUnavailableException, IngestException,
@@ -584,7 +632,7 @@ public class CatalogServiceImplTest {
     when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)"))
         .thenReturn(serviceReferences);
 
-    CatalogServiceImpl rest =
+    CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
           BundleContext getBundleContext() {
@@ -595,7 +643,7 @@ public class CatalogServiceImplTest {
         .thenReturn(Optional.of(new CoreAttributes().getAttributeDescriptor(Core.METADATA)));
     when(attributeRegistry.lookup("foo")).thenReturn(Optional.empty());
 
-    addMatchingService(rest, Collections.singletonList(getSimpleTransformer()));
+    addMatchingService(catalogServiceImpl, Collections.singletonList(getSimpleTransformer()));
 
     List<Attachment> attachments = new ArrayList<>();
     ContentDisposition contentDisposition =
@@ -614,7 +662,7 @@ public class CatalogServiceImplTest {
     attachments.add(attachment1);
 
     Pair<AttachmentInfo, Metacard> attachmentInfoAndMetacard =
-        rest.parseAttachments(attachments, "xml");
+        catalogServiceImpl.parseAttachments(attachments, "xml");
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
 
     ContentDisposition contentDisposition2 =
@@ -632,7 +680,7 @@ public class CatalogServiceImplTest {
         new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
     attachments.add(attachment3);
 
-    attachmentInfoAndMetacard = rest.parseAttachments(attachments, "xml");
+    attachmentInfoAndMetacard = catalogServiceImpl.parseAttachments(attachments, "xml");
 
     // Ensure that the metadata was not overriden because it was too large to be parsed
     assertThat(attachmentInfoAndMetacard.getRight().getMetadata(), equalTo("Some Text Again"));
@@ -763,7 +811,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
 
-    BinaryContent content = catalogService.getDocument();
+    BinaryContent content = catalogService.getSourcesInfo();
     assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
 
     String responseMessage = IOUtils.toString(content.getInputStream());
@@ -963,7 +1011,7 @@ public class CatalogServiceImplTest {
       if (klass.getName().equals(SourceUnavailableException.class.getName())) {
         assertThat(e.getResponse().getStatus(), equalTo(INTERNAL_SERVER_ERROR));
       }
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       if (klass.getName().equals(IngestException.class.getName())) {
         assertEquals(e.getMessage(), "Error while storing entry in catalog: ");
       } else {
@@ -994,7 +1042,7 @@ public class CatalogServiceImplTest {
     Part part = mock(Part.class);
     when(part.getName()).thenReturn(name);
     when(part.getInputStream()).thenReturn(inputStream);
-    when(part.getHeader(HEADER_CONTENT_DISPOSITION)).thenReturn(contentDisposition);
+    when(part.getHeader("Content-Disposition")).thenReturn(contentDisposition);
     when(part.getContentType()).thenReturn(MediaType.APPLICATION_OCTET_STREAM);
     return part;
   }
@@ -1024,14 +1072,14 @@ public class CatalogServiceImplTest {
 
   @SuppressWarnings({"unchecked"})
   private MimeTypeToTransformerMapper addMatchingService(
-      CatalogServiceImpl rest, List<InputTransformer> sortedListOfTransformers) {
+      CatalogServiceImpl catalogServiceImpl, List<InputTransformer> sortedListOfTransformers) {
 
     MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
     when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
         .thenReturn((List) sortedListOfTransformers);
 
-    rest.setMimeTypeToTransformerMapper(matchingService);
+    catalogServiceImpl.setMimeTypeToTransformerMapper(matchingService);
 
     return matchingService;
   }

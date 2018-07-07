@@ -13,11 +13,6 @@
  */
 package org.codice.ddf.endpoints.rest;
 
-import static org.codice.ddf.rest.service.CatalogService.BYTES;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_ACCEPT_RANGES;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_CONTENT_DISPOSITION;
-import static org.codice.ddf.rest.service.CatalogService.HEADER_CONTENT_LENGTH;
-
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.resource.DataUsageLimitExceededException;
@@ -49,14 +44,22 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.codice.ddf.rest.service.CatalogException;
 import org.codice.ddf.rest.service.CatalogService;
+import org.codice.ddf.rest.service.CatalogServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RESTEndpoint implements RESTService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
+
+  private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
+  private static final String HEADER_CONTENT_LENGTH = "Content-Length";
+
+  private static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+
+  private static final String BYTES = "bytes";
 
   private CatalogService catalogService;
 
@@ -112,7 +115,6 @@ public class RESTEndpoint implements RESTService {
       @Context HttpServletRequest httpRequest) {
     try {
       Response.ResponseBuilder responseBuilder;
-      String filename = null;
 
       final BinaryContent content =
           catalogService.getHeaders(
@@ -130,28 +132,14 @@ public class RESTEndpoint implements RESTService {
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
       responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
 
-      if (content instanceof Resource) {
-        // If we got a resource, we can extract the filename.
-        filename = ((Resource) content).getName();
-      } else {
-        String fileExtension =
-            catalogService.getFileExtensionForMimeType(content.getMimeTypeValue());
-        if (StringUtils.isNotBlank(fileExtension)) {
-          filename = id + fileExtension;
-        }
-      }
-
-      if (StringUtils.isNotBlank(filename)) {
-        LOGGER.debug("filename: {}", filename);
-        responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
-      }
+      setFileNameOnResponseBuilder(id, content, responseBuilder);
 
       long size = content.getSize();
       if (size > 0) {
         responseBuilder.header(HEADER_CONTENT_LENGTH, size);
       }
       return responseBuilder.build();
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
     }
   }
@@ -188,7 +176,7 @@ public class RESTEndpoint implements RESTService {
   public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
     ResponseBuilder responseBuilder;
 
-    final BinaryContent content = catalogService.getDocument();
+    final BinaryContent content = catalogService.getSourcesInfo();
     responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
     // Add the Accept-ranges header to let the client know that we accept ranges in bytes
@@ -241,23 +229,7 @@ public class RESTEndpoint implements RESTService {
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
       responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
 
-      String filename = null;
-
-      if (content instanceof Resource) {
-        // If we got a resource, we can extract the filename.
-        filename = ((Resource) content).getName();
-      } else {
-        String fileExtension =
-            catalogService.getFileExtensionForMimeType(content.getMimeTypeValue());
-        if (StringUtils.isNotBlank(fileExtension)) {
-          filename = id + fileExtension;
-        }
-      }
-
-      if (StringUtils.isNotBlank(filename)) {
-        LOGGER.debug("filename: {}", filename);
-        responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
-      }
+      setFileNameOnResponseBuilder(id, content, responseBuilder);
 
       long size = content.getSize();
       if (size > 0) {
@@ -266,7 +238,7 @@ public class RESTEndpoint implements RESTService {
 
       return responseBuilder.build();
 
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
 
     } catch (DataUsageLimitExceededException e) {
@@ -294,7 +266,7 @@ public class RESTEndpoint implements RESTService {
       Response.ResponseBuilder responseBuilder =
           Response.ok(content.getInputStream(), content.getMimeTypeValue());
       return responseBuilder.build();
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
     }
   }
@@ -341,7 +313,7 @@ public class RESTEndpoint implements RESTService {
 
       return Response.ok().build();
 
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
     }
   }
@@ -383,7 +355,7 @@ public class RESTEndpoint implements RESTService {
 
       return responseBuilder.build();
 
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
     }
   }
@@ -402,8 +374,28 @@ public class RESTEndpoint implements RESTService {
       catalogService.deleteDocument(id);
       return Response.ok(id).build();
 
-    } catch (CatalogException e) {
+    } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
+    }
+  }
+
+  private void setFileNameOnResponseBuilder(
+      String id, BinaryContent content, ResponseBuilder responseBuilder) {
+    String filename = null;
+
+    if (content instanceof Resource) {
+      // If we got a resource, we can extract the filename.
+      filename = ((Resource) content).getName();
+    } else {
+      String fileExtension = catalogService.getFileExtensionForMimeType(content.getMimeTypeValue());
+      if (StringUtils.isNotBlank(fileExtension)) {
+        filename = id + fileExtension;
+      }
+    }
+
+    if (StringUtils.isNotBlank(filename)) {
+      LOGGER.debug("filename: {}", filename);
+      responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"");
     }
   }
 

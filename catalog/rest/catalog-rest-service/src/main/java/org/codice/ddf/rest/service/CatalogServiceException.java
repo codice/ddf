@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.rest.service;
 
-public class CatalogException extends Exception {
+public class CatalogServiceException extends Exception {
 
-  public CatalogException(String message) {
+  public CatalogServiceException(String message) {
     super(message);
   }
 }

@@ -301,6 +301,12 @@
         <argument ref="catalogFramework"/>
     </bean>
 
+    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
+
+    <bean id="catalogApplication" class="org.codice.ddf.catalog.ui.catalog.CatalogApplication">
+        <argument ref="catalogService"/>
+    </bean>
+
     <reference id="csvQueryResponseTransformer"
                interface="ddf.catalog.transform.QueryResponseTransformer" filter="(id=csv)"/>
 
@@ -438,20 +444,14 @@
         <argument ref="logoutService"/>
     </bean>
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
-
-    <bean id="catalogApplication" class="org.codice.ddf.catalog.ui.catalog.CatalogApplication">
-        <argument ref="catalogService"/>
-    </bean>
-
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
             <list>
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
-                <ref component-id="catalogApplication"/>
                 <ref component-id="userApplication"/>
+                <ref component-id="catalogApplication"/>
                 <ref component-id="logoutApplication"/>
                 <ref component-id="configurationApplication"/>
                 <ref component-id="feedbackApplication"/>
