@@ -11,21 +11,21 @@
  *
  **/
  --}}
-<button class="navigation-choice is-neutral choice-product is-button">
+<button class="navigation-choice is-neutral choice-product is-button" data-fragment="workspaces">
     <span class="is-bold">{{properties.branding}} </span>
     <span class="">{{properties.product}}</span>
 </button>
 <div class="is-divider"></div>
 <div class="navigation-links">
-    <button class="navigation-choice is-neutral choice-workspaces is-button">
+    <button class="navigation-choice is-neutral choice-workspaces is-button" data-fragment="workspaces">
         <span class="fa fa-book"></span><span>Workspaces</span><div class="workspaces-indicator"></div>
     </button>
     <div class="workspaces-save">
     </div>
-    <button class="navigation-choice is-neutral choice-upload is-button">
+    <button class="navigation-choice is-neutral choice-upload is-button" data-fragment="ingest">
         <span class="fa fa-upload"></span><span>Upload</span>
     </button>
-    <button class="navigation-choice is-neutral choice-sources is-button">
+    <button class="navigation-choice is-neutral choice-sources is-button" data-fragment="sources">
         <span class="fa fa-cloud"></span><span>Sources</span><span class="sources-indicator fa fa-bolt"></span>
     </button>
     <div class="navigation-extensions">
@@ -35,13 +35,13 @@
     <div class="is-divider"></div>
     <div class="navigation-links">
         {{#if workspace}}
-            <button class="navigation-choice is-neutral choice-previous-workspace is-button" title="Most Recent Workspace: {{workspace.title}}">
+            <button class="navigation-choice is-neutral choice-previous-workspace is-button" title="Most Recent Workspace: {{workspace.title}}" data-fragment="workspaces/{{workspace.id}}">
                 <div class="">Most Recent Workspace</div>
                 <span class="fa fa-history"></span><span class="dynamic-text">{{workspace.title}}</span>
             </button>
         {{/if}}
         {{#if metacard}}
-            <button class="navigation-choice is-neutral choice-previous-metacard is-button" title="Most Recent Metacard: {{metacard.metacard.properties.title}}">
+            <button class="navigation-choice is-neutral choice-previous-metacard is-button" title="Most Recent Metacard: {{metacard.metacard.properties.title}}" data-fragment="metacards/{{metacard.metacard.id}}">
                 <div class="">Most Recent Metacard</div>
                 <span class="fa fa-history"></span><span class="dynamic-text">{{metacard.metacard.properties.title}}</span>
             </button>
@@ -50,8 +50,11 @@
 {{/if}}
 <div class="is-divider"></div>
 <div class="navigation-links">
-    <button class="navigation-choice is-neutral choice-about is-button">
+    <button class="navigation-choice is-neutral choice-about is-button" data-fragment="about">
         <span class="fa fa-info"></span><span>About</span>
+    </button>
+    <button class="navigation-choice is-neutral choice-dev is-button" data-fragment="_dev">
+        <span class="fa fa-user-md"></span><span>Developer</span>
     </button>
 </div>
 <!--<div class="is-divider"></div>

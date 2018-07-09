@@ -426,12 +426,6 @@ tr.selected {
     margin: 10px 0px;
 }
 
-.title {
-    line-height: 30px;
-    text-align: center;
-    word-wrap: break-word;
-}
-
 img.thumbnail {
     clear: both;
     display: block;

@@ -68,6 +68,7 @@ Behaviors.addBehavior('navigation', Marionette.Behavior.extend({
     events: {
         'focusin': 'handleFocusIn',
         'keydown': 'handleSpecialKeys',
+        'keyup': 'handleSpaceKey',
         'mouseover': 'handleMouseEnter'
     },
     onRender: function() {
@@ -127,6 +128,24 @@ Behaviors.addBehavior('navigation', Marionette.Behavior.extend({
         });
         return menuItems;
     },
+    /*
+        buttons don't take action until keyup for space in browsers, try it for yourself
+        https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_button_test
+    */
+    handleSpaceKey(event) {
+        let code = event.keyCode;
+        if (event.charCode && code == 0)
+            code = event.charCode;
+        switch(code) {
+            case 32: //space
+                event.preventDefault();
+                this.handleEnter();
+        }
+    },
+    /*
+        buttons take action on keydown for enter in browsers, try it for yourself
+        https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_button_test
+    */
     handleSpecialKeys: function(event){
         let code = event.keyCode;
         if (event.charCode && code == 0)
@@ -142,7 +161,7 @@ Behaviors.addBehavior('navigation', Marionette.Behavior.extend({
                 event.preventDefault();
                 this.handleDownArrow();
                 break;
-            case 13: 
+            case 13:
                 // Enter
                 event.preventDefault();
                 this.handleEnter();

@@ -19,12 +19,12 @@ button,
 .button-mixin(@buttonColor) {
   background: @buttonColor;
 
-  &:hover:not('.is-disabled') {
+  &:hover:not(.is-disabled):not([disabled]) {
     background: shade(@buttonColor, 10%);
     box-shadow: 0px 0px 2px shade(@buttonColor, 25%);
   }
 
-  &:focus:not('.is-disabled') {
+  &:focus:not(.is-disabled):not([disabled]) {
     background: shade(@buttonColor, 25%);
     border: 0px 0px 2px shade(@buttonColor, 50%);
   }

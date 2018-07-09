@@ -2,7 +2,8 @@
     .customElement;
     overflow: auto;
 
-    button.navigation-choice {
+    button.navigation-choice,
+    .navigation-choice {
         display: block;
         padding: @largeSpacing;
         height: auto;
@@ -63,6 +64,7 @@
         text-overflow: ellipsis;
     }
 
+    button.navigation-choice.choice-dev,
     button.navigation-choice.choice-upload {
         display: none;
     }
@@ -91,6 +93,14 @@
 html.is-upload-enabled {
     @{customElementNamespace}navigator {
         button.navigation-choice.choice-upload {
+            display: block;
+        }
+    }
+}
+
+html.is-development {
+    @{customElementNamespace}navigator {
+        button.navigation-choice.choice-dev {
             display: block;
         }
     }

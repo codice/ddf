@@ -104,6 +104,5 @@ define([
         Backbone.history.start();
     });
 
-
     return Application;
 });

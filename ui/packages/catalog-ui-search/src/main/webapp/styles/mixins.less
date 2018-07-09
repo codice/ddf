@@ -48,11 +48,12 @@
   cursor: pointer;
   opacity: @minimumOpacity;
 
-  &:hover:not(.is-disabled) {
+  &:hover:not(.is-disabled):not([disabled]),
+  &:focus:not(.is-disabled):not([disabled]) {
     opacity: 1;
   }
 
-  &.is-active:not(.is-disabled) {
+  &.is-active:not(.is-disabled):not([disabled]) {
     opacity: 1;
   }
 }

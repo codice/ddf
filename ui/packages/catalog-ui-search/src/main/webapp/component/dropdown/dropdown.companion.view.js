@@ -21,28 +21,9 @@ define([
     './dropdown.companion.hbs',
     'js/Common',
     'js/store',
+    'behaviors/dropdown.behavior.utility',
     'behaviors/navigation.behavior'
-], function (Marionette, _, $, CustomElements, template, Common, store) {
-
-    function drawing(event) {
-        return event.target.constructor === HTMLCanvasElement && store.get('content').get('drawing');
-    }
-
-    function hasRightRoom(left, element){
-        return ((left + element.clientWidth) < window.innerWidth);
-    }
-
-    function hasLeftRoom(left){
-        return left > 0;
-    }
-
-    function getBottomRoom(top, element){
-        return window.innerHeight - top;
-    }
-
-    function getRightRoom(left, element){
-        return window.innerWidth - left;
-    }
+], function (Marionette, _, $, CustomElements, template, Common, store, DropdownBehaviorUtility) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -90,34 +71,11 @@ define([
             }
         },
         updatePosition: function () {
-            if (this.options.linkedView.isCentered){
-                var clientRect = this.options.linkedView.getCenteringElement().getBoundingClientRect();
-                var menuWidth = this.el.clientWidth;
-                var necessaryLeft = Math.floor(clientRect.left + clientRect.width / 2 - menuWidth / 2);
-                var necessaryTop = Math.floor(clientRect.top + clientRect.height);
-                var bottomRoom = getBottomRoom(necessaryTop, this.el);
-                var topRoom = clientRect.top;
-                if (bottomRoom > topRoom){
-                    this.$el.addClass('is-bottom').removeClass('is-top');
-                    this.$el.css('left', necessaryLeft).css('top', necessaryTop);
-                    this.$el.css('max-height', bottomRoom - 10);
-                    this.updateFilterMaxHeight(bottomRoom);
-                } else {
-                    this.$el.addClass('is-top').removeClass('is-bottom');
-                    this.$el.css('left', necessaryLeft).css('top', topRoom);
-                    this.$el.css('max-height', topRoom - 10);
-                    this.updateFilterMaxHeight(bottomRoom);
-                }
-                if(!hasRightRoom(necessaryLeft, this.el)){
-                    this.$el.css('left', window.innerWidth-menuWidth-20);
-                }
-                if(!hasLeftRoom(necessaryLeft)){
-                    this.$el.css('left', 10);
-                }
-            } else {
-                var clientRect = this.options.linkedView.el.getBoundingClientRect();
-                this.$el.css('left', clientRect.left).css('top', clientRect.top + clientRect.height);
-            }
+            const bottomRoom = DropdownBehaviorUtility.updatePosition(
+                this.$el,
+                this.options.linkedView.getCenteringElement()
+            );
+            this.updateFilterMaxHeight(bottomRoom);
         },
         handleTail: function(){
             this.$el.toggleClass('has-tail', this.options.linkedView.hasTail);
@@ -149,7 +107,6 @@ define([
             this.focusOnFilter();
             this.handleFiltering();
             this.handleToggleAll();
-            //this.listenForScroll();
         },
         focusOnFilter: function(){
             if (this.hasFiltering()) {
@@ -254,7 +211,6 @@ define([
             }
             this.stopListeningForOutsideClick();
             this.stopListeningForResize();
-            //this.stopListeningForScroll();
         },
         close: function(){
             this.options.linkedView.model.close();
@@ -286,11 +242,11 @@ define([
         },
         listenForOutsideClick: function () {
             $('body').on('mousedown.' + this.cid, function (event) {
-                if (!drawing(event)){
-                    if (this.$el.find(event.target).addBack(event.target).length === 0 && $(this.tagName).find(event.target).addBack(event.target).length === 0) {
+                if (!DropdownBehaviorUtility.drawing(event)){
+                    if (!DropdownBehaviorUtility.withinAnyDropdown(event.target)) {
                         this.close();
                     }
-                    if (this.$el.prevAll(this.tagName).find(event.target).addBack(event.target).length > 0){
+                    if (DropdownBehaviorUtility.withinParentDropdown(this.$el, event.target)){
                         this.close();
                     }
                 }
@@ -307,14 +263,6 @@ define([
         },
         stopListeningForResize: function(){
             $(window).off('resize.'+this.cid);
-        },
-        listenForScroll: function(){
-            $('*').on('scroll.'+this.cid, _.throttle(function(event){
-                this.updatePosition();
-            }.bind(this), 16));
-        },
-        stopListeningForScroll: function(){
-            $('*').off('scroll.'+this.cid);
         },
         onDestroy: function(){
             this.stopListeningForClose();

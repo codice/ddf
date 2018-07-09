@@ -30,7 +30,7 @@ module.exports = function (source, map) {
             getComponent: function() {
                 var deferred = new $.Deferred();
                 require([
-                    ${JSON.stringify(options.resolve(component))}
+                    ${loaderUtils.stringifyRequest(this, options.resolve(component))}
                 ], onComponentResolution.bind(this, deferred, {}));
                 return deferred;
             },
@@ -38,7 +38,7 @@ module.exports = function (source, map) {
                 getComponent: function() {
                     var deferred = new $.Deferred();
                     require([
-                        ${JSON.stringify(options.resolve(menu.component ? menu.component : 'component/navigation-middle/navigation-middle.view'))}
+                        ${loaderUtils.stringifyRequest(this, options.resolve(menu.component ? menu.component : 'component/navigation-middle/navigation-middle.view'))}
                     ], onComponentResolution.bind(this, deferred, ${JSON.stringify(menu.component ? {} : menu)}));
                     return deferred;
                 }
