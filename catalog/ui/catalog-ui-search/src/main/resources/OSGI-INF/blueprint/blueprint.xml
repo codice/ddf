@@ -516,7 +516,7 @@
         <argument ref="catalogFramework"/>
         <argument ref="workspaceTransformer"/>
         <argument>
-            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryBuilderImpl">
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryBuilder">
                 <argument ref="filterBuilder"/>
                 <argument>
                     <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.FilterServiceImpl">

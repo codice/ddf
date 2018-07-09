@@ -20,7 +20,6 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.filter.FilterBuilder;
 import java.util.Collections;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
-import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,7 +29,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WorkspaceQueryBuilderImplTest {
+public class WorkspaceQueryBuilderTest {
 
   @Mock private FilterBuilder filterBuilder;
 
@@ -59,7 +58,7 @@ public class WorkspaceQueryBuilderImplTest {
     when(filterBuilder.allOf(workspaceTagFilter, orOfMetacardIdsFilter)).thenReturn(finalFilter);
 
     WorkspaceQueryBuilder workspaceQueryBuilder =
-        new WorkspaceQueryBuilderImpl(filterBuilder, filterService);
+        new WorkspaceQueryBuilder(filterBuilder, filterService);
 
     Filter filter = workspaceQueryBuilder.createFilter(Collections.singleton(id));
 

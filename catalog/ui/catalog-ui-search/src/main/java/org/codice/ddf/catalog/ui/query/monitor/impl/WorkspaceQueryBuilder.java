@@ -18,21 +18,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
-import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.opengis.filter.Filter;
 
-public class WorkspaceQueryBuilderImpl implements WorkspaceQueryBuilder {
+public class WorkspaceQueryBuilder {
   private final FilterBuilder filterBuilder;
 
   private final FilterService filterService;
 
-  public WorkspaceQueryBuilderImpl(FilterBuilder filterBuilder, FilterService filterService) {
+  WorkspaceQueryBuilder(FilterBuilder filterBuilder, FilterService filterService) {
     this.filterBuilder = filterBuilder;
     this.filterService = filterService;
   }
 
-  @Override
-  public Filter createFilter(Set<String> workspaceIds) {
+  Filter createFilter(Set<String> workspaceIds) {
     return createAndFilter(createWorkspaceTagFilter(), createOrWorkspaceIdsFilter(workspaceIds));
   }
 
