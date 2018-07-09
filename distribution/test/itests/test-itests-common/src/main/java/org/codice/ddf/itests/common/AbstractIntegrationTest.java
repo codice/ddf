@@ -691,8 +691,12 @@ public abstract class AbstractIntegrationTest {
           installStartupFile(
               getClass().getResource("/etc/forms/imagery.xml"), "/etc/forms/imagery.xml"),
           installStartupFile(
-              getClass().getResource("/etc/forms/contact-name.xml"),
-              "/etc/forms/contact-name.xml"));
+              getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
+          installStartupFile(
+              String.format(
+                  "grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
+                  new File("target/solr").getAbsolutePath()),
+              "/security/itests-solr.policy"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
@@ -705,6 +709,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "HttpSolrClient"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9994/solr"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.port", "9994"),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH,
             "solr.data.dir",
