@@ -38,7 +38,7 @@ public interface Config {
    *
    * @return the version for this configuration
    */
-  public int getVersion();
+  public String getVersion();
 
   /**
    * Gets the configuration object type that corresponds to a given configuration class or subclass.

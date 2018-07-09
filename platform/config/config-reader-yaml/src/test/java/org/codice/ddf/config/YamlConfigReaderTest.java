@@ -31,7 +31,7 @@ public class YamlConfigReaderTest {
     rc.setPull(true);
     rc.setPush(true);
     rc.setUrl(new URL("http://localhost:8993/registry"));
-    rc.setVersion(456);
+    rc.setVersion("456");
     System.out.println("Id: " + rc.getId());
     YamlConfigReaderImpl yc = new YamlConfigReaderImpl();
     File config = new File(getClass().getClassLoader().getResource("proxy.yml").getFile());

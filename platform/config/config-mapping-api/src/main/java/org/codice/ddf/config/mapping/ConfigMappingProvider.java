@@ -40,7 +40,7 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    */
   public default int getRanking() {
     return 0;
-  };
+  }
 
   /**
    * Indicates whether this provider is only capable of providing partial properties or if it can
@@ -106,5 +106,7 @@ public interface ConfigMappingProvider extends Comparable<ConfigMappingProvider>
    *     priorities
    */
   @Override
-  int compareTo(ConfigMappingProvider provider);
+  public default int compareTo(ConfigMappingProvider provider) {
+    return Integer.compare(getRanking(), provider.getRanking());
+  }
 }

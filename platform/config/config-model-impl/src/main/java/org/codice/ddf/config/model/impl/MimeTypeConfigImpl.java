@@ -15,6 +15,7 @@ package org.codice.ddf.config.model.impl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -31,15 +32,17 @@ public class MimeTypeConfigImpl extends AbstractConfigGroup implements MimeTypeC
   public MimeTypeConfigImpl() {}
 
   public MimeTypeConfigImpl(
-      String id, String name, int priority, Map<String, String> customMimeTypes, int version) {
+      String id, String name, int priority, Map<String, String> customMimeTypes, String version) {
     super(id, version);
     this.name = name;
     this.priority = priority;
     setCustomMimeTypes(customMimeTypes);
   }
 
+  @SuppressWarnings(
+      "squid:ForLoopCounterChangedCheck" /* Purposely iterating 2 entries at a time */)
   public MimeTypeConfigImpl(
-      String id, String name, int priority, int version, String... extsToMimes) {
+      String id, String name, int priority, String version, String... extsToMimes) {
     super(id, version);
     this.name = name;
     this.priority = priority;
@@ -92,6 +95,26 @@ public class MimeTypeConfigImpl extends AbstractConfigGroup implements MimeTypeC
     extensionsToMimes.forEach((ext, mime) -> mimesToExtensions.put(mime, ext));
   }
 
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(name, priority, extensionsToMimes);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof MimeTypeConfigImpl) {
+      final MimeTypeConfigImpl cfg = (MimeTypeConfigImpl) obj;
+
+      return super.equals(obj)
+          && (priority == cfg.priority)
+          && Objects.equals(name, cfg.name)
+          && Objects.equals(extensionsToMimes, cfg.extensionsToMimes);
+    }
+    return false;
+  }
+
   private static class MappingImpl implements MimeTypeConfig.Mapping {
     private final String extension;
 
@@ -110,6 +133,30 @@ public class MimeTypeConfigImpl extends AbstractConfigGroup implements MimeTypeC
     @Override
     public String getMimeType() {
       return mimeType;
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * super.hashCode() + Objects.hash(extension, mimeType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      } else if (obj instanceof MappingImpl) {
+        final MappingImpl mapping = (MappingImpl) obj;
+
+        return Objects.equals(extension, mapping.extension)
+            && Objects.equals(mimeType, mapping.mimeType)
+            && super.equals(obj);
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return extension + " -> " + mimeType;
     }
   }
 }

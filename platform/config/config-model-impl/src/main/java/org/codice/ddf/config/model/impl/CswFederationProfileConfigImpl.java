@@ -14,7 +14,6 @@
 package org.codice.ddf.config.model.impl;
 
 import java.net.URL;
-import java.util.Objects;
 import org.codice.ddf.config.model.CswFederationProfileConfig;
 
 public class CswFederationProfileConfigImpl extends SourceConfigImpl
@@ -22,13 +21,13 @@ public class CswFederationProfileConfigImpl extends SourceConfigImpl
 
   public CswFederationProfileConfigImpl() {}
 
-  public CswFederationProfileConfigImpl(String id, String name, URL url, int version) {
+  public CswFederationProfileConfigImpl(String id, String name, URL url, String version) {
     super(id, name, url, version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getType(), getId(), getName(), getUrl(), getVersion());
+    return 31 * super.hashCode();
   }
 
   @Override
@@ -36,13 +35,7 @@ public class CswFederationProfileConfigImpl extends SourceConfigImpl
     if (obj == this) {
       return true;
     } else if (obj instanceof CswFederationProfileConfigImpl) {
-      final CswFederationProfileConfigImpl cfg = (CswFederationProfileConfigImpl) obj;
-
-      return getType().equals(cfg.getType())
-          && getId().equals(cfg.getId())
-          && getName().equals(cfg.getName())
-          && getUrl().equals(cfg.getUrl())
-          && getVersion() == cfg.getVersion();
+      return super.equals(obj);
     }
     return false;
   }

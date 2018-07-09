@@ -14,6 +14,7 @@
 package org.codice.ddf.config.model.impl;
 
 import java.net.URL;
+import java.util.Objects;
 import org.codice.ddf.config.model.RegistryConfig;
 
 public class RegistryConfigImpl extends AbstractConfigGroup implements RegistryConfig {
@@ -30,7 +31,13 @@ public class RegistryConfigImpl extends AbstractConfigGroup implements RegistryC
   public RegistryConfigImpl() {}
 
   public RegistryConfigImpl(
-      String id, String name, URL url, boolean push, boolean pull, boolean publish, int version) {
+      String id,
+      String name,
+      URL url,
+      boolean push,
+      boolean pull,
+      boolean publish,
+      String version) {
     super(id, version);
     this.name = name;
     this.url = url;
@@ -82,5 +89,27 @@ public class RegistryConfigImpl extends AbstractConfigGroup implements RegistryC
 
   public void setPublish(boolean publish) {
     this.publish = publish;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(name, url, push, pull, publish);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof RegistryConfigImpl) {
+      final RegistryConfigImpl cfg = (RegistryConfigImpl) obj;
+
+      return (push == cfg.push)
+          && (pull == cfg.pull)
+          && (publish == cfg.publish)
+          && Objects.equals(name, cfg.name)
+          && Objects.equals(url, cfg.url)
+          && super.equals(obj);
+    }
+    return false;
   }
 }

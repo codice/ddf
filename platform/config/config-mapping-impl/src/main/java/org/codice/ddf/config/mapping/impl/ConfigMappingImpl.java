@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -49,7 +48,7 @@ public class ConfigMappingImpl implements ConfigMapping {
 
   private final ConfigMapping.Id id;
 
-  private final SortedSet<ConfigMappingProvider> providers;
+  private final Set<ConfigMappingProvider> providers;
 
   // keyed by config type with corresponding set of instances or ALL if not a group or dependent on
   // all instances
@@ -63,7 +62,7 @@ public class ConfigMappingImpl implements ConfigMapping {
         Collections.synchronizedSortedSet(providers.collect(Collectors.toCollection(TreeSet::new)));
     try {
       // first resolution to compute the initial dependents, use the ANY instance if none defined
-      // just in case the providers are referencing it. This will be useful providers capable of
+      // just in case the providers are referencing it. This will be useful for providers capable of
       // providing for any instances
       resolve(ConfigMapping.Id.of(id.getName(), id.getInstance().orElse(ConfigMappingImpl.ANY)));
     } catch (ConfigMappingException e) { // ignore
@@ -82,9 +81,12 @@ public class ConfigMappingImpl implements ConfigMapping {
    *     properties for this config mapping; <code>false</code> otherwise
    */
   public boolean isAvailable() {
-    // must have at least 1 non partial provider
-    final boolean available = !providers.stream().allMatch(ConfigMappingProvider::isPartial);
+    final boolean available;
 
+    synchronized (providers) {
+      // must have at least 1 non partial provider
+      available = !providers.stream().allMatch(ConfigMappingProvider::isPartial);
+    }
     LOGGER.debug("ConfigMappingImpl[{}].isAvailable() = {}", id, available);
     return available;
   }

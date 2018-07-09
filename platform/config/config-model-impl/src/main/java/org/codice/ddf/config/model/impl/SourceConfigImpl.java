@@ -14,6 +14,7 @@
 package org.codice.ddf.config.model.impl;
 
 import java.net.URL;
+import java.util.Objects;
 import org.codice.ddf.config.model.SourceConfig;
 
 public abstract class SourceConfigImpl extends AbstractConfigGroup implements SourceConfig {
@@ -24,7 +25,7 @@ public abstract class SourceConfigImpl extends AbstractConfigGroup implements So
 
   public SourceConfigImpl() {}
 
-  public SourceConfigImpl(String id, String name, URL url, int version) {
+  public SourceConfigImpl(String id, String name, URL url, String version) {
     super(id, version);
     this.name = name;
     this.url = url;
@@ -46,5 +47,22 @@ public abstract class SourceConfigImpl extends AbstractConfigGroup implements So
 
   public void setUrl(URL url) {
     this.url = url;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(name, url);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof SourceConfigImpl) {
+      final SourceConfigImpl cfg = (SourceConfigImpl) obj;
+
+      return Objects.equals(name, cfg.name) && Objects.equals(url, cfg.url) && super.equals(obj);
+    }
+    return false;
   }
 }

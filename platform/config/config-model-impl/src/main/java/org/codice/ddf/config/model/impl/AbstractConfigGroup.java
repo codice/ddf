@@ -13,18 +13,19 @@
  */
 package org.codice.ddf.config.model.impl;
 
+import java.util.Objects;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.codice.ddf.config.ConfigGroup;
 
 public abstract class AbstractConfigGroup implements ConfigGroup {
-  private int version;
+  private String version;
 
   private String id;
 
   public AbstractConfigGroup() {}
 
-  public AbstractConfigGroup(String id, int version) {
+  public AbstractConfigGroup(String id, String version) {
     this.id = id;
     this.version = version;
   }
@@ -39,16 +40,34 @@ public abstract class AbstractConfigGroup implements ConfigGroup {
   }
 
   @Override
-  public int getVersion() {
+  public String getVersion() {
     return version;
   }
 
-  public void setVersion(int version) {
+  public void setVersion(String version) {
     this.version = version;
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(version, id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    } else if (obj instanceof AbstractConfigGroup) {
+      final AbstractConfigGroup cfg = (AbstractConfigGroup) obj;
+
+      return Objects.equals(version, cfg.version) && Objects.equals(id, cfg.id);
+    }
+    return false;
+  }
+
+  @Override
   public String toString() {
+    // Temporary while prototyping
     return ToStringBuilder.reflectionToString(
         this, ToStringStyle.DEFAULT_STYLE, false, AbstractConfigGroup.class);
   }

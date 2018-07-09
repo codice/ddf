@@ -1,6 +1,6 @@
 ---
 !schemaMime
-  version: 1
+  version: 1.0
   id: csw
   name: CSW Content Resolver
   priority: 24
@@ -9,7 +9,7 @@
   schema: http://www.opengis.net/cat/csw/2.0.2
 ---
 !mime
-  version: 1
+  version: 1.0
   id: geojson
   name: GeoJson Content Resolver
   priority: 20
@@ -17,7 +17,7 @@
     .json: application/json;id=geojson
 ---
 !mime
-  version: 1
+  version: 1.0
   id: nitf
   name: NITF Content Resolver
   priority: 23
@@ -36,7 +36,7 @@
     .r7: image/nitf
 ---
 !schemaMime
-  version: 1
+  version: 1.0
   id: xml
   name: XML Content Resolver
   priority: 22
@@ -45,7 +45,7 @@
   schema: urn:catalog:metacard
 ---
 !mime
-  version: 1
+  version: 1.0
   id: bob
   name: Bob Content Resolver
   priority: 27

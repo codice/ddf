@@ -19,6 +19,10 @@ import org.codice.ddf.config.ConfigType;
 
 @ConfigType
 public interface RegistryConfig extends ConfigGroup {
+  @Override
+  public default Class<RegistryConfig> getType() {
+    return RegistryConfig.class;
+  }
 
   String getName();
 

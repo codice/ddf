@@ -36,12 +36,11 @@
         <argument ref="mapper"/>
         <argument ref="config"/>
         <property name="factories">
-            <map>
-                <entry value="DDF_Custom_Mime_Type_Resolver">
-                    <key>
-                        <value type="java.lang.Class">org.codice.ddf.config.model.MimeTypeConfig
-                        </value>
-                    </key>
+            <map key-type="java.lang.Class">
+                <entry key="org.codice.ddf.config.model.MimeTypeConfig">
+                    <set>
+                        <value>DDF_Custom_Mime_Type_Resolver</value>
+                    </set>
                 </entry>
             </map>
         </property>
