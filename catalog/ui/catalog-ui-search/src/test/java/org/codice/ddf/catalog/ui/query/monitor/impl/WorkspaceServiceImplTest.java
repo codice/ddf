@@ -52,6 +52,10 @@ import org.opengis.filter.Filter;
 
 public class WorkspaceServiceImplTest {
 
+  private static final String TEST_ID = "123";
+
+  private static final String TEST_SUBJECT = "subject";
+
   private static final int MAX_SUBSCRIPTIONS = 100;
 
   private CatalogFramework catalogFramework;
@@ -119,14 +123,11 @@ public class WorkspaceServiceImplTest {
       throws UnsupportedQueryException, SourceUnavailableException, FederationException,
           PersistenceException {
 
-    String id = "123";
-    String subject = "subject";
-
-    mockCatalogFrameworkQuery(id, subject);
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
     List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
 
-    assertMetacardList(id, subject, workspaceMetacards);
+    assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
 
   private void assertMetacardList(
@@ -147,15 +148,12 @@ public class WorkspaceServiceImplTest {
       throws UnsupportedQueryException, SourceUnavailableException, FederationException,
           PersistenceException {
 
-    String id = "123";
-    String subject = "subject";
-
-    mockCatalogFrameworkQuery(id, subject);
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
+        workspaceService.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
-    assertMetacardList(id, subject, workspaceMetacards);
+    assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
 
   @SuppressWarnings("unchecked")
@@ -164,13 +162,11 @@ public class WorkspaceServiceImplTest {
       throws UnsupportedQueryException, SourceUnavailableException, FederationException,
           PersistenceException {
 
-    String id = "123";
-
-    mockCatalogFrameworkQuery(id, "subject");
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
+        workspaceService.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
     assertThat(workspaceMetacards, hasSize(0));
   }
@@ -190,7 +186,7 @@ public class WorkspaceServiceImplTest {
       throws UnsupportedQueryException, SourceUnavailableException, FederationException,
           PersistenceException {
 
-    mockCatalogFrameworkQuery("123", "subject");
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
     List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();

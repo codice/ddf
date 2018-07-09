@@ -17,6 +17,8 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
@@ -49,6 +51,7 @@ import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -213,7 +216,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
               .map(Object::toString)
               .collect(Collectors.toSet());
     } catch (PersistenceException e) {
-      LOGGER.warn("Failed to get subscriptions for workspaces: {}", e.getMessage());
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }
     if (ids.isEmpty()) {
@@ -232,6 +234,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
   private QueryRequest createQueryRequest(Filter filter) {
     QueryImpl query = new QueryImpl(filter);
     query.setPageSize(maxSubscriptions);
+    query.setSortBy(new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING));
     return new QueryRequestImpl(query, createProperties());
   }
 
