@@ -16,12 +16,18 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 import static java.util.Collections.singletonList;
 import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.ACTIONS_KEY;
 import static org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler.LIST_ACTION_PREFIX;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -37,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,7 +69,13 @@ public class EmbeddedListMetacardsHandlerTest {
   public void setup() throws MalformedURLException {
     embeddedListMetacardsHandler = new EmbeddedListMetacardsHandler(actionRegistry);
     final Action action = getMockAction();
-    doReturn(singletonList(action)).when(actionRegistry).list(any());
+    doReturn(singletonList(action))
+        .when(actionRegistry)
+        .list(
+            argThat(
+                Matchers.<Map<String, Metacard>>allOf(
+                    hasEntry("workspace", workspaceMetacard),
+                    hasEntry(is("list"), isA(Metacard.class)))));
   }
 
   @Test
@@ -79,11 +92,14 @@ public class EmbeddedListMetacardsHandlerTest {
     final List<Map<String, Object>> metacardMaps = jsonArgumentCaptor.getAllValues();
 
     assertThat(metacardMaps, hasSize(1));
-    assertThat(metacardMaps.get(0).get("other"), is("otherAttributes"));
+
+    final Map<String, Object> transformedMetacardMap = metacardMaps.get(0);
+    assertThat(transformedMetacardMap, hasEntry("other", "otherAttributes"));
+    assertThat(transformedMetacardMap, not(hasKey("actions")));
   }
 
   @Test
-  public void addActionList() {
+  public void addListActions() {
     final Map<String, Object> metacardMap = new HashMap<>();
     metacardMap.put("other", "otherAttributes");
 
@@ -95,24 +111,31 @@ public class EmbeddedListMetacardsHandlerTest {
         embeddedListMetacardsHandler.metacardValueToJsonValue(
             workspaceTransformer, singletonList(""), workspaceMetacard);
 
-    listMetacardsOptional.ifPresent(
-        listMetacards ->
-            ((List<Object>) listMetacards)
-                .stream()
-                .filter(Map.class::isInstance)
-                .map(Map.class::cast)
-                .forEach(listMetacardMap -> verifyActionList(listMetacardMap)));
+    assertTrue(
+        "The handler did not return any list metacard JSON maps.",
+        listMetacardsOptional.isPresent());
+
+    final List<Object> listMetacards = listMetacardsOptional.get();
+    assertThat(listMetacards, hasSize(1));
+
+    final Map listMetacardMap = (Map) listMetacards.get(0);
+    verifyActionList(listMetacardMap);
   }
 
-  private void verifyActionList(Map listMetacardMap) {
-    assertTrue(listMetacardMap.containsKey(ACTIONS_KEY));
+  private void verifyActionList(Map<String, Object> listMetacardMap) {
+    assertThat(listMetacardMap, hasKey(ACTIONS_KEY));
     List<Map<String, Object>> listMetacardActions = (List) listMetacardMap.get(ACTIONS_KEY);
     assertThat(listMetacardActions, hasSize(1));
     final Map<String, Object> actionMap = listMetacardActions.get(0);
-    assertThat(actionMap.get("id"), is(LIST_ACTION_PREFIX + ".test"));
-    assertThat(actionMap.get("title"), is("title"));
-    assertThat(actionMap.get("description"), is("description"));
-    assertThat(actionMap.get("url"), is("http://test.com"));
+    assertThat(actionMap, hasEntry("id", LIST_ACTION_PREFIX + ".test"));
+    assertThat(actionMap, hasEntry("title", "title"));
+    assertThat(actionMap, hasEntry("description", "description"));
+
+    try {
+      assertThat(actionMap, hasEntry("url", new URL("http://test.com")));
+    } catch (MalformedURLException e) {
+      fail(e.getMessage());
+    }
   }
 
   private Action getMockAction() throws MalformedURLException {

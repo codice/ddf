@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -29,7 +30,6 @@ import org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.EmbeddedMetacardsHandler;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer;
-import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   @VisibleForTesting static final String LIST_ACTION_PREFIX = "catalog.data.metacard.list";
@@ -49,8 +49,6 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   public Optional<List> metacardValueToJsonValue(
       WorkspaceTransformer transformer, List metacardXMLStrings, Metacard workspaceMetacard) {
 
-    final List<Map<String, Object>> listActions = getListActions(workspaceMetacard);
-
     final Optional<List> listMetacardsOptional =
         super.metacardValueToJsonValue(transformer, metacardXMLStrings, workspaceMetacard);
 
@@ -60,9 +58,20 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
                 .stream()
                 .filter(Map.class::isInstance)
                 .map(Map.class::cast)
-                .forEach(listMetacardMap -> listMetacardMap.put(ACTIONS_KEY, listActions)));
+                .forEach(
+                    listMetacardMap ->
+                        addListActionsToListMetacard(
+                            listMetacardMap, workspaceMetacard, transformer)));
 
     return listMetacardsOptional;
+  }
+
+  private void addListActionsToListMetacard(
+      Map listMetacardAsMap, Metacard workspaceMetacard, WorkspaceTransformer transformer) {
+    final Metacard listMetacard = new ListMetacardImpl();
+    transformer.transformIntoMetacard(listMetacardAsMap, listMetacard);
+    final List<Map<String, Object>> listActions = getListActions(workspaceMetacard, listMetacard);
+    listMetacardAsMap.put(ACTIONS_KEY, listActions);
   }
 
   /** {@inheritDoc} Remove "actions" key from list metacard map. */
@@ -84,23 +93,24 @@ public class EmbeddedListMetacardsHandler extends EmbeddedMetacardsHandler {
   }
 
   /**
-   * Given a {@link org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl}, get a list
-   * of actions that can be executed on a list.
+   * Given a {@link org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl} and a {@link
+   * org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardImpl}, get a list of actions that can
+   * be executed on a list.
    */
-  private List<Map<String, Object>> getListActions(Metacard workspaceMetacard) {
-    final String host = SystemBaseUrl.EXTERNAL.getBaseUrl();
+  private List<Map<String, Object>> getListActions(
+      Metacard workspaceMetacard, Metacard listMetacard) {
+    final Map<String, Metacard> listContext =
+        ImmutableMap.of("workspace", workspaceMetacard, "list", listMetacard);
 
     return actionRegistry
-        .list(workspaceMetacard)
+        .list(listContext)
         .stream()
         .filter(action -> action.getId().startsWith(LIST_ACTION_PREFIX))
         .map(
             action -> {
-              // Work-around for paths being behind VPCs with non-public DNS values
-              final String url = action.getUrl().toString().replaceFirst(host, "");
               final Map<String, Object> actionMap = new HashMap<>();
               actionMap.put("id", action.getId());
-              actionMap.put("url", url);
+              actionMap.put("url", action.getUrl());
               actionMap.put("title", action.getTitle());
               actionMap.put("description", action.getDescription());
               return actionMap;
