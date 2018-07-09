@@ -130,9 +130,11 @@ import org.w3c.dom.Node;
 @ExamReactorStrategy(PerSuite.class)
 public class TestCatalog extends AbstractIntegrationTest {
 
-  public static final String ADMIN = "admin";
+  private static final String ADMIN = "admin";
 
-  public static final String ADMIN_EMAIL = "admin@localhost.local";
+  private static final String ADMIN_EMAIL = "admin@localhost.local";
+
+  private static final String JSON_RECORD_POC = "admin@local";
 
   private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
 
@@ -318,7 +320,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(hasXPath("/metacard[@id='" + id + "']"))
         .body(
             hasXPath(
-                "/metacard/string[@name='point-of-contact']/value[text()='" + ADMIN_EMAIL + "']"));
+                "/metacard/string[@name='point-of-contact']/value[text()='"
+                    + JSON_RECORD_POC
+                    + "']"));
 
     deleteMetacard(id);
   }
@@ -348,7 +352,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .preemptive()
         .basic(ADMIN, ADMIN)
         .header(HttpHeaders.CONTENT_TYPE, "application/json")
-        .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
+        .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/UpdatedSimpleGeoJsonRecord"))
         .expect()
         .log()
         .all()
