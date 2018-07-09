@@ -15,7 +15,6 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.filter.FilterBuilder;
@@ -23,34 +22,39 @@ import java.util.Collections;
 import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WorkspaceQueryBuilderImplTest {
+
+  @Mock private FilterBuilder filterBuilder;
+
+  @Mock private FilterService filterService;
+
+  @Mock private Filter workspaceTagFilter;
+
+  @Mock private Filter metacardIdFilter;
+
+  @Mock private Or orOfMetacardIdsFilter;
+
+  @Mock private And finalFilter;
 
   @Test
   public void testCreateFilter() {
 
     String id = "1234";
 
-    FilterBuilder filterBuilder = mock(FilterBuilder.class);
-    FilterService filterService = mock(FilterService.class);
-
-    Filter workspaceTagFilter = mock(Filter.class);
-
     when(filterService.buildWorkspaceTagFilter()).thenReturn(workspaceTagFilter);
-
-    Filter metacardIdFilter = mock(Filter.class);
 
     when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
 
-    Or orOfMetacardIdsFilter = mock(Or.class);
-
     when(filterBuilder.anyOf(Collections.singletonList(metacardIdFilter)))
         .thenReturn(orOfMetacardIdsFilter);
-
-    And finalFilter = mock(And.class);
 
     when(filterBuilder.allOf(workspaceTagFilter, orOfMetacardIdsFilter)).thenReturn(finalFilter);
 
