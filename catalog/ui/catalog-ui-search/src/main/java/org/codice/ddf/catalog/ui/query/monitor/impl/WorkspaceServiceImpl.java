@@ -31,10 +31,10 @@ import ddf.catalog.util.impl.ResultIterable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -117,17 +117,17 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   @Override
   public List<WorkspaceMetacardImpl> getWorkspaceMetacards() {
+    return createQueryRequestForSubscribedToWorkspaces()
+        .map(this::queryRequestToWorkspaceMetacards)
+        .orElse(Collections.emptyList());
+  }
 
-    final QueryRequest queryRequest = createQueryRequestForSubscribedToWorkspaces();
-
-    if (queryRequest != null) {
-      try {
-        return createWorkspaceMetacards(query(queryRequest));
-      } catch (CatalogQueryException e) {
-        LOGGER.warn("Error querying for workspaces", e);
-      }
+  private List<WorkspaceMetacardImpl> queryRequestToWorkspaceMetacards(QueryRequest queryRequest) {
+    try {
+      return createWorkspaceMetacards(query(queryRequest));
+    } catch (CatalogQueryException e) {
+      LOGGER.info("Error querying for workspaces", e);
     }
-
     return Collections.emptyList();
   }
 
@@ -146,9 +146,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     List<Result> resultList = results.stream().collect(Collectors.toList());
 
-    long totalHits = hitCount.get();
-
-    totalHits = totalHits != 0 ? totalHits : resultList.size();
+    long totalHits = hitCount.get() != 0 ? hitCount.get() : resultList.size();
 
     return new QueryResponseImpl(queryRequest, resultList, totalHits);
   }
@@ -192,7 +190,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return createWorkspaceMetacards(query(queryRequest));
     } catch (CatalogQueryException e) {
-      LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
+      LOGGER.info("Error querying for workspaces: queryRequest={}", queryRequest, e);
     }
 
     return Collections.emptyList();
@@ -203,26 +201,30 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    *
    * @return query request
    */
-  private QueryRequest createQueryRequestForSubscribedToWorkspaces() {
-    Set<String> ids = new HashSet<>();
+  private Optional<QueryRequest> createQueryRequestForSubscribedToWorkspaces() {
+    return findSubscriptions().map(this::getIdsFromSubscriptions).map(this::getQueryRequestFromIds);
+  }
+
+  private QueryRequest getQueryRequestFromIds(Set<String> ids) {
+    return createQueryRequest(workspaceQueryBuilder.createFilter(ids));
+  }
+
+  private Set<String> getIdsFromSubscriptions(List<Map<String, Object>> subscriptions) {
+    return subscriptions
+        .stream()
+        .map(subscription -> subscription.get(ID_FIELD))
+        .filter(Objects::nonNull)
+        .map(Object::toString)
+        .collect(Collectors.toSet());
+  }
+
+  private Optional<List<Map<String, Object>>> findSubscriptions() {
     try {
-      List<Map<String, Object>> subscriptions =
-          persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE);
-      ids =
-          subscriptions
-              .stream()
-              .map(subscription -> subscription.get(ID_FIELD))
-              .filter(Objects::nonNull)
-              .map(Object::toString)
-              .collect(Collectors.toSet());
+      return Optional.of(persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE));
     } catch (PersistenceException e) {
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }
-    if (ids.isEmpty()) {
-      return null;
-    }
-
-    return createQueryRequest(workspaceQueryBuilder.createFilter(ids));
+    return Optional.empty();
   }
 
   /**
