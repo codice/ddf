@@ -22,6 +22,7 @@ const plugin = require('plugins/router')
 // notfound route needs to come at the end otherwise no other routes will work
 const routeDefinitions = {
     ...plugin(require('!./router/routes-loader!js/router/routes.js')),
+    ...require('!./router/routes-loader!js/router/routes-dev.js'),
     ...require('!./router/routes-loader!js/router/routes-notfound.js')
 }
 

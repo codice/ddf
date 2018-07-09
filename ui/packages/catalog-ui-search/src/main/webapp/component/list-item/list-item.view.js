@@ -20,7 +20,7 @@ var $ = require('jquery');
 var template = require('./list-item.hbs');
 var CustomElements = require('js/CustomElements');
 require('behaviors/button.behavior');
-var DropdownView = require('component/dropdown/popout/dropdown.popout.view');
+require('behaviors/dropdown.behavior');
 var ListEditorView = require('component/list-editor/list-editor.view');
 var QueryFeedView = require('component/query-feed/query-feed.view');
 var ListInteractionsView = require('component/list-interactions/list-interactions.view');
@@ -36,9 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     };
   },
   regions: {
-    listEdit: '.list-edit',
     queryFeed: '.details-feed',
-    listActions: '.list-actions',
     listAdd: '.list-add'
   },
   events: {
@@ -48,8 +46,32 @@ module.exports = Marionette.LayoutView.extend({
     'click .list-delete': 'triggerDelete',
     'click .list-add': 'triggerAdd'
   },
-  behaviors: {
-    button: {}
+  behaviors() {
+    return {
+      button: {},
+      dropdown: {
+        dropdowns: [
+          {
+            selector: '.list-actions',
+            view: ListInteractionsView.extend({
+                behaviors: {
+                  navigation: {}
+                }
+            }),
+            viewOptions: {
+              model: this.options.model
+            }
+          },
+          {
+            selector: '.list-edit',
+            view: ListEditorView,
+            viewOptions: {
+              model: this.options.model
+            }
+          }
+        ]
+      }
+    } 
   },
   initialize: function() {
     if (this.model.get('query').has('result')) {
@@ -69,30 +91,11 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-empty', this.model.isEmpty());
   },
   onRender: function() {
-    this.setupEdit();
     this.setupFeed();
-    this.setupListActions();
-  },
-  setupListActions: function() {
-    this.listActions.show(DropdownView.createSimpleDropdown({
-      componentToShow: ListInteractionsView,
-      dropdownCompanionBehaviors: {
-        navigation: {}
-      },
-      modelForComponent: this.model,
-      leftIcon: 'fa fa-ellipsis-v'
-    }));
   },
   setupFeed: function() {
     this.queryFeed.show(new QueryFeedView({
       model: this.model.get('query')
-    }));
-  },
-  setupEdit: function() {
-    this.listEdit.show(DropdownView.createSimpleDropdown({
-      componentToShow: ListEditorView,
-      modelForComponent: this.model,
-      leftIcon: 'fa fa-pencil'
     }));
   },
   resultAdded: function(model) {

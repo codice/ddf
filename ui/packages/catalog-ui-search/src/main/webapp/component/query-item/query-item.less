@@ -99,6 +99,15 @@
     height: 100%;
     font-size: @minimumFontSize;
   }
+
+  .query-schedule {
+    .fa-bell {
+      display: none;
+    }
+    .fa-bell-slash {
+      display: inline-block;
+    }
+  }
 }
 
 @{customElementNamespace}query-item.is-searching {
@@ -110,14 +119,13 @@
   }
 }
 
-@{customElementNamespace}query-item.hide-actions {
-  .query-actions {
-    display: none;
-  }
-
-  .query-details {
-    width: ~'calc(100% - @{largeSpacing})';
-    margin: 0px 0px 0px @largeSpacing;
-    padding: @minimumSpacing;
+@{customElementNamespace}query-item.is-polling {
+  .query-schedule {
+    .fa-bell {
+      display: inline-block;
+    }
+    .fa-bell-slash {
+      display: none;
+    }
   }
 }

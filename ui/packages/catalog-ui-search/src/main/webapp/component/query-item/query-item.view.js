@@ -16,23 +16,18 @@
 define([
     'marionette',
     'underscore',
-    'jquery',
     './query-item.hbs',
     'js/CustomElements',
-    'js/store',
-    'moment',
-    'component/dropdown/dropdown',
-    'component/dropdown/query-interactions/dropdown.query-interactions.view',
-    'component/dropdown/dropdown.view',
+    'component/query-interactions/query-interactions.view',
     'component/query-feed/query-feed.view',
-    'component/dropdown/query-schedule/dropdown.query-schedule.view',
-    'component/dropdown/query-status/dropdown.query-status.view',
-    'component/dropdown/query-settings/dropdown.query-settings.view',
-    'component/dropdown/query-editor/dropdown.query-editor.view',
-    'behaviors/button.behavior'
-], function (Marionette, _, $, template, CustomElements, store, moment,
-             DropdownModel, DropdownQueryInteractionsView, DropdownView, QueryFeedView,
-            QueryScheduleView, QueryStatusView, QuerySettingsView, QueryEditorView) {
+    'component/query-schedule/query-schedule.view',
+    'component/query-settings/query-settings.view',
+    'component/query-editor/query-editor.view',
+    'behaviors/button.behavior',
+    'behaviors/dropdown.behavior'
+], function (Marionette, _, template, CustomElements,
+             QueryInteractionsView, QueryFeedView,
+            QueryScheduleView, QuerySettingsView, QueryEditorView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,46 +36,67 @@ define([
                 'data-queryid': this.model.id
             };
         },
-        behaviors: {
-            button: {}
+        behaviors() {
+            return {
+                button: {},
+                dropdown: {
+                    dropdowns: [
+                        {
+                            selector: '.query-actions',
+                            view: QueryInteractionsView.extend({
+                                behaviors: {
+                                    navigation: {}
+                                }
+                            }),
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        },
+                        {
+                            selector: '.query-edit',
+                            view: QueryEditorView,
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        },
+                        {
+                            selector: '.query-settings',
+                            view: QuerySettingsView,
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        },
+                        {
+                            selector: '.query-schedule',
+                            view: QueryScheduleView,
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        }
+                    ]
+                }
+            };   
         },
         tagName: CustomElements.register('query-item'),
-        modelEvents: {
-        },
         events: {
             'click .query-run': 'runQuery',
-            'click .query-stop': 'stopQuery',
-            //'click .query-edit': 'editQuery'
-        },
-        ui: {
+            'click .query-stop': 'stopQuery'
         },
         regions: {
             queryFeed: '.details-feed',
             queryActions: '.query-actions',
             queryEditor: '.query-edit',
             querySettings: '.query-settings',
-            queryStatus: '.query-status',
             querySchedule: '.query-schedule'
         },
         initialize: function(options){
-            var query = store.getQueryById(this.model.id);
-            if (query.has('result')) {
+            if (this.model.has('result')) {
                 this.startListeningToStatus();
             } else {
-                this.listenTo(query, 'change:result', this.resultAdded);
+                this.listenTo(this.model, 'change:result', this.resultAdded);
             }
-        },
-        updateQuery: function() {
-            if (!this.isDestroyed){
-                this.render();
-            }
-        },
-        highlight: function(){
-            var queryRef = store.getQuery();
-            this.$el.removeClass('is-selected');
-            if (queryRef !== undefined && queryRef.id === this.model.id){
-                this.$el.addClass('is-selected');
-            }
+            this.listenTo(this.model, 'change:polling', this.handlePolling);
+            this.handlePolling();
         },
         serializeData: function(){
            return this.model.toJSON({
@@ -91,33 +107,10 @@ define([
             this.queryFeed.show(new QueryFeedView({
                 model: this.model
             }));
-            this._queryInteractions = new DropdownModel();
-            this.queryActions.show(new DropdownQueryInteractionsView({
-                model: this._queryInteractions,
-                modelForComponent: this.model,
-                dropdownCompanionBehaviors: {
-                    navigation: {}
-                }
-            }));
-            this.querySchedule.show(new QueryScheduleView({
-                model: new DropdownModel(),
-                modelForComponent: this.model
-            }));
-            this.querySettings.show(new QuerySettingsView({
-                model: new DropdownModel(),
-                modelForComponent: this.model
-            }));
-            this.queryEditor.show(new QueryEditorView({
-                model: new DropdownModel(),
-                modelForComponent: this.model
-            }));
-            // this.queryStatus.show(new QueryStatusView({
-            //     model: new DropdownModel(),
-            //     modelForComponent: this.model
-            // }));
         },
-        hideActions: function(){
-            this.$el.addClass('hide-actions');
+        handlePolling() {
+            const polling = this.model.get('polling');
+            this.$el.toggleClass('is-polling', polling !== undefined && polling !== false);
         },
         handleStatus: function(){
             this.$el.toggleClass('is-searching', this.model.get('result').isSearching());
@@ -138,13 +131,6 @@ define([
         stopQuery: function(e){
             this.model.cancelCurrentSearches();
             e.stopPropagation();
-        },
-        editQuery: function(e){
-            store.setQueryById(this.model.id);
-            e.stopPropagation();
-        },
-        editSchedule: function(e){
-            e.stopPropagation(e);
         }
     });
 });

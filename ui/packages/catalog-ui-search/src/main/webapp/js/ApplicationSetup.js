@@ -11,7 +11,14 @@
  **/
 /*global require, window */
 /*jslint nomen:false, -W064 */
-require('styles/styles.less');
+(function injectStyles() {
+    if (process.env.NODE_ENV !== 'production') {
+        require('dev/styles/styles.less'); // include styles for dev guide components
+    } else {
+        require('styles/styles.less'); // production styles only
+    }
+})();
+
 var $ = require('jquery')
 $.ajaxSetup({
     cache: false,

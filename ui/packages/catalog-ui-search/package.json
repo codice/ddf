@@ -26,10 +26,13 @@
     "@types/backbone.marionette": "3.3.2",
     "@types/openlayers": "4.3.11",
     "ace": "*",
+    "brace": "0.11.1",
     "chai": "4.1.1",
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.1.1",
+    "js-beautify": "1.7.5",
     "loader-utils": "1.1.0",
+    "react-ace": "6.1.3",
     "sinon": "5.0.7"
   },
   "dependencies": {

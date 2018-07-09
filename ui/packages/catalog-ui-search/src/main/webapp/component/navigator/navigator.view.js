@@ -24,6 +24,14 @@ var SaveView = require('component/save/workspaces/workspaces-save.view');
 var UnsavedIndicatorView = require('component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view');
 var sources = require('component/singletons/sources-instance');
 const plugin = require('plugins/navigator');
+const $ = require('jquery');
+
+const visitFragment = (fragment) => wreqr.vent.trigger('router:navigate', {
+    fragment: fragment,
+    options: {
+        trigger: true
+    }
+});
 
 module.exports = plugin(Marionette.LayoutView.extend({
     template: template,
@@ -34,14 +42,7 @@ module.exports = plugin(Marionette.LayoutView.extend({
         extensions: '.navigation-extensions'
     },
     events: {
-        'click .choice-product': 'handleWorkspaces',
-        'click .choice-workspaces': 'handleWorkspaces',
-        'click .choice-previous-workspace': 'handlePreviousWorkspace',
-        'click .choice-previous-metacard': 'handlePreviousMetacard',
-        'click .choice-upload': 'handleUpload',
-        'click .choice-sources': 'handleSources',
-        'click .choice-about': 'handleAbout',
-        'click .navigation-choice': 'closeSlideout'
+        'click .navigation-choice': 'handleChoice'
     },
     initialize: function(){
         this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
@@ -58,54 +59,6 @@ module.exports = plugin(Marionette.LayoutView.extend({
         }
     },
     getExtensions: function(){},
-    handleWorkspaces: function(){
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'workspaces',
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handlePreviousWorkspace: function(){
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'workspaces/'+store.getCurrentWorkspace().id,
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handlePreviousMetacard: function() {
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'metacards/'+metacard.get('currentMetacard').get('metacard').id,
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handleUpload: function() {
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'ingest',
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handleSources: function() {
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'sources',
-            options: {
-                trigger: true
-            }
-        });
-    },
-    handleAbout() {
-        wreqr.vent.trigger('router:navigate', {
-            fragment: 'about',
-            options: {
-                trigger: true
-            }
-        });
-    },
     handleSaved: function(){
         var hasUnsaved = store.get('workspaces').find(function(workspace){
             return !workspace.isSaved();
@@ -117,6 +70,10 @@ module.exports = plugin(Marionette.LayoutView.extend({
             return !source.get('available');
         });
         this.$el.toggleClass('has-unavailable', hasDown);
+    },
+    handleChoice(e) {
+        visitFragment($(e.currentTarget).attr('data-fragment'));
+        this.closeSlideout();
     },
     closeSlideout: function() {
         this.$el.trigger('closeSlideout.' + CustomElements.getNamespace());
