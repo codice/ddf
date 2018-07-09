@@ -42,7 +42,6 @@ import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTr
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
-import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryBuilder;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
