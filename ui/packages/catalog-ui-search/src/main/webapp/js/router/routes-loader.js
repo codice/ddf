@@ -48,8 +48,8 @@ module.exports = function (source, map) {
     }).join(',');
     this.callback(null, [
       `
-      const $ = require('jquery')
-      const onComponentResolution = function(deferred, options, component) {
+      var $ = require('jquery')
+      var onComponentResolution = function(deferred, options, component) {
         this.component = this.component || new component(options);
         deferred.resolve(this.component);
       }
