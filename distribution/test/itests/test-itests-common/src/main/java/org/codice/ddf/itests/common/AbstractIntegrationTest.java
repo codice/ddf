@@ -694,7 +694,7 @@ public abstract class AbstractIntegrationTest {
               getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
           installStartupFile(
               String.format(
-                  "grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
+                  "priority \"grant\"; grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
                   new File("target/solr").getAbsolutePath()),
               "/security/itests-solr.policy"));
     } catch (IOException e) {
