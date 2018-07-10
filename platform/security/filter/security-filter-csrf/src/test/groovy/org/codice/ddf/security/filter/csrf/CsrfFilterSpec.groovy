@@ -15,15 +15,47 @@ package org.codice.ddf.security.filter.csrf
 
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.util.environment.RestoreSystemProperties
 
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+@RestoreSystemProperties
 class CsrfFilterSpec extends Specification {
 
+    static final String DDF_HOST = 'ddf'
+    static final String DDF_HTTP_PORT = '8993'
+    static final String DDF_HTTPS_PORT = '8181'
+    static final String PROXY_HOST = 'proxy'
+    static final String PROXY_HTTP_PORT = '80'
+    static final String PROXY_HTTPS_PORT = '443'
+
+    static final String DDF_HTTP = "http://" + DDF_HOST + ":" + DDF_HTTP_PORT
+    static final String DDF_HTTPS = "https://" + DDF_HOST + ":" + DDF_HTTPS_PORT
+    static final String PROXY_HTTP = "http://" + PROXY_HOST + ":" + PROXY_HTTP_PORT
+    static final String PROXY_HTTP_NOPORT = "http://" + PROXY_HOST
+    static final String PROXY_HTTPS = "https://" + PROXY_HOST + ":" + PROXY_HTTPS_PORT
+    static final String PROXY_HTTPS_NOPORT = "https://" + PROXY_HOST
+    static final String EXTERNAL_SITE = "https://example.com"
+
+    static final String DDF_BADPORT = "https://" + DDF_HOST + ":9999"
+    static final String PROXY_BADPORT = "https://" + PROXY_HOST + ":" + "9999"
+
+
+    def setupSpec() {
+        System.properties['org.codice.ddf.system.hostname'] = DDF_HOST
+        System.properties['org.codice.ddf.system.httpPort'] = DDF_HTTP_PORT
+        System.properties['org.codice.ddf.system.httpsPort'] = DDF_HTTPS_PORT
+
+        System.properties['org.codice.ddf.external.hostname'] = PROXY_HOST
+        System.properties['org.codice.ddf.external.httpPort'] = PROXY_HTTP_PORT
+        System.properties['org.codice.ddf.external.httpsPort'] = PROXY_HTTPS_PORT
+    }
+
     @Unroll
-    def 'test allowed'(String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
+    def 'CSRF Allowed: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader'(
+            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -31,9 +63,7 @@ class CsrfFilterSpec extends Specification {
         FilterChain chain = Mock(FilterChain)
 
         when:
-        String requestUrl = "https://ddf:123" + requestContext
         HttpServletRequest request = Mock(HttpServletRequest)
-        request.getRequestURL() >> new StringBuffer(requestUrl)
         request.getRequestURI() >> requestContext
         request.getHeader(CsrfFilter.ORIGIN_HEADER) >> originHeader
         request.getHeader(CsrfFilter.REFERER_HEADER) >> refererHeader
@@ -52,32 +82,50 @@ class CsrfFilterSpec extends Specification {
         1 * chain.doFilter(_, _)
 
         where:
-        requestContext             | originHeader          | refererHeader         | hasCsrfHeader
-        // Cross origin allowed contexts
-        "/"                        | null                  | null                  | false
-        "/test"                    | null                  | null                  | false
-        "/test"                    | "https://example.com" | null                  | false
-        "/test"                    | null                  | "https://example.com" | false
-        "/test"                    | "https://example.com" | "https://example.com" | false
-        "/test"                    | "https://ddf:123/"    | "https://ddf:123/"    | false
-        "/test"                    | "https://example.com" | "https://example.com" | true
-        "/test"                    | "https://ddf:123/"    | "https://ddf:123/"    | true
-        // Cross origin protected contexts
-        "/admin/jolokia"           | "https://ddf:123/"    | null                  | true
-        "/admin/jolokia"           | null                  | "https://ddf:123/"    | true
-        "/admin/jolokia"           | "https://ddf:123/"    | "https://ddf:123/"    | true
-        "/search/catalog/internal" | "https://ddf:123/"    | null                  | true
-        "/search/catalog/internal" | null                  | "https://ddf:123/"    | true
-        "/search/catalog/internal" | "https://ddf:123/"    | "https://ddf:123/"    | true
-        // Web sockets endpoint requiring same origin but no CSRF header
-        "/search/catalog/ws"       | "https://ddf:123/"    | null                  | true
-        "/search/catalog/ws"       | null                  | "https://ddf:123/"    | true
-        "/search/catalog/ws"       | "https://ddf:123/"    | "https://ddf:123/"    | true
-
+        [requestContext, originHeader, refererHeader, hasCsrfHeader] << [
+                // Non-protected contexts
+                ["/", "/subdirectory"],
+                [null, "", EXTERNAL_SITE, DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [true, false]
+        ].combinations() + [
+                // Websockets - same origin OR same referer, with/without CSRF header
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [true, false]
+        ].combinations() + [
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                [null, ""],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [true, false]
+        ].combinations() + [
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [null, ""],
+                [true, false]
+        ].combinations() + [
+                //  Protected Contexts - same origin OR referer, with CSRF header
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [true]
+        ].combinations() + [
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [null, ""],
+                [true]
+        ].combinations() + [
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [null, ""],
+                [DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
+                [true]
+        ].combinations()
     }
 
     @Unroll
-    def 'test forbidden'(String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
+    def 'CSRF Fobidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader'(
+            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -106,38 +154,30 @@ class CsrfFilterSpec extends Specification {
         0 * chain.doFilter(_, _)
 
         where:
-        requestContext             | originHeader          | refererHeader         | hasCsrfHeader
-        // No CSRF Header - same origin
-        "/admin/jolokia"           | "https://ddf:123/"    | null                  | false
-        "/admin/jolokia"           | null                  | "https://ddf:123/"    | false
-        "/admin/jolokia"           | "https://ddf:123/"    | "https://ddf:123/"    | false
-        "/search/catalog/internal" | "https://ddf:123/"    | null                  | false
-        "/search/catalog/internal" | null                  | "https://ddf:123/"    | false
-        "/search/catalog/internal" | "https://ddf:123/"    | "https://ddf:123/"    | false
-        // CSRF header - different origin
-        "/admin/jolokia"           | "https://example.com" | null                  | true
-        "/admin/jolokia"           | null                  | "https://example.com" | true
-        "/admin/jolokia"           | "https://example.com" | "https://example.com" | true
-        "/search/catalog/internal" | "https://example.com" | null                  | true
-        "/search/catalog/internal" | null                  | "https://example.com" | true
-        "/search/catalog/internal" | "https://example.com" | "https://example.com" | true
-        // completely cross-site
-        "/admin/jolokia"           | null                  | null                  | false
-        "/admin/jolokia"           | "https://example.com" | null                  | false
-        "/admin/jolokia"           | null                  | "https://example.com" | false
-        "/admin/jolokia"           | "https://example.com" | "https://example.com" | false
-        "/search/catalog/internal" | null                  | null                  | false
-        "/search/catalog/internal" | "https://example.com" | null                  | false
-        "/search/catalog/internal" | null                  | "https://example.com" | false
-        "/search/catalog/internal" | "https://example.com" | "https://example.com" | false
-        // Web sockets endpoint requiring same origin but no CSRF header -
-        "/search/catalog/ws"       | "https://example.com" | null                  | true
-        "/search/catalog/ws"       | null                  | "https://example.com" | true
-        "/search/catalog/ws"       | "https://example.com" | "https://example.com" | true
-        // Corrupted origin/referer headers
-        "/admin/jolokia"           | "com?ht.p://*example" | null                  | true
-        "/admin/jolokia"           | null                  | "com?ht.p://*example" | true
-        "/admin/jolokia"           | "com?ht.p://*example" | "com?ht.p://*example" | true
-        "/admin/jolokia"           | "!@#\$%^&*(){}:<>?"   | "!@#\$%^&*(){}:<>?"   | true
+        [requestContext, originHeader, refererHeader, hasCsrfHeader] << [
+                // Protected Contexts - no CSRF Header
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [null, "", EXTERNAL_SITE, DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, DDF_HTTP, DDF_HTTPS, PROXY_HTTP, PROXY_HTTPS, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
+                [false]
+        ].combinations() + [
+                // Protected Contexts - different or no origin/referer, with CSRF header
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [null, "", EXTERNAL_SITE, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, DDF_BADPORT, PROXY_BADPORT],
+                [true]
+        ].combinations() + [
+                // Websockets - different or no origin/referer, with/without CSRF header
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                [null, "", EXTERNAL_SITE, DDF_BADPORT, PROXY_BADPORT],
+                [null, "", EXTERNAL_SITE, DDF_BADPORT, PROXY_BADPORT],
+                [true, false]
+        ].combinations() + [
+                // Corrupted origin/referer headers
+                ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
+                [null, "", "com?ht.p://*example", "!@#\$%^&*(){}:<>?", "undefined", "0", "true", "\r\n", "\\r\\n"],
+                [null, "", "com?ht.p://*example", "!@#\$%^&*(){}:<>?", "undefined", "0", "true", "\r\n", "\\r\\n"],
+                [true, false]
+        ].combinations()
     }
 }
