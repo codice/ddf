@@ -23,6 +23,7 @@ import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResource;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureAuthZRealm;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
@@ -2633,23 +2634,6 @@ public class TestCatalog extends AbstractIntegrationTest {
               String responseString = response.getBody().prettyPrint();
               return responseString.contains("\"b\":\"0.943\"");
             });
-  }
-
-  protected String ingestXmlFromResource(String resourceName) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
-    return ingest(writer.toString(), "text/xml");
-  }
-
-  protected String ingestXmlFromResource(String resourceName, boolean checkResponse)
-      throws IOException {
-    if (checkResponse) {
-      return ingestXmlFromResource(resourceName);
-    } else {
-      StringWriter writer = new StringWriter();
-      IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
-      return ingest(writer.toString(), "text/xml", checkResponse);
-    }
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {

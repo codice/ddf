@@ -105,7 +105,12 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   }
 
   @Before
-  public void setup() {
+  public void setup() throws IOException {
+    // to allow for waiting ingest
+    configureShowInvalidMetacards("true", "true", getAdminConfig());
+    configureFilterInvalidMetacards("false", "false", getAdminConfig());
+    configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
+    configureMetacardValidityFilterPlugin(Arrays.asList(""), getAdminConfig());
     clearCatalogAndWait();
   }
 
@@ -795,7 +800,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         configureEnforcedMetacardValidators(Arrays.asList(""), getAdminConfig());
 
     // Configure the PDP
-    Map<String, Object> pdpProperties = new HashMap<String, Object>();
+    Map<String, Object> pdpProperties = new HashMap<>();
     pdpProperties.putAll(
         getServiceManager()
             .getMetatypeDefaults("security-pdp-authzrealm", "ddf.security.pdp.realm.AuthzRealm"));
