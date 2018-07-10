@@ -75,9 +75,9 @@ module.exports = Marionette.LayoutView.extend({
         if (currentValue === null || currentValue.indexOf('RELATIVE') !== 0) {
             return;
         }
-        const duration = currentValue.substring(9, currentValue.length - 1).match(/(T?\d+)./)[0];
+        const duration = currentValue.substring(9, currentValue.length - 1).match(/(Z?\d+\.*\d*)./)[0];
         let currentUnit = duration.substring(duration.length - 1, duration.length);
-        let currentLast = duration.match(/\d+/);
+        let currentLast = duration.match(/\d+\.*\d*/);
 
         currentUnit = currentUnit.toLowerCase();
         if (duration.indexOf('T') === -1 && currentUnit === 'm') {
