@@ -4,7 +4,7 @@
   display: inline-block;
   width: 31.3334%;
   margin: 1.5%;
-  padding: 15px;
+  padding: 0px;
   height: 2*@minimumLineSize;
   cursor: pointer;
   position: relative;
@@ -30,7 +30,11 @@
 
   .choice-details {
     width: 100%;
-    padding-right: 2*@minimumButtonSize;
+    padding: @mediumSpacing;
+  }
+
+  .choice-date {
+    font-style: italic;
   }
 
   .choice-details,
@@ -53,8 +57,6 @@
   }
 
   .choice-actions {
-    position: absolute;
-    right: 0px;
   }
 
   .choice-save {
@@ -63,6 +65,23 @@
     transition: transform @coreTransitionTime linear;
     transform: scale(1);
     max-width: 100%;
+  }
+
+  .choice-footer {
+    width: 100%;
+    border-bottom: solid 1px fade(contrast(@backgroundContent), 15%);
+
+    .cf.cf-saved {
+      float: left;
+      color: fade(mix(contrast(@backgroundContent), @primary-color), 60%);
+      padding: @minimumSpacing;
+      //display: none;
+      span { font-size: .65rem; padding-left: 5px; }
+    }
+
+    .choice-actions {
+      float: right;
+    }
   }
 }
 
@@ -73,6 +92,10 @@
   height: @minimumButtonSize;
   line-height: @minimumButtonSize;
   white-space: nowrap;
+
+
+  margin: @minimumSpacing 0px;
+  padding: 0px;
 
   .choice-actions,
   .choice-save {
@@ -104,6 +127,12 @@
 }
 
 @{customElementNamespace}workspace-item.is-saved {
+
+  .choice-footer {
+    .cf.cf-saved {
+      display: block;
+    }
+  }
 
   .choice-save {
       opacity: 1;

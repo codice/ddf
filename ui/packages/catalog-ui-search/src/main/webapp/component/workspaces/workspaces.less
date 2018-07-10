@@ -17,15 +17,23 @@
 
   .home-save {
     width: 100%;
+    max-width: 250px;
     opacity: 1;
     transform: scale(1) translateY(-100%);
     opacity: 1;
     position: relative;
+    display: block;
+    margin: 0 auto;
+    font-size: @minimumFontSize;
     top: 0%;
     left: 0%;
     transition: transform @coreTransitionTime ease-out, 
         opacity @coreTransitionTime ease-out,
         left 0s ease-out @coreTransitionTime;
+
+    span {
+      font-size: @minimumFontSize;
+    }
   }
 
 }
@@ -36,7 +44,6 @@
   }
 
   .home-save {
-    transform: scale(2) translateY(-100%);
     left: -200%;
     opacity: 0;
   }
