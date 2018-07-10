@@ -68,21 +68,21 @@
 |Signature Properties
 |signatureProperties
 |String
-|Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|Path to Signature crypto properties. This path can be part of the classpath, relative to ${home_directory}, or an absolute path on the system.
 |etc/ws-security/server/signature.properties
 |true
 
 |Encryption Properties
 |encryptionProperties
 |String
-|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ${home_directory}, or an absolute path on the system.
 |etc/ws-security/server/encryption.properties
 |true
 
 |STS Properties
 |tokenProperties
 |String
-|Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
+|Path to STS crypto properties file. This path can be part of the classpath, relative to ${home_directory}, or an absolute path on the system.
 |etc/ws-security/server/signature.properties
 |true
 
