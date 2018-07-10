@@ -71,7 +71,6 @@
 
     <feature name="persistence-core" version="${project.version}"
              description="Internal Persistence Core Implementation">
-        <feature version="${project.version}">solr</feature>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>

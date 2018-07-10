@@ -337,11 +337,6 @@ grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standa
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
-    permission java.io.FilePermission "<<ALL FILES>>", "execute,read,write";
-}
-
-grant codeBase "file:/catalog-solr-provider" {
-    permission java.io.FilePermission  "<<ALL FILES>>", "read,write";
 }
 
 grant codeBase "file:/catalog-plugin-videothumbnail" {
