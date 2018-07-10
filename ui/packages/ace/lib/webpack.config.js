@@ -45,7 +45,10 @@ const babelLoader = (plugins = []) => ({
 })
 
 const base = ({ alias = {}, env }) => ({
-  entry: [nodeResolve('babel-polyfill')],
+  entry: [
+    nodeResolve('babel-polyfill'),
+    nodeResolve('whatwg-fetch')
+  ],
   output: {
     path: resolve('./target/webapp'),
     filename: 'bundle.[hash].js',
