@@ -439,7 +439,7 @@ Thumbs.db
 |solr.data.dir
 |String
 |Solr Data Directory
-|${ddf.home}/data/solr
+|${home_directory}/data/solr
 |Yes
 
 |Solr Catalog Provider Url
