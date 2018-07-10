@@ -91,8 +91,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String DISTANCE_SORT_FIELD = "_distance_";
 
-  private static final String GEOMETRY_SORT_FIELD =
-      Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
+  private static final String GEOMETRY_FIELD = Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClientImpl.class);
 
@@ -555,7 +554,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       if (Result.RELEVANCE.equals(sortProperty)) {
         query.addSort(RELEVANCE_SORT_FIELD, order);
       } else if (Result.DISTANCE.equals(sortProperty)) {
-        addDistanceSort(query, GEOMETRY_SORT_FIELD, order, solrFilterDelegate);
+        addDistanceSort(query, resolver.getSortKey(GEOMETRY_FIELD), order, solrFilterDelegate);
       } else if (sortProperty.equals(Result.TEMPORAL)) {
         query.addSort(
             resolver.getSortKey(
