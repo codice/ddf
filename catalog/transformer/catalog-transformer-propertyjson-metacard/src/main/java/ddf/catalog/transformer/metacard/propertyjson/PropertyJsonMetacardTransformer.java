@@ -164,16 +164,19 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
     if (descriptor.isMultiValued()) {
       List<Object> values = new ArrayList<>();
       for (Serializable value : attribute.getValues()) {
-        values.add(convertValue(value, descriptor.getType().getAttributeFormat()));
+        values.add(
+            convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat()));
       }
       return values;
     } else {
-      return convertValue(attribute.getValue(), descriptor.getType().getAttributeFormat());
+      return convertValue(
+          attribute.getName(), attribute.getValue(), descriptor.getType().getAttributeFormat());
     }
   }
 
   @Nullable
-  private static Object convertValue(Serializable value, AttributeType.AttributeFormat format)
+  private static Object convertValue(
+      String name, Serializable value, AttributeType.AttributeFormat format)
       throws CatalogTransformerException {
     if (value == null) {
       return null;
@@ -181,6 +184,13 @@ public class PropertyJsonMetacardTransformer implements MetacardTransformer {
 
     switch (format) {
       case DATE:
+        if (!(value instanceof Date)) {
+          LOGGER.debug(
+              "Dropping attribute date value {} for {} because it isn't a Date object.",
+              value,
+              name);
+          return null;
+        }
         // Creating date format instance each time is inefficient, however
         // it is not a threadsafe class so we are not able to put it in a static
         // class variable. If this proves to be a slowdown this class should be refactored
