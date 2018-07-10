@@ -102,6 +102,7 @@ grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorag
 
 grant codeBase "file:/registry-federation-admin-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}registry${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
 grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/fabric8-karaf-checks" {
