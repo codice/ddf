@@ -53,11 +53,4 @@
         <feature>platform-migration</feature>
         <feature>platform-migratable</feature>
     </feature>
-
-    <feature name="security-migratable" version="${project.version}"
-             description="Exports security configurations and system files">
-        <feature>guava</feature>
-        <feature>platform-migratable-api</feature>
-        <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
-    </feature>
 </features>
