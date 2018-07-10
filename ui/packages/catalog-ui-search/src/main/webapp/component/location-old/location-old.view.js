@@ -75,11 +75,12 @@ module.exports = Marionette.LayoutView.extend({
     deserialize: function() {
         if (this.propertyModel) {
             var filter = this.propertyModel.get('value');
+            var filterValue = typeof(filter.value) === 'object' ? filter.value.value : filter.value;
             switch (filter.type) {
                 // these cases are for when the model matches the filter model
                 case 'DWITHIN':
                     if (CQLUtils.isPointRadiusFilter(filter)) {
-                        var pointText = filter.value.value.substring(6);
+                        let pointText = filterValue.substring(6);
                         pointText = pointText.substring(0, pointText.length - 1);
                         var latLon = pointText.split(' ');
                         this.model.set({
@@ -91,7 +92,7 @@ module.exports = Marionette.LayoutView.extend({
                         });
                         wreqr.vent.trigger('search:circledisplay', this.model);
                     } else {
-                        var pointText = filter.value.value.substring(11);
+                        let pointText = filterValue.substring(11);
                         pointText = pointText.substring(0, pointText.length - 1);
                         this.model.set({
                             mode: 'line',
@@ -106,8 +107,6 @@ module.exports = Marionette.LayoutView.extend({
                     }
                     break;
                 case 'INTERSECTS':
-                    var filterValue =
-                        typeof filter.value === 'object' ? filter.value.value : filter.value;
                     if (!filterValue || typeof filterValue !== 'string') {
                         break;
                     }
