@@ -50,7 +50,7 @@ import spark.servlet.SparkApplication;
 
 public class ConfigurationApplication implements SparkApplication {
 
-  public static final String SERVLET_PATH = "/search/catalog/proxy";
+  public static final String SERVLET_PATH = "./proxy";
 
   public static final String URL = "url";
 

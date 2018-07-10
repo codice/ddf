@@ -43,7 +43,7 @@ public final class SystemBaseUrl {
 
   public static final String EXTERNAL_PROTOCOL = "org.codice.ddf.external.protocol";
 
-  public static final String EXTERNAL_ROOT_CONTEXT = "org.codice.ddf.external.rootContext";
+  public static final String EXTERNAL_CONTEXT = "org.codice.ddf.external.context";
 
   /* Defaults */
   public static final String DEFAULT_HTTP_PORT = "8181";
@@ -75,7 +75,7 @@ public final class SystemBaseUrl {
           EXTERNAL_PORT,
           EXTERNAL_HOST,
           EXTERNAL_PROTOCOL,
-          EXTERNAL_ROOT_CONTEXT);
+          EXTERNAL_CONTEXT);
   public static final SystemBaseUrl INTERNAL =
       new SystemBaseUrl(
           INTERNAL_HTTP_PORT,
@@ -190,11 +190,15 @@ public final class SystemBaseUrl {
 
     sb.append(getPort(protocol));
 
+    if (this.equals(EXTERNAL)) {
+      sb.append(getRootContext());
+    }
+
     if (includeRootContext) {
       if (!getRootContext().startsWith("/")) {
         sb.append("/");
       }
-      sb.append(getRootContext());
+      sb.append(INTERNAL.getRootContext());
     }
 
     if (context != null) {

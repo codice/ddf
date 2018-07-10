@@ -184,7 +184,7 @@ NOTE: Does not change the port the system runs on.
 |Yes
 
 |External Root Context
-|org.codice.ddf.external.rootContext
+|org.codice.ddf.external.context
 |String
 |The base or root context that services will be advertised under.
 |/services

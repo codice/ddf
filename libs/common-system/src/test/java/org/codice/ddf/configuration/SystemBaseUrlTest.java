@@ -32,7 +32,7 @@ public class SystemBaseUrlTest {
     System.setProperty("org.codice.ddf.external.hostname", "not_localhost");
     System.setProperty("org.codice.ddf.external.httpsPort", "8994");
     System.setProperty("org.codice.ddf.external.httpPort", "8282");
-    System.setProperty("org.codice.ddf.external.rootContext", "/ddf/services");
+    System.setProperty("org.codice.ddf.external.context", "/ddf/services");
   }
 
   @Test
@@ -156,12 +156,12 @@ public class SystemBaseUrlTest {
         SystemBaseUrl.INTERNAL.constructUrl("/some/path", true),
         equalTo("https://localhost:8993/services/some/path"));
 
-    System.setProperty("org.codice.ddf.external.rootContext", "/ddf/services");
+    System.setProperty("org.codice.ddf.external.context", "/ddf/services");
     assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/ddf/services"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
         equalTo("https://not_localhost:8994/ddf/services/some/path"));
-    System.setProperty("org.codice.ddf.external.rootContext", "ddf/services");
+    System.setProperty("org.codice.ddf.external.context", "ddf/services");
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
         equalTo("https://not_localhost:8994/ddf/services/some/path"));
