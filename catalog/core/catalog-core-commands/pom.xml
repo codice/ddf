@@ -150,7 +150,6 @@
                             ant-launcher,
                             joda-time;scope=runtime|compile,
                             joda-convert;scope=runtime|compile,
-                            gt-cql;scope=runtime|compile,
                             catalog-core-api-impl,
                             catalog-transformer-zip,
                             ddf-security-common,

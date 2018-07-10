@@ -13,12 +13,10 @@
  */
 package ddf.catalog.filter.delegate;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -36,6 +34,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.geometry.GeometryBuilder;
+import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
 import org.geotools.geometry.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.UomOgcMapping;
@@ -90,11 +89,6 @@ public class CopyFilterDelegateTest {
   private static final double DISTANCE_10 = 10.0;
 
   private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
-
-  private static final GeometryBuilder GEO_BUILDER =
-      new GeometryBuilder(DefaultGeographicCRS.WGS84);
-
-  private static final WKTParser WKT_PARSER = new WKTParser(GEO_BUILDER);
 
   @Test
   public void testIncludeFilter() {
@@ -704,9 +698,6 @@ public class CopyFilterDelegateTest {
     assertNotSame(filterIn, filterCopy);
 
     assertFilterContentsEqual(filterIn, filterCopy);
-
-    // Verify filter contents (attributes, operands, etc) are identical
-    assertThat(filterCopy, is(filterIn));
   }
 
   private void assertFilterContentsEqual(Filter filterIn, Filter filterCopy) {
@@ -731,9 +722,13 @@ public class CopyFilterDelegateTest {
   }
 
   private Geometry wktToGeometry(String wkt) {
+    GeometryBuilder geometryBuilder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
+
+    WKTParser wktParser = new WKTParser(geometryBuilder);
+    wktParser.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
     Geometry geometry = null;
     try {
-      geometry = WKT_PARSER.parse(wkt);
+      geometry = wktParser.parse(wkt);
     } catch (ParseException e) {
       fail();
     }

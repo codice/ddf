@@ -76,13 +76,17 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>xercesImpl</artifactId>
                     <groupId>xerces</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
@@ -156,12 +160,12 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>1.11.1</version>
+            <version>0.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.picocontainer</groupId>
             <artifactId>picocontainer</artifactId>
-            <version>1.2</version>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -196,7 +200,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            jaxb2-basics-runtime;version="1.11.1",
+                            jaxb2-basics-runtime;version="0.11.0",
                             spatial-wfs-common,
                             spatial-wfs-v1_1_0-common,
                             spatial-wfs-source,

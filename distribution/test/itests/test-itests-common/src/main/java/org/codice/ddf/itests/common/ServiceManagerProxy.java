@@ -41,7 +41,19 @@ public class ServiceManagerProxy implements InvocationHandler {
         .await()
         .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .until(() -> serviceManager.getServiceReference(SecurityManager.class) != null);
-    Subject subject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    Subject subject = null;
+    int retry = 0;
+    while (subject == null && retry < 10) {
+      try {
+        subject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+      } catch (Exception e) {
+        Thread.sleep(1000);
+        retry++;
+      }
+    }
+    if (subject == null) {
+      throw new RuntimeException("Unable to generate system subject");
+    }
     return subject.execute(() -> method.invoke(serviceManager, args));
   }
 }

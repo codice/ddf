@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
-    <!-- FIXME - Temporary suppression. Remove when DDF-3871 has been completed -->
+
+    <!-- False positive against Tika -->
     <suppress>
-        <notes>Temporarily suppressing until goetools has been upgraded</notes>
+        <notes>These CVEs are against versions less than 1.18 and we're on 1.18. False positives</notes>
+        <cve>CVE-2016-6809</cve>
         <cve>CVE-2018-1335</cve>
     </suppress>
 
@@ -115,24 +117,6 @@
         <cve>CVE-2017-3159</cve>
         <cve>CVE-2017-12633</cve>
         <cve>CVE-2017-12634</cve>
-    </suppress>
-
-    <!-- tika -->
-    <suppress>
-        <notes>
-            This is an issue with the jmatio library included in the tika-parser 1.13. The problem
-            doesn't exist in 1.14/1.15 so this is a false positive.
-            tika-bundle-1.15.0_1.jar: vorbis-java-tika-0.8.jar: CVE-2016-6809
-        </notes>
-        <cve>CVE-2016-6809</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            False positive. The cve is for jcore which is not used by tika-bundle or
-            apache-mime4j-core
-            tika-bundle-1.14.0_1.jar: apache-mime4j-core-0.7.2.jar: CVE-2012-4232
-        </notes>
-        <cve>CVE-2012-4232</cve>
     </suppress>
 
     <suppress>
@@ -433,15 +417,6 @@
             groovy-all-2.4.7.jar
         </notes>
         <cve>CVE-2016-6497</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            The CVE applies to xzgrep, not the xz artifact.
-            tika-bundle-1.14.0_2.jar: xz-1.5.jar
-            xz-1.6.jar
-        </notes>
-        <cve>CVE-2015-4035</cve>
     </suppress>
 
     <suppress>

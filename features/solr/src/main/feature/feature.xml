@@ -22,10 +22,10 @@
 
     <feature name="solr" version="${project.version}"
              description="Standalone Solr Server">
+        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
-        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle>
+        <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
 

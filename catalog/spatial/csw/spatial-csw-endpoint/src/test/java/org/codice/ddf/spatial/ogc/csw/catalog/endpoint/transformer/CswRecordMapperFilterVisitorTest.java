@@ -68,7 +68,6 @@ import org.opengis.filter.spatial.Within;
 import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.BinaryTemporalOperator;
-import org.opengis.filter.temporal.During;
 import org.opengis.filter.temporal.TEquals;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -185,7 +184,7 @@ public class CswRecordMapperFilterVisitorTest {
 
   @Test
   public void testVisitBBox() {
-    BBOX filter = factory.bbox(attrExpr, 0, 0, 10, 20, "EPSG:4269");
+    BBOX filter = factory.bbox(attrExpr, 0, 0, 10, 20, "EPSG:4326");
     String polygon = "POLYGON ((0 0, 0 20, 10 20, 10 0, 0 0))";
 
     Object obj = visitor.visit(filter, null);
@@ -360,8 +359,8 @@ public class CswRecordMapperFilterVisitorTest {
     PropertyIsGreaterThan filter = factory.greater(test, val);
     Object obj = visitor.visit(filter, null);
 
-    assertThat(obj, instanceOf(During.class));
-    During duplicate = (During) obj;
+    assertThat(obj, instanceOf(PropertyIsGreaterThan.class));
+    PropertyIsGreaterThan duplicate = (PropertyIsGreaterThan) obj;
     assertThat(duplicate.getExpression1(), is(test));
     assertThat(duplicate.getExpression2(), is(val));
   }

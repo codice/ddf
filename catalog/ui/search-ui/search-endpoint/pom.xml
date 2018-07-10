@@ -170,7 +170,11 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
@@ -240,7 +244,6 @@
                         <Embed-Dependency>
                             catalog-core-solr,
                             solr-dependencies,
-                            gt-cql,
                             bayeux-api,
                             catalog-core-api-impl,
                             cometd-java-annotations,
@@ -335,6 +338,8 @@
                             org.eclipse.jetty.*;version="[9.2,10)",
                             org.geotools.factory,
                             org.geotools.filter,
+                            org.geotools.filter.text.ecql,
+                            org.geotools.filter.text.cql2,
                             org.geotools.filter.capability,
                             org.geotools.referencing.crs,
                             org.geotools.temporal.object,

@@ -130,7 +130,7 @@
                                 <plugin>
                                     <groupId>org.jvnet.jaxb2_commons</groupId>
                                     <artifactId>jaxb2-basics</artifactId>
-                                    <version>0.9.4</version>
+                                    <version>${jaxb2.version}</version>
                                 </plugin>
                             </plugins>
                         </configuration>

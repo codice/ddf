@@ -281,8 +281,13 @@
             </dependency>
             <dependency>
                 <groupId>com.vividsolutions</groupId>
-                <artifactId>jts</artifactId>
-                <version>1.12</version>
+                <artifactId>jts-core</artifactId>
+                <version>${jts.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts-io</artifactId>
+                <version>${jts.version}</version>
             </dependency>
             <dependency>
                 <groupId>xmlunit</groupId>
@@ -292,7 +297,7 @@
             <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-opengis</artifactId>
-                <version>${org.geotools.version}</version>
+                <version>${opengis.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>

@@ -239,8 +239,8 @@ public class TikaInputTransformerTest {
   @Test
   public void testJavaClass() throws Exception {
     InputStream stream =
-        Thread.currentThread()
-            .getContextClassLoader()
+        TikaInputTransformerTest.class
+            .getClassLoader()
             .getResourceAsStream("CatalogFrameworkImpl.class");
     Metacard metacard = transform(stream);
     assertNotNull(metacard);
@@ -261,7 +261,7 @@ public class TikaInputTransformerTest {
     assertNotNull(metacard);
     assertNotNull(metacard.getMetadata());
     assertThat(metacard.getMetadata(), containsString("16Int"));
-    assertThat(metacard.getContentTypeName(), is("audio/x-wav"));
+    assertThat(metacard.getContentTypeName(), is("audio/vnd.wave"));
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(SOUND));
   }
 

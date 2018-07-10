@@ -73,12 +73,12 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
-            <version>8.4</version>
+            <version>${opengis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-opengis</artifactId>
-            <version>8.4</version>
+            <version>${opengis.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -157,7 +157,6 @@
                             platform-util,
                             commons-codec,
                             commons-collections4,
-                            gt-cql,
                             solr-factory,
                             solr-query,
                             solr-dependencies,
@@ -228,6 +227,8 @@
                             org.xml.sax,
                             org.xml.sax.ext,
                             org.xml.sax.helpers,
+                            org.geotools.filter.text.cql2,
+                            org.geotools.filter.text.ecql,
                             !jline
                         </Import-Package>
                     </instructions>

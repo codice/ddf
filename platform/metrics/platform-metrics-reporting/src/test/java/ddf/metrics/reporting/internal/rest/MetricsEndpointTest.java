@@ -45,8 +45,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import org.apache.poi.hslf.model.Slide;
-import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -468,39 +466,6 @@ public class MetricsEndpointTest extends XMLTestCase {
   }
 
   @Test
-  public void testGetMetricsDataAsPpt() throws Exception {
-    // Create RRD file that Metrics Endpoint will detect
-    int dateOffset = 900; // 15 minutes in seconds
-    createRrdFile(dateOffset);
-
-    UriInfo uriInfo = createUriInfo();
-
-    // Get the metrics data from the endpoint
-    MetricsEndpoint endpoint = getEndpoint();
-    endpoint.setMetricsDir(TEST_DIR);
-
-    Response response =
-        endpoint.getMetricsData(
-            "uptime",
-            "ppt",
-            null,
-            null,
-            Integer.toString(dateOffset),
-            "my label",
-            "my title",
-            uriInfo);
-
-    cleanupRrd();
-
-    InputStream is = (InputStream) response.getEntity();
-    assertThat(is, not(nullValue()));
-
-    SlideShow ppt = new SlideShow(is);
-    Slide[] slides = ppt.getSlides();
-    assertThat(slides.length, equalTo(1));
-  }
-
-  @Test
   public void testGetMetricsDataAsJson() throws Exception {
     // Create RRD file that Metrics Endpoint will detect
     int dateOffset = 900; // 15 minutes in seconds
@@ -579,49 +544,6 @@ public class MetricsEndpointTest extends XMLTestCase {
     assertThat(wb.getNumberOfSheets(), equalTo(1));
     HSSFSheet sheet = wb.getSheetAt(0);
     assertThat(sheet, not(nullValue()));
-  }
-
-  @Test
-  public void testGetMetricsReportAsPpt() throws Exception {
-    // Create RRD file that Metrics Endpoint will detect
-    int dateOffset = 900; // 15 minutes in seconds
-    createRrdFile(dateOffset, "uptime");
-
-    UriInfo uriInfo = createUriInfo();
-
-    // Get the metrics data from the endpoint
-    MetricsEndpoint endpoint = getEndpoint();
-    endpoint.setMetricsDir(TEST_DIR);
-
-    Response response =
-        endpoint.getMetricsReport("ppt", null, null, Integer.toString(dateOffset), null, uriInfo);
-
-    cleanupRrd();
-
-    MultivaluedMap<String, Object> headers = response.getHeaders();
-    assertTrue(
-        headers.getFirst("Content-Disposition").toString().contains("attachment; filename="));
-
-    InputStream is = (InputStream) response.getEntity();
-    assertThat(is, not(nullValue()));
-
-    SlideShow ppt = new SlideShow(is);
-    Slide[] slides = ppt.getSlides();
-    assertThat(slides.length, equalTo(1));
-  }
-
-  @Test
-  public void testSummaryFormat() throws URISyntaxException {
-    boolean pass = false;
-    try {
-      MetricsEndpoint endpoint = getEndpoint();
-      endpoint.setMetricsDir(TEST_DIR);
-
-      endpoint.getMetricsReport("ppt", null, null, "3600", "minute‰", createUriInfo());
-    } catch (MetricsEndpointException e) {
-      pass = true;
-    }
-    assertThat("Format not rejected", pass, is(true));
   }
 
   // NOTE: "expected" annotation does not work when test case extends XMLTestCase,

@@ -107,7 +107,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
   @Test
   public void testCql() throws Exception {
-    final String cql = "modified AFTER 2016-07-21T00:00:00Z";
+    final String cql = "modified AFTER 2016-07-21T00:00:00+00:00";
     seedCommand.cqlFilter = cql;
 
     mockQueryResponse(1, new String[0], new boolean[0]);

@@ -28,12 +28,22 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>0.6.0</version>
+            <version>0.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vividsolutions</groupId>
+                    <artifactId>jts</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jvnet.ogc</groupId>
+                    <artifactId>gml-v_3_1_1-schema</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
@@ -42,7 +52,11 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

@@ -37,13 +37,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
-import org.apache.poi.hslf.model.AutoShape;
-import org.apache.poi.hslf.model.Picture;
-import org.apache.poi.hslf.model.Shape;
-import org.apache.poi.hslf.model.Slide;
-import org.apache.poi.hslf.model.TextBox;
-import org.apache.poi.hslf.usermodel.PictureData;
-import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -452,65 +445,6 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
   }
 
   @Test
-  public void testMetricsPptDataWithCounter() throws Exception {
-    String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-    long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
-
-    MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-    OutputStream os =
-        metricsRetriever.createPptData("queryCount", rrdFilename, START_TIME, endTime);
-    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-    assertThat(is, not(nullValue()));
-
-    SlideShow ppt = new SlideShow(is);
-    Slide[] slides = ppt.getSlides();
-    assertThat(slides.length, equalTo(1));
-    verifySlide(slides[0], true);
-  }
-
-  @Test
-  public void testMetricsPptDataWithGauge() throws Exception {
-    String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-    long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
-
-    MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-    OutputStream os =
-        metricsRetriever.createPptData("queryCount", rrdFilename, START_TIME, endTime);
-    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-    assertThat(is, not(nullValue()));
-
-    SlideShow ppt = new SlideShow(is);
-    Slide[] slides = ppt.getSlides();
-    assertThat(slides.length, equalTo(1));
-    verifySlide(slides[0], false);
-  }
-
-  @Test
-  public void testMetricsPptReport() throws Exception {
-    String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-    new RrdFileBuilder().rrdFileName(rrdFilename).build();
-
-    rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-    long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
-
-    List<String> metricNames = new ArrayList<String>();
-    metricNames.add("queryCount_Counter");
-    metricNames.add("queryCount_Gauge");
-
-    MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-    OutputStream os = metricsRetriever.createPptReport(metricNames, TEST_DIR, START_TIME, endTime);
-    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-    assertThat(is, not(nullValue()));
-
-    SlideShow ppt = new SlideShow(is);
-    Slide[] slides = ppt.getSlides();
-    assertThat(slides.length, equalTo(2));
-
-    verifySlide(slides[0], true);
-    verifySlide(slides[1], false);
-  }
-
-  @Test
   // (expected = MetricsGraphException.class)
   public void testInvalidDataSourceType() throws Exception {
     String rrdFilename = TEST_DIR + "dummy_Absolute" + RRD_FILE_EXTENSION;
@@ -575,40 +509,6 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     } else {
       assertThat(row.getCell(0).getStringCellValue(), not(startsWith("Total Count:")));
     }
-  }
-
-  private void verifySlide(Slide slide, boolean hasTotalCount) {
-    assertThat(slide, not(nullValue()));
-
-    Shape[] shapes = slide.getShapes();
-    assertThat(shapes, not(nullValue()));
-
-    // expected shapes: title text box, metric's graph, metric's total count text box
-    int numExpectedShapes = 2;
-    int numExpectedTextBoxes = 1;
-    if (hasTotalCount) {
-      numExpectedShapes++;
-      numExpectedTextBoxes++;
-    }
-    assertThat(shapes.length, equalTo(numExpectedShapes));
-
-    Picture picture = null;
-    int numTextBoxes = 0;
-
-    for (int i = 0; i < numExpectedShapes; i++) {
-      if (shapes[i] instanceof Picture) {
-        picture = (Picture) shapes[i];
-        // title text box is actually an AutoShape
-      } else if (shapes[i] instanceof TextBox || shapes[i] instanceof AutoShape) {
-        numTextBoxes++;
-      }
-    }
-
-    assertThat(picture, not(nullValue()));
-    PictureData picData = picture.getPictureData();
-    assertThat(picData, not(nullValue()));
-    assertThat(picData.getType(), equalTo(Picture.PNG));
-    assertThat(numTextBoxes, equalTo(numExpectedTextBoxes));
   }
 
   /** ********************************************************************* */

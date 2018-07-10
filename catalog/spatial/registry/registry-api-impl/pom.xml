@@ -114,13 +114,17 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
+            <artifactId>jts-core</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>xercesImpl</artifactId>
                     <groupId>xerces</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -147,6 +151,16 @@
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vividsolutions</groupId>
+                    <artifactId>jts</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jvnet.ogc</groupId>
+                    <artifactId>gml-v_3_1_1-schema</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>
@@ -231,7 +245,6 @@
                             spatial-csw-transformer,
                             catalog-core-api-impl,
                             commons-collections4,
-                            gt-cql,
                             ogc-tools-gml-jts,
                             security-rest-cxfwrapper,
                             ddf-security-common,

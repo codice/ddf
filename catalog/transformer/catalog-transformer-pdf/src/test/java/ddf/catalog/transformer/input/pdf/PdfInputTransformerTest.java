@@ -30,7 +30,6 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Topic;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -65,43 +64,51 @@ public class PdfInputTransformerTest {
 
   @Test
   public void testUsePdfTitleAsTitleFalse() throws IOException, CatalogTransformerException {
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
     pdfInputTransformer.setUsePdfTitleAsTitle(false);
     when(documentInformation.getTitle()).thenReturn("TheTitle");
 
-    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
+    Metacard metacard = pdfInputTransformer.transform(stream);
 
     assertThat(metacard.getTitle(), is(nullValue()));
   }
 
   @Test
   public void testUsePdfTitleAsTitleTrue() throws IOException, CatalogTransformerException {
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
     String title = "TheTitle";
     pdfInputTransformer.setUsePdfTitleAsTitle(true);
     when(documentInformation.getTitle()).thenReturn(title);
 
-    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
+    Metacard metacard = pdfInputTransformer.transform(stream);
 
     assertThat(metacard.getTitle(), is(title));
   }
 
   @Test
   public void testAuthor() throws IOException, CatalogTransformerException {
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
     String author = "TheAuthor";
 
     when(documentInformation.getAuthor()).thenReturn(author);
 
-    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
+    Metacard metacard = pdfInputTransformer.transform(stream);
 
     assertThat(metacard.getAttribute(Contact.CREATOR_NAME).getValue(), is(author));
   }
 
   @Test
   public void testKeywords() throws IOException, CatalogTransformerException {
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
     String keywords = "TheKeywords";
 
     when(documentInformation.getKeywords()).thenReturn(keywords);
 
-    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
+    Metacard metacard = pdfInputTransformer.transform(stream);
 
     assertThat(metacard.getAttribute(Topic.KEYWORD).getValue(), is(keywords));
   }

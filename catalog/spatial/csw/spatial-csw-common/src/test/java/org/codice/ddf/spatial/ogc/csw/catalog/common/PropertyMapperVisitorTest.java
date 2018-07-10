@@ -20,7 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
 import ddf.catalog.filter.impl.PropertyNameImpl;
 import java.util.HashMap;
 import java.util.Map;
-import org.geotools.filter.AttributeExpression;
+import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Test;
 import org.opengis.filter.expression.PropertyName;
@@ -33,8 +33,8 @@ public class PropertyMapperVisitorTest {
     map.put("prop", "newProp");
     PropertyMapperVisitor mapper = new PropertyMapperVisitor(map);
     PropertyName propertyName = new PropertyNameImpl("prop");
-    AttributeExpression exp =
-        (AttributeExpression) mapper.visit(propertyName, new FilterFactoryImpl());
+    AttributeExpressionImpl exp =
+        (AttributeExpressionImpl) mapper.visit(propertyName, new FilterFactoryImpl());
     assertThat(exp.getPropertyName(), equalTo("newProp"));
   }
 
@@ -43,8 +43,8 @@ public class PropertyMapperVisitorTest {
     Map<String, String> map = new HashMap<>();
     PropertyMapperVisitor mapper = new PropertyMapperVisitor(map);
 
-    AttributeExpression exp =
-        (AttributeExpression) mapper.visit((PropertyName) null, new FilterFactoryImpl());
+    AttributeExpressionImpl exp =
+        (AttributeExpressionImpl) mapper.visit((PropertyName) null, new FilterFactoryImpl());
     assertThat(exp, nullValue());
   }
 
@@ -54,8 +54,8 @@ public class PropertyMapperVisitorTest {
     map.put("prop", "newProp");
     PropertyMapperVisitor mapper = new PropertyMapperVisitor(map);
     PropertyName propertyName = new PropertyNameImpl("myprop");
-    AttributeExpression exp =
-        (AttributeExpression) mapper.visit(propertyName, new FilterFactoryImpl());
+    AttributeExpressionImpl exp =
+        (AttributeExpressionImpl) mapper.visit(propertyName, new FilterFactoryImpl());
     assertThat(exp.getPropertyName(), equalTo("myprop"));
   }
 }
