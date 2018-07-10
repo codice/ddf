@@ -25,7 +25,7 @@
 |Root Resource Directories
 |rootResourceDirectories
 |String
-|List of root resource directories. A relative path is relative to ddf.home. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs.
+|List of root resource directories. A relative path is relative to ${home_directory}. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs.
 |data/products
 
 |===
