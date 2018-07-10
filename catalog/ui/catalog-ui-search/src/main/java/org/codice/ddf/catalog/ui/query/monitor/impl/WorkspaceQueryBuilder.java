@@ -30,7 +30,8 @@ public class WorkspaceQueryBuilder {
     this.filterService = filterService;
   }
 
-  Filter createFilter(Set<String> workspaceIds) {
+  @SuppressWarnings("WeakerAccess" /* this method could be package-private, but codacy complains */)
+  public Filter createFilter(Set<String> workspaceIds) {
     return createAndFilter(createWorkspaceTagFilter(), createOrWorkspaceIdsFilter(workspaceIds));
   }
 
