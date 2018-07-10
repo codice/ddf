@@ -142,6 +142,14 @@
         <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>
     </feature>
 
+    <feature name="security-migratable" version="${project.version}"
+             description="Exports security configurations and system files">
+        <feature>guava</feature>
+        <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
+    </feature>
+
     <feature name="security-core" version="${project.version}"
              description="Security Core">
         <feature>security-core-api</feature>
@@ -156,6 +164,7 @@
         <feature>security-sts-realm</feature>
         <feature>util-uuidgenerator</feature>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
+	<feature>security-migratable</feature>
     </feature>
 
     <feature name="security-expansion" version="${project.version}"

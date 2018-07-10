@@ -47,10 +47,10 @@ grant
 
 grant
   codeBase "file:/security-migratable" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}server${/}encryption.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}server${/}signature.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}etc${/}ws-security${/}issuer${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read";
 }
 
 grant codeBase "file:/admin-core-appservice" {
