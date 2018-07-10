@@ -49,17 +49,28 @@ public class SecurityPlugin implements AccessPlugin {
     this.subjectIdentity = subjectIdentity;
   }
 
+  /**
+   * Sets the {@link Metacard#POINT_OF_CONTACT} attribute on a {@link Metacard} if it does not
+   * contain one already and the metacard is a resource metacard. From a legacy perspective, a
+   * metacard with no tags is considered a resource metacard.
+   *
+   * @param input the {@link CreateRequest} containing {@link Metacard}s to process
+   * @return the original {@link CreateRequest}
+   */
   @Override
-  public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
+  public CreateRequest processPreCreate(CreateRequest input) {
     ddf.security.Subject subject = setSubjectOnRequestProperties(input);
 
     if (input.getMetacards() != null && subject != null) {
       input
           .getMetacards()
+          .stream()
+          .filter(metacard -> metacard.getAttribute(Metacard.POINT_OF_CONTACT) == null)
           .forEach(
               metacard -> {
                 String id = subjectIdentity.getUniqueIdentifier(subject);
-                if ((metacard.getTags().isEmpty() || metacard.getTags().contains("resource"))
+                if ((metacard.getTags().isEmpty()
+                        || metacard.getTags().contains(Metacard.DEFAULT_TAG))
                     && StringUtils.isNotBlank(id)) {
                   metacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT, id));
                 }
@@ -120,7 +131,7 @@ public class SecurityPlugin implements AccessPlugin {
               .getProperties()
               .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
           LOGGER.debug(
-              "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
+              "Copied security subject from SecurityUtils to operation property for legacy and multi-thread support.");
           return (ddf.security.Subject) subject;
         } else {
           LOGGER.debug(
