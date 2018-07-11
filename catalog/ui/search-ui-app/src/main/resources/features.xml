@@ -36,7 +36,7 @@
         <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>
     </feature>
 
-    <feature name="search-ui" version="${project.version}" description="Search UI">
+    <feature name="search-ui-deprecated" version="${project.version}" description="Search UI">
         <feature>camel-http</feature>
         <feature>javax-inject</feature>
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
@@ -57,7 +57,6 @@
         <feature>catalog-versioning-plugin</feature>
         <feature>catalog-core-validator</feature>
         <feature>catalog-ui</feature>
-        <feature>search-ui</feature>
         <feature>simple-search-ui</feature>
     </feature>
 
