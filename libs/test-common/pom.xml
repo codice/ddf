@@ -107,7 +107,6 @@
             <artifactId>xmlunit-matchers</artifactId>
             <version>${xmlunit.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
@@ -159,6 +158,11 @@
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -205,7 +209,8 @@
                             org.codice.ddf.test.common.*
                         </Export-Package>
                         <Embed-Dependency>
-                            pax-exam-container-karaf
+                            pax-exam-container-karaf,
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

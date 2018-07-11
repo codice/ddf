@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -40,6 +39,7 @@ import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.ops4j.pax.exam.options.UrlProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -69,7 +69,7 @@ public class FeatureUtilities {
     List<String> featureNames = new ArrayList<>();
 
     try (FileInputStream fi = new FileInputStream(new File(featureFilePath))) {
-      Document featuresFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fi);
+      Document featuresFile = XMLUtils.getInstance().getSecureDocumentBuilder(false).parse(fi);
 
       NodeList features =
           (NodeList)
