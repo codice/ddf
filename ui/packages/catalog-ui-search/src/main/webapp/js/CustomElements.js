@@ -27,6 +27,11 @@ define([
         },
         getNamespace: function() {
             return namespace;
+        },
+        registerReact(name) {
+            name = 'react-' + name;
+            registry[name] = true;
+            return namespace + name;
         }
     };
 });

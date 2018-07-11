@@ -13,7 +13,10 @@
     "postbuild": "ace gen-feature && yarn run build-fonts",
     "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && yarn run build-sass",
     "build-sass": "node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/",
-    "disable-idp": "ace disable-idp"
+    "disable-idp": "ace disable-idp",
+    "install:zip": "yarn build:zip && yarn install:m2",
+    "build:zip": "mvn org.apache.maven.plugins:maven-assembly-plugin:single@create-archive",
+    "install:m2": "mvn org.apache.maven.plugins:maven-install-plugin:install-file -Dfile=target/packages-packages.zip -DpomFile=pom.xml -Dclassifier=packages -Dpackaging=zip"
   },
   "devDependencies": {
     "ace": "*",
