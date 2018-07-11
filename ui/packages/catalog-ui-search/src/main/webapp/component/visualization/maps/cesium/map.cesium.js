@@ -40,6 +40,27 @@ var pixelOffset = new Cesium.Cartesian2(0.0, 0);
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
 var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
 
+function setupTerrainProvider(viewer, { type, ...terrainConfig } = {}) {
+    const TerrainProvider = imageryProviderTypes[type];
+    if (TerrainProvider === undefined) {
+        console.warn(`
+            Unknown terrain provider type: ${type}.
+            Default Cesium terrain provider will be used.
+        `);
+        return;
+    }
+    const defaultCesiumTerrainProvider = viewer.scene.terrainProvider;
+    const customTerrainProvider = new TerrainProvider(terrainConfig);
+    customTerrainProvider.errorEvent.addEventListener((e) => {
+        console.warn(`
+            Issue using terrain provider: ${JSON.stringify({type, ...terrainConfig})}
+            Falling back to default Cesium terrain provider.
+        `);
+        viewer.scene.terrainProvider = defaultCesiumTerrainProvider;
+    });
+    viewer.scene.terrainProvider = customTerrainProvider;
+}
+
 function createMap(insertionElement) {
     var layerPrefs = user.get('user>preferences>mapLayers');
     User.updateMapLayers(layerPrefs);
@@ -83,11 +104,7 @@ function createMap(insertionElement) {
         }
     }, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
 
-    if (properties.terrainProvider && properties.terrainProvider.type) {
-        var type = imageryProviderTypes[properties.terrainProvider.type];
-        var initObj = _.omit(properties.terrainProvider, 'type');
-        viewer.scene.terrainProvider = new type(initObj);
-    }
+    setupTerrainProvider(viewer, properties.terrainProvider);
 
     return viewer;
 }
