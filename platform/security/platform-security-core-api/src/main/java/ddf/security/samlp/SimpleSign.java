@@ -13,6 +13,7 @@
  */
 package ddf.security.samlp;
 
+import static com.sun.org.apache.xml.internal.security.signature.XMLSignature.ALGO_ID_SIGNATURE_DSA_SHA256;
 import static org.apache.commons.lang.CharEncoding.UTF_8;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -34,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.wss4j.common.WSS4JConstants;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -47,6 +50,7 @@ import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.apache.xml.security.algorithms.JCEMapper;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -67,6 +71,16 @@ import org.w3c.dom.Element;
 public class SimpleSign {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSign.class);
+
+  static {
+    OpenSAMLUtil.initSamlEngine();
+  }
+
+  private static final String RSA_ALGO_URI = WSS4JConstants.RSA;
+  private static final String RSA_ALGO_JCE = JCEMapper.translateURItoJCEID(WSS4JConstants.RSA);
+  private static final String DSA_ALGO_URI = ALGO_ID_SIGNATURE_DSA_SHA256;
+  private static final String DSA_ALGO_JCE =
+      JCEMapper.translateURItoJCEID(ALGO_ID_SIGNATURE_DSA_SHA256);
 
   private final SystemCrypto crypto;
 
@@ -94,7 +108,7 @@ public class SimpleSign {
 
   public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
-    String sigAlgo = getSignatureAlgorithm(certificates[0]);
+    String sigAlgo = getSignatureAlgorithmURI(certificates[0]);
     signSamlObject(
         samlObject,
         sigAlgo,
@@ -132,9 +146,9 @@ public class SimpleSign {
 
   public void signUriString(String queryParams, UriBuilder uriBuilder) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
-    String sigAlgo = getSignatureAlgorithm(certificates[0]);
+    String sigAlgo = getSignatureAlgorithmURI(certificates[0]);
     PrivateKey privateKey = getSignaturePrivateKey();
-    java.security.Signature signature = getSignature(certificates[0], privateKey);
+    java.security.Signature signature = initSign(certificates[0], privateKey);
 
     String requestToSign;
     try {
@@ -167,19 +181,9 @@ public class SimpleSign {
     }
   }
 
-  private java.security.Signature getSignature(X509Certificate certificate, PrivateKey privateKey)
+  private java.security.Signature initSign(X509Certificate certificate, PrivateKey privateKey)
       throws SignatureException {
-    String jceSigAlgo = "SHA1withRSA";
-    if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-      jceSigAlgo = "SHA1withDSA";
-    }
-
-    java.security.Signature signature;
-    try {
-      signature = java.security.Signature.getInstance(jceSigAlgo);
-    } catch (NoSuchAlgorithmException e) {
-      throw new SignatureException(e);
-    }
+    java.security.Signature signature = getSignature(certificate);
     try {
       signature.initSign(privateKey);
     } catch (InvalidKeyException e) {
@@ -188,17 +192,29 @@ public class SimpleSign {
     return signature;
   }
 
-  private String getSignatureAlgorithm(X509Certificate certificate) {
-    String sigAlgo = SSOConstants.RSA_SHA1;
-    String pubKeyAlgo = certificate.getPublicKey().getAlgorithm();
-
-    if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-      sigAlgo = SSOConstants.DSA_SHA1;
+  private java.security.Signature getSignature(X509Certificate certificate)
+      throws SignatureException {
+    java.security.Signature signature;
+    try {
+      if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
+        signature = java.security.Signature.getInstance(DSA_ALGO_JCE, "BC");
+      } else {
+        signature = java.security.Signature.getInstance(RSA_ALGO_JCE);
+      }
+    } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+      throw new SignatureException(e);
     }
+    return signature;
+  }
 
-    LOGGER.debug("Using Signature algorithm {}", sigAlgo);
+  private String getSignatureAlgorithmURI(X509Certificate certificate) {
+    String sigAlgoUri =
+        ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm()))
+            ? DSA_ALGO_URI
+            : RSA_ALGO_URI;
 
-    return sigAlgo;
+    LOGGER.debug("Using Signature algorithm {}", sigAlgoUri);
+    return sigAlgoUri;
   }
 
   private X509Certificate[] getSignatureCertificates() throws SignatureException {
@@ -234,7 +250,10 @@ public class SimpleSign {
   }
 
   public boolean validateSignature(
-      String queryParamsToValidate, String encodedSignature, @Nullable String encodedPublicKey)
+      String sigAlg,
+      String queryParamsToValidate,
+      String encodedSignature,
+      @Nullable String encodedPublicKey)
       throws SignatureException {
     if (encodedPublicKey == null) {
       LOGGER.warn(
@@ -248,19 +267,26 @@ public class SimpleSign {
           certificateFactory.generateCertificate(
               new ByteArrayInputStream(Base64.getMimeDecoder().decode(encodedPublicKey)));
 
-      String jceSigAlgo = "SHA1withRSA";
-      if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-        jceSigAlgo = "SHA1withDSA";
+      java.security.Signature sig;
+      String jceSigAlg = JCEMapper.translateURItoJCEID(sigAlg);
+
+      if (jceSigAlg == null) {
+        throw new SignatureException(
+            new NoSuchAlgorithmException(
+                String.format("The Signature Algorithm %s is not supported.", sigAlg)));
       }
 
-      java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
+      try {
+        sig = java.security.Signature.getInstance(jceSigAlg);
+      } catch (NoSuchAlgorithmException e) {
+        throw new SignatureException(e);
+      }
+
       sig.initVerify(certificate.getPublicKey());
-      sig.update(queryParamsToValidate.getBytes(UTF_8));
+      sig.update(queryParamsToValidate.getBytes(StandardCharsets.UTF_8));
       return sig.verify(Base64.getMimeDecoder().decode(encodedSignature));
-    } catch (NoSuchAlgorithmException
-        | InvalidKeyException
+    } catch (InvalidKeyException
         | CertificateException
-        | UnsupportedEncodingException
         | java.security.SignatureException
         | IllegalArgumentException e) {
       throw new SignatureException(e);
@@ -269,6 +295,7 @@ public class SimpleSign {
 
   public void validateSignature(Signature signature, Document doc) throws SignatureException {
     RequestData requestData = new RequestData();
+    requestData.setWsDocInfo(new WSDocInfo(doc));
     requestData.setSigVerCrypto(crypto.getSignatureCrypto());
     WSSConfig wssConfig = WSSConfig.getNewInstance();
     requestData.setWssConfig(wssConfig);
@@ -281,7 +308,7 @@ public class SimpleSign {
         samlKeyInfo =
             SAMLUtil.getCredentialFromKeyInfo(
                 keyInfo.getDOM(),
-                new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(doc)),
+                new WSSSAMLKeyInfoProcessor(requestData),
                 crypto.getSignatureCrypto());
       } catch (WSSecurityException e) {
         throw new SignatureException("Unable to get KeyInfo.", e);
@@ -385,6 +412,7 @@ public class SimpleSign {
   }
 
   public static class SignatureException extends Exception {
+
     public SignatureException() {}
 
     public SignatureException(Throwable cause) {

@@ -68,7 +68,6 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
-            <version>1.3.9_1</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>

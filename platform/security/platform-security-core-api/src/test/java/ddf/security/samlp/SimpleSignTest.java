@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.util.Base64;
 import java.util.zip.Deflater;
@@ -39,6 +40,7 @@ import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.crypto.PasswordEncryptor;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
@@ -77,6 +79,7 @@ public class SimpleSignTest {
   @BeforeClass
   public static void init() {
     OpenSAMLUtil.initSamlEngine();
+    Security.addProvider(new BouncyCastleProvider());
   }
 
   @Before
@@ -210,7 +213,8 @@ public class SimpleSignTest {
             URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
             SIG_ALG,
             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-    boolean valid = simpleSign.validateSignature(signedMessage, signatureString, dsaCert);
+    boolean valid =
+        simpleSign.validateSignature(signatureAlgorithm, signedMessage, signatureString, dsaCert);
     assertTrue("Signature was expected to be valid", valid);
   }
 
@@ -246,7 +250,7 @@ public class SimpleSignTest {
             URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
             SIG_ALG,
             URLEncoder.encode(signatureAlgorithm, "UTF-8"));
-    simpleSign.validateSignature(signedMessage, signatureString, dsaCert);
+    simpleSign.validateSignature(signatureAlgorithm, signedMessage, signatureString, dsaCert);
   }
 
   /**

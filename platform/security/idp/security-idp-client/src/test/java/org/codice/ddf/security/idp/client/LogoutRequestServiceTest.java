@@ -374,7 +374,7 @@ public class LogoutRequestServiceTest {
   @Test
   public void testGetLogoutRequest() throws Exception {
     String deflatedSamlRequest = RestSecurity.deflateAndBase64Encode(UNENCODED_SAML_REQUEST);
-    doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), any());
+    doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
     initializeLogutRequestService();
     insertLogoutRequest();
     when(logoutMessage.signSamlGetResponse(any(LogoutRequest.class), any(URI.class), anyString()))
@@ -452,7 +452,9 @@ public class LogoutRequestServiceTest {
     when(logoutMessage.extractSamlLogoutResponse(eq(UNENCODED_SAML_RESPONSE)))
         .thenReturn(logoutResponse);
 
-    doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString());
+    doReturn(true)
+        .when(simpleSign)
+        .validateSignature(anyString(), anyString(), anyString(), anyString());
     Response response =
         logoutRequestService.getLogoutRequest(
             null, deflatedSamlResponse, relayState, SIGNATURE_ALGORITHM, SIGNATURE);
@@ -481,7 +483,7 @@ public class LogoutRequestServiceTest {
   @Test
   public void testGetLogoutRequestNoSessionIndex() throws Exception {
     String deflatedSamlRequest = RestSecurity.deflateAndBase64Encode(UNENCODED_SAML_REQUEST);
-    doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), any());
+    doReturn(true).when(simpleSign).validateSignature(anyString(), anyString(), anyString(), any());
     initializeLogutRequestService();
     LogoutRequest logoutRequest = mock(LogoutRequest.class);
 
