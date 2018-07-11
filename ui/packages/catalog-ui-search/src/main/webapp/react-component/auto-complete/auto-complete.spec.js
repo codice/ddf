@@ -37,7 +37,7 @@ describe('<AutoComplete />', () => {
 
     it('should fetch suggestions on user input', (done) => {
         const fetch = async (url) => {
-            expect(url).to.equal('/suggestions?q=test');
+            expect(url).to.equal('./suggestions?q=test');
             expect(wrapper.state('loading')).to.equal(true);
             return {
                 async json() {
@@ -46,7 +46,7 @@ describe('<AutoComplete />', () => {
                 }
             };
         };
-        const wrapper = shallow(<AutoComplete url="/suggestions" fetch={fetch} debounce={0} />);
+        const wrapper = shallow(<AutoComplete url="./suggestions" fetch={fetch} debounce={0} />);
         expect(wrapper.state('loading')).to.equal(false);
         wrapper.find(TextField).prop('onChange')('test');
     });
@@ -61,7 +61,7 @@ describe('<AutoComplete />', () => {
         const fetch = async (url) => {
             throw new Error('unavailable');
         };
-        const wrapper = shallow(<AutoComplete url="/suggestions" fetch={fetch} debounce={0} onError={onError} />);
+        const wrapper = shallow(<AutoComplete url="./suggestions" fetch={fetch} debounce={0} onError={onError} />);
         wrapper.find(TextField).prop('onChange')('test');
     });
 });

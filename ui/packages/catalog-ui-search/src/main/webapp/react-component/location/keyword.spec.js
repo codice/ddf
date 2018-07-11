@@ -16,7 +16,7 @@ describe('<Keyword />', () => {
     it('should fetch features on select', (done) => {
         const coordinates = [1, 2, 3];
         const fetch = async (url) => {
-            expect(url).to.equal('/search/catalog/internal/geofeature?id=0');
+            expect(url).to.equal('./internal/geofeature?id=0');
             return {
                 async json() {
                     return {

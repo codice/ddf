@@ -84,7 +84,7 @@ const WMT = async (opts) => {
 const AGM = (opts) => {
     // We strip the template part of the url because we will manually format
     // it in the `tileUrlFunction` function.
-   const url = opts.url.replace('/tile/{z}/{y}/{x}', '');
+   const url = opts.url.replace('tile/{z}/{y}/{x}', '');
 
    // arcgis url format:
    //      http://<mapservice-url>/tile/<level>/<row>/<column>
@@ -94,7 +94,7 @@ const AGM = (opts) => {
    //  - https://developers.arcgis.com/rest/services-reference/map-tile.htm
    const tileUrlFunction = (tileCoord) => {
         const [z, x, y] = tileCoord;
-        return `${url}/tile/${z - 1}/${-y - 1}/${x}`;
+        return `${url}tile/${z - 1}/${-y - 1}/${x}`;
     }
 
     return createTile({ ...opts, tileUrlFunction }, ol.source.XYZ);
