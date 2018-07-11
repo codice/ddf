@@ -191,11 +191,14 @@ public final class SystemBaseUrl {
     sb.append(getPort(protocol));
 
     if (this.equals(EXTERNAL)) {
+      if (!EXTERNAL.getRootContext().startsWith("/")) {
+        sb.append("/");
+      }
       sb.append(getRootContext());
     }
 
     if (includeRootContext) {
-      if (!getRootContext().startsWith("/")) {
+      if (!INTERNAL.getRootContext().startsWith("/")) {
         sb.append("/");
       }
       sb.append(INTERNAL.getRootContext());

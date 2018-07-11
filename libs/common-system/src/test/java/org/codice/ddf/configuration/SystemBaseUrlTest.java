@@ -32,7 +32,7 @@ public class SystemBaseUrlTest {
     System.setProperty("org.codice.ddf.external.hostname", "not_localhost");
     System.setProperty("org.codice.ddf.external.httpsPort", "8994");
     System.setProperty("org.codice.ddf.external.httpPort", "8282");
-    System.setProperty("org.codice.ddf.external.context", "/ddf/services");
+    System.setProperty("org.codice.ddf.external.context", "/ddf");
   }
 
   @Test
@@ -46,7 +46,7 @@ public class SystemBaseUrlTest {
     assertThat(SystemBaseUrl.EXTERNAL.getHost(), equalTo("not_localhost"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpPort(), equalTo("8282"));
     assertThat(SystemBaseUrl.EXTERNAL.getHttpsPort(), equalTo("8994"));
-    assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/ddf/services"));
+    assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/ddf"));
   }
 
   @Test
@@ -95,9 +95,10 @@ public class SystemBaseUrlTest {
     assertThat(SystemBaseUrl.INTERNAL.getBaseUrl("http://"), equalTo("http://localhost:8181"));
     assertThat(SystemBaseUrl.INTERNAL.getBaseUrl("http"), equalTo("http://localhost:8181"));
 
-    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl(), equalTo("https://not_localhost:8994"));
-    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl("http://"), equalTo("http://not_localhost:8282"));
-    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl("http"), equalTo("http://not_localhost:8282"));
+    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl(), equalTo("https://not_localhost:8994/ddf"));
+    assertThat(
+        SystemBaseUrl.EXTERNAL.getBaseUrl("http://"), equalTo("http://not_localhost:8282/ddf"));
+    assertThat(SystemBaseUrl.EXTERNAL.getBaseUrl("http"), equalTo("http://not_localhost:8282/ddf"));
   }
 
   @Test
@@ -122,23 +123,24 @@ public class SystemBaseUrlTest {
 
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("/some/path"),
-        equalTo("https://not_localhost:8994/some/path"));
+        equalTo("https://not_localhost:8994/ddf/some/path"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl(null, "/some/path"),
-        equalTo("https://not_localhost:8994/some/path"));
+        equalTo("https://not_localhost:8994/ddf/some/path"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl(null, "some/path"),
-        equalTo("https://not_localhost:8994/some/path"));
+        equalTo("https://not_localhost:8994/ddf/some/path"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("https", "/some/path"),
-        equalTo("https://not_localhost:8994/some/path"));
+        equalTo("https://not_localhost:8994/ddf/some/path"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("http", "/some/path"),
-        equalTo("http://not_localhost:8282/some/path"));
+        equalTo("http://not_localhost:8282/ddf/some/path"));
     assertThat(
-        SystemBaseUrl.EXTERNAL.constructUrl(null, null), equalTo("https://not_localhost:8994"));
+        SystemBaseUrl.EXTERNAL.constructUrl(null, null), equalTo("https://not_localhost:8994/ddf"));
     assertThat(
-        SystemBaseUrl.EXTERNAL.constructUrl("http", null), equalTo("http://not_localhost:8282"));
+        SystemBaseUrl.EXTERNAL.constructUrl("http", null),
+        equalTo("http://not_localhost:8282/ddf"));
   }
 
   @Test
@@ -156,12 +158,12 @@ public class SystemBaseUrlTest {
         SystemBaseUrl.INTERNAL.constructUrl("/some/path", true),
         equalTo("https://localhost:8993/services/some/path"));
 
-    System.setProperty("org.codice.ddf.external.context", "/ddf/services");
-    assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/ddf/services"));
+    System.setProperty("org.codice.ddf.external.context", "/ddf");
+    assertThat(SystemBaseUrl.EXTERNAL.getRootContext(), equalTo("/ddf"));
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
         equalTo("https://not_localhost:8994/ddf/services/some/path"));
-    System.setProperty("org.codice.ddf.external.context", "ddf/services");
+    System.setProperty("org.codice.ddf.external.context", "ddf");
     assertThat(
         SystemBaseUrl.EXTERNAL.constructUrl("/some/path", true),
         equalTo("https://not_localhost:8994/ddf/services/some/path"));
