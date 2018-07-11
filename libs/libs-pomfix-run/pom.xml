@@ -28,6 +28,7 @@
             <groupId>ddf.lib</groupId>
             <artifactId>pom-fix</artifactId>
             <version>${project.version}</version>
+            <type>js</type>
             <classifier>js</classifier>
         </dependency>
     </dependencies>
@@ -49,6 +50,7 @@
                                     <groupId>ddf.lib</groupId>
                                     <artifactId>pom-fix</artifactId>
                                     <version>${project.version}</version>
+                                    <type>js</type>
                                     <classifier>js</classifier>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>

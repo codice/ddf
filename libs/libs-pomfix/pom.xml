@@ -94,6 +94,7 @@
                             <artifacts>
                                 <artifact>
                                     <file>target/pom-fix.js</file>
+                                    <type>js</type>
                                     <classifier>js</classifier>
                                 </artifact>
                             </artifacts>
