@@ -106,11 +106,10 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
    */
   public static void bootstrap(
       CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
-    Function<Map<String, Result>, Set<String>> transform = SearchFormsLoader::titlesTransform;
     Set<String> queryTitles =
-        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)));
+        executeAsSystem(() -> titlesTransform(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)));
     Set<String> resultTitles =
-        executeAsSystem(() -> transform.apply(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)));
+        executeAsSystem(() -> titlesTransform(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)));
 
     List<Metacard> dedupedTemplateMetacards =
         Stream.concat(

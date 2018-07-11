@@ -292,31 +292,28 @@ public class SearchFormsApplication implements SparkApplication {
       return ImmutableMap.of(RESP_MSG, "Could not create, no valid template specified");
     }
 
-    // Going to check to see if the metacard exists or not
-    Metacard oldMetacard = null;
-    String id = metacard.getId();
-    oldMetacard = getMetacardIfExistsOrNull(id);
-    if (oldMetacard != null) {
-      for (AttributeDescriptor descriptor :
-          oldMetacard.getMetacardType().getAttributeDescriptors()) {
-        Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
-        if (metacardAttribute == null || metacardAttribute.getValue() == null) {
-          continue;
-        }
-        oldMetacard.setAttribute(metacardAttribute);
-      }
-    }
-
     // The UI should not send an ID during a PUT unless the metacard already exists
-    if (id != null && oldMetacard != null) {
-      catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
-      return ImmutableMap.of(RESP_MSG, "Successfully updated");
+    String id = metacard.getId();
+    if (id != null) {
+      Metacard oldMetacard = getMetacardIfExistsOrNull(id);
+      if (oldMetacard != null) {
+        for (AttributeDescriptor descriptor :
+            oldMetacard.getMetacardType().getAttributeDescriptors()) {
+          Attribute metacardAttribute = metacard.getAttribute(descriptor.getName());
+          if (metacardAttribute == null || metacardAttribute.getValue() == null) {
+            continue;
+          }
+          oldMetacard.setAttribute(metacardAttribute);
+        }
+        catalogFramework.update(new UpdateRequestImpl(id, oldMetacard));
+        return ImmutableMap.of(RESP_MSG, "Successfully updated");
+      }
     }
     catalogFramework.create(new CreateRequestImpl(metacard));
     return ImmutableMap.of(RESP_MSG, "Successfully created");
   }
 
-  public Metacard getMetacardIfExistsOrNull(String id)
+  private Metacard getMetacardIfExistsOrNull(String id)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo().text(id);
     Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("*");
