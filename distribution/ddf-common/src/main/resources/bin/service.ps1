@@ -1,3 +1,5 @@
+# Use PowerShell to start a process to prevent a terminal window from opening and staying open
+# for the life of the process
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $newproc = New-Object System.Diagnostics.Process
 $length = $args.Length-1
