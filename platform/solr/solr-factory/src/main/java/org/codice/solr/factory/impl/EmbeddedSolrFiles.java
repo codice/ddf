@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
  *     <p><i>Note:</i> The corresponding {@link SolrConfig} and {@link IndexSchema} will be
  *     constructed the first time they are retrieved.
  */
+@Deprecated
 class EmbeddedSolrFiles {
   private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedSolrFiles.class);
 
