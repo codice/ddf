@@ -935,12 +935,6 @@ public abstract class AbstractIntegrationTest {
               throw new RuntimeException(UNABLE_TO_DETERMINE_EXAM_DIR_ERROR, e);
             }
           };
-      System.err.println("HomeAwareVmOption");
-      System.err.println(UNPACK_DIRECTORY.toString());
-      System.err.println(super.getOption());
-      System.err.println("------------------------------------*************---------------------");
-      File f = new File("target/");
-      System.err.println(f.getAbsolutePath());
 
       try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
         return dirContents
@@ -949,7 +943,7 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toString)
             .map(
                 s -> {
-                  System.err.println(s);
+                  LOGGER.error(s);
                   return s;
                 })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
@@ -996,7 +990,7 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toString)
             .map(
                 s -> {
-                  System.err.println(s);
+                  LOGGER.error(s);
                   return s;
                 })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
@@ -1046,7 +1040,7 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toString)
             .map(
                 s -> {
-                  System.err.println(s);
+                  LOGGER.error(s);
                   return s;
                 })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))

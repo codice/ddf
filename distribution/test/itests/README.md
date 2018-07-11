@@ -17,9 +17,9 @@ In short:
 * Use local debugging to debug the code that sets up and configures the testing environment
 
 ## Solr
-Solr runs in its own OS process separate PAX-EXAM and the application. Things to know include:
+Solr runs in its own OS process separate from PAX-EXAM and the application. Things to know include:
 
-* The default port for Solr is hardcoded to `9994`. 
+* The default port for Solr is hardcoded to `9994`. This value can be changed if needed in the test-itest-ddf pom under the solr.port property.
 * The Solr administration UI is available at `http://localhost:9994/solr`
 * The Maven exec-maven-plugin executes the Solr start command before the itests begin. The plugin also executes the Solr stop command when the itests have terminated.
 * The files for the Solr instance are located inside of the `test-itest-ddf/target/solr` folder and **not** in the exam folder. There is not a per exam-folder copy of Solr. Therefore it is not

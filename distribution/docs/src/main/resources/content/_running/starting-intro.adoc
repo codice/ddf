@@ -240,11 +240,8 @@ Solr includes a service installation script (bin/install_solr_service.sh) to hel
 
 . Extract the Installation Script
 +
-Download the latest Solr distribution archive and then extract the installation script into the current directory:
+Extract the Solr distribution installation script (install_solr_service.sh) into the current directory. By default they are located in  the `${home_directory}/distribution/solr/target/classes/solr-${solr.version}/bin` directory.
 +
------
-tar xzf solr-version.tgz solr-version/bin/install_solr_service.sh --strip-components=2
------
 
 . Run the installation script as root:
 +
@@ -265,7 +262,7 @@ To confirm the script has completed and that Solr is running as a service in the
 sudo service solr status
 -----
 [NOTE]
-Review all https://lucene.apache.org/solr/guide/7_2/taking-solr-to-production.html#Fine_Tune_Your_Production_Setup[Solr guidelines] before Taking Solr into production if you plan to run it as a background service.
+Review all https://lucene.apache.org/solr/guide/6_6/taking-solr-to-production.html#Fine_Tune_Your_Production_Setup[Solr guidelines] before Taking Solr into production if you plan to run it as a background service.
 
 *Windows*
 

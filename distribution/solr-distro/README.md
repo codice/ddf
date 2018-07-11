@@ -2,19 +2,19 @@
 
 ###Introduction
 The purpose of this module to create a custom distribution of Solr. The custom distribution is modified 
-to support the needs fo DDF. The custom distribution adds two JAR libraries and configuration
+to support the needs of DDF. The custom distribution adds two JAR libraries and configuration
 to the base distribution. The custom distribution should include every file needed to run Solr in
-its own JVM. The custom distribution is packaged as a zip file that can be unzipped run.
+its own JVM. The custom distribution is packaged as a zip file that can be unzipped and run.
 
 ### Downloading the Solr distribution
-The base Solr distribution is download by the `download-maven-plugin`. See the 
+The base Solr distribution is downloaded by the `download-maven-plugin`. See the
 modules's POM.xml file for configuration. The download URL is a literal string,
 except for the maven property `${solr.version)`. The `download-maven-plugin`
 is also configured with the sha1 hash for the Solr distribution file. The download operation
 should fail if the the file's sha1 does not match the configured value. This is done 
 for protection against false or corrupted Solr distributions.
 
-Changing the version of Solr that is download can be as simple as updating the 
+Changing the version of Solr that is downloaded can be as simple as updating the
 `${solr.version}` property and changing the sha1 hash in the `POM.xml` file. However, 
 the literal URL might need to be changed as well. 
 For example, if `archive.apache.org` no longer hosts the zip file.
@@ -41,8 +41,8 @@ soon as the distribution is built.
 
 **The custom Solr distribution is used by the integration tests. Therefore, 
 the custom Solr distribution
-must be build before the integration tests attempt to unpack and run 
-the customer Solr distribution.** Otherwise, the integration tests may fail. Or the integration 
+must be built before the integration tests attempt to unpack and run
+the custom Solr distribution.** Otherwise, the integration tests may fail. Or the integration
 tests may use an older version of the custom Solr distribution from the local (or a remote)
 maven repository.
 
