@@ -20,16 +20,16 @@
          id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">
 
         <AD description="Set the number of minutes to wait for query to complete."
-            name="Query Timeout" id="queryTimeoutMinutes" required="true" type="Long"
+            name="Query Timeout" id="queryTimeoutMinutes" type="Long"
             default="5"/>
 
         <AD description="Set the Relative Time Search (past X minutes up to 24 hours).
                          Note:  This will query for results from the interval to the time the query is sent out."
-            name="Notification Time Interval" id="queryTimeInterval" required="true" type="Integer"
+            name="Notification Time Interval" id="queryTimeInterval" type="Integer"
             default="1440"/>
 
         <AD description="Email Subscription Interval (Cron Expression)"
-            name="Email Subscription Interval" id="cronString" required="true" type="String"
+            name="Email Subscription Interval" id="cronString" type="String"
             default="0 0 0 * * ?"/>
 
     </OCD>

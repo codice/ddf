@@ -86,8 +86,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
       WorkspaceTransformerImpl workspaceTransformer,
       WorkspaceQueryBuilder workspaceQueryBuilder,
       SecurityService securityService,
-      PersistentStore persistentStore,
-      int maxSubscriptions) {
+      PersistentStore persistentStore) {
     notNull(catalogFramework, "catalogFramework must be non-null");
     notNull(workspaceTransformer, "workspaceTransformer must be non-null");
     notNull(securityService, "securityService must be non-null");
@@ -98,7 +97,6 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     this.workspaceTransformer = workspaceTransformer;
     this.securityService = securityService;
     this.persistentStore = persistentStore;
-    this.maxSubscriptions = maxSubscriptions;
     this.workspaceQueryBuilder = workspaceQueryBuilder;
   }
 
