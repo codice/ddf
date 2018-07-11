@@ -19,6 +19,15 @@ var ColorGenerator = require('js/ColorGenerator');
 var QueryPolling = require('js/QueryPolling');
 require('backbone-associations');
 
+// This is a list of model attributes that if changed we do not want save the workspace for
+const IGNORED_WORKSPACE_ATTRIBUTES = ['result', 'saved', 'metacard.modified', 'id', 'subscribed', 'serverPageIndex'];
+
+/**
+ * Check if any of the `changedAttributes` fall outside of the `IGNORED_WORKSPACE_ATTRIBUTES` list.
+ * @param {model} model 
+ */
+const workspaceShouldBeResaved = (model) => model && _.intersection(Object.keys(model.changedAttributes()), IGNORED_WORKSPACE_ATTRIBUTES).length === 0;
+
 const WorkspaceQueryCollection = Backbone.Collection.extend({
     model: Query.Model,
     initialize: function () {
@@ -102,10 +111,7 @@ module.exports = Backbone.AssociatedModel.extend({
         this.set('saved', false);
     },
     handleChange: function (model) {
-        if (model !== undefined &&
-            _.intersection(Object.keys(model.changedAttributes()), [
-                'result', 'saved', 'metacard.modified', 'id', 'subscribed'
-            ]).length === 0) {
+        if (workspaceShouldBeResaved(model)) {
             this.set('saved', false);
         }
     },
