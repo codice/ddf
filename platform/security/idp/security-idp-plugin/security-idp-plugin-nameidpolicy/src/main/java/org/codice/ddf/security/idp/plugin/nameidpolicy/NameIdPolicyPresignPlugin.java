@@ -48,7 +48,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
     if (nameIdPolicy == null
         || (StringUtils.isEmpty(nameIdPolicy.getFormat())
-        && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
+            && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
       return;
     }
 
@@ -77,9 +77,9 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
     if (StringUtils.isNotEmpty(nameIdFormatPolicy)) {
       switch (nameIdFormatPolicy) {
-        // supported NameIDFormats
+          // supported NameIDFormats
         case NameID.UNSPECIFIED:
-          break;
+          return; // avoid changing the Format later
         case NameID.PERSISTENT:
           // TODO DDF-3965
           break;
@@ -87,7 +87,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
           // TODO DDF-3965
           break;
 
-        // partially supported NameIDFormats
+          // partially supported NameIDFormats
         case NameID.X509_SUBJECT:
           LOGGER.warn("Specifying the \"X509Subject\" NameIDPolicy Format is not fully supported.");
           if (!NameID.X509_SUBJECT.equals(assertionNameId.getFormat())) {
@@ -100,7 +100,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
           assertionNameId.setValue(resolveEmail(response));
           break;
 
-        // not supported NameIDFormats
+          // not supported NameIDFormats
         case NameID.WIN_DOMAIN_QUALIFIED:
         case NameID.KERBEROS:
         case NameID.ENTITY:
@@ -109,9 +109,8 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
               String.format(
                   "The NameIDPolicy Format of value %s is not supported.", nameIdFormatPolicy));
       }
+      assertionNameId.setFormat(nameIdFormatPolicy);
     }
-
-    assertionNameId.setFormat(nameIdFormatPolicy);
   }
 
   private String resolveEmail(Response response) {
@@ -120,9 +119,10 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
         .stream()
         .flatMap(assertion -> assertion.getAttributeStatements().stream())
         .flatMap(statement -> statement.getAttributes().stream())
-        .filter(attribute ->
-            EMAIL_ATTRIBUTE_NAME.equals(attribute.getName())
-                || NameID.EMAIL.equals(attribute.getNameFormat()))
+        .filter(
+            attribute ->
+                EMAIL_ATTRIBUTE_NAME.equals(attribute.getName())
+                    || NameID.EMAIL.equals(attribute.getNameFormat()))
         .flatMap(attribute -> attribute.getAttributeValues().stream())
         .filter(attributeValue -> attributeValue instanceof XSString)
         .map(attributeValue -> (XSString) attributeValue)
@@ -131,6 +131,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
         .findFirst()
         .orElseThrow(
             () ->
-                new UnsupportedOperationException("The \"Email\" NameID could not be retrieved."));
+                new UnsupportedOperationException(
+                    "The \"Email\" NameID could not be retrieved for this principal."));
   }
 }

@@ -65,163 +65,137 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         authnRequestMock.getNameIDPolicy() >> nameIdPolicyMock
     }
 
-    @Unroll("null NameIDPolicy Format tests for Format #format")
+    @Unroll("test a null NameIDPolicy Format against an original NameID Format of #format")
     def 'null NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> null
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE)
-            return
-        }
-        thrown(UnsupportedOperationException)
+        assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == format)
 
         where:
-        policyFormat | format              | isError
-        null         | null                | false
-        null         | NameID.UNSPECIFIED  | false
-        null         | NameID.PERSISTENT   | false
-        null         | NameID.TRANSIENT    | false
-        null         | NameID.X509_SUBJECT | false
-        null         | NameID.EMAIL        | false
+        format << [null,
+                   NameID.UNSPECIFIED,
+                   NameID.PERSISTENT,
+                   NameID.X509_SUBJECT]
     }
 
-    @Unroll("unspecified NameIDPolicy Format tests for Format #format")
+    @Unroll("test an unspecified NameIDPolicy Format against an original NameID Format of #format")
     def 'unspecified NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> NameID.UNSPECIFIED
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE)
-            return
-        }
-        thrown(UnsupportedOperationException)
+        assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == format)
 
         where:
-        policyFormat       | format              | isError
-        NameID.UNSPECIFIED | null                | false
-        NameID.UNSPECIFIED | NameID.UNSPECIFIED  | false
-        NameID.UNSPECIFIED | NameID.PERSISTENT   | false
-        NameID.UNSPECIFIED | NameID.TRANSIENT    | false
-        NameID.UNSPECIFIED | NameID.X509_SUBJECT | false
-        NameID.UNSPECIFIED | NameID.EMAIL        | false
+        format << [null,
+                   NameID.UNSPECIFIED,
+                   NameID.PERSISTENT,
+                   NameID.TRANSIENT,
+                   NameID.X509_SUBJECT,
+                   NameID.EMAIL]
     }
 
-    @Unroll("persistent NameIDPolicy Format tests for Format #format")
+    @Unroll("test a persistent NameIDPolicy Format against an original NameID Format of #format")
     def 'persistent NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> NameID.PERSISTENT
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
+        assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == NameID.PERSISTENT)
 
         where:
-        policyFormat      | format              | isError
-        NameID.PERSISTENT | null                | false
-        NameID.PERSISTENT | NameID.UNSPECIFIED  | false
-        NameID.PERSISTENT | NameID.PERSISTENT   | false
-        NameID.PERSISTENT | NameID.TRANSIENT    | false
-        NameID.PERSISTENT | NameID.X509_SUBJECT | false
-        NameID.PERSISTENT | NameID.EMAIL        | false
+        format << [null,
+                   NameID.UNSPECIFIED,
+                   NameID.PERSISTENT,
+                   NameID.TRANSIENT,
+                   NameID.X509_SUBJECT,
+                   NameID.EMAIL]
     }
 
-    @Unroll("transient NameIDPolicy Format tests for Format #format")
+    @Unroll("test a transient NameIDPolicy Format against an original NameID Format of #format")
     def 'transient NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> NameID.TRANSIENT
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
+        assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == NameID.TRANSIENT)
 
         where:
-        policyFormat     | format              | isError
-        NameID.TRANSIENT | null                | false
-        NameID.TRANSIENT | NameID.UNSPECIFIED  | false
-        NameID.TRANSIENT | NameID.PERSISTENT   | false
-        NameID.TRANSIENT | NameID.TRANSIENT    | false
-        NameID.TRANSIENT | NameID.X509_SUBJECT | false
-        NameID.TRANSIENT | NameID.EMAIL        | false
+        format  << [null,
+                    NameID.UNSPECIFIED,
+                    NameID.PERSISTENT,
+                    NameID.TRANSIENT,
+                    NameID.X509_SUBJECT,
+                    NameID.EMAIL]
     }
 
-    @Unroll("x509 NameIDPolicy Format tests for Format #format")
+    @Unroll("test a null NameIDPolicy Format against an original NameID Format of #format")
     def 'x509 NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> NameID.X509_SUBJECT
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
         if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
+            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE
+                    && nameIdMock.format == NameID.X509_SUBJECT)
             return
         }
         thrown(UnsupportedOperationException)
 
         where:
-        policyFormat        | format              | isError
-        NameID.X509_SUBJECT | null                | true
-        NameID.X509_SUBJECT | NameID.UNSPECIFIED  | true
-        NameID.X509_SUBJECT | NameID.PERSISTENT   | true
-        NameID.X509_SUBJECT | NameID.TRANSIENT    | true
-        NameID.X509_SUBJECT | NameID.X509_SUBJECT | false
-        NameID.X509_SUBJECT | NameID.EMAIL        | true
+        format              | isError
+        null                | true
+        NameID.UNSPECIFIED  | true
+        NameID.PERSISTENT   | true
+        NameID.TRANSIENT    | true
+        NameID.X509_SUBJECT | false
+        NameID.EMAIL        | true
     }
 
-    @Unroll("email NameIDPolicy Format tests for Format #format")
+    @Unroll("test an email NameIDPolicy Format against an original NameID Format of #format")
     def 'email NameIDPolicy Format tests'() {
         setup:
         nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
+        nameIdPolicyMock.getFormat() >> NameID.EMAIL
 
         when:
         plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
 
         then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_EMAIL && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
+        assert (nameIdMock.value == EXAMPLE_EMAIL && nameIdMock.format == NameID.EMAIL)
 
         where:
-        policyFormat | format              | isError
-        NameID.EMAIL | null                | false
-        NameID.EMAIL | NameID.UNSPECIFIED  | false
-        NameID.EMAIL | NameID.PERSISTENT   | false
-        NameID.EMAIL | NameID.TRANSIENT    | false
-        NameID.EMAIL | NameID.X509_SUBJECT | false
-        NameID.EMAIL | NameID.EMAIL        | false
+        format << [null,
+                   NameID.UNSPECIFIED,
+                   NameID.PERSISTENT,
+                   NameID.TRANSIENT,
+                   NameID.X509_SUBJECT,
+                   NameID.EMAIL]
     }
 
-    def 'email NameIDPolicy Format null email attribute'() {
+    def 'test an email NameIDPolicy Format against an assertion with no attribute statements'() {
         setup:
         nameIdPolicyMock.getFormat() >> NameID.EMAIL
         responseMock.assertions.first().attributeStatements.first().attributes.clear()
@@ -233,7 +207,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         thrown(UnsupportedOperationException)
     }
 
-    def 'email NameIDPolicy Format empty email attribute'() {
+    def 'test an email NameIDPolicy Format against an assertion with no email attribute statement'() {
         setup:
         nameIdPolicyMock.getFormat() >> NameID.EMAIL
         emailAttribute.getAttributeValues().clear()
@@ -247,20 +221,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         thrown(UnsupportedOperationException)
     }
 
-    def 'email NameIDPolicy Format incorrect email attribute name/format'() {
-        setup:
-        nameIdPolicyMock.getFormat() >> NameID.EMAIL
-        emailAttribute.setName(INCORRECT_VALUE)
-        emailAttribute.setNameFormat(INCORRECT_VALUE)
-
-        when:
-        plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
-
-        then:
-        thrown(UnsupportedOperationException)
-    }
-
-    def 'email NameIDPolicy Format correct email attribute name'() {
+    def 'test an email NameIDPolicy Format against an assertion with a correctly named email attribute statement'() {
         setup:
         nameIdPolicyMock.getFormat() >> NameID.EMAIL
         emailAttribute.setNameFormat(INCORRECT_VALUE)
@@ -272,7 +233,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         assert (nameIdMock.value == EXAMPLE_EMAIL && nameIdMock.format == nameIdPolicyMock.format)
     }
 
-    def 'email NameIDPolicy Format correct email attribute format'() {
+    def 'test an email NameIDPolicy Format against an assertion with a correctly name formatted email attribute statement'() {
         setup:
         nameIdPolicyMock.getFormat() >> NameID.EMAIL
         emailAttribute.setName(INCORRECT_VALUE)
@@ -284,84 +245,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         assert (nameIdMock.value == EXAMPLE_EMAIL && nameIdMock.format == nameIdPolicyMock.format)
     }
 
-    @Unroll("windows domain qualified NameIDPolicy Format tests for Format #format")
-    def 'windows domain qualified NameIDPolicy Format tests'() {
-        setup:
-        nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
-
-        when:
-        plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
-
-        then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
-
-        where:
-        policyFormat                | format              | isError
-        NameID.WIN_DOMAIN_QUALIFIED | null                | true
-        NameID.WIN_DOMAIN_QUALIFIED | NameID.UNSPECIFIED  | true
-        NameID.WIN_DOMAIN_QUALIFIED | NameID.PERSISTENT   | true
-        NameID.WIN_DOMAIN_QUALIFIED | NameID.TRANSIENT    | true
-        NameID.WIN_DOMAIN_QUALIFIED | NameID.X509_SUBJECT | true
-        NameID.WIN_DOMAIN_QUALIFIED | NameID.EMAIL        | true
-    }
-
-    @Unroll("kerberos NameIDPolicy Format tests for Format #format")
-    def 'kerberos NameIDPolicy Format tests'() {
-        setup:
-        nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
-
-        when:
-        plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
-
-        then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
-
-        where:
-        policyFormat    | format              | isError
-        NameID.KERBEROS | null                | true
-        NameID.KERBEROS | NameID.UNSPECIFIED  | true
-        NameID.KERBEROS | NameID.PERSISTENT   | true
-        NameID.KERBEROS | NameID.TRANSIENT    | true
-        NameID.KERBEROS | NameID.X509_SUBJECT | true
-        NameID.KERBEROS | NameID.EMAIL        | true
-    }
-
-    @Unroll("entity NameIDPolicy Format tests for Format #format")
-    def 'entity NameIDPolicy Format tests'() {
-        setup:
-        nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> policyFormat
-
-        when:
-        plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
-
-        then:
-        if (!isError) {
-            assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == policyFormat)
-            return
-        }
-        thrown(UnsupportedOperationException)
-
-        where:
-        policyFormat  | format              | isError
-        NameID.ENTITY | null                | true
-        NameID.ENTITY | NameID.UNSPECIFIED  | true
-        NameID.ENTITY | NameID.PERSISTENT   | true
-        NameID.ENTITY | NameID.TRANSIENT    | true
-        NameID.ENTITY | NameID.X509_SUBJECT | true
-        NameID.ENTITY | NameID.EMAIL        | true
-    }
-
+    @Unroll('test a #policySpNameQualifier NameIDPolicy SPNameQualifier against an original #spNameQualifier NameID SPNameQualifier')
     def 'SPNameQualifier tests'() {
         setup:
         nameIdMock.setSPNameQualifier(spNameQualifier)
@@ -385,7 +269,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         EXAMPLE_SP_NAME_QUALIFIER | EXAMPLE_SP_NAME_QUALIFIER
     }
 
-    def 'null NameIDPolicy'() {
+    def 'null NameIDPolicy test'() {
         setup:
         authnRequestMock.getNameIDPolicy() >> null
 
@@ -396,7 +280,7 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         0 * responseMock.any()
     }
 
-    def 'null/empty NameIDPolicy Format/SpNameQualifier'() {
+    def 'null/empty NameIDPolicy Format/SpNameQualifier test'() {
         setup:
         nameIdPolicyMock.getFormat() >> policyFormat
         nameIdPolicyMock.getSPNameQualifier() >> policySpNameQualifier
