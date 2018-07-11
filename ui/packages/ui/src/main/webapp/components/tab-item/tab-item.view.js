@@ -29,6 +29,7 @@ define([
             this.$el.toggleClass('is-active', true);
         },
         triggerHidden: function() {
+            wreqr.vent.trigger('application:tabHidden', this.model.id);
             this.$el.toggleClass('is-active', false);
         }
     });
