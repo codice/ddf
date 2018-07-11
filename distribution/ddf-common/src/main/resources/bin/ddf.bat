@@ -19,8 +19,8 @@ for /f "tokens=2 delims==" %%G in ('findstr /i "^\w*solr.http.port=" %DDF_HOME%\
     SET SOLR_PORT=%%G
 )
 
-IF %SOLR_PORT% == "" (
-    ECHO "Property solr.http.port not found in system.properties. Exiting."
+IF "%SOLR_PORT%" == "" (
+    ECHO Property solr.http.port not found in system.properties. Exiting.
     EXIT /B
 )
 
@@ -29,8 +29,8 @@ for /f "tokens=2 delims==" %%G in ('findstr /i "^\w*solr.client=" %DDF_HOME%\etc
     SET SOLR_CLIENT=%%G
 )
 
-IF %SOLR_CLIENT% == "" (
-    ECHO "Property solr.client not found in system.properties. Exiting."
+IF "%SOLR_CLIENT%" == "" (
+    ECHO Property solr.client not found in system.properties. Exiting.
     EXIT /B
 )
 
