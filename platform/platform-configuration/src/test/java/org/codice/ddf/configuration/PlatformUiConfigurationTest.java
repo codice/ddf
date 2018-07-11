@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.configuration;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -26,14 +28,23 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.impl.BrandingRegistryImpl;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PlatformUiConfigurationTest {
 
+  private static final int DEFAULT_TIMEOUT_MINUTES = 15;
+
+  private PlatformUiConfiguration configuration;
+
+  @Before
+  public void setup() {
+    configuration = new PlatformUiConfiguration();
+  }
+
   @Test
   public void testConfig() throws IOException {
     int timeout = 1234;
-    PlatformUiConfiguration configuration = new PlatformUiConfiguration();
     String wsOutput = configuration.getConfig();
     Object obj = JSONValue.parse(wsOutput); // throws JSON Parse exception if not valid json.
     if (!(obj instanceof JSONObject)) {
@@ -87,5 +98,19 @@ public class PlatformUiConfigurationTest {
             Base64.getMimeDecoder()
                 .decode((String) jsonObject.get(PlatformUiConfiguration.FAV_ICON_CONFIG_KEY))));
     assertEquals(timeout, jsonObject.get(PlatformUiConfiguration.TIMEOUT_CONFIG_KEY));
+  }
+
+  @Test
+  public void testOutOfBoundsTimeoutConfig() {
+    int outOfBoundsTimeout = 1;
+    configuration.setTimeout(outOfBoundsTimeout);
+    assertThat(configuration.getTimeout(), is(DEFAULT_TIMEOUT_MINUTES));
+  }
+
+  @Test
+  public void testLowerBoundsTimeoutConfig() {
+    int lowerBoundTimeout = 2;
+    configuration.setTimeout(lowerBoundTimeout);
+    assertThat(configuration.getTimeout(), is(lowerBoundTimeout));
   }
 }

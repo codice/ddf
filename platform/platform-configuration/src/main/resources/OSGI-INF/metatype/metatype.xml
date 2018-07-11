@@ -64,7 +64,7 @@
                 default=""
         />
         <AD
-                description="Specifies the length of inactivity (in minutes) that will cause a user to be logged out automatically. This value should be 2 minutes or greater, as users are warned when only 1 minute remains."
+                description="Specifies the length of inactivity (in minutes) that will cause a user to be logged out automatically. This value must be 2 minutes or greater, as users are warned when only 1 minute remains. If a value of less than 2 minutes is used, the timeout is set to the default time of 15 minutes."
                 name="Session Timeout" id="timeout" required="true" type="Integer"
                 default="15"
         />
