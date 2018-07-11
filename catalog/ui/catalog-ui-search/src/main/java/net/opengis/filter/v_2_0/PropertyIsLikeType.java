@@ -24,6 +24,7 @@ package net.opengis.filter.v_2_0;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Generated;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -75,6 +76,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
   name = "PropertyIsLikeType",
   propOrder = {"expression"}
 )
+@Generated("This code should eventually be replaced by DDF-3926.")
 public class PropertyIsLikeType extends ComparisonOpsType
     implements Cloneable, CopyTo2, Equals2, HashCode2, MergeFrom2, ToString2 {
 
