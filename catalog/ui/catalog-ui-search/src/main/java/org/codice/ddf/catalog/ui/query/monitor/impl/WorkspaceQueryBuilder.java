@@ -25,7 +25,8 @@ public class WorkspaceQueryBuilder {
 
   private final FilterService filterService;
 
-  WorkspaceQueryBuilder(FilterBuilder filterBuilder, FilterService filterService) {
+  @SuppressWarnings("WeakerAccess" /* constructor must be public for blueprint access */)
+  public WorkspaceQueryBuilder(FilterBuilder filterBuilder, FilterService filterService) {
     this.filterBuilder = filterBuilder;
     this.filterService = filterService;
   }

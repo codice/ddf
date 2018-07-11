@@ -527,7 +527,7 @@
         </argument>
         <argument ref="securityService"/>
         <argument ref="persistentStore"/>
-        <argument value="100"/>
+        <property name="maxSubscriptions" value="100"/>
     </bean>
 
     <bean id="workspacePersistentStore" class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
