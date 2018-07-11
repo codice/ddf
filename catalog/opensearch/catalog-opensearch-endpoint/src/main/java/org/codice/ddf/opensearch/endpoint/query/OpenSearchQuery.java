@@ -23,6 +23,7 @@ import ddf.catalog.operation.Query;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
@@ -86,6 +87,8 @@ public class OpenSearchQuery implements Query {
 
   private List<Filter> filters;
 
+  private List<Filter> spatialFilters;
+
   /**
    * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint to
    * DDF and will be used by sites to perform queries on their respective systems.
@@ -143,6 +146,7 @@ public class OpenSearchQuery implements Query {
 
     this.maxTimeout = maxTimeout;
     this.filters = new ArrayList<>();
+    this.spatialFilters = new ArrayList<>();
     this.siteIds = new HashSet<>();
   }
 
@@ -319,7 +323,7 @@ public class OpenSearchQuery implements Query {
               Double.parseDouble(radius),
               UomOgcMapping.METRE.name());
       LOGGER.trace("Adding spatial filter");
-      filters.add(filter);
+      spatialFilters.add(filter);
     }
   }
 
@@ -330,7 +334,7 @@ public class OpenSearchQuery implements Query {
       Filter filter =
           FILTER_FACTORY.intersects(OpenSearchConstants.SUPPORTED_SPATIAL_SEARCH_TERM, geometry);
       LOGGER.trace("Adding spatial filter");
-      filters.add(filter);
+      spatialFilters.add(filter);
     }
   }
 
@@ -446,16 +450,42 @@ public class OpenSearchQuery implements Query {
     return sortBy;
   }
 
+  /** @return a combined spatial, contextual and temporal filters together with a logical AND */
   public Filter getFilter() {
+    return getSpatialFilterOption()
+        .map(filterOption -> getFilterWithSpatial(filterOption))
+        .orElseGet(this::getFilterWithoutSpatial);
+  }
+
+  private Optional<Filter> getSpatialFilterOption() {
+    if (CollectionUtils.isEmpty(spatialFilters)) {
+      return Optional.empty();
+    } else if (spatialFilters.size() == 1) {
+      return Optional.ofNullable(spatialFilters.get(0));
+    } else {
+      return Optional.ofNullable(FILTER_FACTORY.or(spatialFilters));
+    }
+  }
+
+  private Filter getFilterWithSpatial(Filter spatialFilter) {
+    if (filters.isEmpty()) {
+      return spatialFilter;
+    } else {
+      List<Filter> combinedFilters = new ArrayList<>();
+      combinedFilters.addAll(filters);
+      combinedFilters.add(spatialFilter);
+      return FILTER_FACTORY.and(combinedFilters);
+    }
+  }
+
+  private Filter getFilterWithoutSpatial() {
     if (filters.size() > 1) {
-      // If multiple filters, then AND them all together
       return FILTER_FACTORY.and(filters);
     } else if (filters.size() == 1) {
       // If only one filter, then just return it
       // (AND'ing it would create an erroneous </ogc:and> closing tag)
       return filters.get(0);
     } else {
-      // Otherwise, no filters
       return null;
     }
   }

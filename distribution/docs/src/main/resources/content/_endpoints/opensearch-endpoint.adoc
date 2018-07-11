@@ -114,7 +114,7 @@ The start and end temporal criteria must be of the format specified above. Other
 ====
 
 .Geospatial Extension
-These geospatial query parameters are used to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` of the given geospatial parameter. 
+These geospatial query parameters are used to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` of the given geospatial parameters. 
 
 [cols="4", options="header"]
 |===

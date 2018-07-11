@@ -743,10 +743,9 @@ public class OpenSearchQueryTest {
     query.addPolygonSpatialFilter("-30,100,-35,100,-35,110,-30,110,-30,100");
 
     Filter filter = query.getFilter();
-    assertThat(filter, notNullValue());
+    assertThat(filter, instanceOf(OrImpl.class));
 
-    // TODO: fix as OR filter after https://codice.atlassian.net/browse/DDF-3857
-    AndImpl topFilter = (AndImpl) filter;
+    OrImpl topFilter = (OrImpl) filter;
     List<Filter> spatialFilters = topFilter.getChildren();
     assertThat(spatialFilters.size(), is(5));
 
