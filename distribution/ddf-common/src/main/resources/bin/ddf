@@ -27,16 +27,33 @@ SOLR_EXEC=${HOME_DIR}/solr/bin/solr
 
 # Extract the value of a property from a Java properties file
 # This function does not handle multi-line properties
+# If the property does not exist, it will print an error message to stderr and
+# set a flag that it failed to read a property
 get_property() {
-    grep ^$1= "$PROPERTIES_FILE" | cut -d '=' -f2
-}
 
+    value=""
+    value=`grep ^$1= "$PROPERTIES_FILE" | cut -d = -f2`
+
+    if [ $value ]; then
+        echo $value
+    else
+        echo "ERROR: $1 is not a property of $PROPERTIES_FILE" >&2
+        echo ""
+    fi
+}
 
 refresh_properties() {
     # Extract values from Java properties file and construct Solr URL
     SOLR_CLIENT=$(get_property solr.client)
     SOLR_PORT=$(get_property solr.http.port)
+
+    # Do not proceed if required properties are missing
+    if [ ! $SOLR_CLIENT ] || [ ! $SOLR_PORT ]; then
+        exit
+    fi
+
   }
+
 
 
 # Return 0 (success/true) if the Solr lifecycle should be managed by this script
@@ -94,7 +111,7 @@ start_solr() {
     local SOLR_START_RC=$?
         if [ "$SOLR_START_RC" -ne 0 ]; then
             echo "WARNING. Solr start returned an error. Is Solr already running?"
-	    echo "Please check Solr logs for additional information"
+	        echo "Please check Solr logs for additional information"
             echo ""
         fi
 }
@@ -174,8 +191,8 @@ attempt_shutdown() {
 }
 
 while true; do
-    refresh_properties
     clear_restart_flag
+    refresh_properties
     print_messages
 
     # Uncomment next line to enable TLS for managed Solr
