@@ -27,7 +27,7 @@ let rpc = null
 if (properties.webSocketsEnabled && window.WebSocket) {
   const Client = require('rpc-websockets').Client
   const protocol = { 'http:': 'ws:', 'https:': 'wss:' }
-  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}/search/catalog/ws`
+  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}${location.pathname}ws`
   rpc = new Client(url)
 }
 
