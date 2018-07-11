@@ -23,24 +23,18 @@ import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.security.logout.service.LogoutService;
 
-@Path("/")
-public class LogoutService {
+public class LogoutServiceImpl implements LogoutService {
 
   private List<ActionProvider> logoutActionProviders;
 
@@ -48,10 +42,8 @@ public class LogoutService {
 
   private SecurityManager securityManager;
 
-  @GET
-  @Path("/actions")
-  public Response getActionProviders(@Context HttpServletRequest request)
-      throws SecurityServiceException {
+  @Override
+  public String getActionProviders(HttpServletRequest request) throws SecurityServiceException {
 
     HttpSession session = httpSessionFactory.getOrCreateSession(request);
     Map<String, SecurityToken> realmTokenMap =
@@ -84,11 +76,7 @@ public class LogoutService {
       }
     }
 
-    return Response.ok(
-            new ByteArrayInputStream(toJson(realmToPropMaps).getBytes(StandardCharsets.UTF_8)))
-        .header("Cache-Control", "no-cache, no-store")
-        .header("Pragma", "no-cache")
-        .build();
+    return toJson(realmToPropMaps);
   }
 
   public void setHttpSessionFactory(SessionFactory httpSessionFactory) {

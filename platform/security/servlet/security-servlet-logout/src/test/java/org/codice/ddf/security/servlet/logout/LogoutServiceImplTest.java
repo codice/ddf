@@ -23,8 +23,6 @@ import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,11 +32,10 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.tika.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class LogoutServiceTest {
+public class LogoutServiceImplTest {
 
   private static SessionFactory sessionFactory;
 
@@ -63,20 +60,19 @@ public class LogoutServiceTest {
   }
 
   @Test
-  public void testLogout() throws IOException, ParseException, SecurityServiceException {
+  public void testLogout() throws ParseException, SecurityServiceException {
     KarafLogoutAction karafLogoutActionProvider = new KarafLogoutAction();
     LdapLogoutAction ldapLogoutActionProvider = new LdapLogoutAction();
     Action karafLogoutAction = karafLogoutActionProvider.getAction(null);
     Action ldapLogoutAction = ldapLogoutActionProvider.getAction(null);
 
-    LogoutService logoutService = new LogoutService();
-    logoutService.setHttpSessionFactory(sessionFactory);
-    logoutService.setSecurityManager(sm);
-    logoutService.setLogoutActionProviders(
+    LogoutServiceImpl logoutServiceImpl = new LogoutServiceImpl();
+    logoutServiceImpl.setHttpSessionFactory(sessionFactory);
+    logoutServiceImpl.setSecurityManager(sm);
+    logoutServiceImpl.setLogoutActionProviders(
         Arrays.asList(karafLogoutActionProvider, ldapLogoutActionProvider));
 
-    String responseMessage =
-        IOUtils.toString((ByteArrayInputStream) logoutService.getActionProviders(null).getEntity());
+    String responseMessage = logoutServiceImpl.getActionProviders(null);
 
     JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
     assertEquals(2, actionProperties.size());

@@ -26,7 +26,7 @@ var LogoutAction = Backbone.AssociatedModel.extend({
 
 var LogoutActions = Backbone.Collection.extend({
     model: LogoutAction,
-    url: '/services/logout/actions'
+    url: './internal/logout/actions'
 });
 
 var logoutModel = new (Backbone.AssociatedModel.extend({
@@ -41,7 +41,7 @@ var logoutModel = new (Backbone.AssociatedModel.extend({
             collectionType: LogoutActions
         }
     ],
-    url: '/services/logout/actions',
+    url: './internal/logout/actions',
     initialize: function() {
         this.listenTo(this, 'sync:actions', this.setFetched);
         this.get('actions').fetch();

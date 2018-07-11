@@ -299,6 +299,11 @@
             <artifactId>catalog-ui-search-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-logout-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
