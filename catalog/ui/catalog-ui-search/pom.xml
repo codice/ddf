@@ -304,6 +304,11 @@
             <artifactId>security-servlet-logout-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-configuration-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

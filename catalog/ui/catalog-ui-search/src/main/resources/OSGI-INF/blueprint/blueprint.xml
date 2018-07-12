@@ -445,12 +445,21 @@
         <argument ref="logoutService"/>
     </bean>
 
+    <reference id="platformConfigurationService"
+               interface="org.codice.ddf.configuration.service.PlatformUiConfigurationService"/>
+
+    <bean id="platformApplication"
+          class="org.codice.ddf.catalog.ui.configuration.PlatformUiConfigurationApplication">
+        <argument ref="platformConfigurationService"/>
+    </bean>
+
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
             <list>
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
+                <ref component-id="platformApplication"/>
                 <ref component-id="userApplication"/>
                 <ref component-id="logoutApplication"/>
                 <ref component-id="configurationApplication"/>

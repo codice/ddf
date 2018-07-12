@@ -14,12 +14,10 @@
 package org.codice.ddf.configuration;
 
 import java.util.Optional;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import net.minidev.json.JSONObject;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.codice.ddf.configuration.service.PlatformUiConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +26,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Contains webservice method for returning the current configuration.
  */
-@Path("/")
-public class PlatformUiConfiguration {
+public class PlatformUiConfiguration implements PlatformUiConfigurationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PlatformUiConfiguration.class);
 
@@ -83,10 +80,8 @@ public class PlatformUiConfiguration {
 
   private Optional<BrandingRegistry> branding = Optional.empty();
 
-  @GET
-  @Path("/config/ui")
-  @Produces("application/json")
-  public String getConfig() {
+  @Override
+  public String getConfigAsJsonString() {
     JSONObject jsonObject = new JSONObject();
 
     if (systemUsageEnabled) {

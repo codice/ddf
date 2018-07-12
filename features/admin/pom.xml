@@ -48,7 +48,17 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
+            <artifactId>platform-configuration-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-configuration-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

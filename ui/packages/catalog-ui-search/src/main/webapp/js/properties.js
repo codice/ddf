@@ -72,7 +72,7 @@ define(function (require) {
                     async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                     cache: false,
                     dataType: 'json',
-                    url: "/services/platform/config/ui"
+                    url: "./internal/platform/config/ui"
                 }).done(function(uiConfig){
                     props.ui = uiConfig;
                     return props;

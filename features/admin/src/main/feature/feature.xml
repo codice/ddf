@@ -77,7 +77,9 @@
         <feature>camel-blueprint</feature>
         <feature>camel-http</feature>
         <feature>branding-registry</feature>
+        <bundle>mvn:ddf.platform/platform-configuration-service/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/platform-configuration-endpoint/${project.version}</bundle>
     </feature>
 
     <feature name="platform-commands" version="${project.version}"

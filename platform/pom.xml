@@ -355,7 +355,9 @@
         <module>platform-session-invalidator</module>
         <module>platform-paxweb-jettyconfig</module>
         <module>platform-logging</module>
+        <module>platform-configuration-service</module>
         <module>platform-configuration</module>
+        <module>platform-configuration-endpoint</module>
         <module>io</module>
         <module>migration</module>
         <module>platform-migratable</module>
