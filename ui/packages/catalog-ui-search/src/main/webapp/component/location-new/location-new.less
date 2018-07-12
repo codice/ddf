@@ -1,0 +1,79 @@
+@{customElementNamespace}location-old {
+  display: block;
+
+  width: auto;
+
+  .location-draw {
+    margin: 10px 0;
+    width: 100%;
+  }
+
+  .input-group {
+     border: none;
+  }
+
+  .input-group-addon {
+    border: none;
+  }
+
+  .form-group {
+    .input-group-addon {
+      display: table-cell;
+      font-size: @minimumFontSize;
+      padding: 0px @minimumSpacing;
+      height: @minimumButtonSize !important;
+      line-height: @minimumButtonSize !important;
+      width: @minimumButtonSize !important;
+    }
+
+    .input-group {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+
+      > span.input-group-addon,
+      > label.input-group-addon {
+          font-weight: lighter;
+          opacity: @minimumOpacity;
+      }
+
+      > span {
+        min-width: 9.375rem;
+        background: inherit;
+        font-size: @minimumFontSize;
+      }
+
+      > input {
+        height: 100%;
+      }
+
+      > label {
+        font-size: @minimumFontSize;
+      }
+    }
+
+    .for-error {
+      display: block;
+      margin-top: @minimumSpacing;
+      padding-right: @minimumSpacing;
+      white-space: pre-line;
+    }
+
+    min-height: 1px;
+    margin-bottom: @minimumSpacing;
+    padding-right: 0px;
+    padding-left: 0px;
+    max-width: 2 * @minimumScreenSize;
+    float: none;
+    width: 100%;
+  }
+  .input-location {
+    border-radius: @border-radius;
+  }
+
+  .input-location + .input-location {
+    margin-top: 10px;
+  }
+}
+
+@import "./inputs/inputs.less";
+@import "./geo-components/geo-components.less";

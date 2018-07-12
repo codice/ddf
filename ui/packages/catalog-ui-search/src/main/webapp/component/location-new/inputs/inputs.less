@@ -1,0 +1,244 @@
+@{reactNamespace}radio {
+  border-radius: @border-radius;
+  white-space: nowrap;
+  background-color: inherit;
+  display: inline-block;
+
+  button {
+    vertical-align: top;
+    opacity: @minimumOpacity;
+    min-width: @minimumButtonSize;
+    min-height: @minimumButtonSize;
+    border: 1px solid transparent;
+    background-color: inherit;
+    padding: 0px 10px;
+    font-size: @minimumFontSize;
+  }
+
+    button.is-selected {
+        opacity: 1;
+        font-weight: bolder;
+    }
+
+    margin-bottom: 10px;
+}
+
+@{reactNamespace}dropdown {
+  cursor: pointer;
+  display: block;
+  white-space: nowrap;
+  position: relative;
+
+  .dropdown-label {
+    .is-bold();
+  }
+
+  .dropdown-label,
+  .dropdown-text {
+    line-height: @minimumButtonSize;
+  }
+
+  .dropdown-text,
+  .dropdown-icon {
+    vertical-align: top;
+  }
+
+  .dropdown-text {
+    padding: 0px 10px;
+    width: ~'calc(100% - @{minimumButtonSize})';
+    height: @minimumButtonSize;
+    display: block;
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .dropdown-icon {
+    color: contrast(@primary-color);
+    display: inline-block;
+    background: @primary-color;
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    text-align: center;
+    font-size: @largeFontSize;
+  }
+
+  .dropdown-area {
+      position: absolute;
+      top: @minimumButtonSize;
+      left: 0;
+      right: 0;
+      z-index: @zIndexDropdown;
+
+      overflow: auto;
+      padding-top: @minimumSpacing;
+      padding-bottom: @minimumSpacing;
+      border-radius: 2px;
+      .changeBackground(@backgroundDropdown);
+      .dropshadow;
+      max-width: 90vw;
+      max-height: 25vh;
+  }
+}
+
+.noselect() {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+@{reactNamespace}menu {
+  max-height: 25vh;
+  position: relative;
+
+  .input-menu-item {
+    position: relative;
+    padding: 0px @minimumSpacing;
+    padding-right: @minimumButtonSize;
+    box-sizing: border-box;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    cursor: pointer;
+    .noselect();
+  }
+
+  .input-menu-item.is-selected {
+    font-weight: bold;
+  }
+
+  .input-menu-item.is-selected::after {
+    display: inline-block;
+    content: "\f00c";
+    font-family: FontAwesome;
+    font-style: normal;
+    position: absolute;
+    top: 50%;
+    right: 0px;
+    width: 2.275rem;
+    text-align: center;
+    transform: translateY(-50%);
+  }
+
+  .input-menu-item.is-active {
+    box-shadow: inset 0px 0px 0px 1px @primary-color;
+  }
+}
+
+@{reactNamespace}text-field {
+    flex: 1;
+
+    input {
+        display: inline-block;
+        width: 100%;
+        white-space: nowrap;
+        height: @minimumButtonSize;
+        line-height: @minimumButtonSize;
+    }
+}
+
+@{reactNamespace}text-area {
+    textarea {
+        display: block;
+        min-height: 2.75rem;
+        width: 100%;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.1);
+        resize: none;
+        height: auto;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+}
+
+.coordinate {
+    display: flex;
+    flex: 1;
+
+    input {
+        flex: 1;
+    }
+
+    @{reactNamespace}direction > .toggle-input{
+        height: @minimumButtonSize;
+        width: @minimumButtonSize;
+        background-color: inherit;
+        cursor: pointer;
+        text-align: center;
+        padding: 0;
+        color: transparent;
+        text-shadow: 0 0 0 white;
+
+        &:focus {
+            outline: 0;
+        }
+    }
+}
+
+.input-group {
+    display: flex;
+    width: 100%;
+}
+
+@{reactNamespace}list-editor {
+    .button-add {
+        background: @primary-color;
+        border: 0px;
+        cursor: pointer;
+        width: @minimumButtonSize;
+
+        &:focus {
+            outline: 0;
+        }
+    }
+
+    .list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.4);
+
+        .entry {
+          margin: 1px;
+          width: 100%;
+          display: flex;
+          height: 2em;
+          align-items: center;
+
+          .entry-text {
+            padding: 0.5em;
+            flex: 1;
+            vertical-align: middle;
+          }
+
+          .button-remove {
+            position: relative;
+            background-color: inherit;
+            color: red;
+            display: none;
+            border: 0px;
+            cursor: pointer;
+            height: 100%;
+            width: @minimumButtonSize;
+            padding-right: 0.5em;
+
+            > span {
+                position: absolute;
+                top: 50%;
+                transform: translate(0, -50%);
+            }
+
+            &:focus {
+              outline: 0;
+            }
+          }
+
+          &:hover > button {
+            display: block;
+          }
+        }
+    }
+}
