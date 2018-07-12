@@ -453,9 +453,8 @@ Thumbs.db
 |solr.data.dir
 |String
 |Directory for Solr core files
-|${karaf.home}/solr/server/solr
+|`${home_directory}`/solr/server/solr
 |Yes
-
 
 |Zookeeper Nodes
 |solr.cloud.zookeeper
