@@ -18,8 +18,13 @@
     width: 100%;
     text-align: left;
 
+    > .fa {
+      font-size: @minimumFontSize;
+    }
+
     > span + span {
       margin-left: @minimumSpacing;
+      font-size: @minimumFontSize;
     }
   }
 
@@ -32,17 +37,32 @@
   > .user-settings-content > .content-header {
     text-align: left;
     font-size: @largeFontSize;
+
+    .fa.fa-chevron-left {
+      font-size: @largeFontSize;
+      vertical-align: middle;
+      display: flex;
+      align-self: center;
+      margin-top: @minimumSpacing;
+
+      .fa-text {
+        font-size: @minimumFontSize;
+        font-family: 'Open Sans';
+        padding-left: 5px;
+      }
+    }
+    
     > button {
       height: auto;
-      text-align: center;
+      text-align: left;
       width: 100%;
-      padding: @largeSpacing;
+      padding: @minimumSpacing;
       span {
-        padding: 0px @minimumSpacing;
+        //padding: 0px @minimumSpacing;
       }
     }
     > div {
-      text-align: center;
+      text-align: left;
       line-height: @minimumButtonSize;
       height: @minimumButtonSize;
     }
@@ -58,7 +78,9 @@
   }
 
   > .user-settings-navigation > .is-header {
-      padding-top: @minimumSpacing;
+      padding: @minimumSpacing @largeSpacing 0px @largeSpacing;
+      padding: @largeSpacing;
+      text-align: left;
     }
 }
 

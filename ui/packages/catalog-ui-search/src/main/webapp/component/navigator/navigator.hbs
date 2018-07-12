@@ -11,7 +11,7 @@
  *
  **/
  --}}
-<button class="navigation-choice is-neutral choice-product is-button">
+<button class="navigation-choice is-neutral choice-product is-button is-header">
     <span class="is-bold">{{properties.branding}} </span>
     <span class="">{{properties.product}}</span>
 </button>
@@ -31,17 +31,17 @@
 </div>
 {{#if recent}}
     <div class="is-divider"></div>
-    <div class="navigation-links">
+    <div class="navigation-links recent-links">
         {{#if workspace}}
+            <div class="recent-title">Most Recent Workspace</div>
             <button class="navigation-choice is-neutral choice-previous-workspace is-button" title="Most Recent Workspace: {{workspace.title}}">
-                <div class="">Most Recent Workspace</div>
-                <span class="fa fa-history"></span><span class="dynamic-text">{{workspace.title}}</span>
+                <span class="dynamic-text">{{workspace.title}}</span>
             </button>
         {{/if}}
         {{#if metacard}}
-            <button class="navigation-choice is-neutral choice-previous-metacard is-button" title="Most Recent Metacard: {{metacard.metacard.properties.title}}">
-                <div class="">Most Recent Metacard</div>
-                <span class="fa fa-history"></span><span class="dynamic-text">{{metacard.metacard.properties.title}}</span>
+            <div class="recent-title">Most Recent Metacard</div>
+            <button class="navigation-choice is-neutral choice-previous-metacard is-button" title="Most Recent Metacard: {{metacard.metacard.properties.title}}"> 
+                <span class="dynamic-text">{{metacard.metacard.properties.title}}</span>
             </button>
         {{/if}}
     </div>

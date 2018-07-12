@@ -12,6 +12,14 @@
         overflow: hidden;
         text-overflow: ellipsis;
         position: relative;
+
+        > span {
+            font-size: @minimumFontSize;
+        }
+
+       &.is-header > span {
+            font-size: @largeFontSize;
+        }
     }
 
     .navigation-choice > span:first-of-type {
@@ -21,8 +29,31 @@
 
     .navigation-links {
         position: relative;
+        
         .navigation-choice .fa {
             padding-right: @minimumSpacing;
+        }
+    }
+
+    .recent-links {
+
+        padding: @largeSpacing;
+
+        > .recent-title {
+            padding: 0 @minimumSpacing;
+        }
+
+        > button.navigation-choice {
+            padding: 0 @minimumSpacing; 
+            margin-bottom: @largeSpacing;
+
+            &:last-child {
+                margin-bottom: 0px;
+            }
+        }
+
+        &:last-child > button.navigation-choice {
+            margin-bottom: 0px;
         }
     }
 
