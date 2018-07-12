@@ -1,0 +1,95 @@
+@{reactNamespace}multi-point-input {
+  .point-collection {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.4);
+
+      .point-entry {
+        margin: 1px;
+        width: 100%;
+        display: flex;
+        height: 2em;
+        align-items: center;
+
+        .point {
+          padding: 0.5em;
+          flex: 1;
+          vertical-align: middle;
+        }
+
+        .button-remove {
+          position: relative;
+          background-color: inherit;
+          color: red;
+          display: none;
+          border: 0px;
+          cursor: pointer;
+          height: 100%;
+          width: @minimumButtonSize;
+          padding-right: 0.5em;
+
+          > span {
+              position: absolute;
+              top: 50%;
+              transform: translate(0, -50%);
+          }
+
+          &:focus {
+            outline: 0;
+          }
+        }
+
+        &:hover > button {
+          display: block;
+        }
+      }
+  }
+
+  .point-input-group {
+      width: 100%;
+      display: flex;
+
+      @{reactNamespace}text-field {
+        flex: 1;
+      }
+
+      .button-add {
+        background: @primary-color;
+        border: 0px;
+        cursor: pointer;
+        width: @minimumButtonSize;
+
+        &:focus {
+          outline: 0;
+        }
+      }
+  }
+}
+
+@{reactNamespace}coordinate {
+    flex: 1;
+
+    .input-group {
+        display: flex;
+
+        input {
+            flex: 1;
+        }
+
+        @{reactNamespace}direction > .toggle-input{
+            height: @minimumButtonSize;
+            width: 3ch;
+            background-color: inherit;
+            cursor: pointer;
+            text-align: center;
+            padding: 0;
+            color: transparent;
+            text-shadow: 0 0 0 white;
+
+            &:focus {
+                outline: 0;
+            }
+        }
+    }
+}
