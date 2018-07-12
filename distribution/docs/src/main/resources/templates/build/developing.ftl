@@ -15,6 +15,3 @@ include::${di.file}[]
 
 <#include "security-framework.ftl">
 
-<#include "developing-components.ftl">
-
-<#include "development-guidelines.ftl">
