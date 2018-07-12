@@ -83,9 +83,6 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
         case NameID.PERSISTENT:
           // TODO DDF-3965
           break;
-        case NameID.TRANSIENT:
-          // TODO DDF-3965
-          break;
 
           // partially supported NameIDFormats
         case NameID.X509_SUBJECT:
@@ -101,6 +98,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
           break;
 
           // not supported NameIDFormats
+        case NameID.TRANSIENT:
         case NameID.WIN_DOMAIN_QUALIFIED:
         case NameID.KERBEROS:
         case NameID.ENTITY:

@@ -100,7 +100,6 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         format << [null,
                    NameID.UNSPECIFIED,
                    NameID.PERSISTENT,
-                   NameID.TRANSIENT,
                    NameID.X509_SUBJECT,
                    NameID.EMAIL]
     }
@@ -121,30 +120,8 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         format << [null,
                    NameID.UNSPECIFIED,
                    NameID.PERSISTENT,
-                   NameID.TRANSIENT,
                    NameID.X509_SUBJECT,
                    NameID.EMAIL]
-    }
-
-    @Unroll("test a transient NameIDPolicy Format against an original NameID Format of #format")
-    def 'transient NameIDPolicy Format tests'() {
-        setup:
-        nameIdMock.setFormat(format)
-        nameIdPolicyMock.getFormat() >> NameID.TRANSIENT
-
-        when:
-        plugin.processPresign(responseMock, authnRequestMock, spMetadataMock, supportedBindingsMock)
-
-        then:
-        assert (nameIdMock.value == EXAMPLE_NAME_ID_VALUE && nameIdMock.format == NameID.TRANSIENT)
-
-        where:
-        format  << [null,
-                    NameID.UNSPECIFIED,
-                    NameID.PERSISTENT,
-                    NameID.TRANSIENT,
-                    NameID.X509_SUBJECT,
-                    NameID.EMAIL]
     }
 
     @Unroll("test a null NameIDPolicy Format against an original NameID Format of #format")
@@ -169,7 +146,6 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         null                | true
         NameID.UNSPECIFIED  | true
         NameID.PERSISTENT   | true
-        NameID.TRANSIENT    | true
         NameID.X509_SUBJECT | false
         NameID.EMAIL        | true
     }
@@ -190,7 +166,6 @@ class NameIdPolicyPresignPluginSpec extends Specification {
         format << [null,
                    NameID.UNSPECIFIED,
                    NameID.PERSISTENT,
-                   NameID.TRANSIENT,
                    NameID.X509_SUBJECT,
                    NameID.EMAIL]
     }
