@@ -182,8 +182,16 @@ grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ingest_error.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}artemis.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}security.log", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}securityBackup.log", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.config.xml", "read";
     permission java.io.FilePermission "pax-logging.properties", "read";
     permission java.net.SocketPermission "*", "listen,resolve";
+
+    //  Security-Hardening: uncomment the following line and replace <PATH> with
+    //  the path to the new desired log file
+
+    //  permission java.io.FilePermission "<PATH>", "read,write";
+
 }
 
 grant codeBase "file:/woodstox-core/broker-topic-logger/platform-solr-server-standalone/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication" {

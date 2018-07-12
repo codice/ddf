@@ -47,6 +47,12 @@ In the event the system is unable to write to the `security.log` file, ${brandin
 * edit `${home_directory}/etc/org.ops4j.pax.logging.cfg`
 ** uncomment the line (remove the `#` from the beginning of the line) for `log4j2` (`org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.config.xml`)
 ** delete all subsequent lines
+
+If you want to change the location of your systems security backup log from the default: `${home_directory}/data/log/securityBackup.log`, follow the next two steps:
+
+* edit `${home_directory}/security/default.policy`
+** find `//  permission java.io.FilePermission "<PATH>", "read,write";` under Security-Hardening
+** uncomment that line and change the value of <PATH> to the absolute path of <NEW_FILE_NAME> (described below)
 * edit `${home_directory}/etc/log4j2.config.xml`
 ** find the entry for the `securityBackup` appender. (see example)
 ** change value of `filename` and prefix of `filePattern` to the name/path of the desired failover security logs (<NEW_FILE_NAME>)
