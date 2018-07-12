@@ -23,7 +23,6 @@ import ddf.security.service.SecurityServiceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
