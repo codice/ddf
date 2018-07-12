@@ -6,5 +6,5 @@
 
 [IMPORTANT]
 ====
-If developing for a Highly Available Cluster of ${branding}, see <<_high_availability_guidance,High Availability Guidance>>.
+If developing for a Highly Available Cluster of ${branding}, see <<{developing-prefix}high_availability_guidance,High Availability Guidance>>.
 ====

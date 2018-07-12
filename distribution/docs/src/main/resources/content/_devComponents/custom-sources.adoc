@@ -93,7 +93,7 @@ Create a custom implementation of a catalog provider.
 <service ref="TestCatalogProvider" interface="ddf.catalog.source.CatalogProvider" />
 ----
 
-See the <<_connecting_to_sources,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
+See the <<{managing-prefix}connecting_to_sources,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
 
 ===== Developing Federated Sources
 

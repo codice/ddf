@@ -9,8 +9,8 @@ Clients use `ddf.catalog.operation.Query` objects to describe which metacards 
 
 Query objects have two major components:
 
-* <<_filters,Filters>>
-* <<_query_options,Query Options>>
+* <<{architecture-prefix}filters,Filters>>
+* <<{developing-prefix}query_options,Query Options>>
 
 A Source uses the Filter criteria constraints to find the requested set of metacards within its domain of metacards.
 The Query Options are used to further restrict the Filter's set of requested metacards.
