@@ -133,7 +133,9 @@
         <feature>security-handler-api</feature>
         <feature>security-policy-context</feature>
         <feature>security-core</feature>
-        <bundle>mvn:ddf.platform.security/security-rest-authentication/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-service/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-authn-endpoint/${project.version}</bundle>
     </feature>
 
     <feature name="security-handler-api" version="${project.version}"

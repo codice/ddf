@@ -53,7 +53,7 @@ define([
 
             $.ajax({
                 type: "POST",
-                url: "/services/login",
+                url: "./internal/login",
                 data: {
                     "username": view.$('#username').val(),
                     "password": view.$('#password').val(),

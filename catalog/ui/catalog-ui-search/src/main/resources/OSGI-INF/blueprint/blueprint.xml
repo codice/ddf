@@ -359,6 +359,14 @@
         <argument ref="attachmentParser"/>
     </bean>
 
+    <reference id="securityAuthenticationService"
+               interface="org.codice.ddf.security.rest.authentication.service.AuthenticationService"/>
+
+    <bean id="authenticationApplication"
+          class="org.codice.ddf.catalog.ui.security.AuthenticationApplication">
+        <argument ref="securityAuthenticationService"/>
+    </bean>
+
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
         <argument>
             <map>
@@ -457,6 +465,7 @@
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
             <list>
+                <ref component-id="authenticationApplication"/>
                 <ref component-id="queryApplication"/>
                 <ref component-id="metacardApplication"/>
                 <ref component-id="platformApplication"/>
