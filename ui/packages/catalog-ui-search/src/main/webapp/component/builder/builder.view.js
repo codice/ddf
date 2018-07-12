@@ -205,7 +205,7 @@ module.exports = Marionette.LayoutView.extend({
 
         $.ajax({
             type: 'POST',
-            url: '/services/catalog/?transform=geojson',
+            url: './internal/catalog/?transform=geojson',
             data: JSON.stringify(editedMetacard),
             contentType: 'application/json'
         }).then((response, status, xhr) => {

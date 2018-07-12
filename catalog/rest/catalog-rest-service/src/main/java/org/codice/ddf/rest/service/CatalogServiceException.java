@@ -11,12 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.endpoints.rest.action;
+package org.codice.ddf.rest.service;
 
-public class MetacardTransformerActionProviderFactory {
+public class CatalogServiceException extends Exception {
 
-  public MetacardTransformerActionProvider createActionProvider(
-      String id, String transformer, String attributeName) {
-    return new MetacardTransformerActionProvider(id, transformer, attributeName);
+  public CatalogServiceException(String message) {
+    super(message);
   }
 }

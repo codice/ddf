@@ -50,7 +50,7 @@ module.exports = Marionette.ItemView.extend({
     },
     setupDropzone: function() {
         this.dropzone = new Dropzone(this.el.querySelector('.overwrite-dropzone'), {
-            url: '/services/catalog/' + this.model.get('metacard').id,
+            url: './internal/catalog/' + this.model.get('metacard').id,
             maxFilesize: 5000000, //MB
             method: 'put'
         });

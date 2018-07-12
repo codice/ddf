@@ -64,7 +64,7 @@ require([
         if (jqxhr.getResponseHeader('content-type') === 'application/json' && jqxhr.responseText.startsWith('<') &&
             jqxhr.responseText.indexOf('ACSURL') > -1 && jqxhr.responseText.indexOf('SAMLRequest') > -1) {
             return {title: 'Logged out', message: 'Please refresh page to log in'};
-        } else if (settings.url.indexOf('/services/catalog/sources') > -1 && settings.type === "GET") {
+        } else if (settings.url.indexOf('./internal/catalog/sources') > -1 && settings.type === "GET") {
             return {title: 'Error Polling Sources', message: 'Unable to query server for list of active sources'};
         } else if (settings.url.indexOf('/search/catalog/internal/workspaces') > -1 && settings.type === "PUT") {
             return {title: 'Error Saving Workspace', message: 'Unable to save workspace on server'};

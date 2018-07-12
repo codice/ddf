@@ -69,7 +69,7 @@ define([
     };
 
     return Backbone.Collection.extend({
-        url: "/services/catalog/sources",
+        url: "./internal/catalog/sources",
         useAjaxSync: true,
         comparator: function(a, b) {
             const aName = a.id.toLowerCase();

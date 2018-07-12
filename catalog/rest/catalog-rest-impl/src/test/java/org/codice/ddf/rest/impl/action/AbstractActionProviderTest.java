@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.endpoints.rest.action;
+package org.codice.ddf.rest.impl.action;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 

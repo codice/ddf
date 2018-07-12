@@ -13,55 +13,55 @@
         "relevance": 5.002892971038818,
         "actions": [
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda",
             "title": "Export Metacard XML",
             "description": "Provides a URL to the metacard",
             "id": "catalog.data.metacard.view"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform:resource",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform:resource",
             "title": "Export as resource",
             "description": "Provides a URL to the metacard that transforms the return value via the resource transformer",
             "id": "catalog.data.metacard.resource"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=xml",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=xml",
             "title": "Export as xml",
             "description": "Provides a URL to the metacard that transforms the return value via the xml transformer",
             "id": "catalog.data.metacard.xml"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=csw:Record",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=csw:Record",
             "title": "Export as csw:Record",
             "description": "Provides a URL to the metacard that transforms the return value via the csw:Record transformer",
             "id": "catalog.data.metacard.csw:Record"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=metadata",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=metadata",
             "title": "Export as metadata",
             "description": "Provides a URL to the metacard that transforms the return value via the metadata transformer",
             "id": "catalog.data.metacard.metadata"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=gmd:MD_Metadata",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=gmd:MD_Metadata",
             "title": "Export as gmd:MD_Metadata",
             "description": "Provides a URL to the metacard that transforms the return value via the gmd:MD_Metadata transformer",
             "id": "catalog.data.metacard.gmd:MD_Metadata"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=html",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=html",
             "title": "Export as html",
             "description": "Provides a URL to the metacard that transforms the return value via the html transformer",
             "id": "catalog.data.metacard.html"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=kml",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=kml",
             "title": "Export as kml",
             "description": "Provides a URL to the metacard that transforms the return value via the kml transformer",
             "id": "catalog.data.metacard.kml"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=geojson",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/fff1b066e0ef47379eae4fc482b1eeda?transform=geojson",
             "title": "Export as geojson",
             "description": "Provides a URL to the metacard that transforms the return value via the geojson transformer",
             "id": "catalog.data.metacard.geojson"
@@ -248,55 +248,55 @@
         "relevance": 6.000020980834961,
         "actions": [
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=html",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=html",
             "title": "Export as html",
             "description": "Provides a URL to the metacard that transforms the return value via the html transformer",
             "id": "catalog.data.metacard.html"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=xml",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=xml",
             "title": "Export as xml",
             "description": "Provides a URL to the metacard that transforms the return value via the xml transformer",
             "id": "catalog.data.metacard.xml"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=csw:Record",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=csw:Record",
             "title": "Export as csw:Record",
             "description": "Provides a URL to the metacard that transforms the return value via the csw:Record transformer",
             "id": "catalog.data.metacard.csw:Record"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=resource",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=resource",
             "title": "Export as resource",
             "description": "Provides a URL to the metacard that transforms the return value via the resource transformer",
             "id": "catalog.data.metacard.resource"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=gmd:MD_Metadata",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=gmd:MD_Metadata",
             "title": "Export as gmd:MD_Metadata",
             "description": "Provides a URL to the metacard that transforms the return value via the gmd:MD_Metadata transformer",
             "id": "catalog.data.metacard.gmd:MD_Metadata"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=metadata",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=metadata",
             "title": "Export as metadata",
             "description": "Provides a URL to the metacard that transforms the return value via the metadata transformer",
             "id": "catalog.data.metacard.metadata"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50",
             "title": "Export Metacard XML",
             "description": "Provides a URL to the metacard",
             "id": "catalog.data.metacard.view"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=kml",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=kml",
             "title": "Export as kml",
             "description": "Provides a URL to the metacard that transforms the return value via the kml transformer",
             "id": "catalog.data.metacard.kml"
           },
           {
-            "url": "https://localhost:8993/services/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=geojson",
+            "url": "https://localhost:8993/search/catalog/internal/catalog/sources/ddf.distribution/ff1c478c19a44c6f9165caad92b4ef50?transform=geojson",
             "title": "Export as geojson",
             "description": "Provides a URL to the metacard that transforms the return value via the geojson transformer",
             "id": "catalog.data.metacard.geojson"

@@ -32,7 +32,7 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 
 //if we're mocking, it is being run by grunt
 console.log('setting up mock query endpoint');
-app.all('/services/catalog/sources', server.mockRequest);
+app.all('./internal/catalog/sources', server.mockRequest);
 app.all('/services/store/config', server.mockRequest);
 app.all('/services/platform/config/ui', server.mockRequest);
 app.all('/services/user', server.mockRequest);

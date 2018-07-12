@@ -18,7 +18,7 @@ define([
 
         return  {
             Collection: Backbone.Collection.extend({
-                url: "/services/catalog/sources",
+                url: "./internal/catalog/sources",
                 useAjaxSync: true
             }),
             Types: Backbone.Collection.extend({

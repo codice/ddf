@@ -197,7 +197,9 @@ public class RestEndpointIT extends AbstractComponentTest {
         return super.getBundleOptions()
             .add("org.bouncycastle", "bcprov-jdk15on")
             .add("ddf.catalog.transformer", "catalog-transformer-attribute")
-            .add("ddf.catalog.core", "catalog-core-attachment");
+            .add("ddf.catalog.core", "catalog-core-attachment")
+            .add("ddf.catalog.rest", "catalog-rest-service")
+            .add("ddf.catalog.rest", "catalog-rest-impl");
       }
 
       @Override
