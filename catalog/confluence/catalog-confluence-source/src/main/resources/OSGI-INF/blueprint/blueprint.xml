@@ -28,6 +28,15 @@
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
                filter="(id=URLResourceReader)" />
 
+    <reference-list id="attributeInjectors" interface="ddf.catalog.data.AttributeInjector"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
+        </reference-listener>
+    </reference-list>
+
+    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+
     <bean id="confluenceMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
         <argument value="confluence"/>
         <argument>
@@ -44,6 +53,7 @@
     <bean id="confluenceTransformer"
           class="org.codice.ddf.confluence.source.ConfluenceInputTransformer">
         <argument ref="confluenceMetacardType"/>
+        <argument ref="attributeInjectors"/>
     </bean>
 
     <service ref="confluenceMetacardType" interface="ddf.catalog.data.MetacardType">
@@ -70,6 +80,7 @@
             <argument ref="encryptionService"/>
             <argument ref="confluenceTransformer"/>
             <argument ref="resourceReader"/>
+            <argument ref="attributeRegistry"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>
@@ -103,6 +114,7 @@
             <argument ref="encryptionService"/>
             <argument ref="confluenceTransformer"/>
             <argument ref="resourceReader"/>
+            <argument ref="attributeRegistry"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>

@@ -14,6 +14,7 @@
 package org.codice.ddf.confluence.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -26,9 +27,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
+import ddf.catalog.data.types.Security;
+import ddf.catalog.data.types.Topic;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.impl.SortByImpl;
@@ -46,13 +58,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.confluence.api.SearchResource;
@@ -77,6 +93,8 @@ public class ConfluenceSourceTest {
 
   private ResourceReader reader;
 
+  private AttributeRegistry registry;
+
   private SearchResource client;
 
   private Response clientResponse;
@@ -86,13 +104,15 @@ public class ConfluenceSourceTest {
   @Before
   public void setup() {
 
-    MetacardType type = new MetacardTypeImpl("confluence", (List) null);
-    transformer = new ConfluenceInputTransformer(type);
+    MetacardType type =
+        new MetacardTypeImpl("confluence", MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
+    transformer = new ConfluenceInputTransformer(type, Collections.emptyList());
 
     encryptionService = mock(EncryptionService.class);
     reader = mock(ResourceReader.class);
     factory = mock(SecureCxfClientFactory.class);
     client = mock(SearchResource.class);
+    registry = mock(AttributeRegistry.class);
     clientResponse = mock(Response.class);
     when(factory.getClient()).thenReturn(client);
     doReturn(clientResponse)
@@ -100,7 +120,19 @@ public class ConfluenceSourceTest {
         .search(
             anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt(), anyBoolean());
     when(encryptionService.decryptValue(anyString())).thenReturn("decryptedPass");
-    confluence = new TestConfluenceSource(adapter, encryptionService, transformer, reader, factory);
+    when(registry.lookup("attrib1"))
+        .thenReturn(
+            Optional.of(
+                new AttributeDescriptorImpl(
+                    "attrib1", true, true, true, false, BasicTypes.STRING_TYPE)));
+    when(registry.lookup("attrib2"))
+        .thenReturn(
+            Optional.of(
+                new AttributeDescriptorImpl(
+                    "attrib2", true, true, true, true, BasicTypes.STRING_TYPE)));
+    confluence =
+        new TestConfluenceSource(
+            adapter, encryptionService, transformer, reader, registry, factory);
     confluence.setAvailabilityPollInterval(1);
     confluence.setConfigurationPid("configPid");
     confluence.setEndpointUrl("https://confluence/rest/api/content");
@@ -352,11 +384,133 @@ public class ConfluenceSourceTest {
 
   @Test
   public void testInitNoEndpointUrl() throws Exception {
-    ConfluenceSource source = new ConfluenceSource(adapter, encryptionService, transformer, reader);
+    ConfluenceSource source =
+        new ConfluenceSource(adapter, encryptionService, transformer, reader, registry);
     source.setUsername("myname");
     source.setPassword("mypass");
     source.init();
     assertThat(source.getClientFactory(), is(nullValue()));
+  }
+
+  @Test
+  public void testAttributeOverrides() throws Exception {
+    QueryRequest request =
+        new QueryRequestImpl(
+            new QueryImpl(
+                builder.attribute("anyText").is().like().text("searchValue"),
+                1,
+                1,
+                new SortByImpl("title", SortOrder.DESCENDING),
+                false,
+                1000));
+    InputStream entity = new ByteArrayInputStream(JSON_RESPONSE.getBytes(StandardCharsets.UTF_8));
+    when(clientResponse.getEntity()).thenReturn(entity);
+    when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+    setupRegistryEntry("dateAttribute", BasicTypes.DATE_TYPE);
+    setupRegistryEntry("boolAttribute", BasicTypes.BOOLEAN_TYPE);
+    setupRegistryEntry("longAttribute", BasicTypes.LONG_TYPE);
+    setupRegistryEntry("intAttribute", BasicTypes.INTEGER_TYPE);
+    setupRegistryEntry("shortAttribute", BasicTypes.SHORT_TYPE);
+    setupRegistryEntry("floatAttribute", BasicTypes.FLOAT_TYPE);
+    setupRegistryEntry("doubleAttribute", BasicTypes.DOUBLE_TYPE);
+    setupRegistryEntry("binaryAttribute", BasicTypes.BINARY_TYPE);
+    setupRegistryEntry("badAttribute", BasicTypes.INTEGER_TYPE);
+    when(registry.lookup("missingAttribute")).thenReturn(Optional.empty());
+
+    Instant now = Instant.now();
+
+    List<String> additionalAttributes = new ArrayList<>();
+    additionalAttributes.add("attrib1=val1");
+    additionalAttributes.add("attrib2=val1,val2,val3");
+    additionalAttributes.add("dateAttribute=2018-06-28T10:44:00+07:00");
+    additionalAttributes.add("boolAttribute=true");
+    additionalAttributes.add("longAttribute=12345678900000");
+    additionalAttributes.add("intAttribute=1234");
+    additionalAttributes.add("shortAttribute=1");
+    additionalAttributes.add("floatAttribute=1.1");
+    additionalAttributes.add("doubleAttribute=1.23456");
+    additionalAttributes.add("binaryAttribute=binaryString");
+    additionalAttributes.add("badAttribute=1.23456");
+    additionalAttributes.add("missingAttribute=something");
+
+    confluence.setAttributeOverrides(additionalAttributes);
+
+    SourceResponse response = confluence.query(request);
+    assertThat(response.getHits(), is(1L));
+    Metacard mcard = response.getResults().get(0).getMetacard();
+    assertThat(mcard, notNullValue());
+    assertThat(mcard.getAttribute("attrib1").getValue(), is("val1"));
+    assertThat(mcard.getAttribute("attrib2").getValues().size(), is(3));
+    assertThat(
+        mcard.getAttribute("dateAttribute").getValue(),
+        is(DatatypeConverter.parseDateTime("2018-06-28T10:44:00+07:00").getTime()));
+    assertThat(mcard.getAttribute("boolAttribute").getValue(), is(true));
+    assertThat(mcard.getAttribute("longAttribute").getValue(), is(12345678900000L));
+    assertThat(mcard.getAttribute("intAttribute").getValue(), is(1234));
+    assertThat(mcard.getAttribute("shortAttribute").getValue(), is((short) 1));
+    assertThat(mcard.getAttribute("floatAttribute").getValue(), is(1.1f));
+    assertThat(mcard.getAttribute("doubleAttribute").getValue(), is(1.23456));
+    assertThat(
+        mcard.getAttribute("binaryAttribute").getValue(),
+        is("binaryString".getBytes(Charset.forName("UTF-8"))));
+    assertThat(mcard.getAttribute("badAttribute"), is(nullValue()));
+    assertThat(mcard.getAttribute("missingAttribute"), is(nullValue()));
+  }
+
+  @Test
+  public void verifyAllMappings() throws Exception {
+    QueryRequest request =
+        new QueryRequestImpl(
+            new QueryImpl(
+                builder.attribute("anyText").is().like().text("searchValue"),
+                1,
+                1,
+                new SortByImpl("title", SortOrder.DESCENDING),
+                false,
+                1000));
+    InputStream entity = new ByteArrayInputStream(JSON_RESPONSE.getBytes(StandardCharsets.UTF_8));
+    when(clientResponse.getEntity()).thenReturn(entity);
+    when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+    SourceResponse response = confluence.query(request);
+    assertThat(response.getHits(), is(1L));
+    Metacard mcard = response.getResults().get(0).getMetacard();
+    assertThat(
+        mcard.getCreatedDate(),
+        is(DatatypeConverter.parseDateTime("2013-09-18T14:50:42.616-07:00").getTime()));
+    assertThat(
+        mcard.getModifiedDate(),
+        is(DatatypeConverter.parseDateTime("2015-06-16T19:21:39.141-07:00").getTime()));
+    assertThat(
+        mcard.getAttribute(Core.METACARD_CREATED).getValue(),
+        is(DatatypeConverter.parseDateTime("2013-09-18T14:50:42.616-07:00").getTime()));
+    assertThat(
+        mcard.getAttribute(Core.METACARD_MODIFIED).getValue(),
+        is(DatatypeConverter.parseDateTime("2015-06-16T19:21:39.141-07:00").getTime()));
+    assertThat(mcard.getTags(), contains("confluence", "resource"));
+    assertThat(mcard.getId(), is("1179681"));
+    assertThat(mcard.getTitle(), is("Formatting Source Code"));
+    assertThat(
+        mcard.getAttribute(Associations.EXTERNAL).getValues(),
+        contains("https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code"));
+    assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue(), is("another"));
+    assertThat(mcard.getAttribute(Contact.CONTRIBUTOR_NAME).getValue(), is("first.last"));
+    assertThat(mcard.getAttribute(Media.TYPE).getValue(), is("text/html"));
+    assertThat(mcard.getAttribute(Security.ACCESS_GROUPS).getValue(), is("ddf-developers"));
+    assertThat(mcard.getAttribute(Security.ACCESS_INDIVIDUALS).getValue(), is("first.last"));
+    assertThat(mcard.getAttribute(Topic.CATEGORY).getValue(), is("page"));
+    assertThat(
+        mcard.getAttribute(Topic.VOCABULARY).getValue(),
+        is(
+            "https://developer.atlassian.com/confdev/confluence-server-rest-api/advanced-searching-using-cql/cql-field-reference#CQLFieldReference-titleTitleType"));
+    assertThat(mcard.getAttribute(Topic.KEYWORD).getValue(), is("testlabel"));
+  }
+
+  private void setupRegistryEntry(String attributeName, AttributeType type) {
+    when(registry.lookup(attributeName))
+        .thenReturn(
+            Optional.of(new AttributeDescriptorImpl(attributeName, true, true, true, false, type)));
   }
 
   class TestConfluenceSource extends ConfluenceSource {
@@ -367,8 +521,9 @@ public class ConfluenceSourceTest {
         EncryptionService encryptionService,
         ConfluenceInputTransformer transformer,
         ResourceReader reader,
+        AttributeRegistry registry,
         SecureCxfClientFactory<SearchResource> mockFactory) {
-      super(adapter, encryptionService, transformer, reader);
+      super(adapter, encryptionService, transformer, reader, registry);
       this.mockFactory = mockFactory;
     }
 

@@ -183,6 +183,15 @@
         "tinyui": "/x/IQAS",
         "self": "https://codice.atlassian.net/wiki/rest/api/content/1179681"
       },
+      "metadata": {
+        "labels": {
+          "results": [
+            {
+              "name": "testlabel"
+            }
+          ]
+        }
+      },
       "_expandable": {
         "childTypes": "",
         "container": "/rest/api/space/DDF",
