@@ -192,11 +192,11 @@ public final class SystemBaseUrl {
 
     sb.append(getPort(protocol));
 
-    if (this.equals(EXTERNAL) && StringUtils.isNotEmpty(getRootContext())) {
+    if (this.equals(EXTERNAL) && StringUtils.isNotEmpty(EXTERNAL.getRootContext())) {
       if (!EXTERNAL.getRootContext().startsWith("/")) {
         sb.append("/");
       }
-      sb.append(getRootContext());
+      sb.append(EXTERNAL.getRootContext());
     }
 
     if (includeRootContext) {
@@ -254,6 +254,6 @@ public final class SystemBaseUrl {
   }
 
   public String getRootContext() {
-    return System.getProperty(this.context, System.getProperty(INTERNAL_ROOT_CONTEXT, ""));
+    return System.getProperty(this.context, "");
   }
 }
