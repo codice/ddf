@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * An immutable utility class for getting system url information. Information is pulled from the
  * system properties.
@@ -190,7 +192,7 @@ public final class SystemBaseUrl {
 
     sb.append(getPort(protocol));
 
-    if (this.equals(EXTERNAL)) {
+    if (this.equals(EXTERNAL) && StringUtils.isNotEmpty(getRootContext())) {
       if (!EXTERNAL.getRootContext().startsWith("/")) {
         sb.append("/");
       }
