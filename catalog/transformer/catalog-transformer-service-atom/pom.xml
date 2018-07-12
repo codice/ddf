@@ -112,7 +112,9 @@
                             com.ctc.wstx.stax, <!-- needed by FOMWriter -->
                             *
                         </Import-Package>
-                        <Export-Package/>
+                        <Export-Package>
+                            ddf.catalog.transformer.response.query.atom
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
