@@ -83,28 +83,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>owasp</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <version>${dependency-check-maven.version}</version>
-                        <configuration>
-                            <!--Always include root-level suppression file-->
-                            <suppressionFiles>
-                                <suppressionFile>
-                                    <!--IDE can show variable as undefined because a plugin dynamically creates the property-->
-                                    ${highest-basedir}/dependency-check-maven-config.xml
-                                </suppressionFile>
-                                <suppressionFile>${basedir}/dependency-check-maven-config.xml</suppressionFile>
-                            </suppressionFiles>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
