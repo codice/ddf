@@ -19,7 +19,7 @@ define([
     'jquery'
 ], function(_, Marionette, Backbone, wreqr, geocoderTemplate, $) {
     var geocoder = {};
-    var url = '/services/REST/v1/Locations';
+    var url = './internal/REST/v1/Locations';
     var geocoderModel = new Backbone.Model();
     geocoder.View = Marionette.ItemView.extend({
         template: geocoderTemplate,

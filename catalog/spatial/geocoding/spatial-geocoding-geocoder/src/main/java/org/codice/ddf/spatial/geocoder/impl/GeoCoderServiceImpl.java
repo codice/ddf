@@ -11,51 +11,41 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.geocoder.endpoint;
+package org.codice.ddf.spatial.geocoder.impl;
 
 import ddf.catalog.util.impl.ServiceSelector;
 import java.util.List;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
+import org.codice.ddf.spatial.geocoding.GeoCoderService;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@Path("/")
-public class GeoCoderEndpoint {
+public class GeoCoderServiceImpl implements GeoCoderService {
 
   private ServiceSelector<GeoCoder> geoCoderFactory;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GeoCoderEndpoint.class);
-
-  public GeoCoderEndpoint(ServiceSelector<GeoCoder> geoCoderFactory) {
+  public GeoCoderServiceImpl(ServiceSelector<GeoCoder> geoCoderFactory) {
 
     if (geoCoderFactory == null) {
       throw new IllegalArgumentException(
-          "GeoCoderEndpoint(): constructor argument 'geoCoderFactory' may not be null.");
+          "GeoCoderServiceImpl(): constructor argument 'geoCoderFactory' may not be null.");
     }
 
     this.geoCoderFactory = geoCoderFactory;
   }
 
-  @GET
-  public Response getLocation(
-      @QueryParam("jsonp") String jsonp, @QueryParam("query") String query) {
+  @Override
+  public String getLocation(String jsonp, String query) {
     if (JsonpValidator.isValidJsonp(jsonp)) {
       JSONObject jsonObject = doQuery(query);
-      return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
+      return jsonObject.toJSONString();
     } else {
-      return Response.status(Response.Status.BAD_REQUEST).build();
+      return null;
     }
   }
 
@@ -82,25 +72,19 @@ public class GeoCoderEndpoint {
     return jsonObject;
   }
 
-  @GET
-  @Path("nearby/cities/{wkt}")
-  public Response getNearbyCities(@PathParam("wkt") String wkt) {
+  @Override
+  public String getNearbyCities(String wkt) throws GeoEntryQueryException {
 
     GeoCoder geoCoder = geoCoderFactory.getService();
-    try {
-      NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
-      if (nearbyLocation != null) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("direction", nearbyLocation.getCardinalDirection());
-        jsonObject.put("distance", nearbyLocation.getDistance());
-        jsonObject.put("name", nearbyLocation.getName());
-        return Response.ok(jsonObject.toJSONString()).build();
-      } else {
-        return Response.status(Response.Status.NO_CONTENT).build();
-      }
-    } catch (GeoEntryQueryException e) {
-      LOGGER.debug("Error querying GeoNames resource with wkt:{}", wkt, e);
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
+    if (nearbyLocation != null) {
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("direction", nearbyLocation.getCardinalDirection());
+      jsonObject.put("distance", nearbyLocation.getDistance());
+      jsonObject.put("name", nearbyLocation.getName());
+      return jsonObject.toJSONString();
+    } else {
+      return null;
     }
   }
 

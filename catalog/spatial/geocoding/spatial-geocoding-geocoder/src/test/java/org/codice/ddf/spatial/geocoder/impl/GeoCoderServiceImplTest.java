@@ -11,16 +11,16 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.geocoder.endpoint;
+package org.codice.ddf.spatial.geocoder.impl;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.util.impl.ServiceSelector;
-import javax.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -33,7 +33,7 @@ import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GeoCoderEndpointTest {
+public class GeoCoderServiceImplTest {
 
   private ServiceSelector<GeoCoder> mockGeoCoderFactory;
 
@@ -41,7 +41,7 @@ public class GeoCoderEndpointTest {
 
   private GeoResult geoResult;
 
-  private GeoCoderEndpoint geoCoderEndpoint;
+  private GeoCoderServiceImpl geoCoderServiceImpl;
 
   private NearbyLocation nearbyLocation;
 
@@ -52,7 +52,7 @@ public class GeoCoderEndpointTest {
     this.mockGeoCoderFactory = buildMockGeoCoderFactory();
     this.mockGeoCoder = buildMockGeoCoder();
     this.geoResult = buildGeoResult("Phoenix", 0, 0.389, "ADM3", 100000);
-    this.geoCoderEndpoint = new GeoCoderEndpoint(mockGeoCoderFactory);
+    this.geoCoderServiceImpl = new GeoCoderServiceImpl(mockGeoCoderFactory);
 
     when(mockGeoCoderFactory.getService()).thenReturn(mockGeoCoder);
     when(mockGeoCoder.getLocation(anyString())).thenReturn(geoResult);
@@ -68,12 +68,12 @@ public class GeoCoderEndpointTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorException() {
-    new GeoCoderEndpoint(null);
+    new GeoCoderServiceImpl(null);
   }
 
   @Test
   public void testQuery() {
-    JSONObject jsonObject = this.geoCoderEndpoint.doQuery("Phoenix");
+    JSONObject jsonObject = this.geoCoderServiceImpl.doQuery("Phoenix");
     JSONArray resourceSets = (JSONArray) jsonObject.get("resourceSets");
     assertThat(resourceSets.size(), is(1));
 
@@ -97,25 +97,23 @@ public class GeoCoderEndpointTest {
   }
 
   @Test
-  public void testNearbyLocation() throws ParseException {
-    Response response = geoCoderEndpoint.getNearbyCities("POINT(10 30)");
+  public void testNearbyLocation() throws ParseException, GeoEntryQueryException {
+    String jsonString = geoCoderServiceImpl.getNearbyCities("POINT(10 30)");
 
-    if (response != null) {
-      String responseString = (String) response.getEntity();
-      if (responseString != null) {
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(responseString);
+    if (jsonString != null) {
 
-        assertThat(jsonObject.get("name"), is("Phoenix"));
-        assertThat(jsonObject.get("direction"), is("N"));
-        assertThat(jsonObject.get("distance"), is(23.45));
-      }
+      JSONObject jsonObject = (JSONObject) jsonParser.parse(jsonString);
+
+      assertThat(jsonObject.get("name"), is("Phoenix"));
+      assertThat(jsonObject.get("direction"), is("N"));
+      assertThat(jsonObject.get("distance"), is(23.45));
     }
   }
 
   @Test
-  public void testNullNearbyLocation() {
-    Response response = geoCoderEndpoint.getNearbyCities(null);
-    assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
+  public void testNullNearbyLocation() throws GeoEntryQueryException {
+    String jsonString = geoCoderServiceImpl.getNearbyCities(null);
+    assertNull(jsonString);
   }
 
   private GeoCoder buildMockGeoCoder() {
@@ -123,8 +121,7 @@ public class GeoCoderEndpointTest {
   }
 
   private ServiceSelector<GeoCoder> buildMockGeoCoderFactory() {
-    ServiceSelector<GeoCoder> geoCoderFactory = mock(ServiceSelector.class);
-    return geoCoderFactory;
+    return mock(ServiceSelector.class);
   }
 
   private GeoResult buildGeoResult(
@@ -133,8 +130,6 @@ public class GeoCoderEndpointTest {
       final double longitude,
       final String featureCode,
       final long population) {
-    GeoResult geoResult =
-        GeoResultCreator.createGeoResult(name, latitude, longitude, featureCode, population);
-    return geoResult;
+    return GeoResultCreator.createGeoResult(name, latitude, longitude, featureCode, population);
   }
 }

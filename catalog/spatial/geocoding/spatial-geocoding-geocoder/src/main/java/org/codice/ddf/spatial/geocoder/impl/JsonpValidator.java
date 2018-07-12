@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.geocoder.endpoint;
+package org.codice.ddf.spatial.geocoder.impl;
 
 import java.util.Collections;
 import java.util.HashSet;

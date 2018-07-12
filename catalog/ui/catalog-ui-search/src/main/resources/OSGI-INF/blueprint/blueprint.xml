@@ -412,6 +412,13 @@
         <argument ref="subjectIdentity"/>
     </bean>
 
+    <reference id="geoCoderService" interface="org.codice.ddf.spatial.geocoding.GeoCoderService"/>
+
+    <bean id="geoCoderApplication"
+          class="org.codice.ddf.catalog.ui.spatial.GeoCoderApplication">
+        <argument ref="geoCoderService"/>
+    </bean>
+
     <bean id="filterWriter"
           class="org.codice.ddf.catalog.ui.forms.filter.FilterWriter">
         <argument value="true"/>
@@ -451,6 +458,7 @@
                 <ref component-id="searchFormsApplication"/>
                 <ref component-id="listApplication"/>
                 <ref component-id="buildApplication"/>
+                <ref component-id="geoCoderApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>

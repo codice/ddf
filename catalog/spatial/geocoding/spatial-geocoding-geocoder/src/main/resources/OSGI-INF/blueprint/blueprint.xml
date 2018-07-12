@@ -11,9 +11,9 @@
  *
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <type-converters>
         <bean id="serviceSelectorConverter" class="ddf.catalog.util.impl.ServiceSelectorConverter"/>
@@ -22,33 +22,20 @@
     <bean id="geoCoderFactory" class="ddf.catalog.util.impl.ServiceSelector"/>
 
     <reference-list id="geoCoderList" interface="org.codice.ddf.spatial.geocoder.GeoCoder"
-            availability="optional">
-        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="geoCoderFactory"/>
+                    availability="optional">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="geoCoderFactory"/>
     </reference-list>
 
-    <jaxrs:server id="locationServer" address="/REST/v1/Locations">
-        <jaxrs:serviceBeans>
-            <ref component-id="locationService"/>
-        </jaxrs:serviceBeans>
-
-        <jaxrs:inInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor">
-                <property name="callbackParam" value="callback"/>
-            </bean>
-        </jaxrs:inInterceptors>
-
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
-
     <bean id="locationService"
-          class="org.codice.ddf.spatial.geocoder.endpoint.GeoCoderEndpoint">
-      <argument ref="geoCoderFactory"/>
+          class="org.codice.ddf.spatial.geocoder.impl.GeoCoderServiceImpl">
+        <argument ref="geoCoderFactory"/>
     </bean>
 
-    <reference id="geoEntryQueryable" availability="mandatory" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+    <service ref="locationService" interface="org.codice.ddf.spatial.geocoding.GeoCoderService"/>
+
+    <reference id="geoEntryQueryable" availability="mandatory"
+               interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
 
     <bean id="geoCoder" class="org.codice.ddf.spatial.geocoder.GazetteerGeoCoder">
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
