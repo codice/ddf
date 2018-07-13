@@ -36,7 +36,7 @@ define([
     });
 
     Service.Configuration = Backbone.AssociatedModel.extend({
-        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+        configUrl: "../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
         defaults: function() {
             return {
@@ -196,7 +196,7 @@ define([
     });
 
     Service.Model = Backbone.AssociatedModel.extend({
-        configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+        configUrl: "../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
         defaults: function() {
             return {
@@ -238,7 +238,7 @@ define([
 
     Service.Response = Backbone.AssociatedModel.extend({
 
-        url: "/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryInfo",
+        url: "../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryInfo",
         relations: [
             {
                 type: Backbone.Many,

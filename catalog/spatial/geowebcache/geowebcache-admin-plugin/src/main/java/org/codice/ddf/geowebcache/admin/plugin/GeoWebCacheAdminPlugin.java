@@ -21,7 +21,7 @@ public class GeoWebCacheAdminPlugin extends AbstractApplicationPlugin {
 
   public GeoWebCacheAdminPlugin() {
     this.displayName = "GeoWebCache Layers";
-    this.iframeLocation = URI.create("/admin/geowebcache/index.html");
+    this.iframeLocation = URI.create("./geowebcache/index.html");
     this.setAssociations(Arrays.asList("geowebcache-app"));
   }
 }

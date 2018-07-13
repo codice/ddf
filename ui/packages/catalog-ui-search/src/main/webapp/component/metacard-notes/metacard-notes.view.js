@@ -83,7 +83,7 @@ define([
         },
         getNotesForMetacard: function () {
             LoadingCompanionView.beginLoading(this);
-            $.get('/search/catalog/internal/notes/' + this._metacardId)
+            $.get('./internal/notes/' + this._metacardId)
                 .then(function (response) {
                     var resp = response.response;
                     if (response.responseType === "success") {
@@ -151,7 +151,7 @@ define([
             if (note !== "") {
                 LoadingCompanionView.beginLoading(this);
                 $.ajax({
-                    url: '/search/catalog/internal/notes',
+                    url: './internal/notes',
                     data: JSON.stringify(noteObj),
                     method: 'POST',
                     contentType: 'application/json'

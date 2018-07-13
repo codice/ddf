@@ -23,7 +23,7 @@ public class SourcesPlugin extends AbstractApplicationPlugin {
   /** Constructor. */
   public SourcesPlugin() {
     this.displayName = "Sources";
-    this.iframeLocation = URI.create("/admin/sources/index.html");
+    this.iframeLocation = URI.create("./sources/index.html");
     List<String> apps = new ArrayList<>();
     apps.add("catalog-app");
     this.setAssociations(apps);

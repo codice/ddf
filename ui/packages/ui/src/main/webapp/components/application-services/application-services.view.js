@@ -30,7 +30,7 @@ define([
         },
         initialize: function(options) {
             this.options.url = this.model ? 
-            "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId') : undefined;
+            "./jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId') : undefined;
             this.model = new Service.Response({url: this.options.url});
             this.model.fetch();
             this.listenTo(wreqr.vent, 'refreshConfigurations', function() {

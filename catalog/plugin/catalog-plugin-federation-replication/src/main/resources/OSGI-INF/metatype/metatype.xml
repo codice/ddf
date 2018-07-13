@@ -20,7 +20,7 @@
 		<AD
                 description="All create, update, and delete responses will be sent to this parent address."
                 name="Parent Address" id="parentAddress" required="true" type="String"
-                default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8182${org.codice.ddf.system.rootContext}/catalog"/>
+                default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:8182${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/catalog"/>
 	</OCD>
 
 	<Designate

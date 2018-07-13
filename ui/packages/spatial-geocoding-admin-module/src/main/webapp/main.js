@@ -14,33 +14,33 @@
 require.config({
     paths: {
 
-        bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-        moment: '/webjars/moment/2.20.1/min/moment.min',
+        bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+        moment: '../../webjars/moment/2.20.1/min/moment.min',
 
         // backbone
-        backbone: '/webjars/backbone/1.1.2/backbone',
+        backbone: '../../webjars/backbone/1.1.2/backbone',
 
-        underscore: '/webjars/underscore/1.8.3/underscore-min',
+        underscore: '../../webjars/underscore/1.8.3/underscore-min',
 
-        'backbone.marionette': '/webjars/marionette/2.4.5/lib/backbone.marionette.min',
+        'backbone.marionette': '../../webjars/marionette/2.4.5/lib/backbone.marionette.min',
 
-        modelbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
+        modelbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
         // application
         application: 'js/application',
 
         // jquery
-        jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
-        jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
-        fileupload: '/webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
+        jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
+        jqueryui: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+        fileupload: '../../webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
 
         // handlebars
-        handlebars: '/webjars/handlebars/4.0.10/handlebars.min',
+        handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: '/webjars/requirejs-plugins/1.0.3/lib/text',
-        css: '/webjars/require-css/0.1.10/css.min'
+        text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+        css: '../../webjars/require-css/0.1.10/css.min'
 
 
     },

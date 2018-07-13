@@ -26,7 +26,7 @@ define([
 
     AlertsModel.BackendAlerts = Backbone.Collection.extend({
         model: AlertsModel.Alert,
-        url: "/admin/jolokia/read/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/Alerts",
+        url: "./jolokia/read/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/Alerts",
         parse: function(response) {
             return response.value;
         }

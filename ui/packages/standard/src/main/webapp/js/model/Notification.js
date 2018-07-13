@@ -17,7 +17,7 @@ define(["backbone", "moment", "underscore", "jquery"], function (Backbone, momen
 
     Notification.Notification = Backbone.Model.extend({
 
-        url: '/notification/action',
+        url: '../../notification/action',
 
         //validates the notification ensuring it contains the 3 necessary parts
         validate: function (attrs) {

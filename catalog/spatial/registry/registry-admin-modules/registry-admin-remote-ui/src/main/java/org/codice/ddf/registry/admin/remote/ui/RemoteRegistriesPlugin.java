@@ -22,7 +22,7 @@ public class RemoteRegistriesPlugin extends AbstractApplicationPlugin {
 
   public RemoteRegistriesPlugin() {
     this.displayName = "Remote Registries";
-    this.iframeLocation = URI.create("/admin/registry/remote/index.html");
+    this.iframeLocation = URI.create("./registry/remote/index.html");
     List<String> apps = new ArrayList<>();
     apps.add("catalog-app");
     apps.add("registry-app");

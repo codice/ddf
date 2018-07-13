@@ -27,7 +27,7 @@ let rpc = null
 if (properties.webSocketsEnabled && window.WebSocket) {
   const Client = require('rpc-websockets').Client
   const protocol = { 'http:': 'ws:', 'https:': 'wss:' }
-  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}/search/catalog/ws`
+  const url = `${protocol[location.protocol]}//${location.hostname}:${location.port}${location.pathname}ws`
   rpc = new Client(url)
 }
 
@@ -92,7 +92,7 @@ module.exports = Backbone.AssociatedModel.extend({
             relatedModel: QueryResponseSourceStatus
         }
     ],
-    url: "/search/catalog/internal/cql",
+    url: "./internal/cql",
     useAjaxSync: true,
     initialize: function () {
         this.listenTo(this.get('queuedResults'), 'add change remove reset', _.throttle(this.updateMerged, 2500, {

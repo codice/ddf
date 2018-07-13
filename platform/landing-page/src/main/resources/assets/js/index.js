@@ -22,7 +22,7 @@
         });
 
         $.ajax({
-            url: "/services/catalog/sources",
+            url: "./services/catalog/sources",
             success: function (data) {
                 if (data.length > 0) {
                     data.sort(function (a, b) {
@@ -69,7 +69,7 @@
         var footer = $("#footer");
         var content = $("#content");
         $.ajax({
-            url: "/services/platform/config/ui",
+            url: "./services/platform/config/ui",
             getBanner: function (data, text) {
                 return "<div style='color: " + data.color + "; background-color:" + data.background + "'>" + $('<div/>').text(text).html() + "</div>";
             }, success: function (data) {

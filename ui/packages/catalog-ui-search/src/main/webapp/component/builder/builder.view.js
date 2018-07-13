@@ -30,7 +30,7 @@ const Property = require('component/property/property');
 let availableTypes;
 
 const ajaxCall = $.get({
-    url: '/search/catalog/internal/builder/availabletypes'
+    url: './internal/builder/availabletypes'
 }).then((response) => {
     availableTypes = response;
 });

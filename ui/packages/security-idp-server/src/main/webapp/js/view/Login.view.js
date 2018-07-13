@@ -62,7 +62,7 @@ define([
             var sentData;
             $.ajax({
                 type: "GET",
-                url: '/services/idp/login/sso',
+                url: './login/sso',
                 async: false,
                 data: this.model.toJSON(),
                 beforeSend: function (xhr) {

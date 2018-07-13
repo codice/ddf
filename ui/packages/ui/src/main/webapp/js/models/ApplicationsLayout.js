@@ -153,7 +153,7 @@ define([
     // elements can be recursive nodes.
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode,
-        url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+        url: './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
 
         comparator : function(model){
             return  model.get('displayName');
@@ -171,7 +171,7 @@ define([
             if (applicationsResponseCache === undefined) {
                 applicationsResponseCache = $.ajax({
                     type: 'GET',
-                    url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+                    url: './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
                     dataType: 'JSON'
                 }).then(function (appsResp) {
                     return appsResp.value;

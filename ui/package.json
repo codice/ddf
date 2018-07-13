@@ -6,6 +6,7 @@
     "copy-fonts": "yarn run copy-bootswatch-fonts && yarn run copy-google-fonts",
     "make-folders": "mkdirp src/main/resources/webapp/fonts/bootstrap && mkdirp src/main/resources/webapp/css/",
     "clean-fonts": "rimraf src/main/resources/webapp && yarn run make-folders",
+    "pretest": "ace lint",
     "test": "lerna run test",
     "posttest": "ace pom",
     "prebuild": "ace clean --workspaces",

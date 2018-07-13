@@ -148,7 +148,7 @@ module.exports = Backbone.AssociatedModel.extend({
             };
             $.ajax({
                 type: "POST",
-                url: '/search/catalog/internal/cql',
+                url: './internal/cql',
                 data: JSON.stringify(req),
                 contentType: 'application/json'
             }).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this));

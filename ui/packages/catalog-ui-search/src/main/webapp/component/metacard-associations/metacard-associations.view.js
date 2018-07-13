@@ -61,7 +61,7 @@ module.exports = Marionette.LayoutView.extend({
     getAssociations: function() {
         this.clearAssociations();
         LoadingCompanionView.beginLoading(this);
-        $.get('/search/catalog/internal/associations/' + this.model.get('metacard').get('id')).then(function(response) {
+        $.get('./internal/associations/' + this.model.get('metacard').get('id')).then(function(response) {
             if (!this.isDestroyed && this.associationsMenu !== undefined){
                 this._originalAssociations = JSON.parse(JSON.stringify(response));
                 this._associations = response;
@@ -169,7 +169,7 @@ module.exports = Marionette.LayoutView.extend({
             association.relation = association.relationship === 'related' ? 'metacard.associations.related' : 'metacard.associations.derived';
         });
         $.ajax({
-            url: '/search/catalog/internal/associations/' + this.model.get('metacard').get('id'),
+            url: './internal/associations/' + this.model.get('metacard').get('id'),
             data: JSON.stringify(data),
             method: 'PUT',
             contentType: 'application/json'

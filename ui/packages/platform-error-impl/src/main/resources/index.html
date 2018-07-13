@@ -20,11 +20,11 @@
     <title>Error</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- Stylesheets -->
-    <link href="/error/css/index.css?bust=${timestamp}" rel="stylesheet">
+    <link href="./css/index.css?bust=${timestamp}" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="/webjars/html5shiv/3.7.2/dist/html5shiv.js"></script>
+    <script src="../webjars/html5shiv/3.7.2/dist/html5shiv.js"></script>
     <![endif]-->
     <script>
         window.data = WINDOW_DATA;
@@ -38,9 +38,9 @@
 </div>
 <main class="container full-height" role="main"></main>
 </body>
-<script src="/webjars/requirejs/2.1.15/require.js"></script>
+<script src="../webjars/requirejs/2.1.15/require.js"></script>
 <script>
-require.config({ baseUrl: '/error' });
+require.config({ baseUrl: '../error' });
 require({ urlArgs: "bust=${timestamp}" }, ["main"], function () {});
 </script>
 </html>

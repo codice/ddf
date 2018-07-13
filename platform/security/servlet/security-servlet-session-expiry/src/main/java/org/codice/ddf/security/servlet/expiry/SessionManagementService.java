@@ -34,6 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,6 @@ public class SessionManagementService {
   private SecurityManager securityManager;
 
   private Clock clock = Clock.systemUTC();
-
-  private String rootContext;
 
   @GET
   @Path("/expiry")
@@ -128,9 +127,9 @@ public class SessionManagementService {
     String requestQueryString = request.getQueryString();
     return Response.seeOther(
             URI.create(
-                requestURL
-                    .substring(0, requestURL.indexOf(rootContext))
-                    .concat("/logout?noPrompt=true")
+                SystemBaseUrl.EXTERNAL
+                    .constructUrl("logout")
+                    .concat("?noPrompt=true")
                     .concat(requestQueryString != null ? "&" + requestQueryString : "")))
         .build();
   }
@@ -153,9 +152,5 @@ public class SessionManagementService {
 
   public void setClock(Clock clock) {
     this.clock = clock;
-  }
-
-  public void setRootContext(String rootContext) {
-    this.rootContext = rootContext;
   }
 }

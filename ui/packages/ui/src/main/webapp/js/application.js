@@ -105,7 +105,7 @@ define([
             'click button': 'logout'
         },
         logout: function () {
-            window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
+            window.location = '../logout/?prevurl=' + encodeURI(window.location.pathname);
         }
     }))());
     var modulePoller = poller.get(Application.ModuleModel, options);

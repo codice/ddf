@@ -2,7 +2,7 @@
 (function () {
     var prevUrl = $.url().param('prevurl');
 
-    $.get("/services/platform/config/ui", function (data) {
+    $.get("../services/platform/config/ui", function (data) {
         $('.nav img').attr('src', "data:image/png;base64," + data.productImage);
         $('.nav label').attr('title', data.version);
         $('.nav label:first-of-type').append(data.version);
@@ -11,7 +11,7 @@
         });
     });
 
-    $.get("/services/logout/actions", function (data) {
+    $.get("../services/logout/actions", function (data) {
 
         var actions = JSON.parse(data);
 

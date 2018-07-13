@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
 }
 
-window.CESIUM_BASE_URL = '/search/catalog/cesium/assets';
+window.CESIUM_BASE_URL = './cesium/assets';
 require([
     'underscore',
     'backbone',
@@ -66,7 +66,7 @@ require([
             return {title: 'Logged out', message: 'Please refresh page to log in'};
         } else if (settings.url.indexOf('./internal/catalog/sources') > -1 && settings.type === "GET") {
             return {title: 'Error Polling Sources', message: 'Unable to query server for list of active sources'};
-        } else if (settings.url.indexOf('/search/catalog/internal/workspaces') > -1 && settings.type === "PUT") {
+        } else if (settings.url.indexOf('./internal/workspaces') > -1 && settings.type === "PUT") {
             return {title: 'Error Saving Workspace', message: 'Unable to save workspace on server'};
         } else if (jqxhr.responseJSON !== undefined) {
             return {title: 'Error', message: jqxhr.responseJSON.message};

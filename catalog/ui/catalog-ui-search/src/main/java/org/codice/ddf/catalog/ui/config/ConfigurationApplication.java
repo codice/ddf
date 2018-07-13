@@ -50,7 +50,7 @@ import spark.servlet.SparkApplication;
 
 public class ConfigurationApplication implements SparkApplication {
 
-  public static final String SERVLET_PATH = "/search/catalog/proxy";
+  public static final String SERVLET_PATH = "./proxy";
 
   public static final String URL = "url";
 
@@ -390,7 +390,7 @@ public class ConfigurationApplication implements SparkApplication {
       return Collections.singletonList(
           ImmutableMap.builder()
               .put("type", "SI")
-              .put("url", "/search/catalog/images/natural_earth_50m.png")
+              .put("url", "./images/natural_earth_50m.png")
               .put("parameters", ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)))
               .put("alpha", 1)
               .put("name", "Default Layer")

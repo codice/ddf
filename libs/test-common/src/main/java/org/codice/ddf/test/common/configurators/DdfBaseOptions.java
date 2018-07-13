@@ -188,7 +188,8 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
             portFinder.getPortAsString(SystemBaseUrl.EXTERNAL_HTTPS_PORT)),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_FILE, SystemBaseUrl.EXTERNAL_PROTOCOL, "http://"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.ROOT_CONTEXT, ROOT_CONTEXT),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_ROOT_CONTEXT, ROOT_CONTEXT),
         editConfigurationFilePut("etc/org.apache.cxf.osgi.cfg", SERVLET_CONTEXT_KEY, ROOT_CONTEXT),
         editConfigurationFilePut(
             "etc/org.apache.cxf.osgi.cfg",

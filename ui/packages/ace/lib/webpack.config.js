@@ -197,7 +197,7 @@ const proxyConfig = ({target = 'https://localhost:8993', auth}) => ({
   auth
 })
 
-const dev = (base, { main, auth }) => merge.smart(base, {
+const dev = (base, { main, auth, publicPath }) => merge.smart(base, {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
   entry: [
@@ -211,9 +211,10 @@ const dev = (base, { main, auth }) => merge.smart(base, {
     disableHostCheck: true,
     historyApiFallback: true,
     contentBase: resolve('src/main/resources/'),
+    publicPath,
     proxy: {
       '/admin/**': proxyConfig({auth}),
-      '/search/catalog/**': proxyConfig({auth}),
+      '/**': proxyConfig({auth}),
       '/services/**': proxyConfig({auth}),
       '/webjars/**': proxyConfig({auth})
     }
@@ -293,7 +294,7 @@ const prod = (base, { main }) => merge.smart(base, {
 })
 
 module.exports = (opts) => {
-  const { env = 'development', main, auth } = opts
+  const { env = 'development', main, auth, publicPath } = opts
   const alias = Object.keys(opts.alias || {}).reduce((o, key) => {
     const [pkg, ...rest] = opts.alias[key].split('/')
 
@@ -314,6 +315,6 @@ module.exports = (opts) => {
     case 'production': return prod(b, { main })
     case 'test': return test(b, { main })
     case 'development':
-    default: return dev(b, { main, auth })
+    default: return dev(b, { main, auth, publicPath })
   }
 }

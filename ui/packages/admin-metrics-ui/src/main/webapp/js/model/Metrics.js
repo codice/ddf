@@ -21,7 +21,7 @@ define([
         var Metrics = {};
 
         Metrics.DetailModel = Backbone.AssociatedModel.extend({
-            urlRoot: '/services/internal/metrics/',
+            urlRoot: '../../services/internal/metrics/',
             initialize: function () {
                 this.fetch();
             }
@@ -64,7 +64,7 @@ define([
                 var startDate = moment(endDate);
                 startDate.utc();
                 startDate.subtract(this.get('range'), unit + 's');
-                this.set('download', '/services/internal/metrics/report.xls?startDate=' +
+                this.set('download', '../../services/internal/metrics/report.xls?startDate=' +
                     this.formatDate(startDate) + '&endDate=' + this.formatDate(endDate) +
                     '&summaryInterval=' + this.get('interval'));
             },

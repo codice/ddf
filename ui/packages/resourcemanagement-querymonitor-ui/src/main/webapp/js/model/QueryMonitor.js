@@ -24,7 +24,7 @@ define(['backbone',
                 this.pollActiveSearches();
             },
             getActiveSearches: function() {
-                var url = "/admin/jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/";
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/";
                 var that = this;
                 $.ajax({
                     url: url,
@@ -35,7 +35,7 @@ define(['backbone',
                 });
             },
             stopSearch: function(uuid) {
-                var url = "/admin/jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/" + uuid;
+                var url = "../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/" + uuid;
                 $.ajax({
                     url: url,
                     dataType: 'json'

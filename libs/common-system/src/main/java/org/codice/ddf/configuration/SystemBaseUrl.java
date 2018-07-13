@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * An immutable utility class for getting system url information. Information is pulled from the
  * system properties.
@@ -30,6 +32,8 @@ public final class SystemBaseUrl {
 
   public static final String INTERNAL_PROTOCOL = "org.codice.ddf.system.protocol";
 
+  public static final String INTERNAL_ROOT_CONTEXT = "org.codice.ddf.system.rootContext";
+
   /* External Property Keys */
   public static final String EXTERNAL_HTTP_PORT = "org.codice.ddf.external.httpPort";
 
@@ -41,8 +45,7 @@ public final class SystemBaseUrl {
 
   public static final String EXTERNAL_PROTOCOL = "org.codice.ddf.external.protocol";
 
-  /* Shared Property Keys */
-  public static final String ROOT_CONTEXT = "org.codice.ddf.system.rootContext";
+  public static final String EXTERNAL_CONTEXT = "org.codice.ddf.external.context";
 
   /* Defaults */
   public static final String DEFAULT_HTTP_PORT = "8181";
@@ -64,21 +67,39 @@ public final class SystemBaseUrl {
 
   private String protocol;
 
+  private String context;
+
   /* EXTERNAL and INTERNAL singleton objects */
   public static final SystemBaseUrl EXTERNAL =
       new SystemBaseUrl(
-          EXTERNAL_HTTP_PORT, EXTERNAL_HTTPS_PORT, EXTERNAL_PORT, EXTERNAL_HOST, EXTERNAL_PROTOCOL);
+          EXTERNAL_HTTP_PORT,
+          EXTERNAL_HTTPS_PORT,
+          EXTERNAL_PORT,
+          EXTERNAL_HOST,
+          EXTERNAL_PROTOCOL,
+          EXTERNAL_CONTEXT);
   public static final SystemBaseUrl INTERNAL =
       new SystemBaseUrl(
-          INTERNAL_HTTP_PORT, INTERNAL_HTTPS_PORT, INTERNAL_PORT, INTERNAL_HOST, INTERNAL_PROTOCOL);
+          INTERNAL_HTTP_PORT,
+          INTERNAL_HTTPS_PORT,
+          INTERNAL_PORT,
+          INTERNAL_HOST,
+          INTERNAL_PROTOCOL,
+          INTERNAL_ROOT_CONTEXT);
 
   private SystemBaseUrl(
-      String httpPortKey, String httpsPortKey, String portKey, String hostKey, String protocolKey) {
+      String httpPortKey,
+      String httpsPortKey,
+      String portKey,
+      String hostKey,
+      String protocolKey,
+      String contextKey) {
     httpPort = httpPortKey;
     httpsPort = httpsPortKey;
     port = portKey;
     host = hostKey;
     protocol = protocolKey;
+    context = contextKey;
   }
 
   /**
@@ -171,11 +192,18 @@ public final class SystemBaseUrl {
 
     sb.append(getPort(protocol));
 
-    if (includeRootContext) {
-      if (!getRootContext().startsWith("/")) {
+    if (this.equals(EXTERNAL) && StringUtils.isNotEmpty(EXTERNAL.getRootContext())) {
+      if (!EXTERNAL.getRootContext().startsWith("/")) {
         sb.append("/");
       }
-      sb.append(getRootContext());
+      sb.append(EXTERNAL.getRootContext());
+    }
+
+    if (includeRootContext) {
+      if (!INTERNAL.getRootContext().startsWith("/")) {
+        sb.append("/");
+      }
+      sb.append(INTERNAL.getRootContext());
     }
 
     if (context != null) {
@@ -226,6 +254,6 @@ public final class SystemBaseUrl {
   }
 
   public String getRootContext() {
-    return System.getProperty(ROOT_CONTEXT, "");
+    return System.getProperty(this.context, "");
   }
 }

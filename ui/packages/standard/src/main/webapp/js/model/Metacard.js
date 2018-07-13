@@ -189,7 +189,7 @@ define([
         });
 
         MetaCard.Metacard = Backbone.AssociatedModel.extend({
-            url: '/services/catalog/',
+            url: '../../services/catalog/',
 
             initialize: function () {
                 this.listenTo(wreqr.vent, 'metacard:selected', _.bind(this.onAppContext, this));

@@ -16,8 +16,8 @@ var Backbone = require('backbone');
 var $ = require('jquery');
 var _ = require('underscore');
 
-var sessionRenewUrl = '/services/internal/session/renew';
-var sessionExpiryUrl = '/services/internal/session/expiry';
+var sessionRenewUrl = '../../services/internal/session/renew';
+var sessionExpiryUrl = '../../services/internal/session/expiry';
 
 var sessionAutoRenewModel = new (Backbone.Model.extend({
     defaults: {

@@ -22,7 +22,7 @@ public class MetricsPlugin extends AbstractApplicationPlugin {
   /** Constructor. */
   public MetricsPlugin() {
     this.displayName = "Metrics";
-    this.iframeLocation = URI.create("/admin/metrics/index.html");
+    this.iframeLocation = URI.create("./metrics/index.html");
     this.setAssociations(Arrays.asList("platform-app"));
   }
 }

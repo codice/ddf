@@ -39,8 +39,8 @@ define([
             defaults: {
                 isKey: false
             },
-            deleteUrl: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
-            postUrl: '/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+            deleteUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
+            postUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
             postOperation: 'addTrustedCertificate',
             validate: function () {
                 var alias = this.get('alias');
@@ -51,7 +51,7 @@ define([
         });
 
         Certificate.Response = Backbone.AssociatedModel.extend({
-            url: "/admin/jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Truststore",
+            url: "../jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Truststore",
             relations: [
                 {
                     type: Backbone.Many,

@@ -52,7 +52,7 @@ define([
                 view.fileUploadListRegion.show(new UploadList({collection: view.model.collection}));
 
                 this.$('.fileupload').fileupload({
-                    url: '/services/content',
+                    url: '../../services/content',
                     paramName: 'file',
                     dataType: 'json',
                     maxFileSize: 5000000,

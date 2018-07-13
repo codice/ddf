@@ -309,7 +309,7 @@ define([
             var view = this;
             $.ajax({
                 type: "POST",
-                url: "/services/login",
+                url: "../../services/login",
                 data: {
                     "username": view.$('#username').val(),
                     "password": view.$('#password').val(),
@@ -356,7 +356,7 @@ define([
                 username: "1",
                 password: "1",
             }).then( function(){
-                 window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
+                 window.location = '../../logout/?prevurl=' + encodeURI(window.location.pathname);
             });
         }
     });

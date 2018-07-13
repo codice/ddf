@@ -31,7 +31,7 @@ define([
                 async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                 cache: false,
                 dataType: 'json',
-                url: "/services/platform/config/ui"
+                url: "../services/platform/config/ui"
             }).done(function(uiConfig) {
                 props.ui = uiConfig;
                 return props;
@@ -46,7 +46,7 @@ define([
                 async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                 cache: false,
                 dataType: 'json',
-                url: "/services/admin/config"
+                url: "../services/admin/config"
             }).done(function(adminConfig) {
                 props.admin = adminConfig;
                 return props;

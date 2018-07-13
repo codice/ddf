@@ -210,7 +210,7 @@ public class ConfigurationStore {
               "type",
               "SI",
               "url",
-              "/search/standard/images/natural_earth_50m.png",
+              "./images/natural_earth_50m.png",
               "parameters",
               ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)),
               "alpha",

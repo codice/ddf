@@ -17,7 +17,7 @@ define(['backbone'],
 function (Backbone) {
     var RemoteStatus = {};
     RemoteStatus.Model = Backbone.Model.extend({
-        url: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getProperties/",
+        url: "../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getProperties/",
             initialize: function(pid) {
                 this.url += pid;
             }

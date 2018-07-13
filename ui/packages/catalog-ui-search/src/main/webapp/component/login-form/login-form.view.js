@@ -39,12 +39,12 @@ define([
             //if you aren't using basic auth, this shouldn't do anything
             $.ajax({
                 type: 'GET',
-                url: '/search/catalog/internal/user',
+                url: './internal/user',
                 async: false,
                 username: '1',
                 password: '1'
             }).then(function () {
-                window.location = '/logout?prevurl=' + encodeURI(window.location.pathname);
+                window.location = '../../logout/?prevurl=' + encodeURI(window.location.pathname);
             });
         },
         login: function (e) {

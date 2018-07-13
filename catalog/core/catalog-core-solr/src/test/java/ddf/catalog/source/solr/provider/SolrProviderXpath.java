@@ -260,7 +260,7 @@ public class SolrProviderXpath extends SolrProviderTestBase {
     queryXpathPositiveExists("//shipTo[@country='US']", Library.PURCHASE_ORDER_QUERY_PHRASE);
 
     queryXpathPositiveExists("/*/items", Library.PURCHASE_ORDER_QUERY_PHRASE);
-    queryXpathPositiveExists("/*/*/item[.//comment]", Library.PURCHASE_ORDER_QUERY_PHRASE);
+    queryXpathPositiveExists("/*/*/item[./comment]", Library.PURCHASE_ORDER_QUERY_PHRASE);
     queryXpathPositiveExists("/purchaseOrder/*", Library.PURCHASE_ORDER_QUERY_PHRASE);
     queryXpathPositiveExists("/purchaseOrder/*/item", Library.PURCHASE_ORDER_QUERY_PHRASE);
     queryXpathPositiveExists("//*[@country='US']", Library.PURCHASE_ORDER_QUERY_PHRASE);

@@ -31,7 +31,7 @@ define([
             model: Service.Configuration
         });
         Source.Model = Backbone.Model.extend({
-            configUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
+            configUrl: "../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
             idAttribute: 'name',
             defaults: function() {
               return {

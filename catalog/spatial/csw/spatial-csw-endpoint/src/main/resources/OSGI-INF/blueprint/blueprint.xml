@@ -158,7 +158,7 @@
 
     <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
-                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.system.rootContext}/csw"/>
+                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
         <property name="urlBindingName" value="cswUrl"/>
         <property name="id" value="registry.federation.method.csw"/>
         <property name="name" value="CSW Endpoint"/>

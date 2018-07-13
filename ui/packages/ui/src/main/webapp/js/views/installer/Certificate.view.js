@@ -66,7 +66,7 @@ define([
             var view = this;
             var el = this.$('.' + name + '-fileupload');
             el.fileupload({
-                url: '/services/content',
+                url: '../services/content',
                 paramName: 'file',
                 dataType: 'json',
                 maxFileSize: 5000000,

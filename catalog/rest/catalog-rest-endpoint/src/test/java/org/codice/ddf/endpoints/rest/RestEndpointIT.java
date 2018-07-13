@@ -121,7 +121,7 @@ public class RestEndpointIT extends AbstractComponentTest {
                 SystemBaseUrl.EXTERNAL_HOST,
                 SystemBaseUrl.EXTERNAL_HTTP_PORT,
                 SystemBaseUrl.EXTERNAL_HTTPS_PORT,
-                SystemBaseUrl.ROOT_CONTEXT)
+                SystemBaseUrl.INTERNAL_ROOT_CONTEXT)
             .add("/catalog");
   }
 

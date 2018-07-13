@@ -38,7 +38,7 @@ define(['marionette',
         async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
         cache: false,
         dataType: 'json',
-        url: "/services/platform/config/ui"
+        url: "../platform/config/ui"
     }).done(function (uiConfig) {
         Application.App.props.ui = uiConfig;
     }).fail(function (jqXHR, status, errorThrown) {

@@ -569,14 +569,14 @@ public class MetricsEndpoint {
          */
 
         String metricsUrl =
-            SystemBaseUrl.EXTERNAL.getRootContext()
-                + METRICS_SERVICE_BASE_URL
-                + "/"
-                + metricsName
-                + "."
-                + format
-                + DATE_OFFSET_QUERY
-                + timeRangeInSeconds;
+            SystemBaseUrl.EXTERNAL.constructUrl(
+                METRICS_SERVICE_BASE_URL
+                    + "/"
+                    + metricsName
+                    + "."
+                    + format
+                    + DATE_OFFSET_QUERY
+                    + timeRangeInSeconds);
 
         // key=format
         // value=url for format with specified time range in seconds

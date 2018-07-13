@@ -54,7 +54,7 @@ define([
             LoadingCompanionView.beginLoading(this);
             var self = this;
             setTimeout(function(){
-                $.get('/search/catalog/internal/history/'+self.model.get('metacard').get('id')).then(function(response){
+                $.get('./internal/history/'+self.model.get('metacard').get('id')).then(function(response){
                     self._history = response;
                 }).always(function(){
                     LoadingCompanionView.endLoading(self);
@@ -96,7 +96,7 @@ define([
         revertToSelectedVersion: function(){
             LoadingCompanionView.beginLoading(this);
             var self = this;
-            $.get('/search/catalog/internal/history/revert/'+this.model.get('metacard').get('id')+'/'+selectedVersion).then(function(){
+            $.get('./internal/history/revert/'+this.model.get('metacard').get('id')+'/'+selectedVersion).then(function(){
                 self.model.get('metacard').get('properties').set('metacard-tags', ['revision']);
                 ResultUtils.refreshResult(self.model);
             }).always(function(){

@@ -129,6 +129,13 @@ NOTE: This *DOES* change the port the system runs on.
 |8993
 |Yes
 
+|Internal Root Context
+|org.codice.ddf.system.rootContext
+|String
+|The base or root context that services will be made available under.
+|/services
+|Yes
+
 |External Default Protocol
 |org.codice.ddf.external.protocol
 |String
@@ -176,10 +183,10 @@ NOTE: Does not change the port the system runs on.
 |8993
 |Yes
 
-|Root Context
-|org.codice.ddf.system.rootContext
+|External Root Context
+|org.codice.ddf.external.context
 |String
-|The the base or root context that services will be made available under.
+|The base or root context that services will be advertised under.
 |/services
 |Yes
 

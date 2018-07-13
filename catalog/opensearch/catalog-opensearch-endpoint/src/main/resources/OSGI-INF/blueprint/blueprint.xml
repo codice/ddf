@@ -44,7 +44,7 @@
     <bean id="org.codice.ddf.opensearch.endpoint"
           class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
         <property name="url"
-                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.system.rootContext}/catalog/query"/>
+                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/catalog/query"/>
         <property name="urlBindingName" value="endpointUrl"/>
         <property name="id" value="registry.federation.method.openSearch"/>
         <property name="name" value="Open Search Endpoint"/>

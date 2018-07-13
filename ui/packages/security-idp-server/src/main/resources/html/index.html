@@ -20,21 +20,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Login</title>
     <!-- Stylesheets -->
-    <link href="/webjars/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
-    <link href="/webjars/css/ddf-theme-flatly.css" rel="stylesheet"/>
-    <link href="/webjars/css/index.css?bust=${timestamp}" rel="stylesheet"/>
+    <link href="../webjars/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="../webjars/css/ddf-theme-flatly.css" rel="stylesheet"/>
+    <link href="../webjars/css/index.css?bust=${timestamp}" rel="stylesheet"/>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="/webjars/html5shiv/3.7.2/dist/html5shiv.js"></script>
+    <script src="../webjars/html5shiv/3.7.2/dist/html5shiv.js"></script>
     <![endif]-->
 
     <script type="application/javascript">
         window.idpState = IDP_STATE_OBJ;
     </script>
-    <script src="/webjars/requirejs/2.3.3/require.js"></script>
+    <script src="../webjars/requirejs/2.3.3/require.js"></script>
     <script>
-        require.config({baseUrl: '/idp'});
+        require.config({baseUrl: '../idp'});
         require({urlArgs: "bust=${timestamp}"}, ["main"], function () {
         });
     </script>

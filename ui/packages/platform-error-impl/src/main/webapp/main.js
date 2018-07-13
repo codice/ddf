@@ -17,7 +17,7 @@
 
     require.config({
 
-        baseUrl: "/webjars",
+        baseUrl: "../webjars",
 
         paths: {
             q: 'q/1.4.1/q',

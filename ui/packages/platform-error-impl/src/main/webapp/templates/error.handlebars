@@ -24,7 +24,7 @@
         </div>
     {{/if}}
     {{#is code "403"}}
-        <span class="error-resolve-text">You are not authorized to see the resource you are attempting to view. Please <a href="/login/index.html?prevurl={{uri}}">Sign In</a> to continue.</span>
+        <span class="error-resolve-text">You are not authorized to see the resource you are attempting to view. Please <a href="../login/index.html?prevurl={{uri}}">Sign In</a> to continue.</span>
     {{/is}}
     {{#is code "404"}}
         <span class="error-resolve-text">The page you are requesting could not be found on this server. Ensure that the URL was typed in correctly and try again.</span>
@@ -36,7 +36,7 @@
         <span class="error-resolve-text">The resource identified by the request is only capable of generating response entities which have content characteristics not acceptable according to the accept headers sent in the request.</span>
     {{/is}}
     {{#is code "401"}}
-        <span class="error-resolve-text">You are not authenticated. Please <a href="/login/index.html?prevurl={{uri}}">Sign In</a> to continue.</span>
+        <span class="error-resolve-text">You are not authenticated. Please <a href="../login/index.html?prevurl={{uri}}">Sign In</a> to continue.</span>
     {{/is}}
     {{#is code "500"}}
         <span class="error-resolve-text">The server encountered an unexpected condition which prevented it from fulfilling the request.</span>

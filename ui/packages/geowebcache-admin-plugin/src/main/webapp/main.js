@@ -14,31 +14,31 @@
 require.config({
     paths: {
 
-        bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-        moment: '/webjars/moment/2.20.1/min/moment.min',
+        bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+        moment: '../../webjars/moment/2.20.1/min/moment.min',
 
         // backbone
-        backbone: '/webjars/backbone/1.1.2/backbone',
+        backbone: '../../webjars/backbone/1.1.2/backbone',
 
-        underscore: '/webjars/underscore/1.8.3/underscore-min',
+        underscore: '../../webjars/underscore/1.8.3/underscore-min',
 
-        'backbone.marionette': '/webjars/marionette/2.4.5/lib/backbone.marionette.min',
+        'backbone.marionette': '../../webjars/marionette/2.4.5/lib/backbone.marionette.min',
 
         // application
         application: 'js/application',
 
         // jquery
-        jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
-        jqueryuiCore: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
-        "jquery.ui.widget": '/webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
+        jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
+        jqueryuiCore: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+        "jquery.ui.widget": '../../webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
 
         // handlebars
-        handlebars: '/webjars/handlebars/4.0.10/handlebars.min',
+        handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: '/webjars/requirejs-plugins/1.0.3/lib/text',
-        css: '/webjars/require-css/0.1.10/css.min'
+        text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+        css: '../../webjars/require-css/0.1.10/css.min'
     },
 
     shim: {

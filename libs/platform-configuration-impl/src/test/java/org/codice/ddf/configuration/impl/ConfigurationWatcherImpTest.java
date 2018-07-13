@@ -77,7 +77,7 @@ public class ConfigurationWatcherImpTest {
     System.setProperty(SystemBaseUrl.EXTERNAL_HTTPS_PORT, port);
     System.setProperty(SystemBaseUrl.EXTERNAL_HOST, host);
     System.setProperty(SystemBaseUrl.EXTERNAL_PROTOCOL, protocol);
-    System.setProperty(SystemBaseUrl.ROOT_CONTEXT, contextRoot);
+    System.setProperty(SystemBaseUrl.INTERNAL_ROOT_CONTEXT, contextRoot);
     System.setProperty(SystemInfo.SITE_NAME, siteName);
     System.setProperty(SystemInfo.SITE_CONTACT, contact);
     System.setProperty(SystemInfo.VERSION, version);

@@ -30,9 +30,9 @@ define([
     var Node = {};
 
     Node.Model = Backbone.Model.extend({
-        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryMetacard',
-        createUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/createLocalEntry',
-        updateUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/updateLocalEntry',
+        url: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryMetacard',
+        createUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/createLocalEntry',
+        updateUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/updateLocalEntry',
         parse: function (raw) {
             if(raw.value.nodes.length === 1) {
                 return raw.value.nodes[0];
@@ -205,13 +205,13 @@ define([
         updateNode: function (options) {
             return this.syncNode(this.updateUrl, this, 'updateLocalEntry(java.util.Map)', options);
         },
-        syncNode: function (url, arguments, operation, options) {
+        syncNode: function (url, args, operation, options) {
             var data = {
                 type: 'EXEC',
                 mbean: 'org.codice.ddf.registry:type=FederationAdminMBean',
                 operation: operation
             };
-            data.arguments = [arguments];
+            data.arguments = [args];
             data = JSON.stringify(data);
             var response = $.ajax({
                 type: 'POST',
@@ -264,8 +264,8 @@ define([
 
     Node.Models = Backbone.Collection.extend({
         model: Node.Summary,
-        url: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacardsSummary',
-        deleteUrl: '/admin/jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
+        url: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/allRegistryMetacardsSummary',
+        deleteUrl: '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/deleteLocalEntry',
         hasData: false,
 
         parse: function (raw) {

@@ -35,8 +35,8 @@ const configPath = [ 'value', 'configurations', 0, 'properties' ]
 export const fetch = () => (dispatch) => {
   dispatch(start())
 
-  const url = '/' + [
-    'admin',
+  const url = [
+    '..',
     'jolokia',
     'exec',
     'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
@@ -81,7 +81,7 @@ export const fetch = () => (dispatch) => {
 
 export const save = () => (dispatch, getState) => {
   const state = getState()
-  const url = '/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+  const url = '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
 
   const providers = getProviders(state)
 

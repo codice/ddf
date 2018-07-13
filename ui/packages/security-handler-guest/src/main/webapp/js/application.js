@@ -39,7 +39,7 @@ define(['marionette',
     });
 
     Application.App.addInitializer(function () {
-        Application.AppModel.fetch({url:"/services/platform/config/ui"}).done(function () {
+        Application.AppModel.fetch({url:"../services/platform/config/ui"}).done(function () {
             Application.App.headerRegion.show(new Marionette.ItemView({
                 template: 'appHeader',
                 model: Application.AppModel,

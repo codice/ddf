@@ -24,7 +24,7 @@ define([
 
     ich.addTemplate('geocoderTemplate', geocoderTemplate);
 
-    var url = '/services/REST/v1/Locations';
+    var url = '../../services/REST/v1/Locations';
     var geocoderModel = new Backbone.Model();
     geocoder.View = Marionette.ItemView.extend({
         template: 'geocoderTemplate',

@@ -92,7 +92,6 @@ public class SessionManagementServiceTest {
     when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(tokenHolder);
     sessionManagementService = new SessionManagementService();
     sessionManagementService.setSecurityManager(manager);
-    sessionManagementService.setRootContext("/services");
   }
 
   @Test

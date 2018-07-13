@@ -121,7 +121,7 @@ define([
                     port = model.get('value');
                 }
             });
-            layout.navigationModel.set('redirectUrl', 'https://' + hostName + ':' + port + '/admin/index.html');
+            layout.navigationModel.set('redirectUrl', './index.html');
 
 
             if (!hasErrors) {

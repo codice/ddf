@@ -29,7 +29,7 @@ define(['backbone','underscore'],function(Backbone,_){
     InstallProfile.Collection = Backbone.Collection.extend({
         model: InstallProfile.Model,
         sortNames: ['standard', 'full'],
-        url: '/admin/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/',
+        url: './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/InstallationProfiles/',
         parse: function(resp){
             return resp.value;
         },

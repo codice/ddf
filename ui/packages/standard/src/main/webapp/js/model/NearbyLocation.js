@@ -31,7 +31,7 @@ define([
 
                 useAjaxSync: true,
 
-                urlRoot: '/services/REST/v1/Locations/nearby/cities/',
+                urlRoot: '../../services/REST/v1/Locations/nearby/cities/',
 
                 initialize: function(attributes) {
                         var geoJson = attributes.geo.toJSON();

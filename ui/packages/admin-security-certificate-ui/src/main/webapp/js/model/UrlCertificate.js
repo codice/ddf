@@ -26,8 +26,8 @@ define([
         });
 
         UrlCertificate.Response = Backbone.AssociatedModel.extend({
-            url: "/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/showCertificateFromUrl",
-            saveUrl: "/admin/jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificateFromUrl",
+            url: "../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/showCertificateFromUrl",
+            saveUrl: "../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificateFromUrl",
             relations: [
                 {
                     type: Backbone.Many,

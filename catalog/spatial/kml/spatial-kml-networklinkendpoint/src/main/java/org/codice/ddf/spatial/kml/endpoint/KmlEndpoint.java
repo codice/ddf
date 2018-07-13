@@ -278,13 +278,14 @@ public class KmlEndpoint {
     UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
     builder =
         generateEndpointUrl(
-            SystemBaseUrl.EXTERNAL.getRootContext()
-                + FORWARD_SLASH
-                + CATALOG_URL_PATH
-                + FORWARD_SLASH
-                + KML_TRANSFORM_PARAM
-                + FORWARD_SLASH
-                + "sources",
+            SystemBaseUrl.EXTERNAL.constructUrl(
+                FORWARD_SLASH
+                    + CATALOG_URL_PATH
+                    + FORWARD_SLASH
+                    + KML_TRANSFORM_PARAM
+                    + FORWARD_SLASH
+                    + "sources",
+                true),
             builder);
     link.setHref(builder.build().toString());
     link.setViewRefreshMode(ViewRefreshMode.NEVER);

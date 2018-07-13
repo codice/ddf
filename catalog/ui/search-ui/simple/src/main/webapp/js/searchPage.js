@@ -33,7 +33,7 @@ function getServicesUrl() {
 
 $.ajax(
 	{
-		url: getServicesUrl() + "/services/catalog/sources",
+		url: getServicesUrl() + "../../services/catalog/sources",
 		dataType: "jsonp"
 	}).done(function(data){
 		var sources, types, type, to, i, j, id, o;
@@ -277,7 +277,7 @@ function createRow(index) {
 	productLink = $("<a>");
 	product.append(productLink);
 	productLink.attr("target", "_blank"); 
-	productLink.attr("href", getServicesUrl() + "/services/catalog/sources/" + props["source-id"] + "/" + props.id + "?transform=resource");
+	productLink.attr("href", getServicesUrl() + "../../services/catalog/sources/" + props["source-id"] + "/" + props.id + "?transform=resource");
 	productIcon = $("<i>");
 	productIcon.attr("class", "icon-download-alt icon-2x");
 	productLink.append(productIcon);

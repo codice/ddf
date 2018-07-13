@@ -11,7 +11,7 @@
  **/
 /*jshint browser: true */
 
-var invalidateUrl = '/services/internal/session/invalidate?prevurl=';
+var invalidateUrl = '../services/internal/session/invalidate?prevurl=';
 
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)

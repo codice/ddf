@@ -24,7 +24,7 @@ define([
         defaults: {
             fetched: false
         },
-        url: '/admin/jolokia/read/java.lang:type=Runtime/',
+        url: './jolokia/read/java.lang:type=Runtime/',
         parse: function(resp){
             resp.value.fetched = true;
             return resp.value;

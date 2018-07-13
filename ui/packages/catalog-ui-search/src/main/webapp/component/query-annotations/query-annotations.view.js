@@ -87,7 +87,7 @@ define([
         },
         getAnnotationsForQuery: function () {
             LoadingCompanionView.beginLoading(this);
-                $.get('/search/catalog/internal/annotations/' + this.model.get('id'))
+                $.get('./internal/annotations/' + this.model.get('id'))
                     .then(function (response) {
                         var resp = response.response;
                         if (response.responseType === "success") {
@@ -166,7 +166,7 @@ define([
             if(annotation !== "") {
                 LoadingCompanionView.beginLoading(this);
                 $.ajax({
-                    url: '/search/catalog/internal/annotations',
+                    url: './internal/annotations',
                     data: JSON.stringify(annotationObj),
                     method: 'POST',
                     contentType: 'application/json'

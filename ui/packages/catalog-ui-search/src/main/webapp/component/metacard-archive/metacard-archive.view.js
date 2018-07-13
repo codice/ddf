@@ -84,7 +84,7 @@ define([
                     if (confirmation.get('choice')) {
                         var loadingView = new LoadingView();
                         $.ajax({
-                            url: '/search/catalog/internal/metacards',
+                            url: './internal/metacards',
                             type: 'DELETE',
                             data: payload,
                             contentType: 'application/json'
@@ -115,7 +115,7 @@ define([
                     if (confirmation.get('choice')) {
                         var loadingView = new LoadingView();
                         $.whenAll.apply(this, this.model.map(function(result) {
-                            return $.get('/search/catalog/internal/history/' +
+                            return $.get('./internal/history/' +
                                 'revert/' +
                                 result.get('metacard').get('properties').get('metacard.deleted.id') +
                                 '/' +

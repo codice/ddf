@@ -70,7 +70,7 @@ class Keyword extends React.Component {
                     onChange={(option) => this.onChange(option)}
                     minimumInputLength={2}
                     placeholder="Enter a region, country, or city"
-                    url="/search/catalog/internal/geofeature/suggestions"
+                    url="./internal/geofeature/suggestions"
                 />
                 {loading ? (
                     <div style={{ marginTop: 10 }}>
