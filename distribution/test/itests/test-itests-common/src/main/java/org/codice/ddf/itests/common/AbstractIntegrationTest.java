@@ -695,7 +695,7 @@ public abstract class AbstractIntegrationTest {
           installStartupFile(
               String.format(
                   "priority \"grant\"; grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
-                  new File("target" + File.pathSeparator + "solr").getAbsolutePath()),
+                  new File("target" + File.separator + "solr").getAbsolutePath()),
               "/security/itests-solr.policy"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
