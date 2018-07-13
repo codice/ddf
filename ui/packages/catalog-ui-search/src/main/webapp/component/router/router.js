@@ -19,7 +19,7 @@ module.exports = new (Backbone.Model.extend({
         name: undefined,
         path: undefined,
         args: undefined,
-        lowBandwidth: false
+        lowBandwidth: window.location.search.indexOf('lowBandwidth') !== -1
     },
     initialize: function(){
         this.listenTo(this, 'change:name', this.handleChangeName);

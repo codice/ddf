@@ -61,11 +61,6 @@ const Router = Backbone.Router.extend({
         return routesBlob
     }, {}),
     initialize: function(){
-        if (window.location.search.indexOf('lowBandwidth') !== -1) {
-            router.set({
-                lowBandwidth: true
-            });
-        }
         this.listenTo(wreqr.vent, 'router:preload', this.handlePreload);
         this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
         this.on('route', this.onRoute, this);
