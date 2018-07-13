@@ -21,6 +21,7 @@
     </formats>
     <dependencySets>
         <dependencySet>
+
             <includes>
                 <include>ddf.platform.solr:solr-xpath</include>
             </includes>
@@ -29,7 +30,7 @@
         <dependencySet>
             <includes>
                 <include>
-                    com.vividsolutions:jts-core
+                    org.locationtech.jts:jts-core
                 </include>
             </includes>
             <outputDirectory>/server/lib</outputDirectory>
