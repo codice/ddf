@@ -42,16 +42,11 @@
                 <artifactId>lux</artifactId>
                 <version>${lux.version}</version>
             </dependency>
-            <!-- Override commons-fileupload version due to CVE-2014-0050 -->
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${commons.fileupload.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
         <module>solr-dependencies</module>
+        <module>solr-logging</module>
         <module>solr-query</module>
         <module>solr-xpath</module>
         <module>platform-solr-server-standalone</module>

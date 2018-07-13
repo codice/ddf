@@ -417,7 +417,6 @@ public abstract class AbstractIntegrationTest {
     basePort = findPortNumber(20000);
     return combineOptions(
         configureCustom(),
-        configureEmbeddedSolr(),
         configureLogLevel(),
         configureIncludeUnstableTests(),
         configureDistribution(),
@@ -697,15 +696,6 @@ public abstract class AbstractIntegrationTest {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
     return new Option[0];
-  }
-
-  private Option[] configureEmbeddedSolr() {
-    return options(
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "EmbeddedSolrServer"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", ""),
-        editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.data.dir", "${karaf.home}/data/solr"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
   }
 
   /**

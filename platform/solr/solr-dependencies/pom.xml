@@ -24,34 +24,62 @@
     <description>Shaded jar of Solr core dependencies.</description>
     <packaging>jar</packaging>
     <properties>
-        <info.ganglia.gmetric4j.version>1.0.7</info.ganglia.gmetric4j.version>
-        <org.slf4j.version>1.7.7</org.slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
-        <dropwizard.version>3.2.2</dropwizard.version>
+        <jts.version>1.15.0</jts.version>
+        <dropwizard.version>3.2.6</dropwizard.version>
+        <rrd4j.version>3.2</rrd4j.version>
+        <s2.version>1.0.0</s2.version>
     </properties>
     <dependencies>
-        <!-- DDF-915: upgrade commons-fileupload version due to security concerns -->
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons.fileupload.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>rrd4j</artifactId>
+                    <groupId>org.rrd4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
+            <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
+            <version>${jts.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
+            <groupId>org.rrd4j</groupId>
+            <artifactId>rrd4j</artifactId>
+            <version>${rrd4j.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jetty9</artifactId>
             <version>${dropwizard.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jetty-http</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-io</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
@@ -74,34 +102,9 @@
             <version>${dropwizard.version}</version>
         </dependency>
         <dependency>
-            <groupId>info.ganglia.gmetric4j</groupId>
-            <artifactId>gmetric4j</artifactId>
-            <version>${info.ganglia.gmetric4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>io.sgr</groupId>
+            <artifactId>s2-geometry-library-java</artifactId>
+            <version>${s2.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -125,7 +128,7 @@
                             <include>commons-fileupload:commons-fileupload</include>
                             <include>commons-io:commons-io</include>
                             <include>commons-lang:commons-lang</include>
-                            <include>com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru</include>
+                            <include>commons-lang3:commons-lang3</include>
                             <include>dom4j:dom4j</include>
                             <include>com.google.guava:guava</include>
                             <include>org.apache.hadoop:hadoop-annotations</include>
@@ -137,15 +140,19 @@
                             <include>org.apache.httpcomponents:httpclient</include>
                             <include>org.apache.httpcomponents:httpcore</include>
                             <include>org.apache.httpcomponents:httpmime</include>
+                            <include>com.fasterxml.jackson.core:jackson-annotations</include>
                             <include>com.fasterxml.jackson.core:jackson-core</include>
+                            <include>com.fasterxml.jackson.core:jackson-core-asl</include>
+                            <include>com.fasterxml.jackson.core:jackson-databind</include>
                             <include>com.fasterxml.jackson.dataformat:jackson-dataformat-smile</include>
+                            <include>org.codehaus.jackson:jackson-mapper-asl</include>
                             <include>joda-time:joda-time</include>
-                            <include>com.vividsolutions:jts-core</include>
-                            <include>com.vividsolutions:jts-io</include>
+                            <include>org.locationtech.jts:jts-core</include>
                             <include>org.apache.lucene:lucene-analyzers-common</include>
                             <include>org.apache.lucene:lucene-analyzers-kuromoji</include>
                             <include>org.apache.lucene:lucene-analyzers-phonetic</include>
                             <include>org.apache.lucene:lucene-backward-codecs</include>
+                            <include>org.apache.lucene:lucene-classification</include>
                             <include>org.apache.lucene:lucene-codecs</include>
                             <include>org.apache.lucene:lucene-core</include>
                             <include>org.apache.lucene:lucene-expressions</include>
@@ -157,6 +164,7 @@
                             <include>org.apache.lucene:lucene-queries</include>
                             <include>org.apache.lucene:lucene-queryparser</include>
                             <include>org.apache.lucene:lucene-sandbox</include>
+                            <include>org.apache.lucene:lucene-spatial3d</include>
                             <include>org.apache.lucene:lucene-spatial-extras</include>
                             <include>org.apache.lucene:lucene-suggest</include>
                             <include>org.noggit:noggit</include>
@@ -164,7 +172,8 @@
                             <include>org.restlet.jee:org.restlet.ext.servlet</include>
                             <include>com.facebook.presto:presto-parser</include>
                             <include>com.google.protobuf:protobuf-java</include>
-                            <include>io.airlift:slice</include>
+                            <include>org.rrd4j:rrd4j</include>
+                            <include>io.sgr:s2-geometry-library-java</include>
                             <include>org.apache.solr:solr-core</include>
                             <include>org.apache.solr:solr-solrj</include>
                             <include>org.locationtech.spatial4j:spatial4j</include>
@@ -190,6 +199,8 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
+                                <!-- Remove after versions exclusion after upgrading to Karaf 4.2.x (KARAF-5399) -->
+                                <exclude>META-INF/versions/**</exclude>
                             </excludes>
                         </filter>
                     </filters>

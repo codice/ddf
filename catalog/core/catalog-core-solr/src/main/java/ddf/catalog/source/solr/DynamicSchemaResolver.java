@@ -70,6 +70,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -222,7 +223,7 @@ public class DynamicSchemaResolver {
 
     QueryResponse response;
     try {
-      response = client.query(query);
+      response = client.query(query, METHOD.POST);
     } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info(DynamicSchemaResolver.COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES);
       LOGGER.debug(DynamicSchemaResolver.COULD_NOT_UPDATE_CACHE_FOR_FIELD_NAMES, e);

@@ -127,7 +127,7 @@
     <!-- points to the root document of a block of nested documents. Required for nested
        document support, may be removed otherwise
     -->
-    <!--<field name="_root_" type="string" indexed="true" stored="false"/>-->
+    <!--<field name="_root_"  type="string" indexed="true" stored="true" docValues="true"/>-->
 
     <field name="id_txt" type="string" indexed="true" stored="true" required="true"/>
     <field name="id_txt_tokenized" type="text_general" indexed="true" stored="false"

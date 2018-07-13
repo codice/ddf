@@ -16,12 +16,11 @@ package org.codice.solr.factory.impl;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
-import org.apache.solr.core.SolrXmlConfig;
 
 /** Extends functionality of CoreContainer to allow direct registration of a SolrCore */
 public class SolrCoreContainer extends CoreContainer {
   public SolrCoreContainer(SolrResourceLoader loader) {
-    super(SolrXmlConfig.fromSolrHome(loader, loader.getInstancePath()));
+    super(loader);
     this.load();
   }
 

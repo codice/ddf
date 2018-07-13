@@ -35,6 +35,11 @@
             <artifactId>solr-dependencies</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -111,6 +116,16 @@
                                         ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
                                     </outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.solr</groupId>
+                                    <artifactId>solr-logging</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -165,7 +180,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Web-ContextPath>solr</Web-ContextPath>
-                        <Export-Package/>
                         <Bundle-ClassPath>
                             WEB-INF/classes,
                             <!--
@@ -174,20 +188,13 @@
                             http://team.ops4j.org/wiki/display/paxweb/OSGi-fy+your+WAR
                              -->
                             WEB-INF/lib/solr-xpath-${project.version}.jar,
-                            WEB-INF/lib/solr-dependencies-${project.version}.jar
+                            WEB-INF/lib/solr-dependencies-${project.version}.jar,
+                            WEB-INF/lib/solr-logging-${project.version}.jar
                         </Bundle-ClassPath>
                         <Private-Package>
                             org.xerial.snappy.*
                         </Private-Package>
                         <Import-Package>
-                            com.vividsolutions.jts.algorithm,
-                            com.vividsolutions.jts.geom,
-                            com.vividsolutions.jts.geom.impl,
-                            com.vividsolutions.jts.io,
-                            com.vividsolutions.jts.operation.union,
-                            com.vividsolutions.jts.operation.valid,
-                            com.vividsolutions.jts.simplify,
-                            com.vividsolutions.jts.util,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,

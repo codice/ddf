@@ -44,13 +44,13 @@
        <env-entry-type>java.lang.String</env-entry-type>
     </env-entry>
    -->
-   
+
   <!-- Any path (name) registered in solrconfig.xml will be sent to that filter -->
   <filter>
     <filter-name>SolrRequestFilter</filter-name>
     <filter-class>org.apache.solr.servlet.SolrDispatchFilter</filter-class>
     <!--
-    Exclude patterns is a list of directories that would be short circuited by the 
+    Exclude patterns is a list of directories that would be short circuited by the
     SolrDispatchFilter. It includes all Admin UI related static content.
     NOTE: It is NOT a pattern but only matches the start of the HTTP ServletPath.
     -->
@@ -79,7 +79,7 @@
     <servlet-name>LoadAdminUI</servlet-name>
     <servlet-class>org.apache.solr.servlet.LoadAdminUiServlet</servlet-class>
   </servlet>
-  
+
   <!-- Remove in Solr 5.0 -->
   <!-- This sends SC_MOVED_PERMANENTLY (301) for resources that changed in 4.0 -->
   <servlet>
@@ -90,7 +90,7 @@
       <param-value>${context}/#/</param-value>
     </init-param>
   </servlet>
-  
+
   <servlet>
     <servlet-name>RedirectOldZookeeper</servlet-name>
     <servlet-class>org.apache.solr.servlet.RedirectServlet</servlet-class>
@@ -141,11 +141,6 @@
 
   <servlet-mapping>
     <servlet-name>LoadAdminUI</servlet-name>
-    <url-pattern>/old.html</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>LoadAdminUI</servlet-name>
     <url-pattern>/index.html</url-pattern>
   </servlet-mapping>
 
@@ -153,7 +148,7 @@
     <servlet-name>SolrRestApi</servlet-name>
     <url-pattern>/schema/*</url-pattern>
   </servlet-mapping>
-  
+
   <mime-mapping>
     <extension>.xsl</extension>
     <!-- per http://www.w3.org/TR/2006/PR-xslt20-20061121/ -->
@@ -163,6 +158,23 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+
+  <!-- Get rid of error message -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Disable TRACE</web-resource-name>
+      <url-pattern>/</url-pattern>
+      <http-method>TRACE</http-method>
+    </web-resource-collection>
+    <auth-constraint/>
+  </security-constraint>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Enable everything but TRACE</web-resource-name>
+      <url-pattern>/</url-pattern>
+      <http-method-omission>TRACE</http-method-omission>
+    </web-resource-collection>
+  </security-constraint>
 
   <!-- added this to the solr web.xml for our sso -->
   <context-param>

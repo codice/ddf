@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>8.4</version>
+            <version>${opengis.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.encryption</groupId>
@@ -102,15 +102,6 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -132,6 +123,12 @@
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>solr-core</artifactId>
+                    <groupId>org.apache.solr</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -167,6 +164,7 @@
                             org.codice.ddf.persistence.internal
                         </Private-Package>
                         <Import-Package>
+                            !com.google.common.geometry,
                             com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
