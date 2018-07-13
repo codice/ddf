@@ -50,11 +50,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.parser.ParserException;
@@ -113,6 +115,10 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
   private ConfigurationAdmin configAdmin;
 
   private MetaTypeService metaTypeService;
+
+  // age off entries after 3 seconds which should be enough time for the remote systems solr to
+  // persist the entry
+  private Map<String, Metacard> recent = new PassiveExpiringMap<>(TimeUnit.SECONDS.toMillis(3));
 
   public RegistryStoreImpl(
       BundleContext context,
@@ -209,19 +215,37 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
               .collect(
                   Collectors.toMap(
                       e -> RegistryUtility.getRegistryId(e.getMetacard()), Result::getMetacard));
-      List<Metacard> metacardsToCreate =
-          request
-              .getMetacards()
+
+      // need to synchronize this chunk so that the map holding the recently created metacards
+      // will be populated correctly. Sometimes multiple create requests for the same registry
+      // metacard are made and the above query will not return the expected results because
+      // the previous create has not been persisted yet on the remote system. This can result
+      // in duplicates so we prevent that here by keeping a PassiveExpiringMap.
+      synchronized (recent) {
+        request
+            .getMetacards()
+            .stream()
+            .filter(e -> recent.containsKey(RegistryUtility.getRegistryId(e)))
+            .forEach(mcard -> responseMap.put(RegistryUtility.getRegistryId(mcard), mcard));
+
+        List<Metacard> metacardsToCreate =
+            request
+                .getMetacards()
+                .stream()
+                .filter(mcard -> !responseMap.containsKey(RegistryUtility.getRegistryId(mcard)))
+                .collect(Collectors.toList());
+        List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
+        if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
+          CreateResponse createResponse =
+              super.create(new CreateRequestImpl(metacardsToCreate, request.getProperties()));
+          createResponse
+              .getCreatedMetacards()
               .stream()
-              .filter(e -> !responseMap.containsKey(RegistryUtility.getRegistryId(e)))
-              .collect(Collectors.toList());
-      List<Metacard> allMetacards = new ArrayList<>(responseMap.values());
-      if (CollectionUtils.isNotEmpty(metacardsToCreate)) {
-        CreateResponse createResponse =
-            super.create(new CreateRequestImpl(metacardsToCreate, request.getProperties()));
-        allMetacards.addAll(createResponse.getCreatedMetacards());
+              .forEach(mcard -> recent.put(RegistryUtility.getRegistryId(mcard), mcard));
+          allMetacards.addAll(createResponse.getCreatedMetacards());
+        }
+        return new CreateResponseImpl(request, request.getProperties(), allMetacards);
       }
-      return new CreateResponseImpl(request, request.getProperties(), allMetacards);
     } catch (UnsupportedQueryException e) {
       LOGGER.warn(
           "Unable to perform pre-create remote query. Proceeding with original query. Error was {}",
