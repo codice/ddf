@@ -294,6 +294,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr.cmd</solr.script.file>
+                <solr.force></solr.force>
             </properties>
         </profile>
         <profile>
@@ -305,6 +306,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr</solr.script.file>
+                <solr.force>-force</solr.force>
             </properties>
         </profile>
     </profiles>
@@ -400,7 +402,7 @@
                                 <argument>${solr.port}</argument>
                                 <argument>-m</argument>
                                 <argument>512m</argument>
-                                <argument>-force</argument>
+                                <argument>${solr.force}</argument>
                             </arguments>
                         </configuration>
                     </execution>
