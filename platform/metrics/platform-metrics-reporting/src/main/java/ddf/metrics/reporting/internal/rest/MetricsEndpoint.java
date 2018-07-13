@@ -51,6 +51,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -568,14 +569,14 @@ public class MetricsEndpoint {
          */
 
         String metricsUrl =
-            "../../services/"
-                + METRICS_SERVICE_BASE_URL
-                + "/"
-                + metricsName
-                + "."
-                + format
-                + DATE_OFFSET_QUERY
-                + timeRangeInSeconds;
+            SystemBaseUrl.EXTERNAL.constructUrl(
+                METRICS_SERVICE_BASE_URL
+                    + "/"
+                    + metricsName
+                    + "."
+                    + format
+                    + DATE_OFFSET_QUERY
+                    + timeRangeInSeconds);
 
         // key=format
         // value=url for format with specified time range in seconds

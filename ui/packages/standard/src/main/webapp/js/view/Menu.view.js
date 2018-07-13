@@ -356,7 +356,7 @@ define([
                 username: "1",
                 password: "1",
             }).then( function(){
-                 window.location = '../../logout?prevurl=' + encodeURI(window.location.pathname);
+                 window.location = '../../logout/?prevurl=' + encodeURI(window.location.pathname);
             });
         }
     });
