@@ -32,8 +32,8 @@
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.13</version>
+            <artifactId>jts-core</artifactId>
+            <version>1.14.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -56,11 +56,11 @@
                         </goals>
                         <configuration>
                             <url>
-                                https://archive.apache.org/dist/lucene/solr/${solr.version}/solr-${solr.version}.zip
+                                https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&amp;filename=lucene/solr/7.4.0/solr-7.4.0.zip
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <sha1>de86ce8da3037309f0db97e08b40e35ae40726dd</sha1>
+                            <sha1>f63157ae606a081a48513d5d9ae0a5d0d9741ce2</sha1>
                             <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>

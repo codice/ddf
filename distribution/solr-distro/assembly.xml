@@ -29,7 +29,7 @@
         <dependencySet>
             <includes>
                 <include>
-                    com.vividsolutions:jts
+                    com.vividsolutions:jts-core
                 </include>
             </includes>
             <outputDirectory>/server/lib</outputDirectory>
