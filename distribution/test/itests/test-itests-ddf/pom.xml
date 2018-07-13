@@ -365,6 +365,8 @@
                                     ${solr.script.dir}${solr.script.file}
                                 </argument>
                             </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
                     <execution>
@@ -380,6 +382,8 @@
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                             <successCodes>
                                 <successCode>0</successCode>
                                 <successCode>1</successCode>
@@ -404,6 +408,8 @@
                                 <argument>512m</argument>
                                 <argument>${solr.force}</argument>
                             </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
                     <execution>
@@ -419,6 +425,8 @@
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                             </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
                         </configuration>
                     </execution>
                 </executions>
