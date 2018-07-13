@@ -7,28 +7,16 @@
 
 == {title}
 
-* *{hardening-step}*
-
-The ${branding}'s design includes support for pluggable indexes.
-The default installation contains a Solr index to be used as the Metadata Catalog, but this implementation can be replaced with an alternate 3rd party index implementation.
-
 The following sections provide hardening guidance for Solr; however, they are to serve only as reference and other an additional security requirements may be added.
 
-The Solr Admin user interface uses basic authentication as part of the server configuration.
+=== Hardening Solr Server Configuration
 
-=== Configuring Solr Node Security
-
-The Solr server is protected by the built in REST security architecture.
-The configuration can be changed by editing the <<_configuring_the_web_context_policy_manager,Web Context Policy Manager>>
- configuration for the `/solr` web context.
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-security}* application.
-. Select the *Configuration* tab.
-. Select *Web Context Policy Manager*.
-
-By default, the configuration is set to `/solr=SAML|PKI|BASIC`.
-This allows a user or another system to connect to Solr using any of those authentication methods.
+The Solr server configuration is configured to be secure by default. No additional
+hardening should be necessary. Solr is configured to reject all remote requests
+by default. It is only accessible locally. This is a necessary part of a secure configuration.
+To enable remote requests for troubleshooting, edit the script
+file `ddf` (or the `ddf.bat` file for Windows) and remove
+the `solr.jetty.host` and `jetty.host` parameters.
 
 === Configuring Solr Encryption
 

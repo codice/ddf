@@ -226,3 +226,65 @@ If the system fails to start automatically on boot with any messages about the J
 
 Because ${branding} is built on top of Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation].
 
+
+==== Automatically Starting Solr as a Process
+
+If ${branding} is configured to start as a service automatically on system boot, then Solr will also need to be configured to start automatically.
+
+*Linux*
+
+From the https://lucene.apache.org/solr/guide/6_6/taking-solr-to-production.html[Solr documentation]:
+====
+Solr includes a service installation script (bin/install_solr_service.sh) to help you install Solr as a service on Linux. Currently, the script only supports CentOS, Debian, Red Hat, SUSE and Ubuntu Linux distributions.
+====
+
+. Extract the Installation Script
++
+Extract the Solr distribution installation script (install_solr_service.sh) into the current directory. By default they are located in  the `${home_directory}/distribution/solr/target/classes/solr-${solr.version}/bin` directory.
++
+
+. Run the installation script as root:
++
+-----
+sudo bash ./install_solr_service.sh solr-version.tgz
+-----
++
+By default, the script extracts the distribution archive into /opt, configures Solr to write files into /var/solr, and runs Solr as the solr user. Consequently, the following command produces the same result as the previous command:
++
+-----
+sudo bash ./install_solr_service.sh solr-7.2.0.tgz -i /opt -d /var/solr -u solr -s solr -p 8983
+-----
+. Confirm service status
++
+To confirm the script has completed and that Solr is running as a service in the background you can type:
++
+-----
+sudo service solr status
+-----
+[NOTE]
+Review all https://lucene.apache.org/solr/guide/6_6/taking-solr-to-production.html#Fine_Tune_Your_Production_Setup[Solr guidelines] before Taking Solr into production if you plan to run it as a background service.
+
+*Windows*
+
+Windows users will be able to utilize the built in Task Scheduler to start Solr as a background process.
+
+. Install ${branding} and locate the `\solr\bin\` directory in the same location as the ${branding} `\bin\` directory.
+. Start the Windows Task Scheduler and open the Task Scheduler Library.
+. Under the Actions pane, select `Create Basic Task...`.
+. Provide a useful name and description, then click `Next >`.
+. Configure the Trigger option to the desired frequency (When the computer starts) and click `Next >`.
+. Set the Action to `Start a program` and then click `Next >`.
+. Change the program script to start Solr on the desired port:
++
+-----
+\path\to\solr\bin\solr.cmd
+-----
++
+This path can also be found using the `Browse...` button provided. Make sure to add the following arguments as well with the desired port in place of the default 8994:
++
+-----
+start -p 8994
+-----
++
+Then click `Next >`.
+. Review the settings and click `Finish`. Additional settings can be made by right clicking the task and updating the Properties. It may be necessary to update the Security Options under the task Properties to `Run with highest privileges`.

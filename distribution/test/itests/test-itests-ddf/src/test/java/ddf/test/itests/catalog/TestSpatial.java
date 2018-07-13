@@ -554,8 +554,6 @@ public class TestSpatial extends AbstractIntegrationTest {
     when()
         .get(queryUrl)
         .then()
-        .log()
-        .all()
         .and()
         .assertThat()
         .body(
@@ -569,8 +567,6 @@ public class TestSpatial extends AbstractIntegrationTest {
     given()
         .get(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=GetCapabilities")
         .then()
-        .log()
-        .all()
         .assertThat()
         .body(
             hasXPath(
@@ -585,8 +581,6 @@ public class TestSpatial extends AbstractIntegrationTest {
     given()
         .get(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=DescribeProcess&identifier=geojson")
         .then()
-        .log()
-        .all()
         .assertThat()
         .body(
             hasXPath(
@@ -610,8 +604,6 @@ public class TestSpatial extends AbstractIntegrationTest {
         .body(requestXml)
         .post(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=Execute")
         .then()
-        .log()
-        .all()
         .assertThat()
         .body(
             hasXPath(
@@ -718,12 +710,8 @@ public class TestSpatial extends AbstractIntegrationTest {
 
     return queryRequest
         .when()
-        .log()
-        .all()
         .post(CSW_PATH.getUrl())
         .then()
-        .log()
-        .all()
         .assertThat()
         .statusCode(equalTo(HttpStatus.SC_OK))
         .extract()

@@ -417,6 +417,7 @@ public abstract class AbstractIntegrationTest {
     basePort = findPortNumber(20000);
     return combineOptions(
         configureCustom(),
+        configureSolr(),
         configureLogLevel(),
         configureIncludeUnstableTests(),
         configureDistribution(),
@@ -690,12 +691,30 @@ public abstract class AbstractIntegrationTest {
           installStartupFile(
               getClass().getResource("/etc/forms/imagery.xml"), "/etc/forms/imagery.xml"),
           installStartupFile(
-              getClass().getResource("/etc/forms/contact-name.xml"),
-              "/etc/forms/contact-name.xml"));
+              getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
+          installStartupFile(
+              String.format(
+                  "priority \"grant\"; grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
+                  new File("target" + File.separator + "solr").getAbsolutePath()),
+              "/security/itests-solr.policy"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
     return new Option[0];
+  }
+
+  private Option[] configureSolr() {
+
+    return options(
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "HttpSolrClient"),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9994/solr"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.port", "9994"),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH,
+            "solr.data.dir",
+            new File("target/solr/server/solr").getAbsolutePath()),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
   }
 
   /**
@@ -922,6 +941,11 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  LOGGER.error(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
@@ -964,6 +988,11 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  LOGGER.error(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
@@ -1009,6 +1038,11 @@ public abstract class AbstractIntegrationTest {
             .max(Comparator.comparing(createTimeComp))
             .map(Path::toAbsolutePath)
             .map(Path::toString)
+            .map(
+                s -> {
+                  LOGGER.error(s);
+                  return s;
+                })
             .map(s -> StringUtils.replace(super.getOption(), KARAF_HOME, s))
             .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
             .map(s -> s + File.separator)

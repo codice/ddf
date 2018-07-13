@@ -98,6 +98,7 @@
     <!-- browse-resources must come before solr-velocity JAR in order to override localized resources -->
     <!--<lib path="${solr.install.dir:../../../..}/example/files/browse-resources"/>-->
     <!--<lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />-->
+    <lib dir="${solr.install.dir:../../../..}/plugins/" regex=".*\.jar" />
     <!-- an exact 'path' can be used instead of a 'dir' to specify a
          specific jar file.  This will cause a serious error to be logged
          if it can't be loaded.

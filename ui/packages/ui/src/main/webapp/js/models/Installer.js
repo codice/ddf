@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , window*/
+/*global define , location , window*/
 define([
   'backbone',
   'underscore',
@@ -182,15 +182,7 @@ define([
               });
             });
           } else {
-            $.ajax({
-              type: 'GET',
-              url: that.shutdownUrl,
-              dataType: 'JSON'
-            }).done(function () {
-              window.setTimeout(function () {
-                window.location.href = that.get("redirectUrl");
-              }, 30000);
-            });
+            location.reload();
           }
         });
       });

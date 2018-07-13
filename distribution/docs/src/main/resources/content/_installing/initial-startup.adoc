@@ -85,9 +85,6 @@ During ${branding} installation, the major directories and files shown in the ta
 |`data/log/security.log`
 |Log file that records user interactions with the system for auditing purposes.
 
-|`data/log/solr.log`
-|Log file for any info coming from Solr.
-
 |`deploy`
 |Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon ${branding} installation)
 
@@ -105,6 +102,12 @@ During ${branding} installation, the major directories and files shown in the ta
 
 |`licenses`
 |Licensing information related to the system.
+
+|`solr`
+|Apache Solr server used when ${branding} manages Solr
+
+|`solr/server/logs/solr.log`
+|Log file for Solr.
 
 |`system`
 |Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.

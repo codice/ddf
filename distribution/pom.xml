@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
@@ -29,12 +29,14 @@
     </properties>
     <modules>
         <module>sdk</module>
+        <module>solr-distro</module>
         <module>console-branding</module>
         <module>ddf-branding-plugin</module>
         <module>ddf-common</module>
         <module>kernel</module>
         <module>docs</module>
         <module>ddf</module>
+        <!--Test needs to be the last module because it depends on artifacts from earlier modules-->
         <module>test</module>
     </modules>
     <build>

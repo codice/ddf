@@ -513,4 +513,44 @@
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Nearly all of these are not an issue because either we are not using those features entirely or (and in addition to the fact) that solr is now running as an external process and completely locked down, so no one could access solr to take advantage of these vulnerabilites. All communication is controlled by DDF.
+   ]]></notes>
+    <cve>CVE-2016-3081</cve>
+    <cve>CVE-2016-7415</cve>
+    <cve>CVE-2017-17484</cve>
+    <cve>CVE-2017-5637</cve>
+    <cve>CVE-2017-14868</cve>
+    <cve>CVE-2013-4316</cve>
+    <cve>CVE-2016-4436</cve>
+    <cve>CVE-2017-3162</cve>
+    <cve>CVE-2013-2115</cve>
+    <cve>CVE-2014-1868</cve>
+    <cve>CVE-2012-0391</cve>
+    <cve>CVE-2017-14952</cve>
+    <cve>CVE-2017-14949</cve>
+    <cve>CVE-2016-3082</cve>
+    <cve>CVE-2013-2135</cve>
+    <cve>CVE-2014-0112</cve>
+    <cve>CVE-2016-5001</cve>
+    <cve>CVE-2017-3161</cve>
+    <cve>CVE-2012-0392</cve>
+    <cve>CVE-2014-3577</cve>
+    <cve>CVE-2014-3627</cve>
+    <cve>CVE-2012-0838</cve>
+    <cve>CVE-2013-1965</cve>
+    <cve>CVE-2013-1966</cve>
+    <cve>CVE-2015-5262</cve>
+    <cve>CVE-2014-0113</cve>
+    <cve>CVE-2014-0229</cve>
+    <cve>CVE-2017-15713</cve>
+    <cve>CVE-2016-6293</cve>
+    <cve>CVE-2013-2134</cve>
+    <cve>CVE-2018-8012</cve>
+    <cve>CVE-2013-2251</cve>
+    <cve>CVE-2016-0785</cve>
+    <cve>CVE-2016-6811</cve>
+    <cve>CVE-2016-4461</cve>
+    </suppress>
 </suppressions>

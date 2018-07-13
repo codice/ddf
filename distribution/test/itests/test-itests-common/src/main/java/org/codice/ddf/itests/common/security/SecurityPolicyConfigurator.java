@@ -35,10 +35,9 @@ public class SecurityPolicyConfigurator {
   private static final String FACTORY_PID =
       "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
-  public static final String BASIC_AUTH_TYPES = "/=SAML|basic,/solr=SAML|PKI|basic";
+  public static final String BASIC_AUTH_TYPES = "/=SAML|basic";
 
-  public static final String GUEST_AUTH_TYPES =
-      "/=SAML|GUEST,/admin=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
+  public static final String GUEST_AUTH_TYPES = "/=SAML|GUEST,/admin=SAML|basic,/system=SAML|basic";
 
   public static final String DEFAULT_WHITELIST =
       "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/idp,/idp,/services/platform/config/ui,/login";

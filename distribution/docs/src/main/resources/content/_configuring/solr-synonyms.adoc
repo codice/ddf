@@ -12,7 +12,6 @@ Synonyms are used during keyword/anyText searches as well as when searching on s
 Text searches using the `equality` / `exact match` operator will not utilize synonyms.
 
 Solr utilizes a `synonyms.txt` file which exists for each Solr core.
-This file is located under `${home_directory}/data/solr/<solr core name>/data`.
 Synonym matching is most pertinent to metacards which are contained within 2 cores: `catalog` and `metacard_cache`.
 
 === Defining synonym rules in the Solr Provider

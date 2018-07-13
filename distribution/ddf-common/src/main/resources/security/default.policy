@@ -180,7 +180,6 @@ grant codeBase "file:/org.apache.karaf.jaas.modules" {
 grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ingest_error.log", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}solr.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}artemis.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}security.log", "read,write";
     permission java.io.FilePermission "pax-logging.properties", "read";
@@ -338,7 +337,6 @@ grant codeBase "file:/catalog-core-standardframework/platform-solr-server-standa
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
-    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
 grant codeBase "file:/catalog-plugin-videothumbnail" {

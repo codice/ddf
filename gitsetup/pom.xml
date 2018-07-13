@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -45,7 +45,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.5.0</version>
                         <executions>
                             <execution>
                                 <id>install-hooks</id>
@@ -56,7 +55,7 @@
                                 <configuration>
                                     <mainClass>org.codice.git.Setup</mainClass>
                                     <arguments>
-                                       <argument>${project.basedir}</argument>
+                                        <argument>${project.basedir}</argument>
                                         <argument>install</argument>
                                     </arguments>
                                 </configuration>
@@ -169,7 +168,7 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>${dependency-check-maven.version}</version>
                 <configuration>
-                  <skip>true</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

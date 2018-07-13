@@ -90,7 +90,7 @@ if "%KARAF_TITLE%" == "" (
 )
 
 :EXECUTE
-    start "%KARAF_TITLE%" /MIN "%KARAF_HOME%\bin\ddf.bat" server %*
+    Powershell.exe -executionpolicy bypass -file %KARAF_HOME%\bin\service.ps1 ddf.bat server %*
 
 rem # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

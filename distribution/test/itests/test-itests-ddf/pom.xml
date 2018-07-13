@@ -12,9 +12,10 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.test.itests</groupId>
@@ -23,7 +24,12 @@
     </parent>
     <artifactId>test-itests-ddf</artifactId>
     <name>DDF :: Integration :: Test</name>
-
+    <properties>
+        <solr.script.dir>
+            ${project.build.directory}/solr/bin/
+        </solr.script.dir>
+        <solr.port>9994</solr.port>
+    </properties>
     <dependencies>
         <!-- Pax Exam Karaf container dependencies -->
         <dependency>
@@ -170,12 +176,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>${httpcore.version}</version>
@@ -275,10 +275,162 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf</groupId>
+            <artifactId>solr-distro</artifactId>
+            <version>${project.version}</version>
+            <classifier>assembly</classifier>
+            <type>zip</type>
+        </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <solr.script.file>solr.cmd</solr.script.file>
+                <solr.force></solr.force>
+            </properties>
+        </profile>
+        <profile>
+            <id>Unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <solr.script.file>solr</solr.script.file>
+                <solr.force>-force</solr.force>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
+
+            <!--Unpack Solr distribution-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-solr</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf</groupId>
+                                    <artifactId>solr-distro</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <classifier>assembly</classifier>
+                                    <!--FYI: Maven dependency plugin ignores the instruction "destFileName"-->
+                                    <!--if the goal is "unpack"-->
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <!--Do not run this plugin exection if the we are skipping tests-->
+                    <skip>${skipTests}</skip>
+                    <longModulepath>false</longModulepath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-solr-executable</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>chmod</executable>
+                            <arguments>
+                                <argument>+x</argument>
+                                <argument>
+                                    ${solr.script.dir}${solr.script.file}
+                                </argument>
+                            </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>ensure-solr-is-stopped</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
+                            <arguments>
+                                <argument>stop</argument>
+                                <argument>-p</argument>
+                                <argument>${solr.port}</argument>
+                            </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                            <successCodes>
+                                <successCode>0</successCode>
+                                <successCode>1</successCode>
+                            </successCodes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>start-solr</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>
+                                ${solr.script.dir}${solr.script.file}
+                            </executable>
+                            <arguments>
+                                <argument>start</argument>
+                                <argument>-p</argument>
+                                <argument>${solr.port}</argument>
+                                <argument>-m</argument>
+                                <argument>512m</argument>
+                                <argument>${solr.force}</argument>
+                            </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-solr</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${solr.script.dir}${solr.script.file}</executable>
+                            <arguments>
+                                <argument>stop</argument>
+                                <argument>-p</argument>
+                                <argument>${solr.port}</argument>
+                            </arguments>
+                            <async>true</async>
+                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>

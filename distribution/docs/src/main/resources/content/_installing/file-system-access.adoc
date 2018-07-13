@@ -57,7 +57,7 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 * Change ownership of `${home_directory}`
 ** `chown -R ${branding-lowercase}-user ${home_directory}`
 * Create instances sub-directory if does not exist
-** `mkdir -p ${home_directory}/instances ${home_directory}/solr`
+** `mkdir -p ${home_directory}/instances`
 * Change group ownership on sub-directories
 ** `chgrp -R ${branding}_GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
 * Change group permissions

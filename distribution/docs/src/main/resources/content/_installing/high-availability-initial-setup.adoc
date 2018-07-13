@@ -12,7 +12,7 @@ This section describes how to complete the initial setup of ${branding} in a <<_
 .Prerequisites
 * A failover proxy that can route HTTP traffic according to the pattern described in the Introduction to High Availability.
 It is recommended that a hardware failover proxy be used in a production environment.
-* Solr Cloud: See the <<_solr_catalog_provider, Solr Cloud section>> for installation and configuration
+* Solr Cloud: See the <<_solr_cloud, Solr Cloud section>> for installation and configuration
 guidance to connect ${branding} nodes to Solr Cloud.
 
 Once the prerequisites have been met, the below steps can be followed.

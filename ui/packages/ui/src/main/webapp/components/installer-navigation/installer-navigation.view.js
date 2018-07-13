@@ -34,7 +34,7 @@ define([
             'click .previous': 'previous',
             'click .next': 'next',
             'click .finish': 'finish',
-            'click .shutdown-now': 'finish',
+            'click .restart-later': 'admin',
             'click .restart-now': 'shutdown'
         },
         initialize: function() {
@@ -69,14 +69,21 @@ define([
                 alert('Final installation failed, please check application logs for details.');
             });
          },
-         shutdown: function() {
+        shutdown: function() {
             this.model.trigger('block');
             this.model.set({message: 'Restarting now.... This could take a few minutes.'});
             this.model.save(true)
             .fail(function(){
                 alert('Final installation failed, please check application logs for details.');
             });
-         }
+        },
+        admin: function() {
+            this.model.trigger('block');
+            this.model.set({message: 'Completing installation. Please wait...'});
+            this.model.save().fail(function() {
+                alert('Final installation failed, please check application logs for details.');
+            });
+        }
 
     });
 

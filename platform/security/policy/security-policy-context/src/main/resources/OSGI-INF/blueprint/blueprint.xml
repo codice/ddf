@@ -24,7 +24,6 @@
         <property name="authenticationTypes">
             <array value-type="java.lang.String">
                 <value>/=IDP|GUEST</value>
-                <value>/solr=SAML|PKI|BASIC</value>
             </array>
         </property>
         <property name="realms">
@@ -37,7 +36,6 @@
                 <!-- @formatter:off -->
                 <value>/=</value>
                 <value>/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
-                <value>/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <!-- @formatter:on -->
