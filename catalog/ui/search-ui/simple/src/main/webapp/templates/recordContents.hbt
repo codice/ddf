@@ -62,7 +62,7 @@
 				<tr>
 					<td class='property-td'>Resource</td><td class='value-td'><div class=value-div>
 					{{#hasServicesUrl}}
-					    <a target='blank' href='{{servicesUrl}}/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'><i class='icon-download-alt icon-2x'></i></a>
+					    <a target='blank' href='{{servicesUrl}}../../services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource'><i class='icon-download-alt icon-2x'></i></a>
 					{{else}}
 						<a class='btn btn-small btn-danger'>server not found</a>
 					{{/hasServicesUrl}}	
