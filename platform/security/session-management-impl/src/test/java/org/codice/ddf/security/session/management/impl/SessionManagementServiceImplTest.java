@@ -11,10 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.servlet.expiry;
+package org.codice.ddf.security.session.management.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -27,7 +29,6 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,7 +53,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class SessionManagementServiceTest {
+public class SessionManagementServiceImplTest {
   private HttpServletRequest request;
 
   private SecurityToken token;
@@ -64,7 +64,7 @@ public class SessionManagementServiceTest {
 
   private SecurityManager manager;
 
-  private SessionManagementService sessionManagementService;
+  private SessionManagementServiceImpl sessionManagementServiceImpl;
 
   @Before
   public void setup()
@@ -90,24 +90,21 @@ public class SessionManagementServiceTest {
     when(tokenHolder.getRealmTokenMap()).thenReturn(Collections.singletonMap("idp", token));
     when(request.getSession(false)).thenReturn(session);
     when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(tokenHolder);
-    sessionManagementService = new SessionManagementService();
-    sessionManagementService.setSecurityManager(manager);
+    sessionManagementServiceImpl = new SessionManagementServiceImpl();
+    sessionManagementServiceImpl.setSecurityManager(manager);
   }
 
   @Test
-  public void testGetExpiry() throws IOException {
-    sessionManagementService.setClock(Clock.fixed(Instant.EPOCH, ZoneId.of("UTC")));
-    Response expiry = sessionManagementService.getExpiry(request);
-    assertThat(expiry.getStatus(), is(200));
-    assertThat(
-        IOUtils.toString(new InputStreamReader((ByteArrayInputStream) expiry.getEntity())),
-        is("4522435794788"));
+  public void testGetExpiry() {
+    sessionManagementServiceImpl.setClock(Clock.fixed(Instant.EPOCH, ZoneId.of("UTC")));
+    String expiryString = sessionManagementServiceImpl.getExpiry(request);
+    assertThat(expiryString, is("4522435794788"));
   }
 
   @Test
   public void testGetExpirySoonest()
       throws IOException, ParserConfigurationException, SAXException {
-    sessionManagementService.setClock(Clock.fixed(Instant.EPOCH, ZoneId.of("UTC")));
+    sessionManagementServiceImpl.setClock(Clock.fixed(Instant.EPOCH, ZoneId.of("UTC")));
     SecurityToken soonerToken = mock(SecurityToken.class);
     String saml =
         IOUtils.toString(
@@ -127,17 +124,14 @@ public class SessionManagementServiceTest {
     tokenMap.put("idp", token);
     tokenMap.put("karaf", soonerToken);
     when(tokenHolder.getRealmTokenMap()).thenReturn(tokenMap);
-    Response expiry = sessionManagementService.getExpiry(request);
-    assertThat(expiry.getStatus(), is(200));
-    assertThat(
-        IOUtils.toString(new InputStreamReader((ByteArrayInputStream) expiry.getEntity())),
-        is("4206816594788"));
+    String expiryString = sessionManagementServiceImpl.getExpiry(request);
+    assertThat(expiryString, is("4206816594788"));
   }
 
   @Test
   public void testGetRenewal() {
-    Response renewal = sessionManagementService.getRenewal(request);
-    assertThat(renewal.getStatus(), is(200));
+    String renewalString = sessionManagementServiceImpl.getRenewal(request);
+    assertNotNull(renewalString);
     verify(tokenHolder).addSecurityToken("idp", securityToken);
   }
 
@@ -145,8 +139,8 @@ public class SessionManagementServiceTest {
   public void testGetRenewalFails() throws SecurityServiceException {
     when(manager.getSubject(isA(SAMLAuthenticationToken.class)))
         .thenThrow(new SecurityServiceException());
-    Response renewal = sessionManagementService.getRenewal(request);
-    assertThat(renewal.getStatus(), is(500));
+    String renewalString = sessionManagementServiceImpl.getRenewal(request);
+    assertNull(renewalString);
   }
 
   @Test
@@ -155,11 +149,9 @@ public class SessionManagementServiceTest {
         .thenReturn(
             new StringBuffer("https://localhost:8993/services/internal/session/invalidate"));
     when(request.getQueryString()).thenReturn(null);
-    Response invalidate = sessionManagementService.getInvalidate(request);
-    assertThat(invalidate.getStatus(), is(303));
+    URI invalidateUri = sessionManagementServiceImpl.getInvalidate(request);
     assertThat(
-        invalidate.getLocation(),
-        is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true"))));
+        invalidateUri, is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true"))));
   }
 
   @Test
@@ -169,10 +161,9 @@ public class SessionManagementServiceTest {
             new StringBuffer(
                 "https://localhost:8993/services/internal/session/invalidate?prevurl=/admin/"));
     when(request.getQueryString()).thenReturn("prevurl=/admin/");
-    Response invalidate = sessionManagementService.getInvalidate(request);
-    assertThat(invalidate.getStatus(), is(303));
+    URI invalidateUri = sessionManagementServiceImpl.getInvalidate(request);
     assertThat(
-        invalidate.getLocation(),
+        invalidateUri,
         is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true&prevurl=/admin/"))));
   }
 

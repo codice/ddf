@@ -529,6 +529,8 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
+        <bundle>mvn:ddf.platform.security/session-management-service/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/session-management-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-session-expiry/${project.version}</bundle>
     </feature>
 
