@@ -79,6 +79,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    * @param workspaceTransformer must be non-null
    * @param securityService must be non-null
    * @param persistentStore must be non-null
+   * @param workspaceQueryBuilder must be non-null
    */
   @SuppressWarnings("WeakerAccess" /* Needed by blueprint. */)
   public WorkspaceServiceImpl(
@@ -100,7 +101,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     this.workspaceQueryBuilder = workspaceQueryBuilder;
   }
 
-  @SuppressWarnings("unused" /* Needed by metatype. */)
+  @SuppressWarnings({"unused", "WeakerAccess"} /* Needed by metatype. */)
   public void setMaxSubscriptions(int maxSubscriptions) {
     this.maxSubscriptions = maxSubscriptions;
   }
