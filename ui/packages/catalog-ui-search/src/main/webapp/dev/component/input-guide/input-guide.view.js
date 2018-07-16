@@ -151,7 +151,7 @@ module.exports = BaseGuideView.extend({
                 label: 'Autocomplete',
                 placeholder: 'Enter a region, country, or city',
                 value: [""],
-                url: '/search/catalog/internal/geofeature/suggestions',
+                url: './internal/geofeature/suggestions',
                 minimumInputLength: 2,
                 type: 'AUTOCOMPLETE',
                 isEditing: true
