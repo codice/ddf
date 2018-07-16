@@ -1,3 +1,17 @@
+<!--
+Uncomment this block and include PR # of change against 2.13.x where appropriate.
+When doing so, it is reasonable to delete much of the rest of the PR description, leaving only:
+- This uncommented block with link to 2.13.x PR
+- Reviewers tagged
+- Teams tagged
+- Committers tagged
+- The link to the "Notes on Review Process"
+
+##### ABBREVIATED REVIEW BETWEEN 2.13.X AND MASTER IS IN EFFECT
+Link to 2.13.x PR: #XXXX
+____
+-->
+
 #### What does this PR do?
 #### Who is reviewing it? 
 (please choose AT LEAST two reviewers that need to approve the PR before it can get merged)
