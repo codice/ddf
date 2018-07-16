@@ -46,48 +46,46 @@ import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WorkspaceServiceImplTest {
+
+  private WorkspaceServiceImpl workspaceServiceImpl;
 
   private static final String TEST_ID = "123";
 
   private static final String TEST_SUBJECT = "subject";
 
-  private static final int MAX_SUBSCRIPTIONS = 100;
+  @Mock private CatalogFramework catalogFramework;
 
-  private CatalogFramework catalogFramework;
+  @Mock private WorkspaceTransformerImpl workspaceTransformer;
 
-  private WorkspaceTransformerImpl workspaceTransformer;
+  @Mock private SecurityService securityService;
 
-  private SecurityService securityService;
+  @Mock private PersistentStore persistentStore;
 
-  private WorkspaceServiceImpl workspaceService;
+  @Mock private WorkspaceQueryBuilder workspaceQueryBuilder;
 
-  private PersistentStore persistentStore;
-
-  private WorkspaceQueryBuilder workspaceQueryBuilder;
+  @Mock private WorkspaceMetacardFilter workspaceMetacardFilter;
 
   @Before
   public void setup() {
-    catalogFramework = mock(CatalogFramework.class);
-    workspaceTransformer = mock(WorkspaceTransformerImpl.class);
-    securityService = mock(SecurityService.class);
-    persistentStore = mock(PersistentStore.class);
-    workspaceQueryBuilder = mock(WorkspaceQueryBuilder.class);
-    WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
-
     when(workspaceMetacardFilter.filter(any())).thenReturn(true);
 
-    workspaceService =
+    workspaceServiceImpl =
         new WorkspaceServiceImpl(
             catalogFramework,
             workspaceTransformer,
             workspaceQueryBuilder,
             securityService,
-            persistentStore,
-            MAX_SUBSCRIPTIONS);
+            persistentStore);
+
+    workspaceServiceImpl.setMaxSubscriptions(100);
   }
 
   private void mockCatalogFrameworkQuery(String id, String subject)
@@ -124,7 +122,7 @@ public class WorkspaceServiceImplTest {
 
     mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
-    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceServiceImpl.getWorkspaceMetacards();
 
     assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
@@ -150,7 +148,7 @@ public class WorkspaceServiceImplTest {
     mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(TEST_ID));
+        workspaceServiceImpl.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
     assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
@@ -165,7 +163,7 @@ public class WorkspaceServiceImplTest {
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(TEST_ID));
+        workspaceServiceImpl.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
     assertThat(workspaceMetacards, hasSize(0));
   }
@@ -188,14 +186,14 @@ public class WorkspaceServiceImplTest {
     mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
-    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceServiceImpl.getWorkspaceMetacards();
 
     assertThat(workspaceMetacards, hasSize(0));
   }
 
   @Test
   public void testToString() {
-    assertThat(workspaceService.toString(), notNullValue());
+    assertThat(workspaceServiceImpl.toString(), notNullValue());
   }
 
   @Test
@@ -211,7 +209,7 @@ public class WorkspaceServiceImplTest {
     WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);
     when(workspaceMetacard.getQueries()).thenReturn(Collections.singletonList(xml));
 
-    List<QueryMetacardImpl> metacards = workspaceService.getQueryMetacards(workspaceMetacard);
+    List<QueryMetacardImpl> metacards = workspaceServiceImpl.getQueryMetacards(workspaceMetacard);
 
     assertThat(metacards, hasSize(1));
   }
