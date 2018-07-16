@@ -114,6 +114,33 @@ public class CatalogTestCommons {
   }
 
   /**
+   * Ingests an xml resource by name.
+   *
+   * @param resourceName - The relative path of the resource file
+   * @return metacard id
+   * @throws IOException
+   */
+  public static String ingestXmlFromResource(String resourceName) throws IOException {
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+    return ingest(writer.toString(), "text/xml");
+  }
+
+  /**
+   * Ingests an xml resource by name. Asserts the status code for the create response.
+   *
+   * @param resourceName - The relative path of the resource file
+   * @return metacard id
+   * @throws IOException
+   */
+  public static String ingestXmlFromResource(String resourceName, int expectedResponse)
+      throws IOException {
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+    return ingest(writer.toString(), "text/xml", expectedResponse);
+  }
+
+  /**
    * Ingests an xml resource by name. Does not return until resource has been verified to be in the
    * catalog
    *
@@ -121,9 +148,7 @@ public class CatalogTestCommons {
    * @return metacard id
    * @throws IOException
    */
-  public static String ingestXmlFromResourceAndWait(String resourceName) throws IOException {
-    StringWriter writer = new StringWriter();
-    IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
+  public static String ingestXmlFromResourceAndWait(String resourceName) {
     String[] id = new String[1];
     // ingest might not succeed the first time due to the async nature of some configurations
     // Will try several times before considering it failed.
@@ -134,7 +159,7 @@ public class CatalogTestCommons {
         .ignoreExceptions()
         .until(
             () -> {
-              id[0] = ingest(writer.toString(), "text/xml", true);
+              id[0] = ingestXmlFromResource(resourceName, HttpStatus.SC_CREATED);
               return true;
             });
     with()

@@ -36,57 +36,85 @@ public class ConfigureTestCommons {
 
   public static final String AUTH_Z_REALM_PID = "ddf.security.pdp.realm.AuthzRealm";
 
-  public static void configureMetacardValidityFilterPlugin(
-      List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, null);
-    Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("attributeMap", securityAttributeMappings);
+  private static Dictionary<String, Object> replaceConfigurationAndReturnOld(
+      String pid, AdminConfig configAdmin, Dictionary<String, Object> properties)
+      throws IOException {
+    Configuration config = configAdmin.getConfiguration(pid, null);
+
+    Dictionary oldProperties = config.getProperties();
     config.update(properties);
+    return oldProperties;
   }
 
-  public static void configureShowInvalidMetacards(
-      String showErrors, String showWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID, null);
+  public static Dictionary<String, Object> configureMetacardValidityFilterPlugin(
+      List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
+    Dictionary<String, Object> properties = new DictionaryMap<>();
+    properties.put("attributeMap", securityAttributeMappings);
 
+    return configureMetacardValidityFilterPlugin(properties, configAdmin);
+  }
+
+  public static Dictionary<String, Object> configureMetacardValidityFilterPlugin(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return replaceConfigurationAndReturnOld(
+        METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, configAdmin, properties);
+  }
+
+  public static Dictionary<String, Object> configureShowInvalidMetacards(
+      String showErrors, String showWarnings, AdminConfig configAdmin) throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("showErrors", showErrors);
     properties.put("showWarnings", showWarnings);
-    config.update(properties);
+    return configureShowInvalidMetacards(properties, configAdmin);
   }
 
-  public static void configureFilterInvalidMetacards(
-      String filterErrors, String filterWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, null);
+  public static Dictionary<String, Object> configureShowInvalidMetacards(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return replaceConfigurationAndReturnOld(
+        CACHING_FEDERATION_STRATEGY_PID, configAdmin, properties);
+  }
 
+  public static Dictionary<String, Object> configureFilterInvalidMetacards(
+      String filterErrors, String filterWarnings, AdminConfig configAdmin) throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("filterErrors", filterErrors);
     properties.put("filterWarnings", filterWarnings);
-    config.update(properties);
+
+    return configureFilterInvalidMetacards(properties, configAdmin);
   }
 
-  public static void configureEnforceValidityErrorsAndWarnings(
-      String enforceErrors, String enforceWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, null);
+  public static Dictionary<String, Object> configureFilterInvalidMetacards(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return replaceConfigurationAndReturnOld(
+        METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, configAdmin, properties);
+  }
 
+  public static Dictionary<String, Object> configureEnforceValidityErrorsAndWarnings(
+      String enforceErrors, String enforceWarnings, AdminConfig configAdmin) throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforceErrors", enforceErrors);
     properties.put("enforceWarnings", enforceWarnings);
-    config.update(properties);
+
+    return configureEnforceValidityErrorsAndWarnings(properties, configAdmin);
   }
 
-  public static void configureEnforcedMetacardValidators(
+  public static Dictionary<String, Object> configureEnforceValidityErrorsAndWarnings(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return replaceConfigurationAndReturnOld(
+        METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, configAdmin, properties);
+  }
+
+  public static Dictionary<String, Object> configureEnforcedMetacardValidators(
       List<String> enforcedValidators, AdminConfig configAdmin) throws IOException {
-
-    // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, null);
-
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforcedMetacardValidators", enforcedValidators);
-    config.update(properties);
+    return configureEnforcedMetacardValidators(properties, configAdmin);
+  }
+
+  public static Dictionary<String, Object> configureEnforcedMetacardValidators(
+      Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
+    return replaceConfigurationAndReturnOld(
+        METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, configAdmin, properties);
   }
 
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
@@ -100,12 +128,8 @@ public class ConfigureTestCommons {
 
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
       Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
-    Configuration config =
-        configAdmin.getConfiguration(METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID, null);
-
-    Dictionary oldProperties = config.getProperties();
-    config.update(properties);
-    return oldProperties;
+    return replaceConfigurationAndReturnOld(
+        METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID, configAdmin, properties);
   }
 
   public static Dictionary<String, Object> configureAuthZRealm(
@@ -117,10 +141,6 @@ public class ConfigureTestCommons {
 
   public static Dictionary<String, Object> configureAuthZRealm(
       Dictionary<String, Object> properties, AdminConfig configAdmin) throws IOException {
-    Configuration config = configAdmin.getConfiguration(AUTH_Z_REALM_PID, null);
-
-    Dictionary oldProperties = config.getProperties();
-    config.update(properties);
-    return oldProperties;
+    return replaceConfigurationAndReturnOld(AUTH_Z_REALM_PID, configAdmin, properties);
   }
 }
