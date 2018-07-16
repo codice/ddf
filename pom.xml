@@ -454,7 +454,10 @@ are essentially embedding a slightly modified version of felix -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20.1</version>
+                    <!-- Using lower version due to instability on windows: Tried version 2.19.0, 2.20.1, 2.21.0, 2.220
+                         https://issues.apache.org/jira/browse/SUREFIRE-1519
+                         https://issues.apache.org/jira/browse/SUREFIRE-1478 -->
+                    <version>2.18.1</version>
                     <configuration>
                         <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
                         <includes>
