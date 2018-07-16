@@ -50,7 +50,7 @@ In the event the system is unable to write to the `security.log` file, ${brandin
 
 If you want to change the location of your systems security backup log from the default: `${home_directory}/data/log/securityBackup.log`, follow the next two steps:
 
-* edit `${home_directory}/security/default.policy`
+* edit `${home_directory}/security/configurations.policy`
 ** find `//  permission java.io.FilePermission "<PATH>", "read,write";` under Security-Hardening
 ** uncomment that line and change the value of <PATH> to the absolute path of <NEW_FILE_NAME> (described below)
 * edit `${home_directory}/etc/log4j2.config.xml`

@@ -42,3 +42,13 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "/test/some/monitored/directory", "read";
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
+
+grant codeBase "file:/pax-logging-log4j2" {
+    //  Security-Hardening: Add permissions to another log file
+
+    //  Uncomment the following line and replace <PATH> with
+    //  the path to the new desired log file
+
+    //  permission java.io.FilePermission "<PATH>", "read,write";
+
+}
