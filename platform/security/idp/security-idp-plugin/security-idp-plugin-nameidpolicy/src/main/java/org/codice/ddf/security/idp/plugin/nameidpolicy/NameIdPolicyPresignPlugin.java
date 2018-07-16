@@ -48,7 +48,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
     if (nameIdPolicy == null
         || (StringUtils.isEmpty(nameIdPolicy.getFormat())
-            && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
+        && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
       return;
     }
 
@@ -77,14 +77,14 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
     if (StringUtils.isNotEmpty(nameIdFormatPolicy)) {
       switch (nameIdFormatPolicy) {
-          // supported NameIDFormats
+        // supported NameIDFormats
         case NameID.UNSPECIFIED:
           return; // avoid changing the Format later
         case NameID.PERSISTENT:
           // TODO DDF-3965
           break;
 
-          // partially supported NameIDFormats
+        // partially supported NameIDFormats
         case NameID.X509_SUBJECT:
           LOGGER.warn("Specifying the \"X509Subject\" NameIDPolicy Format is not fully supported.");
           if (!NameID.X509_SUBJECT.equals(assertionNameId.getFormat())) {
@@ -97,7 +97,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
           assertionNameId.setValue(resolveEmail(response));
           break;
 
-          // not supported NameIDFormats
+        // not supported NameIDFormats
         case NameID.TRANSIENT:
         case NameID.WIN_DOMAIN_QUALIFIED:
         case NameID.KERBEROS:
@@ -111,6 +111,13 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
     }
   }
 
+  /**
+   * Attempts to find an email identifier in a given Response. More specifically, this method looks
+   * in a Response's AttributeStatements for the email identifier. Throws an error if not found.
+   *
+   * @param response Response object
+   * @return Email identifier
+   */
   private String resolveEmail(Response response) {
     return response
         .getAssertions()
