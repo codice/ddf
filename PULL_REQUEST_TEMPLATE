@@ -1,10 +1,13 @@
 #### What does this PR do?
 #### Who is reviewing it? 
-(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)
+<!--(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)-->
 #### Select relevant component teams: 
 https://github.com/orgs/codice/teams
-#### Ask 2 committers to review/merge the PR and tag them here. If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
+#### Ask 2 committers to review/merge the PR and tag them here.
+<!--
+If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
 (please choose ONLY two committers from below, delete the rest)
+-->
 @andrewkfiedler
 @bdeining
 @beyelerb
@@ -26,11 +29,13 @@ https://github.com/orgs/codice/teams
 @stustison
 @tbatie
 @vinamartin
-#### How should this be tested? (List steps with links to updated documentation)
+#### How should this be tested?
+<!--(List steps with links to updated documentation)-->
 #### Any background context you want to provide?
 #### What are the relevant tickets?
 [](https://codice.atlassian.net/browse/)
-#### Screenshots (if appropriate)
+#### Screenshots
+<!--(if appropriate)-->
 #### Checklist:
 - [ ] Documentation Updated
 - [ ] Update / Add Unit Tests
