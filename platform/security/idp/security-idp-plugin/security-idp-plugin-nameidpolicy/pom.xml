@@ -20,7 +20,7 @@
   <parent>
     <groupId>ddf.security.idp</groupId>
     <artifactId>security-idp-plugin</artifactId>
-    <version>2.13.0-SNAPSHOT</version>
+    <version>2.14.0-SNAPSHOT</version>
   </parent>
   <artifactId>security-idp-plugin-nameidpolicy</artifactId>
   <name>DDF :: Security :: IdP :: Plugin :: Name ID Policy</name>
@@ -39,6 +39,12 @@
       <artifactId>spock-shaded</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ddf.catalog.core</groupId>
+      <artifactId>catalog-core-api</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 
@@ -71,17 +77,17 @@
                     <limit implementation="org.codice.jacoco.LenientLimit">
                       <counter>INSTRUCTION</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>1.00</minimum>
+                      <minimum>0.92</minimum>
                     </limit>
                     <limit implementation="org.codice.jacoco.LenientLimit">
                       <counter>BRANCH</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.95</minimum>
+                      <minimum>0.90</minimum>
                     </limit>
                     <limit implementation="org.codice.jacoco.LenientLimit">
                       <counter>COMPLEXITY</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.96</minimum>
+                      <minimum>0.92</minimum>
                     </limit>
                   </limits>
                 </rule>

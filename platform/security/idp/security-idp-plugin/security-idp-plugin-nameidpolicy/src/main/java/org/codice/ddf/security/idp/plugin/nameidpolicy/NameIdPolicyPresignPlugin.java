@@ -13,13 +13,17 @@
  */
 package org.codice.ddf.security.idp.plugin.nameidpolicy;
 
+import ddf.security.SubjectUtils;
 import ddf.security.samlp.SamlProtocol.Binding;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
@@ -28,15 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This plugin is responsible for setting the NameID Format/SPNameQualifier on the outgoing Response
- * according to the values found in the NameIDPolicy of the passed in AuthnRequest.
+ * This plugin is responsible for setting the <@code>NameID</@code>'s <@code>Format</@code> &
+ * <@code>SPNameQualifier</@code> on the outgoing <@code>Response</@code>. It does this by parsing
+ * the <@code>NameIDPolicy</@code> of the passed in <@code>AuthnRequest</@code>.
+ *
+ * <p>See section 3.4.1.1 of the SAML Core specification for more information.
  */
 public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NameIdPolicyPresignPlugin.class);
-
-  private static final String EMAIL_ATTRIBUTE_NAME =
-      "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
 
   @Override
   public void processPresign(
@@ -48,7 +52,7 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
 
     if (nameIdPolicy == null
         || (StringUtils.isEmpty(nameIdPolicy.getFormat())
-        && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
+            && StringUtils.isEmpty(nameIdPolicy.getSPNameQualifier()))) {
       return;
     }
 
@@ -75,16 +79,17 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
       assertionNameId.setSPNameQualifier(spNameQualifierPolicy);
     }
 
+    // the Assertion's NameID Format is set to the NameIDPolicy Format after the switch statement
     if (StringUtils.isNotEmpty(nameIdFormatPolicy)) {
       switch (nameIdFormatPolicy) {
-        // supported NameIDFormats
+          // supported NameIDFormats
         case NameID.UNSPECIFIED:
           return; // avoid changing the Format later
         case NameID.PERSISTENT:
           // TODO DDF-3965
           break;
 
-        // partially supported NameIDFormats
+          // partially supported NameIDFormats
         case NameID.X509_SUBJECT:
           LOGGER.warn("Specifying the \"X509Subject\" NameIDPolicy Format is not fully supported.");
           if (!NameID.X509_SUBJECT.equals(assertionNameId.getFormat())) {
@@ -94,10 +99,10 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
           break;
         case NameID.EMAIL:
           LOGGER.warn("Specifying the \"Email\" NameIDPolicy Format is not fully supported.");
-          assertionNameId.setValue(resolveEmail(response));
+          assertionNameId.setValue(resolveEmail(response, assertionNameId));
           break;
 
-        // not supported NameIDFormats
+          // not supported NameIDFormats
         case NameID.TRANSIENT:
         case NameID.WIN_DOMAIN_QUALIFIED:
         case NameID.KERBEROS:
@@ -112,22 +117,23 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
   }
 
   /**
-   * Attempts to find an email identifier in a given Response. More specifically, this method looks
-   * in a Response's AttributeStatements for the email identifier. Throws an error if not found.
+   * Attempts to find an email identifier in a given <@code>Response</@code>. More specifically,
+   * this method looks in a <@code>Response</@code>'s <@code>AttributeStatements</@code> for the
+   * email identifier. Throws an error if not found.
    *
-   * @param response Response object
+   * @param response <@code>Response</@code> object
    * @return Email identifier
+   * @throws UnsupportedOperationException if an email identifier could not be found
    */
-  private String resolveEmail(Response response) {
-    return response
-        .getAssertions()
-        .stream()
-        .flatMap(assertion -> assertion.getAttributeStatements().stream())
-        .flatMap(statement -> statement.getAttributes().stream())
-        .filter(
-            attribute ->
-                EMAIL_ATTRIBUTE_NAME.equals(attribute.getName())
-                    || NameID.EMAIL.equals(attribute.getNameFormat()))
+  private String resolveEmail(Response response, NameID assertionNameId)
+      throws UnsupportedOperationException {
+    Predicate<Attribute> attributeHasEmailIdentifier =
+        attribute ->
+            SubjectUtils.EMAIL_ADDRESS_CLAIM_URI.equals(attribute.getName())
+                || NameID.EMAIL.equals(attribute.getNameFormat());
+
+    return extractAssertionAttributes(response)
+        .filter(attributeHasEmailIdentifier)
         .flatMap(attribute -> attribute.getAttributeValues().stream())
         .filter(attributeValue -> attributeValue instanceof XSString)
         .map(attributeValue -> (XSString) attributeValue)
@@ -137,6 +143,16 @@ public class NameIdPolicyPresignPlugin implements SamlPresignPlugin {
         .orElseThrow(
             () ->
                 new UnsupportedOperationException(
-                    "The \"Email\" NameID could not be retrieved for this principal."));
+                    String.format(
+                        "The \"Email\" NameID could not be retrieved for the principal %s.",
+                        assertionNameId.getValue())));
+  }
+
+  private Stream<Attribute> extractAssertionAttributes(Response response) {
+    return response
+        .getAssertions()
+        .stream()
+        .flatMap(assertion -> assertion.getAttributeStatements().stream())
+        .flatMap(statement -> statement.getAttributes().stream());
   }
 }
