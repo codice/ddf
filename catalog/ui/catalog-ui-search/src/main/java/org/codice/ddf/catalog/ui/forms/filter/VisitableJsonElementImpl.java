@@ -49,7 +49,6 @@ import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
  * @see PropertyIsBetweenType
  */
 public class VisitableJsonElementImpl implements VisitableElement<Object> {
-  private static final String LIKE = "LIKE";
 
   private static final String FAKE_PROPERTY_OPERATOR = "PROPERTY";
 
@@ -77,7 +76,7 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           .put("<", FilterVisitor2::visitBinaryComparisonType)
           .put("<=", FilterVisitor2::visitBinaryComparisonType)
           .put("LIKE", FilterVisitor2::visitPropertyIsLikeType)
-          .put("ILIKE", FilterVisitor2::visitPropertyIsLikeType)
+          .put("ILIKE", FilterVisitor2::visitPropertyIsILikeType)
           .build();
 
   private final BiConsumer<FilterVisitor2, VisitableElement> visitMethod;
@@ -89,10 +88,6 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private VisitableJsonElementImpl(final FilterNode node) {
-    if (LIKE.equals(node.getOperator())) {
-      throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
-      // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
-    }
 
     this.visitMethod = VISIT_METHODS.get(node.getOperator());
     if (this.visitMethod == null) {

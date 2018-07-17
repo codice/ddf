@@ -190,6 +190,11 @@ public class FilterNodeAssertionSupport {
           (p, v) -> assertExpression(expressionMapper.apply(elementValue), p, v));
     }
 
+    public JAXBMatchCaseAssertion verifyMatchCase(Function<? super T, Boolean> matchCaseMapper) {
+      return new JAXBMatchCaseAssertion(
+          v -> assertThat(matchCaseMapper.apply(elementValue), is(v)));
+    }
+
     /**
      * Begin validation on terminal elements whose values conform to {@code List<Object>}.
      *
@@ -219,6 +224,23 @@ public class FilterNodeAssertionSupport {
      */
     public void withData(String property, Serializable value) {
       assertion.accept(property, value);
+    }
+  }
+
+  public static class JAXBMatchCaseAssertion {
+    private final Consumer<Boolean> assertion;
+
+    private JAXBMatchCaseAssertion(Consumer<Boolean> assertion) {
+      this.assertion = assertion;
+    }
+
+    /**
+     * Specify the data to test for. This is a terminal operation.
+     *
+     * @param value the expected value for the value field.
+     */
+    public void withValue(Boolean value) {
+      assertion.accept(value);
     }
   }
 

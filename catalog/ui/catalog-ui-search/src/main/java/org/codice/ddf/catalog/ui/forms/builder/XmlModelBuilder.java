@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAttribute;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
@@ -62,7 +61,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("<", Mapper::lessThan)
           .put("<=", Mapper::lessThanOrEqualTo)
           .put("ILIKE", Mapper::like)
-          .put("LIKE", Mapper::likeMatchCase) // For now, will never be selected
+          .put("LIKE", Mapper::likeMatchCase)
           .put("INTERSECTS", Mapper::intersects)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
@@ -113,9 +112,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer logicMapping = LOGICAL_OPS.get(operator);
-    if (logicMapping == null) {
-      throw new IllegalArgumentException("Invalid operator for logic comparison type: " + operator);
-    }
+    validateOperatorMapping(
+        logicMapping, "Invalid operator for logic comparison type: " + operator);
     logicOpCache.push(logicMapping);
     depth.push(new ArrayList<>());
     return this;
@@ -128,7 +126,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyLogicalNodeInProgress();
     verifyLogicalNodeHasChildren();
     JAXBElement result = logicOpCache.pop().apply(depth.pop());
-    if (!depth.isEmpty()) {
+    if (!depth.isEmpty() && depth.peek() != null) {
       depth.peek().add(result);
     } else {
       rootNode = result;
@@ -142,24 +140,20 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary comparison operator: " + operator);
-    }
+    validateOperatorMapping(
+        comparisonMapping, "Cannot find mapping for binary comparison operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
-    }
-    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
-    return this;
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator) {
+    return beginPropertyIsLikeOrIsILike(operator);
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsILikeType(String operator) {
+    return beginPropertyIsLikeOrIsILike(operator);
   }
 
   @Override
@@ -167,10 +161,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer temporalMapping = TERMINAL_OPS.get(operator);
-    if (temporalMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary temporal operator: " + operator);
-    }
+    validateOperatorMapping(
+        temporalMapping, "Cannot find mapping for binary temporal operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(temporalMapping);
     return null;
   }
@@ -180,12 +172,16 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer spatialMapping = TERMINAL_OPS.get(operator);
-    if (spatialMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary spatial operator: " + operator);
-    }
+    validateOperatorMapping(
+        spatialMapping, "Cannot find mapping for binary spatial operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(spatialMapping);
     return this;
+  }
+
+  private void validateOperatorMapping(MultiNodeReducer multiNodeReducer, String message) {
+    if (multiNodeReducer == null) {
+      throw new IllegalArgumentException(message);
+    }
   }
 
   @Override
@@ -195,7 +191,9 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     if (depth.isEmpty()) {
       rootNode = supplierInProgress.get();
     } else {
-      depth.peek().add(supplierInProgress.get());
+      if (depth.peek() != null) {
+        depth.peek().add(supplierInProgress.get());
+      }
     }
     supplierInProgress = null;
     return this;
@@ -275,7 +273,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   // Verify coverage: https://codice.atlassian.net/browse/DDF-3832
   private void verifyLogicalNodeHasChildren() {
-    if (!depth.isEmpty() && depth.peek().isEmpty()) {
+    if (!depth.isEmpty() && (depth.peek() == null || depth.peek().isEmpty())) {
       throw new IllegalStateException("Cannot end the logic node, no children provided");
     }
   }
@@ -291,6 +289,16 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     if (supplierInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
     }
+  }
+
+  private FlatFilterBuilder beginPropertyIsLikeOrIsILike(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
+    validateOperatorMapping(
+        comparisonMapping, "Cannot find mapping for like operator: " + operator);
+    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
+    return this;
   }
 
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
@@ -414,7 +422,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
 
     private static PropertyIsLikeType likeType(List<JAXBElement<?>> children, boolean matchCase) {
-      return new PropertyIsLikeTypeWithMatchCase()
+      return new PropertyIsLikeType()
           .withMatchCase(matchCase)
           .withEscapeChar("\\")
           .withWildCard("%")
@@ -428,29 +436,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinarySpatialOpType binarySpatialType(List<JAXBElement<?>> children) {
       return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
-    }
-  }
-
-  @SuppressWarnings("squid:S2160" /* Not being used in comparisons */)
-  private static class PropertyIsLikeTypeWithMatchCase extends PropertyIsLikeType {
-    @XmlAttribute(name = "matchCase")
-    protected Boolean matchCase;
-
-    public boolean isMatchCase() {
-      if (matchCase == null) {
-        return true;
-      } else {
-        return matchCase;
-      }
-    }
-
-    public void setMatchCase(boolean value) {
-      this.matchCase = value;
-    }
-
-    PropertyIsLikeTypeWithMatchCase withMatchCase(boolean value) {
-      setMatchCase(value);
-      return this;
     }
   }
 }

@@ -54,7 +54,6 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>0.11.0</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>branding-api</artifactId>
@@ -112,7 +111,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -426,7 +424,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.34</minimum>
+                                            <minimum>0.36</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
@@ -436,7 +434,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.30</minimum>
+                                            <minimum>0.32</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
