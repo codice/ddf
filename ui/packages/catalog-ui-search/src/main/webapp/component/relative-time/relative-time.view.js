@@ -25,17 +25,11 @@ var Common = require('js/Common');
 /*
     For specifying a relative time.  It shows a number field and a units field.
     Supports passing in a model that will have it's value field auto updated and synced.
-    Supports not passing in a model and instead passing in a value option where currentLast and currentUnit are defined like so:
-    {
-        currentLast: 2,
-        currentUnit: 'h'
-    }
+    Supports not passing in a model and instead passing in a value option that is a valid period such as:
+    "RELATIVE(PT1.5H)"
     Supports not passing in anything and simply letting the values default.  The values can be grabbed whenever needed by calling
     getViewValue.  This will return the values like so:
-    {
-        currentLast: 2,
-        currentUnit: 'h'
-    }
+    "RELATIVE(PT1.5H)"
 */
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -60,7 +54,10 @@ module.exports = Marionette.LayoutView.extend({
         });
     },
     getViewValue: function () {
-        const timeLast = this.basicTimeRelativeValue.currentView.model.getValue()[0];
+        let timeLast = this.basicTimeRelativeValue.currentView.model.getValue()[0];
+        if (timeLast === "") {
+            timeLast = 0;
+        }
         const timeUnit = this.basicTimeRelativeUnit.currentView.model.getValue()[0];
         let duration;
         if (timeUnit === 'm' || timeUnit === 'h') {
@@ -70,24 +67,27 @@ module.exports = Marionette.LayoutView.extend({
         }
         return `RELATIVE(${duration})`;
     },
-    getModelValue() {
-        const currentValue = this.model.toJSON().value[0];
-        if (currentValue === null || currentValue.indexOf('RELATIVE') !== 0) {
+    parseValue(value) {
+        if (value === null || value === undefined || value.indexOf('RELATIVE') !== 0) {
             return;
         }
-        const duration = currentValue.substring(9, currentValue.length - 1).match(/(Z?\d+\.*\d*)./)[0];
-        let currentUnit = duration.substring(duration.length - 1, duration.length);
-        let currentLast = duration.match(/\d+\.*\d*/);
+        const duration = value.substring(9, value.length - 1).match(/(Z?\d+\.*\d*)./)[0];
+        let unit = duration.substring(duration.length - 1, duration.length);
+        let last = parseFloat(duration.match(/\d+\.*\d*/));
 
-        currentUnit = currentUnit.toLowerCase();
-        if (duration.indexOf('T') === -1 && currentUnit === 'm') {
+        unit = unit.toLowerCase();
+        if (duration.indexOf('T') === -1 && unit === 'm') {
             //must capitalize months
-            currentUnit = currentUnit.toUpperCase();
+            unit = unit.toUpperCase();
         }
         return {
-            currentLast,
-            currentUnit
+            last,
+            unit
         }
+    },
+    getModelValue() {
+        const currentValue = this.model.toJSON().value[0];
+        return this.parseValue(currentValue);
     },  
     updateModelValue() {
         if (this.model === undefined) {
@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
         this.model.setValue([this.getViewValue()]);
     },
     getOptionsValue() {
-        return this.options.value;
+        return this.parseValue(this.options.value);
     },
     getStartingValue() {
         if (this.model !== undefined) {
@@ -106,10 +106,10 @@ module.exports = Marionette.LayoutView.extend({
         } 
     },
     setupTimeRelative: function () {
-        const {currentLast = 1 , currentUnit = 'h'} = this.getStartingValue() || {};
+        const {last = 1 , unit = 'h'} = this.getStartingValue() || {};
         this.basicTimeRelativeValue.show(new PropertyView({
             model: new Property({
-                value: [currentLast],
+                value: [last],
                 id: 'Last',
                 placeholder: 'Limit searches to between the present and this time.',
                 type: 'INTEGER'
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
         }));
         this.basicTimeRelativeUnit.show(new PropertyView({
             model: new Property({
-                value: [currentUnit],
+                value: [unit],
                 enum: [{
                     label: 'Minutes',
                     value: 'm'

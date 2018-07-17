@@ -185,7 +185,8 @@ define([
         },
         // With the relative date comparator being the same as =, we need to try and differentiate them this way
         getComparatorForFilter(filter) {
-            if (metacardDefinitions.metacardTypes[stripQuotes(filter.property)].type === 'DATE' && filter.type === '=') {
+            const propertyDefinition = metacardDefinitions.metacardTypes[stripQuotes(filter.property)];
+            if (propertyDefinition && propertyDefinition.type === 'DATE' && filter.type === '=') {
                 return 'RELATIVE';
             } else {
                 return this.CQLtoComparator()[filter.type];
