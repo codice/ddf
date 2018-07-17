@@ -312,6 +312,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>session-management-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>session-management-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.servlet</groupId>
             <artifactId>security-servlet-logout-service</artifactId>
             <version>${project.version}</version>
