@@ -33,7 +33,7 @@ These are the system/environment requirements to configure _prior_ to an install
 [NOTE]
 ====
 These requirements assume the recommended installation profile was used (see <<_setup_types, Setup Types>>) and the use of a remote catalog.
-Please consult the https://lucene.apache.org/solr/guide/6_6/installing-solr.html[Solr System Requirements] for guidance if the system will also be hosting a local catalog.
+Please consult the https://lucene.apache.org/solr/guide/7_4/installing-solr.html[Solr System Requirements] for guidance if the system will also be hosting a local catalog.
 ====
 
 ======
