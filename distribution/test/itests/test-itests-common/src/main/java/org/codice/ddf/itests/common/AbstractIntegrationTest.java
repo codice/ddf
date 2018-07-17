@@ -694,8 +694,12 @@ public abstract class AbstractIntegrationTest {
               getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
           installStartupFile(
               String.format(
-                  "priority \"grant\"; grant {permission java.io.FilePermission \"%s/-\", \"read, write\"; }",
-                  new File("target" + File.separator + "solr").getAbsolutePath()),
+                  "priority \"grant\"; grant {permission java.io.FilePermission \"%s%s-\", \"read, write\"; };",
+                  new File("target" + File.separator + "solr")
+                      .getAbsolutePath()
+                      .replace("/", "${/}")
+                      .replace("\\", "${/}"),
+                  "${/}"),
               "/security/itests-solr.policy"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
