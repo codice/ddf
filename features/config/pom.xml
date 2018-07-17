@@ -49,21 +49,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.config</groupId>
-            <artifactId>config-mapping-providers</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.config</groupId>
-            <artifactId>config-mapping-file-monitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.config</groupId>
-            <artifactId>config-mapping-bundle-monitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.config</groupId>
             <artifactId>config-model-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
