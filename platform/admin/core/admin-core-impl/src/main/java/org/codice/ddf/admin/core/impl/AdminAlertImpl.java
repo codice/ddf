@@ -79,7 +79,7 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
 
       return Collections.singletonList(
           new Alert(
-                  "solr",
+                  "unable_to_retrieve_alerts",
                   NoticePriority.CRITICAL,
                   "Persistent Storage Not Responding. Could Not Retrieve Alerts.",
                   Collections.singleton(
