@@ -15,9 +15,12 @@ package org.codice.solr.query;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -136,5 +139,44 @@ public class SolrQueryFilterVisitorTest {
     Filter filter = ECQL.toFilter("property LIKE 'val*'");
     SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
     assertThat(solrQuery, equalTo(null));
+  }
+
+  @Test
+  public void testGetMappedPropertyNameCache() {
+    SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
+    SchemaField schema = new SchemaField("testField_int", "tint");
+    schema.setSuffix("_int");
+    when(mockResolver.getSchemaField("testField", true)).thenReturn(schema);
+    solrVisitor = new SolrQueryFilterVisitor("alerts", mockResolver);
+
+    String propertyName = solrVisitor.getMappedPropertyName("testField");
+    assertThat(propertyName, is("testField_int"));
+
+    propertyName = solrVisitor.getMappedPropertyName("testField");
+    assertThat(propertyName, is("testField_int"));
+    verify(mockResolver, times(1)).getSchemaField("testField", true);
+  }
+
+  @Test
+  public void testGetMappedPropertyNameNullNotCached() {
+    SchemaFieldResolver mockResolver = mock(SchemaFieldResolver.class);
+
+    // returning null simulates no entry in SOLR to query schema for "testField"
+    when(mockResolver.getSchemaField("testField2", true)).thenReturn(null);
+    when(mockResolver.getFieldSuffix(AttributeFormat.STRING)).thenReturn("_txt");
+    solrVisitor = new SolrQueryFilterVisitor("alerts", mockResolver);
+
+    String propertyName = solrVisitor.getMappedPropertyName("testField2");
+    assertThat(propertyName, is("testField2_txt"));
+
+    // simulates an entry in SOLR to query schema for "testField"
+    SchemaField schema = new SchemaField("testField2_int", "tint");
+    schema.setSuffix("_int");
+
+    when(mockResolver.getSchemaField("testField2", true)).thenReturn(schema);
+    propertyName = solrVisitor.getMappedPropertyName("testField2");
+    assertThat(propertyName, is("testField2_int"));
+
+    verify(mockResolver, times(2)).getSchemaField("testField2", true);
   }
 }
