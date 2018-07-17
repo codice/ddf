@@ -140,9 +140,10 @@ public class SchematronValidationService
   public void init() throws SchematronInitializationException {
     if (transformerFactory == null) {
       transformerFactory =
-          TransformerFactory.newInstance(
-              TransformerFactoryImpl.class.getName(),
-              SchematronValidationService.class.getClassLoader());
+          XMLUtils.getInstance()
+              .getSecureXmlTransformerFactory(
+                  TransformerFactoryImpl.class.getName(),
+                  SchematronValidationService.class.getClassLoader());
     }
 
     // DDF-855: set ErrorListener to catch any warnings/errors during loading of the
