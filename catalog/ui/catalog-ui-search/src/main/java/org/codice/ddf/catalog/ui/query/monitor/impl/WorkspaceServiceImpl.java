@@ -200,7 +200,12 @@ public class WorkspaceServiceImpl implements WorkspaceService {
    * @return query request
    */
   private Optional<QueryRequest> createQueryRequestForSubscribedToWorkspaces() {
-    return findSubscriptions().map(this::getIdsFromSubscriptions).map(this::getQueryRequestFromIds);
+    final List<Map<String, Object>> subscriptions = findSubscriptions();
+    if (subscriptions.isEmpty()) {
+      return Optional.empty();
+    }
+    final Set<String> ids = getIdsFromSubscriptions(subscriptions);
+    return Optional.of(getQueryRequestFromIds(ids));
   }
 
   private QueryRequest getQueryRequestFromIds(Set<String> ids) {
@@ -216,13 +221,13 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         .collect(Collectors.toSet());
   }
 
-  private Optional<List<Map<String, Object>>> findSubscriptions() {
+  private List<Map<String, Object>> findSubscriptions() {
     try {
-      return Optional.of(persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE));
+      return persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE);
     } catch (PersistenceException e) {
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }
-    return Optional.empty();
+    return Collections.emptyList();
   }
 
   /**
