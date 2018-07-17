@@ -215,7 +215,8 @@ function transformCQLToFilter(cqlString) {
 }
 
 function isPointRadiusFilter(filter) {
-    return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
+    var filterValue = typeof(filter.value) === 'object' ? filter.value.value : filter.value;
+    return filterValue && filterValue.indexOf('POINT') >= 0;
 }
 
 function buildIntersectCQL(locationGeometry) {
