@@ -45,7 +45,9 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder beginBinaryComparisonType(String operator);
 
-  FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase);
+  FlatFilterBuilder beginPropertyIsLikeType(String operator);
+
+  FlatFilterBuilder beginPropertyIsILikeType(String operator);
 
   FlatFilterBuilder beginBinaryTemporalType(String operator);
 
@@ -55,7 +57,9 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder setProperty(String property);
 
+  FlatFilterBuilder setLiteralProperty(Object literalProperty);
+
   FlatFilterBuilder setValue(String value);
 
-  FlatFilterBuilder setTemplatedValues(Map<String, Object> templateProps);
+  FlatFilterBuilder setFunctionValues(Map<String, Object> functionProperties);
 }

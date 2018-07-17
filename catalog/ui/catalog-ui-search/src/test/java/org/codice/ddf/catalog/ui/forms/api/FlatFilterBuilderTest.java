@@ -158,14 +158,14 @@ public class FlatFilterBuilderTest {
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetTemplatedValuesWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.setTemplatedValues(
+    builder.setFunctionValues(
         ImmutableMap.of(
             "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetTemplatedValuesWhenTerminalNodeInProgress() {
-    builder.setTemplatedValues(
+    builder.setFunctionValues(
         ImmutableMap.of(
             "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
   }

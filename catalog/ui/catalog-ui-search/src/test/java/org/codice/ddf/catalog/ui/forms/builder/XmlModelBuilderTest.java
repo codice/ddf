@@ -17,10 +17,10 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,6 +31,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import net.opengis.filter.v_2_0.FilterType;
+import org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport;
 import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,9 +73,9 @@ public class XmlModelBuilderTest {
         builder
             .beginBinaryComparisonType(JSON_EQUAL)
             .setProperty("name")
-            .setTemplatedValues(
-                ImmutableMap.of(
-                    "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false))
+            .setFunctionValues(
+                FilterNodeAssertionSupport.createFunction(
+                    "template.function", Arrays.asList("5", "id", true, false)))
             .endTerminalType()
             .getResult();
 

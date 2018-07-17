@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import net.opengis.filter.v_2_0.AbstractIdType;
 import net.opengis.filter.v_2_0.BBOXType;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
@@ -44,6 +46,8 @@ import net.opengis.filter.v_2_0.PropertyIsNullType;
 import net.opengis.filter.v_2_0.UnaryLogicOpType;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
+import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
+import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,24 +65,27 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
   private static final String INVALID_INVOCATION = "Could not find valid invocation for type: ";
 
-  private static final Map<Class, BiConsumer<FilterVisitor2, VisitableElement>> VISIT_METHODS =
-      ImmutableMap.<Class, BiConsumer<FilterVisitor2, VisitableElement>>builder()
-          .put(FilterType.class, FilterVisitor2::visitFilter)
-          .put(String.class, FilterVisitor2::visitString)
-          .put(LiteralType.class, FilterVisitor2::visitLiteralType)
-          .put(FunctionType.class, FilterVisitor2::visitFunctionType)
-          .put(BinaryLogicOpType.class, FilterVisitor2::visitBinaryLogicType)
-          .put(UnaryLogicOpType.class, FilterVisitor2::visitUnaryLogicType)
-          .put(BinaryTemporalOpType.class, FilterVisitor2::visitBinaryTemporalType)
-          .put(BinarySpatialOpType.class, FilterVisitor2::visitBinarySpatialType)
-          .put(DistanceBufferType.class, FilterVisitor2::visitDistanceBufferType)
-          .put(BBOXType.class, FilterVisitor2::visitBoundingBoxType)
-          .put(BinaryComparisonOpType.class, FilterVisitor2::visitBinaryComparisonType)
-          .put(PropertyIsLikeType.class, FilterVisitor2::visitPropertyIsLikeType)
-          .put(PropertyIsNullType.class, FilterVisitor2::visitPropertyIsNullType)
-          .put(PropertyIsNilType.class, FilterVisitor2::visitPropertyIsNilType)
-          .put(PropertyIsBetweenType.class, FilterVisitor2::visitPropertyIsBetweenType)
-          .build();
+  private static final Boolean DEFAULT_MATCH_CASE = Boolean.TRUE;
+
+  private static final Map<Class, BiConsumer<FilterVisitor2, VisitableXmlElementImpl>>
+      VISIT_METHODS =
+          ImmutableMap.<Class, BiConsumer<FilterVisitor2, VisitableXmlElementImpl>>builder()
+              .put(FilterType.class, FilterVisitor2::visitFilter)
+              .put(String.class, FilterVisitor2::visitString)
+              .put(LiteralType.class, FilterVisitor2::visitLiteralType)
+              .put(FunctionType.class, FilterVisitor2::visitFunctionType)
+              .put(BinaryLogicOpType.class, FilterVisitor2::visitBinaryLogicType)
+              .put(UnaryLogicOpType.class, FilterVisitor2::visitUnaryLogicType)
+              .put(BinaryTemporalOpType.class, FilterVisitor2::visitBinaryTemporalType)
+              .put(BinarySpatialOpType.class, FilterVisitor2::visitBinarySpatialType)
+              .put(DistanceBufferType.class, FilterVisitor2::visitDistanceBufferType)
+              .put(BBOXType.class, FilterVisitor2::visitBoundingBoxType)
+              .put(BinaryComparisonOpType.class, FilterVisitor2::visitBinaryComparisonType)
+              .put(PropertyIsLikeType.class, VisitableXmlElementImpl::acceptPropertyIsLike)
+              .put(PropertyIsNullType.class, FilterVisitor2::visitPropertyIsNullType)
+              .put(PropertyIsNilType.class, FilterVisitor2::visitPropertyIsNilType)
+              .put(PropertyIsBetweenType.class, FilterVisitor2::visitPropertyIsBetweenType)
+              .build();
 
   private final JAXBElement element;
 
@@ -100,11 +107,12 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
   @Override
   public void accept(FilterVisitor2 visitor) {
     Class clazz = element.getDeclaredType();
-    BiConsumer<FilterVisitor2, VisitableElement> biConsumer = VISIT_METHODS.get(clazz);
+    BiConsumer<FilterVisitor2, VisitableXmlElementImpl> biConsumer = VISIT_METHODS.get(clazz);
     if (biConsumer == null) {
       throw new FilterProcessingException(
           "Encountered an unexpected or unsupported type: " + clazz.getName());
     }
+
     // Actually invoking one of the "visits" on local variable "visitor"
     biConsumer.accept(visitor, this);
   }
@@ -222,7 +230,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
 
   /**
    * Represents an element that contains a Filter Function. That is, the node has children that can
-   * be decomposed into a {@code Map<String, Object>} for the use of templates.
+   * be decomposed into a {@code Map<String, Object>} for the use of functions.
    *
    * <p>Function currying (embedded functions) is not yet supported.
    */
@@ -236,15 +244,36 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
       FunctionType functionType = (FunctionType) element.getValue();
-      this.value =
-          FunctionResolver.resolve(
-              functionType.getName(),
-              functionType
-                  .getExpression()
-                  .stream()
-                  .map(JAXBElement::getValue)
-                  .map(LiteralType.class::cast)
-                  .collect(Collectors.toList()));
+
+      this.value = new HashMap<>();
+      this.value.put("type", "FILTER_FUNCTION");
+      this.value.put(XmlModelBuilder.FUNCTION_PROPERTY_NAME, functionType.getName());
+      this.value.put(
+          XmlModelBuilder.FUNCTION_PROPERTY_PARAMS, createFunctionPropertyParameters(functionType));
+    }
+
+    private List<Object> createFunctionPropertyParameters(FunctionType functionType) {
+      return functionType
+          .getExpression()
+          .stream()
+          .map(JAXBElement::getValue)
+          .map(LiteralType.class::cast)
+          .map(this::mapLiteralTypeToObject)
+          .collect(Collectors.toList());
+    }
+
+    private Object mapLiteralTypeToObject(LiteralType literalType) {
+      return literalType
+          .getContent()
+          .stream()
+          .findFirst()
+          .map(serializable -> convertLiteralTypeToObject(literalType, serializable))
+          .orElse("");
+    }
+
+    private Object convertLiteralTypeToObject(LiteralType literalType, Serializable serializable) {
+      QName qName = literalType.getType();
+      return QNameMapper.convert(serializable, qName);
     }
 
     @Override
@@ -463,5 +492,50 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
     public List<Serializable> getValue() {
       return value;
     }
+  }
+
+  /**
+   * NB: This should only be called when {@code visitable} is guaranteed to contain a {@link
+   * PropertyIsLikeType}.
+   *
+   * <p>Based on the value of {@link PropertyIsLikeType#getMatchCase()}, call either {@link
+   * FilterVisitor2#visitPropertyIsLikeType(VisitableElement)} or {@link
+   * FilterVisitor2#visitPropertyIsILikeType(VisitableElement)}.
+   */
+  private static void acceptPropertyIsLike(
+      FilterVisitor2 filterVisitor2, VisitableXmlElementImpl visitable) {
+
+    PropertyIsLikeType propertyIsLikeType = safelyCastToPropertyIsLikeType(visitable);
+
+    Boolean matchCase = getMatchCase(propertyIsLikeType);
+
+    if (matchCase) {
+      filterVisitor2.visitPropertyIsLikeType(visitable);
+    } else {
+      filterVisitor2.visitPropertyIsILikeType(visitable);
+    }
+  }
+
+  /**
+   * Safely cast the element value within the visitableXmlElement to a {@link PropertyIsLikeType}.
+   */
+  private static PropertyIsLikeType safelyCastToPropertyIsLikeType(
+      VisitableXmlElementImpl visitableXmlElement) {
+
+    Object elementValue = visitableXmlElement.element.getValue();
+
+    if (!(elementValue instanceof PropertyIsLikeType)) {
+      throw new IllegalStateException(
+          "Visit method call with a non-PropertyIsLikeType. This should not be possible.");
+    }
+
+    return (PropertyIsLikeType) elementValue;
+  }
+
+  /** Get the match-case value. Return {@link #DEFAULT_MATCH_CASE} if the match-case is not set. */
+  private static Boolean getMatchCase(PropertyIsLikeType propertyIsLikeType) {
+    Boolean incomingMatchCase = propertyIsLikeType.getMatchCase();
+
+    return incomingMatchCase != null ? incomingMatchCase : DEFAULT_MATCH_CASE;
   }
 }

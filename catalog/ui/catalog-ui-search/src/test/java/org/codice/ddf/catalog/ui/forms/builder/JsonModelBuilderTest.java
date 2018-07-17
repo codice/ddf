@@ -17,7 +17,9 @@ import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertL
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Map;
+import org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,13 +55,16 @@ public class JsonModelBuilderTest {
 
   @Test
   public void testBinaryComparisonTypeTemplated() {
+
+    Map<String, Object> templateProps =
+        FilterNodeAssertionSupport.createFunction(
+            "template.function", Arrays.asList("5", "id", true, false));
+
     FilterNode node =
         builder
             .beginBinaryComparisonType(XML_EQUAL)
             .setProperty("name")
-            .setTemplatedValues(
-                ImmutableMap.of(
-                    "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false))
+            .setFunctionValues(templateProps)
             .endTerminalType()
             .getResult();
 

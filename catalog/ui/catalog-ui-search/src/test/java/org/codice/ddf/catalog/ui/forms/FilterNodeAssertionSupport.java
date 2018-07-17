@@ -15,13 +15,12 @@ package org.codice.ddf.catalog.ui.forms;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -32,31 +31,47 @@ import java.util.function.Function;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.LiteralType;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
 
 /** As more test cases are added, more support functions will be needed. */
 public class FilterNodeAssertionSupport {
   private FilterNodeAssertionSupport() {}
 
+  public static Map<String, Object> createFunction(String functionName, List<Object> arguments) {
+    return new ImmutableMap.Builder<String, Object>()
+        .put("type", "FILTER_FUNCTION")
+        .put("filterFunctionName", functionName)
+        .put("params", arguments)
+        .build();
+  }
+
   public static void assertParentNode(
       FilterNode node, String expectedType, int expectedChildCount) {
-    assertParentNode(node, expectedType);
-    assertThat(node.getChildren(), hasSize(expectedChildCount));
+    assertThat(node, is(instanceOf(IntermediateFilterNode.class)));
+    IntermediateFilterNode filterNode = (IntermediateFilterNode) node;
+
+    assertParentNode(filterNode, expectedType);
+    assertThat(filterNode.getChildren(), hasSize(expectedChildCount));
   }
 
   public static void assertParentNode(FilterNode node, String expectedType) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.getChildren(), notNullValue());
-    assertThat(node.isLeaf(), is(false));
+    assertThat(node, is(instanceOf(IntermediateFilterNode.class)));
+    IntermediateFilterNode filterNode = (IntermediateFilterNode) node;
+
+    assertThat(filterNode.getOperator(), is(expectedType));
+    assertThat(filterNode.getChildren(), notNullValue());
   }
 
   public static void assertLeafNode(
       FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.isLeaf(), is(true));
+    assertThat(node, is(instanceOf(LeafFilterNode.class)));
+    LeafFilterNode filterNode = (LeafFilterNode) node;
 
-    assertThat(node.getProperty(), is(expectedProperty));
-    assertThat(node.getValue(), is(expectedValue));
-    assertThat(node.isTemplated(), is(false));
+    assertThat(filterNode.getOperator(), is(expectedType));
+    assertThat(filterNode.getProperty(), is(expectedProperty));
+    assertThat(filterNode.getValue(), is(expectedValue));
   }
 
   public static void assertTemplatedNode(
@@ -65,16 +80,16 @@ public class FilterNodeAssertionSupport {
       String expectedProperty,
       String defaultValue,
       String nodeId) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.isLeaf(), is(true));
+    assertThat(node, is(instanceOf(FunctionFilterNode.class)));
+    FunctionFilterNode functionFilterNode = (FunctionFilterNode) node;
 
-    assertThat(node.getProperty(), is(expectedProperty));
-    assertThat(node.getValue(), is(nullValue()));
-    assertThat(node.isTemplated(), is(true));
+    assertThat(functionFilterNode.getOperator(), is(expectedType));
 
-    Map<String, Object> templateProps = node.getTemplateProperties();
-    assertThat(templateProps.get("defaultValue"), is(defaultValue));
-    assertThat(templateProps.get("nodeId"), is(nodeId));
+    assertThat(functionFilterNode.getValue(), is(nullValue()));
+
+    Map<String, Object> templateProps = functionFilterNode.getFunctionArguments();
+    assertThat(((List<Object>) templateProps.get("params")).get(0), is(defaultValue));
+    assertThat(((List<Object>) templateProps.get("params")).get(1), is(nodeId));
   }
 
   @SuppressWarnings("unchecked" /* Casting since the data structure is known */)
@@ -190,6 +205,11 @@ public class FilterNodeAssertionSupport {
           (p, v) -> assertExpression(expressionMapper.apply(elementValue), p, v));
     }
 
+    public JAXBMatchCaseAssertion verifyMatchCase(Function<? super T, Boolean> matchCaseMapper) {
+      return new JAXBMatchCaseAssertion(
+          v -> assertThat(matchCaseMapper.apply(elementValue), is(v)));
+    }
+
     /**
      * Begin validation on terminal elements whose values conform to {@code List<Object>}.
      *
@@ -219,6 +239,23 @@ public class FilterNodeAssertionSupport {
      */
     public void withData(String property, Serializable value) {
       assertion.accept(property, value);
+    }
+  }
+
+  public static class JAXBMatchCaseAssertion {
+    private final Consumer<Boolean> assertion;
+
+    private JAXBMatchCaseAssertion(Consumer<Boolean> assertion) {
+      this.assertion = assertion;
+    }
+
+    /**
+     * Specify the data to test for. This is a terminal operation.
+     *
+     * @param value the expected value for the value field.
+     */
+    public void withValue(Boolean value) {
+      assertion.accept(value);
     }
   }
 

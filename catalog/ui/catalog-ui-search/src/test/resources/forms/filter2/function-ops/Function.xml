@@ -4,7 +4,7 @@
             xsi:schemaLocation="http://www.opengis.net/fes/2.0
             http://schemas.opengis.net/filter/2.0/filterAll.xsd">
     <fes:PropertyIsEqualTo>
-        <fes:ValueReference>title</fes:ValueReference>
+        <fes:Literal>title</fes:Literal>
         <fes:Function name="template.value.v1">
             <!--default value-->
             <fes:Literal/>

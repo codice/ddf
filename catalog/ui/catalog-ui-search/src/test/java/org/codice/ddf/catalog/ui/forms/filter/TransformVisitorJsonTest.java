@@ -18,6 +18,9 @@ import static junit.framework.TestCase.fail;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +34,8 @@ import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
+import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,14 +95,42 @@ public class TransformVisitorJsonTest {
   @Test
   public void testVisitIntersectsWithFunction() throws Exception {
     getRootXmlFilterNode("function-ops", "Intersects.xml").accept(visitor);
-    assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
+    assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", "", "id");
+  }
+
+  @Test
+  public void testVisitFunction() throws Exception {
+    getRootXmlFilterNode("function-ops", "Function.xml").accept(visitor);
+
+    FilterNode node = visitor.getResult();
+
+    assertThat(node, is(instanceOf(FunctionFilterNode.class)));
+    FunctionFilterNode functionFilterNode = (FunctionFilterNode) node;
+
+    assertThat(functionFilterNode.getOperator(), is("="));
+    assertThat(functionFilterNode.getValue(), is("title"));
   }
 
   @Test
   public void testVariety2() throws Exception {
     getRootXmlFilterNode("hybrid", "hybrid-example-2.xml").accept(visitor);
-    assertParentNode(visitor.getResult(), "AND", 6);
-    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
+
+    assertThat(visitor.getResult(), is(instanceOf(IntermediateFilterNode.class)));
+    IntermediateFilterNode filterNode = (IntermediateFilterNode) visitor.getResult();
+
+    assertParentNode(filterNode, "AND", 6);
+    assertLeafNode(filterNode.getChildren().get(2), "ILIKE", "name", "Bob");
+  }
+
+  @Test
+  public void testVariety3() throws Exception {
+    getRootXmlFilterNode("hybrid", "hybrid-example-3.xml").accept(visitor);
+
+    assertThat(visitor.getResult(), is(instanceOf(IntermediateFilterNode.class)));
+    IntermediateFilterNode filterNode = (IntermediateFilterNode) visitor.getResult();
+
+    assertParentNode(filterNode, "AND", 6);
+    assertLeafNode(filterNode.getChildren().get(2), "LIKE", "name", "Bob");
   }
 
   private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {

@@ -21,22 +21,20 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import org.boon.core.value.LazyValueMap;
 
-public class FilterNodeMapImpl implements FilterNode {
+public class FilterJsonNode {
   private static final String CHILDREN = "filters";
 
   private static final String PROPERTY = "property";
 
   private static final String VALUE = "value";
 
-  private static final String TEMPLATE_PROPERTIES = "templateProperties";
-
   private final String type;
 
   private final Map<String, Object> json;
 
-  public FilterNodeMapImpl(final Map<String, Object> json) {
+  public FilterJsonNode(final Map<String, Object> json) {
     notNull(json);
     this.type = (String) json.get("type");
 
@@ -48,41 +46,38 @@ public class FilterNodeMapImpl implements FilterNode {
     }
   }
 
-  @Override
   public boolean isLeaf() {
-    return json.get(CHILDREN) == null;
+    return !(hasChildren() || isFunction());
   }
 
-  @Override
-  public boolean isTemplated() {
-    return json.get(TEMPLATE_PROPERTIES) != null;
-  }
-
-  @Override
   public String getOperator() {
     return type;
   }
 
-  @Override
-  public List<FilterNode> getChildren() {
+  public boolean hasChildren() {
+    return json.get(CHILDREN) != null;
+  }
+
+  public boolean isFunction() {
+    return json.get(PROPERTY) instanceof LazyValueMap;
+  }
+
+  public Map<String, Object> getFunctionArguments() {
+    if (!isFunction()) {
+      throw new IllegalStateException("Non-function nodes do not have a property map.");
+    }
+    return (LazyValueMap) json.get(PROPERTY);
+  }
+
+  public List<FilterJsonNode> getChildrenNew() {
     return Stream.of(json.get(CHILDREN))
         .map(List.class::cast)
         .flatMap(List::stream)
         .map(Map.class::cast)
-        .map(FilterNodeMapImpl::new)
+        .map(FilterJsonNode::new)
         .collect(Collectors.toList());
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public Map<String, Object> getTemplateProperties() {
-    if (!isTemplated()) {
-      throw new IllegalStateException("Non-templated nodes do not have template properties");
-    }
-    return (Map<String, Object>) json.get(TEMPLATE_PROPERTIES);
-  }
-
-  @Override
   @Nullable
   public String getProperty() {
     if (!isLeaf()) {
@@ -91,22 +86,19 @@ public class FilterNodeMapImpl implements FilterNode {
     return (String) json.get(PROPERTY);
   }
 
-  @Override
   @Nullable
   public String getValue() {
-    if (!isLeaf()) {
+    if (hasChildren()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
     return Objects.toString(json.get(VALUE));
   }
 
-  @Override
   public void setProperty(String property) {
     notNull(property);
     json.put(PROPERTY, property);
   }
 
-  @Override
   public void setValue(String value) {
     notNull(value);
     json.put(VALUE, value);

@@ -21,14 +21,19 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl;
+import org.codice.ddf.catalog.ui.forms.model.FunctionFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.IntermediateFilterNode;
+import org.codice.ddf.catalog.ui.forms.model.LeafFilterNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
  * for use on the frontend. Also supports building filter nodes with additional metadata in them,
- * such as {@link FilterNodeImpl}s in a templated state.
+ * such as {@link FunctionFilterNode}s and {@link LeafFilterNode}s in a templated state.
  *
  * <p>As mentioned before, this object is single-use and only supports building a single model. It
  * cannot be modified by builder methods once the result has been retrieved by calling {@link
@@ -43,7 +48,11 @@ import org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
+@NotThreadSafe
 public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JsonModelBuilder.class);
+
   private static final Map<String, String> BINARY_COMPARE_MAPPING =
       ImmutableMap.<String, String>builder()
           .put("PropertyIsEqualTo", "=")
@@ -66,6 +75,11 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
 
   private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
+
+  private final PropertySettingVisitor propertySettingVisitor = new PropertySettingVisitor();
+
+  private static final ThreadLocal<ValueSettingVisitor> VALUE_SETTING_VISITOR_THREAD_LOCAL =
+      ThreadLocal.withInitial(ValueSettingVisitor::new);
 
   private final Deque<List<FilterNode>> depth;
 
@@ -121,9 +135,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
     List<FilterNode> nodes = new ArrayList<>();
     if (rootNode == null) {
-      rootNode = new FilterNodeImpl(operator, nodes);
+      rootNode = new IntermediateFilterNode(operator, nodes);
     } else {
-      depth.peek().add(new FilterNodeImpl(operator, nodes));
+      depth.peek().add(new IntermediateFilterNode(operator, nodes));
     }
     depth.push(nodes);
     return this;
@@ -149,21 +163,18 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary comparison operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    nodeInProgress = new LeafFilterNode(jsonOperator);
     return this;
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    if (!PROPERTY_IS_LIKE.equals(operator)) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
-    }
-    // For now, will always choose ILIKE
-    String jsonOperator = (matchCase) ? LIKE : ILIKE;
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
-    return this;
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator) {
+    return beginPropertyIsLikeTypeBasic(operator, LIKE);
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsILikeType(String operator) {
+    return beginPropertyIsLikeTypeBasic(operator, ILIKE);
   }
 
   @Override
@@ -175,7 +186,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
       throw new IllegalArgumentException(
           "Cannot find mapping for binary temporal operator: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
+    nodeInProgress = new LeafFilterNode(jsonOperator);
     return this;
   }
 
@@ -186,7 +197,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     if (!BINARY_SPATIAL_OPS.contains(operator)) {
       throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
     }
-    nodeInProgress = new FilterNodeImpl(operator);
+    nodeInProgress = new LeafFilterNode(operator);
     return this;
   }
 
@@ -207,7 +218,19 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setProperty(String property) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setProperty(property);
+
+    setPropertyOnNodeInProgress(property);
+
+    return this;
+  }
+
+  @Override
+  public FlatFilterBuilder setLiteralProperty(Object literalProperty) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress();
+
+    setPropertyOnNodeInProgress(literalProperty.toString());
+
     return this;
   }
 
@@ -215,16 +238,22 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   public JsonModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setValue(value);
+
+    nodeInProgress.accept(VALUE_SETTING_VISITOR_THREAD_LOCAL.get().setValue(value));
+
     return this;
   }
 
   @Override
-  public JsonModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
+  public JsonModelBuilder setFunctionValues(Map<String, Object> functionProperties) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
+    nodeInProgress = new FunctionFilterNode(nodeInProgress, functionProperties);
     return this;
+  }
+
+  private void setPropertyOnNodeInProgress(String property) {
+    nodeInProgress.accept(propertySettingVisitor.setProperty(property));
   }
 
   private void verifyResultNotYetRetrieved() {
@@ -271,6 +300,72 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private void verifyTerminalNodeNotInProgress() {
     if (nodeInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
+    }
+  }
+
+  private FlatFilterBuilder beginPropertyIsLikeTypeBasic(String operator, String filterType) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    if (!PROPERTY_IS_LIKE.equals(operator)) {
+      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
+    }
+    nodeInProgress = new LeafFilterNode(filterType);
+    return this;
+  }
+
+  private static class ValueSettingVisitor implements FilterNode.Visitor {
+
+    private String value;
+
+    private ValueSettingVisitor setValue(String value) {
+      this.value = value;
+      return this;
+    }
+
+    @Override
+    public void visit(IntermediateFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the value of an IntermediateFilterNode, which doesn't support value attributes. value=[{}]",
+          value);
+    }
+
+    @Override
+    public void visit(LeafFilterNode filterNode) {
+      filterNode.setValue(value);
+    }
+
+    @Override
+    public void visit(FunctionFilterNode filterNode) {
+      filterNode.setValue(value);
+    }
+  }
+
+  private static class PropertySettingVisitor implements FilterNode.Visitor {
+
+    private String property;
+
+    private PropertySettingVisitor setProperty(String property) {
+      this.property = property;
+      return this;
+    }
+
+    @Override
+    public void visit(IntermediateFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the property of an IntermediateFilterNode, which doesn't support property attributes. property=[{}]",
+          property);
+    }
+
+    @Override
+    public void visit(LeafFilterNode filterNode) {
+      filterNode.setProperty(property);
+    }
+
+    @Override
+    public void visit(FunctionFilterNode filterNode) {
+      LOGGER.debug(
+          "Attempting to set the property of an FunctionFilterNode, which doesn't support property attributes. property=[{}]",
+          property);
     }
   }
 }

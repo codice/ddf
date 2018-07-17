@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.builder;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAttribute;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
 import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
@@ -39,10 +40,16 @@ import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
+import org.codice.ddf.catalog.ui.forms.util.QNameMapper;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
+
+  public static final String FUNCTION_PROPERTY_NAME = "filterFunctionName";
+
+  public static final String FUNCTION_PROPERTY_PARAMS = "params";
 
   /**
    * Helper interface for cleanly representing operations that condense a list of XML elements to a
@@ -62,7 +69,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("<", Mapper::lessThan)
           .put("<=", Mapper::lessThanOrEqualTo)
           .put("ILIKE", Mapper::like)
-          .put("LIKE", Mapper::likeMatchCase) // For now, will never be selected
+          .put("LIKE", Mapper::likeMatchCase)
           .put("INTERSECTS", Mapper::intersects)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
@@ -151,7 +158,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+  public FlatFilterBuilder beginPropertyIsLikeType(String operator) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
@@ -160,6 +167,11 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
     supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
     return this;
+  }
+
+  @Override
+  public FlatFilterBuilder beginPropertyIsILikeType(String operator) {
+    return beginPropertyIsLikeType(operator);
   }
 
   @Override
@@ -180,12 +192,16 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     MultiNodeReducer spatialMapping = TERMINAL_OPS.get(operator);
-    if (spatialMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary spatial operator: " + operator);
-    }
+    validateOperatorMapping(
+        spatialMapping, "Cannot find mapping for binary spatial operator: " + operator);
     supplierInProgress = new TerminalNodeSupplier(spatialMapping);
     return this;
+  }
+
+  private void validateOperatorMapping(MultiNodeReducer multiNodeReducer, String message) {
+    if (multiNodeReducer == null) {
+      throw new IllegalArgumentException(message);
+    }
   }
 
   @Override
@@ -210,6 +226,18 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
+  public XmlModelBuilder setLiteralProperty(Object literalProperty) {
+
+    LiteralType literalType = FACTORY.createLiteralType().withContent(literalProperty.toString());
+
+    literalType.setType(QNameMapper.convert(literalProperty));
+
+    supplierInProgress.setLiteralPropertyNode(FACTORY.createLiteral(literalType));
+
+    return this;
+  }
+
+  @Override
   public XmlModelBuilder setValue(String value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
@@ -219,31 +247,57 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public XmlModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
+  public XmlModelBuilder setFunctionValues(Map<String, Object> functionProperties) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-
-    String defaultValue = (String) templateProps.get("defaultValue");
-    String nodeId = (String) templateProps.get("nodeId");
-    boolean isVisible = (boolean) templateProps.get("isVisible");
-    boolean isReadOnly = (boolean) templateProps.get("isReadOnly");
+    validateFunctionProperties(functionProperties);
 
     supplierInProgress.setValue(
         FACTORY.createFunction(
             new FunctionType()
-                .withName("template.value.v1")
-                .withExpression(
-                    FACTORY.createLiteral(
-                        new LiteralType().withContent(Collections.singleton(defaultValue))),
-                    FACTORY.createLiteral(
-                        new LiteralType().withContent(Collections.singleton(nodeId))),
-                    FACTORY.createLiteral(
-                        new LiteralType()
-                            .withContent(Collections.singleton(Boolean.toString(isVisible)))),
-                    FACTORY.createLiteral(
-                        new LiteralType()
-                            .withContent(Collections.singleton(Boolean.toString(isReadOnly)))))));
+                .withName(extractFunctionName(functionProperties))
+                .withExpression(extractFunctionParameters(functionProperties))));
     return this;
+  }
+
+  /** Call {@link #validateFunctionProperties(Map)} before calling this method. */
+  private String extractFunctionName(Map<String, Object> functionProperties) {
+    return (String) functionProperties.get(FUNCTION_PROPERTY_NAME);
+  }
+
+  /** Call {@link #validateFunctionProperties(Map)} before calling this method. */
+  @SuppressWarnings("unchecked")
+  private List<JAXBElement<?>> extractFunctionParameters(Map<String, Object> functionProperties) {
+    return ((List<Object>) functionProperties.get(FUNCTION_PROPERTY_PARAMS))
+        .stream()
+        .filter(Serializable.class::isInstance)
+        .map(Serializable.class::cast)
+        .map(this::createLiteralType)
+        .map(FACTORY::createLiteral)
+        .collect(Collectors.toList());
+  }
+
+  private void validateFunctionProperties(Map<String, Object> functionProperties) {
+
+    if (!(functionProperties.get(FUNCTION_PROPERTY_NAME) instanceof String)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Function properties must include the key \"%s\" with a String value",
+              FUNCTION_PROPERTY_NAME));
+    }
+
+    if (!(functionProperties.get(FUNCTION_PROPERTY_PARAMS) instanceof List)) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Function properties must include the key \"%s\" with a List value",
+              FUNCTION_PROPERTY_PARAMS));
+    }
+  }
+
+  private LiteralType createLiteralType(Serializable serializable) {
+    return new LiteralType()
+        .withContent(serializable.toString())
+        .withType(QNameMapper.convert(serializable));
   }
 
   private void verifyResultNotYetRetrieved() {
@@ -296,6 +350,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
     private final MultiNodeReducer reducer;
     private JAXBElement<String> propertyNode = null;
+    private JAXBElement<LiteralType> literalPropertyNode = null;
     private JAXBElement<?> valueNode;
 
     TerminalNodeSupplier(final MultiNodeReducer reducer) {
@@ -308,6 +363,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       this.propertyNode = propertyNode;
     }
 
+    private void setLiteralPropertyNode(JAXBElement<LiteralType> literalPropertyNode) {
+      this.literalPropertyNode = literalPropertyNode;
+    }
+
     public void setValue(JAXBElement<?> valueNode) {
       notNull(valueNode);
       this.valueNode = valueNode;
@@ -315,12 +374,25 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     @Override
     public JAXBElement<?> get() {
-      notNull(propertyNode);
+      validatePropertyNodeXorLiteralPropertyNode();
       notNull(valueNode);
       List<JAXBElement<?>> terminals = new ArrayList<>();
-      terminals.add(propertyNode);
+
+      if (propertyNode != null) {
+        terminals.add(propertyNode);
+      } else {
+        terminals.add(literalPropertyNode);
+      }
+
       terminals.add(valueNode);
       return reducer.apply(terminals);
+    }
+
+    /** There must be a property node or a literal node, but not both. */
+    private void validatePropertyNodeXorLiteralPropertyNode() {
+      Validate.isTrue(
+          propertyNode != null ^ literalPropertyNode != null,
+          "The property node must be non-null xor the literal property node must be non-null");
     }
   }
 
@@ -414,7 +486,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
 
     private static PropertyIsLikeType likeType(List<JAXBElement<?>> children, boolean matchCase) {
-      return new PropertyIsLikeTypeWithMatchCase()
+      return new PropertyIsLikeType()
           .withMatchCase(matchCase)
           .withEscapeChar("\\")
           .withWildCard("%")
@@ -428,29 +500,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinarySpatialOpType binarySpatialType(List<JAXBElement<?>> children) {
       return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
-    }
-  }
-
-  @SuppressWarnings("squid:S2160" /* Not being used in comparisons */)
-  private static class PropertyIsLikeTypeWithMatchCase extends PropertyIsLikeType {
-    @XmlAttribute(name = "matchCase")
-    protected Boolean matchCase;
-
-    public boolean isMatchCase() {
-      if (matchCase == null) {
-        return true;
-      } else {
-        return matchCase;
-      }
-    }
-
-    public void setMatchCase(boolean value) {
-      this.matchCase = value;
-    }
-
-    PropertyIsLikeTypeWithMatchCase withMatchCase(boolean value) {
-      setMatchCase(value);
-      return this;
     }
   }
 }
