@@ -467,6 +467,14 @@
         <argument ref="platformConfigurationService"/>
     </bean>
 
+    <reference id="sessionManagementService"
+               interface="org.codice.ddf.security.session.management.service.SessionManagementService"/>
+
+    <bean id="sessionManagementApplication"
+          class="org.codice.ddf.catalog.ui.session.SessionManagementApplication">
+        <argument ref="sessionManagementService"/>
+    </bean>
+
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
         <property name="sparkApplications">
@@ -479,6 +487,7 @@
                 <ref component-id="catalogApplication"/>
                 <ref component-id="logoutApplication"/>
                 <ref component-id="configurationApplication"/>
+                <ref component-id="sessionManagementApplication"/>
                 <ref component-id="feedbackApplication"/>
                 <ref component-id="searchFormsApplication"/>
                 <ref component-id="listApplication"/>
