@@ -237,6 +237,20 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     return Collections.emptySet();
   }
 
+  @Override
+  public void removeSubscriptions(String id) {
+    final String ecql = queryId(id);
+
+    LOCK.lock();
+    try {
+      persistentStore.delete(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, ecql);
+    } catch (PersistenceException e) {
+      LOGGER.warn("Could not delete subscriptions for query {}", ecql, e);
+    } finally {
+      LOCK.unlock();
+    }
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getEmails(String id) {

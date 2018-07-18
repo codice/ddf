@@ -77,4 +77,11 @@ public interface SubscriptionsPersistentStore {
    * @return a non-null set of email addresses
    */
   Set<String> getSubscriptions(String email);
+
+  /**
+   * Remove a subscription.
+   *
+   * @param id must be non-null and non-blank
+   */
+  void removeSubscriptions(String id);
 }
