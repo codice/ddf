@@ -93,8 +93,8 @@ define([
                     'detail-level': undefined
                 }, user.getQuerySettings().toJSON());
             },
-            resetToDefaults: function () {
-                this.set(_.omit(this.defaults(), ['type', 'isLocal', 'serverPageIndex', 'result']));
+            resetToDefaults: function (defaults) {
+                this.set(_.omit(_merge(this.defaults(), defaults), ['type', 'isLocal', 'serverPageIndex', 'result']));
                 this.trigger('resetToDefaults');
             },
             applyDefaults: function () {
