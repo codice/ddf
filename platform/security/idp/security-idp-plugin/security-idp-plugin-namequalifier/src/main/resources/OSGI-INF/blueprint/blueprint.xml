@@ -14,9 +14,10 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-  <service interface="org.codice.ddf.security.idp.plugin.SamlPresignPlugin">
-    <bean
-      class="org.codice.ddf.security.idp.plugin.namequalifier.NameQualifierPresignPlugin"/>
-  </service>
+  <bean id="nameQualifierPresignPlugin"
+    class="org.codice.ddf.security.idp.plugin.namequalifier.NameQualifierPresignPlugin"/>
+
+  <service ref="nameQualifierPresignPlugin"
+    interface="org.codice.ddf.security.idp.plugin.SamlPresignPlugin"/>
 
 </blueprint>
