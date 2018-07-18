@@ -18,11 +18,13 @@ module.exports = BaseGuideView.extend({
     regions: {
         workspaceExample: '.example > .workspace',
         resultExample: '.example > .result',
+        result2Example: '.example > .result2',
         queryExample: '.example > .query'
     },
     showComponents() {
         this.showWorkspaceExample();
         this.showResultExample();
+        this.showResult2Example();
         this.showQueryExample();
     },
     showQueryExample() {
@@ -39,6 +41,35 @@ module.exports = BaseGuideView.extend({
         }));
         this.workspaceExample.currentView.activateGridDisplay();
     },
+    showResult2Example() {
+        this.result2Example.show(new ResultItemView({
+            model: new QueryResultModel({
+                actions: [{
+                    description: 'example',
+                    id: 'example',
+                    title: 'example',
+                    url: 'https://www.google.com'
+                }],
+                distance: null,
+                hasThumbnail: false,
+                isResourceLocal: true,
+                metacard: {
+                    id: 'blah blah blah',
+                    cached: "2018-06-28T01:51:32.800+0000",
+                    properties: {
+                        title: 'Example Result',
+                        id: 'example',
+                        "metacard-tags": ['resource', 'VALID'],
+                        "validation-warnings": ['this isonly sort of wrong'],
+                        "source-id": 'banana land',
+                        "resource-download-url": "https://www.google.com"
+                    }
+                },
+                relevance: 11
+            }),
+            selectionInterface: new SelectionInterfaceModel()
+        }));
+    },
     showResultExample() {
         this.resultExample.show(new ResultItemView({
             model: new QueryResultModel({
@@ -52,11 +83,15 @@ module.exports = BaseGuideView.extend({
                 hasThumbnail: false,
                 isResourceLocal: true,
                 metacard: {
+                    id: 'blah blah blah',
                     cached: "2018-06-28T01:51:32.800+0000",
                     properties: {
                         title: 'Example Result',
                         id: 'example',
-                        "metacard-tags": ['resource', 'VALID']
+                        "metacard-tags": ['deleted', 'VALID'],
+                        "validation-errors": ['wow this is way wrong'],
+                        "validation-warnings": ['this isonly sort of wrong'],
+                        "source-id": 'banana land'
                     }
                 },
                 relevance: 11
