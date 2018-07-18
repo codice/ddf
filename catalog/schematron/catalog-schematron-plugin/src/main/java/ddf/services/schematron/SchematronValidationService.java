@@ -140,7 +140,7 @@ public class SchematronValidationService
   public void init() throws SchematronInitializationException {
     if (transformerFactory == null) {
       transformerFactory =
-          TransformerFactory.newInstance(
+          XML_UTILS.getSecureXmlTransformerFactory(
               TransformerFactoryImpl.class.getName(),
               SchematronValidationService.class.getClassLoader());
     }
