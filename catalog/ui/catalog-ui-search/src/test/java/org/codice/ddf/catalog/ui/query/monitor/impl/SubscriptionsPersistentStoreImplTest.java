@@ -173,6 +173,11 @@ public class SubscriptionsPersistentStoreImplTest {
     }
 
     @Override
+    public List<Map<String, Object>> getAll(String type, String ecql) throws PersistenceException {
+      throw new RuntimeException("not implemented");
+    }
+
+    @Override
     public int delete(String type, String ecql) throws PersistenceException {
       throw new RuntimeException("not implemented");
     }
