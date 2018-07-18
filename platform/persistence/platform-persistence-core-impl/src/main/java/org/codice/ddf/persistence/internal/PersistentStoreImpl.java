@@ -131,8 +131,16 @@ public class PersistentStoreImpl implements PersistentStore {
   }
 
   @Override
-  // Returned Map will have suffixes in the key names - client is responsible for handling them
+  /**
+   * {@inheritDoc} Returned Map will have suffixes in the key names - client is responsible for
+   * handling them
+   */
   public List<Map<String, Object>> get(String type, String cql) throws PersistenceException {
+    return getResults(type, cql, false);
+  }
+
+  private List<Map<String, Object>> getResults(String type, String cql, boolean getAllResults)
+      throws PersistenceException {
     if (StringUtils.isBlank(type)) {
       throw new PersistenceException(
           "The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
@@ -157,8 +165,10 @@ public class PersistentStoreImpl implements PersistentStore {
         throw new PersistenceException("Unsupported query " + cql);
       }
       QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
-      long numResults = solrResponse.getResults().getNumFound();
-      LOGGER.debug("numResults = {}", numResults);
+
+      if (getAllResults) {
+        solrQuery.setRows(getNumResults(solrClient, solrQuery));
+      }
 
       SolrDocumentList docs = solrResponse.getResults();
       for (SolrDocument doc : docs) {
@@ -190,6 +200,21 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     return results;
+  }
+
+  @Override
+  public List<Map<String, Object>> getAll(String type, String cql) throws PersistenceException {
+    return getResults(type, cql, true);
+  }
+
+  private int getNumResults(SolrClient solrClient, SolrQuery solrQuery)
+      throws SolrServerException, IOException {
+    solrQuery.setRows(0);
+    QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
+
+    int numResults = Math.toIntExact(solrResponse.getResults().getNumFound());
+    LOGGER.debug("numResults = {}", numResults);
+    return numResults;
   }
 
   @Override

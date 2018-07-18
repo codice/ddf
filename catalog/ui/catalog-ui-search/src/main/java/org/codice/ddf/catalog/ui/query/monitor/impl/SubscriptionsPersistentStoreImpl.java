@@ -60,7 +60,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     LOCK.lock();
     try {
       List<Map<String, Object>> results =
-          persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, q);
+          persistentStore.getAll(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, q);
       assert results.size() <= 1;
       return results;
     } finally {
