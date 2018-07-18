@@ -89,7 +89,8 @@ module.exports = Marionette.LayoutView.extend({
         'change:choice',
         function(confirmation) {
             if (confirmation.get('choice')) {
-                this.model.resetToDefaults();
+                const filterTree = this.model.get('filterTree');
+                this.model.resetToDefaults({filterTree});
                 this.triggerCloseDropdown();
             }
         }.bind(this));
