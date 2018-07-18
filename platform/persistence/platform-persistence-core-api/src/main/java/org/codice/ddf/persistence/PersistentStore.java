@@ -95,9 +95,10 @@ public interface PersistentStore {
   List<Map<String, Object>> get(String type, String ecql) throws PersistenceException;
 
   /**
-   * @param type
-   * @param ecql
-   * @return
+   * Get all items matching the ECQL query criteria.
+   *
+   * @param type A non-empty string identifying the type of item being retrieved.
+   * @param ecql Query criteria.
    * @throws PersistenceException
    */
   List<Map<String, Object>> getAll(String type, String ecql) throws PersistenceException;
