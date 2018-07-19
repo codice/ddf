@@ -604,6 +604,12 @@
 
     <bean id="featureService"
           class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
+
+        <!-- TODO: Remove this, just for testing admin config -->
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.config.theme"
+            update-strategy="container-managed"/>
+
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
         <property name="featureQueryable" ref="featureQueryable"/>
     </bean>
