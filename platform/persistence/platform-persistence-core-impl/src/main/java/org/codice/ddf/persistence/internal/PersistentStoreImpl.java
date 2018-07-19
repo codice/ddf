@@ -55,6 +55,10 @@ public class PersistentStoreImpl implements PersistentStore {
 
   private final Map<String, SolrClient> solrClients = new ConcurrentHashMap<>();
 
+  private static final int DEFAULT_START_INDEX = 0;
+  private static final int DEFAULT_PAGE_SIZE = 10;
+  private static final int MAX_PAGE_SIZE = 1000;
+
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
     this.clientFactory = clientFactory;
   }
@@ -136,14 +140,26 @@ public class PersistentStoreImpl implements PersistentStore {
    * handling them
    */
   public List<Map<String, Object>> get(String type, String cql) throws PersistenceException {
-    return getResults(type, cql, false);
+    return get(type, cql, DEFAULT_START_INDEX, DEFAULT_PAGE_SIZE);
   }
 
-  private List<Map<String, Object>> getResults(String type, String cql, boolean getAllResults)
+  @Override
+  public List<Map<String, Object>> get(String type, String cql, int startIndex, int pageSize)
       throws PersistenceException {
     if (StringUtils.isBlank(type)) {
       throw new PersistenceException(
           "The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
+    }
+
+    if (startIndex < 0) {
+      throw new PersistenceException("The start index must be greater than 0.");
+    }
+
+    if (pageSize < DEFAULT_PAGE_SIZE || pageSize > MAX_PAGE_SIZE) {
+      throw new PersistenceException(
+          String.format(
+              "The page size must be greater than %d and less than %d.",
+              DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE));
     }
 
     List<Map<String, Object>> results = new ArrayList<>();
@@ -164,11 +180,14 @@ public class PersistentStoreImpl implements PersistentStore {
       if (solrQuery == null) {
         throw new PersistenceException("Unsupported query " + cql);
       }
+
+      solrQuery = solrQuery.setRows(pageSize);
+      solrQuery = solrQuery.setStart(startIndex);
+
       QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
 
-      if (getAllResults) {
-        solrQuery.setRows(getNumResults(solrClient, solrQuery));
-      }
+      long numResults = solrResponse.getResults().getNumFound();
+      LOGGER.debug("numResults = {}", numResults);
 
       SolrDocumentList docs = solrResponse.getResults();
       for (SolrDocument doc : docs) {
@@ -200,21 +219,6 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     return results;
-  }
-
-  @Override
-  public List<Map<String, Object>> getAll(String type, String cql) throws PersistenceException {
-    return getResults(type, cql, true);
-  }
-
-  private int getNumResults(SolrClient solrClient, SolrQuery solrQuery)
-      throws SolrServerException, IOException {
-    solrQuery.setRows(0);
-    QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
-
-    int numResults = Math.toIntExact(solrResponse.getResults().getNumFound());
-    LOGGER.debug("numResults = {}", numResults);
-    return numResults;
   }
 
   @Override
