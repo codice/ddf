@@ -62,5 +62,5 @@ grant codeBase "file:/catalog-core-urlresourcereader" {
 
     // Example:
     // permission java.io.FilePermission "/test/some/directory", "read";
-    // permission java.io.FilePermission "/test/some/directory${/}-", "read, write";
+    // permission java.io.FilePermission "/test/some/directory${/}-", "read";
 }
