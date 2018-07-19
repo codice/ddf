@@ -12,6 +12,7 @@ The ${command-console} has a command-line option for ingesting data.
 [NOTE]
 ====
 Ingesting with the console ingest command creates a metacard in the catalog, but does not copy the resource to the content store.
+See the URL Resource Reader documentation for more information on retrieving the resource from a directory.
 ====
 
 The syntax for the ingest command is
