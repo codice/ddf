@@ -80,6 +80,23 @@
         <cm:managed-properties
             persistent-id="org.codice.ddf.catalog.ui.config"
             update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.theme"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.hidden"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.descriptions"
+            update-strategy="container-managed"/>
+
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -605,10 +622,6 @@
     <bean id="featureService"
           class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
 
-        <!-- TODO: Remove this, just for testing admin config -->
-        <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.config.theme"
-            update-strategy="container-managed"/>
 
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
         <property name="featureQueryable" ref="featureQueryable"/>

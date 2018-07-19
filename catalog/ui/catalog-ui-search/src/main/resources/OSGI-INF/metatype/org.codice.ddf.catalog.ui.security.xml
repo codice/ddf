@@ -21,14 +21,12 @@
         <AD id="systemUserAttribute"
             name="System User Attribute"
             description="The name of the attribute to determine the system user."
-            required="true"
             type="String"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
 
         <AD id="systemUserAttributeValue"
             name="System User Attribute Value"
             description="The value of the attribute to determine the system user."
-            required="true"
             type="String"
             default="system-user"/>
     </OCD>

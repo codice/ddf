@@ -63,22 +63,6 @@
             default=""
             required="false"/>
 
-        <AD id="spacingMode"
-            name="Theme Spacing Mode"
-            description="Specifies the default theme spacing mode."
-            type="String"
-            default="comfortable">
-            <Option label="Comfortable" value="comfortable"/>
-            <Option label="Cozy" value="cozy"/>
-            <Option label="Compact" value="compact"/>
-        </AD>
-
-        <AD id="zoomPercentage"
-            name="Theme Zoom"
-            description="Specifies the default theme zoom percentage."
-            type="Integer"
-            default="100"/>
-
         <AD id="timeout"
             name="Connection Timeout"
             description="Specifies the client-side connection timeout in milliseconds."
@@ -234,27 +218,6 @@
             cardinality="10000"
             required="false"/>
 
-        <AD id="attributeAliases"
-            name="Attribute Aliases"
-            description='List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: "title=Title".'
-            type="String"
-            cardinality="10000"
-            required="false"/>
-
-        <AD id="hiddenAttributes"
-            name="Hidden Attributes"
-            description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
-            type="String"
-            cardinality="10000"
-            default="^sorts$,^cql$,^polling$,^cached$"
-            required="false"/>
-
-        <AD id="attributeDescriptions"
-            name="Attribute Descriptions"
-            description='List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: "checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors".'
-            type="String"
-            cardinality="10000"
-            required="false"/>
 
         <AD id="scheduleFrequencyList"
             name="Query Schedule Frequencies"
