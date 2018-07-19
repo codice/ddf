@@ -372,7 +372,8 @@ public class CatalogApplication implements SparkApplication {
       URI uri = new URI(requestUrl.toString());
       UriBuilder uriBuilder = new UriBuilderImpl(uri).path("/" + id);
 
-      res.redirect(uriBuilder.build().toString(), HttpStatus.SC_CREATED);
+      res.status(HttpStatus.SC_CREATED);
+      res.header("Location", uriBuilder.build().toString());
       res.header(Metacard.ID, id);
       return res;
 
