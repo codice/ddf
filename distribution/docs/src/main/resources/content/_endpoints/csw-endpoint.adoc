@@ -29,7 +29,7 @@ Actual responses may vary from these samples, depending on your configuration.
 Send a GET or POST request to obtain an accurate response.
 ====
 
-`GetCapabilities` Operation:: The `GetCapabilites` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
+`GetCapabilities` Operation:: The `GetCapabilities` operation is meant to describe the operations the catalog supports and the URLs used to access those operations. The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetCapabilities` operation. The response to either request will always be a `csw:Capabilities` XML document. This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
 
 .`GetCapabilities` HTTP GET
 The `HTTP GET` form of `GetCapabilities` uses query parameters via the following URL:
@@ -1804,7 +1804,49 @@ The `RecordProperty` contains a `Name` and `Value` element.
 The `Name` element is used to specify the name of the record property to be updated.
 The `Value` element contains the value that will be used to update the record in the catalog.
 The values in the `Update` will completely replace those that are already in the record.
-A property is removed only if the `RecordProperty` contains a `Name` but not a `Value`.
+
+Some properties are given default `Value`s if no `Value` is provided.
+
+.`RecordProperty` Default Values
+[cols="1m,1" options="header"]
+|===
+
+|Property
+|Default Value
+
+|metadata-content-type
+|Resource
+
+|created
+|_current time_
+
+|modified
+|_current time_
+
+|effective
+|_current time_
+
+|metadata-content-type-version
+|_myVersion_
+
+|metacard.created
+|_current time_
+
+|metacard.modified
+|_current time_
+
+|metacard-tags
+|resource, VALID
+
+|point-of-contact
+|system@localhost
+
+|title
+|_current time_
+
+|===
+
+Other properties are removed if the `RecordProperty` contains a `Name` but not a `Value`.
 
 The number of records affected by an Update operation is determined by the contents of the `Constraint` element, which contains a filter for limiting the update to a specific record or group of records.
 
