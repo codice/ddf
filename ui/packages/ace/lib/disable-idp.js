@@ -1,4 +1,5 @@
 const https = require('https')
+const chalk = require('chalk')
 
 const createClient = ({ auth, hostname, port }) =>
   (operation, ...args) => new Promise((resolve, reject) => {
@@ -44,12 +45,17 @@ module.exports = async ({ args }) => {
   const exec = createClient({ auth, hostname, port })
   const pid = 'org.codice.ddf.security.policy.context.impl.PolicyManager'
 
-  const { value } = JSON.parse(await exec('listServices'))
-  const [{ configurations = defaultConfig }] = value.filter(({ id }) => id === pid)
-  const [{ properties }] = configurations
+  try {
+    const { value } = JSON.parse(await exec('listServices'))
+    const [{ configurations = defaultConfig }] = value.filter(({ id }) => id === pid)
+    const [{ properties }] = configurations
 
-  properties.authenticationTypes.shift()
-  properties.authenticationTypes.unshift('/=BASIC')
+    properties.authenticationTypes.shift()
+    properties.authenticationTypes.unshift('/=BASIC')
 
-  await exec('update', pid, properties)
+    await exec('update', pid, properties)
+  } catch (e) {
+    console.error(chalk.yellow('WARNING: unable to auto disable IDP authentication, you may need to do this manually.'))
+    console.error(e)
+  }
 }
