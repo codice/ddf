@@ -20,8 +20,8 @@
     ]
   },
   "scripts": {
-    "start": "ace start --open",
-    "start:test": "ace start --env=test --open",
+    "start": "ace start",
+    "start:test": "ace start --env=test",
     "pretest": "standard ./src/**/*.js && ace bundle --env=test",
     "test": "ace test target/test/index.html",
     "posttest": "istanbul check-coverage",
