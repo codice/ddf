@@ -81,7 +81,7 @@ public interface SubscriptionsPersistentStore {
   /**
    * Remove a subscription.
    *
-   * @param id must be non-null and non-blank
+   * @param id Workspace ID, must be non-null and non-blank
    */
   void removeSubscriptions(String id);
 }

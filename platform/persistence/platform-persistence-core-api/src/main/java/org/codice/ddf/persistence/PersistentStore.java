@@ -99,9 +99,13 @@ public interface PersistentStore {
    *
    * @param type A non-empty string identifying the type of item being retrieved.
    * @param ecql Query criteria.
+   *     <p>// TODO: Fill out this javadoc
+   * @param startIndex
+   * @param pageSize
    * @throws PersistenceException
    */
-  List<Map<String, Object>> getAll(String type, String ecql) throws PersistenceException;
+  List<Map<String, Object>> get(String type, String ecql, int startIndex, int pageSize)
+      throws PersistenceException;
 
   /**
    * Delete items matching the ECQL query criteria.
@@ -111,5 +115,6 @@ public interface PersistentStore {
    * @return Count of the items deleted
    * @throws PersistenceException
    */
+  // TODO: Ensure deletes all instead of only 10 by using new get method.
   int delete(String type, String ecql) throws PersistenceException;
 }
