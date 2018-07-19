@@ -19,7 +19,7 @@ class Keyword extends React.Component {
     async onChange({ id, name }) {
         this.setState({ value: name, loading: true });
         try {
-            const res = await this.fetch(`/search/catalog/internal/geofeature?id=${id}`);
+            const res = await this.fetch(`./internal/geofeature?id=${id}`);
             const { type, geometry = {} } = await res.json();
             this.setState({ loading: false });
 
