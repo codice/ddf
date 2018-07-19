@@ -243,7 +243,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
 
     LOCK.lock();
     try {
-      persistentStore.delete(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, ecql);
+      persistentStore.delete(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, ecql, 0, 1000);
     } catch (PersistenceException e) {
       LOGGER.warn("Could not delete subscriptions for query {}", ecql, e);
     } finally {

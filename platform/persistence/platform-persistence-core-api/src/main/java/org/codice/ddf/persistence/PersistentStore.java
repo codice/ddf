@@ -115,6 +115,17 @@ public interface PersistentStore {
    * @return Count of the items deleted
    * @throws PersistenceException
    */
-  // TODO: Ensure deletes all instead of only 10 by using new get method.
   int delete(String type, String ecql) throws PersistenceException;
+
+  /**
+   * // TODO: Fill out this javadoc
+   *
+   * @param type A non-empty string identifying the type of item being retrieved.
+   * @param ecql Query criteria.
+   * @param startIndex
+   * @param PageSize
+   * @return Count of the items deleted
+   * @throws PersistenceException
+   */
+  int delete(String type, String ecql, int startIndex, int pageSize) throws PersistenceException;
 }
