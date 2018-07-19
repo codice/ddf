@@ -32,6 +32,7 @@
         <module>security-idp-plugin-subjectconfirmation</module>
         <module>security-idp-plugin-audiencerestriction</module>
         <module>security-idp-plugin-nameidpolicy</module>
+        <module>security-idp-plugin-namequalifier</module>
     </modules>
 
 </project>
