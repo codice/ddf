@@ -40,6 +40,11 @@
                 <exclude>etc/system.properties</exclude>
                 <exclude>etc/shell.init.script</exclude>
                 <exclude>etc/org.apache.karaf.kar.cfg</exclude>
+                <exclude>system/**/org.ops4j.pax.tipi.tomcat*</exclude>
+                <exclude>system/**/pax-web-jsp*</exclude>
+                <exclude>system/**/*elasticsearch*</exclude>
+                <exclude>system/**/*kibana*</exclude>
+                <exclude>system/**/pax-web-tomcat*</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
                 when running client script it logs in as "karaf" user without requiring a password.
@@ -71,16 +76,6 @@
                 -->
                 <exclude>
                     **/org/apache/cxf/cxf-rt-transports-http-netty-server/3.1.4/cxf-rt-transports-http-netty-server-3.1.4.jar
-                </exclude>
-                <!--
-                Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
-                and it's associated with CVE-2013-2185, CVE-2002-0493
-                -->
-                <exclude>
-                    **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-core/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-core-8.0.14.1.jar
-                </exclude>
-                <exclude>
-                    **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-websocket/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-websocket-8.0.14.1.jar
                 </exclude>
                 <!-- 3.2.2 is binary compatibles and we want to exclude this since it has vulnerabilities -->
                 <exclude>
@@ -282,6 +277,9 @@
         <fileSet>
             <directory>${setup.folder}/solr</directory>
             <outputDirectory>/solr</outputDirectory>
+          <excludes>
+            <exclude>**/derby*</exclude>
+          </excludes>
         </fileSet>
     </fileSets>
 
