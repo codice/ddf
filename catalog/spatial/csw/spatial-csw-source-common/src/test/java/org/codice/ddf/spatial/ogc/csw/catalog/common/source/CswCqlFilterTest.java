@@ -1362,6 +1362,14 @@ public class CswCqlFilterTest {
   }
 
   @Test
+  public void testIdQuoting() throws UnsupportedQueryException {
+    CswFilterFactory factory = new CswFilterFactory(CswAxisOrder.LON_LAT, true);
+    FilterType filter = factory.buildPropertyIsEqualToFilter(Core.ID, "12345", false);
+    String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+    assertThat(cqlText, is("\"id\" = '12345'"));
+  }
+
+  @Test
   public void testComparisonOpsAnd() throws UnsupportedQueryException {
     FilterType propertyIsLikeFilter =
         cswFilterDelegate.propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
