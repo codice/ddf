@@ -173,8 +173,12 @@ grant codeBase "file:/org.apache.karaf.deployer.blueprint/org.apache.karaf.deplo
 }
 
 grant codeBase "file:/org.apache.karaf.jaas.modules" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keys.properties", "read";
+}
+
+grant codeBase "file:/org.apache.karaf.jaas.command" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
 }
 
 grant codeBase "file:/pax-logging-log4j2" {
@@ -254,6 +258,10 @@ grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apach
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis.xml", "read";
+}
+
+grant codeBase "file:/admin-core-insecuredefaults/org.apache.karaf.decanter.scheduler.simple/org.apache.felix.scr" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "write";
 }
 
 grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jolokia" {
