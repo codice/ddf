@@ -182,5 +182,11 @@ public class SubscriptionsPersistentStoreImplTest {
     public int delete(String type, String ecql) throws PersistenceException {
       throw new RuntimeException("not implemented");
     }
+
+    @Override
+    public int delete(String type, String ecql, int startIndex, int PageSize)
+        throws PersistenceException {
+      throw new RuntimeException("not implemented");
+    }
   }
 }

@@ -221,7 +221,13 @@ public class PersistentStoreImpl implements PersistentStore {
 
   @Override
   public int delete(String type, String cql) throws PersistenceException {
-    List<Map<String, Object>> itemsToDelete = this.get(type, cql);
+    return delete(type, cql, DEFAULT_START_INDEX, DEFAULT_PAGE_SIZE);
+  }
+
+  @Override
+  public int delete(String type, String cql, int startIndex, int pageSize)
+      throws PersistenceException {
+    List<Map<String, Object>> itemsToDelete = this.get(type, cql, startIndex, pageSize);
     SolrClient solrClient = getSolrClient(type);
     List<String> idsToDelete = new ArrayList<>();
     for (Map<String, Object> item : itemsToDelete) {
