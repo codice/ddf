@@ -143,6 +143,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
@@ -188,11 +189,6 @@
         <feature>spatial-wfs-v1_0_0</feature>
         <feature>spatial-wfs-v1_1_0</feature>
         <feature>spatial-wfs-v2_0_0</feature>
-    </feature>
-
-    <feature name="feature-index" version="${project.version}"
-             description="Offline gazetteer service storing geographic features in the catalog">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
     </feature>
 
 </features>
