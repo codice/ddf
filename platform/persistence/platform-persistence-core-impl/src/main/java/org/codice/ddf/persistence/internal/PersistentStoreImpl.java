@@ -152,14 +152,12 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     if (startIndex < 0) {
-      throw new PersistenceException("The start index must be greater than 0.");
+      throw new PersistenceException("The start index must be positive.");
     }
 
-    if (pageSize < DEFAULT_PAGE_SIZE || pageSize > MAX_PAGE_SIZE) {
+    if (pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
       throw new PersistenceException(
-          String.format(
-              "The page size must be greater than %d and less than %d.",
-              DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE));
+          String.format("The page size must be greater than 0 and less than %d.", MAX_PAGE_SIZE));
     }
 
     List<Map<String, Object>> results = new ArrayList<>();
