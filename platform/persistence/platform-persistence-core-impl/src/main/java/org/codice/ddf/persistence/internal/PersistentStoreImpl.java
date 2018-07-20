@@ -55,9 +55,9 @@ public class PersistentStoreImpl implements PersistentStore {
 
   private final Map<String, SolrClient> solrClients = new ConcurrentHashMap<>();
 
-  private static final int DEFAULT_START_INDEX = 0;
+  public static final int DEFAULT_START_INDEX = 0;
   private static final int DEFAULT_PAGE_SIZE = 10;
-  private static final int MAX_PAGE_SIZE = 1000;
+  public static final int MAX_PAGE_SIZE = 1000;
 
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
     this.clientFactory = clientFactory;
@@ -152,12 +152,13 @@ public class PersistentStoreImpl implements PersistentStore {
     }
 
     if (startIndex < 0) {
-      throw new PersistenceException("The start index must be positive.");
+      throw new IllegalArgumentException("The start index must be nonnegative.");
     }
 
     if (pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
-      throw new PersistenceException(
-          String.format("The page size must be greater than 0 and less than %d.", MAX_PAGE_SIZE));
+      throw new IllegalArgumentException(
+          String.format(
+              "The page size must be greater than 0 and less than or equal to %d.", MAX_PAGE_SIZE));
     }
 
     List<Map<String, Object>> results = new ArrayList<>();
