@@ -57,6 +57,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
   public static final int DEFAULT_START_INDEX = 0;
   private static final int DEFAULT_PAGE_SIZE = 10;
+
   public static final int MAX_PAGE_SIZE = 1000;
 
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
