@@ -85,24 +85,28 @@ public class PersistentStoreImplTest {
 
   @Test
   public void testAddEmptyProperties() throws Exception {
-    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-    PersistentItem props = new PersistentItem();
-    persistentStore.add("testcore", props);
     verify(solrClient, never()).add(any(SolrInputDocument.class));
   }
 
   @Test
   public void testGet() throws Exception {
     QueryResponse response = mock(QueryResponse.class);
-    SolrDocumentList docList = new SolrDocumentList();
-    SolrDocument doc = new SolrDocument();
-    doc.addField("id_txt", "idvalue");
-    docList.add(doc);
+    SolrDocumentList docList = getSolrDocuments();
+
     when(response.getResults()).thenReturn(docList);
     when(solrClient.query(any(), eq(METHOD.POST))).thenReturn(response);
     List<Map<String, Object>> items = persistentStore.get("testcore");
+    assertThat(items.size(), equalTo(2));
+    assertThat(items.get(0).get("id_txt"), equalTo("idvalue1"));
+    assertThat(items.get(1).get("id_txt"), equalTo("idvalue2"));
+  }
+
+  @Test
+  public void testGetWithStartIndexAndPageSize() throws PersistenceException {
+    final List<Map<String, Object>> items =
+        persistentStore.get("testcore", "property LIKE 'value'", 0, 1);
+
     assertThat(items.size(), equalTo(1));
-    assertThat(items.get(0).get("id_txt"), equalTo("idvalue"));
   }
 
   @Test(expected = PersistenceException.class)
@@ -110,5 +114,18 @@ public class PersistentStoreImplTest {
     List<Map<String, Object>> items = persistentStore.get("testcore", "property LIKE 'value'");
     assertThat(items.size(), equalTo(1));
     verify(solrClient, never()).query(any(), eq(SolrRequest.METHOD.POST));
+  }
+
+  private SolrDocumentList getSolrDocuments() {
+    SolrDocumentList docList = new SolrDocumentList();
+
+    SolrDocument docOne = new SolrDocument();
+    docOne.addField("id_txt", "idvalue1");
+    docList.add(docOne);
+
+    SolrDocument docTwo = new SolrDocument();
+    docTwo.addField("id_txt", "idvalue2");
+    docList.add(docTwo);
+    return docList;
   }
 }

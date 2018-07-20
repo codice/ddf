@@ -15,7 +15,6 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE;
 import static org.codice.ddf.persistence.internal.PersistentStoreImpl.DEFAULT_START_INDEX;
 import static org.codice.ddf.persistence.internal.PersistentStoreImpl.MAX_PAGE_SIZE;
 
