@@ -42,6 +42,8 @@ public class SecurityMigratable implements Migratable {
 
   private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
+  private static final Path SECURITY_POLICIES_DIR = Paths.get("security");
+
   private static final List<Path> PROPERTIES_FILES =
       ImmutableList.of( //
           Paths.get("etc", SecurityMigratable.WS_SECURITY, "server", "encryption.properties"),
@@ -97,6 +99,9 @@ public class SecurityMigratable implements Migratable {
         .forEach(ExportMigrationEntry::store);
     LOGGER.debug("Exporting PDP files from [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
     context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).store();
+    LOGGER.debug(
+        "Exporting security policy files from [{}]...", SecurityMigratable.SECURITY_POLICIES_DIR);
+    context.getEntry(SecurityMigratable.SECURITY_POLICIES_DIR).store();
   }
 
   @Override
@@ -116,5 +121,8 @@ public class SecurityMigratable implements Migratable {
         .forEach(ImportMigrationEntry::restore);
     LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
     context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).restore();
+    LOGGER.debug(
+        "Importing security policy Directory at [{}]...", SecurityMigratable.SECURITY_POLICIES_DIR);
+    context.getEntry(SecurityMigratable.SECURITY_POLICIES_DIR).restore();
   }
 }
