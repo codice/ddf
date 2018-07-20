@@ -16,27 +16,27 @@
 |Constraints
 |Example Value
 
-|[[metacard.created]]metacard.created
+|[[_metacard.created]]metacard.created
 |The creation date of the metacard.
 |Date
 |
 |
 
-|[[metacard.modified]]metacard.modified
+|[[_metacard.modified]]metacard.modified
 |The modified date of the metacard.
 |Date
 |
 |
 
-|[[metacard.owner]]metacard.owner
+|[[_metacard.owner]]metacard.owner
 |The email address of the metacard owner.
 |String
 |A valid email address per RFC 5322
 |
 
-|[[metacard-tags]]metacard-tags
+|[[_metacard-tags]]metacard-tags
 |Collections of data that go together, used for filtering.
-query results. NOTE: these are system tags. For descriptive tags, <<_topic_attributes,Topic Attributes>>.
+query results. NOTE: these are system tags. For descriptive tags, <<{metadata-prefix}topic_attributes,Topic Attributes>>.
 |List of Strings
 |< 1024 characters per entry
 |

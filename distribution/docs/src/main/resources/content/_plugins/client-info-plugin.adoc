@@ -10,7 +10,7 @@ The client info plugin injects request-specific network information into request
 ===== Related Components to the Client Info Plugin
 
 * Client info filter
-* <<_metacard_ingest_network_plugin,Metacard Ingest Network Plugin>>
+* <<{architecture-prefix}metacard_ingest_network_plugin,Metacard Ingest Network Plugin>>
 
 ===== Installing the Client Info Plugin
 

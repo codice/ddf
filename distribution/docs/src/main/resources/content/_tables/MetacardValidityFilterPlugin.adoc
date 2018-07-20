@@ -5,7 +5,7 @@
 :application: ${ddf-catalog}
 :summary: Metacard Validation Filter Plugin.
 
-.[[ddf.catalog.metacard.validation.MetacardValidityFilterPlugin]]Metacard Validation Filter Plugin
+.[[_ddf.catalog.metacard.validation.MetacardValidityFilterPlugin]]Metacard Validation Filter Plugin
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

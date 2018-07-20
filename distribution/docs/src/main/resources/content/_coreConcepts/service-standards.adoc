@@ -8,7 +8,7 @@
 
 == {title}
 
-Service standards are implemented within <<_introduction_to_endpoints,Endpoints>> and/or <<_introduction_to_federation_and_sources,Sources>>.
+Service standards are implemented within <<_introduction_to_endpoints,Endpoints>> and/or <<{introduction-prefix}introduction_to_federation_and_sources,Sources>>.
 Standards marked *Experimental* are functional and have been tested, but are subject to change or removal during the incubation period.
 
 .Catalog Service Standards Included with ${ddf-branding}

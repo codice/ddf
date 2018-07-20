@@ -5,7 +5,7 @@
 :application: ${ddf-platform}
 :summary: Logging Service configurations.
 
-.[[org.codice.ddf.platform.logging.LoggingService]]Logging Service
+.[[_org.codice.ddf.platform.logging.LoggingService]]Logging Service
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

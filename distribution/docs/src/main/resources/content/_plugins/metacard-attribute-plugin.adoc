@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: Metacard Attribute Security Policy Plugin
-:link: _metacard_attribute_security_policy_plugin
+:link: {developing-prefix}metacard_attribute_security_policy_plugin
 :plugintypes: policy
 :summary: Collects attributes into a security field for the metacard.
 
@@ -41,6 +41,6 @@ The policy plugin could also be used to rename attributes. If there is only one 
 The Metacard Attribute Security Policy Plugin is installed by default with a standard installation
  in the ${ddf-catalog} application.
 
-See <<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard
+See <<{application-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard
  Attribute Security Policy Plugin configurations>> for all possible configurations.
 

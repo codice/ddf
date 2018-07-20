@@ -5,7 +5,7 @@
 :application: ${ddf-ui}
 :summary: Catalog UI Search.
 
-.[[org.codice.ddf.catalog.ui.config]]Catalog UI Search
+.[[_org.codice.ddf.catalog.ui.config]]Catalog UI Search
 [cols="1,1m,1,3,1m,1" options="header"]
 |===
 
@@ -321,14 +321,14 @@ thumbnail
 |Query Feedback Email Subject Template
 |queryFeedbackEmailSubjectTemplate
 |String
-|See <<_configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
+|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
 |Query Feedback from {{username}}
 |true
 
 |Query Feedback Email Body Template
 |queryFeedbackEmailBodyTemplate
 |String
-|See <<_configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
+|See <<{managing-prefix}configuring_query_feedback_for_intrigue,Configuring Query Feedback for ${catalog-ui}>> for more details about Query Feedback templates.
 |
 <h2>Query Feedback</h2> +
 <p><br> +

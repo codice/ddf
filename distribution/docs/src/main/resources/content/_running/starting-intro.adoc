@@ -219,7 +219,7 @@ root${at-symbol}localhost# update-rc.d -f ${branding-lowercase}-service defaults
 +
 [NOTE]
 ====
-If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<_java_requirements,Java Requirements>>
+If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<{introduction-prefix}java_requirements,Java Requirements>>
 ====
 
 ===== Karaf Documentation

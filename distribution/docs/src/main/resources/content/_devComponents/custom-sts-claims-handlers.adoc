@@ -67,7 +67,7 @@ public interface ClaimsHandler {
 ----
 . Deploy the bundle.
 
-If the new claims handler is hitting an external service that is secured with SSL/TLS, a developer may need to add the root CA of the external site to the ${branding} trustStore and add a valid certificate into the ${branding} keyStore. For more information on certificates, refer to <<Configuring a Java Keystore for Secure Communications>>.
+If the new claims handler is hitting an external service that is secured with SSL/TLS, a developer may need to add the root CA of the external site to the ${branding} trustStore and add a valid certificate into the ${branding} keyStore. For more information on certificates, refer to <<{managing-prefix}managing_keystores_and_certificates,Configuring a Java Keystore for Secure Communications>>.
 
 [NOTE]
 ====

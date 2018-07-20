@@ -83,7 +83,7 @@ The `CertNew` scripts:
 * Adds the specified subject alternative names if any.
 * Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
 
-To install a certificate signed by a different Certificate Authority, see <<{quickstart-prefix}managing_keystores,Managing Keystores>>.
+To install a certificate signed by a different Certificate Authority, see <<{managing-prefix}managing_keystores,Managing Keystores>>.
 
 After this proceed to <<{quickstart-prefix}updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>.
 

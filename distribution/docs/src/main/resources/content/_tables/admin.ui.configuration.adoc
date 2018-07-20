@@ -5,7 +5,7 @@
 :application: ${ddf-admin}
 :summary: Admin UI configurations.
 
-.[[org.codice.admin.ui.configuration]]Admin UI
+.[[_org.codice.admin.ui.configuration]]Admin UI
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

@@ -1,7 +1,7 @@
 :type: pluginIntro
 :status: published
 :title: Pre-Authorization Plugins
-:link: _pre_authorization_plugins
+:link: {architecture-prefix}pre_authorization_plugins
 :summary: Perform any changes needed before security rules are applied.
 :plugintypes: preauthorization
 :order: 01

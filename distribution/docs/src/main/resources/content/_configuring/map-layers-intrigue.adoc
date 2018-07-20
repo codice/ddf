@@ -8,7 +8,7 @@
 == {title}
 
 Customize the look of the map displayed to users in ${catalog-ui} by adding or removing map layers through the *Map Layers UI*.
-Equivalent addition and deletion of a map layer can be found in <<_map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
+Equivalent addition and deletion of a map layer can be found in <<{managing-prefix}map_configuration_for_intrigue,Map Configuration for ${catalog-ui}>>.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
@@ -39,6 +39,6 @@ To remove all map layers, select *RESET*.
 
 .Map Layer Advanced Configuration
 Select *Advanced Configuration* to edit the JSON-formatted configuration directly.
-See <<org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for examples of map layer configurations.
+See <<{application-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for examples of map layer configurations.
 
 External links to the specific API documentation of the map layer is also available from the *Advanced Configuration* menu.

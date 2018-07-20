@@ -16,7 +16,7 @@
 |Constraints
 |Example Value
 
-|[[media.format]]media.format
+|[[_media.format]]media.format
 |The file format, physical medium, or dimensions of the
 resource. http://dublincore.org/documents/dcmi-terms/#elements-format[Dublin Core elements-format]
 |String
@@ -24,43 +24,43 @@ resource. http://dublincore.org/documents/dcmi-terms/#elements-format[Dublin Cor
 |txt, docx, xml - typically the extension or a more complete
 name for such, note that this is not the mime type
 
-|[[media.format-version]]media.format-version
+|[[_media.format-version]]media.format-version
 |The file format version of the resource. Note that the syntax can vary widely from format to format.
 |String
 |< 1024 characters
 |POSIX, 2016, 1.0
 
-|[[media.bit-rate]]media.bit-rate
+|[[_media.bit-rate]]media.bit-rate
 |The bit rate of the media, in bits per second.
 |Double
 |
 |
 
-|[[media.frame-rate]]media.frame-rate
+|[[_media.frame-rate]]media.frame-rate
 |The frame rate of the video, in frames per second.
 |Double
 |
 |
 
-|[[media.frame-center]]media.frame-center
+|[[_media.frame-center]]media.frame-center
 |The center of the video frame.
 |Geometry
 |Valid Well Known Text (WKT)
 |
 
-|[[media.height-pixels]]media.height-pixels
+|[[_media.height-pixels]]media.height-pixels
 |The height of the media resource in pixels.
 |Integer
 |
 |
 
-|[[media.width-pixels]]media.width-pixels
+|[[_media.width-pixels]]media.width-pixels
 |The width of the media resource in pixels.
 |Integer
 |
 |
 
-|[[media.compression]]media.compression
+|[[_media.compression]]media.compression
 |The type of compression this media uses.
 
 http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html#Compression[EXIF]
@@ -69,31 +69,31 @@ STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8
 |One of the values defined for EXIF Compression tag.
 |
 
-|[[media.bits-per-sample]]media.bits-per-sample
+|[[_media.bits-per-sample]]media.bits-per-sample
 |The number of bits per image component.
 |Integer
 |
 |
 
-|[[media.type]]media.type (RFC 2046)
+|[[_media.type]]media.type (RFC 2046)
 |A two-part identifier for file formats and format content.
 |String
 |A valid mime-type per https://www.ietf.org/rfc/rfc2046.txt
 |application/json
 
-|[[media.encoding]]media.encoding
+|[[_media.encoding]]media.encoding
 |The encoding format of the media.
 |List of Strings
 |< 1024 characters per entry
 |MPEG-2, RGB
 
-|[[media.number-of-bands]]media.number-of-bands
+|[[_media.number-of-bands]]media.number-of-bands
 |The number of spectral bands in the media.
 |Integer
 |The significance of this number is instrumentation-specific, but there are eight commonly recognized bands. https://en.wikipedia.org/wiki/Multispectral_image
 |
 
-|[[media.scanning-mode]]media.scanning-mode (MPEG2)
+|[[_media.scanning-mode]]media.scanning-mode (MPEG2)
 |Indicate if progressive or interlaced scans are being applied. 
 |String
 |PROGRESSIVE, INTERLACED

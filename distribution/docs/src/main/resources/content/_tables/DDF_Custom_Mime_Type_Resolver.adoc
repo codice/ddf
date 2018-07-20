@@ -5,7 +5,7 @@
 :application: ${ddf-platform}
 :summary: DDF Custom Mime Types.
 
-.[[DDF_Custom_Mime_Type_Resolver]]MIME Custom Types
+.[[_DDF_Custom_Mime_Type_Resolver]]MIME Custom Types
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

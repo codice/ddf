@@ -427,6 +427,11 @@
                                     <type>html</type>
                                     <classifier>quickstart</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/docs/html/managing.html</file>
+                                    <type>html</type>
+                                    <classifier>managing</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

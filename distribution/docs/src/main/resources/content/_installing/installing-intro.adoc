@@ -7,7 +7,7 @@
 == {title}
 
 Set up a complete, secure instance of ${branding}.
-For simplified steps used for a testing, development, or demonstration installation, see the <<_quick_start_tutorial,${branding} Quick Start>>.
+For simplified steps used for a testing, development, or demonstration installation, see the <<{quickstart-prefix}quick_start_tutorial,${branding} Quick Start>>.
 
 [IMPORTANT]
 ====
@@ -32,7 +32,7 @@ These are the system/environment requirements to configure _prior_ to an install
 
 [NOTE]
 ====
-These requirements assume the recommended installation profile was used (see <<_setup_types, Setup Types>>) and the use of a remote catalog.
+These requirements assume the recommended installation profile was used (see <<{managing-prefix}setup_types, Setup Types>>) and the use of a remote catalog.
 Please consult the https://lucene.apache.org/solr/guide/7_4/installing-solr.html[Solr System Requirements] for guidance if the system will also be hosting a local catalog.
 ====
 
@@ -71,7 +71,7 @@ Please consult the https://lucene.apache.org/solr/guide/7_4/installing-solr.html
 
 |===
 
-^*^The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
+^*^The amount of RAM can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>
 
 ======
 
@@ -206,7 +206,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 To install the ${branding} distribution zip, perform the following:
 
 . Download the ${branding} {download-url}[zip file].
-. After the <<_installation_prerequisites,prerequisites>> have been met, change the current directory to the desired install directory, creating a new directory if desired.
+. After the <<{managing-prefix}installation_prerequisites,prerequisites>> have been met, change the current directory to the desired install directory, creating a new directory if desired.
 This will be referred to as `${home_directory}`.
 +
 .Windows Pathname Warning

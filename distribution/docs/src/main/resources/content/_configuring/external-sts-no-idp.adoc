@@ -8,4 +8,4 @@
 // This is a subsection of Configuring Without an IdP and has a added title level.
 === {title}
 
-The process for <<_connecting_to_external_sts,connecting to an external STS>> is the same with or without an IdP.
+The process for <<{managing-prefix}connecting_to_external_sts,connecting to an external STS>> is the same with or without an IdP.

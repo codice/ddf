@@ -5,7 +5,7 @@
 :application: ${ddf-catalog}
 :summary: Catalog Metacard Ingest Network Plugin.
 
-.[[org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin]]Catalog Metacard Ingest Network Plugin
+.[[_org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin]]Catalog Metacard Ingest Network Plugin
 [cols="1,1,1,4a,1,1," options="header"]
 |===
 

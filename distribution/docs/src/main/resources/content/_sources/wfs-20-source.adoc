@@ -12,7 +12,7 @@
 == {title}
 The WFS 2.0 Source allows for requests for geographical features across the web using platform-independent calls.
 
-Use the WFS Source if querying a WFS version 2.0.0 compliant service. Also see <<_wfs_services,Working with WFS Sources>>.
+Use the WFS Source if querying a WFS version 2.0.0 compliant service. Also see <<{developing-prefix}wfs_services,Working with WFS Sources>>.
 
 .Installing the WFS v2.0.0 Source
 The WFS v2.0.0 Source is installed by default with a standard installation in the ${ddf-spatial} application.
@@ -34,7 +34,7 @@ Configure an existing WFS v2.0.0 Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Select the name of the source to edit.
 
-See <<Wfs_v2_0_0_Federated_Source,WFS v.2.0 Federated source configurations>> or <<Wfs_v2_0_0_Connected_Source,WFS v2.0 Connected source configurations>> for all possible configurations.
+See <<{application-prefix}Wfs_v2_0_0_Federated_Source,WFS v.2.0 Federated source configurations>> or <<{application-prefix}Wfs_v2_0_0_Connected_Source,WFS v2.0 Connected source configurations>> for all possible configurations.
 
 .WFS URL
 The WFS URL must match the endpoint for the service being used.

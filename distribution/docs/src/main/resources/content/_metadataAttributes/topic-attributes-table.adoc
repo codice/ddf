@@ -17,20 +17,20 @@
 |Constraints
 |Example Value
 
-|[[topic.category]]topic.category
+|[[_topic.category]]topic.category
 |A category code from a given vocabulary.
 |List of Strings
 |A valid entry from the corresponding controlled vocabulary.
 |
 
-|[[topic.keyword]]topic.keyword
+|[[_topic.keyword]]topic.keyword
 |One or more keywords describing the subject matter of the
 metacard or resource.
 |List of Strings
 |< 1024 characters per entry
 |
 
-|[[topic.vocabulary]]topic.vocabulary
+|[[_topic.vocabulary]]topic.vocabulary
 |An identifier of a controlled vocabulary from which the
 topic category is derived.
 |List of Strings

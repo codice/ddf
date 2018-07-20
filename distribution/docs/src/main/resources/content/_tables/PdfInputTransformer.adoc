@@ -1,7 +1,7 @@
 :type: documentation
 :status: published
 
-.[[ddf.catalog.transformer.input.pdf.PdfInputTransformer]]PDF Input Transformer
+.[[_ddf.catalog.transformer.input.pdf.PdfInputTransformer]]PDF Input Transformer
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 |Name

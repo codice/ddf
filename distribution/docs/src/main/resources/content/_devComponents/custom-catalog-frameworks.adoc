@@ -148,7 +148,7 @@ Using Blueprint or another injection framework, transformers can be injected fro
 .Blueprint Service Reference
 [source,xml]
 ----
-<reference id="[[Reference Id]]" interface="${ddf-branding}.catalog.transform.[[Transformer Interface Name]]" filter="(shortname=[[Transformer Identifier]])" />
+<reference id="[[Reference Id" interface="${ddf-branding}.catalog.transform.[[Transformer Interface Name]]" filter="(shortname=[[Transformer Identifier]])" />
 ----
 
 Each transformer has one or more `transform` methods that can be used to get the desired output.

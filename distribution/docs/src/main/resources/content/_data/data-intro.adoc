@@ -68,7 +68,7 @@ formats and for improved federation. This neutral profile facilitates improved s
 
 [WARNING]
 ====
-Every <<_introduction_to_federation_and_sources,Source>> should at the very least return an ID attribute according to Catalog API.
+Every <<{introduction-prefix}introduction_to_federation_and_sources,Source>> should at the very least return an ID attribute according to Catalog API.
 Other fields may or may not be applicable, but a unique ID must be returned by a source.
 ====
 

@@ -5,7 +5,7 @@
 :application: ${ddf-security}
 :summary: STS PKI Token Validator configurations.
 
-.[[org.codice.ddf.security.validator.pki]]Security STS PKI Token Validator
+.[[_org.codice.ddf.security.validator.pki]]Security STS PKI Token Validator
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
