@@ -32,7 +32,7 @@ SOLR_EXEC=${HOME_DIR}/solr/bin/solr
 get_property() {
 
     value=""
-    value=`grep ^$1= "$PROPERTIES_FILE" | cut -d = -f2`
+    value=`grep ^$1 "$PROPERTIES_FILE" | cut -d = -f2`
 
     if [ $value ]; then
         echo $value
@@ -59,7 +59,7 @@ refresh_properties() {
 # Return 0 (success/true) if the Solr lifecycle should be managed by this script
 is_managing_solr() {
   local RC=1
-  if [ $SOLR_CLIENT = HttpSolrClient  ]; then
+  if [ $SOLR_CLIENT = "HttpSolrClient"  ]; then
     RC=0
   fi
   return $RC
@@ -169,8 +169,10 @@ start_karaf() {
 }
 
 attempt_startup() {
+    if is_managing_solr; then
         set_solr_memory
         start_solr;
+    fi
 
     # Process suspended while Karaf is running
     start_karaf
