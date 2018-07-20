@@ -49,10 +49,14 @@ SET RC=%ERRORLEVEL%
 REM Check if restart was requested by ddf_on_error.bat
 IF EXIST "%DIRNAME%\restart.jvm" (
     ECHO Restarting JVM...
-    CALL %DDF_HOME%/solr/bin/solr.cmd stop -p %SOLR_PORT%
+    IF "%SOLR_CLIENT%" == "HttpSolrClient" (
+      CALL %DDF_HOME%/solr/bin/solr.cmd stop -p %SOLR_PORT%
+    )
     GOTO :RESTART
 ) ELSE (
-    ECHO Stopping Solr process on port %SOLR_PORT%
-    CALL %DDF_HOME%/solr/bin/solr.cmd stop -p %SOLR_PORT%
+    IF "%SOLR_CLIENT%" == "HttpSolrClient" (
+      ECHO Stopping Solr process on port %SOLR_PORT%
+      CALL %DDF_HOME%/solr/bin/solr.cmd stop -p %SOLR_PORT%
+    )
     EXIT /B %RC%
 )
