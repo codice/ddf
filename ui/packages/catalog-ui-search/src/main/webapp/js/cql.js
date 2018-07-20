@@ -617,6 +617,12 @@ define([
 
     return {
         read: function (cql) {
+            if (cql === undefined || cql.length === 0) {
+                return {
+                    type: 'AND',
+                    filters: []
+                };
+            }
             return buildAst(tokenize(cql));
         },
         write: function (filter) {
