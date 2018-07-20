@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: Metacard Groomer
-:link: _metacard_groomer
+:link: {architecture-prefix}metacard_groomer
 :plugintypes: preingest
 :summary: Modifies metacards when created or updated.
 

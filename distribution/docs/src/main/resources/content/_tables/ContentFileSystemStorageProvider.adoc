@@ -5,7 +5,7 @@
 :application: ${ddf-catalog}
 :summary: Content File System Storage Provider.
 
-.[[org.codice.ddf.catalog.content.impl.FileSystemStorageProvider]]Content File System Storage Provider
+.[[_org.codice.ddf.catalog.content.impl.FileSystemStorageProvider]]Content File System Storage Provider
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

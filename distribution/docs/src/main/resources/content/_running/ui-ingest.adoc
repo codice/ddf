@@ -9,5 +9,5 @@
 
 Files can also be ingested directly from ${catalog-ui}.
 
-See <<Ingesting from ${catalog-ui}>> for details.
+See <<{using-prefix}ui_ingest,Ingesting from ${catalog-ui}>> for details.
 

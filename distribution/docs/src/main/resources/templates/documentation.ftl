@@ -1,9 +1,15 @@
 = ${branding-expanded} Documentation: Complete Documentation
 include::${project.build.directory}/doc-contents/content/config.adoc[]
-:managing-prefix: _
+:application-prefix: _
+:architecture-prefix: _
 :integrating-prefix: _
+:introduction-prefix: _
 :developing-prefix: _
+:managing-prefix: _
 :metadata-prefix: _
+:managing-prefix: _
+:quickstart-prefix: _
+:using-prefix: _
 
 :sectnums!:
 == Introduction

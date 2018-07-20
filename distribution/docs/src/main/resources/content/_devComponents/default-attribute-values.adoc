@@ -1,7 +1,7 @@
 :title: Developing Default Attribute Types
 :type: developingComponent
 :status: published
-:link: _developing_default_attribute_types
+:link: {developing-prefix}metacard_groomer
 :summary: Creating a custom Default attribute type.
 :order: 04
 

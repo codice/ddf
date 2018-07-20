@@ -5,7 +5,7 @@
 :application: ${ddf-resource-management}
 :summary: Data Usage configurations.
 
-.[[org.codice.ddf.resourcemanagement.usage]]Data Usage
+.[[_org.codice.ddf.resourcemanagement.usage]]Data Usage
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

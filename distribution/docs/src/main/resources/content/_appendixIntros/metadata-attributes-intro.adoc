@@ -9,5 +9,5 @@
 
 ${branding} extracts basic metadata from the resources ingested.
 Many file types contain additional <<_file_format_specific_attributes,file format-specific metadata attributes>>.
-A neutral <<_catalog_taxonomy_definitions,Catalog Taxonomy>> enables transformation of metadata to other formats.
-See also a <<_all_file_formats_supported,list of all formats supported>> for ingest.
+A neutral <<{metadata-prefix}catalog_taxonomy_definitions,Catalog Taxonomy>> enables transformation of metadata to other formats.
+See also a <<{metadata-prefix}all_file_formats_supported,list of all formats supported>> for ingest.

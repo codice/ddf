@@ -7,4 +7,4 @@
 
 == {title}
 
-${branding} is able to <<_introduction_to_federation_and_sources,federate>> to other data sources, including other instances of ${branding}, with some simple configuration.
+${branding} is able to <<{introduction-prefix}introduction_to_federation_and_sources,federate>> to other data sources, including other instances of ${branding}, with some simple configuration.

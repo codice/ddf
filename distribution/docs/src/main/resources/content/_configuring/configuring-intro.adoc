@@ -16,16 +16,16 @@ Because components can easily be installed and uninstalled, it's important to re
 
 .Configuration Tools
 ${branding} provides several tools for configuring the system.
-The <<_admin_console_tutorial,${admin-console}>> is a useful interface for configuring applications, their features, and important settings.
-Alternatively, many configurations can be updated through <<_console_command_reference,console commands>> entered into the ${command-console}.
-Finally, configurations are stored in <<_configuration_files,configuration files>> within the `${home_directory}` directory.
+The <<{managing-prefix}admin_console_tutorial,${admin-console}>> is a useful interface for configuring applications, their features, and important settings.
+Alternatively, many configurations can be updated through <<{managing-prefix}console_command_reference,console commands>> entered into the ${command-console}.
+Finally, configurations are stored in <<{managing-prefix}configuration_files,configuration files>> within the `${home_directory}` directory.
 
 .Configuration Outline
 While many configurations can be set or changed in any order, for ease of use of this documentation, similar subjects have been grouped together sequentially.
 
-See <<_managing_keystores_and_certificates,Keystores and certificates>> to set up the certificates needed for messaging integrity and authentication.
-Set up <<_configuring_user_access,Users>> with security attributes, then configure <<_configuring_data_management,data>> attribute handling, and finally, define the <<_configuring_security_policies,Security Policies>> that map between users and data and make decisions about access.
+See <<{managing-prefix}managing_keystores_and_certificates,Keystores and certificates>> to set up the certificates needed for messaging integrity and authentication.
+Set up <<{managing-prefix}configuring_user_access,Users>> with security attributes, then configure <<{managing-prefix}configuring_data_management,data>> attribute handling, and finally, define the <<{managing-prefix}configuring_security_policies,Security Policies>> that map between users and data and make decisions about access.
 
-Connecting ${branding} to other data sources, including other instances of ${branding} is covered in the <<_configuring_federation,Configuring Federation>> section.
+Connecting ${branding} to other data sources, including other instances of ${branding} is covered in the <<{managing-prefix}configuring_federation,Configuring Federation>> section.
 
-Lastly, see the <<_configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<_configuring_for_a_fanout_proxy,fanout>> or <<_reusing_configurations,multiple identical configurations>>.
+Lastly, see the <<{managing-prefix}configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<{managing-prefix}configuring_for_a_fanout_proxy,fanout>> or <<{managing-prefix}reusing_configurations,multiple identical configurations>>.

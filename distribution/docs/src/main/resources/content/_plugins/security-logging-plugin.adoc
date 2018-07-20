@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: Security Logging Plugin
-:link: _security_logging_plugin
+:link: {developing-prefix}security_logging_plugin
 :plugintypes: preingest, postingest, prequery, postquery, prefederatedquery, postfederatedquery, preresource, postresource, precreatestorage, preupdatestorage, postcreatestorage, postupdatestorage
 :summary: Logs operations to the security log.
 

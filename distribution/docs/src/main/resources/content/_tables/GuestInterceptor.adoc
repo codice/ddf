@@ -5,7 +5,7 @@
 :application: ${ddf-security}
 :summary: Security SOAP Guest Interceptor.
 
-.[[org.codice.ddf.security.interceptor.GuestInterceptor]]Security SOAP Guest Interceptor
+.[[_org.codice.ddf.security.interceptor.GuestInterceptor]]Security SOAP Guest Interceptor
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

@@ -46,13 +46,13 @@ If a CDM configuration is deleted, then the corresponding permissions that were 
 .Content Directory Monitor Permissions
 [IMPORTANT]
 ====
-When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it. Setting permissions should be done *before* configuring a CDM. See <<_configuring_permissions_for_the_content_directory_monitor,Configuring Permissions for the Content Directory Monitor>> for in-depth instructions on configuring permissions.
+When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it. Setting permissions should be done *before* configuring a CDM. See <<{managing-prefix}configuring_permissions_for_the_content_directory_monitor,Configuring Permissions for the Content Directory Monitor>> for in-depth instructions on configuring permissions.
 ====
 
 .Monitoring Directories In Place
 [WARNING]
 ====
-If monitoring a directory in place, then the <<_url_resource_reader, URL Resource Reader>> must be configured prior to configuring the CDM to allow reading from the configured directory. This allows the ${ddf-catalog} to download the products.
+If monitoring a directory in place, then the <<{developing-prefix}url_resource_reader, URL Resource Reader>> must be configured prior to configuring the CDM to allow reading from the configured directory. This allows the ${ddf-catalog} to download the products.
 ====
 
 Configure the CDM from the ${admin-console}:
@@ -62,7 +62,7 @@ Configure the CDM from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select *Catalog Content Directory Monitor*.
 
-See <<org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
+See <<{application-prefix}org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
 
 === Using the Content Directory Monitor
 
@@ -119,13 +119,13 @@ To set multi-valued attributes, use a separate override for each value. For exam
 `*topic.keyword=PPI*` +
 `*topic.keyword=radiology*`
 
-Attributes will only be overridden if they are part of the <<_metacard_type, metacard type>> or are <<_attribute_injection_definition,injected>>.
+Attributes will only be overridden if they are part of the <<{integrating-prefix}metacard_type, metacard type>> or are <<{developing-prefix}attribute_injection_definition,injected>>.
 
-All attributes in the <<_catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
+All attributes in the <<{metadata-prefix}catalog_taxonomy_definitions, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 
 [IMPORTANT]
 ====
-If an overridden attribute is not part of the <<_metacard_type, metacard type>> or <<_attribute_injection_definition,injected>> the attribute will not be added to the metacard.
+If an overridden attribute is not part of the <<{integrating-prefix}metacard_type, metacard type>> or <<{developing-prefix}attribute_injection_definition,injected>> the attribute will not be added to the metacard.
 ====
 
 For example, if the metacard type contains contact email,
@@ -133,7 +133,7 @@ For example, if the metacard type contains contact email,
 `*contact.point-of-contact-email*`
 
 but the value is not currently set, adding an attribute override will set the attribute value.
-To override attributes that are not part of the metacard type, <<_attribute_injection_definition,attribute injection>> can be used.
+To override attributes that are not part of the metacard type, <<{developing-prefix}attribute_injection_definition,attribute injection>> can be used.
 
 .Blacklist
 The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the system.properties file in "etc/" in order to prevent

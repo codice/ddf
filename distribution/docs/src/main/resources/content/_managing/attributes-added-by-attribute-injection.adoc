@@ -7,8 +7,8 @@
 
 === {title}
 
-<<_injecting_attributes,Attribute Injection>> is the act of adding attributes to a metacard's <<_metacard_type,Metacard Type>>.
-A <<_metacard_type,Metacard Type>> indicates the attributes available for a particular metacard, and is created at the same time as the metacard. +
+<<_injecting_attributes,Attribute Injection>> is the act of adding attributes to a metacard's <<{integrating-prefix}metacard_type,Metacard Type>>.
+A <<{integrating-prefix}metacard_type,Metacard Type>> indicates the attributes available for a particular metacard, and is created at the same time as the metacard. +
 
 
 
@@ -20,5 +20,5 @@ Attributes are initially injected with blank values.
 However, if an attempt is made to inject an attribute that already exists, the attribute will retain the original value.
 ====
 
-See <<_catalog_taxonomy_definitions,Catalog Taxonomy Definitions>> for a list of attributes injected by default. +
-See <<_developing_attribute_injections,Developing Attribute Injections>> to learn how to configure attribute injections.
+See <<{metadata-prefix}catalog_taxonomy_definitions,Catalog Taxonomy Definitions>> for a list of attributes injected by default. +
+See <<{developing-prefix}developing_attribute_injections,Developing Attribute Injections>> to learn how to configure attribute injections.

@@ -30,11 +30,11 @@
 
 Transformers transform data to and from various formats.
 Transformers are categorized by when they are invoked and used.
-The <<_types_of_transformers,existing types>> are <<_available_input_transformers,Input transformers>>, <<_available_metacard_transformers,Metacard transformers>>, and <<_available_query_response_transformers,Query Response transformers>>.
+The <<{architecture-prefix}types_of_transformers,existing types>> are <<{architecture-prefix}available_input_transformers,Input transformers>>, <<{architecture-prefix}available_metacard_transformers,Metacard transformers>>, and <<{architecture-prefix}available_query_response_transformers,Query Response transformers>>.
 Additionally, XSLT transformers are provided to aid in developing custom, lightweight Metacard and Query Response transformers.
 
 Transformers are utility objects used to transform a set of standard ${branding} components into a desired format, such as into PDF, GeoJSON, XML, or any other format.
-For instance, a transformer can be used to convert a set of query results into an easy-to-read GeoJSON format (<<_geojson_input_transformer,GeoJSON Transformer>>) or convert a set of results into a RSS feed that can be easily published to a URL for RSS feed subscription.
+For instance, a transformer can be used to convert a set of query results into an easy-to-read GeoJSON format (<<{architecture-prefix}geojson_input_transformer,GeoJSON Transformer>>) or convert a set of results into a RSS feed that can be easily published to a URL for RSS feed subscription.
 Transformers can be registered in the OSGi Service Registry so that any other developer can access them based on their standard interface and self-assigned identifier, referred to as its "shortname."
 Transformers are often used by endpoints for data conversion in a system standard way.
 Multiple endpoints can use the same transformer, a different transformer, or their own published transformer.
@@ -75,8 +75,8 @@ It is recommend not to use international character sets, as they may not be disp
 Transformers are used to alter the format of a resource or its metadata to or from the catalog’s metacard format.
 
 .[[_types_of_transformers]]Types of Transformers
-<<_available_input_transformers,Input Transformers>>:: Input Transformers create metacards from input. Once converted to a Metacard, the data can be used in a variety of ways, such as in an `UpdateRequest`, `CreateResponse`, or within Catalog Endpoints or Sources. For instance, an input transformer could be used to receive and translate XML into a Metacard so that it can be placed within a `CreateRequest` in order to be ingested within the Catalog. Input transformers should be registered within the Service Registry with the interface `ddf.catalog.transform.InputTransformer` in order to notify Catalog components of any new transformers.
+<<{integrating-prefix}available_input_transformers,Input Transformers>>:: Input Transformers create metacards from input. Once converted to a Metacard, the data can be used in a variety of ways, such as in an `UpdateRequest`, `CreateResponse`, or within Catalog Endpoints or Sources. For instance, an input transformer could be used to receive and translate XML into a Metacard so that it can be placed within a `CreateRequest` to be ingested within the Catalog. Input transformers should be registered within the Service Registry with the interface `ddf.catalog.transform.InputTransformer` to notify Catalog components of any new transformers.
 
-<<_available_metacard_transformers,Metacard Transformers>>:: Metacard Transformers translate a metacard from catalog metadata to a specific data format.
+<<{architecture-prefix}available_metacard_transformers,Metacard Transformers>>:: Metacard Transformers translate a metacard from catalog metadata to a specific data format.
 
-<<_available_query_response_transformers,Query Response Transformers>>:: Query Response transformers convert query responses into other data formats.
+<<{architecture-prefix}available_query_response_transformers,Query Response Transformers>>:: Query Response transformers convert query responses into other data formats.

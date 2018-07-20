@@ -35,7 +35,7 @@ a|Set OS File permissions under the `${home_directory}` directory (e.g. `/deploy
 
  If Caching is installed:
 
-* <<_setting_directory_permissions,Set permissions>> for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate permissions can view any stored product. +
+* <<{managing-prefix}setting_directory_permissions,Set permissions>> for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate permissions can view any stored product. +
 * Caching can be turned off as well to mitigate this risk. +
 ** To disable caching, navigate to ${admin-console}. +
 ** Select the *${ddf-catalog}* application. +

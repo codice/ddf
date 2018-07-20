@@ -19,13 +19,13 @@ Even if a user claim is more restrictive, the guest claim will grant access, so 
 
 === Denying Guest User Access
 
-To disable guest access for a context, use the <<_configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to remove *Guest*.
+To disable guest access for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to remove *Guest*.
 from the *Authentication Type* for that context.
 Only authorized users are then allowed to continue to the Search UI page.
 
 [NOTE]
 ====
-If using the included IdP for authentication, disable the `Allow Guest Access` option by <<_configuring_the_idp_server, Configuring the IdP Server>>.
+If using the included IdP for authentication, disable the `Allow Guest Access` option by <<{managing-prefix}configuring_the_idp_server, Configuring the IdP Server>>.
 ====
 
 === Allowing Guest User Access
@@ -33,7 +33,7 @@ If using the included IdP for authentication, disable the `Allow Guest Access` o
 Guest authentication must be enabled and configured to allow guest users.
 Once the guest user is configured, redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
 
-To enable guest authentication for a context, use the <<_configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
+To enable guest authentication for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
@@ -47,7 +47,7 @@ To enable guest authentication for a context, use the <<_configuring_the_web_con
 
 * *{hardening-step}*
 
-If a legacy client requires the use of the secured SOAP endpoints, the <<_configuring_guest_interceptor,guest interceptor>> should be configured.
+If a legacy client requires the use of the secured SOAP endpoints, the <<{developing-prefix}configuring_guest_interceptor,guest interceptor>> should be configured.
 Otherwise, the guest interceptor and `public` endpoints should be uninstalled for a hardened system.
 
 ==== Configuring Guest Claim Attributes

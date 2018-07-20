@@ -12,7 +12,7 @@ The ${command-console} has a command-line option for ingesting data.
 [NOTE]
 ====
 Ingesting with the console ingest command creates a metacard in the catalog, but does not copy the resource to the content store.
-The Ingest Command requires read access to the directory being ingested from, see the <<_url_resource_reader, URL Resource Reader>> for configuring read permissions on the directory.
+The Ingest Command requires read access to the directory being ingested from, see the <<{architecture-prefix}url_resource_reader, URL Resource Reader>> for configuring read permissions on the directory.
 ====
 
 The syntax for the ingest command is
@@ -21,10 +21,10 @@ The syntax for the ingest command is
 
 Select the `<transformer type>` based on the type of file(s) ingested.
 Metadata will be extracted if it exists in a format compatible with the transformer.
-The default transformer is the <<_xml_input_transformer,XML input transformer>>, which supports the metadata schema `catalog:metacard`.
+The default transformer is the <<{developing-prefix}xml_input_transformer,XML input transformer>>, which supports the metadata schema `catalog:metacard`.
 To see a list of all transformers currently installed, and the file types supported by each, run the `catalog:transformers` command.
 
-For more information on the schemas and file types(mime-types) supported by each transformer see the <<_available_input_transformers, Input Transformers>>.
+For more information on the schemas and file types(mime-types) supported by each transformer see the <<{integrating-prefix}available_input_transformers, Input Transformers>>.
 
 The `<file path>` is relative to the ${home_directory} directory.
 This can be the path to a file or a directory containing the desired files.

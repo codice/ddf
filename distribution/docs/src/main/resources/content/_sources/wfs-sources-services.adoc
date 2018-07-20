@@ -1,7 +1,7 @@
 :title: WFS Services
 :type: developingComponent
 :status: published
-:link: _wfs_services
+:link: {developing-prefix}wfs_services
 :order: 31
 :summary: Using WFS Services
 

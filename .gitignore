@@ -19,13 +19,8 @@ atlassian-ide-plugin.xml
 *.sonar-ide.properties
 **/webapp/css/styles.css
 platform/solr/**/overlays
-distribution/docs/src/main/resources/content/_securityFramework/.asciidoctor/
-distribution/docs/src/main/resources/content/_securityFramework/security_architecture.png
-distribution/docs/src/main/resources/content/_securityFramework/security_ecp_architecture.png
-distribution/docs/src/main/resources/content/_securityFramework/security_idp_architecture.png
-distribution/docs/src/main/resources/content/_coreConcepts/.asciidoctor/
-distribution/docs/src/main/resources/content/_coreConcepts/highly-available-setup-after-failover.png
-distribution/docs/src/main/resources/content/_coreConcepts/highly-available-setup.png
+distribution/docs/src/main/resources/content/*/.asciidoctor
+distribution/docs/src/main/resources/content/*/*.png
 # JMeter Related files to ignore
 jmeter.log
 *.jmx.log

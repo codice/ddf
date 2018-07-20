@@ -22,9 +22,9 @@ The Catalog Federation Strategy configuration can be found in the ${admin-consol
 . Select *Configuration*
 . Select *Catalog Federation Strategy*.
 
-See <<ddf.catalog.federation.impl.CachingFederationStrategy,Federation Strategy configurations>> for all possible configurations.
+See <<{application-prefix}ddf.catalog.federation.impl.CachingFederationStrategy,Federation Strategy configurations>> for all possible configurations.
 
-==== Catalog Federation Strategy [[catalogFederationStrategy]]
+==== Catalog Federation Strategy [[_catalogFederationStrategy]]
 
 The Catalog Federation Strategy is the default federation strategy and is based on sorting metacards by the sorting parameter specified in the federated query.
 

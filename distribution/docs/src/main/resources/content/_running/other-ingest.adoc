@@ -7,4 +7,4 @@
 
 == {title}
 
-The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. See <<_available_endpoints, Available Endpoints>> for more information.
+The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. See <<{integrating-prefix}available_endpoints, Available Endpoints>> for more information.

@@ -13,6 +13,6 @@ There are multiple methods available for ingesting files into the ${branding}.
 .Guest Claims Attributes and Ingest
 [NOTE]
 ====
-Ensure that appropriate <<_configuring_guest_interceptor,Guest Claims>> are configured to allow guest users to ingest data and query the catalog.
+Ensure that appropriate <<{developing-prefix}configuring_guest_interceptor,Guest Claims>> are configured to allow guest users to ingest data and query the catalog.
 ====
 

@@ -124,7 +124,7 @@ The default location of the log is `${home_directory}/data/log/ingest_error.log`
 [NOTE]
 ====
 Uploaded products may be marked with Validation Warnings or Errors.
-<<_configuring_errors_and_warnings,Additional configuration>> may be needed to view these products in searches.
+Additional configuration may be needed to view these products in searches.
 ====
 
 ==== Using the Upload Editor
@@ -168,7 +168,8 @@ At the bottom of each search is a list of options for the search.
 * *Delete*: Remove this search.
 * *Duplicate*: Create a copy of this search as a starting point.
 * *Search Archived*: Execute this search, but specifically for archived results.
-* *Search Historical*: Execute this search, but specifically for historical results.
+* *
+Search Historical*: Execute this search, but specifically for historical results.
 
 ===== Editing a Search
 

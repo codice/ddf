@@ -52,11 +52,11 @@ public class SampleResourceWriter implements ResourceWriter {
 [source,xml,linenums]
 ----
 ...
-<service ref="[[ResourceWriterReference]]" interface="${ddf-branding}.catalog.resource.ResourceWriter" />
+<service ref="ResourceWriterReference" interface="${ddf-branding}.catalog.resource.ResourceWriter" />
 ...
 ----
 
-. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the Working with OSGi - Bundles section.)
+. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the <<{developing-prefix}osgi_basics,OSGi Basics>> - Bundles section.)
 
 [TIP]
 ====

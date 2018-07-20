@@ -7,7 +7,7 @@
 
 == {title }
 
-All caching properties are part of the <<ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
+All caching properties are part of the <<{application-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
 
 === Invalidating the Product Cache
 
@@ -22,4 +22,4 @@ Example:
 
 `${home_directory}/data/product-cache/abc123`
 
-See <<_metacard_ingest_network_plugin, Metacard Ingest Network Plugin>>.
+See <<{managing-prefix}metacard_ingest_network_plugin, Metacard Ingest Network Plugin>>.

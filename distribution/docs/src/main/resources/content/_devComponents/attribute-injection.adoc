@@ -1,7 +1,7 @@
 :title: Developing Attribute Injections
 :type: developingComponent
 :status: published
-:link: _developing_attribute_injections
+:link: {developing-prefix}developing_attribute_injections
 :summary: Creating a custom attribute injection.
 :order: 05
 

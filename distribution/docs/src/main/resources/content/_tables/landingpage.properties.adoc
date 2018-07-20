@@ -5,7 +5,7 @@
 :application: ${ddf-platform}
 :summary: Starting page for users to interact with ${branding}.
 
-.[[org.codice.ddf.distribution.landingpage.properties]]Landing Page
+.[[_org.codice.ddf.distribution.landingpage.properties]]Landing Page
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

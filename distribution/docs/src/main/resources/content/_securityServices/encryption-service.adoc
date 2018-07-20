@@ -1,7 +1,7 @@
 :type: securityService
 :status: published
 :title: Encryption Service
-:link: _encryption_service
+:link: {integrating-prefix}encryption_service
 :order: 01
 :summary: Encrypts plain text.
 
