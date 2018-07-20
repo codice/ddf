@@ -30,7 +30,7 @@ deny {
 }
 
 grant
-  codeBase "file:/platform-migration" {
+  codeBase "file:/platform-migration/platform-migratable-api" {
     permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
     permission java.io.FilePermission "${ddf.home}", "write, delete";
     permission java.io.FilePermission "${ddf.home.perm}-", "write, delete";
