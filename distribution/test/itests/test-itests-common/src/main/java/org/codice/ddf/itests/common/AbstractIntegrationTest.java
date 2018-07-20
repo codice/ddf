@@ -148,6 +148,9 @@ public abstract class AbstractIntegrationTest {
 
   private static final String KARAF_HOME = "{karaf.home}";
 
+  protected static final String FILE_PERMISSIONS =
+      "priority \"grant\"; grant {permission java.io.FilePermission \"%s%s-\", \"read, write\"; };";
+
   protected static ServerSocket placeHolderSocket;
 
   protected static Integer basePort;
@@ -692,19 +695,23 @@ public abstract class AbstractIntegrationTest {
               getClass().getResource("/etc/forms/imagery.xml"), "/etc/forms/imagery.xml"),
           installStartupFile(
               getClass().getResource("/etc/forms/contact-name.xml"), "/etc/forms/contact-name.xml"),
-          installStartupFile(
-              String.format(
-                  "priority \"grant\"; grant {permission java.io.FilePermission \"%s%s-\", \"read, write\"; };",
-                  new File("target" + File.separator + "solr")
-                      .getAbsolutePath()
-                      .replace("/", "${/}")
-                      .replace("\\", "${/}"),
-                  "${/}"),
-              "/security/itests-solr.policy"));
+          getFilePermissionsOption());
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
     return new Option[0];
+  }
+
+  protected Option getFilePermissionsOption() throws IOException {
+    return installStartupFile(
+        String.format(
+            FILE_PERMISSIONS,
+            new File("target" + File.separator + "solr")
+                .getAbsolutePath()
+                .replace("/", "${/}")
+                .replace("\\", "${/}"),
+            "${/}"),
+        "/security/itests-solr.policy");
   }
 
   private Option[] configureSolr() {
