@@ -328,7 +328,7 @@
 * org.slf4j:slf4j-simple:jar:1.7.5
 * org.springframework.ldap:spring-ldap-core:jar:1.3.2.RELEASE
 * org.springframework.osgi:spring-osgi-core:jar:1.2.1
-* org.springframework:spring-core:jar:4.3.5.RELEASE
+* org.springframework:spring-core:jar:4.3.18.RELEASE
 * org.taktik:mpegts-streamer:jar:0.1.0_2
 * org.twitter4j:twitter4j-core:jar:4.0.4
 * org.webjars.bower:Backbone.Undo:jar:0.2.5

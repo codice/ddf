@@ -74,7 +74,7 @@
         <qpid-jms-client-version>${qpid-jms.version}</qpid-jms-client-version>
         <quartz.version>2.2.3</quartz.version>
         <servicemix-specs-version>2.8.0</servicemix-specs-version>
-        <spring-version-range>[4.1,5)</spring-version-range>
+        <spring-version-range>[4.3.16,5)</spring-version-range>
         <!--END versions for camel features in platform-app-->
 
         <!--START versions for enterprise features in platform-app features
