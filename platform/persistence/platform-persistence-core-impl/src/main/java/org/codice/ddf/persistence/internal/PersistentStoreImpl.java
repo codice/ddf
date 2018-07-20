@@ -180,8 +180,8 @@ public class PersistentStoreImpl implements PersistentStore {
         throw new PersistenceException("Unsupported query " + cql);
       }
 
-      solrQuery = solrQuery.setRows(pageSize);
-      solrQuery = solrQuery.setStart(startIndex);
+      solrQuery.setRows(pageSize);
+      solrQuery.setStart(startIndex);
 
       QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
 
