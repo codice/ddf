@@ -46,7 +46,7 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
 // Adding required permissions for the URL Resource Reader to retrieve file resources.
 //
 //
-// Configuring URL Resource Reader requires adding read and write permissions to the directory being monitored.
+// Configuring the URL Resource Reader requires adding read permissions to the directory being read from.
 // For the following 2 permissions are required:
 //   1. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
 //   2. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read";
@@ -57,7 +57,7 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
 // by the directory path's suffix "${/}-".
 //
 //
-grant codeBase "file:/catalog-core-urlresourcereader" {
+grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
     // Add required URL Resource Reader permissions here.
 
     // Example:
