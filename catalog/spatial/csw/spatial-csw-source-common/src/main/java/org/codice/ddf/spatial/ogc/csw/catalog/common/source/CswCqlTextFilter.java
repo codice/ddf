@@ -24,8 +24,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import net.opengis.filter.v_1_1_0.FilterType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.ECQLMapperVisitor;
-import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.v1_1.OGCConfiguration;
 import org.geotools.xml.Parser;
@@ -74,11 +72,7 @@ public final class CswCqlTextFilter {
       StringReader reader = new StringReader(marshalFilterType(filterType));
       Object parsedFilter = parser.parse(reader);
       if (parsedFilter instanceof Filter) {
-        Filter filter = (Filter) parsedFilter;
-        Filter filterToCql =
-            (Filter) filter.accept(new ECQLMapperVisitor(), new FilterFactoryImpl());
-        LOGGER.debug("Filter to Convert to CQL => {}", filterToCql);
-        String cql = ECQL.toCQL(filterToCql);
+        String cql = ECQL.toCQL((Filter) parsedFilter);
         LOGGER.debug("Generated CQL from Filter => {}", cql);
         return cql;
       } else {
