@@ -49,7 +49,6 @@ public class PlatformMigratable implements Migratable {
 
   private static final List<Path> REQUIRED_SYSTEM_PATHS =
       ImmutableList.of( //
-          Paths.get("security", "default.policy"),
           Paths.get("etc", "ws-security"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
