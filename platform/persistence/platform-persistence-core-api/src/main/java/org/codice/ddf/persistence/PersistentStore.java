@@ -102,6 +102,8 @@ public interface PersistentStore {
    * @param startIndex Index to start query at.
    * @param pageSize Max number of results to return in single query.
    * @throws PersistenceException
+   * @throws IllegalArgumentException if startIndex is less than 0 or if pageSize is greater than
+   *     the max allowed.
    */
   List<Map<String, Object>> get(String type, String ecql, int startIndex, int pageSize)
       throws PersistenceException;
@@ -123,6 +125,8 @@ public interface PersistentStore {
    * @param pageSize Max number of results to return in single query.
    * @return Count of the items deleted
    * @throws PersistenceException
+   * @throws IllegalArgumentException if startIndex is less than 0 or if pageSize is greater than
+   *     the max allowed.
    */
   int delete(String type, String ecql, int startIndex, int pageSize) throws PersistenceException;
 }
