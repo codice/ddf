@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,20 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <input id="{{cid}}" placeholder="{{property.placeholder}}" name="{{property.id}}" type="number">
-    <div class="for-error">
-        <span class="fa fa-exclamation-triangle"></span>
-        Not a valid number.
-    </div>
-</div>
-<div class="if-viewing">
-    <label>
-        {{value}}
-    </label>
-    <div class="for-error">
-        <span class="fa fa-exclamation-triangle"></span>
-        Not a valid number.
-    </div>
-</div>
+const Marionette = require('marionette');
+
+const hbs = require('ace/handlebars');
+
+Marionette.Renderer.render = function(template, data, view) {
+    data._view = view;
+    if (typeof template !== 'function') {
+        template = hbs.compile(template);  // it seems like this never happens, we should verify (I think webpack is precompiling them all for us)
+    }
+    return template.call(view, data);
+};

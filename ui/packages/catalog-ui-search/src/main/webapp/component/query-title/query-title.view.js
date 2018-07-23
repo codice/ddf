@@ -15,12 +15,10 @@
 /*global define*/
 var Marionette = require('marionette');
 var _ = require('underscore');
-var $ = require('jquery');
-var template = require('./query-title.hbs');
 var CustomElements = require('js/CustomElements');
-var store = require('js/store');
 var SearchInteractionsDropdownView = require('component/dropdown/search-interactions/dropdown.search-interactions.view');
 var DropdownModel = require('component/dropdown/dropdown');
+const React = require('react');
 
 const zeroWidthSpace = "\u200B";
 
@@ -33,7 +31,21 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         searchInteractions: '> .is-actions > .search-interactions'
     },
-    template: template,
+    template(props) {
+        return (
+            <React.Fragment key={props.id}>
+                <input className="query-title" placeholder="Search Name" defaultValue={props.title} data-help="Displays the name given to the search."/>
+                <div className="is-actions">
+                    <span className="button-title">
+                        {props.title}
+                    </span>
+                    <span className="is-button fa fa-pencil trigger-edit"></span>
+                    <div className="is-button search-interactions">
+                    </div>
+                </div>
+            </React.Fragment>
+        )   
+    },
     tagName: CustomElements.register('query-title'),
     initialize: function(options) {
         this.updateQueryName = _.throttle(this.updateQueryName, 200);

@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,13 +9,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<input class="query-title" placeholder="Search Name" value="{{this.title}}" data-help="Displays the name given to the search."/>
-<div class="is-actions">
-    <span class="button-title">
-        {{this.title}}
-    </span>
-    <span class="is-button fa fa-pencil trigger-edit"></span>
-    <div class="is-button search-interactions">
-    </div>
-</div>
+const Marionette = require('marionette');
+import { render } from 'react-dom';
+import React from 'react';
+const Parser = require('html-react-parser');
+
+Marionette.ItemView.prototype.attachElContent = function(rendering) {
+    this.triggerMethod('before:react:attach', rendering); 
+    render(
+        React.isValidElement(rendering) ? rendering : Parser(rendering),
+        this.el
+    );
+    this.triggerMethod('after:react:attach', rendering);
+    return this;
+}

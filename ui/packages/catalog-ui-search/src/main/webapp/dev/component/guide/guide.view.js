@@ -9,6 +9,7 @@ const StaticDropdownGuideView = require('dev/component/static-dropdown-guide/sta
 const DropdownGuideView = require('dev/component/dropdown-guide/dropdown-guide.view');
 const InputGuideView = require('dev/component/input-guide/input-guide.view');
 const JSXGuideView = require('dev/component/jsx-guide/jsx-guide.view');
+const RegionGuideView = require('dev/component/region-guide/region-guide.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -48,6 +49,10 @@ module.exports = Marionette.LayoutView.extend({
                     {
                         label: 'JSX',
                         value: 'JSX'
+                    },
+                    {
+                        label: 'Regions (Layout Views)',
+                        value: 'Regions'
                     }
                 ],
                 id: 'component'
@@ -77,6 +82,9 @@ module.exports = Marionette.LayoutView.extend({
             break;
             case 'JSX':
             componentToShow = JSXGuideView;
+            break;
+            case 'Regions':
+            componentToShow = RegionGuideView;
             break;
             default: 
             componentToShow = CardGuideView;
