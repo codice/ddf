@@ -46,7 +46,7 @@ grant
 }
 
 grant
-  codeBase "file:/security-migratable/catalog-rest-endpoint" {
+  codeBase "file:/security-migratable/catalog-rest-endpoint/registry-publication-action-provider" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
@@ -100,7 +100,7 @@ grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorag
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
 }
 
-grant codeBase "file:/registry-federation-admin-impl" {
+grant codeBase "file:/registry-federation-admin-impl/registry-publication-action-provider" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}registry${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";

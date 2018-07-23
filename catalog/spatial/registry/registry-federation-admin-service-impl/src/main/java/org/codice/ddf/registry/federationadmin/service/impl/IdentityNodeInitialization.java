@@ -17,6 +17,7 @@ import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import java.io.File;
@@ -27,6 +28,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
@@ -64,9 +66,9 @@ public class IdentityNodeInitialization {
   private static final String DATE_TIME =
       CswConstants.XML_SCHEMA_NAMESPACE_PREFIX.concat(":dateTime");
 
-  private static final long DEFAULT_RETRY_INTERVAL = TimeUnit.SECONDS.toMillis(30);
+  private static final long DEFAULT_RETRY_INTERVAL_SECONDS = 30;
 
-  private static final int DEFAULT_RETRY_COUNT = 20;
+  private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
   private static final String KARAF_ETC = "karaf.etc";
 
@@ -83,27 +85,38 @@ public class IdentityNodeInitialization {
   private InternationalStringTypeHelper internationalStringTypeHelper =
       new InternationalStringTypeHelper();
 
-  private long retryInterval = DEFAULT_RETRY_INTERVAL;
+  private long retryInterval = DEFAULT_RETRY_INTERVAL_SECONDS;
 
-  private int retryCount = DEFAULT_RETRY_COUNT;
+  private final ScheduledExecutorService executor;
 
-  public IdentityNodeInitialization() {}
-
-  public IdentityNodeInitialization(long retryInterval, int retryCount) {
-    this.retryInterval = retryInterval;
-    this.retryCount = retryCount;
+  public IdentityNodeInitialization(ScheduledExecutorService executor) {
+    this(executor, DEFAULT_RETRY_INTERVAL_SECONDS);
   }
 
-  public void init() throws InterruptedException {
+  public IdentityNodeInitialization(ScheduledExecutorService executor, long retryInterval) {
+    this.retryInterval = retryInterval;
+    this.executor = executor;
+  }
 
-    for (int count = 0; count < retryCount; count++) {
-      if (updateOrCreateIdentity()) {
-        return;
+  public void init() {
+    // will keep checking for changes and shouldn't hold up anything
+    executor.scheduleAtFixedRate(this::updateOrCreateIdentity, 1, retryInterval, TimeUnit.SECONDS);
+  }
+
+  public void destroy() {
+    executor.shutdown();
+    try {
+      if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
+        if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+          LOGGER.error(
+              "Identity node initialization thread didn't terminate. This thread will continue until a system restart.");
+        }
       }
-      Thread.sleep(retryInterval);
+    } catch (InterruptedException e) {
+      executor.shutdownNow();
+      Thread.currentThread().interrupt();
     }
-    throw new IllegalStateException(
-        "The registry identity metacard could not be created in the allotted time");
   }
 
   boolean updateOrCreateIdentity() {
@@ -166,6 +179,8 @@ public class IdentityNodeInitialization {
                 updateMetacard.getAttribute(key) == null
                     && existingMetacard.getAttribute(key) != null)
         .forEach(key -> updateMetacard.setAttribute(existingMetacard.getAttribute(key)));
+    // Set the id to protect against a timing issue sometimes seen with framework plugins
+    updateMetacard.setAttribute(existingMetacard.getAttribute(Core.ID));
   }
 
   private void createIdentityNode() throws FederationAdminException {
