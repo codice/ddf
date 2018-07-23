@@ -51,12 +51,14 @@ import org.slf4j.LoggerFactory;
 public class PersistentStoreImpl implements PersistentStore {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
+
   private final SolrClientFactory clientFactory;
 
   private final Map<String, SolrClient> solrClients = new ConcurrentHashMap<>();
 
   public static final int DEFAULT_START_INDEX = 0;
-  private static final int DEFAULT_PAGE_SIZE = 10;
+
+  public static final int DEFAULT_PAGE_SIZE = 10;
 
   public static final int MAX_PAGE_SIZE = 1000;
 
