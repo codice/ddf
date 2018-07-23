@@ -164,8 +164,6 @@ public class PersistentStoreImpl implements PersistentStore {
               "The page size must be greater than 0 and less than or equal to %d.", MAX_PAGE_SIZE));
     }
 
-    List<Map<String, Object>> results = new ArrayList<>();
-
     // Set Solr Core name to type and create/connect to Solr Core
     SolrClient solrClient = getSolrClient(type);
     SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrClient, type);
@@ -191,33 +189,38 @@ public class PersistentStoreImpl implements PersistentStore {
       long numResults = solrResponse.getResults().getNumFound();
       LOGGER.debug("numResults = {}", numResults);
 
-      SolrDocumentList docs = solrResponse.getResults();
-      for (SolrDocument doc : docs) {
-        PersistentItem result = new PersistentItem();
-        Collection<String> fieldNames = doc.getFieldNames();
-        for (String name : fieldNames) {
-          LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
-          Collection<Object> fieldValues = doc.getFieldValues(name);
-          if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
-            result.addProperty(
-                name,
-                fieldValues
-                    .stream()
-                    .filter(String.class::isInstance)
-                    .map(String.class::cast)
-                    .collect(Collectors.toSet()));
-          } else {
-            addPropertyBasedOnSuffix(result, name, doc.getFirstValue(name));
-          }
-        }
-        results.add(result);
-      }
+      final SolrDocumentList docs = solrResponse.getResults();
+      return documentListToResultList(docs);
     } catch (CQLException e) {
       throw new PersistenceException(
           "CQLException while getting Solr data with cql statement " + cql, e);
     } catch (SolrServerException | SolrException | IOException e) {
       throw new PersistenceException(
           "Exception while getting Solr data with cql statement " + cql, e);
+    }
+  }
+
+  private List<Map<String, Object>> documentListToResultList(SolrDocumentList docs) {
+    final List<Map<String, Object>> results = new ArrayList<>();
+    for (SolrDocument doc : docs) {
+      final PersistentItem result = new PersistentItem();
+      final Collection<String> fieldNames = doc.getFieldNames();
+      for (String name : fieldNames) {
+        LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
+        Collection<Object> fieldValues = doc.getFieldValues(name);
+        if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
+          result.addProperty(
+              name,
+              fieldValues
+                  .stream()
+                  .filter(String.class::isInstance)
+                  .map(String.class::cast)
+                  .collect(Collectors.toSet()));
+        } else {
+          addPropertyBasedOnSuffix(result, name, doc.getFirstValue(name));
+        }
+      }
+      results.add(result);
     }
 
     return results;
