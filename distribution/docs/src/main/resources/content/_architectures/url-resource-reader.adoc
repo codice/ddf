@@ -33,9 +33,7 @@ See <<ddf.catalog.resource.impl.URLResourceReader,URL Resource Reader configurat
 
 === Configuring Permissions for the URL Resource Reader
 
-Configuring the URL Resource Reader to retrieve files requires adding permissions to the Security Manager.
-
-Configuring the URL Resource Reader requires adding read permissions to the directory containing the resources. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory containing resources should be placed in the URL Resource Reader section inside ${home_directory}/security/configurations.policy.
+Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permissions to the directory containing the resources. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory containing resources should be placed in the URL Resource Reader section inside ${home_directory}/security/configurations.policy.
 
 .Adding New Permissions
 [WARNING]
@@ -48,7 +46,7 @@ After adding permissions, a system restart is required for them to take effect.
 
 Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
 
-Line 1 gives the URL Resource Reader the permissions to read from directory. Line 2 gives the URL Resource Reader the permissions to recursively read from the directory, specified by the directory path's suffix "${/}-".
+Line 1 gives the URL Resource Reader the permissions to read from the directory. Line 2 gives the URL Resource Reader the permissions to recursively read from the directory, specified by the directory path's suffix "${/}-".
 
 ===== Using the URL Resource Reader
 

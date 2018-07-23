@@ -56,7 +56,6 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
 // Resource Reader the permissions to recursively read from the directory path, specified
 // by the directory path's suffix "${/}-".
 //
-//
 grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
     // Add required URL Resource Reader permissions here.
 
