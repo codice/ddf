@@ -13,25 +13,29 @@
  */
 package org.codice.ddf.persistence.internal;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.SolrParams;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.solr.client.solrj.SolrClient;
@@ -40,8 +44,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PersistentStoreImplTest {
@@ -51,6 +56,8 @@ public class PersistentStoreImplTest {
   @Mock private SolrClient solrClient;
 
   private PersistentStoreImpl persistentStore;
+
+  @Captor private ArgumentCaptor<SolrParams> solrParamsArgumentCaptor;
 
   @Before
   public void setup() throws Exception {
@@ -102,11 +109,34 @@ public class PersistentStoreImplTest {
   }
 
   @Test
-  public void testGetWithStartIndexAndPageSize() throws PersistenceException {
-    final List<Map<String, Object>> items =
-        persistentStore.get("testcore", "property LIKE 'value'", 0, 1);
+  public void testGetWithStartIndexAndPageSize()
+      throws PersistenceException, IOException, SolrServerException {
+    QueryResponse response = mock(QueryResponse.class);
+    SolrDocumentList docList = getSolrDocuments();
 
-    assertThat(items.size(), equalTo(1));
+    when(response.getResults()).thenReturn(docList);
+    when(solrClient.query(any(), eq(METHOD.POST))).thenReturn(response);
+    List<Map<String, Object>> items = persistentStore.get("testcore", "", 0, 1);
+
+    verify(solrClient).query(solrParamsArgumentCaptor.capture(), eq(METHOD.POST));
+
+    final SolrParams solrParams = solrParamsArgumentCaptor.getValue();
+
+    assertThat(items.size(), equalTo(2));
+    assertThat(solrParams.get("start"), is("0"));
+    assertThat(solrParams.get("rows"), is("1"));
+
+    assertThat(items.get(0).get("id_txt"), equalTo("idvalue1"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetWithInvalidStartIndex() throws Exception {
+    persistentStore.get("testcore", "", -1, 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetWithInvalidPageSize() throws Exception {
+    persistentStore.get("testcore", "", 0, 5000);
   }
 
   @Test(expected = PersistenceException.class)
