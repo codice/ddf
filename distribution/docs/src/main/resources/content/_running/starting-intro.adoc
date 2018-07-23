@@ -238,21 +238,29 @@ From the https://lucene.apache.org/solr/guide/7_4/taking-solr-to-production.html
 Solr includes a service installation script (bin/install_solr_service.sh) to help you install Solr as a service on Linux. Currently, the script only supports CentOS, Debian, Red Hat, SUSE and Ubuntu Linux distributions.
 ====
 
-. Extract the Installation Script
+. Locate the Installation Script
 +
-Extract the Solr distribution installation script (install_solr_service.sh) into the current directory. By default they are located in  the `${home_directory}/distribution/solr/target/classes/solr-${solr.version}/bin` directory.
+Identify the Solr distribution installation script (install_solr_service.sh) in the solr directory. By default they are located in  the `${home_directory}/solr/bin` directory.
++
+
+. Prepare the Solr distribution
++
+Move all the contents of the solr directory into a new folder named solr-_version_ (where _version_ is `7.4.0` or whichever release is being used) and compress the folder into a tgz or zip.
 +
 
 . Run the installation script as root:
 +
 -----
-sudo bash ./install_solr_service.sh solr-version.tgz
+sudo bash ./install_solr_service.sh solr-version.tgz -p 8994
 -----
++
+[NOTE]
+The `-p 8994` is the default port that ${branding} uses for Solr. If an alternate port is specified here, make sure the system.properties port values for Solr are also updated.
 +
 By default, the script extracts the distribution archive into /opt, configures Solr to write files into /var/solr, and runs Solr as the solr user. Consequently, the following command produces the same result as the previous command:
 +
 -----
-sudo bash ./install_solr_service.sh solr-7.2.0.tgz -i /opt -d /var/solr -u solr -s solr -p 8983
+sudo bash ./install_solr_service.sh solr-7.4.0.tgz -i /opt -d /var/solr -u solr -s solr -p 8994
 -----
 . Confirm service status
 +
@@ -287,4 +295,10 @@ start -p 8994
 -----
 +
 Then click `Next >`.
-. Review the settings and click `Finish`. Additional settings can be made by right clicking the task and updating the Properties. It may be necessary to update the Security Options under the task Properties to `Run with highest privileges`.
+. Review the settings and click `Finish`. Additional settings can be made by right clicking the task and updating the Properties. It may be necessary to update the Security Options under the task Properties to `Run with highest privileges` or even setting user to "SYSTEM".
+Additionally, the process can be set to restart if it fails under the Properties > Settings tab. Depending on the system it may also make sense to delay the process from starting for a few minutes until the machine has fully booted. This can be adjusted under Properties > Triggers > Edit > Advanced Settings > Delay Task
+
+[NOTE]
+====
+If either process is shutdown (${branding} or Solr) the other will continue running.
+====
