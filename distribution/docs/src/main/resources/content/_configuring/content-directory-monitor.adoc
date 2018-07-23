@@ -19,7 +19,7 @@ The Content Directory Monitor is installed by default with a standard installati
 
 [TIP]
 ====
-If the CDM being configured is WebDav in place, or the directory being monitored is inside ${home_directory}, then adding permissions is not required and this section can be skipped.
+If monitoring a WebDav server, then adding these permissions is not required and this section can be skipped.
 ====
 
 Configuring a Content Directory Monitor requires adding permissions to the Security Manager before CDM configuration.
