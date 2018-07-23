@@ -51,9 +51,21 @@
         <argument value="registryPollerThread"/>
     </bean>
 
+    <bean id="registryInitializerExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryInitializerThreadFactory"/>
+    </bean>
+
+    <bean id="registryInitializerThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryInitializerThread"/>
+    </bean>
+
     <bean id="identityNodeInitialization"
           class="org.codice.ddf.registry.federationadmin.service.impl.IdentityNodeInitialization"
-          init-method="init">
+          init-method="init" destroy-method="destroy">
+        <argument ref="registryInitializerExecutor"/>
         <property name="metacardMarshaller" ref="metacardMarshaller"/>
         <property name="registryTransformer" ref="inputTransformer"/>
         <property name="federationAdminService" ref="federationAdminService"/>
