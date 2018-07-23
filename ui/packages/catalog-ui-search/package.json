@@ -57,6 +57,7 @@
     "font-awesome": "4.7",
     "geo-convex-hull": "1.2.0",
     "golden-layout": "1.5.8",
+    "html-react-parser": "0.4.6",
     "jquery": "3.2.1",
     "jquery-ui": "1.12.1",
     "jquery-ui-multiselect-widget": "1.17.0",

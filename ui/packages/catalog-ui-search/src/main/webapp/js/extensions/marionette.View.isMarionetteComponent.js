@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,8 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<input placeholder="Workspace Title" value="{{bindInput selector="> input" event="change:currentWorkspace" key=(path 'currentWorkspace' 'title')}}" data-help="This is the title of the workspace you are currently in.
-If you have permission, you can click here to start editing the title.">
-<pre class="title-display">{{bind selector="> .title-display" event="change:currentWorkspace" key=(path 'currentWorkspace' 'title')}}</pre>
-<div class="title-saved"></div>
+const Marionette = require('marionette');
+
+Marionette.View.prototype._isMarionetteView = true;

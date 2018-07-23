@@ -12,7 +12,7 @@
  **/
  --}}
 <div class="if-editing">
-    <input id="{{cid}}" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}">
+    <input id="{{cid}}" placeholder="{{property.placeholder}}" name="{{property.id}}">
 </div>
 <div class="if-viewing">
     <label data-value="{{bindAttr attr="data-value" selector="> .if-viewing label" event="change:value" key=(path "value")}}">

@@ -18,26 +18,68 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    './workspace-item.hbs',
     'js/CustomElements',
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
     'component/workspace-details/workspace-details.view',
     'component/save/workspace/workspace-save.view',
-    'behaviors/button.behavior'
-], function (wreqr, Marionette, _, $, template, CustomElements, DropdownModel, 
-    WorkspaceInteractionsDropdownView, WorkspaceDetailsView, SaveView) {
+    'react',
+    'behaviors/button.behavior',
+    'behaviors/region.behavior'
+], function (wreqr, Marionette, _, $, CustomElements, DropdownModel, 
+    WorkspaceInteractionsDropdownView, WorkspaceDetailsView, SaveView, React) {
 
     return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('workspace-item'),
-        regions: {
-            workspaceDetails: '.choice-details',
-            workspaceSave: '.choice-save',
-            workspaceActions: '.choice-actions'
+        template(props) {
+            return (
+                <React.Fragment>
+                    <div className="choice-details">
+                    </div>
+                    <div className="choice-save">
+                    </div>
+                    <div className="choice-actions is-button" title="Shows a list of actions to take on the workspace" 
+                    data-help="Shows a list of actions to take on the workspace.">
+                    </div>
+                </React.Fragment>
+            );
         },
-        behaviors: {
-            button: {}
+        tagName: CustomElements.register('workspace-item'),
+        behaviors() {
+            return {
+                button: {},
+                region: {
+                    regions: [
+                        {
+                            selector: '.choice-details',
+                            view: WorkspaceDetailsView,
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        },
+                        {
+                            selector: '.choice-save',
+                            view: SaveView,
+                            viewOptions: {
+                                model: this.options.model
+                            }
+                        },
+                        {
+                            selector: '.choice-actions',
+                            view: WorkspaceInteractionsDropdownView,
+                            destroyIfMissing: false,
+                            viewOptions: function() {
+                                return {
+                                    model: new DropdownModel(),
+                                    modelForComponent: this.options.model,
+                                    dropdownCompanionBehaviors: {
+                                        navigation: {}
+                                    }
+                                }
+                            }.bind(this)
+                        }
+                    ]
+                }
+            };   
         },
         events: {
             'click': 'handleChoice',
@@ -52,19 +94,6 @@ define([
             this.listenTo(this.model, 'change:saved', this.handleSaved);
         },
         onBeforeShow: function(){
-            this.workspaceDetails.show(new WorkspaceDetailsView({
-                model: this.model
-            }));    
-            this.workspaceSave.show(new SaveView({
-                model: this.model
-            }));
-            this.workspaceActions.show(new WorkspaceInteractionsDropdownView({
-                model: new DropdownModel(),
-                modelForComponent: this.model,
-                dropdownCompanionBehaviors: {
-                    navigation: {}
-                }
-            }));
             this.handleSaved();
         },
         handleChoice: function(event){

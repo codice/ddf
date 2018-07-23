@@ -48,7 +48,7 @@ module.exports = BaseGuideView.extend({
                     description: 'example',
                     id: 'example',
                     title: 'example',
-                    url: 'https://www.google.com'
+                    url: 'https://example.com'
                 }],
                 distance: null,
                 hasThumbnail: false,
@@ -62,7 +62,7 @@ module.exports = BaseGuideView.extend({
                         "metacard-tags": ['resource', 'VALID'],
                         "validation-warnings": ['this isonly sort of wrong'],
                         "source-id": 'banana land',
-                        "resource-download-url": "https://www.google.com"
+                        "resource-download-url": "https://example.com"
                     }
                 },
                 relevance: 11

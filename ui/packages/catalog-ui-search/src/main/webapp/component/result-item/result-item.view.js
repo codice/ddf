@@ -17,7 +17,6 @@ import React from 'react';
 const Backbone = require('backbone');
 const Marionette = require('marionette');
 const _ = require('underscore');
-const $ = require('jquery');
 const CustomElements = require('js/CustomElements');
 const IconHelper = require('js/IconHelper');
 const store = require('js/store');
@@ -37,6 +36,7 @@ const PopoutView = require('component/dropdown/popout/dropdown.popout.view');
 require('behaviors/button.behavior');
 require('behaviors/dropdown.behavior');
 const HandleBarsHelpers = require('js/HandlebarsHelpers');
+const ResultLinkView = require('component/result-link/result-link.view');
 
 module.exports = Marionette.LayoutView.extend({
     template(data) {
@@ -123,10 +123,10 @@ module.exports = Marionette.LayoutView.extend({
                                 </span> : ''
                             }
                         </div>
-                        <button className="result-download fa fa-download is-button is-neutral" title="Downloads the results associated product directly to your machine." data-help="Downloads
+                        <button className="result-download fa fa-download is-button is-neutral" title="Downloads the associated resource directly to your machine." data-help="Downloads
                         the results associated product directly to your machine.">
                         </button>
-                        <div class="result-link is-button is-neutral composed-button" title="Follow external links" data-help="Follow external links.">
+                        <div className="result-link is-button is-neutral composed-button" title="Follow external links" data-help="Follow external links.">
                         </div>
                         <button className="result-add is-button is-neutral composed-button" title="Add or remove the result from a list, or make a new list with this result." data-help="Add or remove the result from a list, or make a new list with this result.">
                             <span className="fa fa-plus"></span>
@@ -156,7 +156,8 @@ module.exports = Marionette.LayoutView.extend({
         resultActions: '.result-actions',
         resultIndicator: '.container-indicator',
         resultThumbnail: '.detail-thumbnail',
-        resultAdd: '.result-add'
+        resultAdd: '.result-add',
+        resultLink: '.result-link'
     },
     behaviors() {
         return {
@@ -193,6 +194,7 @@ module.exports = Marionette.LayoutView.extend({
         this.checkTags();
         this.checkIsInWorkspace();
         this.checkIfDownloadable();
+        this.checkIfLinks();
         this.checkIfBlacklisted();
         this.listenTo(this.model, 'change:metacard>properties change:metacard', this.handleMetacardUpdate);
         this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
@@ -215,11 +217,19 @@ module.exports = Marionette.LayoutView.extend({
         this.checkIsInWorkspace();
         this.checkIfBlacklisted();
         this.checkIfDownloadable();
+        this.checkIfLinks();
     },
     onBeforeShow: function(){
         this.resultIndicator.show(new ResultIndicatorView({
             model: this.model
         }));
+        if (this.model.get('metacard').get('properties').get('associations.external')) {
+            this.resultLink.show(PopoutView.createSimpleDropdown({
+                componentToShow: ResultLinkView,
+                modelForComponent: this.model,
+                leftIcon: 'fa fa-external-link'
+            }));
+        }
         this.handleResultThumbnail();
     },
     handleResultThumbnail: function() {
@@ -306,6 +316,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     checkIfDownloadable: function() {
         this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
+    },
+    checkIfLinks: function() {
+        this.$el.toggleClass('is-link', this.model.get('metacard').get('properties').get('associations.external') !== undefined);
     },
     checkDisplayType: function() {
         var displayType = user.get('user').get('preferences').get('resultDisplay');

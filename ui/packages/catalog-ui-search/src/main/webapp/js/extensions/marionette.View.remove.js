@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="choice-details">
-</div><!--
---><div class="choice-save">
-</div><!--
---><div class="choice-actions is-button" title="Shows a list of actions to take on the workspace" 
-    data-help="Shows a list of actions to take on the workspace.">
-</div>
+const Marionette = require('marionette');
+import { unmountComponentAtNode } from 'react-dom';
+
+const oldRemove = Marionette.View.prototype.remove;
+Marionette.View.prototype.remove = function() {
+    unmountComponentAtNode(this.el);
+    return oldRemove.apply(this, arguments);
+}

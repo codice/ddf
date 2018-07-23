@@ -40,7 +40,6 @@ const _ = require('underscore');
 const Backbone = require('backbone');
 const Marionette = require('marionette');
 const properties = require('properties');
-const hbs = require('ace/handlebars');
 const announcement = require('component/announcement');
 require('js/Marionette.Region');
 require('js/requestAnimationFramePolyfill');
@@ -50,9 +49,10 @@ require('js/Autocomplete');
 require('backbone.customFunctions');
 require('js/extensions/backbone.listenTo.ts');
 require('js/extensions/marionette.onFirstRender');
-
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+require('js/extensions/marionette.renderer.render');
+require('js/extensions/marionette.ItemView.attachElContent');
+require('js/extensions/marionette.View.isMarionetteComponent');
+require('js/extensions/marionette.View.remove');
 
 let getShortErrorMessage = function (error) {
     var extraMessage = error instanceof Error ? error.name : String(error);
@@ -145,15 +145,6 @@ Backbone.AssociatedModel.prototype.set = function(key, value, options) {
         return this;
     }
     return associationsSet.apply(this, arguments);
-};
-Marionette.Renderer.render = function(template, data, view) {
-    data._view = view;
-    if (typeof template === 'function') {
-        const html = template.call(view, data);
-        return React.isValidElement(html) ? renderToStaticMarkup(html) : html;
-    } else {
-        return hbs.compile(template)(data);
-    }
 };
 
 // https://github.com/marionettejs/backbone.marionette/issues/3077
