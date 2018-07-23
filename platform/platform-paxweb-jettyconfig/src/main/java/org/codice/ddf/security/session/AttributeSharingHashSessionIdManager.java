@@ -30,32 +30,22 @@
 //
 package org.codice.ddf.security.session;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
-import org.codice.ddf.platform.util.RandomNumberGenerator;
-import org.eclipse.jetty.server.session.AbstractSession;
-import org.eclipse.jetty.server.session.HashSessionIdManager;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.session.DefaultSessionIdManager;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -64,11 +54,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Custom implementation of the {@link org.eclipse.jetty.server.SessionIdManager} that shares
- * session data between sessions in a cluster.
+ * Custom implementation of the {@link org.eclipse.jetty.server.SessionIdManager} that holds the
+ * latest session attributes for all sessions in the Jetty server. This allows {@link
+ * AttributeSharingSessionDataStore} instances to retrieve these session attributes when a new
+ * session is being created in their context for a session that exists in another context.
+ *
+ * <p>Note: Needed to hook into Jetty with a <code>SessionIdManager</code> because it's the only way
+ * to be notified when a session is invalidated across all contexts. Note: This extends Jetty's impl
+ * instead of the abstract class because of a hack in pax-web.
  */
-public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
-  // changed this to extend Jetty's impl instead of the abstract class because of a hack in pax web
+public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManager {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(AttributeSharingHashSessionIdManager.class);
@@ -83,37 +78,26 @@ public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
 
     @Override
     public void invalidateSession(
-        String subjectName, Function<HttpSession, String> sessionSubjectExtractor) {
+        String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
 
-      final List<AbstractSession> matchingSessions =
-          getHttpSessionStream()
-              .filter(s -> subjectName.equals(sessionSubjectExtractor.apply(s)))
-              .filter(AbstractSession.class::isInstance)
-              .map(AbstractSession.class::cast)
-              .distinct()
-              .collect(Collectors.toList());
-      for (AbstractSession matchingSession : matchingSessions) {
-        idManager.removeSession(matchingSession);
-        if (matchingSession.isValid()) {
-          matchingSession.invalidate();
-        }
+      final Optional<String> sessionIdOptional =
+          getSessionAttributeMapsStream()
+              .filter(e -> subjectName.equals(sessionSubjectExtractor.apply(e.getValue())))
+              .map(e -> e.getKey())
+              .findFirst();
+
+      if (sessionIdOptional.isPresent()) {
+        idManager.invalidateSession(sessionIdOptional.get());
       }
     }
 
-    private Stream<HttpSession> getHttpSessionStream() {
-      return getFullSessions()
-          .stream()
-          .flatMap(Collection::stream)
-          .map(Reference::get)
-          .filter(Objects::nonNull);
-    }
-
-    private Collection<Set<WeakReference<HttpSession>>> getFullSessions() {
-      return Collections.unmodifiableCollection(idManager.sessionMap.values());
+    private Stream<Entry<String, Map<String, Object>>> getSessionAttributeMapsStream() {
+      return Collections.unmodifiableMap(idManager.latestSessionAttributes).entrySet().stream();
     }
   }
 
-  private final Map<String, Set<WeakReference<HttpSession>>> sessionMap = new ConcurrentHashMap<>();
+  private List<AttributeSharingSessionDataStore> dataStores = new ArrayList<>();
+  private Map<String, Map<String, Object>> latestSessionAttributes = new ConcurrentHashMap();
 
   private void registerSessionManager() {
     Bundle bundle = FrameworkUtil.getBundle(AttributeSharingHashSessionIdManager.class);
@@ -137,205 +121,77 @@ public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
     bundleContext.registerService(HttpSessionInvalidator.class.getName(), sm, props);
   }
 
-  public AttributeSharingHashSessionIdManager() {
-    super(RandomNumberGenerator.create());
+  public AttributeSharingHashSessionIdManager(Server server) {
+    super(server);
     registerSessionManager();
   }
 
-  public AttributeSharingHashSessionIdManager(Random random) {
-    super(RandomNumberGenerator.create());
+  public AttributeSharingHashSessionIdManager(Server server, Random random) {
+    super(server, random);
     registerSessionManager();
-  }
-
-  /** @return Collection of String session IDs */
-  @Override
-  public Collection<String> getSessions() {
-    return Collections.unmodifiableCollection(sessionMap.keySet());
-  }
-
-  /** @return Collection of Sessions for the passed session ID */
-  @Override
-  public Collection<HttpSession> getSession(String id) {
-    ArrayList<HttpSession> sessions = new ArrayList<>();
-    Set<WeakReference<HttpSession>> refs = sessionMap.get(id);
-    if (refs != null) {
-      for (WeakReference<HttpSession> ref : refs) {
-        HttpSession session = ref.get();
-        if (session != null) {
-          sessions.add(session);
-        }
-      }
-    }
-    return sessions;
-  }
-
-  @Override
-  protected void doStop() throws Exception {
-    sessionMap.clear();
-    super.doStop();
-  }
-
-  /** @see org.eclipse.jetty.server.SessionIdManager#idInUse(String) */
-  @Override
-  public boolean idInUse(String id) {
-    return sessionMap.containsKey(id);
-  }
-
-  /** @see org.eclipse.jetty.server.SessionIdManager#addSession(HttpSession) */
-  @Override
-  public void addSession(HttpSession session) {
-    String id = getClusterId(session.getId());
-    WeakReference<HttpSession> ref = new WeakReference<>(session);
-
-    synchronized (this) {
-      Set<WeakReference<HttpSession>> sessions = sessionMap.get(id);
-      if (sessions == null) {
-        sessions = new HashSet<>();
-        sessionMap.put(id, sessions);
-      } else {
-        copySessionInfo(session, sessions);
-      }
-      sessions.add(ref);
-    }
-  }
-
-  @SuppressWarnings("squid:S2441" /* Value stored in session will not be serialized */)
-  private void copySessionInfo(HttpSession session, Set<WeakReference<HttpSession>> sessions) {
-    // Check for session already in cluster, copy over session information to new session
-    final HttpSession httpSession =
-        Optional.of(sessions.iterator())
-            .filter(Iterator::hasNext)
-            .map(Iterator::next)
-            .map(Reference::get)
-            .orElse(null);
-
-    if (httpSession == null) {
-      return;
-    }
-
-    Enumeration enumeration = httpSession.getAttributeNames();
-    while (enumeration.hasMoreElements()) {
-      Object obj = enumeration.nextElement();
-      if (obj instanceof String) {
-        Object value = httpSession.getAttribute((String) obj);
-        if (value != null) {
-          session.setAttribute((String) obj, value);
-        }
-      }
-    }
-    session.setMaxInactiveInterval(httpSession.getMaxInactiveInterval());
-  }
-
-  /** @see org.eclipse.jetty.server.SessionIdManager#removeSession(HttpSession) */
-  @Override
-  public void removeSession(HttpSession session) {
-    String id = getClusterId(session.getId());
-
-    synchronized (this) {
-      Collection<WeakReference<HttpSession>> sessions = sessionMap.get(id);
-      if (sessions != null) {
-        Iterator<WeakReference<HttpSession>> iter = sessions.iterator();
-        while (iter.hasNext()) {
-          WeakReference<HttpSession> ref = iter.next();
-          HttpSession s = ref.get();
-          if (s == null) {
-            iter.remove();
-          }
-          if (s == session) {
-            iter.remove();
-            break;
-          }
-        }
-        if (sessions.isEmpty()) {
-          sessionMap.remove(id);
-        }
-      }
-    }
   }
 
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
   @Override
   public void invalidateAll(String id) {
-    Collection<WeakReference<HttpSession>> sessions;
     synchronized (this) {
-      sessions = sessionMap.remove(id);
+      latestSessionAttributes.remove(id);
     }
 
-    if (sessions != null) {
-      sessions
-          .stream()
-          .map(Reference::get)
-          .filter(Objects::nonNull)
-          .filter(AbstractSession.class::isInstance)
-          .map(AbstractSession.class::cast)
-          .filter(AbstractSession::isValid)
-          .forEach(AbstractSession::invalidate);
-      sessions.clear();
-    }
+    super.invalidateAll(id);
   }
 
   /**
-   * Get the session ID without any worker ID.
+   * Called by the {@link SharingSessionInvalidator} to invalidate a session, given its id.
    *
-   * @param nodeId the node id
-   * @return sessionId without any worker ID.
+   * @param id the session id
    */
-  @Override
-  public String getClusterId(String nodeId) {
-    int dot = nodeId.lastIndexOf('.');
-    return (dot > 0) ? nodeId.substring(0, dot) : nodeId;
+  private void invalidateSession(String id) {
+    SessionHandler[] tmp = (SessionHandler[]) _server.getChildHandlersByClass(SessionHandler.class);
+    if (tmp != null && tmp.length > 0) {
+      tmp[0].getSession(id).invalidate();
+    }
+  }
+
+  protected void addSessionDataStore(AttributeSharingSessionDataStore dataStore) {
+    dataStores.add(dataStore);
   }
 
   /**
-   * Get the session ID with any worker ID.
+   * Called by {@link AttributeSharingSessionDataStore} when it's storing a session's attributes.
+   * This method will determine if they're different from what's in the cache. If they are
+   * different, it will store it and notify all <code>AttributeSharingSessionDataStore</code>
+   * instances.
    *
-   * @param clusterId
-   * @param request
-   * @return sessionId plus any worker ID.
+   * @param callingDataStore the datastore providing the attributes
+   * @param id the session id
+   * @param sessionAttributes the session attributes
    */
-  @Override
-  public String getNodeId(String clusterId, HttpServletRequest request) {
-    // used in Ajp13Parser
-    String worker =
-        request == null ? null : (String) request.getAttribute("org.eclipse.jetty.ajp.JVMRoute");
-    if (worker != null) {
-      return clusterId + '.' + worker;
-    }
-
-    if (_workerName != null) {
-      return clusterId + '.' + _workerName;
-    }
-
-    return clusterId;
-  }
-
-  @Override
-  public void renewSessionId(String oldClusterId, String oldNodeId, HttpServletRequest request) {
-    // generate a new id
-    String newClusterId = newSessionId(request.hashCode());
-
-    synchronized (this) {
-      Set<WeakReference<HttpSession>> sessions =
-          sessionMap.remove(
-              oldClusterId); // get the list of sessions with same id from other contexts
-      if (sessions != null) {
-        for (Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); iter.hasNext(); ) {
-          WeakReference<HttpSession> ref = iter.next();
-          HttpSession s = ref.get();
-          if (s == null) {
-            continue;
-          } else {
-            if (s instanceof AbstractSession) {
-              AbstractSession abstractSession = (AbstractSession) s;
-              abstractSession
-                  .getSessionManager()
-                  .renewSessionId(
-                      oldClusterId, oldNodeId, newClusterId, getNodeId(newClusterId, request));
+  protected void provideNewSessionAttributes(
+      AttributeSharingSessionDataStore callingDataStore,
+      String id,
+      Map<String, Object> sessionAttributes) {
+    // Make sure these attributes are different than the latest.
+    if (!sessionAttributes.equals(getLatestSessionAttributes(id))) {
+      LOGGER.debug("Pushing new session attributes to all web contexts for session {}", id);
+      latestSessionAttributes.put(id, sessionAttributes);
+      dataStores.forEach(
+          ds -> {
+            if (ds != callingDataStore) {
+              ds.updateSessionAttributes(id, sessionAttributes);
             }
-          }
-        }
-        sessionMap.put(newClusterId, sessions);
-      }
+          });
     }
+  }
+
+  /**
+   * Called by {@link AttributeSharingSessionDataStore} when a new session is being created in their
+   * context for a session that exists in another context.
+   *
+   * @param id the session id
+   * @return the session attributes
+   */
+  protected Map<String, Object> getLatestSessionAttributes(String id) {
+    return latestSessionAttributes.get(id);
   }
 }

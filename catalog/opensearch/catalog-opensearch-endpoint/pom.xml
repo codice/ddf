@@ -92,6 +92,10 @@
                             parboiled-java,
                             parboiled-core
                         </Embed-Dependency>
+                        <Import-Package>
+                            !org.objectweb.asm,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
