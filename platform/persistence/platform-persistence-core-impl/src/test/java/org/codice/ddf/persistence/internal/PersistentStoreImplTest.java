@@ -98,7 +98,7 @@ public class PersistentStoreImplTest {
   @Test
   public void testGet() throws Exception {
     QueryResponse response = mock(QueryResponse.class);
-    SolrDocumentList docList = getSolrDocuments();
+    SolrDocumentList docList = getSolrDocuments(2);
 
     when(response.getResults()).thenReturn(docList);
     when(solrClient.query(any(), eq(METHOD.POST))).thenReturn(response);
@@ -112,9 +112,8 @@ public class PersistentStoreImplTest {
   public void testGetWithStartIndexAndPageSize()
       throws PersistenceException, IOException, SolrServerException {
     QueryResponse response = mock(QueryResponse.class);
-    SolrDocumentList docList = getSolrDocuments();
 
-    when(response.getResults()).thenReturn(docList);
+    when(response.getResults()).thenReturn(getSolrDocuments(1));
     when(solrClient.query(any(), eq(METHOD.POST))).thenReturn(response);
     List<Map<String, Object>> items = persistentStore.get("testcore", "", 0, 1);
 
@@ -122,7 +121,7 @@ public class PersistentStoreImplTest {
 
     final SolrParams solrParams = solrParamsArgumentCaptor.getValue();
 
-    assertThat(items.size(), equalTo(2));
+    assertThat(items.size(), equalTo(1));
     assertThat(solrParams.get("start"), is("0"));
     assertThat(solrParams.get("rows"), is("1"));
 
@@ -146,16 +145,15 @@ public class PersistentStoreImplTest {
     verify(solrClient, never()).query(any(), eq(SolrRequest.METHOD.POST));
   }
 
-  private SolrDocumentList getSolrDocuments() {
-    SolrDocumentList docList = new SolrDocumentList();
+  private SolrDocumentList getSolrDocuments(int numDocuments) {
+    final SolrDocumentList docList = new SolrDocumentList();
 
-    SolrDocument docOne = new SolrDocument();
-    docOne.addField("id_txt", "idvalue1");
-    docList.add(docOne);
+    for (int i = 0; i < numDocuments; i++) {
+      SolrDocument solrDocument = new SolrDocument();
+      solrDocument.addField("id_txt", String.format("idvalue%d", i + 1));
+      docList.add(solrDocument);
+    }
 
-    SolrDocument docTwo = new SolrDocument();
-    docTwo.addField("id_txt", "idvalue2");
-    docList.add(docTwo);
     return docList;
   }
 }
