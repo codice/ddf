@@ -92,6 +92,8 @@ public class PersistentStoreImplTest {
 
   @Test
   public void testAddEmptyProperties() throws Exception {
+    PersistentItem props = new PersistentItem();
+    persistentStore.add("testcore", props);
     verify(solrClient, never()).add(any(SolrInputDocument.class));
   }
 
