@@ -621,8 +621,6 @@
 
     <bean id="featureService"
           class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
-
-
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
         <property name="featureQueryable" ref="featureQueryable"/>
     </bean>
