@@ -90,7 +90,7 @@ module.exports = Marionette.LayoutView.extend({
         function(confirmation) {
             if (confirmation.get('choice')) {
                 const defaults = this.model.get('type') === 'custom' ? this.model.toJSON(): undefined;
-                this.model.resetToDefaults({...defaults});
+                this.model.resetToDefaults(defaults);
                 this.triggerCloseDropdown();
             }
         }.bind(this));
