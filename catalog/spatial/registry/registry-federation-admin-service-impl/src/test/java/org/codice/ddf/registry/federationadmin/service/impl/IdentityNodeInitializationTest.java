@@ -18,9 +18,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -68,6 +69,8 @@ public class IdentityNodeInitializationTest {
 
   @Mock private FederationAdminServiceImpl federationAdminService;
 
+  @Mock private ScheduledExecutorService executorService;
+
   private IdentityNodeInitialization identityNodeInitialization;
 
   private Metacard testMetacard;
@@ -81,7 +84,8 @@ public class IdentityNodeInitializationTest {
   @Before
   public void setUp() {
     parser = spy(new XmlParser());
-    identityNodeInitialization = spy(new IdentityNodeInitialization(10, 3));
+    setupSerialExecutor();
+    identityNodeInitialization = spy(new IdentityNodeInitialization(executorService, 10));
     registryTransformer = spy(new RegistryTransformer());
     metacardMarshaller = spy(new MetacardMarshaller(parser));
     registryTransformer.setParser(parser);
@@ -134,6 +138,7 @@ public class IdentityNodeInitializationTest {
     testMetacard.setAttribute(
         new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId"));
     testMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, TEST_SITE_NAME));
+    testMetacard.setAttribute(new AttributeImpl(Core.ID, "metacardId"));
     when(federationAdminService.getLocalRegistryIdentityMetacard())
         .thenReturn(Optional.of(testMetacard));
 
@@ -143,6 +148,7 @@ public class IdentityNodeInitializationTest {
     identityNodeInitialization.init();
 
     assertThat(updatedMetacard.getValue().getTitle(), is(CHANGED_TEST_SITE_NAME));
+    assertThat(updatedMetacard.getValue().getId(), is(notNullValue()));
     verify(federationAdminService, times(1)).updateRegistryEntry(any(Metacard.class));
     verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
@@ -154,53 +160,44 @@ public class IdentityNodeInitializationTest {
         .when(federationAdminService)
         .getLocalRegistryIdentityMetacard();
     identityNodeInitialization.init();
-    verify(identityNodeInitialization, times(2)).updateOrCreateIdentity();
+    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
+    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
-  @Test
-  public void initCreateTimeout() throws Exception {
-    try {
-      doThrow(FederationAdminException.class)
-          .when(federationAdminService)
-          .getLocalRegistryIdentityMetacard();
-      identityNodeInitialization.init();
-      fail();
-    } catch (IllegalStateException ise) {
-      verify(identityNodeInitialization, atLeast(3)).updateOrCreateIdentity();
-    }
-  }
-
-  @Test(expected = IllegalStateException.class)
   public void initWithIngestException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     when(federationAdminService.addRegistryEntry(any(Metacard.class)))
         .thenThrow(FederationAdminException.class);
     identityNodeInitialization.init();
+    verify(federationAdminService, times(1)).addRegistryEntry(any(Metacard.class));
   }
 
-  @Test(expected = IllegalStateException.class)
   public void initWithRegistryTransformerException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(CatalogTransformerException.class)
         .when(registryTransformer)
         .transform(any(InputStream.class));
     identityNodeInitialization.init();
+    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
+    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
-  @Test(expected = IllegalStateException.class)
   public void initWithParserException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(ParserException.class)
         .when(metacardMarshaller)
         .getRegistryPackageAsInputStream(any(RegistryPackageType.class));
     identityNodeInitialization.init();
+    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
+    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
-  @Test(expected = IllegalStateException.class)
   public void initWithIOException() throws Exception {
     when(federationAdminService.getLocalRegistryIdentityMetacard()).thenReturn(Optional.empty());
     doThrow(IOException.class).when(registryTransformer).transform(any(InputStream.class));
     identityNodeInitialization.init();
+    verify(federationAdminService, never()).updateRegistryEntry(any(Metacard.class));
+    verify(federationAdminService, never()).addRegistryEntry(any(Metacard.class));
   }
 
   @Test
@@ -271,5 +268,15 @@ public class IdentityNodeInitializationTest {
         .add(RIM_FACTORY.createIdentifiable(extrinsicObject));
 
     return registryPackage;
+  }
+
+  private void setupSerialExecutor() {
+    doAnswer(
+            (args) -> {
+              ((Runnable) args.getArguments()[0]).run();
+              return null;
+            })
+        .when(executorService)
+        .scheduleAtFixedRate(any(), anyLong(), anyLong(), any());
   }
 }
