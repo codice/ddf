@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
-import static org.codice.ddf.persistence.internal.PersistentStoreImpl.DEFAULT_START_INDEX;
-import static org.codice.ddf.persistence.internal.PersistentStoreImpl.MAX_PAGE_SIZE;
+import static org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl.PAGE_SIZE;
+import static org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl.START_INDEX;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -166,7 +166,7 @@ public class SubscriptionsPersistentStoreImplTest {
 
     @Override
     public List<Map<String, Object>> get(String type, String ecql) throws PersistenceException {
-      return get(type, ecql, DEFAULT_START_INDEX, MAX_PAGE_SIZE);
+      return get(type, ecql, START_INDEX, PAGE_SIZE);
     }
 
     @Override

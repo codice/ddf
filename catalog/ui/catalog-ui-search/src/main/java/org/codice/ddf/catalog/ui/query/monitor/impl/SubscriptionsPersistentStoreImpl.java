@@ -15,9 +15,8 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 import static org.apache.commons.lang3.Validate.notNull;
-import static org.codice.ddf.persistence.internal.PersistentStoreImpl.DEFAULT_START_INDEX;
-import static org.codice.ddf.persistence.internal.PersistentStoreImpl.MAX_PAGE_SIZE;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,6 +47,10 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
 
   private static final String ID = "id";
 
+  @VisibleForTesting static final int START_INDEX = 0;
+
+  @VisibleForTesting static final int PAGE_SIZE = 1000;
+
   private static final Lock LOCK = new ReentrantLock();
 
   private final PersistentStore persistentStore;
@@ -62,7 +65,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     LOCK.lock();
     try {
       List<Map<String, Object>> results =
-          persistentStore.get(SUBSCRIPTIONS_TYPE, query, DEFAULT_START_INDEX, MAX_PAGE_SIZE);
+          persistentStore.get(SUBSCRIPTIONS_TYPE, query, START_INDEX, PAGE_SIZE);
       assert results.size() <= 1;
       return results;
     } finally {
@@ -245,7 +248,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
 
     LOCK.lock();
     try {
-      persistentStore.delete(SUBSCRIPTIONS_TYPE, ecql, DEFAULT_START_INDEX, MAX_PAGE_SIZE);
+      persistentStore.delete(SUBSCRIPTIONS_TYPE, ecql, START_INDEX, PAGE_SIZE);
     } catch (PersistenceException e) {
       LOGGER.debug("Could not delete subscriptions for query {}", ecql, e);
     } finally {
