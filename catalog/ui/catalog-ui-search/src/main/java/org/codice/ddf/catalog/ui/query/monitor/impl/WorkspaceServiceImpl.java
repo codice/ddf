@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -45,7 +46,6 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
-import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
@@ -223,7 +223,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private List<Map<String, Object>> findSubscriptions() {
     try {
-      return persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE);
+      return persistentStore.get(SUBSCRIPTIONS_TYPE, "", 0, 1000);
     } catch (PersistenceException e) {
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }
