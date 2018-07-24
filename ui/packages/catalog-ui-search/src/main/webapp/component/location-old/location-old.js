@@ -67,6 +67,9 @@ define([
         if (key.lineWidth !== undefined){
             key.lineWidth = Math.max(minimumBuffer, key.lineWidth);
         }
+        if (key.polygonBufferWidth) {
+            key.polygonBufferWidth = Math.max(minimumBuffer, key.polygonBufferWidth);
+        }
     }
 
     return Backbone.AssociatedModel.extend({
@@ -91,6 +94,8 @@ define([
             utm: undefined,
             color: undefined,
             line: undefined,
+            polygonBufferWidth: 0,
+            polygonBufferUnits: 'meters',
             lineWidth: 1,
             lineUnits: 'meters',
             hasKeyword: false,

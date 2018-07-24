@@ -71,10 +71,10 @@ function generateAnyGeoFilter(property, model) {
             };
         case 'POLYGON':
             return {
-                type: 'INTERSECTS',
+                type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
                 property: property,
-                value: 'POLYGON' +
-                sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))
+                value: `POLYGON${sanitizeForCql(JSON.stringify(polygonToCQLPolygon(model.polygon)))}`,
+                ...(model.polygonBufferWidth && {distance: DistanceUtils.getDistanceInMeters(model.polygonBufferWidth, model.polygonBufferUnits)})
             };
         case 'MULTIPOLYGON':
             var poly = 'MULTIPOLYGON' +
@@ -214,6 +214,8 @@ function transformCQLToFilter(cqlString) {
     return cql.simplify(cql.read(cqlString));
 }
 
+const isPolygonFilter = filter => filter.value && filter.value.value && filter.value.value.indexOf('POLYGON') >= 0;
+
 function isPointRadiusFilter(filter) {
     var filterValue = typeof(filter.value) === 'object' ? filter.value.value : filter.value;
     return filterValue && filterValue.indexOf('POINT') >= 0;
@@ -298,6 +300,7 @@ module.exports = {
     isGeoFilter,
     transformFilterToCQL,
     transformCQLToFilter,
+    isPolygonFilter,
     isPointRadiusFilter,
     buildIntersectCQL,
     arrayFromPolygonWkt

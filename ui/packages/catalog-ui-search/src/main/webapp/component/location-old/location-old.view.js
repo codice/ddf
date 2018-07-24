@@ -91,6 +91,9 @@ module.exports = Marionette.LayoutView.extend({
                             radius: filter.distance
                         });
                         wreqr.vent.trigger('search:circledisplay', this.model);
+                    } else if (CQLUtils.isPolygonFilter(filter)) {
+                        this.handlePolygonDeserialization(filter);
+                        break;
                     } else {
                         let pointText = filterValue.substring(11);
                         pointText = pointText.substring(0, pointText.length - 1);
@@ -110,11 +113,7 @@ module.exports = Marionette.LayoutView.extend({
                     if (!filterValue || typeof filterValue !== 'string') {
                         break;
                     }
-                    this.model.set({
-                        mode: 'poly',
-                        polygon: CQLUtils.arrayFromPolygonWkt(filterValue)
-                    });
-                    wreqr.vent.trigger('search:polydisplay', this.model);
+                    this.handlePolygonDeserialization({polygon: CQLUtils.arrayFromPolygonWkt(filterValue)});
                     break;
                 // these cases are for when the model matches the location model
                 case 'BBOX':
@@ -130,10 +129,7 @@ module.exports = Marionette.LayoutView.extend({
                     break;
                 case 'MULTIPOLYGON':
                 case 'POLYGON':
-                    this.model.set({
-                        mode: 'poly',
-                        polygon: filter.polygon,
-                    });
+                    this.handlePolygonDeserialization(filter);
                     wreqr.vent.trigger('search:polydisplay', this.model);
                     break;
                 case 'POINTRADIUS':
@@ -156,6 +152,14 @@ module.exports = Marionette.LayoutView.extend({
                     break;
             }
         }
+    },
+    handlePolygonDeserialization(filter) {
+        this.model.set({
+            mode: 'poly',
+            polygon: filter.polygon,
+            ...(filter.polygonBufferWidth && {polygonBufferWidth: filter.polygonBufferWidth})
+        });
+        wreqr.vent.trigger('search:polydisplay', this.model);
     },
     clearLocation: function() {
         this.model.set({
