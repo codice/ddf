@@ -70,7 +70,9 @@ define([
             }
         },
         handleValidation: function(){
-            this.$el.toggleClass('has-validation-issues', !this.model.isValid());
+            if (this.model.showValidationIssues()){
+                this.$el.toggleClass('has-validation-issues', !this.model.isValid());
+            }
         },
         isValid: function(){
             return true; //overwrite on a per input basis   

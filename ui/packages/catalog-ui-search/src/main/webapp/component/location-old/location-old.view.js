@@ -230,5 +230,8 @@ module.exports = Marionette.LayoutView.extend({
     },
     onDestroy: function() {
         wreqr.vent.trigger('search:drawend', this.model);
+    },
+    isValid: function(){
+        return this.getCurrentValue().type != undefined;
     }
 });
