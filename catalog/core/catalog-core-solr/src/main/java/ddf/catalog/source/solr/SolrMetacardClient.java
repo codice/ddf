@@ -48,6 +48,8 @@ public interface SolrMetacardClient {
    */
   List<Metacard> query(String queryString) throws UnsupportedQueryException;
 
+  List<Metacard> getIds(Set<String> ids) throws UnsupportedQueryException;
+
   /** @return set of supported content types. */
   Set<ContentType> getContentTypes();
 
