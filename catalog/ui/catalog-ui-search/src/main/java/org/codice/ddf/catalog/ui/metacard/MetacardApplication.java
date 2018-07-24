@@ -542,6 +542,7 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
           catalogFramework.delete(new DeleteRequestImpl(id));
+          subscriptions.removeSubscriptions(id);
           return ImmutableMap.of("message", "Successfully deleted.");
         },
         util::getJson);

@@ -51,9 +51,16 @@ import org.slf4j.LoggerFactory;
 public class PersistentStoreImpl implements PersistentStore {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
+
   private final SolrClientFactory clientFactory;
 
   private final Map<String, SolrClient> solrClients = new ConcurrentHashMap<>();
+
+  public static final int DEFAULT_START_INDEX = 0;
+
+  public static final int DEFAULT_PAGE_SIZE = 10;
+
+  public static final int MAX_PAGE_SIZE = 1000;
 
   public PersistentStoreImpl(SolrClientFactoryImpl clientFactory) {
     this.clientFactory = clientFactory;
@@ -131,14 +138,31 @@ public class PersistentStoreImpl implements PersistentStore {
   }
 
   @Override
-  // Returned Map will have suffixes in the key names - client is responsible for handling them
+  /**
+   * {@inheritDoc} Returned Map will have suffixes in the key names - client is responsible for
+   * handling them
+   */
   public List<Map<String, Object>> get(String type, String cql) throws PersistenceException {
+    return get(type, cql, DEFAULT_START_INDEX, DEFAULT_PAGE_SIZE);
+  }
+
+  @Override
+  public List<Map<String, Object>> get(String type, String cql, int startIndex, int pageSize)
+      throws PersistenceException {
     if (StringUtils.isBlank(type)) {
       throw new PersistenceException(
           "The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
     }
 
-    List<Map<String, Object>> results = new ArrayList<>();
+    if (startIndex < 0) {
+      throw new IllegalArgumentException("The start index must be nonnegative.");
+    }
+
+    if (pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
+      throw new IllegalArgumentException(
+          String.format(
+              "The page size must be greater than 0 and less than or equal to %d.", MAX_PAGE_SIZE));
+    }
 
     // Set Solr Core name to type and create/connect to Solr Core
     SolrClient solrClient = getSolrClient(type);
@@ -156,31 +180,17 @@ public class PersistentStoreImpl implements PersistentStore {
       if (solrQuery == null) {
         throw new PersistenceException("Unsupported query " + cql);
       }
+
+      solrQuery.setRows(pageSize);
+      solrQuery.setStart(startIndex);
+
       QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
+
       long numResults = solrResponse.getResults().getNumFound();
       LOGGER.debug("numResults = {}", numResults);
 
-      SolrDocumentList docs = solrResponse.getResults();
-      for (SolrDocument doc : docs) {
-        PersistentItem result = new PersistentItem();
-        Collection<String> fieldNames = doc.getFieldNames();
-        for (String name : fieldNames) {
-          LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
-          Collection<Object> fieldValues = doc.getFieldValues(name);
-          if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
-            result.addProperty(
-                name,
-                fieldValues
-                    .stream()
-                    .filter(String.class::isInstance)
-                    .map(String.class::cast)
-                    .collect(Collectors.toSet()));
-          } else {
-            addPropertyBasedOnSuffix(result, name, doc.getFirstValue(name));
-          }
-        }
-        results.add(result);
-      }
+      final SolrDocumentList docs = solrResponse.getResults();
+      return documentListToResultList(docs);
     } catch (CQLException e) {
       throw new PersistenceException(
           "CQLException while getting Solr data with cql statement " + cql, e);
@@ -188,13 +198,43 @@ public class PersistentStoreImpl implements PersistentStore {
       throw new PersistenceException(
           "Exception while getting Solr data with cql statement " + cql, e);
     }
+  }
+
+  private List<Map<String, Object>> documentListToResultList(SolrDocumentList docs) {
+    final List<Map<String, Object>> results = new ArrayList<>();
+    for (SolrDocument doc : docs) {
+      final PersistentItem result = new PersistentItem();
+      final Collection<String> fieldNames = doc.getFieldNames();
+      for (String name : fieldNames) {
+        LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
+        Collection<Object> fieldValues = doc.getFieldValues(name);
+        if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
+          result.addProperty(
+              name,
+              fieldValues
+                  .stream()
+                  .filter(String.class::isInstance)
+                  .map(String.class::cast)
+                  .collect(Collectors.toSet()));
+        } else {
+          addPropertyBasedOnSuffix(result, name, doc.getFirstValue(name));
+        }
+      }
+      results.add(result);
+    }
 
     return results;
   }
 
   @Override
   public int delete(String type, String cql) throws PersistenceException {
-    List<Map<String, Object>> itemsToDelete = this.get(type, cql);
+    return delete(type, cql, DEFAULT_START_INDEX, DEFAULT_PAGE_SIZE);
+  }
+
+  @Override
+  public int delete(String type, String cql, int startIndex, int pageSize)
+      throws PersistenceException {
+    List<Map<String, Object>> itemsToDelete = this.get(type, cql, startIndex, pageSize);
     SolrClient solrClient = getSolrClient(type);
     List<String> idsToDelete = new ArrayList<>();
     for (Map<String, Object> item : itemsToDelete) {

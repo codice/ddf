@@ -62,7 +62,7 @@ public interface PersistentStore {
    *     creating this map.
    * @throws PersistenceException If the type is empty or there was an issue persisting the item.
    */
-  public void add(String type, Map<String, Object> properties) throws PersistenceException;
+  void add(String type, Map<String, Object> properties) throws PersistenceException;
 
   /**
    * Adds a collection of items of specified type.
@@ -73,7 +73,7 @@ public interface PersistentStore {
    *     for creating these maps.
    * @throws PersistenceException If the type is empty or there was an issue persisting the item.
    */
-  public void add(String type, Collection<Map<String, Object>> items) throws PersistenceException;
+  void add(String type, Collection<Map<String, Object>> items) throws PersistenceException;
 
   /**
    * Get all of the items of the specified type.
@@ -82,7 +82,7 @@ public interface PersistentStore {
    * @return
    * @throws PersistenceException
    */
-  public List<Map<String, Object>> get(String type) throws PersistenceException;
+  List<Map<String, Object>> get(String type) throws PersistenceException;
 
   /**
    * Get items matching the ECQL query criteria.
@@ -92,7 +92,21 @@ public interface PersistentStore {
    * @return
    * @throws PersistenceException
    */
-  public List<Map<String, Object>> get(String type, String ecql) throws PersistenceException;
+  List<Map<String, Object>> get(String type, String ecql) throws PersistenceException;
+
+  /**
+   * Get all items matching the ECQL query criteria.
+   *
+   * @param type A non-empty string identifying the type of item being retrieved.
+   * @param ecql Query criteria.
+   * @param startIndex Index to start query at.
+   * @param pageSize Max number of results to return in single query.
+   * @throws PersistenceException
+   * @throws IllegalArgumentException if startIndex is less than 0 or if pageSize is greater than
+   *     the max allowed.
+   */
+  List<Map<String, Object>> get(String type, String ecql, int startIndex, int pageSize)
+      throws PersistenceException;
 
   /**
    * Delete items matching the ECQL query criteria.
@@ -102,5 +116,17 @@ public interface PersistentStore {
    * @return Count of the items deleted
    * @throws PersistenceException
    */
-  public int delete(String type, String ecql) throws PersistenceException;
+  int delete(String type, String ecql) throws PersistenceException;
+
+  /**
+   * @param type A non-empty string identifying the type of item being retrieved.
+   * @param ecql Query criteria.
+   * @param startIndex Index to start query at.
+   * @param pageSize Max number of results to return in single query.
+   * @return Count of the items deleted
+   * @throws PersistenceException
+   * @throws IllegalArgumentException if startIndex is less than 0 or if pageSize is greater than
+   *     the max allowed.
+   */
+  int delete(String type, String ecql, int startIndex, int pageSize) throws PersistenceException;
 }
