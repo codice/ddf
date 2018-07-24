@@ -175,7 +175,8 @@
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
         <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
-        <aws-java-sdk-bundle.version>1.11.125_1</aws-java-sdk-bundle.version>
+        <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
+        <pdfbox.version>2.0.11</pdfbox.version>
         <javax-mail.version>1.5.6</javax-mail.version>
         <jackson2-version>2.9.6</jackson2-version>
         <common-compress.version>1.17</common-compress.version>
