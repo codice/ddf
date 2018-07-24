@@ -84,6 +84,50 @@
                 <exclude>
                     **/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
                 </exclude>
+                <!--
+                Excluding all Fabric8 jars since they are not needed or enabled and introduce
+                vulnerability CVE-2016-1906. This suppression should be revisited when DDF-3908
+                (Karaf upgrade) has been completed.
+                -->
+                <exclude>
+                    **/io/fabric8/kubernetes-model/2.0.9/kubernetes-model-2.0.9.jar
+                </exclude>
+                <exclude>
+                    **/io/fabric8/kubernetes-client/3.1.12/kubernetes-client-3.1.12-bundle.jar
+                </exclude>
+                <exclude>
+                    **/io/fabric8/kubernetes/kubernetes-karaf/3.1.12/kubernetes-karaf-3.1.12-features.xml
+                </exclude>
+                <!--
+                Excluding pax-web-jsp 6.0.6 which adds support for JSP but is not currently used
+                and introduces multiple severe vulnerabilities (CVE-2009-3548, CVE-2011-3190,
+                CVE-2016-6325, CVE-2014-0230, CVE-2016-5425, CVE-2016-8735, CVE-2013-2185)
+                -->
+                <exclude>
+                    **/org/ops4j/pax/web/pax-web-jsp/6.0.6/pax-web-jsp-6.0.6.jar
+                </exclude>
+                <!--
+                Excluding all Netty 4.0.33-Final jars which are not used and introduce vulnerability
+                CVE-2016-4970.
+                -->
+                <exclude>
+                    **/io/netty/netty-handler/4.0.33.Final/netty-handler-4.0.33.Final.jar
+                </exclude>
+                <exclude>
+                    **/io/netty/netty-codec/4.0.33.Final/netty-codec-4.0.33.Final.jar
+                </exclude>
+                <exclude>
+                    **/io/netty/netty-common/4.0.33.Final/netty-common-4.0.33.Final.jar
+                </exclude>
+                <exclude>
+                    **/io/netty/netty-transport-native-epoll/4.0.33.Final/netty-transport-native-epoll-4.0.33.Final.jar
+                </exclude>
+                <exclude>
+                    **/io/netty/netty-transport/4.0.33.Final/netty-transport-4.0.33.Final.jar
+                </exclude>
+                <exclude>
+                    **/io/netty/netty-buffer/4.0.33.Final/netty-buffer-4.0.33.Final.jar
+                </exclude>
             </excludes>
         </fileSet>
 
