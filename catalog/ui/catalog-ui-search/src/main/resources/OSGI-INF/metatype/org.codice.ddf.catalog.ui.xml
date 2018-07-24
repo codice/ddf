@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui.config">
+    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui">
         <AD id="resultCount"
             name="Result Count"
             description="Specifies the number of results to request from each source."
@@ -295,8 +295,8 @@
         </AD>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.ui.config">
-        <Object ocdref="org.codice.ddf.catalog.ui.config"/>
+    <Designate pid="org.codice.ddf.catalog.ui">
+        <Object ocdref="org.codice.ddf.catalog.ui"/>
     </Designate>
 
 </metatype:MetaData>

@@ -78,7 +78,7 @@
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.config"
+            persistent-id="org.codice.ddf.catalog.ui"
             update-strategy="container-managed"/>
 
         <cm:managed-properties
@@ -426,7 +426,7 @@
 
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.config"
+            persistent-id="org.codice.ddf.catalog.ui"
             update-strategy="component-managed"
             update-method="refresh"/>
 
