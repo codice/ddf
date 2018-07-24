@@ -223,7 +223,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
   private List<Map<String, Object>> findSubscriptions() {
     try {
-      return persistentStore.get(SUBSCRIPTIONS_TYPE, "", 0, 1000);
+      return persistentStore.get(SUBSCRIPTIONS_TYPE, "", 0, maxSubscriptions);
     } catch (PersistenceException e) {
       LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
     }

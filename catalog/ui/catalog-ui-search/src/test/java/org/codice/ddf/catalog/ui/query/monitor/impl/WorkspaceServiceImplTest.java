@@ -18,6 +18,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -103,7 +105,8 @@ public class WorkspaceServiceImplTest {
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
     when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
-    when(persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE))
+    when(persistentStore.get(
+            eq(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE), anyString(), eq(0), eq(100)))
         .thenReturn(Collections.singletonList(Collections.singletonMap("id_txt", id)));
 
     when(result.getMetacard()).thenReturn(metacard);
