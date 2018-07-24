@@ -17,12 +17,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import org.jasig.cas.client.util.AbstractCasFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +32,9 @@ public class ProxyFilterChain implements FilterChain {
 
   private FilterChain filterChain;
 
-  private List<Filter> filters;
+  private List<AbstractCasFilter> filters;
 
-  private Iterator<Filter> iterator;
+  private Iterator<AbstractCasFilter> iterator;
 
   /**
    * @param filterChain The filter chain from the web container. If null, no other filters will be
@@ -46,7 +46,7 @@ public class ProxyFilterChain implements FilterChain {
   }
 
   /** @param filter The servlet filter to add. */
-  public void addFilter(Filter filter) {
+  public void addFilter(AbstractCasFilter filter) {
     if (iterator != null) {
       throw new IllegalStateException();
     }
@@ -56,7 +56,7 @@ public class ProxyFilterChain implements FilterChain {
   }
 
   /** @param filters The servlet filters to add. */
-  public void addFilters(List<Filter> filters) {
+  public void addFilters(List<AbstractCasFilter> filters) {
     if (iterator != null) {
       throw new IllegalStateException();
     }
@@ -64,7 +64,7 @@ public class ProxyFilterChain implements FilterChain {
     this.filters.addAll(filters);
 
     if (LOGGER.isDebugEnabled()) {
-      for (Filter filter : filters) {
+      for (AbstractCasFilter filter : filters) {
         LOGGER.debug("Added filter {} to filter chain.", filter.getClass().getName());
       }
     }
@@ -83,7 +83,7 @@ public class ProxyFilterChain implements FilterChain {
     }
 
     if (iterator.hasNext()) {
-      Filter filter = iterator.next();
+      AbstractCasFilter filter = iterator.next();
       LOGGER.debug(
           "Calling filter {}.doFilter({},{},{})",
           filter.getClass().getName(),
