@@ -266,19 +266,33 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       QueryResponse solrResponse = client.query(query, METHOD.POST);
       SolrDocumentList docs = solrResponse.getResults();
 
-      List<Metacard> results = new ArrayList<>();
-      for (SolrDocument doc : docs) {
-        try {
-          results.add(createMetacard(doc));
-        } catch (MetacardCreationException e) {
-          throw new UnsupportedQueryException("Could not create metacard(s).", e);
-        }
-      }
-
-      return results;
+      return createMetacards(docs);
     } catch (SolrServerException | SolrException | IOException e) {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
+  }
+
+  @Override
+  public List<Metacard> getIds(Set<String> ids) throws UnsupportedQueryException {
+    try {
+      SolrDocumentList docs = client.getById(ids);
+
+      return createMetacards(docs);
+    } catch (SolrServerException | SolrException | IOException e) {
+      throw new UnsupportedQueryException("Could not complete solr query.", e);
+    }
+  }
+
+  private List<Metacard> createMetacards(SolrDocumentList docs) throws UnsupportedQueryException {
+    List<Metacard> results = new ArrayList<>(docs.size());
+    for (SolrDocument doc : docs) {
+      try {
+        results.add(createMetacard(doc));
+      } catch (MetacardCreationException e) {
+        throw new UnsupportedQueryException("Could not create metacard(s).", e);
+      }
+    }
+    return results;
   }
 
   @Override

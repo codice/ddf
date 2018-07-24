@@ -13,8 +13,6 @@
  */
 package ddf.catalog.source.solr;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -46,7 +44,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -54,12 +54,11 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -108,17 +107,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   private final SolrMetacardClientImpl client;
 
   private final FilterAdapter filterAdapter;
-
-  /**
-   * Cache of Metacards that have been updated on Solr but might not be visible in the near real
-   * time index yet. Cache is checked when ID queries fail from Solr.
-   */
-  private final Cache<String, Metacard> pendingNrtIndex =
-      CacheBuilder.newBuilder()
-          .expireAfterWrite(
-              NumberUtils.toInt(System.getProperty("solr.provider.pending-nrt-ttl"), 5),
-              TimeUnit.SECONDS)
-          .build();
 
   /**
    * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
@@ -224,11 +212,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
     SourceResponse response = client.query(request);
-    queryPendingNrtIndex(request, response);
+    queryById(request, response);
     return response;
   }
 
-  private void queryPendingNrtIndex(QueryRequest request, SourceResponse response)
+  private void queryById(QueryRequest request, SourceResponse response)
       throws UnsupportedQueryException {
     if (request == null || request.getQuery() == null) {
       return;
@@ -244,10 +232,13 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       ids.remove(result.getMetacard().getId());
     }
 
+    if (ids.isEmpty()) {
+      return;
+    }
+
     List<Result> pendingResults =
-        pendingNrtIndex
-            .getAllPresent(ids)
-            .values()
+        client
+            .getIds(ids)
             .stream()
             .filter(Objects::nonNull)
             .map(ResultImpl::new)
@@ -294,9 +285,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       throw new IngestException("Could not ingest metacard(s).");
     }
 
-    pendingNrtIndex.putAll(
-        output.stream().collect(Collectors.toMap(Metacard::getId, this::copyMetacard)));
-
     return new CreateResponseImpl(request, request.getProperties(), output);
   }
 
@@ -324,38 +312,45 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     /* 1. QUERY */
     // Loop to get all identifiers
-    List<String> identifiers =
-        updates
-            .stream()
-            .map(Entry::getKey)
-            .map(Serializable::toString)
-            .collect(Collectors.toList());
+    Set<String> identifiers =
+        updates.stream().map(Entry::getKey).map(Serializable::toString).collect(Collectors.toSet());
 
-    /* 1a. Create the old Metacard Query */
-    String attributeQuery = getQuery(attributeName, identifiers);
-
-    SolrQuery query = new SolrQuery(attributeQuery);
-    // Set number of rows to the result size + 1.  The default row size in Solr is 10, so this
-    // needs to be set in situations where the number of metacards to update is > 10.  Since there
-    // could be more results in the query response than the number of metacards in the update
-    // request,
-    // 1 is added to the row size, so we can still determine whether we found more metacards than
-    // updated metacards provided
-    query.setRows(updates.size() + 1);
-    QueryResponse idResults = null;
-
-    try {
-      idResults = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | SolrException | IOException e) {
-      LOGGER.info("Failed to query for metacard(s) before update.", e);
-    }
-    // map of old metacards to be populated
-    final Map<Serializable, Metacard> idToMetacardMap =
-        computeOldMetacardIds(attributeName, updates, idResults);
-
+    final Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
     if (Metacard.ID.equals(attributeName)) {
-      idToMetacardMap.putAll(pendingNrtIndex.getAllPresent(identifiers));
+      try {
+        idToMetacardMap.putAll(
+            client
+                .getIds(new HashSet<>(identifiers))
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(Metacard::getId, Function.identity())));
+      } catch (UnsupportedQueryException e) {
+        LOGGER.debug("Solr query by list of IDs failed.", e);
+        LOGGER.info("Failed to query for metacard(s) by ID before update.");
+      }
+    } else {
+      /* 1a. Create the old Metacard Query */
+      String attributeQuery = getQuery(attributeName, identifiers);
+
+      SolrQuery query = new SolrQuery(attributeQuery);
+      // Set number of rows to the result size + 1.  The default row size in Solr is 10, so this
+      // needs to be set in situations where the number of metacards to update is > 10.  Since there
+      // could be more results in the query response than the number of metacards in the update
+      // request,
+      // 1 is added to the row size, so we can still determine whether we found more metacards than
+      // updated metacards provided
+      query.setRows(updates.size() + 1);
+      QueryResponse idResults = null;
+
+      try {
+        idResults = solr.query(query, METHOD.POST);
+      } catch (SolrServerException | SolrException | IOException e) {
+        LOGGER.info("Failed to query for metacard(s) before update.", e);
+      }
+      // map of old metacards to be populated
+      idToMetacardMap.putAll(computeOldMetacardIds(attributeName, updates, idResults));
     }
+
     if (idToMetacardMap.isEmpty()) {
       LOGGER.debug("No results found for given attribute values.");
       // return an empty list
@@ -369,12 +364,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       LOGGER.info("Failed to update metacard(s) with Solr.", e);
       throw new IngestException("Failed to update metacard(s).");
     }
-    pendingNrtIndex.putAll(
-        updateList
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    u -> u.getNewMetacard().getId(), u -> copyMetacard(u.getNewMetacard()))));
 
     return new UpdateResponseImpl(updateRequest, updateRequest.getProperties(), updateList);
   }
@@ -414,10 +403,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
           identifiers.subList(currPagingSize - MAX_BOOLEAN_CLAUSES, identifiers.size());
       deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
     }
-    addPendingNrtDeletedMetacards(deletedMetacards, identifiers);
-
-    pendingNrtIndex.invalidateAll(
-        deletedMetacards.stream().map(Metacard::getId).collect(Collectors.toList()));
 
     return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
   }
@@ -535,17 +520,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
   }
 
-  private void addPendingNrtDeletedMetacards(
-      List<Metacard> deletedMetacards, List<? extends Serializable> identifiers) {
-    if (deletedMetacards.size() < identifiers.size()
-        && pendingNrtIndex.getAllPresent(identifiers).size() > 0) {
-      Map<String, Metacard> matches = pendingNrtIndex.getAllPresent(identifiers);
-
-      deletedMetacards.forEach(m -> matches.remove(m.getId()));
-      deletedMetacards.addAll(matches.values());
-    }
-  }
-
   private Metacard copyMetacard(Metacard original) {
     MetacardImpl copy = new MetacardImpl(original, original.getMetacardType());
     copy.setSourceId(original.getSourceId());
@@ -554,22 +528,30 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   private SolrDocumentList getSolrDocumentList(
       List<? extends Serializable> identifierPaged, String fieldName) throws IngestException {
+    // checking page size since real time get can only be done as a GET and not a POST
+    if (fieldName.equals(Metacard.ID + SchemaFields.TEXT_SUFFIX) && identifierPaged.size() <= 500) {
+      try {
+        return solr.getById((Collection<String>) identifierPaged);
+      } catch (IOException | SolrException | SolrServerException e) {
+        LOGGER.info("Failed to get list of Solr documents for delete by ID.", e);
+        throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+      }
+    }
+
     SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
     query.setRows(identifierPaged.size());
 
     QueryResponse solrResponse;
     try {
       solrResponse = solr.query(query, METHOD.POST);
-    } catch (SolrServerException | SolrException | IOException e) {
+    } catch (IOException | SolrException | SolrServerException e) {
       LOGGER.info("Failed to get list of Solr documents for delete.", e);
       throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
     }
     return solrResponse.getResults();
   }
 
-  private String getQuery(String attributeName, List<String> ids) throws IngestException {
-
-    StringBuilder queryBuilder = new StringBuilder();
+  private String getQuery(String attributeName, Set<String> ids) throws IngestException {
 
     List<String> mappedNames = resolver.getAnonymousField(attributeName);
 
@@ -577,18 +559,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       throw new IngestException("Could not resolve attribute name [" + attributeName + "]");
     }
 
-    for (int i = 0; i < ids.size(); i++) {
-
-      String id = ids.get(i);
-
-      if (i > 0) {
-        queryBuilder.append(" OR ");
-      }
-
-      queryBuilder.append(mappedNames.get(0)).append(":").append(QUOTE).append(id).append(QUOTE);
-    }
-
-    String query = queryBuilder.toString();
+    String query =
+        ids.stream()
+            .map(id -> mappedNames.get(0) + ":" + QUOTE + id + QUOTE)
+            .collect(Collectors.joining(" OR "));
 
     LOGGER.debug("query = [{}]", query);
 
