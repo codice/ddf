@@ -23,8 +23,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import java.io.IOException;
-import java.util.Arrays;
-import javax.servlet.Filter;
+import java.util.Collections;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -94,8 +93,8 @@ public class CasHandlerTest {
   @Test
   public void testNoPrincipalResolve() throws ServletException, IOException {
     CasHandler handler = createHandler();
-    Filter testFilter = mock(Filter.class);
-    handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
+    AbstractCasFilter testFilter = mock(AbstractCasFilter.class);
+    handler.setProxyFilter(new ProxyFilter(Collections.singletonList(testFilter)));
     HandlerResult result =
         handler.getNormalizedToken(
             createServletRequest(false),
@@ -159,8 +158,8 @@ public class CasHandlerTest {
     STSClientConfiguration clientConfiguration = mock(STSClientConfiguration.class);
     when(clientConfiguration.getAddress()).thenReturn(STS_ADDRESS);
     handler.setClientConfiguration(clientConfiguration);
-    Filter testFilter = mock(Filter.class);
-    handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
+    AbstractCasFilter testFilter = mock(AbstractCasFilter.class);
+    handler.setProxyFilter(new ProxyFilter(Collections.singletonList(testFilter)));
     return handler;
   }
 
