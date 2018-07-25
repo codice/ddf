@@ -73,7 +73,7 @@
                                     <classifier>redirect</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config.config
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.config
                                     </file>
                                     <type>properties</type>
                                     <classifier>catalog-ui-config</classifier>

@@ -78,8 +78,25 @@
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.config"
+            persistent-id="org.codice.ddf.catalog.ui"
             update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.theme"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.hidden"
+            update-strategy="container-managed"/>
+
+        <cm:managed-properties
+            persistent-id="org.codice.ddf.catalog.ui.attribute.descriptions"
+            update-strategy="container-managed"/>
+
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -409,7 +426,7 @@
 
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
         <cm:managed-properties
-            persistent-id="org.codice.ddf.catalog.ui.config"
+            persistent-id="org.codice.ddf.catalog.ui"
             update-strategy="component-managed"
             update-method="refresh"/>
 

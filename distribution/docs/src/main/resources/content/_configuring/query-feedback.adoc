@@ -67,4 +67,4 @@ The following keywords in the templates will be replaced with submission-specifi
 . Add comments in the input box.
 . Select the *Send* button.
 
-See <<{application-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for default Query Feedback configurations.
+See <<{application-prefix}org.codice.ddf.catalog.ui,Catalog UI Search Configurations>> for default Query Feedback configurations.

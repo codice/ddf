@@ -14,7 +14,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui.config">
+    <OCD name="Catalog UI Search" id="org.codice.ddf.catalog.ui">
         <AD id="resultCount"
             name="Result Count"
             description="Specifies the number of results to request from each source."
@@ -62,22 +62,6 @@
             type="String"
             default=""
             required="false"/>
-
-        <AD id="spacingMode"
-            name="Theme Spacing Mode"
-            description="Specifies the default theme spacing mode."
-            type="String"
-            default="comfortable">
-            <Option label="Comfortable" value="comfortable"/>
-            <Option label="Cozy" value="cozy"/>
-            <Option label="Compact" value="compact"/>
-        </AD>
-
-        <AD id="zoomPercentage"
-            name="Theme Zoom"
-            description="Specifies the default theme zoom percentage."
-            type="Integer"
-            default="100"/>
 
         <AD id="timeout"
             name="Connection Timeout"
@@ -234,27 +218,6 @@
             cardinality="10000"
             required="false"/>
 
-        <AD id="attributeAliases"
-            name="Attribute Aliases"
-            description='List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: "title=Title".'
-            type="String"
-            cardinality="10000"
-            required="false"/>
-
-        <AD id="hiddenAttributes"
-            name="Hidden Attributes"
-            description="List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes."
-            type="String"
-            cardinality="10000"
-            default="^sorts$,^cql$,^polling$,^cached$"
-            required="false"/>
-
-        <AD id="attributeDescriptions"
-            name="Attribute Descriptions"
-            description='List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: "checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors".'
-            type="String"
-            cardinality="10000"
-            required="false"/>
 
         <AD id="scheduleFrequencyList"
             name="Query Schedule Frequencies"
@@ -319,72 +282,6 @@
             default="5"
             required="false"/>
 
-        <AD id="theme"
-            name="Theme"
-            description="Specifies the default theme. Custom consists of the colors below."
-            type="String"
-            default="dark">
-            <Option label="Dark" value="dark"/>
-            <Option label="Light" value="light"/>
-            <Option label="Sea" value="sea"/>
-            <Option label="Custom" value="custom"/>
-        </AD>
-
-        <AD id="customPrimaryColor"
-            name="Primary Color"
-            type="String"
-            default="#3c6dd5"/>
-
-        <AD id="customPositiveColor"
-            name="Positive Color"
-            type="String"
-            default="#428442"/>
-
-        <AD id="customNegativeColor"
-            name="Negative Color"
-            type="String"
-            default="#8a423c"/>
-
-        <AD id="customWarningColor"
-            name="Warning Color"
-            type="String"
-            default="#c89600"/>
-
-        <AD id="customFavoriteColor"
-            name="Favorite Color"
-            type="String"
-            default="#d1d179"/>
-
-        <AD id="customBackgroundNavigation"
-            name="Background Navigation Color"
-            type="String"
-            default="#252529"/>
-
-        <AD id="customBackgroundAccentContent"
-            name="Background Accent Content Color"
-            type="String"
-            default="#2A2A2E"/>
-
-        <AD id="customBackgroundDropdown"
-            name="Background Dropdown Color"
-            type="String"
-            default="#35353a"/>
-
-        <AD id="customBackgroundContent"
-            name="Background Content Color"
-            type="String"
-            default="#35353a"/>
-
-        <AD id="customBackgroundModal"
-            name="Background Modal Color"
-            type="String"
-            default="#252529"/>
-
-        <AD id="customBackgroundSlideout"
-            name="Background Slideout Color"
-            type="String"
-            default="#252529"/>
-
         <AD name="Upload Editor: Attribute Configuration" id="attributeEnumMap" required="false" type="String" cardinality="100"
             default=""
             description="List of attributes to show in the upload editor. By default, an attribute
@@ -398,8 +295,8 @@
         </AD>
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.ui.config">
-        <Object ocdref="org.codice.ddf.catalog.ui.config"/>
+    <Designate pid="org.codice.ddf.catalog.ui">
+        <Object ocdref="org.codice.ddf.catalog.ui"/>
     </Designate>
 
 </metatype:MetaData>
