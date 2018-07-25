@@ -31,6 +31,16 @@ const ShapeUtils = require('js/ShapeUtils');
 const minimumDifference = 0.0001;
 const minimumBuffer = 0.000001;
 
+const parseStringToPolygonArray = (stringValue) => {
+    return stringValue
+        .substring('POLYGON(('.length, stringValue.length - '))'.length)
+        .split(',')
+        .map(coord => 
+            coord.split(' ')
+                .map(value => new Number(value))
+        );
+};
+
 module.exports = Marionette.LayoutView.extend({
     template: () => `<div class="location-input"></div>`,
     tagName: CustomElements.register('location-old'),
@@ -130,7 +140,6 @@ module.exports = Marionette.LayoutView.extend({
                 case 'MULTIPOLYGON':
                 case 'POLYGON':
                     this.handlePolygonDeserialization(filter);
-                    wreqr.vent.trigger('search:polydisplay', this.model);
                     break;
                 case 'POINTRADIUS':
                     this.model.set({
@@ -154,10 +163,13 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     handlePolygonDeserialization(filter) {
+        const polygonArray = (filter.value && filter.value.value && parseStringToPolygonArray(filter.value.value)) || [];
+        const bufferWidth = filter.polygonBufferWidth || filter.distance;
+
         this.model.set({
             mode: 'poly',
-            polygon: filter.polygon,
-            ...(filter.polygonBufferWidth && {polygonBufferWidth: filter.polygonBufferWidth})
+            polygon: filter.polygon || polygonArray,
+            ...(bufferWidth && {polygonBufferWidth: bufferWidth})
         });
         wreqr.vent.trigger('search:polydisplay', this.model);
     },
