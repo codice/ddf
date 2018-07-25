@@ -20,6 +20,60 @@
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <repository>mvn:io.fabric8/fabric8-karaf-features/${fabric8.version}/xml/features</repository>
 
+    <!-- This feature was copied from the pax-web-features features.xml file (version 6.0.6) and adapted to update the
+    jetty version. It replaces a feature provided by karafs version of pax-web, which has been disabled in blacklisted.properties.
+    When karaf is upgraded, this will need to be replaced to match the feature in the new pax-web version.-->
+    <feature name="pax-jetty" description="Provide Jetty engine support" version="${jetty.version}">
+        <bundle dependency="true" start-level="30">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/2.5.0</bundle>
+        <bundle dependency="true" start-level="30">mvn:javax.servlet/javax.servlet-api/3.1.0</bundle>
+        <bundle dependency="true" start-level="30">mvn:javax.mail/mail/1.4.4</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle dependency="true" start-level="30">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.geronimo.specs/geronimo-jaspic_1.0_spec/1.1</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.ow2.asm/asm-all/5.0.2</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.aries.spifly/org.apache.aries.spifly.dynamic.bundle/1.0.2</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.aries/org.apache.aries.util/1.1.0</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-continuation/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-http/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-io/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jaspi/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-plus/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jndi/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-rewrite/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-security/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-server/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-servlet/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-servlets/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-util/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-util-ajax/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-webapp/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jaas/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-xml/${jetty.version}</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-client/${jetty.version}</bundle>
+
+        <conditional>
+            <condition>management</condition>
+            <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jmx/${jetty.version}</bundle>
+        </conditional>
+        <conditional>
+            <condition>pax-http-whiteboard</condition>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/websocket-server/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/websocket-client/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/websocket-common/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/websocket-servlet/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/websocket-api/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/javax-websocket-server-impl/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:org.eclipse.jetty.websocket/javax-websocket-client-impl/${jetty.version}</bundle>
+            <bundle start-level="30">mvn:javax.websocket/javax.websocket-api/1.1</bundle>
+        </conditional>
+
+        <capability>
+            pax.http.provider;provider:=jetty,
+            osgi.contract;osgi.contract=JavaServlet;version:Version="3.1.0";uses:="javax.servlet,javax.servlet.http,javax.servlet.descriptor,javax.servlet.annotation",
+            osgi.contract;osgi.contract=JavaWebSockets;version:Version="1";uses:="javax.websocket, javax.websocket.server"
+        </capability>
+    </feature>
+
     <feature name="kernel" version="${project.version}"
              description="Minimual set of features and dependencies commonly used.">
         <feature version="${karaf.version}">standard</feature>
