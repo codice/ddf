@@ -41,3 +41,25 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "/test/some/monitored/directory", "read";
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
+
+//                        URL Resource Reader Permissions
+// Adding required permissions for the URL Resource Reader to retrieve file resources.
+//
+//
+// Configuring the URL Resource Reader requires adding read permissions to the directory being read from.
+// For the following 2 permissions are required:
+//   1. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
+//   2. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read";
+// Replacing <DIRECTORY_PATH> with the path of the directory containing file resources.
+//
+// Line 1 gives the URL Resource Reader the permissions to read from the directory. Line 2 gives the
+// Resource Reader the permissions to recursively read from the directory path, specified
+// by the directory path's suffix "${/}-".
+//
+grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+    // Add required URL Resource Reader permissions here.
+
+    // Example:
+    // permission java.io.FilePermission "/test/some/directory", "read";
+    // permission java.io.FilePermission "/test/some/directory${/}-", "read";
+}
