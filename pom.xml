@@ -87,7 +87,8 @@
         <!--  ################################################################################  -->
         <!--                                    IMPORTANT                                       -->
         <!--  ################################################################################  -->
-        <!-- If you upgrade Karaf, check if they upgraded felix config admin. If they did:
+        <!-- If you upgrade Karaf: -->
+        <!-- Check if they upgraded felix config admin. If they did:
             1. The ConfigurationManager class in platform-osgi-configadmin needs to be updated
                to the latest version, with our small change added back on afterwards. See the
                commit history of that file for a clear picture of what this change consists of.
@@ -99,6 +100,11 @@
                module. Use the contents of that for OUR version of startup.properties, but don't
                forget to replace the felix config admin bundle with OUR platform-osgi-configadmin
                bundle if you copy-pasted. -->
+        <!-- Check features/kernel/.../feature.xml and blacklisted.properties to see if we are
+               overriding karafs version of jetty. To use the karaf provided version of jetty,
+               just remove the overriding feature and blacklist entry. To use a different version
+               of jetty, the overriding feature will need to be replaced and the blacklist entry
+               updated to disable karafs jetty version.-->
         <karaf.version>4.1.2</karaf.version>
         <!-- There is a problem with version 4.1.2 of the karaf-maven-plugin for projects of type feature -->
         <karaf.plugin.version>4.1.3</karaf.plugin.version>
@@ -143,7 +149,7 @@
         <lux.woodstox.version>4.1.1</lux.woodstox.version>
         <commons-codec.version>1.11</commons-codec.version>
         <spring.version>4.3.10.RELEASE</spring.version>
-        <jetty.version>9.3.14.v20161028</jetty.version>
+        <jetty.version>9.3.24.v20180605</jetty.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <pax.web.version>6.0.9</pax.web.version>
         <validation.version>1.1.0.Final</validation.version>
