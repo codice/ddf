@@ -42,3 +42,19 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "/test/some/monitored/directory", "read";
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
+
+//                       Security-Hardening: Backup Log File Permissions
+//  Adding required permissions to the logger for read and write access to modified backup log files
+//
+//  If you want to change the default location of the backup security log files, add a new permission
+//  allowing the logger to create and modify the files within the new directory.
+//  If you haven't already done so, follow the Enabling Fallback Audit Logging steps in the security hardening
+//  checklist to finish configuring backup logging
+//
+grant codeBase "file:/pax-logging-log4j2" {
+    //  Add required permissions here.
+
+    //  Example:
+    //  permission java.io.FilePermission "/the/new/log/directory/-", "read, write";
+    //  permission java.io.FilePermission "/the/new/log/directory", "read, write";
+}
