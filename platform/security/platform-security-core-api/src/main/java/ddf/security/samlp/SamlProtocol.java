@@ -377,6 +377,7 @@ public class SamlProtocol {
       String entityId,
       String signingCert,
       String encryptionCert,
+      List<String> nameIds,
       String singleLogOutLocation,
       String assertionConsumerServiceLocationRedirect,
       String assertionConsumerServiceLocationPost,
@@ -408,6 +409,12 @@ public class SamlProtocol {
     encKeyInfo.getX509Datas().add(encX509Data);
     encKeyDescriptor.setKeyInfo(encKeyInfo);
     spSsoDescriptor.getKeyDescriptors().add(encKeyDescriptor);
+
+    for (String nameId : nameIds) {
+      NameIDFormat nameIDFormat = nameIdFormatBuilder.buildObject();
+      nameIDFormat.setFormat(nameId);
+      spSsoDescriptor.getNameIDFormats().add(nameIDFormat);
+    }
 
     addSingleLogoutLocation(singleLogOutLocation, spSsoDescriptor.getSingleLogoutServices());
 

@@ -31,11 +31,11 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.solr.client.solrj.SolrClient;
@@ -255,11 +255,12 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static void createSolrCore(
-      String url, String coreName, String configFileName, HttpClient httpClient)
+      String url, String coreName, String configFileName, CloseableHttpClient httpClient)
       throws IOException, SolrServerException {
 
-    try (HttpSolrClient client =
-        (httpClient != null ? new HttpSolrClient(url, httpClient) : new HttpSolrClient(url))) {
+    try (CloseableHttpClient closeableHttpClient = httpClient; // to make sure it gets closed
+        HttpSolrClient client =
+            (httpClient != null ? new HttpSolrClient(url, httpClient) : new HttpSolrClient(url))) {
 
       HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));
       if (ping != null && ping.getStatusLine().getStatusCode() == 200) {

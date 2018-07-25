@@ -82,13 +82,22 @@ const WMT = async (opts) => {
 }
 
 const AGM = (opts) => {
-    const { url } = opts
-    if (url && url.indexOf('/tile/{z}/{y}/{x}') === -1) {
-        return createTile({ ...opts,
-            url: url + '/tile/{z}/{y}/{x}'
-        });
+    // We strip the template part of the url because we will manually format
+    // it in the `tileUrlFunction` function.
+   const url = opts.url.replace('/tile/{z}/{y}/{x}', '');
+
+   // arcgis url format:
+   //      http://<mapservice-url>/tile/<level>/<row>/<column>
+   //
+   // reference links:
+   //  - https://openlayers.org/en/latest/examples/xyz-esri-4326-512.html
+   //  - https://developers.arcgis.com/rest/services-reference/map-tile.htm
+   const tileUrlFunction = (tileCoord) => {
+        const [z, x, y] = tileCoord;
+        return `${url}/tile/${z - 1}/${-y - 1}/${x}`;
     }
-    return createTile(opts, ol.source.XYZ);
+
+    return createTile({ ...opts, tileUrlFunction }, ol.source.XYZ);
 }
 
 const SI = (opts) => {

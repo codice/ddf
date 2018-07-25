@@ -43,11 +43,18 @@ public class TestPlatform extends AbstractIntegrationTest {
           HTTPS_PORT,
           "/admin/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
 
+  private static final DynamicUrl REPORT_GENERATION_URL =
+      new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/services/internal/metrics/report.xls");
+
+  public static final String ADMIN = "admin";
+
   @BeforeExam
   public void beforeTest() throws Exception {
     try {
       waitForSystemReady();
       // Start the services needed for testing.
+      getServiceManager().startFeature(true, "metrics-reporting");
+      getServiceManager().waitForAllBundles();
       // We need to start the Search UI to test that it redirects properly
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
@@ -61,7 +68,7 @@ public class TestPlatform extends AbstractIntegrationTest {
         given()
             .auth()
             .preemptive()
-            .basic("admin", "admin")
+            .basic(ADMIN, ADMIN)
             .header("X-Requested-With", "XMLHttpRequest")
             .header("Origin", LOGGING_SERVICE_JOLOKIA_URL.getUrl())
             .expect()
@@ -69,11 +76,7 @@ public class TestPlatform extends AbstractIntegrationTest {
             .when()
             .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
 
-    final String bodyString = response.getBody().asString();
-    assertThat(
-        String.format("The response body from %s should not be empty", LOGGING_SERVICE_JOLOKIA_URL),
-        bodyString,
-        not(isEmptyString()));
+    String bodyString = checkResponseBody(response, LOGGING_SERVICE_JOLOKIA_URL);
 
     final List events = JsonPath.given(bodyString).get("value");
     final Map firstEvent = (Map) events.get(0);
@@ -85,5 +88,29 @@ public class TestPlatform extends AbstractIntegrationTest {
             LOGGING_SERVICE_JOLOKIA_URL, unknownLevel),
         levelOfFirstEvent,
         not(equalTo(unknownLevel)));
+  }
+
+  @Test
+  public void testPlatformMetricsReportGeneration() {
+    Response response =
+        given()
+            .auth()
+            .preemptive()
+            .basic(ADMIN, ADMIN)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get(REPORT_GENERATION_URL.getUrl());
+
+    checkResponseBody(response, REPORT_GENERATION_URL);
+  }
+
+  private String checkResponseBody(Response response, DynamicUrl url) {
+    final String bodyString = response.getBody().asString();
+    assertThat(
+        String.format("The response body from %s should not be empty", url),
+        bodyString,
+        not(isEmptyString()));
+    return bodyString;
   }
 }

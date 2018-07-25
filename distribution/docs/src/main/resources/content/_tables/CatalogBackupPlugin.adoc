@@ -19,7 +19,7 @@
 |Root backup directory path
 |rootBackupDir
 |String
-|Root backup directory for Metacards. A relative path is relative to ddf.home.
+|Root backup directory for Metacards. A relative path is relative to ${home_directory}.
 |data/backup
 |true
 

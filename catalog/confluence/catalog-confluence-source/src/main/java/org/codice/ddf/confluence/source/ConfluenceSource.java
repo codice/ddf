@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.confluence.source;
 
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -41,17 +43,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -111,15 +119,19 @@ public class ConfluenceSource extends MaskableImpl
 
   private Map<String, Set<String>> attributeOverrides = new HashMap<>();
 
+  private AttributeRegistry attributeRegistry;
+
   public ConfluenceSource(
       FilterAdapter adapter,
       EncryptionService encryptionService,
       ConfluenceInputTransformer transformer,
-      ResourceReader reader) {
+      ResourceReader reader,
+      AttributeRegistry attributeRegistry) {
     this.filterAdapter = adapter;
     this.encryptionService = encryptionService;
     this.transformer = transformer;
     this.resourceReader = reader;
+    this.attributeRegistry = attributeRegistry;
   }
 
   public void init() {
@@ -129,12 +141,10 @@ public class ConfluenceSource extends MaskableImpl
 
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
       SecurityLogger.audit("Setting up confluence client for user {}", username);
-      factory =
-          new SecureCxfClientFactory<SearchResource>(
-              endpointUrl, SearchResource.class, username, password);
+      factory = new SecureCxfClientFactory<>(endpointUrl, SearchResource.class, username, password);
     } else {
       SecurityLogger.audit("Setting up confluence client for anonymous access");
-      factory = new SecureCxfClientFactory<SearchResource>(endpointUrl, SearchResource.class);
+      factory = new SecureCxfClientFactory<>(endpointUrl, SearchResource.class);
     }
   }
 
@@ -149,7 +159,7 @@ public class ConfluenceSource extends MaskableImpl
   }
 
   @Override
-  public boolean isAvailable() {
+  public synchronized boolean isAvailable() {
     boolean isAvailable = false;
     if (!lastAvailable
         || (lastAvailableDate.before(
@@ -174,18 +184,22 @@ public class ConfluenceSource extends MaskableImpl
       isAvailable = lastAvailable;
     }
 
-    if (lastAvailable != isAvailable) {
+    updateMonitors(isAvailable);
+
+    lastAvailable = isAvailable;
+    return isAvailable;
+  }
+
+  private void updateMonitors(boolean newAvailability) {
+    if (lastAvailable != newAvailability) {
       for (SourceMonitor monitor : this.sourceMonitors) {
-        if (isAvailable) {
+        if (newAvailability) {
           monitor.setAvailable();
         } else {
           monitor.setUnavailable();
         }
       }
     }
-
-    lastAvailable = isAvailable;
-    return isAvailable;
   }
 
   @Override
@@ -257,7 +271,7 @@ public class ConfluenceSource extends MaskableImpl
               .collect(Collectors.toList());
 
       return new SourceResponseImpl(request, results);
-    } catch (IOException | CatalogTransformerException e) {
+    } catch (CatalogTransformerException e) {
       throw new UnsupportedQueryException("Exception processing results from Confluence");
     }
   }
@@ -351,15 +365,74 @@ public class ConfluenceSource extends MaskableImpl
 
   private Result getUpdatedResult(Metacard metacard) {
     metacard.setSourceId(this.getId());
-    for (Map.Entry<String, Set<String>> entry : attributeOverrides.entrySet()) {
-      Set<String> value = entry.getValue();
-      if (value.size() == 1) {
-        metacard.setAttribute(new AttributeImpl(entry.getKey(), value.iterator().next()));
-      } else {
-        metacard.setAttribute(new AttributeImpl(entry.getKey(), new ArrayList<String>(value)));
+    overrideAttributes(metacard, attributeOverrides);
+
+    return new ResultImpl(metacard);
+  }
+
+  private void overrideAttributes(Metacard metacard, Map<String, Set<String>> attributeOverrides) {
+    if (MapUtils.isEmpty(attributeOverrides)) {
+      return;
+    }
+
+    attributeOverrides
+        .keySet()
+        .stream()
+        .map(attributeRegistry::lookup)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(ad -> overrideAttributeValue(ad, attributeOverrides.get(ad.getName())))
+        .filter(Objects::nonNull)
+        .forEach(metacard::setAttribute);
+  }
+
+  private AttributeImpl overrideAttributeValue(
+      AttributeDescriptor attributeDescriptor, Set<String> overrideValue) {
+    List<Serializable> newValue = new ArrayList<>();
+    for (String override : overrideValue) {
+      try {
+        switch (attributeDescriptor.getType().getAttributeFormat()) {
+          case INTEGER:
+            newValue.add(Integer.parseInt(override));
+            break;
+          case FLOAT:
+            newValue.add(Float.parseFloat(override));
+            break;
+          case DOUBLE:
+            newValue.add(Double.parseDouble(override));
+            break;
+          case SHORT:
+            newValue.add(Short.parseShort(override));
+            break;
+          case LONG:
+            newValue.add(Long.parseLong(override));
+            break;
+          case DATE:
+            Calendar calendar = DatatypeConverter.parseDateTime(override);
+            newValue.add(calendar.getTime());
+            break;
+          case BOOLEAN:
+            newValue.add(Boolean.parseBoolean(override));
+            break;
+          case BINARY:
+            newValue.add(override.getBytes(Charset.forName("UTF-8")));
+            break;
+          case OBJECT:
+          case STRING:
+          case GEOMETRY:
+          case XML:
+            newValue.add(override);
+            break;
+        }
+      } catch (IllegalArgumentException e) {
+        LOGGER.debug(
+            "IllegalArgument value [{}] for attribute type [{}] found when performing overrides for [{}]",
+            override,
+            attributeDescriptor.getType().getAttributeFormat(),
+            attributeDescriptor.getName());
       }
     }
-    return new ResultImpl(metacard);
+    return new AttributeImpl(attributeDescriptor.getName(), newValue);
   }
 
   private String getSortedQuery(SortBy sort, String query) {

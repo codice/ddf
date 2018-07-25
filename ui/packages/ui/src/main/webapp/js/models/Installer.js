@@ -47,8 +47,8 @@ define([
   };
 
   Installer.Model = Backbone.Model.extend({
-    installUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
-    uninstallUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
+    installUrl: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/',
+    uninstallUrl: '/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/',
     shutdownUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
     propertiesUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
     restartUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
@@ -131,12 +131,12 @@ define([
       wreqr.vent.trigger('modulePoller:stop');
       return $.ajax({
         type: 'GET',
-        url: that.uninstallUrl + 'admin-modules-installer/true',
+        url: that.uninstallUrl + 'admin-modules-installer',
         dataType: 'JSON'
       }).then(function () {
         return $.ajax({
           type: 'GET',
-          url: that.installUrl + 'admin-post-install-modules/true',
+          url: that.installUrl + 'admin-post-install-modules',
           dataType: 'JSON'
         }).then(function () {
           if (restart) {

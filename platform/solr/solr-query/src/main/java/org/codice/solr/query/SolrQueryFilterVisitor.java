@@ -71,10 +71,10 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   // Since this FilterVisitor is used across multiple Solr cores and this cache map
   // is static, the key must be able to distinguish values that may have the same property name
   // in multiple cores.
-  private static Map<String, SchemaField> schemaFieldsCache = new HashMap<String, SchemaField>();
+  private static Map<String, SchemaField> schemaFieldsCache = new HashMap<>();
 
   static {
-    Map<String, String> tempMap = new HashMap<String, String>();
+    Map<String, String> tempMap = new HashMap<>();
     tempMap.put("anyText", TOKENIZED_METADATA_FIELD);
     tempMap.put("anyGeo", "location" + SPATIAL_INDEX);
     FIELD_MAP = Collections.unmodifiableMap(tempMap);
@@ -85,7 +85,11 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   private String solrCoreName;
 
   public SolrQueryFilterVisitor(SolrClient client, String solrCoreName) {
-    schemaFieldResolver = new SchemaFieldResolver(client);
+    this(solrCoreName, new SchemaFieldResolver(client));
+  }
+
+  public SolrQueryFilterVisitor(String solrCoreName, SchemaFieldResolver schemaFieldResolver) {
+    this.schemaFieldResolver = schemaFieldResolver;
     this.solrCoreName = solrCoreName;
   }
 
@@ -178,13 +182,13 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   }
 
   String getMappedPropertyName(String propertyName) {
-    String mappedPropertyName = null;
+    String mappedPropertyName;
 
     // propertyName will not have the suffix. Field names (the keys) in the fieldsInfo map
     // will have the suffix and the variations on the property name, e.g., for propertyName="user"
     // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and
     // "user_txt_tokenized_has_case"
-    SchemaField schemaField = null;
+    SchemaField schemaField;
     String cacheKey = solrCoreName + "." + propertyName;
     if (schemaFieldsCache.containsKey(cacheKey)) {
       LOGGER.debug("Getting SchemaField for propertyName {} from cache", propertyName);
@@ -192,7 +196,9 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     } else {
       LOGGER.debug("Using SchemaFieldResolver for propertyName {}", propertyName);
       schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
-      schemaFieldsCache.put(cacheKey, schemaField);
+      if (schemaField != null) {
+        schemaFieldsCache.put(cacheKey, schemaField);
+      }
     }
 
     if (schemaField != null) {
@@ -213,18 +219,12 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
   private String getMappedPropertyName(
       String propertyName, AttributeFormat format, boolean isSearchedAsExactString) {
-    //        if (propertyName == null) {
-    //            throw new UnsupportedOperationException("Property name should not be null.");
-    //        }
-
     String specialField = FIELD_MAP.get(propertyName);
     if (specialField != null) {
       return specialField;
     }
 
-    String mappedPropertyName = getField(propertyName, format, isSearchedAsExactString);
-
-    return mappedPropertyName;
+    return getField(propertyName, format, isSearchedAsExactString);
   }
 
   private String escapeSpecialCharacters(String searchPhrase) {
@@ -235,30 +235,9 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
   public String getField(
       String propertyName, AttributeFormat format, boolean isSearchedAsExactValue) {
 
-    String fieldName =
-        propertyName
-            + schemaFieldResolver.getFieldSuffix(format)
-            + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
-
-    //        if (fieldsCache.contains(fieldName)) {
-    //            return fieldName;
-    //        }
-    //
-    //        switch (format) {
-    //        case DOUBLE:
-    //        case LONG:
-    //        case INTEGER:
-    //        case SHORT:
-    //        case FLOAT:
-    //            return findAnyMatchingNumericalField(propertyName);
-    //        default:
-    //            break;
-    //        }
-    //
-    //        LOGGER.info("Could not find exact schema field name for [{}], attempting to search
-    // with [{}]", propertyName, fieldName);
-
-    return fieldName;
+    return propertyName
+        + schemaFieldResolver.getFieldSuffix(format)
+        + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
   }
 
   protected String getSpecialIndexSuffix(AttributeFormat format) {

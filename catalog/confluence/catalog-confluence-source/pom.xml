@@ -35,6 +35,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
@@ -138,11 +142,11 @@
                             security-rest-cxfwrapper,
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
+                            platform-util,
                             commons-lang3,
                             security-core-impl
                         </Embed-Dependency>
                         <Import-Package>
-                            !org.codice.ddf.platform.util,
                             !org.codice.ddf.platform.util.http,
                             !com.sun.management,
                             *

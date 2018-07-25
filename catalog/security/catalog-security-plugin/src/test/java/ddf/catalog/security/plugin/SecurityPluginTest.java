@@ -22,6 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -38,6 +39,7 @@ import ddf.security.assertion.SecurityAssertion;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -219,6 +221,34 @@ public class SecurityPluginTest {
     SecurityPlugin plugin = new SecurityPlugin(subjectIdentity);
     request = plugin.processPreCreate(request);
     assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(null));
+  }
+
+  @Test
+  public void testMetacardPointOfContactNotOverridden() {
+    Subject mockSubject = setupMockSubject();
+    ThreadContext.bind(mockSubject);
+
+    MetacardImpl metacardWithPoc = new MetacardImpl();
+    metacardWithPoc.setTags(Collections.emptySet());
+    metacardWithPoc.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT, "originalPoc"));
+
+    MetacardImpl metacardWithNoPoc = new MetacardImpl();
+    metacardWithNoPoc.setTags(Collections.emptySet());
+
+    CreateRequest request =
+        new CreateRequestImpl(Arrays.asList(metacardWithPoc, metacardWithNoPoc));
+    SecurityPlugin plugin = new SecurityPlugin(subjectIdentity);
+
+    request = plugin.processPreCreate(request);
+
+    assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(mockSubject));
+    assertThat(request.getMetacards().size(), is(2));
+    assertThat(
+        request.getMetacards().get(0).getAttribute(Metacard.POINT_OF_CONTACT).getValue(),
+        equalTo("originalPoc"));
+    assertThat(
+        request.getMetacards().get(1).getAttribute(Metacard.POINT_OF_CONTACT).getValue(),
+        equalTo(TEST_USER));
   }
 
   private Subject setupMockSubject() {

@@ -100,11 +100,11 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
   private String getBundledFFmpegBinaryPath() {
     if (SystemUtils.IS_OS_LINUX) {
-      return "linux/ffmpeg";
+      return "linux/ffmpeg-4.0";
     } else if (SystemUtils.IS_OS_MAC) {
-      return "osx/ffmpeg";
+      return "osx/ffmpeg-4.0";
     } else if (SystemUtils.IS_OS_WINDOWS) {
-      return "windows/ffmpeg.exe";
+      return "windows/ffmpeg-4.0.exe";
     } else {
       throw new IllegalStateException(
           "OS is not Linux, Mac, or Windows."

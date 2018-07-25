@@ -145,6 +145,7 @@ public class SamlProtocolTest {
             "myid",
             "mysigningcert",
             "myencryptioncert",
+            Arrays.asList("mynameid"),
             "logoutlocation",
             "redirectlocation",
             "postlocation",
@@ -174,6 +175,13 @@ public class SamlProtocolTest {
             .getX509Certificates()
             .get(0)
             .getValue());
+    assertEquals(
+        "mynameid",
+        entityDescriptor
+            .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+            .getNameIDFormats()
+            .get(0)
+            .getFormat());
     assertEquals(
         "logoutlocation",
         entityDescriptor

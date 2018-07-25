@@ -18,6 +18,7 @@ import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -86,6 +88,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private final ConfigurationAdmin configAdmin;
 
+  private final FeaturesService featuresService;
+
   private ObjectName objectName;
 
   private MBeanServer mBeanServer;
@@ -107,11 +111,15 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    *     objects.
    */
   public ApplicationServiceBean(
-      ApplicationService appService, ConfigurationAdmin configAdmin, MBeanServer mBeanServer)
+      ApplicationService appService,
+      ConfigurationAdmin configAdmin,
+      MBeanServer mBeanServer,
+      FeaturesService featuresService)
       throws ApplicationServiceException {
     this.appService = appService;
     this.configAdmin = configAdmin;
     this.mBeanServer = mBeanServer;
+    this.featuresService = featuresService;
     try {
       objectName =
           new ObjectName(ApplicationService.class.getName() + ":service=application-service");
@@ -171,36 +179,82 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   @Override
-  public List<Map<String, Object>> getInstallationProfiles() {
-    List<Feature> installationProfiles = appService.getInstallationProfiles();
-    List<Map<String, Object>> profiles = new ArrayList<>();
-
-    for (Feature profile : installationProfiles) {
-      Map<String, Object> profileMap = new HashMap<>();
-      profileMap.put(INSTALL_PROFILE_NAME, profile.getName());
-      profileMap.put(INSTALL_PROFILE_DESCRIPTION, profile.getDescription());
-
-      List<String> includedFeatures = new ArrayList<>();
-      profile.getDependencies().forEach(dep -> includedFeatures.add(dep.getName()));
-      profileMap.put(INSTALL_PROFILE_DEFAULT_APPLICATIONS, includedFeatures);
-
-      profiles.add(profileMap);
+  public void installFeature(String feature) {
+    try {
+      featuresService.installFeature(
+          feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.error(
+          "Could not start feature: {}. Refer to documentation for additional features that must be installed for this feature to install correctly.",
+          feature,
+          e);
+      throw new ApplicationServiceBeanException("Could not start profile feature: " + feature);
     }
+  }
 
-    return profiles;
+  @Override
+  public void uninstallFeature(String feature) {
+    try {
+      featuresService.uninstallFeature(
+          feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.error(
+          "Could not uninstall feature: {}. Refer to documentation for additional features that must be uninstalled before this feature can properly uninstall.",
+          feature,
+          e);
+      throw new ApplicationServiceBeanException("Could not start profile feature: " + feature);
+    }
+  }
+
+  @Override
+  public List<Map<String, Object>> getInstallationProfiles() {
+    try {
+      List<Feature> installationProfiles = appService.getInstallationProfiles();
+      List<Map<String, Object>> profiles = new ArrayList<>();
+
+      for (Feature profile : installationProfiles) {
+        Map<String, Object> profileMap = new HashMap<>();
+        profileMap.put(INSTALL_PROFILE_NAME, profile.getName());
+        profileMap.put(INSTALL_PROFILE_DESCRIPTION, profile.getDescription());
+
+        List<String> includedFeatures = new ArrayList<>();
+        profile.getDependencies().forEach(dep -> includedFeatures.add(dep.getName()));
+        profileMap.put(INSTALL_PROFILE_DEFAULT_APPLICATIONS, includedFeatures);
+
+        profiles.add(profileMap);
+      }
+      return profiles;
+
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.info("Could not retrieve installation profiles", e);
+      throw new ApplicationServiceBeanException("Could not retrieve installation profiles");
+    }
   }
 
   @Override
   public List<Map<String, Object>> getApplications() {
-    return appService
-        .getApplications()
-        .stream()
-        .filter(
-            app ->
-                !getPluginsForApplication(app.getName()).isEmpty()
-                    || !getServices(app.getName()).isEmpty())
-        .map(this::convertApplicationEntries)
-        .collect(Collectors.toList());
+    try {
+      return appService
+          .getApplications()
+          .stream()
+          .filter(
+              app ->
+                  !getPluginsForApplication(app.getName()).isEmpty()
+                      || !getServices(app.getName()).isEmpty())
+          .map(this::convertApplicationEntries)
+          .collect(Collectors.toList());
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.info("Could not retrieve applications", e);
+      throw new ApplicationServiceBeanException("Could not retrieve applications");
+    }
   }
 
   private Map<String, Object> convertApplicationEntries(Application application) {
@@ -220,37 +274,44 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   /** {@inheritDoc}. */
   @Override
   public List<Map<String, Object>> getServices(String applicationID) {
-    List<Service> services =
-        configAdmin.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+    try {
+      List<Service> services =
+          configAdmin.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
 
-    if (services.isEmpty()) {
-      return Collections.emptyList();
+      if (services.isEmpty()) {
+        return Collections.emptyList();
+      }
+
+      Set<BundleInfo> bundleInfos = getBundleInfosForApplication(applicationID);
+      if (bundleInfos == null) {
+        return Collections.emptyList();
+      }
+
+      Set<String> bundleLocations =
+          bundleInfos.stream().map(BundleInfo::getLocation).collect(Collectors.toSet());
+
+      MetaTypeService metatypeService = getMetaTypeService();
+      Set<MetaTypeInformation> metatypeInformation =
+          (metatypeService == null)
+              ? Collections.emptySet()
+              : Arrays.stream(getContext().getBundles())
+                  .filter(b -> bundleLocations.contains(computeLocation(b)))
+                  .map(metatypeService::getMetaTypeInformation)
+                  .collect(Collectors.toSet());
+
+      return services
+          .stream()
+          .filter(
+              service ->
+                  hasBundleLocation(service, bundleLocations)
+                      || hasMetatypesForService(service, metatypeInformation))
+          .collect(Collectors.toList());
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.info("Could not retrieve services", e);
+      throw new ApplicationServiceBeanException("Could not retrieve services");
     }
-
-    Set<BundleInfo> bundleInfos = getBundleInfosForApplication(applicationID);
-    if (bundleInfos == null) {
-      return Collections.emptyList();
-    }
-
-    Set<String> bundleLocations =
-        bundleInfos.stream().map(BundleInfo::getLocation).collect(Collectors.toSet());
-
-    MetaTypeService metatypeService = getMetaTypeService();
-    Set<MetaTypeInformation> metatypeInformation =
-        (metatypeService == null)
-            ? Collections.emptySet()
-            : Arrays.stream(getContext().getBundles())
-                .filter(b -> bundleLocations.contains(computeLocation(b)))
-                .map(metatypeService::getMetaTypeInformation)
-                .collect(Collectors.toSet());
-
-    return services
-        .stream()
-        .filter(
-            service ->
-                hasBundleLocation(service, bundleLocations)
-                    || hasMetatypesForService(service, metatypeInformation))
-        .collect(Collectors.toList());
   }
 
   /**
@@ -365,7 +426,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   @Override
   public List<Map<String, Object>> getAllFeatures() {
-    return getFeatureMap(appService.getAllFeatures());
+    try {
+      return getFeatureMap(appService.getAllFeatures());
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.error("Could not retrieve features. Restarting the system may resolve this.", e);
+      throw new ApplicationServiceBeanException("Could not get all features");
+    }
   }
 
   private List<Map<String, Object>> getFeatureMap(List<FeatureDetails> featureViews) {
@@ -409,15 +477,20 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   /** {@inheritDoc}. */
   @Override
   public List<Map<String, Object>> getPluginsForApplication(String appName) {
-    List<Map<String, Object>> returnValues = new ArrayList<>();
-
-    for (ApplicationPlugin plugin : applicationPlugins) {
-      if (plugin.matchesAssocationName(appName)) {
-        returnValues.add(plugin.toJSON());
+    try {
+      List<Map<String, Object>> returnValues = new ArrayList<>();
+      for (ApplicationPlugin plugin : applicationPlugins) {
+        if (plugin.matchesAssocationName(appName)) {
+          returnValues.add(plugin.toJSON());
+        }
       }
+      return returnValues;
+    } catch (VirtualMachineError e) {
+      throw e;
+    } catch (Throwable e) {
+      LOGGER.info("Could not retrieve plugins for application", e);
+      throw new ApplicationServiceBeanException("Could not get plugins for application");
     }
-
-    return returnValues;
   }
 
   /**
@@ -431,5 +504,21 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private static String computeLocation(Bundle bundle) {
     return BUNDLE_LOCATIONS.computeIfAbsent(bundle.getBundleId(), id -> bundle.getLocation());
+  }
+
+  /**
+   * Exception to throw to ensure Jolokia registers an error. Also clears the stacktrace so details
+   * do not leak to the UI.
+   */
+  private class ApplicationServiceBeanException extends RuntimeException {
+    public ApplicationServiceBeanException(
+        String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+      super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    ApplicationServiceBeanException(String message) {
+      super(message, null, false, false);
+      this.setStackTrace(new StackTraceElement[0]);
+    }
   }
 }

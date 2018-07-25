@@ -14,10 +14,20 @@
 package org.codice.ddf.confluence.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeInjector;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Contact;
@@ -26,10 +36,10 @@ import ddf.catalog.transform.CatalogTransformerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -42,7 +52,20 @@ public class ConfluenceInputTransformerTest {
 
   @Before
   public void setup() {
-    transformer = new ConfluenceInputTransformer(new MetacardTypeImpl("confluence", (List) null));
+    AttributeInjector injector = mock(AttributeInjector.class);
+    when(injector.injectAttributes(any(MetacardType.class)))
+        .thenReturn(
+            new MetacardTypeImpl(
+                "confluence",
+                MetacardImpl.BASIC_METACARD,
+                Collections.singleton(
+                    new AttributeDescriptorImpl(
+                        "injected.attribute", true, true, true, false, BasicTypes.STRING_TYPE))));
+    transformer =
+        new ConfluenceInputTransformer(
+            new MetacardTypeImpl(
+                "confluence", MetacardImpl.BASIC_METACARD.getAttributeDescriptors()),
+            Collections.singletonList(injector));
   }
 
   @Test
@@ -63,7 +86,8 @@ public class ConfluenceInputTransformerTest {
   public void testPageTransformWithoutRestrictionInfo() throws Exception {
     String fileContent = getFileContent("confluence_page_no_restrictions.json");
     InputStream stream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8));
-    validatePageMetacard(transformer.transform(stream), null, "https://myconfluence/wiki", false);
+    validatePageMetacard(
+        transformer.transform(stream), null, "https://codice.atlassian.net/wiki", false);
   }
 
   @Test
@@ -85,8 +109,9 @@ public class ConfluenceInputTransformerTest {
     assertThat(mcard.getId(), equalTo("att1182017"));
     assertThat(mcard.getTitle(), equalTo("ddf-eclipse-code-formatter.xml"));
     assertThat(
-        mcard.getAttribute(Associations.EXTERNAL).getValues().get(0).toString(),
-        equalTo("/spaces/DDF"));
+        mcard.getAttribute(Associations.EXTERNAL).getValues(),
+        contains(
+            "https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code?preview=%2F1179681%2F1182017%2Fddf-eclipse-code-formatter.xml"));
     assertThat(mcard.getCreatedDate(), is(getDate("2013-09-18T14:44:04.892-07:00")));
     assertThat(mcard.getModifiedDate(), is(getDate("2013-09-18T14:50:42.655-07:00")));
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue().toString(), equalTo("user"));
@@ -94,7 +119,7 @@ public class ConfluenceInputTransformerTest {
     assertThat(
         mcard.getAttribute(Metacard.RESOURCE_URI).getValue().toString(),
         equalTo(
-            "/download/attachments/1179681/ddf-eclipse-code-formatter.xml?version=1&modificationDate=1379541042655&api=v2"));
+            "https://codice.atlassian.net/wiki/download/attachments/1179681/ddf-eclipse-code-formatter.xml?version=1&modificationDate=1379541042655&api=v2"));
     assertThat(mcard.getResourceSize(), equalTo("30895"));
   }
 
@@ -142,8 +167,9 @@ public class ConfluenceInputTransformerTest {
     }
     assertThat(mcard.getId(), equalTo(id));
     assertThat(mcard.getTitle(), equalTo("Formatting Source Code"));
-    List<Serializable> associations = mcard.getAttribute(Associations.EXTERNAL).getValues();
-    assertThat(associations.get(associations.size() - 1).toString(), equalTo(url + "/spaces/DDF"));
+    assertThat(
+        mcard.getAttribute(Associations.EXTERNAL).getValues(),
+        contains("https://codice.atlassian.net/wiki/display/DDF/Formatting+Source+Code"));
     assertThat(mcard.getCreatedDate(), is(getDate("2013-09-18T14:50:42.616-07:00")));
     assertThat(mcard.getModifiedDate(), is(getDate("2015-06-16T19:21:39.141-07:00")));
     assertThat(mcard.getAttribute(Contact.CREATOR_NAME).getValue().toString(), equalTo("another"));
@@ -158,6 +184,8 @@ public class ConfluenceInputTransformerTest {
           mcard.getAttribute(Security.ACCESS_GROUPS).getValues().contains("ddf-developers"),
           is(true));
     }
+    assertThat(
+        mcard.getMetacardType().getAttributeDescriptor("injected.attribute"), notNullValue());
   }
 
   private Date getDate(String dateTime) {
