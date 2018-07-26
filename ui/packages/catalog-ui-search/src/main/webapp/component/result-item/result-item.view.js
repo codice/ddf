@@ -34,11 +34,12 @@ define([
     'component/singletons/sources-instance',
     'component/dropdown/hover-preview/dropdown.hover-preview.view',
     'component/result-add/result-add.view',
+    'component/result-link/result-link.view',
     'component/dropdown/popout/dropdown.popout.view',
     'behaviors/button.behavior'
 ], function (Backbone, Marionette, _, $, template, CustomElements, IconHelper, store, Common, DropdownModel,
              MetacardInteractionsView, ResultIndicatorView, properties, router, user,
-             metacardDefinitions, moment, sources, HoverPreviewDropdown, ResultAddView, PopoutView) {
+             metacardDefinitions, moment, sources, HoverPreviewDropdown, ResultAddView, ResultLinkView, PopoutView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -57,7 +58,8 @@ define([
             resultActions: '.result-actions',
             resultIndicator: '.container-indicator',
             resultThumbnail: '.detail-thumbnail',
-            resultAdd: '.result-add'
+            resultAdd: '.result-add',
+            resultLink: '.result-link'
         },
         behaviors: {
             button: {}
@@ -70,6 +72,7 @@ define([
             this.checkTags();
             this.checkIsInWorkspace();
             this.checkIfDownloadable();
+            this.checkIfLinks();
             this.checkIfBlacklisted();
             this.listenTo(this.model, 'change:metacard>properties change:metacard', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
@@ -92,6 +95,7 @@ define([
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
             this.checkIfDownloadable();
+            this.checkIfLinks();
         },
         onBeforeShow: function(){
             this.resultActions.show(PopoutView.createSimpleDropdown({
@@ -110,6 +114,13 @@ define([
                 modelForComponent: new Backbone.Collection([this.model]),
                 leftIcon: 'fa fa-plus'
             }));
+            if (this.model.get('metacard').get('properties').get('associations.external')) {
+                this.resultLink.show(PopoutView.createSimpleDropdown({
+                    componentToShow: ResultLinkView,
+                    modelForComponent: this.model,
+                    leftIcon: 'fa fa-external-link'
+                }));
+            }
             this.handleResultThumbnail();
         },
         handleResultThumbnail: function() {
@@ -196,6 +207,9 @@ define([
         },
         checkIfDownloadable: function() {
             this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
+        },
+        checkIfLinks: function() {
+            this.$el.toggleClass('is-link', this.model.get('metacard').get('properties').get('associations.external') !== undefined);
         },
         checkDisplayType: function() {
             var displayType = user.get('user').get('preferences').get('resultDisplay');
