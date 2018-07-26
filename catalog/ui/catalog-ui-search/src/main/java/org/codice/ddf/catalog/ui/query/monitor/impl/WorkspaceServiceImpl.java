@@ -124,7 +124,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return createWorkspaceMetacards(query(queryRequest));
     } catch (CatalogQueryException e) {
-      LOGGER.info("Error querying for workspaces", e);
+      LOGGER.warn("Error querying for workspaces", e);
     }
     return Collections.emptyList();
   }
@@ -188,7 +188,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return createWorkspaceMetacards(query(queryRequest));
     } catch (CatalogQueryException e) {
-      LOGGER.info("Error querying for workspaces: queryRequest={}", queryRequest, e);
+      LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
     }
 
     return Collections.emptyList();
@@ -225,7 +225,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return persistentStore.get(SUBSCRIPTIONS_TYPE, "", 0, maxSubscriptions);
     } catch (PersistenceException e) {
-      LOGGER.debug("Failed to get subscriptions for workspaces: {}", e.getMessage(), e);
+      LOGGER.debug("Failed to get subscriptions for workspaces.", e);
     }
     return Collections.emptyList();
   }
