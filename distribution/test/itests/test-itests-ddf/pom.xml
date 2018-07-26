@@ -308,6 +308,39 @@
                 <solr.script.file>solr</solr.script.file>
                 <solr.force>-force</solr.force>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <!--Do not run this plugin execution if the we are skipping tests-->
+                            <skip>${skipTests}</skip>
+                            <longModulepath>false</longModulepath>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-solr-executable</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>chmod</executable>
+                                    <arguments>
+                                        <argument>+x</argument>
+                                        <argument>
+                                            ${solr.script.dir}${solr.script.file}
+                                        </argument>
+                                    </arguments>
+                                    <async>true</async>
+                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -346,29 +379,11 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <!--Do not run this plugin exection if the we are skipping tests-->
+                    <!--Do not run this plugin execution if the we are skipping tests-->
                     <skip>${skipTests}</skip>
                     <longModulepath>false</longModulepath>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>make-solr-executable</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>chmod</executable>
-                            <arguments>
-                                <argument>+x</argument>
-                                <argument>
-                                    ${solr.script.dir}${solr.script.file}
-                                </argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>ensure-solr-is-stopped</id>
                         <phase>pre-clean</phase>
