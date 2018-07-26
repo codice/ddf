@@ -124,7 +124,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return createWorkspaceMetacards(query(queryRequest));
     } catch (CatalogQueryException e) {
-      LOGGER.warn("Error querying for workspaces", e);
+      LOGGER.info("Error querying for workspaces", e);
     }
     return Collections.emptyList();
   }
@@ -188,7 +188,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     try {
       return createWorkspaceMetacards(query(queryRequest));
     } catch (CatalogQueryException e) {
-      LOGGER.warn("Error querying for workspaces: queryRequest={}", queryRequest, e);
+      LOGGER.info("Error querying for workspaces: queryRequest={}", queryRequest, e);
     }
 
     return Collections.emptyList();
