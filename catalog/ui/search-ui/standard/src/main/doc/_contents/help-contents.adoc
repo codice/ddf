@@ -20,6 +20,11 @@
 
 ${deprecated}
 
+|[NOTE]
+====
+To use the Standard Search UI, uninstall the DDF :: Security :: Filter :: CSRF bundle.
+====
+
 The {branding} Standard Search UI application allows a user to search for records in the local
 Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
 displayed on a globe, providing a visual representation of where the records were found. The Search

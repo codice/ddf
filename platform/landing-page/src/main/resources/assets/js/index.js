@@ -22,7 +22,7 @@
         });
 
         $.ajax({
-            url: "./services/catalog/sources",
+            url: "./search/catalog/internal/catalog/sources",
             success: function (data) {
                 if (data.length > 0) {
                     data.sort(function (a, b) {
