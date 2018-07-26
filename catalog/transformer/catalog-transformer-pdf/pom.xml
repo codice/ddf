@@ -24,10 +24,6 @@
     <artifactId>catalog-transformer-pdf</artifactId>
     <packaging>bundle</packaging>
 
-    <properties>
-        <pdfbox.version>2.0.2</pdfbox.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
