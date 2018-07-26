@@ -55,6 +55,7 @@ module.exports = Marionette.LayoutView.extend({
         this.ingestDetails.show(new IngestDetails({
             url: this.options.url || './internal/catalog/',
             extraHeaders: this.options.extraHeaders,
+            handleUploadSuccess: this.options.handleUploadSuccess,
             preIngestValidator: isEditorShown ? this.validateAttributes.bind(this) : null
         }));
     },
