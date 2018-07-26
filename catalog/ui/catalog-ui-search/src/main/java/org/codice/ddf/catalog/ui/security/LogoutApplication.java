@@ -37,8 +37,7 @@ public class LogoutApplication implements SparkApplication {
           res.status(HttpStatus.SC_OK);
           res.header("Cache-Control", "no-cache, no-store");
           res.header("Pragma", "no-cache");
-          res.body(jsonString);
-          return res;
+          return jsonString;
         });
   }
 }

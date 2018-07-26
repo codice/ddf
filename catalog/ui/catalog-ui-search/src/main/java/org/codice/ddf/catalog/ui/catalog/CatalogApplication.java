@@ -205,8 +205,7 @@ public class CatalogApplication implements SparkApplication {
             String id = req.params(":id");
             catalogService.deleteDocument(id);
             res.status(HttpStatus.SC_OK);
-            res.body(id);
-            return res;
+            return id;
 
           } catch (CatalogServiceException e) {
             return createBadRequestResponse(res, e.getMessage());
@@ -214,7 +213,7 @@ public class CatalogApplication implements SparkApplication {
         });
   }
 
-  private Response getHeaders(Request req, Response res, String sourceid, String id) {
+  private String getHeaders(Request req, Response res, String sourceid, String id) {
     try {
       String filename = null;
 
@@ -226,9 +225,8 @@ public class CatalogApplication implements SparkApplication {
 
       if (content == null) {
         res.status(HttpStatus.SC_NOT_FOUND);
-        res.body("<pre>Unable to retrieve requested metacard.</pre>");
         res.type(MediaType.TEXT_HTML);
-        return res;
+        return "<pre>Unable to retrieve requested metacard.</pre>";
       }
 
       res.status(HttpStatus.SC_NO_CONTENT);
@@ -256,13 +254,13 @@ public class CatalogApplication implements SparkApplication {
       if (size > 0) {
         res.header(HEADER_CONTENT_LENGTH, String.valueOf(size));
       }
-      return res;
+      return "";
     } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
     }
   }
 
-  private Response getDocument(
+  private String getDocument(
       Request req,
       Response res,
       String encodedSourceId,
@@ -284,15 +282,18 @@ public class CatalogApplication implements SparkApplication {
 
       if (content == null) {
         res.status(HttpStatus.SC_NOT_FOUND);
-        res.body("<pre>Unable to retrieve requested metacard.</pre>");
         res.type(MediaType.TEXT_HTML);
-        return res;
+        return "<pre>Unable to retrieve requested metacard.</pre>";
       }
 
       LOGGER.debug("Read and transform complete, preparing response.");
       res.status(HttpStatus.SC_OK);
-      res.body(IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
       res.type(content.getMimeTypeValue());
+
+      int bytesCopied = IOUtils.copy(content.getInputStream(), res.raw().getOutputStream());
+      res.raw().setContentLength(bytesCopied);
+      res.raw()
+          .flushBuffer(); // Flashing buffer so Spark won't set the body based on the return value
 
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
       res.header(HEADER_ACCEPT_RANGES, BYTES);
@@ -320,15 +321,14 @@ public class CatalogApplication implements SparkApplication {
         res.header(HEADER_CONTENT_LENGTH, String.valueOf(size));
       }
 
-      return res;
+      return "";
     } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
 
     } catch (DataUsageLimitExceededException e) {
       res.status(HttpStatus.SC_REQUEST_TOO_LONG);
-      res.body("<pre>" + e.getMessage() + "</pre>");
       res.type(MediaType.TEXT_HTML);
-      return res;
+      return "<pre>" + e.getMessage() + "</pre>";
     } catch (IOException e) {
       String exceptionMessage = "Unknown error occurred while processing request: ";
       LOGGER.info(exceptionMessage, e);
@@ -336,7 +336,7 @@ public class CatalogApplication implements SparkApplication {
     }
   }
 
-  private Response updateDocument(
+  private String updateDocument(
       Response res,
       String id,
       String contentType,
@@ -349,14 +349,14 @@ public class CatalogApplication implements SparkApplication {
           id, contentTypeList, httpServletRequest, transformerParam, inputStream);
 
       res.status(HttpStatus.SC_OK);
-      return res;
+      return "";
 
     } catch (CatalogServiceException e) {
       return createBadRequestResponse(res, e.getMessage());
     }
   }
 
-  private Response addDocument(
+  private String addDocument(
       Response res,
       StringBuffer requestUrl,
       String contentType,
@@ -375,7 +375,7 @@ public class CatalogApplication implements SparkApplication {
       res.status(HttpStatus.SC_CREATED);
       res.header("Location", uriBuilder.build().toString());
       res.header(Metacard.ID, id);
-      return res;
+      return "";
 
     } catch (CatalogServiceException | URISyntaxException e) {
       return createBadRequestResponse(res, e.getMessage());
@@ -388,10 +388,9 @@ public class CatalogApplication implements SparkApplication {
     return map;
   }
 
-  private Response createBadRequestResponse(Response response, String entityMessage) {
+  private String createBadRequestResponse(Response response, String entityMessage) {
     response.status(HttpStatus.SC_BAD_REQUEST);
     response.type(MediaType.TEXT_HTML);
-    response.body("<pre>" + entityMessage + "</pre>");
-    return response;
+    return "<pre>" + entityMessage + "</pre>";
   }
 }
