@@ -139,7 +139,9 @@ Behaviors.addBehavior('dropdown', Marionette.Behavior.extend({
     },
     updateWidth(dropdown){
         var clientRect = this.getDropdownElement(dropdown)[0].getBoundingClientRect();
-        dropdown._instance.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
+        if (window.getComputedStyle(dropdown._instance.el)['min-width'] === '0px') {
+            dropdown._instance.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
+        }
     },
     updatePosition (dropdown) {
         DropdownBehaviorUtility.updatePosition(
