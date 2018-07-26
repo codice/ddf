@@ -12,7 +12,7 @@ The ${command-console} has a command-line option for ingesting data.
 [NOTE]
 ====
 Ingesting with the console ingest command creates a metacard in the catalog, but does not copy the resource to the content store.
-The Ingest Command requires read access to the directory being ingested from, see the <<_url_resource_reader, URL Resource Reader>> for configuring read permissions on the directory.
+The Ingest Command requires read access to the directory being ingested from, see the <<{architecture-prefix}url_resource_reader, URL Resource Reader>> for configuring read permissions on the directory.
 ====
 
 The syntax for the ingest command is
