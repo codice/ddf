@@ -31,16 +31,6 @@ const ShapeUtils = require('js/ShapeUtils');
 const minimumDifference = 0.0001;
 const minimumBuffer = 0.000001;
 
-const parseStringToPolygonArray = (stringValue) => {
-    return stringValue
-        .substring('POLYGON(('.length, stringValue.length - '))'.length)
-        .split(',')
-        .map(coord => 
-            coord.split(' ')
-                .map(value => new Number(value))
-        );
-};
-
 module.exports = Marionette.LayoutView.extend({
     template: () => `<div class="location-input"></div>`,
     tagName: CustomElements.register('location-old'),
@@ -163,7 +153,7 @@ module.exports = Marionette.LayoutView.extend({
         }
     },
     handlePolygonDeserialization(filter) {
-        const polygonArray = (filter.value && filter.value.value && parseStringToPolygonArray(filter.value.value)) || [];
+        const polygonArray = (filter.value && filter.value.value && CQLUtils.arrayFromPolygonWkt(filter.value.value)) || [];
         const bufferWidth = filter.polygonBufferWidth || filter.distance;
 
         this.model.set({

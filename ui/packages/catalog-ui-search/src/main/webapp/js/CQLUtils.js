@@ -214,7 +214,9 @@ function transformCQLToFilter(cqlString) {
     return cql.simplify(cql.read(cqlString));
 }
 
-const isPolygonFilter = filter => filter.value && filter.value.value && filter.value.value.indexOf('POLYGON') >= 0;
+const isPolygonFilter = (filter) => {
+    return filter.value && filter.value.value && filter.value.value.indexOf('POLYGON') >= 0;
+}
 
 function isPointRadiusFilter(filter) {
     var filterValue = typeof(filter.value) === 'object' ? filter.value.value : filter.value;
