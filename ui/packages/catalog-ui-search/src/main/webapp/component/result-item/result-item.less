@@ -61,6 +61,10 @@
     display: none;
   }
 
+  .result-link {
+    display: none;
+  }
+
   .details-property {
     height: @minimumLineSize;
     line-height: @minimumLineSize;
@@ -152,6 +156,14 @@
 @{customElementNamespace}result-item.is-downloadable {
   .content-footer {
     > .result-download {
+      display: inline-block;
+    }
+  }
+}
+
+@{customElementNamespace}result-item.is-link {
+  .content-footer {
+    > .result-link {
       display: inline-block;
     }
   }
