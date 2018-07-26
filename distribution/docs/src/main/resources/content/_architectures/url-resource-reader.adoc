@@ -33,20 +33,22 @@ See <<{application-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resour
 
 === Configuring Permissions for the URL Resource Reader
 
-Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permissions to the directory containing the resources. The following permissions, replacing <DIRECTORY_PATH> with the path of the directory containing resources should be placed in the URL Resource Reader section inside ${home_directory}/security/configurations.policy.
+Configuring the URL Resource Reader to retrieve files requires adding Security Manager read permission entries for the directory containing the resources. To add the correct permission entries, edit the file ${home_directory}/security/configurations.policy. In the URL Resource Reader section of the file, add two new permission for each top-level directory that the Resource Reader needs to access. The Resource Reader needs one permission to read the directory and another to read its contents.
 
 .Adding New Permissions
 [WARNING]
 ====
-After adding permissions, a system restart is required for them to take effect.
+After adding permission entries, a system restart is required for them to take effect.
 ====
 
-. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
-. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read";
+grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+//# Add permissions here
+permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
+permission java.io.FilePermission "<OTHER_DIRECTORY_PATH>", "read";
+}
 
-Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
-
-Line 1 gives the URL Resource Reader the permissions to read from the directory. Line 2 gives the URL Resource Reader the permissions to recursively read from the directory, specified by the directory path's suffix "${/}-".
+The first permission entry allows the URL Resource Reader to read the directory. The second permission entry allows the URL Resource Reader to recursively read the contents of the directory. 
+The trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
 
 ===== Using the URL Resource Reader
 
