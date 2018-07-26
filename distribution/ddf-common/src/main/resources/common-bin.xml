@@ -79,16 +79,6 @@
                 <exclude>
                     **/org/apache/cxf/cxf-rt-transports-http-netty-server/3.1.4/cxf-rt-transports-http-netty-server-3.1.4.jar
                 </exclude>
-                <!--
-                Excluding this unused jar, as we don't use it (TO BE CONFIRMED)
-                and it's associated with CVE-2013-2185, CVE-2002-0493
-                -->
-                <exclude>
-                    **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-core/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-core-8.0.14.1.jar
-                </exclude>
-                <exclude>
-                    **/org/ops4j/pax/tipi/org.ops4j.pax.tipi.tomcat-embed-websocket/8.0.14.1/org.ops4j.pax.tipi.tomcat-embed-websocket-8.0.14.1.jar
-                </exclude>
                 <!-- 3.2.2 is binary compatibles and we want to exclude this since it has vulnerabilities -->
                 <exclude>
                     **/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
