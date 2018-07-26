@@ -101,10 +101,10 @@
                forget to replace the felix config admin bundle with OUR platform-osgi-configadmin
                bundle if you copy-pasted. -->
         <!-- Check features/kernel/.../feature.xml and blacklisted.properties to see if we are
-               overriding karafs version of jetty. To use the karaf provided version of jetty,
+               overriding karaf's version of jetty. To use the karaf provided version of jetty,
                just remove the overriding feature and blacklist entry. To use a different version
                of jetty, the overriding feature will need to be replaced and the blacklist entry
-               updated to disable karafs jetty version.-->
+               updated to disable karaf's jetty version.-->
         <karaf.version>4.1.2</karaf.version>
         <!-- There is a problem with version 4.1.2 of the karaf-maven-plugin for projects of type feature -->
         <karaf.plugin.version>4.1.3</karaf.plugin.version>
