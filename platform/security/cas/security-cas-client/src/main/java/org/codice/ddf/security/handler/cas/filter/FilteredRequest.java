@@ -38,7 +38,7 @@ public class FilteredRequest extends HttpServletRequestWrapper {
     super(request);
 
     // Wrapping FilteredRequests will result in repeated root contexts since the original request
-    // is already wrapped. Instead, just copy the wrapped request and systemBaseUrl references
+    // is already wrapped. So just copy FilteredRequests instead of wrapping.
     if (request instanceof FilteredRequest) {
       FilteredRequest filteredRequest = (FilteredRequest) request;
       contextPath = filteredRequest.contextPath;
@@ -47,7 +47,7 @@ public class FilteredRequest extends HttpServletRequestWrapper {
     } else {
       URL baseUrl = toBaseUrl(serverName);
       contextPath =
-          isExternalRequest(baseUrl)
+          isExternalUrl(baseUrl)
               ? SystemBaseUrl.EXTERNAL.getRootContext().replaceFirst("/$", "")
               : "";
       requestUri = contextPath + request.getRequestURI();
@@ -73,24 +73,36 @@ public class FilteredRequest extends HttpServletRequestWrapper {
     return new StringBuffer(requestUrl);
   }
 
+  /**
+   * Convert the input string into a URL containing only a protocol, hostname, and port. Returns
+   * null if the input is not a valid URL.
+   */
   private URL toBaseUrl(String serverName) {
     try {
       URL url = new URL(serverName);
       return new URI(url.getProtocol(), url.getAuthority(), null, null, null).toURL();
     } catch (MalformedURLException | URISyntaxException e) {
-      LOGGER.warn("Error parsing CAS client server name config. Is it a valid URL?");
+      LOGGER.warn("Invalid CAS client configuration. Server name must be a valid URL");
       return null;
     }
   }
 
-  private boolean isExternalRequest(URL url) {
+  /**
+   * Determines whether the input url matches the external system base url. If the input does not
+   * specify a port, it will be inferred from the protocol.
+   *
+   * @return true if the protocol, host, and port of the given url match the external system url;
+   *     false otherwise
+   */
+  private boolean isExternalUrl(URL url) {
     if (url == null) {
       return false;
     }
 
-    String protocol = SystemBaseUrl.EXTERNAL.getProtocol().replaceFirst("://$", "");
+    int inferredPort = (url.getPort() == -1) ? url.getDefaultPort() : url.getPort();
+    String externalProtocol = SystemBaseUrl.EXTERNAL.getProtocol().replaceFirst("://$", "");
     return SystemBaseUrl.EXTERNAL.getHost().equals(url.getHost())
-        && SystemBaseUrl.EXTERNAL.getPort().equals(Integer.toString(url.getPort()))
-        && protocol.equals(url.getProtocol());
+        && SystemBaseUrl.EXTERNAL.getPort().equals(Integer.toString(inferredPort))
+        && externalProtocol.equals(url.getProtocol());
   }
 }
