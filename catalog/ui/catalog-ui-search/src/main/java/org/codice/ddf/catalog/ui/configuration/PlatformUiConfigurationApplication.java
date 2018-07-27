@@ -35,10 +35,9 @@ public class PlatformUiConfigurationApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String response = platformUiConfigurationService.getConfigAsJsonString();
-          res.body(response);
           res.status(200);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
-          return res;
+          return response;
         });
   }
 }
