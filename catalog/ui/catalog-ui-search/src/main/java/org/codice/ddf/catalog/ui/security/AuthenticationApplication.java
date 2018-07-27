@@ -40,7 +40,7 @@ public class AuthenticationApplication implements SparkApplication {
 
           // Redirect to the previous url
           res.redirect(req.queryParams("prevurl"), HttpStatus.SC_SEE_OTHER);
-          return res;
+          return "";
         });
   }
 }

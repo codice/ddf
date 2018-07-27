@@ -42,11 +42,10 @@ public class GeoCoderApplication implements SparkApplication {
 
           if (jsonString != null) {
             res.status(HttpStatus.SC_OK);
-            res.body(jsonp + "(" + jsonString + ")");
-            return res;
+            return jsonp + "(" + jsonString + ")";
           } else {
             res.status(HttpStatus.SC_BAD_REQUEST);
-            return res;
+            return "";
           }
         });
 
@@ -60,17 +59,16 @@ public class GeoCoderApplication implements SparkApplication {
 
             if (jsonString != null) {
               res.status(HttpStatus.SC_OK);
-              res.body(jsonString);
-              return res;
+              return jsonString;
             } else {
               res.status(HttpStatus.SC_NO_CONTENT);
-              return res;
+              return "";
             }
 
           } catch (GeoEntryQueryException e) {
             LOGGER.debug("Error querying GeoNames resource with wkt:{}", wkt, e);
             res.status(HttpStatus.SC_BAD_REQUEST);
-            return res;
+            return "";
           }
         });
   }
