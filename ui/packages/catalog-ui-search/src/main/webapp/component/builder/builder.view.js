@@ -207,6 +207,7 @@ module.exports = Marionette.LayoutView.extend({
             type: 'POST',
             url: './internal/catalog/?transform=geojson',
             data: JSON.stringify(editedMetacard),
+            dataType: "text",
             contentType: 'application/json'
         }).then((response, status, xhr) => {
             const id = xhr.getResponseHeader('id');
