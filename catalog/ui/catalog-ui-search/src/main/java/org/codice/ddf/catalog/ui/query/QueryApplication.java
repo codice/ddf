@@ -24,6 +24,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
@@ -33,16 +34,24 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.mime.MimeTypes;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -56,9 +65,12 @@ import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
+import spark.utils.IOUtils;
 
 public class QueryApplication implements SparkApplication, Function {
 
@@ -76,6 +88,12 @@ public class QueryApplication implements SparkApplication, Function {
 
   private FeatureService featureService;
 
+  private QueryResponse queryResponse;
+
+  private List<ServiceReference> queryResponseTransformers;
+
+  private BundleContext bundleContext;
+
   private ObjectMapper mapper =
       new ObjectMapperImpl(
           new JsonParserFactory().usePropertyOnly(),
@@ -86,6 +104,12 @@ public class QueryApplication implements SparkApplication, Function {
               .setJsonFormatForDates(false));
 
   private EndpointUtil util;
+
+  public QueryApplication(
+      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
+    this.queryResponseTransformers = queryResponseTransformers;
+    this.bundleContext = bundleContext;
+  }
 
   @Override
   public void init() {
@@ -98,9 +122,77 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         APPLICATION_JSON,
         (req, res) -> {
-          CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
+          String transformerId = req.queryParams(":transform");
+          String body = util.safeGetBody(req);
+          CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
           CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
-          return mapper.toJson(cqlQueryResponse);
+
+          if (StringUtils.isEmpty(transformerId)) {
+            LOGGER.trace("Returning cql query response.");
+            return mapper.toJson(cqlQueryResponse);
+          }
+          for (ServiceReference<QueryResponseTransformer> queryResponseTransformer :
+              queryResponseTransformers) {
+
+            LOGGER.trace("Finding transformer to transform query response.");
+
+            String id = (String) queryResponseTransformer.getProperty("id");
+
+            if (!id.equals(transformerId)) {
+              continue;
+            }
+
+            BinaryContent content =
+                bundleContext
+                    .getService(queryResponseTransformer)
+                    .transform(this.queryResponse, new HashMap<>());
+
+            String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
+            MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+            String fileExt = allTypes.forName(mimeType).getExtension();
+
+            res.status(200);
+
+            String acceptEncoding = req.headers("Accept-Encoding");
+
+            boolean shouldGzip =
+                StringUtils.isNotBlank(acceptEncoding)
+                    && acceptEncoding.toLowerCase().contains("gzip");
+
+            if (!shouldGzip) {
+              LOGGER.trace("Request header does not contain gzip.");
+            }
+
+            res.type(mimeType);
+            String attachment =
+                String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
+            res.header("Content-Disposition", attachment);
+
+            if (shouldGzip) {
+              res.raw().addHeader("Content-Encoding", "gzip");
+            }
+
+            try (OutputStream servletOutputStream = res.raw().getOutputStream();
+                InputStream resultStream = content.getInputStream()) {
+              if (shouldGzip) {
+                try (OutputStream gzipServletOutputStream =
+                    new GZIPOutputStream(servletOutputStream)) {
+                  IOUtils.copy(resultStream, gzipServletOutputStream);
+                }
+              } else {
+                IOUtils.copy(resultStream, servletOutputStream);
+              }
+            }
+
+            LOGGER.trace(String.format("Response sent in %s file format.", fileExt));
+
+            return "";
+          }
+          LOGGER.debug(
+              String.format(
+                  "Could not find transformer id %s to match cql request.", transformerId));
+          res.status(404);
+          return mapper.toJson(ImmutableMap.of("message", "Service not found"));
         });
 
     after(
@@ -232,6 +324,8 @@ public class QueryApplication implements SparkApplication, Function {
                 .orElse(Collections.emptyMap()));
 
     stopwatch.stop();
+
+    this.queryResponse = response;
 
     return new CqlQueryResponse(
         cqlRequest.getId(),
