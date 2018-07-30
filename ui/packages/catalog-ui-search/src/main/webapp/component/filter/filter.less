@@ -32,6 +32,12 @@
     min-width: 12.5*@minimumFontSize;
   }
 
+  > .filter-input {
+    @{customElementNamespace}input.is-with-param {
+      min-width: 20*@minimumFontSize;
+    }
+  }
+
   > .filter-attribute {
     @{customElementNamespace}dropdown.is-editing .dropdown-text {
       width: auto;

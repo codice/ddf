@@ -1,14 +1,12 @@
 @{customElementNamespace}input.is-with-param {
-    .if-editing {
-        .text { width: 100% }
-        .param-label { padding: 0px @minimumSpacing }
-        .param { width: 2*@minimumButtonSize }
+
+    .if-editing > *,
+    .if-viewing > * {
+        display: inline-block;
+        vertical-align: top;
     }
 
-    .if-viewing {
-        .param-label {
-            padding-left: @minimumSpacing;
-            padding-right: @minimumSpacing;
-        }
+    .param-label {
+        padding: 0px @minimumSpacing;
     }
 }

@@ -179,7 +179,7 @@ module.exports = BaseGuideView.extend({
                     distance: 10
                 }],
                 type: 'NEAR',
-                param: 'within',
+                param: 'within a few feet of',
                 isEditing: true
             })
         }));
