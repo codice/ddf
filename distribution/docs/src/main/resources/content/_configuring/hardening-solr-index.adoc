@@ -12,15 +12,14 @@ The following sections provide hardening guidance for Solr; however, they are to
 === Hardening Solr Server Configuration
 
 The Solr server configuration is configured to be secure by default. No additional
-hardening should be necessary. Solr is configured to reject all remote requests
-by default. It is only accessible locally. This is a necessary part of a secure configuration.
-To enable remote requests for troubleshooting, edit the script
-file `ddf` (or the `ddf.bat` file for Windows) and remove
-the `solr.jetty.host` and `jetty.host` parameters.
+hardening should be necessary. The default configuration starts Solr with TLS enabled and
+requires client authentication. That means ${branding} must trust Solr's PKI certificate and Solr
+must also trust ${branding}'s PKI certificate.
 
 === Configuring Solr Encryption
 
 While it is possible to encrypt the Solr index, it decreases performance significantly.
 An encrypted Solr index also can only perform exact match queries, not relative or contextual queries.
 As this drastically reduces the usefulness of the index, this configuration is not recommended.
-The recommended approach is to encrypt the entire drive through the Operating System of the server on which the index is located.
+The recommended approach is to encrypt the entire drive through the Operating System of the server
+on which the index is located.
