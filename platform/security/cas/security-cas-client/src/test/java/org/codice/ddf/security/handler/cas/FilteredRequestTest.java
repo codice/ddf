@@ -74,15 +74,6 @@ public class FilteredRequestTest {
   }
 
   @Test
-  public void testProxyConfigUnmatchedServerName() {
-    reverseProxyConfig();
-    FilteredRequest filteredRequest =
-        new FilteredRequest(httpServletRequest, "https://example.com/");
-
-    assertEquals(filteredRequest.getRequestURL().toString(), "https://example.com" + servicePath);
-  }
-
-  @Test
   public void testDefaultConfigMalformedServerName() {
     defaultConfig();
     String invalidUri = "not^a^valid^uri";
@@ -111,6 +102,27 @@ public class FilteredRequestTest {
     assertEquals(
         filteredRequest.getRequestURL().toString(),
         externalBaseUrl + externalContext + servicePath);
+  }
+
+  @Test
+  public void testProxyConfigExternalRequestDefaultPort() {
+    reverseProxyConfig();
+    String externalBaseUrlImpliedPort = String.format("https://%s", externalHost);
+    FilteredRequest filteredRequest =
+        new FilteredRequest(httpServletRequest, externalBaseUrlImpliedPort);
+
+    assertEquals(
+        filteredRequest.getRequestURL().toString(),
+        externalBaseUrlImpliedPort + externalContext + servicePath);
+  }
+
+  @Test
+  public void testProxyConfigUnmatchedServerName() {
+    reverseProxyConfig();
+    FilteredRequest filteredRequest =
+        new FilteredRequest(httpServletRequest, "https://example.com/");
+
+    assertEquals(filteredRequest.getRequestURL().toString(), "https://example.com" + servicePath);
   }
 
   @Test
