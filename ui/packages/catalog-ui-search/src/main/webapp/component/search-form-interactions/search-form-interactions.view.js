@@ -82,8 +82,13 @@ module.exports =  Marionette.ItemView.extend({
                                 }.bind(this)
                             });
                         loadingview.remove();
+                        if (!user.getQuerySettings().get('template')) {
+                            user.getQuerySettings().set('type', 'text');
+                            user.savePreferences();
+                        }
+                        this.options.queryModel.resetToDefaults();
                     }
-                }.bind(this));                        
+                }.bind(this));
             }
             else{
                 this.messageNotifier(
