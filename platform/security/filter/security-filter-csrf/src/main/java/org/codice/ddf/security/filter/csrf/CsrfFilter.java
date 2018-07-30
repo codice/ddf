@@ -159,7 +159,7 @@ public class CsrfFilter implements SecurityFilter {
         } else {
           sourceAuthority = url.getAuthority();
         }
-        return (trustedAuthorities.stream().anyMatch(sourceAuthority::equals));
+        return (trustedAuthorities.stream().anyMatch(sourceAuthority::equalsIgnoreCase));
       } catch (MalformedURLException e) {
         LOGGER.debug("Could not extract hostname and port from the request URL", e);
         return false;
