@@ -43,6 +43,20 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
 
+//                        URL Resource Reader Permissions
+// Adding required permissions for the URL Resource Reader to retrieve file resources.
+//
+//
+// The default configuration of the URL Resource Reader prevents it from reading arbitrary directories. To read from a directory, permission entries need to be added to this policy file.
+// This is an example of how to give the URL Resource Reader permission to access a directory and everything it contains.
+// grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+     //# Add permission to read the directoroy
+     // permission java.io.FilePermission "/test/some/directory", "read";
+     
+     //# Add permission to recursively read the files and sub directories
+     // permission java.io.FilePermission "/test/some/directory${/}-", "read";
+// }
+
 //                       Security-Hardening: Backup Log File Permissions
 //  Adding required permissions to the logger for read and write access to modified backup log files
 //
