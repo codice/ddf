@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 
 public class ShareableMetacardPreIngestPlugin implements PreIngestPlugin {
 
@@ -60,7 +61,7 @@ public class ShareableMetacardPreIngestPlugin implements PreIngestPlugin {
   }
 
   /**
-   * Ensures a shareable metacard has an owner.
+   * Ensures a sharing metacard has an owner.
    *
    * @param request the {@link CreateRequest} to process
    * @return
@@ -83,7 +84,7 @@ public class ShareableMetacardPreIngestPlugin implements PreIngestPlugin {
             .collect(Collectors.toList());
 
     if (!shareableMetacards.isEmpty() && isGuest(ownerSubject)) {
-      throw new StopProcessingException("Guest user not allowed to create shareable resources");
+      throw new StopProcessingException("Guest user not allowed to create sharing resources");
     }
 
     shareableMetacards.forEach(shareableMetacard -> shareableMetacard.setOwner(owner));

@@ -19,7 +19,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.codice.ddf.catalog.ui.security.Constants.SYSTEM_TEMPLATE;
-import static org.codice.ddf.catalog.ui.security.ShareableMetacardImpl.canShare;
+import static org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl.canShare;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
