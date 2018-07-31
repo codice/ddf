@@ -42,7 +42,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +59,7 @@ import org.codice.ddf.catalog.ui.query.monitor.api.QueryUpdateSubscriber;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceService;
+import org.codice.ddf.platform.util.ForkJoinPoolFactory;
 import org.codice.ddf.security.common.Security;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
@@ -248,7 +248,7 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
 
     workspaceTasks
         .stream()
-        .map(ForkJoinPool.commonPool()::submit)
+        .map(ForkJoinPoolFactory.getNewForkJoinPool(null, false)::submit)
         .map(task -> getTaskResult(task, timeout, timeoutUnit))
         .filter(Objects::nonNull)
         .forEach(
