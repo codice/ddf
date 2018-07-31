@@ -17,6 +17,7 @@ const TabsModel = require('component/tabs/tabs');
 const TabsView = require('component/tabs/tabs.view');
 const GuideView = require('dev/component/guide/guide.view');
 const AboutView = require('dev/component/about/about.view');
+const VideosView = require('dev/component/videos/videos.view')
 
 const Root = styled.div`
     height: 100%;
@@ -83,7 +84,8 @@ const Dev =  (props) => {
                         model: new TabsModel({
                             tabs: {
                                 'About': AboutView,
-                                'Guide': GuideView
+                                'Guide': GuideView,
+                                'Videos': VideosView
                             }
                         })
                     }
