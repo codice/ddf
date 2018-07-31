@@ -5,7 +5,7 @@
 :application: ${ddf-catalog}
 :summary: Resource Download Configuration.
 
-.[[Metacard_S3_Storage_Route]]Metacard Backup S3 Storage Provider
+.[[_Metacard_S3_Storage_Route]]Metacard Backup S3 Storage Provider
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

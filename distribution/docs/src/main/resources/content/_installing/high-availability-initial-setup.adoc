@@ -7,25 +7,25 @@
 
 === {title}
 
-This section describes how to complete the initial setup of ${branding} in a <<_introduction_to_high_availability,Highly Available Cluster>>.
+This section describes how to complete the initial setup of ${branding} in a <<{introduction-prefix}introduction_to_high_availability,Highly Available Cluster>>.
 
 .Prerequisites
 * A failover proxy that can route HTTP traffic according to the pattern described in the Introduction to High Availability.
 It is recommended that a hardware failover proxy be used in a production environment.
-* Solr Cloud: See the <<_solr_cloud, Solr Cloud section>> for installation and configuration
+* Solr Cloud: See the <<{managing-prefix}solr_catalog_provider, Solr Cloud section>> for installation and configuration
 guidance to connect ${branding} nodes to Solr Cloud.
 
 Once the prerequisites have been met, the below steps can be followed.
 
 [NOTE]
 ====
-Unless listed in the <<_high_availability_initial_setup_exceptions,High Availability Initial Setup Exceptions>> section,
+Unless listed in the <<{managing-prefix}high_availability_initial_setup_exceptions,High Availability Initial Setup Exceptions>> section,
 the normal steps can be followed for installing, configuring, and hardening.
 ====
 
-. Install the first ${branding} node. See the <<_installing, Installation Section>>.
-. Configure the first ${branding} node. See the <<_configuring, Configuring Section>>.
-. Optional: If hardening the first ${branding} node (excluding setting directory permissions). See the <<_security_hardening, Hardening Section>>.
+. Install the first ${branding} node. See the <<{managing-prefix}installing, Installation Section>>.
+. Configure the first ${branding} node. See the <<{managing-prefix}configuring, Configuring Section>>.
+. Optional: If hardening the first ${branding} node (excluding setting directory permissions). See the <<{managing-prefix}security_hardening, Hardening Section>>.
 . Export the first ${branding} node's configurations, install the second ${branding} node, and import the exported configurations on that node.
-See <<_reusing_configurations, Reusing Configurations>>.
-. If hardening, set directory permissions on both ${branding} nodes. See <<_setting_directory_permissions, Setting Directory Permissions>>.
+See <<{managing-prefix}reusing_configurations, Reusing Configurations>>.
+. If hardening, set directory permissions on both ${branding} nodes. See <<{managing-prefix}setting_directory_permissions, Setting Directory Permissions>>.

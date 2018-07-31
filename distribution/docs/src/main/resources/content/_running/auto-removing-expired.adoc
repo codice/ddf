@@ -8,8 +8,8 @@
 == {title}
 
 By default, the ${branding} runs a scheduled command every 24 hours to remove expired records.
-The command is executed and scheduled by the <<Command Scheduler>>.
-To change the configuration, follow the <<Updating a Scheduled Command>> instructions.
+The command is executed and scheduled by the <<{managing-prefix}command_scheduler,Command Scheduler>>.
+To change the configuration, follow the <<{managing-prefix}updating_a_scheduled_command,Updating a Scheduled Command>> instructions.
 If an administrator wants to create additional scheduled tasks to remove records from the local Catalog, the administrator can follow the steps provided in the Scheduling a Command section.
 In the Command text field, type the following:
 

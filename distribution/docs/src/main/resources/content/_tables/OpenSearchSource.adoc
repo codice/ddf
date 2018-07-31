@@ -5,7 +5,7 @@
 :application: ${ddf-catalog}
 :summary: Catalog OpenSearch Federated Source.
 
-.[[OpenSearchSource]]Catalog OpenSearch Federated Source
+.[[_OpenSearchSource]]Catalog OpenSearch Federated Source
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
@@ -59,35 +59,35 @@
 |true
 
 |Convert to BBox
-|[[shouldConvertToBBox]]shouldConvertToBBox
+|[[_shouldConvertToBBox]]shouldConvertToBBox
 |Boolean
 |Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.
 |true
 |true
 
 |Disable CN Check
-|[[disableCnCheck]]disableCnCheck
+|[[_disableCnCheck]]disableCnCheck
 |Boolean
 |Disable CN check for the server certificate. This should only be used when testing.
 |false
 |true
 
 |Connection Timeout
-|[[connectionTimeout]]connectionTimeout
+|[[_connectionTimeout]]connectionTimeout
 |Integer
 |Amount of time to attempt to establish a connection before timing out, in milliseconds.
 |30000
 |true
 
 |Receive Timeout
-|[[receiveTimeout]]receiveTimeout
+|[[_receiveTimeout]]receiveTimeout
 |Integer
 |Amount of time to wait for a response before timing out, in milliseconds.
 |60000
 |true
 
 |Entry XML Element
-|[[markUpSet]]markUpSet
+|[[_markUpSet]]markUpSet
 |String
 |XML Element from the Response Entry to transform into a Metacard.
 |

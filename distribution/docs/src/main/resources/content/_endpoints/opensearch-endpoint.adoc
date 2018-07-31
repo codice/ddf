@@ -110,7 +110,7 @@ The start and end temporal criteria must be of the format specified above. Other
 
 `2011-01-01T12:00:00.111-04:00`.
 
-*The start and end temporal elements are based on <<modified,modified>> timestamps for a metacard.*
+*The start and end temporal elements are based on <<{metadata-prefix}modified,modified>> timestamps for a metacard.*
 ====
 
 .Geospatial Extension
@@ -188,7 +188,7 @@ Examples:
 |`<sborder>` is optional but has a value of `asc` or `desc` (default is `desc`).
 However, when `<sbfield>` is `relevance`, `<sborder>` must be `desc`.
 
-Sorting by `date` will sort the results by the <<effective,`effective`>> date.
+Sorting by `date` will sort the results by the <<{metadata-prefix}effective,`effective`>> date.
 
 default: `relevance:desc`
 
@@ -235,7 +235,7 @@ default: `300000` (5 minutes)
 |`dateOffset`
 |`dtoffset`
 |Integer > 0
-|Specifies an offset (milliseconds), backwards from the current time, to search on the <<modified, modified>> time field for entries.
+|Specifies an offset (milliseconds), backwards from the current time, to search on the <<{metadata-prefix}modified, modified>> time field for entries.
 
 |`type`
 |`type`

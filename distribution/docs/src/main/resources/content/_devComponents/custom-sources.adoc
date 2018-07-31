@@ -90,7 +90,7 @@ Create a custom implementation of a catalog provider.
 .Catalog Provider Blueprint example
 [source,xml]
 ----
-<service ref="[[TestCatalogProvider]]" interface="ddf.catalog.source.CatalogProvider" />
+<service ref="TestCatalogProvider" interface="ddf.catalog.source.CatalogProvider" />
 ----
 
 See the <<_connecting_to_sources,existing Catalog Provider list>> for examples of Catalog Providers included in ${branding}.
@@ -107,7 +107,7 @@ See the <<_connecting_to_sources,existing Catalog Provider list>> for examples o
 .Federated Source Blueprint example
 [source,xml]
 ----
-<service ref="[[TestFederatedSource]]" interface="ddf.catalog.source.FederatedSource" />
+<service ref="TestFederatedSource" interface="ddf.catalog.source.FederatedSource" />
 ----
 
 ===== Developing Connected Sources
@@ -124,7 +124,7 @@ Create a custom implementation of a connected source.
 .Connected Source Blueprint example
 [source,xml,linenums]
 ----
-<service ref="[[TestConnectedSource]]" interface="ddf.catalog.source.ConnectedSource" />
+<service ref="TestConnectedSource" interface="ddf.catalog.source.ConnectedSource" />
 ----
 [IMPORTANT]
 ====

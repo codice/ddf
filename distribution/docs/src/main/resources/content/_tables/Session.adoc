@@ -5,7 +5,7 @@
 :application: ${ddf-security}
 :summary: Session configurations.
 
-.[[org.codice.ddf.security.filter.login.Session]]Session
+.[[_org.codice.ddf.security.filter.login.Session]]Session
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

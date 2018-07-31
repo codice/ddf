@@ -7,5 +7,5 @@
 
 == {title}
 
-The default catalog provider for ${branding} is <<_solr_catalog_provider,Solr>>.
-If using another catalog provider, see <<_changing_catalog_providers,Changing Catalog Providers>>.
+The default catalog provider for ${branding} is <<{managing-prefix}solr_catalog_provider,Solr>>.
+If using another catalog provider, see <<{managing-prefix}changing_catalog_providers,Changing Catalog Providers>>.

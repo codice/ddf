@@ -20,13 +20,13 @@ Existing metacard transformers are written as Java classes, and these steps walk
 .. `transform` must return a `Metacard` or throw an exception. It cannot return null.
 . Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.transform`
-. Create an OSGi descriptor file to communicate with the OSGi Service registry (described in the <<Working with OSGi,Working with OSGi section>>). Export the service to the OSGi registry and declare service properties.
+. Create an OSGi descriptor file to communicate with the OSGi Service registry (described in the <<{developing-prefix}osgi_basics,OSGi Basics>> section). Export the service to the OSGi registry and declare service properties.
 +
 .Metacard Transformer Blueprint Descriptor Example
 [source,xml,linenums]
 ----
 ...
-<service ref="[[SampleMetacardTransformer]]" interface="ddf.catalog.transform.MetacardTransformer">
+<service ref="SampleMetacardTransformer" interface="ddf.catalog.transform.MetacardTransformer">
     <service-properties>
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Metacard Transformer]]" />

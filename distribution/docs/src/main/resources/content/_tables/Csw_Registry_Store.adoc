@@ -5,7 +5,7 @@
 :application: ${ddf-registry}
 :summary: Registry CSW Store.
 
-.[[Csw_Registry_Store]]CSW Registry Store
+.[[_Csw_Registry_Store]]CSW Registry Store
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

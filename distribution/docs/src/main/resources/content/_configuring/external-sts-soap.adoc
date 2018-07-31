@@ -7,4 +7,4 @@
 
 == {title}
 
-See <<_connecting_to_external_sts,connecting to an external STS>> for initial STS setup.
+See <<{managing-prefix}connecting_to_external_sts,connecting to an external STS>> for initial STS setup.

@@ -9,5 +9,5 @@
 
 If using REST services or connecting to REST sources, several configuration options are available.
 
-${branding} includes a <<_configuring_included_idp,Identity Provider(IdP)>>, but can also be configured to support an <<_connecting_to_an_external_idp,external IdP>> or <<_configuring_without_an_idp,no IdP>> at all.
+${branding} includes a <<{managing-prefix}configuring_included_idp,Identity Provider(IdP)>>, but can also be configured to support an <<{managing-prefix}connecting_to_an_external_idp,external IdP>> or <<{managing-prefix}configuring_without_an_idp,no IdP>> at all.
 

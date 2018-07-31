@@ -57,7 +57,7 @@ config=file:etc/artemis-backup.xml
 ----
 +
 . Restart Servers: +
-If the ${branding} instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn't have any issues establishing the backup due to the backup being busy initializing. See <<Starting ${branding},Starting ${branding}>> for detailed steps.
+If the ${branding} instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn't have any issues establishing the backup due to the backup being busy initializing. See <<{managing-prefix}starting,Starting ${branding}>> for detailed steps.
 +
 . Verify Cluster Replication: +
 Once both servers are started, the following command can be run using curl or a https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync[browser] to verify that the servers have successfully synced.
@@ -188,7 +188,7 @@ To update the username and password:
 === Using the ${message-broker} Application
 
 The ${message-broker} app can be used through the ${admin-console}.
-See <<Route Manager, the Route Manager>> and <<Undelivered Messages UI, the Undelivered Messages UI>> for more information.
+See the <<{application-prefix}route_manager,Route Manager>> and the <<{application-prefix}undelivered_messages_ui,Undelivered Messages UI>> for more information.
 
 ==== Undelivered Messages UI
 

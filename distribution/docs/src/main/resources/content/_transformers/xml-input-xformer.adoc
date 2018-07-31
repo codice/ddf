@@ -2,7 +2,7 @@
 :type: transformer
 :subtype: input
 :status: published
-:link: _xml_input_transformer
+:link: {developing-prefix}xml_input_transformer
 :summary: Translates an XML document into a Catalog Metacard.
 
 The XML Input Transformer is responsible for translating an XML document into a Catalog Metacard.

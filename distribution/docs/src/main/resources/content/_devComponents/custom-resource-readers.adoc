@@ -131,6 +131,6 @@ See the XML below for an example:
 .Blueprint example
 [source,xml,linenums]
 ----
-<bean id="[[customResourceReaderId]]" class="[[example.resource.reader.impl.CustomResourceReader]]" />
-<service ref="[[customResourceReaderId]]" interface="${ddf-branding}.catalog.source.ResourceReader" />
+<bean id="customResourceReaderId]" class="example.resource.reader.impl.CustomResourceReader" />
+<service ref="customResourceReaderId" interface="${ddf-branding}.catalog.source.ResourceReader" />
 ----

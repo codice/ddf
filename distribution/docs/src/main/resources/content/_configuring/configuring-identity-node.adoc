@@ -1,7 +1,7 @@
 :title: Configuring Identity Node
 :type: subConfiguration
 :status: published
-:parent: Federating through a Registry
+:parent: Federating Through a Registry
 :order: 00
 :summary: Configuring identity node.
 
@@ -14,7 +14,7 @@ Configure the information to share with other registries/nodes.
 . Navigate to *Node Information* tab.
 . Click the name of the identity node.
 . Complete all _required_ and any desired _optional_ fields.
-.. Add any desired <<_adding_a_service_binding,service bindings>> under the <<service_bindings, Services>> tab.
+.. Add any desired <<{managing-prefix}adding_a_service_binding_to_a_node,service bindings>> under the <<{managing-prefix}service_bindings, Services>> tab.
 . Click *Save*.
 
 .General Information Tab
@@ -67,7 +67,7 @@ a|click *Add* button to add associations
 
 |===
 
-.[[service_bindings]]Services
+.[[_service_bindings]]Services
 [cols="1,3,1,1" options="header"]
 |===
 |Field
@@ -267,7 +267,7 @@ a|click *Add* button to add associations
 
 |===
 
-==== Adding a Service Binding to a Node
+=== Adding a Service Binding to a Node
 
 Advertise the methods other nodes use to connect to the local ${branding} instance.
 

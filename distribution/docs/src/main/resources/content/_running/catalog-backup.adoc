@@ -9,4 +9,4 @@
 To backup local catalog records, a Catalog Backup Plugin is available.
 It is not installed by default for performance reasons.
 
-See <<_catalog_backup_plugin,Catalog Backup Plugin>> for installation and configuration instructions).
+See <<{developing-prefix}catalog_backup_plugin,Catalog Backup Plugin>> for installation and configuration instructions).

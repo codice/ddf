@@ -37,7 +37,7 @@ When this feature is installed, the Catalog Fanout Framework App feature `cat
 
 These are the configurable properties on the Standard Catalog Framework.
 
-See <<ddf.catalog.CatalogFrameworkImpl, Catalog Standard Framework configurations>> for all possible configurations.
+See <<{application-prefix}ddf.catalog.CatalogFrameworkImpl, Catalog Standard Framework configurations>> for all possible configurations.
 
 
 .Standard Catalog Framework Exported Services

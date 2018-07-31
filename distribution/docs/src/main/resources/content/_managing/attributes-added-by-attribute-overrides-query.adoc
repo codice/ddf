@@ -15,5 +15,5 @@ Attribute overrides can be configured for query results from the following <<_co
 * <<_csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>.
 * <<_gmd_csw_source,GMD CSW Federated Source>>.
 
-Note that the attribute must be part of the metacard's <<_metacard_type,Metacard Type>> before it can be overridden. +
-See <<_attributes_added_by_attribute_injection,Attributes Added By Attribute Injection>> for more information about injecting attributes into the metacard type.
+Note that the attribute must be part of the metacard's <<{integrating-prefix}metacard_type,Metacard Type>> before it can be overridden. +
+See <<{managing-prefix}attributes_added_by_attribute_injection,Attributes Added By Attribute Injection>> for more information about injecting attributes into the metacard type.
