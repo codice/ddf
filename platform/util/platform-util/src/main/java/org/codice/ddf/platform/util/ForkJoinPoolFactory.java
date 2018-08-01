@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.transformer.thread;
+package org.codice.ddf.platform.util;
 
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
