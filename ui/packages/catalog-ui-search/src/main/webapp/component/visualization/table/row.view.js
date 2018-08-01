@@ -59,6 +59,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     onRender: function() {
         this.checkIfDownloadable();
+        this.checkIfLinks();
         this.$el.attr(this.attributes());
         this.handleResultThumbnail();
     },
@@ -74,6 +75,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     checkIfDownloadable: function(){
         this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
+    },
+    checkIfLinks: function() {
+        this.$el.toggleClass('is-links', this.model.get('metacard').get('properties').get('associations.external') !== undefined);
     },
     triggerDownload: function(){
         window.open(this.model.get('metacard').get('properties').get('resource-download-url'));
