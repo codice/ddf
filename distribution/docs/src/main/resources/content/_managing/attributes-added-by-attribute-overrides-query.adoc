@@ -7,13 +7,13 @@
 
 === {title}
 
-<<_overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
+<<{managing-prefix}overriding_attributes,Attribute Overriding>> is the act of replacing existing attribute values with a new value.
 
-Attribute overrides can be configured for query results from the following <<_connecting_to_sources,Sources>>:
+Attribute overrides can be configured for query results from the following <<{managing-prefix}connecting_to_sources,Sources>>:
 
-* <<_federated_source_for_atlassian_confluence_r,Federated Source For Atlassian Confluence>>.
-* <<_csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>.
-* <<_gmd_csw_source,GMD CSW Federated Source>>.
+* <<{managing-prefix}federated_source_for_atlassian_confluence_r,Federated Source For Atlassian Confluence>>.
+* <<{managing-prefix}csw_specification_profile_federated_source,CSW Specification Profile Federated Source>>.
+* <<{managing-prefix}gmd_csw_source,GMD CSW Federated Source>>.
 
 Note that the attribute must be part of the metacard's <<{integrating-prefix}metacard_type,Metacard Type>> before it can be overridden. +
 See <<{managing-prefix}attributes_added_by_attribute_injection,Attributes Added By Attribute Injection>> for more information about injecting attributes into the metacard type.

@@ -17,7 +17,7 @@ When a style mapping is configured, the resulting transformed KML contain a `<st
 
 ===== Installing the KML Style Mapper
 
-The KML Style Mapper is installed by default with a standard installation in the <<_spatial_application_reference,${ddf-spatial} Application>> in the `spatial-kml-transformer` feature.
+The KML Style Mapper is installed by default with a standard installation in the <<{application-prefix}spatial_application_reference,${ddf-spatial} Application>> in the `spatial-kml-transformer` feature.
 
 ===== Configuring the KML Style Mapper
 
