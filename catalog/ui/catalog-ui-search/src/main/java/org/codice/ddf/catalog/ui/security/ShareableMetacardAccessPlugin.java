@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 
 public class ShareableMetacardAccessPlugin implements AccessPlugin {
 

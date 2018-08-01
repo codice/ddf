@@ -23,7 +23,7 @@ import ddf.catalog.data.impl.types.SecurityAttributes;
 import java.util.Set;
 
 /**
- * A shareable list of attribute descriptor names. They can represent sets of interesting fields.
+ * A sharing list of attribute descriptor names. They can represent sets of interesting fields.
  *
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>

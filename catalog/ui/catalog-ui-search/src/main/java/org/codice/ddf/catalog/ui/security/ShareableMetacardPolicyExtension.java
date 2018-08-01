@@ -103,7 +103,7 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
     List<KeyValuePermission> permissions = getPermissions(allPerms);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
     if (Collections.disjoint(grouped.keySet(), SHARED_PERMISSIONS_IMPLIED)) {
-      return match; // ignore all but shareable permissions
+      return match; // ignore all but sharing permissions
     }
 
     Predicate<CollectionPermission> isSystem = system();
