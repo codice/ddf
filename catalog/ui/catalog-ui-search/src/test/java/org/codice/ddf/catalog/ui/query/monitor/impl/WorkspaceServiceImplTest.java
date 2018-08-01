@@ -18,6 +18,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +30,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
@@ -40,48 +41,58 @@ import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl;
-import org.codice.ddf.catalog.ui.query.monitor.api.FilterService;
 import org.codice.ddf.catalog.ui.query.monitor.api.SecurityService;
+import org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore;
 import org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceMetacardFilter;
+import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.opengis.filter.And;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WorkspaceServiceImplTest {
 
-  private CatalogFramework catalogFramework;
+  private WorkspaceServiceImpl workspaceServiceImpl;
 
-  private FilterBuilder filterBuilder;
+  private static final String TEST_ID = "123";
 
-  private WorkspaceTransformerImpl workspaceTransformer;
+  private static final String TEST_SUBJECT = "subject";
 
-  private FilterService filterService;
+  @Mock private CatalogFramework catalogFramework;
 
-  private SecurityService securityService;
+  @Mock private WorkspaceTransformerImpl workspaceTransformer;
 
-  private WorkspaceServiceImpl workspaceService;
+  @Mock private SecurityService securityService;
+
+  @Mock private PersistentStore persistentStore;
+
+  @Mock private WorkspaceQueryBuilder workspaceQueryBuilder;
+
+  @Mock private WorkspaceMetacardFilter workspaceMetacardFilter;
 
   @Before
   public void setup() {
-    catalogFramework = mock(CatalogFramework.class);
-    filterBuilder = mock(FilterBuilder.class);
-    workspaceTransformer = mock(WorkspaceTransformerImpl.class);
-    filterService = mock(FilterService.class);
-    securityService = mock(SecurityService.class);
-    WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
-
     when(workspaceMetacardFilter.filter(any())).thenReturn(true);
 
-    workspaceService =
+    workspaceServiceImpl =
         new WorkspaceServiceImpl(
-            catalogFramework, filterBuilder, workspaceTransformer, filterService, securityService);
+            catalogFramework,
+            workspaceTransformer,
+            workspaceQueryBuilder,
+            securityService,
+            persistentStore);
+
+    workspaceServiceImpl.setMaxSubscriptions(100);
   }
 
   private void mockCatalogFrameworkQuery(String id, String subject)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
     when(securityService.addSystemSubject(any()))
         .thenReturn(Collections.singletonMap(SecurityConstants.SECURITY_SUBJECT, subject));
@@ -94,29 +105,29 @@ public class WorkspaceServiceImplTest {
     when(attribute.getValue()).thenReturn(id);
     when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
     when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    when(persistentStore.get(
+            eq(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE), anyString(), eq(0), eq(100)))
+        .thenReturn(Collections.singletonList(Collections.singletonMap("id_txt", id)));
 
     when(result.getMetacard()).thenReturn(metacard);
 
     List<Result> resultList = Collections.singletonList(result);
     when(queryResponse.getResults()).thenReturn(resultList);
-
     when(catalogFramework.query(any())).thenReturn(queryResponse);
+    Filter filter = mock(Filter.class);
+    when(workspaceQueryBuilder.createFilter(Collections.singleton(id))).thenReturn(filter);
   }
 
   @Test
   public void testGetWorkspaceMetacards()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
-    String id = "123";
-    String subject = "subject";
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
-    mockCatalogFrameworkQuery(id, subject);
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceServiceImpl.getWorkspaceMetacards();
 
-    mockWorkspaceTagFilter();
-
-    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
-
-    assertMetacardList(id, subject, workspaceMetacards);
+    assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
 
   private void assertMetacardList(
@@ -132,68 +143,30 @@ public class WorkspaceServiceImplTest {
     assertThat(workspaceMetacards.get(0).getId(), is(id));
   }
 
-  private Filter mockWorkspaceTagFilter() {
-    Filter workspaceTagFilter = mock(Filter.class);
-
-    when(filterService.buildWorkspaceTagFilter()).thenReturn(workspaceTagFilter);
-
-    return workspaceTagFilter;
-  }
-
   @Test
   public void testGetWorkspaceMetacardsByWorkspaceId()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
-    String id = "123";
-    String subject = "subject";
-
-    mockCatalogFrameworkQuery(id, subject);
-
-    Filter workspaceTagFilter = mockWorkspaceTagFilter();
-
-    Filter metacardIdFilter = mock(Filter.class);
-
-    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
-
-    And andFilter = mock(And.class);
-
-    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
-
-    Or orFilter = mock(Or.class);
-
-    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
 
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
+        workspaceServiceImpl.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
-    assertMetacardList(id, subject, workspaceMetacards);
+    assertMetacardList(TEST_ID, TEST_SUBJECT, workspaceMetacards);
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void testGetWorkspaceMetacardsByWorkspaceIdWithException()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
-    String id = "123";
-
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
-    Filter workspaceTagFilter = mockWorkspaceTagFilter();
-
-    Filter metacardIdFilter = mock(Filter.class);
-
-    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
-
-    And andFilter = mock(And.class);
-
-    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
-
-    Or orFilter = mock(Or.class);
-
-    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
-
     List<WorkspaceMetacardImpl> workspaceMetacards =
-        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
+        workspaceServiceImpl.getWorkspaceMetacards(Collections.singleton(TEST_ID));
 
     assertThat(workspaceMetacards, hasSize(0));
   }
@@ -205,26 +178,25 @@ public class WorkspaceServiceImplTest {
    * @throws UnsupportedQueryException
    * @throws SourceUnavailableException
    * @throws FederationException
+   * @throws PersistenceException
    */
   @SuppressWarnings("unchecked")
   @Test
   public void testGetWorkspaceMetacardsWithException()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          PersistenceException {
 
+    mockCatalogFrameworkQuery(TEST_ID, TEST_SUBJECT);
     when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
-    Filter filter = mock(Filter.class);
-
-    when(filterService.buildWorkspaceTagFilter()).thenReturn(filter);
-
-    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceServiceImpl.getWorkspaceMetacards();
 
     assertThat(workspaceMetacards, hasSize(0));
   }
 
   @Test
   public void testToString() {
-    assertThat(workspaceService.toString(), notNullValue());
+    assertThat(workspaceServiceImpl.toString(), notNullValue());
   }
 
   @Test
@@ -240,7 +212,7 @@ public class WorkspaceServiceImplTest {
     WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);
     when(workspaceMetacard.getQueries()).thenReturn(Collections.singletonList(xml));
 
-    List<QueryMetacardImpl> metacards = workspaceService.getQueryMetacards(workspaceMetacard);
+    List<QueryMetacardImpl> metacards = workspaceServiceImpl.getQueryMetacards(workspaceMetacard);
 
     assertThat(metacards, hasSize(1));
   }
