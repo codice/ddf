@@ -73,6 +73,10 @@
                 <ref component-id="casAuthenticationFilter"/>
             </list>
         </argument>
+        <cm:managed-properties persistent-id="ddf.security.cas"
+          update-strategy="container-managed"/>
+        <property name="serverName"
+                  value="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}" />
     </bean>
 
     <reference id="stsClientConfig"
