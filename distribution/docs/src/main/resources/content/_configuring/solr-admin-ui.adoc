@@ -34,4 +34,4 @@ failing, or a message that the client certificate is invalid.
 
 The Solr server's URL is configured in ${branding}'s `system.properties` file. See
 <<{managing-prefix}solr_server_url,solr.http.url>> for more information.
-An _example_ of a typical URL for the Solr Admin UI is `https//:hostname:8994`.
+An _example_ of a typical URL for the Solr Admin UI is `https://hostname:8994`.
