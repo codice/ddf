@@ -5,7 +5,7 @@
 :order: 01
 :summary: Source Metrics.
 
-Metrics are also collected on a per source basis for each configured <<_connecting_to_sources,Federated Source>> and <<_catalog_providers,Catalog Provider>>.
+Metrics are also collected on a per source basis for each configured <<{managing-prefix}connecting_to_sources,Federated Source>> and <<{managing-prefix}catalog_providers,Catalog Provider>>.
 When the source is configured, the metrics listed in the table below are automatically created.
 Metrics are collected for each request(whether enterprise query or a source-specific query).
 When the source is deleted (or renamed), the associated metrics' MBeans and Collectors are also deleted.
