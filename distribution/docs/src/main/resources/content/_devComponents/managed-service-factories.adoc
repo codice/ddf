@@ -61,7 +61,7 @@ a|`latitude=D"4636745974857667812"`
 a|```
 complexStringArray=[ \
   "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}", \
-  "{\"url\"\ \"http://test.sample.com"\ 0.5}","/solr\=SAML\|PKI\|basic", \
+  "{\"url\"\ \"http://test.sample.com"\ 0.5}", \
   "/security-config\=SAML\|basic", \
   ]
 ```
@@ -148,7 +148,6 @@ authenticationTypes=[ \
   "/\=SAML|GUEST", \
   "/admin\=SAML|basic", \
   "/system\=basic", \
-  "/solr\=SAML|PKI|basic", \
   "/sources\=SAML|basic", \
   "/security-config\=SAML|basic", \
   "/search\=basic", \
