@@ -547,14 +547,9 @@
         <property name="maxSubscriptions" value="100"/>
     </bean>
 
-    <service interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore">
-        <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
-            <argument ref="persistentStore"/>
-        </bean>
-    </service>
-
-    <reference id="workspacePersistentStore" availability="optional"
-               interface="org.codice.ddf.catalog.ui.query.monitor.api.SubscriptionsPersistentStore"/>
+    <bean id="workspacePersistentStore" class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
+        <argument ref="persistentStore"/>
+    </bean>
 
     <reference id="smtpClient" availability="mandatory"
                interface="org.codice.ddf.platform.email.SmtpClient"/>
