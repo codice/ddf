@@ -77,6 +77,9 @@ public class OpenSearchFilterVisitorTest {
       "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), "
           + "((20 35, 10 30, 10 10, 30 5, 45 20, 20 35), "
           + "(30 20, 20 15, 20 25, 30 20)))";
+
+  private static final String ECQL_MULTIPOLYGON = "(INTERSECTS(anyGeo, " + WKT_MULTI_POLYGON + "))";
+
   private static final String WKT_GEO_COLLECTION =
       "GEOMETRYCOLLECTION (POINT (4 6), LINESTRING (4 6, 7 10))";
 
@@ -413,6 +416,21 @@ public class OpenSearchFilterVisitorTest {
     OpenSearchFilterVisitorObject result =
         (OpenSearchFilterVisitorObject)
             openSearchFilterVisitor.visit(intersectsFilter, openSearchFilterVisitorObject);
+    assertThat(result.getPointRadiusSearches(), is(empty()));
+    assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_MULTI_POLYGON))));
+  }
+
+  @Test
+  public void testIntersectsWithMultipolygonECQL() throws CQLException {
+
+    Intersects multipolygonFilter = (Intersects) ECQL.toFilter(ECQL_MULTIPOLYGON);
+
+    OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+        new OpenSearchFilterVisitorObject();
+    openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
+    OpenSearchFilterVisitorObject result =
+        (OpenSearchFilterVisitorObject)
+            openSearchFilterVisitor.visit(multipolygonFilter, openSearchFilterVisitorObject);
     assertThat(result.getPointRadiusSearches(), is(empty()));
     assertThat(result.getGeometrySearches(), contains(hasToString(is(WKT_MULTI_POLYGON))));
   }
