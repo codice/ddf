@@ -2,12 +2,11 @@
 include::${project.build.directory}/doc-contents/content/config.adoc[]
 :application-prefix: _
 :architecture-prefix: _
+:developing-prefix: _
 :integrating-prefix: _
 :introduction-prefix: _
-:developing-prefix: _
 :managing-prefix: _
 :metadata-prefix: _
-:managing-prefix: _
 :quickstart-prefix: _
 :using-prefix: _
 
@@ -54,6 +53,10 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 :sectnums:
 
 <#include "build/developing.ftl">
+
+<#include "build/developing-components.ftl">
+
+<#include "build/development-guidelines.ftl">
 
 :sectnums!:
 == Appendices
