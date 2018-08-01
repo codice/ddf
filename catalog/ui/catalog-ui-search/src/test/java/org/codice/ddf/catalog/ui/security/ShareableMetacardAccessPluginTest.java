@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.authz.Permission;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -71,7 +72,7 @@ public class ShareableMetacardAccessPluginTest {
     Map<String, Metacard> updates = ImmutableMap.of("rand", new MetacardImpl());
     UpdateRequest update = mockUpdateRequest(updates);
 
-    // should ignore all non-shareable metacards and do nothing
+    // should ignore all non-sharing metacards and do nothing
     accessPlugin.processPreUpdate(update, updates);
   }
 
@@ -86,7 +87,7 @@ public class ShareableMetacardAccessPluginTest {
     Map<String, Metacard> updates = ImmutableMap.of(id, testMetacard);
     UpdateRequest update = mockUpdateRequest(updates);
 
-    // should ignore any shareable metacards with no updated roles
+    // should ignore any sharing metacards with no updated roles
     accessPlugin.processPreUpdate(update, updates);
   }
 

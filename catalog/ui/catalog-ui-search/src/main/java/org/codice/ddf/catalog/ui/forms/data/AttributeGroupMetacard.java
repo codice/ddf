@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 
 /**
- * Metacard used for storing shareable attribute groups in the catalog. Should not be used as a
+ * Metacard used for storing sharing attribute groups in the catalog. Should not be used as a
  * resource. Identifiable by the presence of {@link AttributeGroupType#ATTRIBUTE_GROUP_TAG} in
  * {@link Metacard#TAGS}.
  *

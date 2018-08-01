@@ -11,9 +11,8 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package org.codice.ddf.catalog.ui.sharing;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -35,9 +34,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
-import org.codice.ddf.catalog.ui.forms.data.QueryTemplateMetacard;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 
 /**
  * Provides a set of operations that can be performed on {@link Metacard}s that support sharing. Use
@@ -45,6 +41,12 @@ import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
  * #createOrThrow(Metacard)} to obtain and validate an instance of this class.
  */
 public class ShareableMetacardImpl extends MetacardImpl {
+
+  public static final String QUERY_TEMPLATE_TAG = "query-template";
+
+  public static final String ATTRIBUTE_GROUP_TAG = "attribute-group";
+
+  public static final String WORKSPACE_TAG = "workspace";
 
   protected ShareableMetacardImpl(MetacardType type) {
     super(type);
@@ -54,31 +56,27 @@ public class ShareableMetacardImpl extends MetacardImpl {
     super(metacard);
   }
 
-  @VisibleForTesting
-  ShareableMetacardImpl() {
+  public ShareableMetacardImpl() {
     super(
         new MetacardTypeImpl(
             "metacard.sharing", Arrays.asList(new CoreAttributes(), new SecurityAttributes())));
   }
 
-  @VisibleForTesting
-  ShareableMetacardImpl(String id) {
+  public ShareableMetacardImpl(String id) {
     this();
     setId(id);
   }
 
   /**
-   * Check if a given metacard is a shareable metacard by checking the presence of security
+   * Check if a given metacard is a sharing metacard by checking the presence of security
    * attributes.
    *
    * @param metacard the metacard to check.
-   * @return true if the provided metacard is a shareable metacard, false otherwise.
+   * @return true if the provided metacard is a sharing metacard, false otherwise.
    */
   public static boolean canShare(Metacard metacard) {
     return metacard != null
-        && (WorkspaceMetacardImpl.isWorkspaceMetacard(metacard)
-            || QueryTemplateMetacard.isQueryTemplateMetacard(metacard)
-            || AttributeGroupMetacard.isAttributeGroupMetacard(metacard))
+        && isSharingCapable(metacard)
         && metacard
             .getMetacardType()
             .getAttributeDescriptors()
@@ -116,8 +114,7 @@ public class ShareableMetacardImpl extends MetacardImpl {
     return Optional.of(new ShareableMetacardImpl(metacard));
   }
 
-  @VisibleForTesting
-  static ShareableMetacardImpl create(Map<String, Serializable> attributes) {
+  public static ShareableMetacardImpl create(Map<String, Serializable> attributes) {
     ShareableMetacardImpl shareableMetaCard = new ShareableMetacardImpl();
     attributes
         .entrySet()
@@ -128,13 +125,12 @@ public class ShareableMetacardImpl extends MetacardImpl {
   }
 
   /**
-   * Get a copy of a shareable metacard.
+   * Get a copy of a sharing metacard.
    *
    * @param metacard the metacard to copy.
    * @return a {@link ShareableMetacardImpl} with all the attributes of the original.
    */
-  @VisibleForTesting
-  static ShareableMetacardImpl clone(Metacard metacard) {
+  public static ShareableMetacardImpl clone(Metacard metacard) {
     ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
     metacard
         .getMetacardType()
@@ -203,5 +199,12 @@ public class ShareableMetacardImpl extends MetacardImpl {
   public ShareableMetacardImpl setAccessGroups(Set<String> accessGroups) {
     setAttribute(SecurityAttributes.ACCESS_GROUPS, new ArrayList<>(accessGroups));
     return this;
+  }
+
+  private static boolean isSharingCapable(Metacard metacard) {
+    return metacard != null
+        && (metacard.getTags().contains(QUERY_TEMPLATE_TAG)
+            || metacard.getTags().contains(WORKSPACE_TAG)
+            || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG));
   }
 }

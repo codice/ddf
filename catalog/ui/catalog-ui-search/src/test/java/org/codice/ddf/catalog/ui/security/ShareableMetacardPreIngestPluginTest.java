@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 

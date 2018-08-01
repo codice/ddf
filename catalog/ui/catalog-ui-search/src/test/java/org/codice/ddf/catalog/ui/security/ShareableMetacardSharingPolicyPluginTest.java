@@ -27,6 +27,7 @@ import java.util.Map;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupType;
 import org.codice.ddf.catalog.ui.forms.data.QueryTemplateType;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 

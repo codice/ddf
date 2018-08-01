@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 
 /**
  * Metacard used for storing query templates in the catalog. Should not be used as a resource.
