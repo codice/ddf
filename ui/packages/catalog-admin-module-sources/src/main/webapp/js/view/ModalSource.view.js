@@ -152,7 +152,7 @@ define([
         getCurrentConfiguration: function () {
             var selectedSource = this.$(".selected-source option:selected").text().trim();
             return this.model.getAllConfigsWithServices().filter(function (config) {
-                return config.get("name") === selectedSource;
+                return config.get("service").get("name") === selectedSource;
             })[0];
         },
         /**
