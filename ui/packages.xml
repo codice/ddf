@@ -42,5 +42,12 @@
             </excludes>
             <outputDirectory>ace</outputDirectory>
         </fileSet>
+      <fileSet>
+        <directory>${project.basedir}/packages/linter</directory>
+        <excludes>
+          <exclude>**/node_modules/**</exclude>
+        </excludes>
+        <outputDirectory>linter</outputDirectory>
+      </fileSet>
     </fileSets>
 </assembly>
