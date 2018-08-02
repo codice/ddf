@@ -460,7 +460,7 @@ Thumbs.db
 |solr.http.url
 |String
 |URL for a HTTP Solr server (required for HTTP Solr)
-|http://localhost:${solr.http.port}/solr
+|https://localhost:8994/solr
 |Yes
 
 |Solr Data Directory
