@@ -85,8 +85,20 @@ module.exports =  Marionette.ItemView.extend({
                         if (!user.getQuerySettings().get('template')) {
                             user.getQuerySettings().set('type', 'text');
                             user.savePreferences();
+                            this.options.queryModel.resetToDefaults();
+                        } else {
+                            const template = user.getQuerySettings().get('template');
+                            const defaults = {
+                                type: 'custom',
+                                title: template.name,
+                                filterTree: template.filterTemplate,
+                                src: (template.querySettings && template.querySettings.src) || '',
+                                federation: (template.querySettings && template.querySettings.federation) || 'enterprise',
+                                sorts: template.sorts,
+                                'detail-level': (template.querySettings && template.querySettings['detail-level']) || 'allFields'
+                            };
+                            this.options.queryModel.resetToDefaults(defaults);
                         }
-                        this.options.queryModel.resetToDefaults();
                     }
                 }.bind(this));
             }
