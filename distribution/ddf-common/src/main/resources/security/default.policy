@@ -379,7 +379,7 @@ grant codeBase "file:/platform-country-converter-local" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
 }
 
-grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl" {
+grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/org.eclipse.jetty.websocket.server/session-management-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }
