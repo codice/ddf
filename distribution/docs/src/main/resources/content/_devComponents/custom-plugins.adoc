@@ -23,11 +23,11 @@ The following types of plugins can be created:
 |ddf.catalog.plugin.PreAuthorizationPlugin
 |Before any security rules are applied.
 
-|<<_policy_plugins,Policy>>
+|<<{architecture-prefix}policy_plugins,Policy>>
 |ddf.catalog.plugin.PolicyPlugin
 |After pre-authorization plugins, but before other catalog plugins to establish the policy for requests/responses.
 
-|<<_access_plugins,Access>>
+|<<{architecture-prefix}access_plugins,Access>>
 |ddf.catalog.plugin.AccessPlugin
 |Directly after any policy plugins
 
@@ -35,55 +35,55 @@ The following types of plugins can be created:
 |ddf.catalog.plugin.PreIngestPlugin
 |Before the Create/Update/Delete method is sent to the Catalog Provider.
 
-|<<_post_ingest_plugins,Post-Ingest>>
+|<<{architecture-prefix}post_ingest_plugins,Post-Ingest>>
 |ddf.catalog.plugin.PostIngestPlugin
 |After the Create/Update/Delete method is sent to the Catalog Provider.
 
-|<<_pre_query_plugins,Pre-Query>>
+|<<{architecture-prefix}pre_query_plugins,Pre-Query>>
 |ddf.catalog.plugin.PreQueryPlugin
 |Prior to the Query/Read method being sent to the Source.
 
-|<<_post_query_plugins,Post-Query>>
+|<<{architecture-prefix}post_query_plugins,Post-Query>>
 |ddf.catalog.plugin.PostQueryPlugin
 |After results have been retrieved from the query but before they are posted to the Endpoint.
 
-|<<_pre_federated_query_plugins,Pre-Federated-Query>>
+|<<{architecture-prefix}pre_federated_query_plugins,Pre-Federated-Query>>
 |ddf.catalog.plugin.PreFederatedQueryPlugin
 |Before a federated query is executed.
 
-|<<_post_federated_query_plugins,Post-Federated-Query>>
+|<<{architecture-prefix}post_federated_query_plugins,Post-Federated-Query>>
 |ddf.catalog.plugin.PostFederatedQueryPlugin
 |After a federated query has been executed.
 
-|<<_pre_resource_plugins,Pre-Resource>>
+|<<{architecture-prefix}pre_resource_plugins,Pre-Resource>>
 |ddf.catalog.plugin.PreResourcePlugin
 |Prior to a Resource being retrieved.
 
-|<<_post_resource_plugins,Post-Resource>>
+|<<{architecture-prefix}post_resource_plugins,Post-Resource>>
 |ddf.catalog.plugin.PostResourcePlugin
 |After a Resource is retrieved, but before it is sent to the Endpoint.
 
-|<<_pre_create_storage_plugins,Pre-Create Storage>>
+|<<{architecture-prefix}pre_create_storage_plugins,Pre-Create Storage>>
 |ddf.catalog.content.plugin.PreCreateStoragePlugin
-|<<_packages_removed_from_whitelist,Experimental >>Before an item is created in the content repository.
+|<<{application-prefix}packages_removed_from_whitelist,Experimental >>Before an item is created in the content repository.
 
-|<<_post_create_storage_plugins,Post-Create Storage>>
+|<<{architecture-prefix}post_create_storage_plugins,Post-Create Storage>>
 |ddf.catalog.content.plugin.PostCreateStoragePlugin
-|<<_packages_removed_from_whitelist,Experimental >>After an item is created in the content repository.
+|<<{application-prefix}packages_removed_from_whitelist,Experimental >>After an item is created in the content repository.
 
-|<<_pre_update_storage_plugins,Pre-Update Storage>>
+|<<{architecture-prefix}pre_update_storage_plugins,Pre-Update Storage>>
 |ddf.catalog.content.plugin.PreUpdateStoragePlugin
-|<<_packages_removed_from_whitelist,Experimental >>Before an item is updated in the content repository.
+|<<{application-prefix}packages_removed_from_whitelist,Experimental >>Before an item is updated in the content repository.
 
-|<<_post_update_storage_plugins,Post-Update Storage>>
+|<<{architecture-prefix}post_update_storage_plugins,Post-Update Storage>>
 |ddf.catalog.content.plugin.PostUpdateStoragePlugin
-|<<_packages_removed_from_whitelist,Experimental >>After an item is updated in the content repository.
+|<<{application-prefix}packages_removed_from_whitelist,Experimental >>After an item is updated in the content repository.
 
-|<<_pre_subscription_plugins,Pre-Subscription>>
+|<<{architecture-prefix}pre_subscription_plugins,Pre-Subscription>>
 |ddf.catalog.plugin.PreSubscriptionPlugin
 |Prior to a Subscription being created or updated.
 
-|<<_pre_delivery_plugins,Pre-Delivery>>
+|<<{architecture-prefix}pre_delivery_plugins,Pre-Delivery>>
 |ddf.catalog.plugin.PreDeliveryPlugin
 |Prior to the delivery of a Metacard when an event is posted.
 
