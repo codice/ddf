@@ -1,7 +1,19 @@
 <div class="metacard">
-  <div class="metacard-categories">
-    {{#each categories}}
-      {{> category}}
-    {{/each}}
+
+  <div class="metacard-controls">
+    <span class="expand-card" onclick="expandCard(this.parentElement.parentElement)">Expand Card</span>
+    <span> | </span>
+    <span class="collapse-card" onclick="collapseCard(this.parentElement.parentElement)">Collapse Card</span>
   </div>
+
+  <div class="metacard-panel">
+    <h1 class="metacard-title" onclick="toggleMetacardVisibility(this.parentElement)">{{ title }}</h1>
+
+    <div class="metacard-categories">
+      {{#each categories}}
+        {{> category}}
+      {{/each}}
+    </div>
+  </div>
+
 </div>

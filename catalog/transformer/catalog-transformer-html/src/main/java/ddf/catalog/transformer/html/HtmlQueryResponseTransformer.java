@@ -15,9 +15,11 @@ package ddf.catalog.transformer.html;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.transformer.html.models.HtmlCategoryModel;
 import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.ByteArrayInputStream;
@@ -26,32 +28,39 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class HtmlMetacardTransformer extends HtmlMetacard implements MetacardTransformer {
+public class HtmlQueryResponseTransformer extends HtmlMetacard implements QueryResponseTransformer {
 
-  public HtmlMetacardTransformer() {
+  public HtmlQueryResponseTransformer() {
     super();
   }
 
-  public HtmlMetacardTransformer(List<HtmlCategoryModel> categoryList) {
+  public HtmlQueryResponseTransformer(List<HtmlCategoryModel> categoryList) {
     super(categoryList);
   }
 
   @Override
-  public BinaryContent transform(Metacard metacard, Map<String, Serializable> map)
+  public BinaryContent transform(SourceResponse sourceResponse, Map<String, Serializable> map)
       throws CatalogTransformerException {
 
-    if (metacard == null) {
-      throw new CatalogTransformerException("Null metacard cannot be transformed to HTML");
+    if (sourceResponse == null) {
+      throw new CatalogTransformerException("Null result set cannot be transformed to HTML");
     }
 
-    List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
-    metacardModelList.add(new HtmlMetacardModel(metacard, getCategoryList()));
+    List<Metacard> metacards =
+        sourceResponse.getResults().stream().map(Result::getMetacard).collect(Collectors.toList());
 
-    String html = buildHtml(metacardModelList);
+    List<HtmlMetacardModel> metacardModels = new ArrayList<>();
+
+    for (Metacard metacard : metacards) {
+      metacardModels.add(new HtmlMetacardModel(metacard, getCategoryList()));
+    }
+
+    String html = buildHtml(metacardModels);
 
     if (html == null) {
-      throw new CatalogTransformerException("Metacard cannot be transformed to HTML");
+      throw new CatalogTransformerException("Result set cannot be transformed to HTML");
     } else {
       return new BinaryContentImpl(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)));
     }

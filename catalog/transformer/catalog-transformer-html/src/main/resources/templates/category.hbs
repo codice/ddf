@@ -1,3 +1,29 @@
 <div class="metacard-category">
-  <h1>{{ title }}</h1>
+  <h3 class="category-title">{{ title }}</h3>
+  <table class="category-table">
+    <tr>
+      <th class="attribute-name">Property</th>
+      <th class="attribute-value">Value</th>
+    </tr>
+    {{#each attributeMappings}}
+      <tr class="metacard-attribute">
+        <td class="attribute-name">{{ @key }}</td>
+
+        {{#isEmptyValue}}
+          <td class="attribute-value empty-attribute">{{ emptyFieldValue }}</td>
+        {{/isEmptyValue}}
+
+        {{#isMediaValue}}
+          <td class="attribute-value media-attribute">
+            <img src="data:image/png;base64, {{ this.data }}"/>
+          </td>
+        {{/isMediaValue}}
+
+        {{#isBasicValue}}
+          <td class="attribute-value">{{ this.value }}</td>
+        {{/isBasicValue}}
+
+      </tr>
+    {{/each}}
+  </table>
 </div>

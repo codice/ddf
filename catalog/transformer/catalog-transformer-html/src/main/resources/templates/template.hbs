@@ -1,11 +1,136 @@
 <html>
-  <title>
-
-  </title>
+  <head>
+    <style>
+      nav li {
+        display: inline-block;
+      }
+      .metacard {
+        margin: 0 auto;
+        width: 1000px;
+      }
+      .metacard-controls {
+        cursor: pointer;
+        text-align: right;
+      }
+      .metacard-panel {
+        border-style: solid;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      i {
+        border: solid black;
+        border-width: 0 3px 3px 0;
+        display: inline-block;
+        padding: 3px;
+      }
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+      }
+      .down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+      }
+      .metacard-categories {
+        border-top: solid;
+      }
+      .category-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .category-table td, th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      .category-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      .category-table tr:hover {
+        background-color: #ddd;
+      }
+      .category-table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+      }
+      .attribute-name {
+        width: 40% !important;
+      }
+    </style>
+  </head>
   <body>
-    {{#each metacardModels}}
-      <h1>Hello World</h1>
+
+    <ul class="control-panel">
+      <input id="empty-fields-checkbox" type="checkbox" onchange="toggleEmptyFields()">Hide empty fields<br>
+
+      <div class="metacard-controls">
+        <span title="My tip" class="expand-card" onclick="expandAll()">Expand All</span>
+        <span> | </span>
+        <span class="collapse-card" onclick="collapseAll()">Collapse All</span>
+      </div>
+    </ul>
+
+    {{#each this}}
       {{> metacard}}
     {{/each}}
+
+    <script>
+      const EMPTY_FIELD_STRING = "--";
+      function init() {
+        var metacards = document.getElementsByClassName("metacard");
+        // TODO Perform some potentially configurable operations for default viewing
+        // TODO Expand/Collapse All
+        // TODO Expand/Collapse Card
+        // TODO Hide Empty Fields
+      }
+      function expandCard(metacard) {
+        var categories = metacard.getElementsByClassName("metacard-categories")[0];
+        categories.style.display = "block";
+      }
+      function collapseCard(metacard) {
+        var categories = metacard.getElementsByClassName("metacard-categories")[0];
+        categories.style.display = "none";
+      }
+      function expandAll() {
+        var metacards = document.getElementsByClassName("metacard");
+        for (let metacard of metacards) {
+          expandCard(metacard);
+        }
+      }
+      function collapseAll() {
+        var metacards = document.getElementsByClassName("metacard");
+        for (let metacard of metacards) {
+          collapseCard(metacard);
+        }
+      }
+      function isEmpty(attrElement) {
+        let attrValue = attrElement.innerText;
+        if (attrValue == EMPTY_FIELD_STRING) {
+          return true;
+        }
+        return false;
+      }
+      function toggleEmptyFields() {
+        var attributes = document.getElementsByClassName("metacard-attribute");
+        var hideFields = document.querySelector('#empty-fields-checkbox').checked;;
+        for (let attribute of attributes) {
+          let attrElement = attribute.getElementsByClassName("attribute-value")[0];
+          if (hideFields && isEmpty(attrElement)) {
+            attribute.style.display = "none";
+          } else if (!hideFields) {
+            attribute.style.display = "";
+          }
+        }
+      }
+      function toggleCategory(category) {
+        let table = category.getElementsByClassName("category-table")[0];
+        table.style.display = table.style.display === "" ? "none" : "";
+        let button = category.getElementsByClassName("category-control")[0];
+        let icon = button.getElementsByTagName("i")[0];
+        icon.className = icon.className === "down" ? "up" : "down";
+      }
+
+      init();
+    </script>
   </body>
 </html>
