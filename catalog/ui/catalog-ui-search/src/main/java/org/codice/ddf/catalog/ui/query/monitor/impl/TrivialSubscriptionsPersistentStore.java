@@ -28,10 +28,14 @@ public class TrivialSubscriptionsPersistentStore implements SubscriptionsPersist
   }
 
   @Override
-  public void addEmails(String id, Set<String> emails) {}
+  public void addEmails(String id, Set<String> emails) {
+    // Do nothing
+  }
 
   @Override
-  public void removeEmails(String id, Set<String> emails) {}
+  public void removeEmails(String id, Set<String> emails) {
+    // Do nothing
+  }
 
   @Override
   public Set<String> getEmails(String id) {
@@ -40,7 +44,12 @@ public class TrivialSubscriptionsPersistentStore implements SubscriptionsPersist
 
   @Override
   public Set<String> getSubscriptions(String email) {
-    return null;
+    return Collections.emptySet();
+  }
+
+  @Override
+  public void removeSubscriptions(String id) {
+    // Do nothing
   }
 
   @Override

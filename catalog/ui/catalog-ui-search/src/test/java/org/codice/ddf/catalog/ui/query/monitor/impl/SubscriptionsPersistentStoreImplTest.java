@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
 
+import static org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl.PAGE_SIZE;
+import static org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl.START_INDEX;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -164,6 +166,12 @@ public class SubscriptionsPersistentStoreImplTest {
 
     @Override
     public List<Map<String, Object>> get(String type, String ecql) throws PersistenceException {
+      return get(type, ecql, START_INDEX, PAGE_SIZE);
+    }
+
+    @Override
+    public List<Map<String, Object>> get(String type, String ecql, int startIndex, int pageSize)
+        throws PersistenceException {
       String id = ecql.split("=")[1].replaceAll("'", "");
       if (map.containsKey(id)) {
         return Collections.singletonList(map.get(id));
@@ -174,6 +182,13 @@ public class SubscriptionsPersistentStoreImplTest {
 
     @Override
     public int delete(String type, String ecql) throws PersistenceException {
+
+      throw new RuntimeException("not implemented");
+    }
+
+    @Override
+    public int delete(String type, String ecql, int startIndex, int pageSize)
+        throws PersistenceException {
       throw new RuntimeException("not implemented");
     }
   }

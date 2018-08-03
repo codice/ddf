@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.query.monitor.impl;
 import static org.apache.commons.lang3.Validate.notBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +47,10 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
 
   private static final String ID = "id";
 
+  @VisibleForTesting static final int START_INDEX = 0;
+
+  @VisibleForTesting static final int PAGE_SIZE = 1000;
+
   private static final Lock LOCK = new ReentrantLock();
 
   private final PersistentStore persistentStore;
@@ -56,11 +61,11 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     this.persistentStore = persistentStore;
   }
 
-  private List<Map<String, Object>> query(String q) throws PersistenceException {
+  private List<Map<String, Object>> query(String query) throws PersistenceException {
     LOCK.lock();
     try {
       List<Map<String, Object>> results =
-          persistentStore.get(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, q);
+          persistentStore.get(SUBSCRIPTIONS_TYPE, query, START_INDEX, PAGE_SIZE);
       assert results.size() <= 1;
       return results;
     } finally {
@@ -101,12 +106,12 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
         } else {
           item.addProperty(EMAIL_PROPERTY, emails);
         }
-        persistentStore.add(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, item);
+        persistentStore.add(SUBSCRIPTIONS_TYPE, item);
       } else {
         PersistentItem persistentItem = new PersistentItem();
         persistentItem.addIdProperty(id);
         persistentItem.addProperty(EMAIL_PROPERTY, emails);
-        persistentStore.add(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, persistentItem);
+        persistentStore.add(SUBSCRIPTIONS_TYPE, persistentItem);
       }
 
     } catch (PersistenceException e) {
@@ -160,7 +165,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
   private void add(String id, PersistentItem item) {
     LOCK.lock();
     try {
-      persistentStore.add(SubscriptionsPersistentStore.SUBSCRIPTIONS_TYPE, item);
+      persistentStore.add(SUBSCRIPTIONS_TYPE, item);
     } catch (PersistenceException e) {
       LOGGER.warn(
           "unable to add PersistentItem to the PersistentStore: id={} item={}", id, item, e);
@@ -235,6 +240,20 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
     }
 
     return Collections.emptySet();
+  }
+
+  @Override
+  public void removeSubscriptions(String id) {
+    final String ecql = queryId(id);
+
+    LOCK.lock();
+    try {
+      persistentStore.delete(SUBSCRIPTIONS_TYPE, ecql, START_INDEX, PAGE_SIZE);
+    } catch (PersistenceException e) {
+      LOGGER.debug("Could not delete subscriptions for query {}", ecql, e);
+    } finally {
+      LOCK.unlock();
+    }
   }
 
   @SuppressWarnings("unchecked")
