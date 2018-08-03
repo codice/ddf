@@ -30,27 +30,14 @@ stopping the Solr server.
 No installation is required because ${branding} includes a distribution of Apache Solr.
 
 .Configuring Solr Server
-Although the default settings should be sufficient for most purposes, some options
-can be configured for Solr server.
-
-.Configuring Solr Transport Layer Security
-The default configuration does not use
-Transport Layer Security (TLS) between ${branding} and Solr. TLS adds overhead to Solr interactions
-and should not be necessary because Solr and ${branding} are running on the same host.
-To enable TLS:
-
-. Edit the `${home_directory}/etc/system.properties`
-. Change the property `solr.http.url` to read `https://` instead of `http://`
-. Restart ${branding}
+No configuration.
 
 .Solr Server System Properties (default values)
  ----
+ start.solr=true
  solr.client=HttpSolrClient
  solr.http.port=8994
- solr.http.url=http://localhost:${solr.http.port}/solr
- solr.data.dir=_DO_NOT_EXPAND_${karaf.home}/solr/server/solr
  ----
-
 
 .[[_solr_cloud]]Solr Cloud
 Solr Cloud is a cluster of distributed Solr servers used for high
