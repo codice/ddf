@@ -65,6 +65,7 @@ module.exports =  Marionette.ItemView.extend({
                     if (confirmation.get('choice')) {
                         let loadingview = new LoadingView();
                             this.model.url = './internal/forms/' + this.model.get('id');
+                            const id = this.model.get('id');
                             this.model.destroy({
                                 data: JSON.stringify({'metacard.owner': this.model.get('createdBy')}),
                                 contentType: 'application/json',
@@ -82,8 +83,28 @@ module.exports =  Marionette.ItemView.extend({
                                 }.bind(this)
                             });
                         loadingview.remove();
+                        const template = user.getQuerySettings().get('template');
+                        if (!template) {
+                            user.getQuerySettings().set('type', 'text');
+                            user.savePreferences();
+                            this.options.queryModel.resetToDefaults();
+                        } else if (id === template.id) {
+                            this.handleClearDefault();
+                            this.options.queryModel.resetToDefaults();
+                        } else {
+                            const defaults = {
+                                type: 'custom',
+                                title: template.name,
+                                filterTree: template.filterTemplate,
+                                src: (template.querySettings && template.querySettings.src) || '',
+                                federation: (template.querySettings && template.querySettings.federation) || 'enterprise',
+                                sorts: template.sorts,
+                                'detail-level': (template.querySettings && template.querySettings['detail-level']) || 'allFields'
+                            };
+                            this.options.queryModel.resetToDefaults(defaults);
+                        }
                     }
-                }.bind(this));                        
+                }.bind(this));
             }
             else{
                 this.messageNotifier(
