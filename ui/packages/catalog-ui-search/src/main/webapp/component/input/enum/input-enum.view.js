@@ -42,7 +42,12 @@ define([
         if (!multivalued){
             value = [value];
         }
-        return value;
+        return getArrayFromValue(value);
+    }
+
+    function getArrayFromValue(value) {
+      value = value || []
+      return Array.isArray(value) ? value : [value];
     }
 
     return InputView.extend({
