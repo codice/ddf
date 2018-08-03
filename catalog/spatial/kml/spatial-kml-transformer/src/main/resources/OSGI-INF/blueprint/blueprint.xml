@@ -46,6 +46,7 @@
         <service-properties>
             <entry key="id" value="kml"/>
             <entry key="shortname" value="kml"/>
+            <entry key="mime-type" value="application/vnd.google-earth.kml+xml"/>
             <entry key="title" value="View as KML..."/>
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
