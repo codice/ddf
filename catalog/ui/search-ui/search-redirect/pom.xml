@@ -16,7 +16,7 @@
     <parent>
         <artifactId>search-ui</artifactId>
         <groupId>ddf.ui.search</groupId>
-        <version>2.13.0-SNAPSHOT</version>
+        <version>2.13.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
@@ -67,7 +67,7 @@
                         <Embed-Dependency>
                             jetty-servlets
                         </Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
