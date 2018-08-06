@@ -259,6 +259,12 @@
         <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
     </reference-list>
 
+    <bean id="queryResponseTransformer" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
+                    member-type="service-reference">
+        <reference-listener ref="queryResponseTransformer" bind-method="bindService" unbind-method="unbindService"/>
+    </reference-list>
+
     <bean id="workspaceTransformer"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl">
         <argument ref="catalogFramework"/>
@@ -364,6 +370,8 @@
         <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
+        <argument ref="queryResponseTransformer"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>

@@ -24,6 +24,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
@@ -33,16 +34,27 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
+import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -56,9 +68,14 @@ import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Request;
+import spark.Response;
 import spark.servlet.SparkApplication;
+import spark.utils.IOUtils;
 
 public class QueryApplication implements SparkApplication, Function {
 
@@ -76,6 +93,10 @@ public class QueryApplication implements SparkApplication, Function {
 
   private FeatureService featureService;
 
+  private List<ServiceReference> queryResponseTransformers;
+
+  private BundleContext bundleContext;
+
   private ObjectMapper mapper =
       new ObjectMapperImpl(
           new JsonParserFactory().usePropertyOnly(),
@@ -83,9 +104,16 @@ public class QueryApplication implements SparkApplication, Function {
               .includeEmpty()
               .includeNulls()
               .includeDefaultValues()
-              .setJsonFormatForDates(false));
+              .setJsonFormatForDates(false)
+              .useAnnotations());
 
   private EndpointUtil util;
+
+  public QueryApplication(
+      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
+    this.queryResponseTransformers = queryResponseTransformers;
+    this.bundleContext = bundleContext;
+  }
 
   @Override
   public void init() {
@@ -107,6 +135,34 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         (req, res) -> {
           res.header("Content-Encoding", "gzip");
+        });
+
+    post(
+        "/cql/transform/:transformerId",
+        (req, res) -> {
+          String transformerId = req.params(":transformerId");
+          String body = util.safeGetBody(req);
+          CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
+          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+
+          LOGGER.trace("Finding transformer to transform query response.");
+
+          ServiceReference<QueryResponseTransformer> queryResponseTransformer =
+              queryResponseTransformers
+                  .stream()
+                  .filter(transformer -> transformer.getProperty("id").equals(transformerId))
+                  .findFirst()
+                  .orElse(null);
+
+          if (queryResponseTransformer == null) {
+            LOGGER.debug("Could not find transformer with id: {}", transformerId);
+            res.status(404);
+            return mapper.toJson(ImmutableMap.of("message", "Service not found"));
+          }
+
+          attachFileWithTransformer(queryResponseTransformer, cqlQueryResponse, req, res);
+
+          return "";
         });
 
     get(
@@ -242,6 +298,68 @@ public class QueryApplication implements SparkApplication, Function {
         cqlRequest.isNormalize(),
         filterAdapter,
         actionRegistry);
+  }
+
+  private void attachFileWithTransformer(
+      ServiceReference<QueryResponseTransformer> queryResponseTransformer,
+      CqlQueryResponse cqlQueryResponse,
+      Request request,
+      Response response) {
+    response.status(500);
+    BinaryContent content;
+    try {
+      content =
+          bundleContext
+              .getService(queryResponseTransformer)
+              .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
+    } catch (CatalogTransformerException e) {
+      LOGGER.debug(
+          "Error fetching binary content for transformer with id: {}",
+          queryResponseTransformer.getProperty("id"),
+          e);
+      return;
+    }
+
+    String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
+    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+    String fileExt;
+    try {
+      fileExt = allTypes.forName(mimeType).getExtension();
+    } catch (MimeTypeException e) {
+      LOGGER.debug("Error fetching file extension for mime-type: {}", mimeType, e);
+      return;
+    }
+
+    String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
+
+    boolean shouldGzip =
+        StringUtils.isNotBlank(acceptEncoding) && acceptEncoding.toLowerCase().contains("gzip");
+
+    response.type(mimeType);
+    String attachment =
+        String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
+    response.header("Content-Disposition", attachment);
+
+    try {
+      try (OutputStream servletOutputStream = response.raw().getOutputStream();
+          InputStream resultStream = content.getInputStream()) {
+        if (shouldGzip) {
+          response.header(HttpHeaders.CONTENT_ENCODING, "gzip");
+          LOGGER.trace("Request header accepts gzip");
+          try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
+            IOUtils.copy(resultStream, gzipServletOutputStream);
+          }
+        } else {
+          IOUtils.copy(resultStream, servletOutputStream);
+        }
+      }
+    } catch (java.io.IOException e) {
+      LOGGER.debug("Error attaching output file", e);
+      return;
+    }
+
+    response.status(200);
+    LOGGER.trace("Response sent in {} file format.", fileExt);
   }
 
   public void setCatalogFramework(CatalogFramework catalogFramework) {
