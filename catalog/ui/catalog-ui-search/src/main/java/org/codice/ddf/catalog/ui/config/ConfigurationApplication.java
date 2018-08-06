@@ -215,6 +215,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String customBackgroundSlideout;
 
+  private List<String> basicSearchTemporalSelectionDefault;
+
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
@@ -497,6 +499,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("editorAttributes", getEditorAttributes());
     config.put("requiredAttributes", getRequiredAttributes());
     config.put("enums", getAttributeEnumMap());
+    config.put("basicSearchTemporalSelectionDefault", basicSearchTemporalSelectionDefault);
     return config;
   }
 
@@ -1145,5 +1148,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setCustomBackgroundSlideout(String customBackgroundSlideout) {
     this.customBackgroundSlideout = customBackgroundSlideout;
+  }
+
+  public void setBasicSearchTemporalSelectionDefault(
+      List<String> basicSearchTemporalSelectionDefault) {
+    this.basicSearchTemporalSelectionDefault = basicSearchTemporalSelectionDefault;
+  }
+
+  public List<String> getBasicSearchTemporalSelectionDefault() {
+    return basicSearchTemporalSelectionDefault;
   }
 }

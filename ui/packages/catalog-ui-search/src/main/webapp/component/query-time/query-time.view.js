@@ -18,6 +18,7 @@ var template = require('./query-time.hbs');
 var CustomElements = require('js/CustomElements');
 var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
+var properties = require('properties');
 var CQLUtils = require('js/CQLUtils');
 var Common = require('js/Common');
 const RelativeTimeView = require('component/relative-time/relative-time.view');
@@ -28,6 +29,7 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         basicTime: '.basic-time',
         basicTimeField: '.basic-time-field',
+        basicTemporalSelections: '.basic-temporal-selections',
         basicTimeBefore: '.basic-time-before',
         basicTimeAfter: '.basic-time-after',
         basicTimeBetweenBefore: '.between-before',
@@ -37,6 +39,7 @@ module.exports = Marionette.LayoutView.extend({
     onBeforeShow: function () {
         this.turnOnEditing();
         this.setupTimeInput();
+        this.setupTemporalSelections();
         this.setupTimeBefore();
         this.setupTimeAfter();
         this.setupTimeBetween();
@@ -55,6 +58,7 @@ module.exports = Marionette.LayoutView.extend({
     constructFilter: function () {
         var filters = [];
         var timeRange = this.basicTime.currentView.model.getValue()[0];
+        var timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0];
         let timeBefore, timeAfter, relativeFunction;
         switch (timeRange) {
             case 'before':
@@ -74,39 +78,21 @@ module.exports = Marionette.LayoutView.extend({
         if (timeBefore) {
             var timeFilter = {
                 type: 'OR',
-                filters: [
-                    CQLUtils.generateFilter('BEFORE', 'created', timeBefore),
-                    CQLUtils.generateFilter('BEFORE', 'modified', timeBefore),
-                    CQLUtils.generateFilter('BEFORE', 'effective', timeBefore),
-                    CQLUtils.generateFilter('BEFORE', 'metacard.created', timeBefore),
-                    CQLUtils.generateFilter('BEFORE', 'metacard.modified', timeBefore)
-                ]
+                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('BEFORE', selection, timeBefore))
             };
             filters.push(timeFilter);
         }
         if (timeAfter) {
             var timeFilter = {
                 type: 'OR',
-                filters: [
-                    CQLUtils.generateFilter('AFTER', 'created', timeAfter),
-                    CQLUtils.generateFilter('AFTER', 'modified', timeAfter),
-                    CQLUtils.generateFilter('AFTER', 'effective', timeAfter),
-                    CQLUtils.generateFilter('AFTER', 'metacard.created', timeAfter),
-                    CQLUtils.generateFilter('AFTER', 'metacard.modified', timeAfter)
-                ]
+                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('AFTER', selection, timeAfter))
             };
             filters.push(timeFilter);
         }
         if (relativeFunction) {
             var timeDuration = {
                 type: 'OR',
-                filters: [
-                    CQLUtils.generateFilter('=', 'created', relativeFunction),
-                    CQLUtils.generateFilter('=', 'modified', relativeFunction),
-                    CQLUtils.generateFilter('=', 'effective', relativeFunction),
-                    CQLUtils.generateFilter('=', 'metacard.created', relativeFunction),
-                    CQLUtils.generateFilter('=', 'metacard.modified', relativeFunction)
-                ]
+                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('=', selection, relativeFunction))
             };
             filters.push(timeDuration);
         }
@@ -119,6 +105,40 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.toggleClass('is-timeRange-after', timeRange === 'after');
         this.$el.toggleClass('is-timeRange-between', timeRange === 'between');
         this.$el.toggleClass('is-timeRange-relative', timeRange === 'relative');
+    },
+    setupTemporalSelections: function () {
+        this.basicTemporalSelections.show(new PropertyView({
+            model: new Property({
+              enumFiltering: true,
+              showValidationIssues: true,
+              enumMulti: true,
+              enum: [
+                {
+                    label: 'Created Date',
+                    value: 'created'
+                }, 
+                {
+                    label: 'Effective Date',
+                    value: 'effective'
+                },
+                {
+                    label: 'Modified Date',
+                    value: 'modified'
+                },
+                {
+                    label: 'Catalog Entry Created Date',
+                    value: 'metacard.created'
+                },
+                {
+                    label: 'Catalog Entry Modified Date',
+                    value: 'metacard.modified'
+                }
+              ],
+              isEditing: true,
+              value: properties.basicSearchTemporalSelectionDefault ? [properties.basicSearchTemporalSelectionDefault] : [[]],
+              id: 'Apply Time Range To'
+            })
+          }))
     },
     setupTimeBefore: function () {
         var currentBefore = '';
