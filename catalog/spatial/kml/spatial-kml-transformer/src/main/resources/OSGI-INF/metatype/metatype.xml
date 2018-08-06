@@ -28,17 +28,8 @@
 
     </OCD>
 
-    <OCD name="KML Transformer" id="org.codice.ddf.spatial.kml.transformer">
-        <AD name="Inject attributes in description" id="injectAttributes" type="Boolean"
-            description="The name of the Metacard Attribute to match against. e.g. title, metadata-content-type, etc"/>
-    </OCD>
-
     <Designate pid="org.codice.ddf.spatial.kml.style" factoryPid="org.codice.ddf.spatial.kml.style">
         <Object ocdref="org.codice.ddf.spatial.kml.style"/>
-    </Designate>
-
-    <Designate pid="org.codice.ddf.spatial.kml.transformer" factoryPid="org.codice.ddf.spatial.kml.transformer">
-        <Object ocdref="org.codice.ddf.spatial.kml.transformer"/>
     </Designate>
 
 </metatype:MetaData>

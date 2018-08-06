@@ -34,10 +34,6 @@
     <bean id="kmlMarshaller" class="org.codice.ddf.spatial.kml.util.KmlMarshaller"/>
 
     <bean id="kmlTransformerImpl" class="org.codice.ddf.spatial.kml.transformer.KMLTransformerImpl">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.spatial.kml.transformer"
-                update-strategy="container-managed"/>
-
         <argument ref="blueprintBundleContext"/>
         <argument value="kml-styling/defaultStyling.kml"/>
         <!-- Path for default base Styling file -->
@@ -54,8 +50,6 @@
                 <entry key="ext.alternate-identifier-value" value="Identifier"/>
             </map>
         </argument>
-
-        <property name="injectAttributes" value="true"/>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
