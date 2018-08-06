@@ -20,13 +20,9 @@ define([
     './value.view',
     './value.collection',
     'js/CustomElements',
-    'moment'
-], function (Marionette, _, $, ValueView, ValueCollection, CustomElements, moment) {
-
-    function getArrayFromValue(value) {
-      value = value || []
-      return Array.isArray(value) ? value : [value];
-    }
+    'moment',
+    'js/Common'
+], function (Marionette, _, $, ValueView, ValueCollection, CustomElements, moment, Common) {
 
     return Marionette.CollectionView.extend({
         childView: ValueView,
@@ -57,7 +53,7 @@ define([
     },{
         generateValueCollectionView: function(propertyModel){
             var valueCollection = new ValueCollection();
-            const value = getArrayFromValue(propertyModel.get('value'))
+            const value = Common.getArrayFromValue(propertyModel.get('value'))
             if (value.length > 0){
                 valueCollection.add(value.map(function(value){
                     return {

@@ -53,4 +53,29 @@ describe('Common', () => {
             expect(results.length).to.equal(3)
         })
     })
+    describe('getArrayFromValue', ()=> {
+        it('converts nulls, empty strings, and undefines to empty array', ()=> {
+            expect(Common.getArrayFromValue(null)).to.deep.equal([])
+            expect(Common.getArrayFromValue()).to.deep.equal([])
+            expect(Common.getArrayFromValue(undefined)).to.deep.equal([])
+            expect(Common.getArrayFromValue('')).to.deep.equal([])
+        })
+        it('wraps the number zero in array', ()=> {
+            expect(Common.getArrayFromValue(0)).to.deep.equal([0])
+        })
+        it('wraps scalar values in array', ()=> {
+            expect(Common.getArrayFromValue(1)).to.deep.equal([1])
+            expect(Common.getArrayFromValue('test')).to.deep.equal(['test'])
+            expect(Common.getArrayFromValue(234)).to.deep.equal([234])
+            expect(Common.getArrayFromValue('a')).to.deep.equal(['a'])
+        })
+        it('leaves array as is', ()=> {
+            expect(Common.getArrayFromValue([1])).to.deep.equal([1])
+            expect(Common.getArrayFromValue(['test'])).to.deep.equal(['test'])
+            expect(Common.getArrayFromValue([234])).to.deep.equal([234])
+            expect(Common.getArrayFromValue(['a'])).to.deep.equal(['a'])
+            expect(Common.getArrayFromValue([1,'test',234,'a'])).to.deep.equal([1,'test',234,'a'])
+            expect(Common.getArrayFromValue([[[null]]])).to.deep.equal([[[null]]])
+        })
+    })
 })
