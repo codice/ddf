@@ -1,7 +1,6 @@
 :title: Application Whitelists
-:type: appendixIntro
+:type: referenceIntro
 :status: published
-:children: Application Whitelists
 :order: 00
 :summary: Introduction to application whitelists.
 

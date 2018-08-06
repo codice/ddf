@@ -1,5 +1,5 @@
 :title: ${ddf-catalog} Whitelist
-:type: appendix
+:type: reference
 :parent: Application Whitelists
 :children: none
 :status: published
