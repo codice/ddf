@@ -102,7 +102,7 @@ define([
             return this.el;
         },
         determineSelections: function () {
-            var values = Common.getArrayFromValue(this.model.get('value'));
+            const values = Common.getArrayFromValue(this.model.get('value'));
             if (this.options.isMultiSelect === undefined && (values[0] === undefined || values[0] === null)){
                 return values[0];  // otherwise placeholder (click here to select) won't appear
             }
