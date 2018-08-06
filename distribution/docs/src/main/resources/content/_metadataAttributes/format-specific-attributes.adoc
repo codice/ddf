@@ -1,5 +1,5 @@
 :title: File Format-specific Attributes
-:type: appendix
+:type: metadataReference
 :status: published
 :parent: Metadata Attributes
 :order: 01
