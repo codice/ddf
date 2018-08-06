@@ -48,6 +48,7 @@ public class QueryApplication implements SparkApplication, Function {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
   private static final String APPLICATION_JSON = "application/json";
+  private static final String TRANSFORMER_ID_PROPERTY = "id";
 
   private FeatureService featureService;
 
@@ -89,6 +90,17 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         (req, res) -> {
           res.header("Content-Encoding", "gzip");
+        });
+
+    get(
+        "/cql/transforms",
+        (req, res) -> {
+          List transformers =
+              queryResponseTransformers
+                  .stream()
+                  .map(serviceReference -> serviceReference.getProperty(TRANSFORMER_ID_PROPERTY))
+                  .collect(Collectors.toList());
+          return mapper.toJson(transformers);
         });
 
     post("/cql/transform/:transformerId", cqlTransformHandler, mapper::toJson);
