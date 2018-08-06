@@ -1,188 +1,71 @@
 #!/usr/bin/env bash
 
-# For security reasons, an internally managed Solr configuration
-# should always deny remote requests unless debugging
-# or troubleshooting in a safe environment
-SOLR_DENY_REMOTE_REQUESTS=true
-
 # Store arguments for use in local functions
 FIRST_ARGUMENT=$1
 ALL_ARGUMENTS=$@
+
+# Declare Karaf executable's return code
+KARAF_EXEC_RC=0
 
 # Useful directories
 SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 
-# Declare Karaf executable's return code
-KARAF_EXEC_RC=-1
-
-# This variable is automatically set to true if
-# the function set_solr_https_properties() is called
-HTTPS=false
-
 # Useful files
 PROPERTIES_FILE=$HOME_DIR/etc/system.properties
 RESTART_FILE="$SCRIPTDIR/restart.jvm"
-SOLR_EXEC=${HOME_DIR}/solr/bin/solr
+SOLR_EXEC=${SCRIPTDIR}/ddfsolr
+GET=${SCRIPTDIR}/get_property
 
-# Extract the value of a property from a Java properties file
-# This function does not handle multi-line properties
-# If the property does not exist, it will print an error message to stderr and
-# set a flag that it failed to read a property
-get_property() {
-
-    value=""
-    value=`grep ^$1 "$PROPERTIES_FILE" | cut -d = -f2`
-
-    if [ $value ]; then
-        echo $value
-    else
-        echo "ERROR: $1 is not a property of $PROPERTIES_FILE" >&2
-        echo ""
-    fi
-}
+# Flags
+START_KARAF="false"
+START_SOLR="false"
 
 refresh_properties() {
-    # Extract values from Java properties file and construct Solr URL
-    SOLR_CLIENT=$(get_property solr.client)
-    SOLR_PORT=$(get_property solr.http.port)
-
-    # Do not proceed if required properties are missing
-    if [ ! $SOLR_CLIENT ] || [ ! $SOLR_PORT ]; then
-        exit
-    fi
-
-  }
-
-
-
-# Return 0 (success/true) if the Solr lifecycle should be managed by this script
-is_managing_solr() {
-  local RC=1
-  if [ $SOLR_CLIENT = "HttpSolrClient"  ]; then
-    RC=0
-  fi
-  return $RC
+    # Extract values from Java properties file
+    START_KARAF=$($GET "start.ddf")
+    START_SOLR=$($GET "start.solr")
 }
 
 
 # Return 0 (success/true) if ddf_on_error.sh created a restart file
 is_restarting() {
     local RC=1
-    if [ -f $RESTART_FILE ]; then
+    if [ -f "$RESTART_FILE" ]; then
         RC=0
     fi
     return $RC
 }
-
-
-# Return 0 (success/true) Solr should only accept requests from the same host
-solr_must_deny_remote_requests() {
-    local RC=1
-    if [ $SOLR_DENY_REMOTE_REQUESTS = true ]; then
-        RC=0
-    fi
-    return $RC
-}
-
 
 # Remove the restart file so we can detect later if restart was requested
 clear_restart_flag() {
   rm -f $RESTART_FILE
 }
 
-# Set the appropriate option to prevent Solr from responding to remote requests
-deny_remote_connection_option() {
-    if solr_must_deny_remote_requests;  then
-      if [ $HTTPS = true ]; then
-        echo "-Dsolr.jetty.host=127.0.0.1"
-      else
-        echo "-Djetty.host=127.0.0.1"
-      fi
+# Return 0 (success/true) if this script should start and stop Solr
+managing_solr() {
+    local RC=1
+    if [ "$START_SOLR" = "true" ]; then
+        RC=0
     fi
-}
-
-# Start Solr using Solr's script
-start_solr() {
-
-    # Does not check to see if Solr is running the Solr port; there is no guarantee
-    # the Solr server is for this instance of DDF. It could have been started elsewhere.
-    $SOLR_EXEC start -force -p $SOLR_PORT $(deny_remote_connection_option)
-    local SOLR_START_RC=$?
-        if [ "$SOLR_START_RC" -ne 0 ]; then
-            echo "WARNING. Solr start returned an error. Is Solr already running?"
-	        echo "Please check Solr logs for additional information"
-            echo ""
-        fi
-}
-
-# Set special environment variables used by Solr to configure TLS
-set_solr_https_properties() {
-
-      # Use the same key and trust stores as the DDF uses.
-      export SOLR_SSL_KEY_STORE=$HOME_DIR/$(get_property javax.net.ssl.keyStore)
-      export SOLR_SSL_KEY_STORE_PASSWORD=$(get_property javax.net.ssl.keyStorePassword)
-      export SOLR_SSL_KEY_STORE_TYPE=$(get_property javax.net.ssl.keyStoreType)
-      export SOLR_SSL_TRUST_STORE=$HOME_DIR/$(get_property javax.net.ssl.trustStore)
-      export SOLR_SSL_TRUST_STORE_PASSWORD=$(get_property javax.net.ssl.trustStorePassword)
-      export SOLR_SSL_TRUST_STORE_TYPE=$(get_property javax.net.ssl.trustStoreType)
-
-      # Require two-way TLS. Change this value to false to disable client authentication.
-      export SOLR_SSL_NEED_CLIENT_AUTH=true
-
-      # Not used
-      export SOLR_SSL_WANT_CLIENT_AUTH=false
-
-      # Set flag
-      HTTPS=true
-}
-
-
-# Change these values to alter the memory available to the managed Solr JVM.
-set_solr_memory() {
-    export SOLR_JAVA_MEM="-Xms512m -Xmx2g"
-}
-
-
-stop_solr() {
-    $SOLR_EXEC stop -p $SOLR_PORT
-}
-
-print_messages() {
-    echo ""
-    echo "Home directory is $HOME_DIR"
-    if is_managing_solr; then
-        echo "This script manages starting and stopping Solr"
-    fi
-    if solr_must_deny_remote_requests; then
-        echo "Solr is configured to reject remote requests"
-    fi
-
-    # Provide a newline for good vertical space
-    echo ""
-}
-
-
-start_karaf() {
-    # Arguments to Karaf are optional
-    ${SCRIPTDIR}/karaf ${ALL_ARGUMENTS}
+    return $RC
 }
 
 attempt_startup() {
-    if is_managing_solr; then
-        set_solr_memory
-        start_solr;
+    if managing_solr; then
+        $SOLR_EXEC start
     fi
 
-    # Process suspended while Karaf is running
-    start_karaf
-    KARAF_EXEC_RC=$?
+    if [ "$START_KARAF" = "true" ]; then
+        # Process suspended while Karaf is running
+        ${SCRIPTDIR}/karaf ${ALL_ARGUMENTS}
+        KARAF_EXEC_RC=$?
+    fi
 }
 
 attempt_shutdown() {
-
-    if is_managing_solr; then
-        stop_solr
+    if managing_solr; then
+        $SOLR_EXEC stop
     fi
 
     if is_restarting; then
@@ -195,11 +78,6 @@ attempt_shutdown() {
 while true; do
     clear_restart_flag
     refresh_properties
-    print_messages
-
-    # Uncomment next line to enable TLS for managed Solr
-    # set_solr_https_properties
-
     attempt_startup
     attempt_shutdown
 done
