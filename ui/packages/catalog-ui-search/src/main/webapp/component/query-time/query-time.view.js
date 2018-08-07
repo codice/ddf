@@ -21,6 +21,7 @@ var Property = require('component/property/property');
 var properties = require('properties');
 var CQLUtils = require('js/CQLUtils');
 var Common = require('js/Common');
+var metacardDefinitions = require('component/singletons/metacard-definitions');
 const RelativeTimeView = require('component/relative-time/relative-time.view');
 
 module.exports = Marionette.LayoutView.extend({
@@ -58,7 +59,8 @@ module.exports = Marionette.LayoutView.extend({
     constructFilter: function () {
         var filters = [];
         var timeRange = this.basicTime.currentView.model.getValue()[0];
-        var timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0];
+        let timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0];
+        timeSelection = (!Array.isArray(timeSelection) || !timeSelection.length) ? undefined : timeSelection;
         let timeBefore, timeAfter, relativeFunction;
         switch (timeRange) {
             case 'before':
@@ -75,24 +77,24 @@ module.exports = Marionette.LayoutView.extend({
                 relativeFunction = this.basicTimeRelative.currentView.getViewValue();
                 break;
         }
-        if (timeBefore) {
+        if (timeBefore && timeSelection) {
             var timeFilter = {
                 type: 'OR',
-                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('BEFORE', selection, timeBefore))
+                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('BEFORE', selection, timeBefore))
             };
             filters.push(timeFilter);
         }
-        if (timeAfter) {
+        if (timeAfter && timeSelection) {
             var timeFilter = {
                 type: 'OR',
-                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('AFTER', selection, timeAfter))
+                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('AFTER', selection, timeAfter))
             };
             filters.push(timeFilter);
         }
-        if (relativeFunction) {
+        if (relativeFunction && timeSelection) {
             var timeDuration = {
                 type: 'OR',
-                filters: Array.from(timeSelection, selection => CQLUtils.generateFilter('=', selection, relativeFunction))
+                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('=', selection, relativeFunction))
             };
             filters.push(timeDuration);
         }
@@ -107,38 +109,22 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.toggleClass('is-timeRange-relative', timeRange === 'relative');
     },
     setupTemporalSelections: function () {
+        const definitions = metacardDefinitions.sortedMetacardTypes.filter((definition) => (!definition.hidden && definition.type === "DATE"))
+        .map((definition) => ({
+            label: definition.alias || definition.id,
+            value: definition.id
+        }));
+
         this.basicTemporalSelections.show(new PropertyView({
             model: new Property({
               enumFiltering: true,
-              showValidationIssues: true,
               enumMulti: true,
-              enum: [
-                {
-                    label: 'Created Date',
-                    value: 'created'
-                }, 
-                {
-                    label: 'Effective Date',
-                    value: 'effective'
-                },
-                {
-                    label: 'Modified Date',
-                    value: 'modified'
-                },
-                {
-                    label: 'Catalog Entry Created Date',
-                    value: 'metacard.created'
-                },
-                {
-                    label: 'Catalog Entry Modified Date',
-                    value: 'metacard.modified'
-                }
-              ],
+              enum: definitions,
               isEditing: true,
               value: properties.basicSearchTemporalSelectionDefault ? [properties.basicSearchTemporalSelectionDefault] : [[]],
               id: 'Apply Time Range To'
             })
-          }))
+          }));
     },
     setupTimeBefore: function () {
         var currentBefore = '';
