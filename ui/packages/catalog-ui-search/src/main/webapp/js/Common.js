@@ -269,10 +269,8 @@ define([
         getArrayFromValue: function(value) {
           if (value === undefined || value === '' || value === null) {
             return []
-          } else if (Array.isArray(value)) {
-            return value
           } else {
-            return [value]
+            return Array.isArray(value) ? value : [value]
           }
         }
     };
