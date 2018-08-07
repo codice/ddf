@@ -304,14 +304,15 @@ public class QueryApplication implements SparkApplication, Function {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Request request,
-      Response response) throws CatalogTransformerException, MimeTypeException, IOException {
+      Response response)
+      throws CatalogTransformerException, MimeTypeException, IOException {
 
     BinaryContent content;
 
-      content =
-          bundleContext
-              .getService(queryResponseTransformer)
-              .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
+    content =
+        bundleContext
+            .getService(queryResponseTransformer)
+            .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
 
     String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
@@ -329,18 +330,18 @@ public class QueryApplication implements SparkApplication, Function {
         String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
     response.header("Content-Disposition", attachment);
 
-      try (OutputStream servletOutputStream = response.raw().getOutputStream();
-          InputStream resultStream = content.getInputStream()) {
-        if (shouldGzip) {
-          response.header(HttpHeaders.CONTENT_ENCODING, "gzip");
-          LOGGER.trace("Request header accepts gzip");
-          try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
-            IOUtils.copy(resultStream, gzipServletOutputStream);
-          }
-        } else {
-          IOUtils.copy(resultStream, servletOutputStream);
+    try (OutputStream servletOutputStream = response.raw().getOutputStream();
+        InputStream resultStream = content.getInputStream()) {
+      if (shouldGzip) {
+        response.header(HttpHeaders.CONTENT_ENCODING, "gzip");
+        LOGGER.trace("Request header accepts gzip");
+        try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
+          IOUtils.copy(resultStream, gzipServletOutputStream);
         }
+      } else {
+        IOUtils.copy(resultStream, servletOutputStream);
       }
+    }
 
     response.status(200);
     LOGGER.trace(
