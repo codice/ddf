@@ -40,16 +40,7 @@
         <argument ref="kmlStyleMap"/>
         <argument ref="resourceActionProvider"/>
         <argument ref="kmlMarshaller"/>
-        <argument>
-            <map>
-                <entry key="description" value="Description"/>
-                <entry key="title" value="Title"/>
-                <entry key="security.classification" value="Classification"/>
-                <entry key="ext.content-type-name" value="Type"/>
-                <entry key="ext.content-store-name" value="Source"/>
-                <entry key="ext.alternate-identifier-value" value="Identifier"/>
-            </map>
-        </argument>
+        <argument><map></map></argument>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
