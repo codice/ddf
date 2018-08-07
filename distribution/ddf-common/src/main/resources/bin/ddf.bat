@@ -8,21 +8,21 @@ SET DDF_HOME=%CD%
 POPD
 
 SET GET_PROPERTY=%DIRNAME%get_property.bat
-SET SOLR_EXEC=%DDF_HOME%\solr\bin\solr.cmd
+SET SOLR_EXEC=%DDF_HOME%\bin\ddfsolr.bat
 
-:restart
+:RESTART
 REM Remove the restart file indicator so we can detect later if restart was requested
 IF EXIST "%DIRNAME%restart.jvm" DEL "%DIRNAME%restart.jvm"
 
 REM Get Solr start property
-CALL %GET_PROPERTY% start.solr true
+CALL %GET_PROPERTY% start.solr
 
 REM Get Karaf start property
-CALL %GET_PROPERTY% start.ddf true
+CALL %GET_PROPERTY% start.ddf
 
 REM Start Solr if needed
 IF "%start.solr%" == "true" (
-	CALL %GET_PROPERTY% solr.http.port 8994
+	CALL %GET_PROPERTY% solr.http.port
 	CALL %GET_PROPERTY% solr.http.protocol https
 
 	IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
@@ -56,7 +56,7 @@ IF "%start.solr%" == "true" (
 		CALL SET SOLR_SSL_WANT_CLIENT_AUTH=false
 	)
 
-	CALL %SOLR_EXEC% start -p !solr.http.port!
+	CALL %SOLR_EXEC% start
 
 	IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
 	IF "!solr.http.protocol!"=="https" ECHO Using Solr secure configuration
@@ -80,6 +80,6 @@ EXIT /B
 :STOP_SOLR
 IF "%SOLR_CLIENT%" == "HttpSolrClient" (
   ECHO Stopping Solr process on port %SOLR_PORT%
-  CALL %DDF_HOME%/solr/bin/solr.cmd stop -p %SOLR_PORT%
+  CALL %SOLR_EXEC% stop
 )
 GOTO :EOF

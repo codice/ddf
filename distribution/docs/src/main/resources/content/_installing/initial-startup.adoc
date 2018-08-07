@@ -23,7 +23,7 @@ The distribution takes a few moments to load depending on the hardware configura
 
 [TIP]
 ====
-To run ${branding} as a service, see <<{managing-prefix}starting_as_a_service_with_automatic_start_on_system_boot,Starting as a Service>>.
+To run ${branding} as a service, see <<{managing-prefix}managed_services,Starting as a Service>>.
 ====
 
 ==== Verifying Startup
