@@ -13,13 +13,15 @@
  */
 package org.codice.ddf.catalog.ui.forms.filter;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import javax.xml.bind.JAXBElement;
+import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.FilterVisitor2;
-import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,33 @@ import org.slf4j.LoggerFactory;
  * in a future version of the library.</i>
  */
 public class TransformVisitor<T> extends AbstractFilterVisitor2 {
+  private static final Map<String, Consumer<FlatFilterBuilder<?>>> OPERATORS =
+      ImmutableMap.<String, Consumer<FlatFilterBuilder<?>>>builder()
+          .put("AND", FlatFilterBuilder::and)
+          .put("And", FlatFilterBuilder::and)
+          .put("OR", FlatFilterBuilder::or)
+          .put("Or", FlatFilterBuilder::or)
+          .put("AFTER", FlatFilterBuilder::after)
+          .put("After", FlatFilterBuilder::after)
+          .put("BEFORE", FlatFilterBuilder::before)
+          .put("Before", FlatFilterBuilder::before)
+          .put("ILIKE", b -> b.like(false, "", "", ""))
+          .put("PropertyIsLike", b -> b.like(false, "", "", ""))
+          //          .put("LIKE", b -> b.like(true, "", "", ""))
+          .put("=", b -> b.isEqualTo(false))
+          .put("PropertyIsEqualTo", b -> b.isEqualTo(false))
+          .put("!=", b -> b.isNotEqualTo(false))
+          .put("PropertyIsNotEqualTo", b -> b.isNotEqualTo(false))
+          .put(">", b -> b.isGreaterThan(false))
+          .put("PropertyIsGreaterThan", b -> b.isGreaterThan(false))
+          .put(">=", b -> b.isGreaterThanOrEqualTo(false))
+          .put("PropertyIsGreaterThanOrEqualTo", b -> b.isGreaterThanOrEqualTo(false))
+          .put("<", b -> b.isLessThan(false))
+          .put("PropertyIsLessThan", b -> b.isLessThan(false))
+          .put("<=", b -> b.isLessThanOrEqualTo(false))
+          .put("PropertyIsLessThanOrEqualTo", b -> b.isLessThanOrEqualTo(false))
+          .build();
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TransformVisitor.class);
 
   private final FlatFilterBuilder<T> builder;
@@ -61,7 +90,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   @Override
   public void visitString(VisitableElement<String> visitable) {
     super.visitString(visitable);
-    builder.setProperty(visitable.getValue());
+    builder.property(visitable.getValue());
   }
 
   @Override
@@ -74,7 +103,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     }
 
     // Assumption: we only support one literal value
-    builder.setValue(values.get(0).toString());
+    builder.value(values.get(0).toString());
   }
 
   @Override
@@ -85,23 +114,34 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
       args.forEach((key, value) -> LOGGER.trace("Key: {} | Value: {}", key, value));
     }
 
-    builder.setTemplatedValues(args);
+    String defaultValue = (String) args.get("defaultValue");
+    String nodeId = (String) args.get("nodeId");
+    boolean isVisible = (boolean) args.get("isVisible");
+    boolean isReadOnly = (boolean) args.get("isReadOnly");
+
+    builder
+        .function("template.value.v1")
+        .value(defaultValue)
+        .value(nodeId)
+        .value(isVisible)
+        .value(isReadOnly)
+        .end();
   }
 
   @Override
   public void visitBinaryLogicType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
-    builder.beginBinaryLogicType(visitable.getName());
+    invokeBuilder(visitable);
     visitable.getValue().forEach(v -> v.accept(this));
-    builder.endBinaryLogicType();
+    builder.end();
   }
 
   @Override
   public void visitBinaryComparisonType(VisitableElement<List<VisitableElement<?>>> visitable) {
     traceName(visitable);
-    builder.beginBinaryComparisonType(visitable.getName());
+    invokeBuilder(visitable);
     visitable.getValue().forEach(v -> v.accept(this));
-    builder.endTerminalType();
+    builder.end();
   }
 
   @Override
@@ -109,33 +149,41 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     traceName(visitable);
     // For now, will always choose ILIKE
     // For system templates defined in XML, matchCase="true" will be ignored
-    builder.beginPropertyIsLikeType(visitable.getName(), false);
+    invokeBuilder(visitable);
     visitable.getValue().forEach(v -> v.accept(this));
-    builder.endTerminalType();
+    builder.end();
   }
 
   @Override
   public void visitBinaryTemporalType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    builder.beginBinaryTemporalType(visitable.getName());
+    invokeBuilder(visitable);
     visitable
         .getValue()
         .stream()
         .map(VisitableElement.class::cast)
         .forEachOrdered(v -> v.accept(this));
-    builder.endTerminalType();
+    builder.end();
   }
 
   @Override
   public void visitBinarySpatialType(VisitableElement<List<Object>> visitable) {
     traceName(visitable);
-    builder.beginBinarySpatialType("INTERSECTS");
+    builder.intersects();
     visitable
         .getValue()
         .stream()
         .map(VisitableElement.class::cast)
         .forEachOrdered(v -> v.accept(this));
-    builder.endTerminalType();
+    builder.end();
+  }
+
+  private void invokeBuilder(VisitableElement<?> element) {
+    Consumer<FlatFilterBuilder<?>> invocation = OPERATORS.get(element.getName());
+    if (invocation == null) {
+      throw new IllegalArgumentException("Cannot find mapping for operator " + element.getName());
+    }
+    invocation.accept(builder);
   }
 
   private static void traceName(VisitableElement element) {

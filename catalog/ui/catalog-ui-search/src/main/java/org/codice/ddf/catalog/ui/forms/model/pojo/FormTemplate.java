@@ -32,7 +32,7 @@ import org.codice.ddf.catalog.ui.forms.api.FilterNode;
  */
 public class FormTemplate extends CommonTemplate {
   @JsonProperty("filterTemplate")
-  private FilterNode root;
+  private Map<String, ?> root;
 
   @JsonProperty("accessIndividuals")
   private List<Serializable> accessIndividuals;
@@ -48,7 +48,7 @@ public class FormTemplate extends CommonTemplate {
 
   public FormTemplate(
       Metacard metacard,
-      FilterNode root,
+      Map<String, ?> root,
       Map<String, List<Serializable>> securityAttributes,
       String creator,
       Map<String, Object> querySettings) {
@@ -58,7 +58,7 @@ public class FormTemplate extends CommonTemplate {
     this.querySettings = querySettings;
   }
 
-  public FilterNode getRoot() {
+  public Map<String, ?> getRoot() {
     return root;
   }
 }

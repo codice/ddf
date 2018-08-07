@@ -13,23 +13,22 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertFunctionNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
-import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 
-import com.google.common.collect.ImmutableMap;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
 public class JsonModelBuilderTest {
-  private static final String AND = "And";
-
-  private static final String OR = "Or";
-
   private static final String JSON_EQUAL = "=";
-
-  private static final String XML_EQUAL = "PropertyIsEqualTo";
 
   private JsonModelBuilder builder;
 
@@ -40,62 +39,61 @@ public class JsonModelBuilderTest {
 
   @Test
   public void testBinaryComparisonType() {
-    FilterNode node =
-        builder
-            .beginBinaryComparisonType(XML_EQUAL)
-            .setProperty("name")
-            .setValue("value")
-            .endTerminalType()
-            .getResult();
-
+    Map<String, ?> node =
+        builder.isEqualTo(false).property("name").value("value").end().getResult();
     assertLeafNode(node, JSON_EQUAL, "name", "value");
   }
 
   @Test
   public void testBinaryComparisonTypeTemplated() {
-    FilterNode node =
+    Map<String, ?> node =
         builder
-            .beginBinaryComparisonType(XML_EQUAL)
-            .setProperty("name")
-            .setTemplatedValues(
-                ImmutableMap.of(
-                    "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false))
-            .endTerminalType()
+            .isEqualTo(false)
+            .property("name")
+            .function("template.value.v1")
+            .value("5")
+            .value("id")
+            .value(true)
+            .value(false)
+            .end()
+            .end()
             .getResult();
 
-    assertTemplatedNode(node, JSON_EQUAL, "name", "5", "id");
+    assertLeafNode(
+        node,
+        "=",
+        tar -> assertThat(tar, is("name")),
+        tar ->
+            assertFunctionNode(
+                tar, "template.value.v1", ImmutableList.of("5", "id", "true", "false")));
   }
 
   @Test
   public void testBinaryLogicTypeAnd() {
-    FilterNode node =
+    Map<String, ?> node =
         builder
-            .beginBinaryLogicType(AND)
-            .beginBinaryComparisonType(XML_EQUAL)
-            .setProperty("name")
-            .setValue("value")
-            .endTerminalType()
-            .endBinaryLogicType()
+            .and()
+            .or()
+            .intersects()
+            .property("geo")
+            .value("WKT (10, 5)")
+            .end()
+            .like(false, "", "", "")
+            .property("title")
+            .value("*")
+            .end()
+            .end()
+            .isEqualTo(false)
+            .property("name")
+            .value("value")
+            .end()
+            .end()
             .getResult();
 
-    assertParentNode(node, "AND", 1);
-  }
-
-  @Test
-  public void testBinaryLogicTypeAllOperators() {
-    new JsonModelBuilder().beginBinaryLogicType(AND);
-    new JsonModelBuilder().beginBinaryLogicType(OR);
-    // No IllegalArgumentException indicates a passing test
-  }
-
-  @Test
-  public void testBinaryComparisonTypeAllOperators() {
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsGreaterThan");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsGreaterThanOrEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsLessThan");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsLessThanOrEqualTo");
-    new JsonModelBuilder().beginBinaryComparisonType("PropertyIsNotEqualTo");
-    // No IllegalArgumentException indicates a passing test
+    assertParentNode(node, "AND", 2);
+    List<Object> filters = safeGetList(node, "filters", Object.class);
+    assertThat(filters, notNullValue());
+    assertParentNode(filters.get(0), "OR", 2);
+    assertLeafNode(filters.get(1), "=", "name", "value");
   }
 }

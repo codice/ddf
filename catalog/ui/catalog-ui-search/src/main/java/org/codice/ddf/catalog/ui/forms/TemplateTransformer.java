@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.filter.v_2_0.FilterType;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.codice.ddf.catalog.ui.forms.data.AttributeGroupMetacard;
@@ -127,7 +126,7 @@ public class TemplateTransformer {
     }
 
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);
-    TransformVisitor<FilterNode> visitor = new TransformVisitor<>(new JsonModelBuilder());
+    TransformVisitor<Map<String, ?>> visitor = new TransformVisitor<>(new JsonModelBuilder());
 
     String metacardOwner = retrieveOwnerIfPresent(metacard);
     Map<String, List<Serializable>> securityAttributes = retrieveSecurityIfPresent(metacard);

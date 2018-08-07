@@ -13,22 +13,22 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
-import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 
 /**
- * Single-use object for constructing a {@link FilterNode} that is serializable to JSON, typically
- * for use on the frontend. Also supports building filter nodes with additional metadata in them,
- * such as {@link FilterNodeImpl}s in a templated state.
+ * Single-use object for constructing a filter structure that is serializable to JSON, typically for
+ * use on the frontend. Also supports building filter nodes with additional metadata in them.
  *
  * <p>As mentioned before, this object is single-use and only supports building a single model. It
  * cannot be modified by builder methods once the result has been retrieved by calling {@link
@@ -43,40 +43,20 @@ import org.codice.ddf.catalog.ui.forms.model.FilterNodeImpl;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
-  private static final Map<String, String> BINARY_COMPARE_MAPPING =
-      ImmutableMap.<String, String>builder()
-          .put("PropertyIsEqualTo", "=")
-          .put("PropertyIsNotEqualTo", "!=")
-          .put("PropertyIsLessThan", "<")
-          .put("PropertyIsLessThanOrEqualTo", "<=")
-          .put("PropertyIsGreaterThan", ">")
-          .put("PropertyIsGreaterThanOrEqualTo", ">=")
-          .build();
+public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
+  private final Deque<NodeReducer<Map<String, ?>>> logicOpCache;
 
-  private static final String PROPERTY_IS_LIKE = "PropertyIsLike";
+  private final Deque<List<Map<String, ?>>> depth;
 
-  private static final String ILIKE = "ILIKE";
+  private NodeSupplier<Map<String, ?>> supplierInProgress = null;
 
-  private static final String LIKE = "LIKE";
-
-  private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
-      ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
-
-  private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS");
-
-  private static final Set<String> LOGIC_COMPARE_OPS = ImmutableSet.of("AND", "OR");
-
-  private final Deque<List<FilterNode>> depth;
-
-  private FilterNode rootNode = null;
-
-  private FilterNode nodeInProgress = null;
+  private Map<String, ?> rootNode = null;
 
   private boolean complete = false;
 
   public JsonModelBuilder() {
-    depth = new ArrayDeque<>();
+    this.logicOpCache = new ArrayDeque<>();
+    this.depth = new ArrayDeque<>();
   }
 
   /**
@@ -92,7 +72,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
    *     exists to return.
    */
   @Override
-  public FilterNode getResult() {
+  public Map<String, ?> getResult() {
     if (!complete) {
       verifyTerminalNodeNotInProgress();
       verifyLogicalNodeNotInProgress();
@@ -102,129 +82,271 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     return rootNode;
   }
 
-  /**
-   * Begin describing a binary logic operation. Supports nested structures.
-   *
-   * @param operator either "AND" or "OR" to denote the logical operation to perform (case
-   *     sensitive).
-   * @return {@code this} model builder to continue the fluent API.
-   * @throws IllegalStateException if this builder can no longer be modified, or if a leaf node has
-   *     begun but was never ended.
-   */
   @Override
-  public JsonModelBuilder beginBinaryLogicType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    operator = operator.toUpperCase();
-    if (!LOGIC_COMPARE_OPS.contains(operator)) {
-      throw new IllegalArgumentException("Invalid operator for logic comparison type: " + operator);
-    }
-    List<FilterNode> nodes = new ArrayList<>();
-    if (rootNode == null) {
-      rootNode = new FilterNodeImpl(operator, nodes);
-    } else {
-      depth.peek().add(new FilterNodeImpl(operator, nodes));
-    }
-    depth.push(nodes);
+  public JsonModelBuilder not() {
+    throw new UnsupportedOperationException("Not operators in JSON are 'not' yet supported");
+  }
+
+  @Override
+  public JsonModelBuilder and() {
+    beginBinaryLogicType("AND");
     return this;
   }
 
   @Override
-  public JsonModelBuilder endBinaryLogicType() {
+  public JsonModelBuilder or() {
+    beginBinaryLogicType("OR");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder end() {
+    if (supplierInProgress != null) {
+      if (supplierInProgress.getParent() != null) {
+        endFunctionType();
+        return this;
+      }
+      endTerminalType();
+      return this;
+    }
+    endBinaryLogicType();
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isEqualTo(boolean matchCase) {
+    beginTerminalType("=");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isNotEqualTo(boolean matchCase) {
+    beginTerminalType("!=");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isGreaterThan(boolean matchCase) {
+    beginTerminalType(">");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isGreaterThanOrEqualTo(boolean matchCase) {
+    beginTerminalType(">=");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isLessThan(boolean matchCase) {
+    beginTerminalType("<");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder isLessThanOrEqualTo(boolean matchCase) {
+    beginTerminalType("<=");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder like(
+      boolean matchCase, String wildcard, String singleChar, String escape) {
+    String operator = (matchCase) ? "LIKE" : "ILIKE";
+    beginTerminalType(operator);
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder before() {
+    beginTerminalType("BEFORE");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder after() {
+    beginTerminalType("AFTER");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder intersects() {
+    beginTerminalType("INTERSECTS");
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder dwithin(double distance, String units) {
+    throw new UnsupportedOperationException("Distance buffers in JSON are not yet supported");
+  }
+
+  @Override
+  public JsonModelBuilder function(String name) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress(); // TODO - Verify this; per schema functions can be predicates
+    supplierInProgress =
+        new UnboundedNodeSupplier<>(maps -> reduceFunction(name, maps), supplierInProgress);
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder property(String name) {
+    setProperty(name);
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder value(String value) {
+    setValue(value);
+    return this;
+  }
+
+  @Override
+  public JsonModelBuilder value(boolean value) {
+    setValue(Boolean.toString(value));
+    return this;
+  }
+
+  private void beginBinaryLogicType(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    logicOpCache.push(maps -> reduceLogic(operator, maps));
+    depth.push(new ArrayList<>());
+  }
+
+  private void beginTerminalType(String operator) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    supplierInProgress = new PropertyValueNodeSupplier<>(maps -> reduceTerminal(operator, maps));
+  }
+
+  private void endBinaryLogicType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     verifyLogicalNodeInProgress();
     verifyLogicalNodeHasChildren();
-    depth.pop();
-    return this;
-  }
-
-  // Note: Currently taking in the XML local part as the "operator"
-  @Override
-  public JsonModelBuilder beginBinaryComparisonType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    String jsonOperator = BINARY_COMPARE_MAPPING.get(operator);
-    if (jsonOperator == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary comparison operator: " + operator);
+    verifyLogicalNodeHasEnoughChildrenPerSchema();
+    Map<String, ?> result = logicOpCache.pop().apply(depth.pop());
+    if (depth.isEmpty()) {
+      rootNode = result;
+    } else {
+      depth.peek().add(result);
     }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
-    return this;
   }
 
-  @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
+  /**
+   * Performs necessary validation and state transition to finish a function type's construction
+   * that is in progress, particularly for support of nested functions.
+   */
+  private void endFunctionType() {
     verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    if (!PROPERTY_IS_LIKE.equals(operator)) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
+    verifyTerminalNodeInProgress();
+    NodeSupplier<Map<String, ?>> parent = supplierInProgress.getParent();
+    if (parent == null) {
+      throw new IllegalStateException(
+          "Null parent should not have passed the check in the end() method, "
+              + "verify the implementation of JsonModelBuilder for errors");
     }
-    // For now, will always choose ILIKE
-    String jsonOperator = (matchCase) ? LIKE : ILIKE;
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
-    return this;
+
+    Map<String, ?> result = supplierInProgress.get();
+    parent.setNext(result);
+    supplierInProgress = parent;
   }
 
-  @Override
-  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    String jsonOperator = BINARY_TEMPORAL_MAPPING.get(operator);
-    if (jsonOperator == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary temporal operator: " + operator);
-    }
-    nodeInProgress = new FilterNodeImpl(jsonOperator);
-    return this;
-  }
-
-  @Override
-  public JsonModelBuilder beginBinarySpatialType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    if (!BINARY_SPATIAL_OPS.contains(operator)) {
-      throw new IllegalArgumentException("Invalid operator for binary spatial type: " + operator);
-    }
-    nodeInProgress = new FilterNodeImpl(operator);
-    return this;
-  }
-
-  @Override
-  public JsonModelBuilder endTerminalType() {
+  private void endTerminalType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     if (depth.isEmpty()) {
-      rootNode = nodeInProgress;
+      rootNode = supplierInProgress.get();
     } else {
-      depth.peek().add(nodeInProgress);
+      depth.peek().add(supplierInProgress.get());
     }
-    nodeInProgress = null;
-    return this;
+    supplierInProgress = null;
   }
 
-  @Override
-  public JsonModelBuilder setProperty(String property) {
+  private void setProperty(String property) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setProperty(property);
-    return this;
+    supplierInProgress.setNext(Collections.singletonMap("property", property));
   }
 
-  @Override
-  public JsonModelBuilder setValue(String value) {
+  private void setValue(Serializable value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    nodeInProgress.setValue(value);
-    return this;
+    supplierInProgress.setNext(Collections.singletonMap("value", value));
   }
 
-  @Override
-  public JsonModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeInProgress();
-    nodeInProgress = new FilterNodeImpl(nodeInProgress, templateProps);
-    return this;
+  private Map<String, ?> reduceLogic(String op, List<Map<String, ?>> children) {
+    Map<String, Object> node = new HashMap<>();
+    node.put("type", op);
+    node.put("filters", children);
+    return node;
+  }
+
+  private Map<String, ?> reduceFunction(String name, List<Map<String, ?>> args) {
+    Map<String, Object> node = new HashMap<>();
+    node.put("type", "FILTER_FUNCTION");
+    node.put("name", name);
+    node.put(
+        "args",
+        args.stream()
+            .flatMap(m -> m.entrySet().stream())
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toList()));
+    return node;
+  }
+
+  private Map<String, ?> reduceTerminal(String op, List<Map<String, ?>> children) {
+    Map<String, ?> propertyExpression = children.get(0);
+    Map<String, ?> valueExpression = children.get(1);
+    return Stream.concat(
+            Stream.of(Maps.immutableEntry("type", op)),
+            Stream.concat(
+                evalTermEntries("property", propertyExpression),
+                evalTermEntries("value", valueExpression)))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
+  /**
+   * A terminal filter (the map) may contain a single entry as our component, or may itself BE the
+   * component we're looking for.
+   *
+   * <p>For example, since a property declaration and a function are both valid expressions, we need
+   * to handle the difference between maps like this:
+   *
+   * <pre>
+   *     {
+   *         "property": "title"
+   *     }
+   * </pre>
+   *
+   * And this:
+   *
+   * <pre>
+   *     {
+   *         "type": "FILTER_FUNCTION",
+   *         "name": "myFunction",
+   *         "args": [ ... ]
+   *     }
+   * </pre>
+   *
+   * Both are valid expressions.
+   *
+   * @param key the owner of the provided Json filter.
+   * @param filter the Json filter itself; may only be a partial filter.
+   * @throws IllegalArgumentException if the given filter has an unexpected format.
+   * @return a stream of map entries that can be combined into a Json filter.
+   */
+  private Stream<? extends Map.Entry<String, ?>> evalTermEntries(
+      String key, Map<String, ?> filter) {
+    if (filter.containsKey("type")) {
+      return Stream.of(Maps.immutableEntry(key, filter));
+    }
+    if (filter.size() > 1) {
+      throw new IllegalArgumentException(
+          "Terminal filter expected to have only 1 entry " + filter.toString());
+    }
+    return filter.entrySet().stream();
   }
 
   private void verifyResultNotYetRetrieved() {
@@ -235,7 +357,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   private void verifyTerminalNodeInProgress() {
-    if (nodeInProgress == null) {
+    if (supplierInProgress == null) {
       throw new IllegalStateException("Cannot complete operation, no leaf node in progress");
     }
   }
@@ -261,6 +383,14 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
     }
   }
 
+  private void verifyLogicalNodeHasEnoughChildrenPerSchema() {
+    if (!depth.isEmpty() && depth.peek().size() < 2) {
+      throw new IllegalStateException(
+          "Expected at minimum 2 child filters in binary logic op filter, but found only "
+              + depth.peek().size());
+    }
+  }
+
   private void verifyResultNotNull() {
     if (rootNode == null) {
       throw new IllegalStateException(
@@ -269,7 +399,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   }
 
   private void verifyTerminalNodeNotInProgress() {
-    if (nodeInProgress != null) {
+    if (supplierInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
     }
   }

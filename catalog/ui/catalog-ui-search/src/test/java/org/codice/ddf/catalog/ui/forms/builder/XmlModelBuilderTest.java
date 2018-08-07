@@ -17,7 +17,6 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,13 +52,9 @@ public class XmlModelBuilderTest {
 
   @Test
   public void testBinaryComparisonType() throws Exception {
-    JAXBElement filter =
-        builder
-            .beginBinaryComparisonType(JSON_EQUAL)
-            .setProperty("name")
-            .setValue("value")
-            .endTerminalType()
-            .getResult();
+    // @formatter:off
+    JAXBElement filter = builder.isEqualTo(false).property("name").value("value").end().getResult();
+    // @formatter:on
 
     assertTrue(filter.getDeclaredType().equals(FilterType.class));
 
@@ -70,12 +65,15 @@ public class XmlModelBuilderTest {
   public void testBinaryComparisonTypeTemplated() throws Exception {
     JAXBElement filter =
         builder
-            .beginBinaryComparisonType(JSON_EQUAL)
-            .setProperty("name")
-            .setTemplatedValues(
-                ImmutableMap.of(
-                    "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false))
-            .endTerminalType()
+            .isEqualTo(false)
+            .property("name")
+            .function("template.value.v1")
+            .value("5")
+            .value("id")
+            .value(true)
+            .value(false)
+            .end()
+            .end()
             .getResult();
 
     assertTrue(filter.getDeclaredType().equals(FilterType.class));
@@ -88,12 +86,16 @@ public class XmlModelBuilderTest {
   public void testBinaryLogicTypeAnd() throws Exception {
     JAXBElement filter =
         builder
-            .beginBinaryLogicType(AND)
-            .beginBinaryComparisonType(JSON_EQUAL)
-            .setProperty("name")
-            .setValue("value")
-            .endTerminalType()
-            .endBinaryLogicType()
+            .and()
+            .isEqualTo(false)
+            .property("name")
+            .value("value")
+            .end()
+            .isNotEqualTo(false)
+            .property("type")
+            .value("imagery")
+            .end()
+            .end()
             .getResult();
 
     assertTrue(filter.getDeclaredType().equals(FilterType.class));
@@ -105,26 +107,26 @@ public class XmlModelBuilderTest {
   public void testComplexEmbeddedLogicNodes() throws Exception {
     JAXBElement filter =
         builder
-            .beginBinaryLogicType("AND")
-            .beginBinaryComparisonType(JSON_EQUAL)
-            .setProperty("name")
-            .setValue("Bob")
-            .endTerminalType()
-            .beginBinaryComparisonType(">=")
-            .setProperty("benumber")
-            .setValue("0.45")
-            .endTerminalType()
-            .beginBinaryLogicType("OR")
-            .beginBinaryComparisonType("<")
-            .setProperty("length")
-            .setValue("120")
-            .endTerminalType()
-            .beginBinaryComparisonType("<=")
-            .setProperty("width")
-            .setValue("20")
-            .endTerminalType()
-            .endBinaryLogicType()
-            .endBinaryLogicType()
+            .and()
+            .isEqualTo(false)
+            .property("name")
+            .value("Bob")
+            .end()
+            .isGreaterThanOrEqualTo(false)
+            .property("benumber")
+            .value("0.45")
+            .end()
+            .or()
+            .isLessThan(false)
+            .property("length")
+            .value("120")
+            .end()
+            .isLessThanOrEqualTo(false)
+            .property("width")
+            .value("20")
+            .end()
+            .end()
+            .end()
             .getResult();
 
     assertTrue(filter.getDeclaredType().equals(FilterType.class));
@@ -134,24 +136,6 @@ public class XmlModelBuilderTest {
         .verifyTerminalNode("/Filter/And/PropertyIsGreaterThanOrEqualTo", "benumber", "0.45")
         .verifyTerminalNode("/Filter/And/Or/PropertyIsLessThan", "length", "120")
         .verifyTerminalNode("/Filter/And/Or/PropertyIsLessThanOrEqualTo", "width", "20");
-  }
-
-  @Test
-  public void testBinaryLogicTypeAllOperators() {
-    new XmlModelBuilder().beginBinaryLogicType(AND);
-    new XmlModelBuilder().beginBinaryLogicType(OR);
-    // No IllegalArgumentException indicates a passing test
-  }
-
-  @Test
-  public void testBinaryComparisonTypeAllOperators() {
-    new XmlModelBuilder().beginBinaryComparisonType("=");
-    new XmlModelBuilder().beginBinaryComparisonType(">");
-    new XmlModelBuilder().beginBinaryComparisonType(">=");
-    new XmlModelBuilder().beginBinaryComparisonType("<");
-    new XmlModelBuilder().beginBinaryComparisonType("<=");
-    new XmlModelBuilder().beginBinaryComparisonType("!=");
-    // No IllegalArgumentException indicates a passing test
   }
 
   private static XPathAssertionSupport forNode(JAXBElement node) throws Exception {

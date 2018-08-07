@@ -72,7 +72,7 @@ public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   @Override
   public void visitUnaryLogicType(VisitableElement<VisitableElement<?>> visitable) {
     traceName(visitable);
-    visitable.accept(this);
+    visitable.getValue().accept(this);
   }
 
   @Override

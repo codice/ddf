@@ -15,20 +15,27 @@ package org.codice.ddf.catalog.ui.forms.filter;
 
 import static java.lang.String.format;
 import static junit.framework.TestCase.fail;
+import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertFunctionNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertLeafNode;
 import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertParentNode;
-import static org.codice.ddf.catalog.ui.forms.FilterNodeAssertionSupport.assertTemplatedNode;
+import static org.codice.ddf.catalog.ui.util.AccessUtil.safeGetList;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.FilterType;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoaderTest;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 import org.codice.ddf.catalog.ui.forms.api.VisitableElement;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.junit.Before;
@@ -42,7 +49,7 @@ public class TransformVisitorJsonTest {
 
   private static final String DEPTH_VAL = "100";
 
-  private TransformVisitor<FilterNode> visitor;
+  private TransformVisitor<Map<String, ?>> visitor;
 
   @Before
   public void setup() {
@@ -89,15 +96,24 @@ public class TransformVisitorJsonTest {
 
   @Test
   public void testVisitIntersectsWithFunction() throws Exception {
+    List<String> expectedArgs = new ArrayList<>();
+    expectedArgs.add(null);
+    expectedArgs.addAll(ImmutableList.of("id", "true", "false"));
     getRootXmlFilterNode("function-ops", "Intersects.xml").accept(visitor);
-    assertTemplatedNode(visitor.getResult(), "INTERSECTS", "location", null, "id");
+    assertLeafNode(
+        visitor.getResult(),
+        "INTERSECTS",
+        tar -> assertThat(tar, is("location")),
+        tar -> assertFunctionNode(tar, "template.value.v1", expectedArgs));
   }
 
   @Test
   public void testVariety2() throws Exception {
     getRootXmlFilterNode("hybrid", "hybrid-example-2.xml").accept(visitor);
     assertParentNode(visitor.getResult(), "AND", 6);
-    assertLeafNode(visitor.getResult().getChildren().get(2), "ILIKE", "name", "Bob");
+    List<Object> children = safeGetList(visitor.getResult(), "filters", Object.class);
+    assertThat(children, notNullValue());
+    assertLeafNode(children.get(2), "ILIKE", "name", "Bob");
   }
 
   private static VisitableElement getRootXmlFilterNode(String... resourceRoute) throws Exception {

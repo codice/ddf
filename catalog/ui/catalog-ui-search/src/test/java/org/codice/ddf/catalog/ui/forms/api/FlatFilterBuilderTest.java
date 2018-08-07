@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.catalog.ui.forms.api;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.function.Supplier;
+import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.forms.builder.JsonModelBuilder;
 import org.codice.ddf.catalog.ui.forms.builder.XmlModelBuilder;
 import org.junit.Before;
@@ -25,7 +25,7 @@ import org.junit.runners.Parameterized;
 
 /**
  * Conformance test suite for implementations of {@link
- * org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder}s to ensure their states are being managed
+ * org.codice.ddf.catalog.ui.filter.FlatFilterBuilder}s to ensure their states are being managed
  * correctly. This test suite validates correct use, not necessarily expected results.
  *
  * <p>The below test names follow a simple convention: {@code (context) + (builder method) +
@@ -44,32 +44,24 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class FlatFilterBuilderTest {
-  @Parameterized.Parameters(name = "FlatFilterBuilder impl {index}: {3}")
+  @Parameterized.Parameters(name = "FlatFilterBuilder impl {index}: {1}")
   public static Iterable<Object[]> data() {
     return Arrays.asList(
         new Object[][] {
-          {(Supplier<FlatFilterBuilder>) JsonModelBuilder::new, "And", "PropertyIsEqualTo", "JSON"},
-          {(Supplier<FlatFilterBuilder>) XmlModelBuilder::new, "AND", "=", "XML"}
+          {(Supplier<FlatFilterBuilder>) JsonModelBuilder::new, "JSON"},
+          {(Supplier<FlatFilterBuilder>) XmlModelBuilder::new, "XML"}
         });
   }
 
   private final Supplier<FlatFilterBuilder> builderSupplier;
 
-  private final String logicalOp;
-
-  private final String comparisonOp;
-
   private FlatFilterBuilder builder;
 
   public FlatFilterBuilderTest(
       Supplier<FlatFilterBuilder> builderSupplier,
-      String logicalOp,
-      String comparisonOp,
       // Label only used for identifying the parameterized run of the test
       String label) {
     this.builderSupplier = builderSupplier;
-    this.logicalOp = logicalOp;
-    this.comparisonOp = comparisonOp;
   }
 
   @Before
@@ -80,52 +72,50 @@ public class FlatFilterBuilderTest {
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionBeginBinaryLogicTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.beginBinaryLogicType(logicalOp);
+    builder.and();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionBeginBinaryLogicTypeWhenTerminalNodeNotInProgress() {
-    builder.beginBinaryComparisonType(comparisonOp).beginBinaryLogicType(logicalOp);
+    builder.isEqualTo(false).and();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionEndBinaryLogicTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.endBinaryLogicType();
+    builder.end();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionEndBinaryLogicTypeWhenTerminalNodeNotInProgress() {
-    builder.beginBinaryComparisonType(comparisonOp).endBinaryLogicType();
+    builder.isEqualTo(false).end();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionEndBinaryLogicTypeWhenResultNotNull() {
-    builder.endBinaryLogicType();
+    builder.end();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionBeginBinaryComparisonTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.beginBinaryComparisonType(comparisonOp);
+    builder.isEqualTo(false);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionBeginBinaryComparisonTypeWhenTerminalNodeNotInProgresss() {
-    builder
-        .beginBinaryComparisonType(comparisonOp)
-        .beginBinaryComparisonType("PropertyIsGreaterThan");
+    builder.isEqualTo(false).isGreaterThan(false);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionEndBinaryComparisonTypeWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.endTerminalType();
+    builder.end();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionGetResultWhenTerminalNodeNotInProgress() {
-    builder.beginBinaryComparisonType(comparisonOp).getResult();
+    builder.isEqualTo(false).getResult();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -136,87 +126,57 @@ public class FlatFilterBuilderTest {
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetPropertyWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.setProperty("property");
+    builder.property("property");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetPropertyWhenTerminalNodeInProgress() {
-    builder.setProperty("property");
+    builder.property("property");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetValueWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.setValue("value");
+    builder.value("value");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testFailureConditionSetValueWhenTerminalNodeInProgress() {
-    builder.setValue("value");
+    builder.value("value");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureConditionSetTemplatedValuesWhenResultNotYetRetrieved() {
+  public void testFailureConditionFunctionWhenResultNotYetRetrieved() {
     setupDefaultTestValue(builder);
-    builder.setTemplatedValues(
-        ImmutableMap.of(
-            "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
+    builder.function("name");
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testFailureConditionSetTemplatedValuesWhenTerminalNodeInProgress() {
-    builder.setTemplatedValues(
-        ImmutableMap.of(
-            "defaultValue", "5", "nodeId", "id", "isVisible", true, "isReadOnly", false));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInputBinaryLogicTypeBadOperator() {
-    builder.beginBinaryLogicType("bad");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInputBinaryComparisonTypeBadOperator() {
-    builder.beginBinaryComparisonType("bad");
+  public void testFailureConditionFunctionWhenTerminalNodeInProgress() {
+    builder.function("name");
   }
 
   @Test(expected = IllegalStateException.class)
   public void testAwkwardCaseEndTerminalTypeCalledTwiceIncorrectly() {
-    builder
-        .beginBinaryComparisonType(comparisonOp)
-        .setProperty("name")
-        .setValue("value")
-        .endTerminalType()
-        .endTerminalType();
+    builder.isEqualTo(false).property("name").value("value").end().end();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCaseEndTerminalTypeCalledTwiceInLogicTypeIncorrectly() {
-    builder
-        .beginBinaryLogicType(logicalOp)
-        .beginBinaryComparisonType(comparisonOp)
-        .setProperty("name")
-        .setValue("value")
-        .endTerminalType()
-        .endTerminalType();
+  public void testAwkwardCaseEndBinaryLogicTypeWithOnlyOneChild() {
+    builder.and().isEqualTo(false).property("name").value("value").end().end();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void testAwkwardCaseEndBinaryLogicTypeWhenNothingInProgress() {
-    builder.endBinaryLogicType();
+  public void testAwkwardCaseEndWhenNothingInProgress() {
+    builder.end();
   }
 
   @Test(expected = IllegalStateException.class)
   public void testAwkwardCaseEndBinaryLogicTypeWithoutAnyChildren() {
-    builder.beginBinaryLogicType(logicalOp).endBinaryLogicType();
+    builder.and().end();
   }
 
   private void setupDefaultTestValue(FlatFilterBuilder builder) {
-    builder
-        .beginBinaryComparisonType(comparisonOp)
-        .setProperty("name")
-        .setValue("value")
-        .endTerminalType()
-        .getResult();
+    builder.isEqualTo(false).property("name").value("value").end().getResult();
   }
 }

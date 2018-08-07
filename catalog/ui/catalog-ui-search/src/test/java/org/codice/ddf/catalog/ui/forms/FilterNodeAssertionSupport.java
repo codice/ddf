@@ -23,58 +23,101 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 
 import java.io.Serializable;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.LiteralType;
-import org.codice.ddf.catalog.ui.forms.api.FilterNode;
 
 /** As more test cases are added, more support functions will be needed. */
 public class FilterNodeAssertionSupport {
+  private static final String TYPE = "type";
+
+  private static final String FILTERS = "filters";
+
+  private static final String PROPERTY = "property";
+
+  private static final String VALUE = "value";
+
+  private static final String NAME = "name";
+
+  private static final String ARGS = "args";
+
   private FilterNodeAssertionSupport() {}
 
-  public static void assertParentNode(
-      FilterNode node, String expectedType, int expectedChildCount) {
-    assertParentNode(node, expectedType);
-    assertThat(node.getChildren(), hasSize(expectedChildCount));
-  }
+  public static void assertParentNode(Object target, String expectedType, int expectedChildCount) {
+    Map<String, ?> node = assertObjectIsMap(target);
+    assertThat(node.get(TYPE), is(expectedType));
 
-  public static void assertParentNode(FilterNode node, String expectedType) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.getChildren(), notNullValue());
-    assertThat(node.isLeaf(), is(false));
+    assertThat(node.get(FILTERS), notNullValue());
+    assertThat("Was expecting a list of nodes", node.get(FILTERS) instanceof List, is(true));
+    assertThat((List<?>) node.get(FILTERS), hasSize(expectedChildCount));
+
+    assertThat(node.get(PROPERTY), is(nullValue()));
+    assertThat(node.get(VALUE), is(nullValue()));
+
+    assertThat(node.get(NAME), is(nullValue()));
+    assertThat(node.get(ARGS), is(nullValue()));
   }
 
   public static void assertLeafNode(
-      FilterNode node, String expectedType, String expectedProperty, String expectedValue) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.isLeaf(), is(true));
-
-    assertThat(node.getProperty(), is(expectedProperty));
-    assertThat(node.getValue(), is(expectedValue));
-    assertThat(node.isTemplated(), is(false));
+      Object target, String expectedType, String expectedProperty, String expectedValue) {
+    assertLeafNode(
+        target,
+        expectedType,
+        tar -> assertThat(tar, is(expectedProperty)),
+        tar -> assertThat(tar, is(expectedValue)));
   }
 
-  public static void assertTemplatedNode(
-      FilterNode node,
+  public static void assertLeafNode(
+      Object target,
       String expectedType,
-      String expectedProperty,
-      String defaultValue,
-      String nodeId) {
-    assertThat(node.getOperator(), is(expectedType));
-    assertThat(node.isLeaf(), is(true));
+      Consumer<Object> propertyAssertion,
+      Consumer<Object> valueAssertion) {
+    Map<String, ?> node = assertObjectIsMap(target);
+    assertThat(node.get(TYPE), is(expectedType));
 
-    assertThat(node.getProperty(), is(expectedProperty));
-    assertThat(node.getValue(), is(nullValue()));
-    assertThat(node.isTemplated(), is(true));
+    assertThat(node.get(FILTERS), nullValue());
 
-    Map<String, Object> templateProps = node.getTemplateProperties();
-    assertThat(templateProps.get("defaultValue"), is(defaultValue));
-    assertThat(templateProps.get("nodeId"), is(nodeId));
+    propertyAssertion.accept(node.get(PROPERTY));
+    valueAssertion.accept(node.get(VALUE));
+
+    assertThat(node.get(NAME), is(nullValue()));
+    assertThat(node.get(ARGS), is(nullValue()));
+  }
+
+  public static void assertFunctionNode(
+      Object target, String expectedName, List<String> expectedArgs) {
+    Map<String, ?> node = assertObjectIsMap(target);
+    assertThat(node.get(TYPE), is("FILTER_FUNCTION"));
+
+    assertThat(node.get(FILTERS), nullValue());
+
+    assertThat(node.get(PROPERTY), is(nullValue()));
+    assertThat(node.get(VALUE), is(nullValue()));
+
+    assertThat(node.get(NAME), is(expectedName));
+    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List, is(true));
+    assertThat(node.get(ARGS), is(expectedArgs));
+  }
+
+  private static Map<String, ?> assertObjectIsMap(Object node) {
+    assertThat("Given object should have been a map", node instanceof Map, is(true));
+    Map<?, ?> mapPending = (Map) node;
+    return mapPending
+        .entrySet()
+        .stream()
+        .peek(
+            e ->
+                assertThat(
+                    "Expected string key but got " + e.getKey(), e.getKey() instanceof String))
+        .map(e -> new SimpleEntry<>(String.class.cast(e.getKey()), e.getValue()))
+        .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
   }
 
   @SuppressWarnings("unchecked" /* Casting since the data structure is known */)

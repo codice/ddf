@@ -13,17 +13,12 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import static org.apache.commons.lang3.Validate.notNull;
-
-import com.google.common.collect.ImmutableMap;
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import net.opengis.filter.v_2_0.BinaryComparisonOpType;
@@ -31,6 +26,7 @@ import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.ComparisonOpsType;
+import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
@@ -39,46 +35,16 @@ import net.opengis.filter.v_2_0.ObjectFactory;
 import net.opengis.filter.v_2_0.PropertyIsLikeType;
 import net.opengis.filter.v_2_0.SpatialOpsType;
 import net.opengis.filter.v_2_0.TemporalOpsType;
-import org.codice.ddf.catalog.ui.forms.api.FlatFilterBuilder;
+import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 
 public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
 
   /**
-   * Helper interface for cleanly representing operations that condense a list of XML elements to a
-   * single element. Use cases include the creation of logical op types in a filter structure, or
-   * the population of values for a terminal type.
-   */
-  @FunctionalInterface
-  private interface MultiNodeReducer extends Function<List<JAXBElement<?>>, JAXBElement> {}
-
-  // Possibly use a ValueAdapter to circumvent difference in return type; i.e. Literal vs Object
-  private static final Map<String, MultiNodeReducer> TERMINAL_OPS =
-      ImmutableMap.<String, MultiNodeReducer>builder()
-          .put("=", Mapper::equalTo)
-          .put("!=", Mapper::notEqualTo)
-          .put(">", Mapper::greaterThan)
-          .put(">=", Mapper::greaterThanOrEqualTo)
-          .put("<", Mapper::lessThan)
-          .put("<=", Mapper::lessThanOrEqualTo)
-          .put("ILIKE", Mapper::like)
-          .put("LIKE", Mapper::likeMatchCase) // For now, will never be selected
-          .put("INTERSECTS", Mapper::intersects)
-          .put("BEFORE", Mapper::before)
-          .put("AFTER", Mapper::after)
-          .build();
-
-  private static final Map<String, MultiNodeReducer> LOGICAL_OPS =
-      ImmutableMap.<String, MultiNodeReducer>builder()
-          .put("AND", Mapper::and)
-          .put("OR", Mapper::or)
-          .build();
-
-  /**
    * Creating {@link BinaryLogicOpType}s requires the entire list of child nodes, which won't be
    * known until {@link #endBinaryLogicType()}. Cache the operations here until that time.
    */
-  private final Deque<MultiNodeReducer> logicOpCache;
+  private final Deque<NodeReducer<JAXBElement<?>>> logicOpCache;
 
   /**
    * Cache the lists of child elements here for arbitrary levels of filter depth due to {@link
@@ -86,9 +52,9 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
    */
   private final Deque<List<JAXBElement<?>>> depth;
 
-  private JAXBElement rootNode;
+  private NodeSupplier<JAXBElement<?>> supplierInProgress;
 
-  private TerminalNodeSupplier supplierInProgress;
+  private JAXBElement<?> rootNode;
 
   private boolean complete = false;
 
@@ -109,87 +75,194 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
-  public XmlModelBuilder beginBinaryLogicType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer logicMapping = LOGICAL_OPS.get(operator);
-    if (logicMapping == null) {
-      throw new IllegalArgumentException("Invalid operator for logic comparison type: " + operator);
-    }
-    logicOpCache.push(logicMapping);
-    depth.push(new ArrayList<>());
+  public XmlModelBuilder not() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public XmlModelBuilder and() {
+    beginBinaryLogicType(Mapper::and);
     return this;
   }
 
   @Override
-  public XmlModelBuilder endBinaryLogicType() {
+  public XmlModelBuilder or() {
+    beginBinaryLogicType(Mapper::or);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder end() {
+    if (supplierInProgress != null) {
+      if (supplierInProgress.getParent() != null) {
+        endFunctionType();
+        return this;
+      }
+      endTerminalType();
+      return this;
+    }
+    endBinaryLogicType();
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isEqualTo(boolean matchCase) {
+    beginTerminalType(Mapper::equalTo);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isNotEqualTo(boolean matchCase) {
+    beginTerminalType(Mapper::notEqualTo);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isGreaterThan(boolean matchCase) {
+    beginTerminalType(Mapper::greaterThan);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isGreaterThanOrEqualTo(boolean matchCase) {
+    beginTerminalType(Mapper::greaterThanOrEqualTo);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isLessThan(boolean matchCase) {
+    beginTerminalType(Mapper::lessThan);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder isLessThanOrEqualTo(boolean matchCase) {
+    beginTerminalType(Mapper::lessThanOrEqualTo);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder like(
+      boolean matchCase, String wildcard, String singleChar, String escape) {
+    if (matchCase) {
+      beginTerminalType(Mapper::likeMatchCase);
+      return this;
+    }
+    beginTerminalType(Mapper::like);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder before() {
+    beginTerminalType(Mapper::before);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder after() {
+    beginTerminalType(Mapper::after);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder intersects() {
+    beginTerminalType(Mapper::intersects);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder dwithin(double distance, String units) {
+    beginTerminalType(Mapper::dwithin);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder function(String name) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeInProgress(); // TODO - Verify this; per schema functions can be predicates
+    supplierInProgress =
+        new UnboundedNodeSupplier<>(
+            args ->
+                FACTORY.createFunction(
+                    new FunctionType().withName(name).withExpression(new ArrayList<>(args))),
+            supplierInProgress);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder property(String name) {
+    setProperty(name);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder value(String value) {
+    setValue(value);
+    return this;
+  }
+
+  @Override
+  public XmlModelBuilder value(boolean value) {
+    // TODO - How can we properly marshal Boolean values without resorting to this?
+    setValue(Boolean.toString(value));
+    return this;
+  }
+
+  private void beginBinaryLogicType(NodeReducer<JAXBElement<?>> reducer) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    logicOpCache.push(reducer);
+    depth.push(new ArrayList<>());
+  }
+
+  private void beginTerminalType(NodeReducer<JAXBElement<?>> reducer) {
+    verifyResultNotYetRetrieved();
+    verifyTerminalNodeNotInProgress();
+    supplierInProgress = new PropertyValueNodeSupplier<>(reducer);
+  }
+
+  /**
+   * Performs necessary validation and state transition to finish a binary logic type's construction
+   * that is in progress.
+   */
+  private void endBinaryLogicType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeNotInProgress();
     verifyLogicalNodeInProgress();
     verifyLogicalNodeHasChildren();
+    verifyLogicalNodeHasEnoughChildrenPerSchema();
     JAXBElement result = logicOpCache.pop().apply(depth.pop());
-    if (!depth.isEmpty()) {
-      depth.peek().add(result);
-    } else {
+    if (depth.isEmpty()) {
       rootNode = result;
+    } else {
+      depth.peek().add(result);
     }
-    return this;
   }
 
-  // Note: Currently taking in JSON type symbol as the "operator"
-  @Override
-  public XmlModelBuilder beginBinaryComparisonType(String operator) {
+  /**
+   * Performs necessary validation and state transition to finish a function type's construction
+   * that is in progress, particularly for support of nested functions.
+   */
+  private void endFunctionType() {
     verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary comparison operator: " + operator);
+    verifyTerminalNodeInProgress();
+    NodeSupplier<JAXBElement<?>> parent = supplierInProgress.getParent();
+    if (parent == null) {
+      throw new IllegalStateException(
+          "Null parent should not have passed the check in the end() method, "
+              + "verify the implementation of XmlModelBuilder for errors");
     }
-    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
-    return this;
+
+    JAXBElement<?> result = supplierInProgress.get();
+    parent.setNext(result);
+    supplierInProgress = parent;
   }
 
-  @Override
-  public FlatFilterBuilder beginPropertyIsLikeType(String operator, boolean matchCase) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer comparisonMapping = TERMINAL_OPS.get(operator);
-    if (comparisonMapping == null) {
-      throw new IllegalArgumentException("Cannot find mapping for like operator: " + operator);
-    }
-    supplierInProgress = new TerminalNodeSupplier(comparisonMapping);
-    return this;
-  }
-
-  @Override
-  public FlatFilterBuilder beginBinaryTemporalType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer temporalMapping = TERMINAL_OPS.get(operator);
-    if (temporalMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary temporal operator: " + operator);
-    }
-    supplierInProgress = new TerminalNodeSupplier(temporalMapping);
-    return null;
-  }
-
-  @Override
-  public XmlModelBuilder beginBinarySpatialType(String operator) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeNotInProgress();
-    MultiNodeReducer spatialMapping = TERMINAL_OPS.get(operator);
-    if (spatialMapping == null) {
-      throw new IllegalArgumentException(
-          "Cannot find mapping for binary spatial operator: " + operator);
-    }
-    supplierInProgress = new TerminalNodeSupplier(spatialMapping);
-    return this;
-  }
-
-  @Override
-  public XmlModelBuilder endTerminalType() {
+  /**
+   * Performs the necessary validation and state transition to finish a terminal type's construction
+   * that is in progress.
+   */
+  private void endTerminalType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
     if (depth.isEmpty()) {
@@ -198,52 +271,19 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       depth.peek().add(supplierInProgress.get());
     }
     supplierInProgress = null;
-    return this;
   }
 
-  @Override
-  public XmlModelBuilder setProperty(String property) {
+  private void setProperty(String property) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    supplierInProgress.setProperty(FACTORY.createValueReference(property));
-    return this;
+    supplierInProgress.setNext(FACTORY.createValueReference(property));
   }
 
-  @Override
-  public XmlModelBuilder setValue(String value) {
+  private void setValue(Serializable value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    supplierInProgress.setValue(
+    supplierInProgress.setNext(
         FACTORY.createLiteral(new LiteralType().withContent(Collections.singletonList(value))));
-    return this;
-  }
-
-  @Override
-  public XmlModelBuilder setTemplatedValues(Map<String, Object> templateProps) {
-    verifyResultNotYetRetrieved();
-    verifyTerminalNodeInProgress();
-
-    String defaultValue = (String) templateProps.get("defaultValue");
-    String nodeId = (String) templateProps.get("nodeId");
-    boolean isVisible = (boolean) templateProps.get("isVisible");
-    boolean isReadOnly = (boolean) templateProps.get("isReadOnly");
-
-    supplierInProgress.setValue(
-        FACTORY.createFunction(
-            new FunctionType()
-                .withName("template.value.v1")
-                .withExpression(
-                    FACTORY.createLiteral(
-                        new LiteralType().withContent(Collections.singleton(defaultValue))),
-                    FACTORY.createLiteral(
-                        new LiteralType().withContent(Collections.singleton(nodeId))),
-                    FACTORY.createLiteral(
-                        new LiteralType()
-                            .withContent(Collections.singleton(Boolean.toString(isVisible)))),
-                    FACTORY.createLiteral(
-                        new LiteralType()
-                            .withContent(Collections.singleton(Boolean.toString(isReadOnly)))))));
-    return this;
   }
 
   private void verifyResultNotYetRetrieved() {
@@ -280,6 +320,14 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     }
   }
 
+  private void verifyLogicalNodeHasEnoughChildrenPerSchema() {
+    if (!depth.isEmpty() && depth.peek().size() < 2) {
+      throw new IllegalStateException(
+          "Expected at minimum 2 child filters in binary logic op filter, but found only "
+              + depth.peek().size());
+    }
+  }
+
   private void verifyResultNotNull() {
     if (rootNode == null) {
       throw new IllegalStateException(
@@ -290,37 +338,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   private void verifyTerminalNodeNotInProgress() {
     if (supplierInProgress != null) {
       throw new IllegalStateException("Cannot complete operation, a leaf node is in progress");
-    }
-  }
-
-  private static class TerminalNodeSupplier implements Supplier<JAXBElement<?>> {
-    private final MultiNodeReducer reducer;
-    private JAXBElement<String> propertyNode = null;
-    private JAXBElement<?> valueNode;
-
-    TerminalNodeSupplier(final MultiNodeReducer reducer) {
-      notNull(reducer);
-      this.reducer = reducer;
-    }
-
-    public void setProperty(JAXBElement<String> propertyNode) {
-      notNull(propertyNode);
-      this.propertyNode = propertyNode;
-    }
-
-    public void setValue(JAXBElement<?> valueNode) {
-      notNull(valueNode);
-      this.valueNode = valueNode;
-    }
-
-    @Override
-    public JAXBElement<?> get() {
-      notNull(propertyNode);
-      notNull(valueNode);
-      List<JAXBElement<?>> terminals = new ArrayList<>();
-      terminals.add(propertyNode);
-      terminals.add(valueNode);
-      return reducer.apply(terminals);
     }
   }
 
@@ -405,6 +422,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       return FACTORY.createIntersects(binarySpatialType(children));
     }
 
+    private static JAXBElement<DistanceBufferType> dwithin(List<JAXBElement<?>> children) {
+      return FACTORY.createDWithin(distanceBufferType(children));
+    }
+
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
     }
@@ -428,6 +449,11 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinarySpatialOpType binarySpatialType(List<JAXBElement<?>> children) {
       return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
+    }
+
+    // TODO Need to expose the measure type (distance + units) somehow (composite factories?)
+    private static DistanceBufferType distanceBufferType(List<JAXBElement<?>> children) {
+      return new DistanceBufferType().withExpressionOrAny(new ArrayList<>(children));
     }
   }
 
