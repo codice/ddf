@@ -503,6 +503,11 @@
         <bundle>mvn:ddf.catalog.async/catalog-async-processingframework/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-harvest-api" version="${project.version}"
+        description="API for Harvesting components">
+        <bundle>mvn:ddf.catalog.harvest/catalog-harvest-api/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-app" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
         <feature>admin-app</feature>

@@ -648,5 +648,10 @@
             <artifactId>catalog-core-attachment-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.harvest</groupId>
+            <artifactId>catalog-harvest-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
