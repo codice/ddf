@@ -117,7 +117,7 @@
         <org.geotools.version>19.1</org.geotools.version>
         <opengis.version>19.1</opengis.version>
         <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
-        <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
+        <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <groovy.version>2.4.7</groovy.version>
         <powermock.version>1.6.4</powermock.version>
