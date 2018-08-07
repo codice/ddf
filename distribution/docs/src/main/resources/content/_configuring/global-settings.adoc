@@ -31,7 +31,7 @@ Changing these values without also changing the passwords of the JKS causes unde
 |Default Value
 |Required
 
-6+^h|Keystore and truststore java properties
+6+^h|Keystore and Truststore Java Properties
 
 |Keystore
 |javax.net.ssl.keyStore
@@ -433,20 +433,33 @@ application/x-msmetafile
 Thumbs.db
 |Yes
 
-6+^h|[[SolrProperties]]Solr Catalog Provider Properties
-
-|Start Solr server
-|start.solr
-|Boolean
-|If true, application manages Solr server lifecycle
-|true
-|Yes
+6+^h|[[SolrProperties]]General Solr Catalog Properties
 
 |Solr Catalog Client
 |solr.client
 |String
 |Type of Solr configuration
 |HttpSolrClient
+|Yes
+
+6+^h|Solr Cloud Properties
+
+|Zookeeper Nodes
+|solr.cloud.zookeeper
+|String
+|Zookeeper hostnames and port numbers
+|zookeeperhost1:2181,
+zookeeperhost2:2181,
+zookeeperhost3:2181
+|Yes
+
+6+^h|[[_managed_solr_properties]]Managed Solr Server Properties
+
+|Start Solr server
+|solr.start
+|Boolean
+|If true, application manages Solr server lifecycle
+|true
 |Yes
 
 |Solr server HTTP port
@@ -460,7 +473,7 @@ Thumbs.db
 |solr.http.url
 |String
 |URL for a HTTP Solr server (required for HTTP Solr)
-|http://localhost:${solr.http.port}/solr
+|-
 |Yes
 
 |Solr Data Directory
@@ -470,17 +483,10 @@ Thumbs.db
 |`${home_directory}`/solr/server/solr
 |Yes
 
-|Zookeeper Nodes
-|solr.cloud.zookeeper
+|Solr Heap Size
+|solr.mem
 |String
-|Zookeeper hostnames and port numbers (required for Solr Cloud)
-|zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
-|No
-
-|Solr max heap size
-|solr.max.heap.size
-|String
-|Memory settings for the Solr server
+|Memory allocated to the Solr Java process
 |2g
 |Yes
 
