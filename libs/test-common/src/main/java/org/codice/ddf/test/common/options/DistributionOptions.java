@@ -51,6 +51,7 @@ public class DistributionOptions extends BasicOptions {
                   KarafDistributionKitConfigurationOption.Platform.WINDOWS)
               .executable("bin\\ddf.bat")
               .filesToMakeExecutable(
+                  "bin\\ddfsolr.bat",
                   "bin\\karaf.bat",
                   "bin\\setenv.bat",
                   "bin\\start.bat",

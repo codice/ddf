@@ -1,0 +1,72 @@
+:title: Run Solr as Managed Service
+:type: startingIntro
+:status: published
+:summary: Install Solr as a Service.
+:project: ${branding}
+:order: 05
+
+==== {title}
+
+These instructions are configuring Solr as a service managed by the operating system. A common
+reason is to start Solr when the system boots.
+
+===== Configure Solr as a Systemd Service
+These instructions are for the unix family of operating systems running the systemd
+ init manager. If configuring a Windows system, see
+ <<{managing-prefix}configure_solr_as_a_windows_service,Configure Solr as a Windows Service>>
+
+
+. From the operating system command line, enable a Solr service using a provided configuration file.
+Use the full path to the file.
++
+----
+ systemctl enable <${branding}_HOME>/solr/service/solr.service>
+----
+
+. Start the service.
++
+----
+systemctl enable solr
+----
+
+. Check the status of Solr
++
+----
+systemctl status solr
+----
+
+Solr will start automatically each time the system is booted.
+
+
+===== Configure Solr as a Windows Service
+
+Windows users will be able to utilize the built in *Task Scheduler* to start Solr as a background process.
+
+. <<{managing-prefix}installing,Install ${branding}>>
+. Start the *Windows Task Scheduler* and open the *Task Scheduler Library*.
+. Under the Actions pane, select *Create Basic Task...*.
+. Provide a useful name and description, then select *Next*.
+. Select *When the computer starts* as the Trigger and select *Next*.
+. Select *Start a program* as the Action and select *Next*.
+. Select the script to start Solr:
++
+-----
+${home_directory}\bin\ddfsolr.bat
+-----
++
+Then select *Next*.
+. Review the settings and select *Finish*.
+
+It may be necessary to update the *Security Options* under the task *Properties* to
+*Run with highest privileges* or setting user to "SYSTEM".
+
+Additionally, the process can be set to restart if it fails. The option can be found in the
+ the *Properties* > *Settings* tab.
+
+Depending on the system it may also make sense to delay the process from starting for a
+few minutes until the machine has fully booted. Open the task's *Properties* settings and
+
+ .. Select *Triggers*.
+ .. Select *Edit*.
+ .. Select *Advanced Settings*.
+ .. Select *Delay Task*.
