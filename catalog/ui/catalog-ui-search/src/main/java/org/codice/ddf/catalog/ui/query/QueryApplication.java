@@ -62,209 +62,209 @@ import spark.servlet.SparkApplication;
 
 public class QueryApplication implements SparkApplication, Function {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
-    private static final String APPLICATION_JSON = "application/json";
+  private static final String APPLICATION_JSON = "application/json";
 
-    private CatalogFramework catalogFramework;
+  private CatalogFramework catalogFramework;
 
-    private FilterBuilder filterBuilder;
+  private FilterBuilder filterBuilder;
 
-    private FilterAdapter filterAdapter;
+  private FilterAdapter filterAdapter;
 
-    private ActionRegistry actionRegistry;
+  private ActionRegistry actionRegistry;
 
-    private FeatureService featureService;
+  private FeatureService featureService;
 
-    private ObjectMapper mapper =
-            new ObjectMapperImpl(
-                    new JsonParserFactory().usePropertyOnly(),
-                    new JsonSerializerFactory()
-                            .includeEmpty()
-                            .includeNulls()
-                            .includeDefaultValues()
-                            .setJsonFormatForDates(false));
+  private ObjectMapper mapper =
+      new ObjectMapperImpl(
+          new JsonParserFactory().usePropertyOnly(),
+          new JsonSerializerFactory()
+              .includeEmpty()
+              .includeNulls()
+              .includeDefaultValues()
+              .setJsonFormatForDates(false));
 
-    private EndpointUtil util;
+  private EndpointUtil util;
 
-    @Override
-    public void init() {
-        before(
-                (req, res) -> {
-                    res.type(APPLICATION_JSON);
-                });
+  @Override
+  public void init() {
+    before(
+        (req, res) -> {
+          res.type(APPLICATION_JSON);
+        });
 
-        post(
-                "/cql",
-                APPLICATION_JSON,
-                (req, res) -> {
-                    CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
-                    CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
-                    return mapper.toJson(cqlQueryResponse);
-                });
+    post(
+        "/cql",
+        APPLICATION_JSON,
+        (req, res) -> {
+          CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
+          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+          return mapper.toJson(cqlQueryResponse);
+        });
 
-        after(
-                "/cql",
-                (req, res) -> {
-                    res.header("Content-Encoding", "gzip");
-                });
+    after(
+        "/cql",
+        (req, res) -> {
+          res.header("Content-Encoding", "gzip");
+        });
 
-        get(
-                "/geofeature/suggestions",
-                (req, res) -> {
-                    String query = req.queryParams("q");
-                    List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
-                    return mapper.toJson(results);
-                });
+    get(
+        "/geofeature/suggestions",
+        (req, res) -> {
+          String query = req.queryParams("q");
+          List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
+          return mapper.toJson(results);
+        });
 
-        get(
-                "/geofeature",
-                (req, res) -> {
-                    String id = req.queryParams("id");
-                    SimpleFeature feature = this.featureService.getFeatureById(id);
-                    if (feature == null) {
-                        res.status(404);
-                        return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
-                    }
-                    return new FeatureJSON().toString(feature);
-                });
+    get(
+        "/geofeature",
+        (req, res) -> {
+          String id = req.queryParams("id");
+          SimpleFeature feature = this.featureService.getFeatureById(id);
+          if (feature == null) {
+            res.status(404);
+            return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
+          }
+          return new FeatureJSON().toString(feature);
+        });
 
-        exception(
-                UnsupportedQueryException.class,
-                (e, request, response) -> {
-                    response.status(400);
-                    response.header(CONTENT_TYPE, APPLICATION_JSON);
-                    response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
-                    LOGGER.error("Query endpoint failed", e);
-                });
+    exception(
+        UnsupportedQueryException.class,
+        (e, request, response) -> {
+          response.status(400);
+          response.header(CONTENT_TYPE, APPLICATION_JSON);
+          response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
+          LOGGER.error("Query endpoint failed", e);
+        });
 
-        exception(IOException.class, util::handleIOException);
+    exception(IOException.class, util::handleIOException);
 
-        exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
+    exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
 
-        exception(RuntimeException.class, util::handleRuntimeException);
+    exception(RuntimeException.class, util::handleRuntimeException);
 
-        exception(
-                Exception.class,
-                (e, request, response) -> {
-                    response.status(500);
-                    response.header(CONTENT_TYPE, APPLICATION_JSON);
-                    response.body(
-                            mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
-                    LOGGER.error("Query endpoint failed", e);
-                });
+    exception(
+        Exception.class,
+        (e, request, response) -> {
+          response.status(500);
+          response.header(CONTENT_TYPE, APPLICATION_JSON);
+          response.body(
+              mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
+          LOGGER.error("Query endpoint failed", e);
+        });
+  }
+
+  @Override
+  public Object apply(Object req) {
+    if (!(req instanceof List)) {
+      return JsonRpc.invalidParams("params not list", req);
     }
 
-    @Override
-    public Object apply(Object req) {
-        if (!(req instanceof List)) {
-            return JsonRpc.invalidParams("params not list", req);
-        }
+    List params = (List) req;
 
-        List params = (List) req;
-
-        if (params.size() != 1) {
-            return JsonRpc.invalidParams("must pass exactly 1 param", params);
-        }
-
-        Object param = params.get(0);
-
-        if (!(param instanceof String)) {
-            return JsonRpc.invalidParams("param not string", param);
-        }
-
-        CqlRequest cqlRequest;
-
-        try {
-            cqlRequest = mapper.readValue((String) param, CqlRequest.class);
-        } catch (RuntimeException e) {
-            return JsonRpc.invalidParams("param not valid json", param);
-        }
-
-        try {
-            return executeCqlQuery(cqlRequest);
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Query endpoint failed", e);
-            return JsonRpc.error(400, "Unsupported query request.");
-        } catch (RuntimeException e) {
-            LOGGER.debug("Exception occurred", e);
-            return JsonRpc.error(404, "Could not find what you were looking for");
-        } catch (Exception e) {
-            LOGGER.error("Query endpoint failed", e);
-            return JsonRpc.error(500, "Error while processing query request.");
-        }
+    if (params.size() != 1) {
+      return JsonRpc.invalidParams("must pass exactly 1 param", params);
     }
 
-    private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-        Stopwatch stopwatch = Stopwatch.createStarted();
+    Object param = params.get(0);
 
-        List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-        QueryFunction queryFunction =
-                (queryRequest) -> {
-                    QueryResponse queryResponse = catalogFramework.query(queryRequest);
-                    responses.add(queryResponse);
-                    return queryResponse;
-                };
-
-        List<Result> results =
-                ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-                        .stream()
-                        .collect(Collectors.toList());
-
-        QueryResponse response =
-                new QueryResponseImpl(
-                        request,
-                        results,
-                        true,
-                        responses
-                                .stream()
-                                .filter(Objects::nonNull)
-                                .map(QueryResponse::getHits)
-                                .findFirst()
-                                .orElse(-1l),
-                        responses
-                                .stream()
-                                .filter(Objects::nonNull)
-                                .map(QueryResponse::getProperties)
-                                .findFirst()
-                                .orElse(Collections.emptyMap()));
-
-        stopwatch.stop();
-
-        return new CqlQueryResponse(
-                cqlRequest.getId(),
-                request,
-                response,
-                cqlRequest.getSource(),
-                stopwatch.elapsed(TimeUnit.MILLISECONDS),
-                cqlRequest.isNormalize(),
-                filterAdapter,
-                actionRegistry);
+    if (!(param instanceof String)) {
+      return JsonRpc.invalidParams("param not string", param);
     }
 
-    public void setCatalogFramework(CatalogFramework catalogFramework) {
-        this.catalogFramework = catalogFramework;
+    CqlRequest cqlRequest;
+
+    try {
+      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+    } catch (RuntimeException e) {
+      return JsonRpc.invalidParams("param not valid json", param);
     }
 
-    public void setFilterBuilder(FilterBuilder filterBuilder) {
-        this.filterBuilder = filterBuilder;
+    try {
+      return executeCqlQuery(cqlRequest);
+    } catch (UnsupportedQueryException e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(400, "Unsupported query request.");
+    } catch (RuntimeException e) {
+      LOGGER.debug("Exception occurred", e);
+      return JsonRpc.error(404, "Could not find what you were looking for");
+    } catch (Exception e) {
+      LOGGER.error("Query endpoint failed", e);
+      return JsonRpc.error(500, "Error while processing query request.");
     }
+  }
 
-    public void setFilterAdapter(FilterAdapter filterAdapter) {
-        this.filterAdapter = filterAdapter;
-    }
+  private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
-    public void setActionRegistry(ActionRegistry actionRegistry) {
-        this.actionRegistry = actionRegistry;
-    }
+    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
+    QueryFunction queryFunction =
+        (queryRequest) -> {
+          QueryResponse queryResponse = catalogFramework.query(queryRequest);
+          responses.add(queryResponse);
+          return queryResponse;
+        };
 
-    public void setFeatureService(FeatureService featureService) {
-        this.featureService = featureService;
-    }
+    List<Result> results =
+        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
+            .stream()
+            .collect(Collectors.toList());
 
-    public void setEndpointUtil(EndpointUtil util) {
-        this.util = util;
-    }
+    QueryResponse response =
+        new QueryResponseImpl(
+            request,
+            results,
+            true,
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getHits)
+                .findFirst()
+                .orElse(-1l),
+            responses
+                .stream()
+                .filter(Objects::nonNull)
+                .map(QueryResponse::getProperties)
+                .findFirst()
+                .orElse(Collections.emptyMap()));
+
+    stopwatch.stop();
+
+    return new CqlQueryResponse(
+        cqlRequest.getId(),
+        request,
+        response,
+        cqlRequest.getSource(),
+        stopwatch.elapsed(TimeUnit.MILLISECONDS),
+        cqlRequest.isNormalize(),
+        filterAdapter,
+        actionRegistry);
+  }
+
+  public void setCatalogFramework(CatalogFramework catalogFramework) {
+    this.catalogFramework = catalogFramework;
+  }
+
+  public void setFilterBuilder(FilterBuilder filterBuilder) {
+    this.filterBuilder = filterBuilder;
+  }
+
+  public void setFilterAdapter(FilterAdapter filterAdapter) {
+    this.filterAdapter = filterAdapter;
+  }
+
+  public void setActionRegistry(ActionRegistry actionRegistry) {
+    this.actionRegistry = actionRegistry;
+  }
+
+  public void setFeatureService(FeatureService featureService) {
+    this.featureService = featureService;
+  }
+
+  public void setEndpointUtil(EndpointUtil util) {
+    this.util = util;
+  }
 }
