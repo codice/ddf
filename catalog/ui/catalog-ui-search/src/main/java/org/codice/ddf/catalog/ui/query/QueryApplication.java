@@ -304,31 +304,20 @@ public class QueryApplication implements SparkApplication, Function {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Request request,
-      Response response) {
-    response.status(500);
+      Response response) throws CatalogTransformerException, MimeTypeException, IOException {
+
     BinaryContent content;
-    try {
+
       content =
           bundleContext
               .getService(queryResponseTransformer)
               .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
-    } catch (CatalogTransformerException e) {
-      LOGGER.debug(
-          "Error fetching binary content for transformer with id: {}",
-          queryResponseTransformer.getProperty("id"),
-          e);
-      return;
-    }
 
     String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt;
-    try {
-      fileExt = allTypes.forName(mimeType).getExtension();
-    } catch (MimeTypeException e) {
-      LOGGER.debug("Error fetching file extension for mime-type: {}", mimeType, e);
-      return;
-    }
+
+    fileExt = allTypes.forName(mimeType).getExtension();
 
     String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
 
@@ -340,7 +329,6 @@ public class QueryApplication implements SparkApplication, Function {
         String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
     response.header("Content-Disposition", attachment);
 
-    try {
       try (OutputStream servletOutputStream = response.raw().getOutputStream();
           InputStream resultStream = content.getInputStream()) {
         if (shouldGzip) {
@@ -353,13 +341,12 @@ public class QueryApplication implements SparkApplication, Function {
           IOUtils.copy(resultStream, servletOutputStream);
         }
       }
-    } catch (java.io.IOException e) {
-      LOGGER.debug("Error attaching output file", e);
-      return;
-    }
 
     response.status(200);
-    LOGGER.trace("Response sent in {} file format.", fileExt);
+    LOGGER.trace(
+        "Response sent to transformer id {} in {} file format.",
+        queryResponseTransformer.getProperty("id"),
+        fileExt);
   }
 
   public void setCatalogFramework(CatalogFramework catalogFramework) {
