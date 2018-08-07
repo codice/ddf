@@ -70,7 +70,7 @@
                         <version>1.5</version>
                         <executions>
                             <execution>
-                                <id>attach-omnibus</id>
+                                <id>attach-docs-pdf</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>attach-artifact</goal>
@@ -420,7 +420,7 @@
                 <version>1.5</version>
                 <executions>
                     <execution>
-                        <id>attach-omnibus</id>
+                        <id>attach-docs-html</id>
                         <phase>package</phase>
                         <goals>
                             <goal>attach-artifact</goal>
