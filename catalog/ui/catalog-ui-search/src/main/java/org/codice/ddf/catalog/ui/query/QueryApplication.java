@@ -24,7 +24,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
@@ -34,24 +33,16 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
-import org.apache.commons.lang.StringUtils;
-import org.apache.tika.mime.MimeTypes;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -65,300 +56,215 @@ import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
-import spark.utils.IOUtils;
 
 public class QueryApplication implements SparkApplication, Function {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
-  private static final String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_JSON = "application/json";
 
-  private CatalogFramework catalogFramework;
+    private CatalogFramework catalogFramework;
 
-  private FilterBuilder filterBuilder;
+    private FilterBuilder filterBuilder;
 
-  private FilterAdapter filterAdapter;
+    private FilterAdapter filterAdapter;
 
-  private ActionRegistry actionRegistry;
+    private ActionRegistry actionRegistry;
 
-  private FeatureService featureService;
+    private FeatureService featureService;
 
-  private QueryResponse queryResponse;
+    private ObjectMapper mapper =
+            new ObjectMapperImpl(
+                    new JsonParserFactory().usePropertyOnly(),
+                    new JsonSerializerFactory()
+                            .includeEmpty()
+                            .includeNulls()
+                            .includeDefaultValues()
+                            .setJsonFormatForDates(false));
 
-  private List<ServiceReference> queryResponseTransformers;
+    private EndpointUtil util;
 
-  private BundleContext bundleContext;
+    @Override
+    public void init() {
+        before(
+                (req, res) -> {
+                    res.type(APPLICATION_JSON);
+                });
 
-  private ObjectMapper mapper =
-      new ObjectMapperImpl(
-          new JsonParserFactory().usePropertyOnly(),
-          new JsonSerializerFactory()
-              .includeEmpty()
-              .includeNulls()
-              .includeDefaultValues()
-              .setJsonFormatForDates(false));
+        post(
+                "/cql",
+                APPLICATION_JSON,
+                (req, res) -> {
+                    CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
+                    CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+                    return mapper.toJson(cqlQueryResponse);
+                });
 
-  private EndpointUtil util;
+        after(
+                "/cql",
+                (req, res) -> {
+                    res.header("Content-Encoding", "gzip");
+                });
 
-  public QueryApplication(
-      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
-    this.queryResponseTransformers = queryResponseTransformers;
-    this.bundleContext = bundleContext;
-  }
+        get(
+                "/geofeature/suggestions",
+                (req, res) -> {
+                    String query = req.queryParams("q");
+                    List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
+                    return mapper.toJson(results);
+                });
 
-  @Override
-  public void init() {
-    before(
-        (req, res) -> {
-          res.type(APPLICATION_JSON);
-        });
+        get(
+                "/geofeature",
+                (req, res) -> {
+                    String id = req.queryParams("id");
+                    SimpleFeature feature = this.featureService.getFeatureById(id);
+                    if (feature == null) {
+                        res.status(404);
+                        return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
+                    }
+                    return new FeatureJSON().toString(feature);
+                });
 
-    post(
-        "/cql",
-        APPLICATION_JSON,
-        (req, res) -> {
-          String transformerId = req.queryParams(":transform");
-          String body = util.safeGetBody(req);
-          CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+        exception(
+                UnsupportedQueryException.class,
+                (e, request, response) -> {
+                    response.status(400);
+                    response.header(CONTENT_TYPE, APPLICATION_JSON);
+                    response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
+                    LOGGER.error("Query endpoint failed", e);
+                });
 
-          if (StringUtils.isEmpty(transformerId)) {
-            LOGGER.trace("Returning cql query response.");
-            return mapper.toJson(cqlQueryResponse);
-          }
-          for (ServiceReference<QueryResponseTransformer> queryResponseTransformer :
-              queryResponseTransformers) {
+        exception(IOException.class, util::handleIOException);
 
-            LOGGER.trace("Finding transformer to transform query response.");
+        exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
 
-            String id = (String) queryResponseTransformer.getProperty("id");
+        exception(RuntimeException.class, util::handleRuntimeException);
 
-            if (!id.equals(transformerId)) {
-              continue;
-            }
-
-            BinaryContent content =
-                bundleContext
-                    .getService(queryResponseTransformer)
-                    .transform(this.queryResponse, new HashMap<>());
-
-            String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
-            MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
-            String fileExt = allTypes.forName(mimeType).getExtension();
-
-            res.status(200);
-
-            String acceptEncoding = req.headers("Accept-Encoding");
-
-            boolean shouldGzip =
-                StringUtils.isNotBlank(acceptEncoding)
-                    && acceptEncoding.toLowerCase().contains("gzip");
-
-            if (!shouldGzip) {
-              LOGGER.trace("Request header does not contain gzip.");
-            }
-
-            res.type(mimeType);
-            String attachment =
-                String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
-            res.header("Content-Disposition", attachment);
-
-            if (shouldGzip) {
-              res.raw().addHeader("Content-Encoding", "gzip");
-            }
-
-            try (OutputStream servletOutputStream = res.raw().getOutputStream();
-                InputStream resultStream = content.getInputStream()) {
-              if (shouldGzip) {
-                try (OutputStream gzipServletOutputStream =
-                    new GZIPOutputStream(servletOutputStream)) {
-                  IOUtils.copy(resultStream, gzipServletOutputStream);
-                }
-              } else {
-                IOUtils.copy(resultStream, servletOutputStream);
-              }
-            }
-
-            LOGGER.trace(String.format("Response sent in %s file format.", fileExt));
-
-            return "";
-          }
-          LOGGER.debug(
-              String.format(
-                  "Could not find transformer id %s to match cql request.", transformerId));
-          res.status(404);
-          return mapper.toJson(ImmutableMap.of("message", "Service not found"));
-        });
-
-    after(
-        "/cql",
-        (req, res) -> {
-          res.header("Content-Encoding", "gzip");
-        });
-
-    get(
-        "/geofeature/suggestions",
-        (req, res) -> {
-          String query = req.queryParams("q");
-          List<Suggestion> results = this.featureService.getSuggestedFeatureNames(query, 10);
-          return mapper.toJson(results);
-        });
-
-    get(
-        "/geofeature",
-        (req, res) -> {
-          String id = req.queryParams("id");
-          SimpleFeature feature = this.featureService.getFeatureById(id);
-          if (feature == null) {
-            res.status(404);
-            return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
-          }
-          return new FeatureJSON().toString(feature);
-        });
-
-    exception(
-        UnsupportedQueryException.class,
-        (e, request, response) -> {
-          response.status(400);
-          response.header(CONTENT_TYPE, APPLICATION_JSON);
-          response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
-          LOGGER.error("Query endpoint failed", e);
-        });
-
-    exception(IOException.class, util::handleIOException);
-
-    exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
-
-    exception(RuntimeException.class, util::handleRuntimeException);
-
-    exception(
-        Exception.class,
-        (e, request, response) -> {
-          response.status(500);
-          response.header(CONTENT_TYPE, APPLICATION_JSON);
-          response.body(
-              mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
-          LOGGER.error("Query endpoint failed", e);
-        });
-  }
-
-  @Override
-  public Object apply(Object req) {
-    if (!(req instanceof List)) {
-      return JsonRpc.invalidParams("params not list", req);
+        exception(
+                Exception.class,
+                (e, request, response) -> {
+                    response.status(500);
+                    response.header(CONTENT_TYPE, APPLICATION_JSON);
+                    response.body(
+                            mapper.toJson(ImmutableMap.of("message", "Error while processing query request.")));
+                    LOGGER.error("Query endpoint failed", e);
+                });
     }
 
-    List params = (List) req;
+    @Override
+    public Object apply(Object req) {
+        if (!(req instanceof List)) {
+            return JsonRpc.invalidParams("params not list", req);
+        }
 
-    if (params.size() != 1) {
-      return JsonRpc.invalidParams("must pass exactly 1 param", params);
+        List params = (List) req;
+
+        if (params.size() != 1) {
+            return JsonRpc.invalidParams("must pass exactly 1 param", params);
+        }
+
+        Object param = params.get(0);
+
+        if (!(param instanceof String)) {
+            return JsonRpc.invalidParams("param not string", param);
+        }
+
+        CqlRequest cqlRequest;
+
+        try {
+            cqlRequest = mapper.readValue((String) param, CqlRequest.class);
+        } catch (RuntimeException e) {
+            return JsonRpc.invalidParams("param not valid json", param);
+        }
+
+        try {
+            return executeCqlQuery(cqlRequest);
+        } catch (UnsupportedQueryException e) {
+            LOGGER.error("Query endpoint failed", e);
+            return JsonRpc.error(400, "Unsupported query request.");
+        } catch (RuntimeException e) {
+            LOGGER.debug("Exception occurred", e);
+            return JsonRpc.error(404, "Could not find what you were looking for");
+        } catch (Exception e) {
+            LOGGER.error("Query endpoint failed", e);
+            return JsonRpc.error(500, "Error while processing query request.");
+        }
     }
 
-    Object param = params.get(0);
+    private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
+        Stopwatch stopwatch = Stopwatch.createStarted();
 
-    if (!(param instanceof String)) {
-      return JsonRpc.invalidParams("param not string", param);
+        List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
+        QueryFunction queryFunction =
+                (queryRequest) -> {
+                    QueryResponse queryResponse = catalogFramework.query(queryRequest);
+                    responses.add(queryResponse);
+                    return queryResponse;
+                };
+
+        List<Result> results =
+                ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
+                        .stream()
+                        .collect(Collectors.toList());
+
+        QueryResponse response =
+                new QueryResponseImpl(
+                        request,
+                        results,
+                        true,
+                        responses
+                                .stream()
+                                .filter(Objects::nonNull)
+                                .map(QueryResponse::getHits)
+                                .findFirst()
+                                .orElse(-1l),
+                        responses
+                                .stream()
+                                .filter(Objects::nonNull)
+                                .map(QueryResponse::getProperties)
+                                .findFirst()
+                                .orElse(Collections.emptyMap()));
+
+        stopwatch.stop();
+
+        return new CqlQueryResponse(
+                cqlRequest.getId(),
+                request,
+                response,
+                cqlRequest.getSource(),
+                stopwatch.elapsed(TimeUnit.MILLISECONDS),
+                cqlRequest.isNormalize(),
+                filterAdapter,
+                actionRegistry);
     }
 
-    CqlRequest cqlRequest;
-
-    try {
-      cqlRequest = mapper.readValue((String) param, CqlRequest.class);
-    } catch (RuntimeException e) {
-      return JsonRpc.invalidParams("param not valid json", param);
+    public void setCatalogFramework(CatalogFramework catalogFramework) {
+        this.catalogFramework = catalogFramework;
     }
 
-    try {
-      return executeCqlQuery(cqlRequest);
-    } catch (UnsupportedQueryException e) {
-      LOGGER.error("Query endpoint failed", e);
-      return JsonRpc.error(400, "Unsupported query request.");
-    } catch (RuntimeException e) {
-      LOGGER.debug("Exception occurred", e);
-      return JsonRpc.error(404, "Could not find what you were looking for");
-    } catch (Exception e) {
-      LOGGER.error("Query endpoint failed", e);
-      return JsonRpc.error(500, "Error while processing query request.");
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
     }
-  }
 
-  private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    public void setFilterAdapter(FilterAdapter filterAdapter) {
+        this.filterAdapter = filterAdapter;
+    }
 
-    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-    QueryFunction queryFunction =
-        (queryRequest) -> {
-          QueryResponse queryResponse = catalogFramework.query(queryRequest);
-          responses.add(queryResponse);
-          return queryResponse;
-        };
+    public void setActionRegistry(ActionRegistry actionRegistry) {
+        this.actionRegistry = actionRegistry;
+    }
 
-    List<Result> results =
-        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-            .stream()
-            .collect(Collectors.toList());
+    public void setFeatureService(FeatureService featureService) {
+        this.featureService = featureService;
+    }
 
-    QueryResponse response =
-        new QueryResponseImpl(
-            request,
-            results,
-            true,
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getHits)
-                .findFirst()
-                .orElse(-1l),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProperties)
-                .findFirst()
-                .orElse(Collections.emptyMap()));
-
-    stopwatch.stop();
-
-    this.queryResponse = response;
-
-    return new CqlQueryResponse(
-        cqlRequest.getId(),
-        request,
-        response,
-        cqlRequest.getSource(),
-        stopwatch.elapsed(TimeUnit.MILLISECONDS),
-        cqlRequest.isNormalize(),
-        filterAdapter,
-        actionRegistry);
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
-  }
-
-  public void setFilterAdapter(FilterAdapter filterAdapter) {
-    this.filterAdapter = filterAdapter;
-  }
-
-  public void setActionRegistry(ActionRegistry actionRegistry) {
-    this.actionRegistry = actionRegistry;
-  }
-
-  public void setFeatureService(FeatureService featureService) {
-    this.featureService = featureService;
-  }
-
-  public void setEndpointUtil(EndpointUtil util) {
-    this.util = util;
-  }
+    public void setEndpointUtil(EndpointUtil util) {
+        this.util = util;
+    }
 }
