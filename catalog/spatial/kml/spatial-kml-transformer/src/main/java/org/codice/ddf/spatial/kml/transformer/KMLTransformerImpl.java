@@ -24,6 +24,7 @@ import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -31,7 +32,9 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
+import de.micromata.opengis.kml.v_2_2_0.Data;
 import de.micromata.opengis.kml.v_2_2_0.Document;
+import de.micromata.opengis.kml.v_2_2_0.ExtendedData;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -107,28 +110,32 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private KmlMarshaller kmlMarshaller;
 
+  private final Map<String, String> aliasMap;
+
   public KMLTransformerImpl(
-      BundleContext bundleContext,
-      String defaultStylingName,
-      KmlStyleMap mapper,
-      ActionProvider actionProvider,
-      KmlMarshaller kmlMarshaller) {
+          BundleContext bundleContext,
+          String defaultStylingName,
+          KmlStyleMap mapper,
+          ActionProvider actionProvider,
+          KmlMarshaller kmlMarshaller,
+          Map<String, String> aliasMap) {
 
     this.context = Validate.notNull(bundleContext, "BundleContext must not be null.");
     this.styleMapper = Validate.notNull(mapper, "KmlStyleMap must not be null.");
     this.templateHelper = new DescriptionTemplateHelper(actionProvider);
     this.kmlMarshaller = Validate.notNull(kmlMarshaller, "KmlMarshaller must not be null.");
+    this.aliasMap = aliasMap;
 
     final URL stylingUrl = context.getBundle().getResource(defaultStylingName);
 
     try {
       LOGGER.trace("Reading in KML Style");
       defaultStyle =
-          kmlMarshaller
-              .unmarshal(stylingUrl.openStream())
-              .map(Kml::getFeature)
-              .map(Feature::getStyleSelector)
-              .orElse(emptyList());
+              kmlMarshaller
+                      .unmarshal(stylingUrl.openStream())
+                      .map(Kml::getFeature)
+                      .map(Feature::getStyleSelector)
+                      .orElse(emptyList());
     } catch (IOException e) {
       LOGGER.debug("Exception while opening default style resource.", e);
     }
@@ -151,7 +158,7 @@ public class KMLTransformerImpl implements KMLTransformer {
    */
   @Override
   public Placemark transformEntry(Subject user, Metacard entry, Map<String, Serializable> arguments)
-      throws CatalogTransformerException {
+          throws CatalogTransformerException {
     return performDefaultTransformation(entry);
   }
 
@@ -165,7 +172,7 @@ public class KMLTransformerImpl implements KMLTransformer {
    * @throws javax.xml.transform.TransformerException
    */
   protected Placemark performDefaultTransformation(Metacard entry)
-      throws CatalogTransformerException {
+          throws CatalogTransformerException {
 
     // wrap metacard to work around classLoader/reflection issues
     entry = new MetacardImpl(entry);
@@ -198,7 +205,10 @@ public class KMLTransformerImpl implements KMLTransformer {
     } catch (IOException e) {
       LOGGER.debug("Failed to apply description Template", e);
     }
+
     kmlPlacemark.setDescription(description);
+
+    setExtendedData(kmlPlacemark, entry);
 
     String styleUrl = styleMapper.getStyleForMetacard(entry);
     if (StringUtils.isNotBlank(styleUrl)) {
@@ -208,9 +218,31 @@ public class KMLTransformerImpl implements KMLTransformer {
     return kmlPlacemark;
   }
 
+  private void setExtendedData(Placemark placemark, Metacard metacard) {
+    final ExtendedData extendedData = new ExtendedData();
+
+    for (String attributeName : aliasMap.keySet()) {
+      final Attribute attribute = metacard.getAttribute(attributeName);
+      if (attribute != null) {
+        final String attributeValue = (String) attribute.getValue();
+        final String attributeAlias = aliasMap.get(attributeName);
+        final Data data = getData(attributeAlias, attributeValue);
+        extendedData.addToData(data);
+      }
+    }
+
+    placemark.setExtendedData(extendedData);
+  }
+
+  private Data getData(String attributeAlias, String attributeValue) {
+    final Data data = new Data(attributeValue);
+    data.setName(attributeAlias);
+    return data;
+  }
+
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-      throws CatalogTransformerException {
+          throws CatalogTransformerException {
     try {
       Placemark placemark = transformEntry(null, metacard, arguments);
       if (placemark.getStyleSelector().isEmpty() && StringUtils.isBlank(placemark.getStyleUrl())) {
@@ -221,7 +253,7 @@ public class KMLTransformerImpl implements KMLTransformer {
       String transformedKmlString = kmlMarshaller.marshal(kml);
 
       InputStream kmlInputStream =
-          new ByteArrayInputStream(transformedKmlString.getBytes(StandardCharsets.UTF_8));
+              new ByteArrayInputStream(transformedKmlString.getBytes(StandardCharsets.UTF_8));
 
       return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
     } catch (Exception e) {
@@ -232,8 +264,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   @Override
   public BinaryContent transform(
-      SourceResponse upstreamResponse, Map<String, Serializable> arguments)
-      throws CatalogTransformerException {
+          SourceResponse upstreamResponse, Map<String, Serializable> arguments)
+          throws CatalogTransformerException {
     LOGGER.trace("ENTERING: ResponseQueue transform");
     if (arguments == null) {
       LOGGER.debug("Null arguments, unable to complete transform");
@@ -251,16 +283,16 @@ public class KMLTransformerImpl implements KMLTransformer {
       try {
         Placemark placemark = transformEntry(null, result.getMetacard(), arguments);
         if (placemark.getStyleSelector().isEmpty()
-            && StringUtils.isEmpty(placemark.getStyleUrl())) {
+                && StringUtils.isEmpty(placemark.getStyleUrl())) {
           placemark.setStyleUrl("#default");
           needDefaultStyle = true;
         }
         kmlDoc.getFeature().add(placemark);
       } catch (CatalogTransformerException e) {
         LOGGER.debug(
-            "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
-            result.getMetacard().getId(),
-            e);
+                "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
+                result.getMetacard().getId(),
+                e);
       }
     }
 
@@ -269,15 +301,15 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
 
     Kml kmlResult =
-        encloseKml(
-            kmlDoc,
-            docId,
-            KML_RESPONSE_QUEUE_PREFIX + kmlDoc.getFeature().size() + CLOSE_PARENTHESIS);
+            encloseKml(
+                    kmlDoc,
+                    docId,
+                    KML_RESPONSE_QUEUE_PREFIX + kmlDoc.getFeature().size() + CLOSE_PARENTHESIS);
 
     String transformedKml = kmlMarshaller.marshal(kmlResult);
 
     InputStream kmlInputStream =
-        new ByteArrayInputStream(transformedKml.getBytes(StandardCharsets.UTF_8));
+            new ByteArrayInputStream(transformedKml.getBytes(StandardCharsets.UTF_8));
     LOGGER.trace("EXITING: ResponseQueue transform");
     return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
   }

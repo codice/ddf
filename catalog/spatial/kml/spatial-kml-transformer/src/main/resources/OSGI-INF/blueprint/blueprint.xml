@@ -40,6 +40,7 @@
         <argument ref="kmlStyleMap"/>
         <argument ref="resourceActionProvider"/>
         <argument ref="kmlMarshaller"/>
+        <argument><map></map></argument>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">
@@ -56,6 +57,7 @@
         <service-properties>
             <entry key="id" value="kml"/>
             <entry key="shortname" value="kml"/>
+            <entry key="mime-type" value="application/vnd.google-earth.kml+xml"/>
             <entry key="title" value="View Results as KML..."/>
             <entry key="description"
                    value="Transforms a Metacard to KML for use with Google Earth and other visualization tools."/>
