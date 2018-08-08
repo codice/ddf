@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -37,12 +37,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class XmlModelBuilderTest {
-  private static final String AND = "AND";
-
-  private static final String OR = "OR";
-
-  private static final String JSON_EQUAL = "=";
-
   private XmlModelBuilder builder;
 
   @Before
@@ -52,12 +46,8 @@ public class XmlModelBuilderTest {
 
   @Test
   public void testBinaryComparisonType() throws Exception {
-    // @formatter:off
     JAXBElement filter = builder.isEqualTo(false).property("name").value("value").end().getResult();
-    // @formatter:on
-
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
-
+    assertEquals(filter.getDeclaredType(), FilterType.class);
     forNode(filter).verifyTerminalNode("/Filter/PropertyIsEqualTo", "name", "value");
   }
 
@@ -76,10 +66,32 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
-
+    assertEquals(filter.getDeclaredType(), FilterType.class);
     forNode(filter)
         .verifyTerminalTemplatedNode("/Filter/PropertyIsEqualTo", "name", "5", "id", true, false);
+  }
+
+  @Test
+  public void testBinaryComparisonTypeEmbeddedFunctions() {
+    JAXBElement filter =
+        builder
+            .isNotEqualTo(false)
+            .property("name")
+            .function("function.A")
+            .value("5")
+            .value("id")
+            .function("function.B")
+            .value(true)
+            .value("hello")
+            .end()
+            .value(false)
+            .end()
+            .end()
+            .getResult();
+
+    assertEquals(filter.getDeclaredType(), FilterType.class);
+    // TODO Do not add new methods to XPathAssertionSupport, which wasn't the best to begin with
+    // Use FilterNodeAssertionSupport instead
   }
 
   @Test
@@ -98,8 +110,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
-
+    assertEquals(filter.getDeclaredType(), FilterType.class);
     forNode(filter).verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "value");
   }
 
@@ -129,8 +140,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertTrue(filter.getDeclaredType().equals(FilterType.class));
-
+    assertEquals(filter.getDeclaredType(), FilterType.class);
     forNode(filter)
         .verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "Bob")
         .verifyTerminalNode("/Filter/And/PropertyIsGreaterThanOrEqualTo", "benumber", "0.45")

@@ -69,6 +69,38 @@ public class JsonModelBuilderTest {
   }
 
   @Test
+  public void testBinaryComparisonTypeEmbeddedFunctions() {
+    Map<String, ?> node =
+        builder
+            .isNotEqualTo(false)
+            .property("name")
+            .function("function.A")
+            .value("5")
+            .value("id")
+            .function("function.B")
+            .value(true)
+            .value("hello")
+            .end()
+            .value(false)
+            .end()
+            .end()
+            .getResult();
+
+    assertLeafNode(
+        node,
+        "!=",
+        e1 -> assertThat(e1, is("name")),
+        e2 ->
+            assertFunctionNode(
+                e2,
+                "function.A",
+                arg1 -> assertThat(arg1, is("5")),
+                arg2 -> assertThat(arg2, is("id")),
+                arg3 -> assertFunctionNode(arg3, "function.B", ImmutableList.of("true", "hello")),
+                arg4 -> assertThat(arg4, is("false"))));
+  }
+
+  @Test
   public void testBinaryLogicTypeAnd() {
     Map<String, ?> node =
         builder

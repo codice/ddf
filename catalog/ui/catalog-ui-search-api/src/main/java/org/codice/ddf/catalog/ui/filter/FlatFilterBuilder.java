@@ -36,7 +36,7 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder or();
 
-  // COMPARISON
+  // BINARY COMPARISON
 
   FlatFilterBuilder isEqualTo(boolean matchCase);
 
@@ -50,11 +50,9 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder isLessThanOrEqualTo(boolean matchCase);
 
-  // EXPRESSION
+  // COMPARISON
 
   FlatFilterBuilder like(boolean matchCase, String wildcard, String singleChar, String escape);
-
-  FlatFilterBuilder function(String name);
 
   // SPATIAL
 
@@ -68,7 +66,9 @@ public interface FlatFilterBuilder<T> {
 
   FlatFilterBuilder after();
 
-  // TERM
+  // EXPRESSION
+
+  FlatFilterBuilder function(String name);
 
   FlatFilterBuilder property(String name);
 

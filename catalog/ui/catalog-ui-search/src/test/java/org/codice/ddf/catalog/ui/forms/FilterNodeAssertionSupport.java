@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
@@ -55,7 +56,7 @@ public class FilterNodeAssertionSupport {
     assertThat(node.get(TYPE), is(expectedType));
 
     assertThat(node.get(FILTERS), notNullValue());
-    assertThat("Was expecting a list of nodes", node.get(FILTERS) instanceof List, is(true));
+    assertThat("Was expecting a list of nodes", node.get(FILTERS) instanceof List);
     assertThat((List<?>) node.get(FILTERS), hasSize(expectedChildCount));
 
     assertThat(node.get(PROPERTY), is(nullValue()));
@@ -102,12 +103,41 @@ public class FilterNodeAssertionSupport {
     assertThat(node.get(VALUE), is(nullValue()));
 
     assertThat(node.get(NAME), is(expectedName));
-    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List, is(true));
+    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List);
     assertThat(node.get(ARGS), is(expectedArgs));
   }
 
+  @SafeVarargs
+  public static void assertFunctionNode(
+      Object target, String expectedName, Consumer<Object>... argAssertions) {
+    Map<String, ?> node = assertObjectIsMap(target);
+    assertThat(node.get(TYPE), is("FILTER_FUNCTION"));
+
+    assertThat(node.get(FILTERS), nullValue());
+
+    assertThat(node.get(PROPERTY), is(nullValue()));
+    assertThat(node.get(VALUE), is(nullValue()));
+
+    assertThat(node.get(NAME), is(expectedName));
+    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List);
+
+    List<Consumer<Object>> assertions = Arrays.asList(argAssertions);
+    List<?> args = (List) node.get(ARGS);
+    assertThat(
+        String.format(
+            "Expected 1 assertion per function argument "
+                + "but found %d argument(s) and %d assertion(s) instead",
+            args.size(), assertions.size()),
+        args.size(),
+        is(assertions.size()));
+    for (int i = 0; i < assertions.size(); i++) {
+      assertions.get(i).accept(args.get(i));
+    }
+  }
+
   private static Map<String, ?> assertObjectIsMap(Object node) {
-    assertThat("Given object should have been a map", node instanceof Map, is(true));
+    assertThat("Given object should not be null", node, notNullValue());
+    assertThat("Given object should have been a map", node, instanceOf(Map.class));
     Map<?, ?> mapPending = (Map) node;
     return mapPending
         .entrySet()

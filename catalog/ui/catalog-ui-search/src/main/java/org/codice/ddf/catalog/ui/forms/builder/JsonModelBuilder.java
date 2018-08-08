@@ -290,7 +290,8 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
     node.put(
         "args",
         args.stream()
-            .flatMap(m -> m.entrySet().stream())
+            // Key makes no difference - args are a list not a map
+            .flatMap(m -> evalTermEntries("?", m))
             .map(Map.Entry::getValue)
             .collect(Collectors.toList()));
     return node;
