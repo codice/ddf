@@ -95,7 +95,7 @@ public class BuildSuggesterIndexPlugin implements PostIngestPlugin {
     try {
       future = executor.schedule(buildSuggesterIndex, 1, TimeUnit.MINUTES);
     } catch (RejectedExecutionException e) {
-      LOGGER.info(
+      LOGGER.warn(
           "The offline gazetteer's suggester index could not be built automatically. It may have "
               + "to be built manually with the 'gazetteer:build-suggester-index' command.");
       throw new PluginExecutionException(e);
