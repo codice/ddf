@@ -12,7 +12,8 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 
   <bean id="HtmlTransformer"
     class="ddf.catalog.transformer.html.HtmlMetacardTransformer">
@@ -69,19 +70,27 @@
   </service>
 
   <bean id="associationAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Assocation" />
-    <argument>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.associationAttributes"
+      update-strategy="container-managed"/>
+
+    <property name="title" value="Association"/>
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>metacard.associations.related</value>
         <value>metacard.associations.derived</value>
         <value>associations.external</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="contactAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Contact"/>
-    <argument>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.contactAttributes"
+      update-strategy="container-managed"/>
+
+    <property name="title" value="Contact"/>
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>contact.contributor-address</value>
         <value>contact.contributor-email</value>
@@ -100,12 +109,13 @@
         <value>contact.publisher-name</value>
         <value>contact.publisher-phone</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="coreAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Core"/>
-    <argument>
+    <property name="title" value="Core"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>checksum</value>
         <value>checksum-algorithm</value>
@@ -131,35 +141,38 @@
         <value>metacard.owner</value>
         <value>metacard-tags</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="dateTimeAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Date Time"/>
-    <argument>
+    <property name="title" value="Date Time"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>datetime.start</value>
         <value>datetime.name</value>
         <value>datetime.end</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="locationAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Location"/>
-    <argument>
+    <property name="title" value="Location"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>location.altitude-meters</value>
         <value>location.country-code</value>
         <value>location.crs-code</value>
         <value>location.crs-name</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="mediaAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Media"/>
-    <argument>
+    <property name="title" value="Media"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>media.format</value>
         <value>media.format-version</value>
@@ -176,45 +189,49 @@
         <value>media.width-pixels</value>
         <value>media.duration</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="securityAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Security"/>
-    <argument>
+    <property name="title" value="Security"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>security.access-groups</value>
         <value>security.access-individuals</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="topicAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Topic"/>
-    <argument>
+    <property name="title" value="Topic"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>topic.category</value>
         <value>topic.keyword</value>
         <value>topic.vocabulary</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="validationAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Validation"/>
-    <argument>
+    <property name="title" value="Validation"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>validation-warnings</value>
         <value>validation-errors</value>
         <value>failed-validators-warnings</value>
         <value>failed-validators-errors</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
   <bean id="versionAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <argument value="Version"/>
-    <argument>
+    <property name="title" value="Version"/>
+
+    <property name="attributeList">
       <list value-type="java.lang.String">
         <value>version.action</value>
         <value>version.edited-by</value>
@@ -224,7 +241,7 @@
         <value>version.type-binary</value>
         <value>version.versioned-by</value>
       </list>
-    </argument>
+    </property>
   </bean>
 
 </blueprint>

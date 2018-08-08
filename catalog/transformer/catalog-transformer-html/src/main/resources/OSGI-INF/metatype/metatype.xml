@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+  <OCD
+    name="HTML Metacard Transformer"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.HtmlMetacard">
+    <AD
+      description=""
+      name="Association Attributes"
+      id="ddf.catalog.transformer.html.associationAttributes"
+      type="String"
+      default="metacard.associations.related,metacard.associations.derived,associations.external"/>
+
+    <AD
+      description=""
+      name="Contact Attributes"
+      id="ddf.catalog.transformer.html.contactAttributes"
+      type="String"
+      default="contact.contributor-address,contact.contributor-email,contact.contributor-name,contact.contributor-phone,contact.creator-address,contact.creator-email,contact.creator-name,contact.creator-phone,contact.point-of-contact-address,contact.point-of-contact-email,contact.point-of-contact-name,contact.point-of-contact-phone,contact.publisher-address,contact.publisher-email,contact.publisher-name,contact.publisher-phone"/>
+
+  </OCD>
+
+  <Designate pid="ddf.catalog.transformer.html.HtmlMetacard">
+    <Object ocdref="ddf.catalog.transformer.html.HtmlMetacard"/>
+  </Designate>
+
+</metatype:MetaData>

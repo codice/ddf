@@ -28,6 +28,10 @@ public class HtmlCategoryModel {
 
   private Map<String, Object> attributeMappings;
 
+  public HtmlCategoryModel() {
+    this.attributeMappings = new TreeMap<>();
+  }
+
   public HtmlCategoryModel(String title, List<String> attributeList) {
     this.title = title;
     this.attributeList = attributeList;
