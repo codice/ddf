@@ -74,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
+import spark.Route;
 import spark.servlet.SparkApplication;
 import spark.utils.IOUtils;
 
@@ -138,31 +139,33 @@ public class QueryApplication implements SparkApplication, Function {
         });
 
     post(
-        "/cql/transform/:transformerId",
-        (req, res) -> {
-          String transformerId = req.params(":transformerId");
-          String body = util.safeGetBody(req);
-          CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+        "/cql/transform/:transformerId", new Route() {
+            @Override
+            public Object handle(Request request, Response response) throws Exception {
+                String transformerId = request.params(":transformerId");
+                String body = util.safeGetBody(request);
+                CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
+                CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
 
-          LOGGER.trace("Finding transformer to transform query response.");
+                LOGGER.trace("Finding transformer to transform query response.");
 
-          ServiceReference<QueryResponseTransformer> queryResponseTransformer =
-              queryResponseTransformers
-                  .stream()
-                  .filter(transformer -> transformer.getProperty("id").equals(transformerId))
-                  .findFirst()
-                  .orElse(null);
+                ServiceReference<QueryResponseTransformer> queryResponseTransformer =
+                        queryResponseTransformers
+                                .stream()
+                                .filter(transformer -> transformer.getProperty("id").equals(transformerId))
+                                .findFirst()
+                                .orElse(null);
 
-          if (queryResponseTransformer == null) {
-            LOGGER.debug("Could not find transformer with id: {}", transformerId);
-            res.status(404);
-            return mapper.toJson(ImmutableMap.of("message", "Service not found"));
-          }
+                if (queryResponseTransformer == null) {
+                    LOGGER.debug("Could not find transformer with id: {}", transformerId);
+                    response.status(404);
+                    return mapper.toJson(ImmutableMap.of("message", "Service not found"));
+                }
 
-          attachFileWithTransformer(queryResponseTransformer, cqlQueryResponse, req, res);
+                attachFileWithTransformer(queryResponseTransformer, cqlQueryResponse, request, response);
 
-          return "";
+                return "";
+            }
         });
 
     get(
@@ -328,7 +331,7 @@ public class QueryApplication implements SparkApplication, Function {
     response.type(mimeType);
     String attachment =
         String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
-    response.header("Content-Disposition", attachment);
+    response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
