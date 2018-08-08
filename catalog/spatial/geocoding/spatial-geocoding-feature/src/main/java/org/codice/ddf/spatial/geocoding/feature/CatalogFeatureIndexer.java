@@ -137,7 +137,13 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
 
       List<Serializable> tags =
           Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG);
+
       metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
+
+      metacard.setAttribute(
+          new AttributeImpl(
+              GeoCodingConstants.GAZETTEER_SORT_VALUE,
+              GeoCodingConstants.COUNTRY_GAZETTEER_SORT_VALUE));
       return metacard;
     }
 
