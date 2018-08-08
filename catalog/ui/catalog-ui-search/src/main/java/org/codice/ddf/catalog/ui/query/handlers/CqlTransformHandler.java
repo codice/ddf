@@ -54,6 +54,7 @@ import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.eclipse.jetty.http.HttpStatus;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -78,6 +79,8 @@ public class CqlTransformHandler implements Route {
   private CatalogFramework catalogFramework;
 
   private ActionRegistry actionRegistry;
+
+  private final String GZIP = "gzip";
 
   private ObjectMapper mapper =
       new ObjectMapperImpl(
@@ -115,7 +118,7 @@ public class CqlTransformHandler implements Route {
 
     if (queryResponseTransformer == null) {
       LOGGER.debug("Could not find transformer with id: {}", transformerId);
-      response.status(404);
+      response.status(HttpStatus.NOT_FOUND_404);
       return mapper.toJson(ImmutableMap.of("message", "Service not found"));
     }
 
@@ -147,7 +150,7 @@ public class CqlTransformHandler implements Route {
     String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
 
     boolean shouldGzip =
-        StringUtils.isNotBlank(acceptEncoding) && acceptEncoding.toLowerCase().contains("gzip");
+        StringUtils.isNotBlank(acceptEncoding) && acceptEncoding.toLowerCase().contains(GZIP);
 
     response.type(mimeType);
     String attachment =
@@ -157,7 +160,7 @@ public class CqlTransformHandler implements Route {
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
       if (shouldGzip) {
-        response.header(HttpHeaders.CONTENT_ENCODING, "gzip");
+        response.header(HttpHeaders.CONTENT_ENCODING, GZIP);
         LOGGER.trace("Request header accepts gzip");
         try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
           IOUtils.copy(resultStream, gzipServletOutputStream);
@@ -167,7 +170,7 @@ public class CqlTransformHandler implements Route {
       }
     }
 
-    response.status(200);
+    response.status(HttpStatus.OK_200);
     LOGGER.trace(
         "Response sent to transformer id {} in {} file format.",
         queryResponseTransformer.getProperty("id"),
