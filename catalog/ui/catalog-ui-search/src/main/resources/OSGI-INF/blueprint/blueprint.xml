@@ -510,15 +510,24 @@
 
     <bean id="queryWorkspaceService"
           class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"
+                update-strategy="container-managed"/>
         <argument ref="catalogFramework"/>
-        <argument ref="filterBuilder"/>
         <argument ref="workspaceTransformer"/>
         <argument>
-            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.FilterServiceImpl">
+            <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryBuilder">
                 <argument ref="filterBuilder"/>
+                <argument>
+                    <bean class="org.codice.ddf.catalog.ui.query.monitor.impl.FilterServiceImpl">
+                        <argument ref="filterBuilder"/>
+                    </bean>
+                </argument>
             </bean>
         </argument>
         <argument ref="securityService"/>
+        <argument ref="persistentStore"/>
+        <property name="maxSubscriptions" value="100"/>
     </bean>
 
     <bean id="workspacePersistentStore" class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
