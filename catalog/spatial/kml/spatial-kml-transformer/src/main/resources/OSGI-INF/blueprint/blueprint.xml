@@ -40,7 +40,6 @@
         <argument ref="kmlStyleMap"/>
         <argument ref="resourceActionProvider"/>
         <argument ref="kmlMarshaller"/>
-        <argument><map></map></argument>
     </bean>
 
     <service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">

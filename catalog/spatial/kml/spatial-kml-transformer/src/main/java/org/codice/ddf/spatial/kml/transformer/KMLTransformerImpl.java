@@ -25,6 +25,8 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -50,14 +52,17 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.security.auth.Subject;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.codice.ddf.spatial.kml.util.KmlMarshaller;
@@ -87,6 +92,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
 
+  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
   @VisibleForTesting static final MimeType KML_MIMETYPE = new MimeType();
 
   private List<StyleSelector> defaultStyle;
@@ -110,32 +117,28 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private KmlMarshaller kmlMarshaller;
 
-  private final Map<String, String> aliasMap;
-
   public KMLTransformerImpl(
-          BundleContext bundleContext,
-          String defaultStylingName,
-          KmlStyleMap mapper,
-          ActionProvider actionProvider,
-          KmlMarshaller kmlMarshaller,
-          Map<String, String> aliasMap) {
+      BundleContext bundleContext,
+      String defaultStylingName,
+      KmlStyleMap mapper,
+      ActionProvider actionProvider,
+      KmlMarshaller kmlMarshaller) {
 
     this.context = Validate.notNull(bundleContext, "BundleContext must not be null.");
     this.styleMapper = Validate.notNull(mapper, "KmlStyleMap must not be null.");
     this.templateHelper = new DescriptionTemplateHelper(actionProvider);
     this.kmlMarshaller = Validate.notNull(kmlMarshaller, "KmlMarshaller must not be null.");
-    this.aliasMap = aliasMap;
 
     final URL stylingUrl = context.getBundle().getResource(defaultStylingName);
 
     try {
       LOGGER.trace("Reading in KML Style");
       defaultStyle =
-              kmlMarshaller
-                      .unmarshal(stylingUrl.openStream())
-                      .map(Kml::getFeature)
-                      .map(Feature::getStyleSelector)
-                      .orElse(emptyList());
+          kmlMarshaller
+              .unmarshal(stylingUrl.openStream())
+              .map(Kml::getFeature)
+              .map(Feature::getStyleSelector)
+              .orElse(emptyList());
     } catch (IOException e) {
       LOGGER.debug("Exception while opening default style resource.", e);
     }
@@ -158,7 +161,7 @@ public class KMLTransformerImpl implements KMLTransformer {
    */
   @Override
   public Placemark transformEntry(Subject user, Metacard entry, Map<String, Serializable> arguments)
-          throws CatalogTransformerException {
+      throws CatalogTransformerException {
     return performDefaultTransformation(entry);
   }
 
@@ -172,7 +175,7 @@ public class KMLTransformerImpl implements KMLTransformer {
    * @throws javax.xml.transform.TransformerException
    */
   protected Placemark performDefaultTransformation(Metacard entry)
-          throws CatalogTransformerException {
+      throws CatalogTransformerException {
 
     // wrap metacard to work around classLoader/reflection issues
     entry = new MetacardImpl(entry);
@@ -221,16 +224,22 @@ public class KMLTransformerImpl implements KMLTransformer {
   private void setExtendedData(Placemark placemark, Metacard metacard) {
     final ExtendedData extendedData = new ExtendedData();
 
-    for (String attributeName : aliasMap.keySet()) {
+    final Set<AttributeDescriptor> attributeDescriptors =
+        metacard.getMetacardType().getAttributeDescriptors();
+
+    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+      final String attributeName = attributeDescriptor.getName();
       final Attribute attribute = metacard.getAttribute(attributeName);
       if (attribute != null) {
-        final String attributeValue = (String) attribute.getValue();
-        final String attributeAlias = aliasMap.get(attributeName);
-        final Data data = getData(attributeAlias, attributeValue);
+        String attributeValue =
+            convertAttribute(attribute, attributeDescriptor)
+                .toString()
+                .replace("[", "")
+                .replace("]", "");
+        final Data data = getData(attributeName, attributeValue);
         extendedData.addToData(data);
       }
     }
-
     placemark.setExtendedData(extendedData);
   }
 
@@ -240,9 +249,66 @@ public class KMLTransformerImpl implements KMLTransformer {
     return data;
   }
 
+  private static Object convertAttribute(Attribute attribute, AttributeDescriptor descriptor) {
+
+    if (descriptor.isMultiValued()) {
+      List<Object> values = new ArrayList<>();
+      for (Serializable value : attribute.getValues()) {
+        values.add(
+            convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat()));
+      }
+      return values;
+    } else {
+      return convertValue(
+          attribute.getName(), attribute.getValue(), descriptor.getType().getAttributeFormat());
+    }
+  }
+
+  private static Object convertValue(
+      String name, Serializable value, AttributeType.AttributeFormat format) {
+    if (value == null) {
+      return null;
+    }
+
+    switch (format) {
+      case DATE:
+        if (!(value instanceof Date)) {
+          LOGGER.debug(
+              "Dropping attribute date value {} for {} because it isn't a Date object.",
+              value,
+              name);
+          return null;
+        }
+        // Creating date format instance each time is inefficient, however
+        // it is not a threadsafe class so we are not able to put it in a static
+        // class variable. If this proves to be a slowdown this class should be refactored
+        // such that we don't need this method to be static.
+        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return dateFormat.format((Date) value);
+      case BINARY:
+        byte[] bytes = (byte[]) value;
+        return DatatypeConverter.printBase64Binary(bytes);
+      case BOOLEAN:
+      case DOUBLE:
+      case LONG:
+      case INTEGER:
+      case SHORT:
+        return value;
+      case STRING:
+      case XML:
+      case FLOAT:
+      case GEOMETRY:
+        return value.toString();
+      case OBJECT:
+      default:
+        return null;
+    }
+  }
+
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-          throws CatalogTransformerException {
+      throws CatalogTransformerException {
     try {
       Placemark placemark = transformEntry(null, metacard, arguments);
       if (placemark.getStyleSelector().isEmpty() && StringUtils.isBlank(placemark.getStyleUrl())) {
@@ -253,7 +319,7 @@ public class KMLTransformerImpl implements KMLTransformer {
       String transformedKmlString = kmlMarshaller.marshal(kml);
 
       InputStream kmlInputStream =
-              new ByteArrayInputStream(transformedKmlString.getBytes(StandardCharsets.UTF_8));
+          new ByteArrayInputStream(transformedKmlString.getBytes(StandardCharsets.UTF_8));
 
       return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
     } catch (Exception e) {
@@ -264,8 +330,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   @Override
   public BinaryContent transform(
-          SourceResponse upstreamResponse, Map<String, Serializable> arguments)
-          throws CatalogTransformerException {
+      SourceResponse upstreamResponse, Map<String, Serializable> arguments)
+      throws CatalogTransformerException {
     LOGGER.trace("ENTERING: ResponseQueue transform");
     if (arguments == null) {
       LOGGER.debug("Null arguments, unable to complete transform");
@@ -283,16 +349,16 @@ public class KMLTransformerImpl implements KMLTransformer {
       try {
         Placemark placemark = transformEntry(null, result.getMetacard(), arguments);
         if (placemark.getStyleSelector().isEmpty()
-                && StringUtils.isEmpty(placemark.getStyleUrl())) {
+            && StringUtils.isEmpty(placemark.getStyleUrl())) {
           placemark.setStyleUrl("#default");
           needDefaultStyle = true;
         }
         kmlDoc.getFeature().add(placemark);
       } catch (CatalogTransformerException e) {
         LOGGER.debug(
-                "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
-                result.getMetacard().getId(),
-                e);
+            "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
+            result.getMetacard().getId(),
+            e);
       }
     }
 
@@ -301,15 +367,15 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
 
     Kml kmlResult =
-            encloseKml(
-                    kmlDoc,
-                    docId,
-                    KML_RESPONSE_QUEUE_PREFIX + kmlDoc.getFeature().size() + CLOSE_PARENTHESIS);
+        encloseKml(
+            kmlDoc,
+            docId,
+            KML_RESPONSE_QUEUE_PREFIX + kmlDoc.getFeature().size() + CLOSE_PARENTHESIS);
 
     String transformedKml = kmlMarshaller.marshal(kmlResult);
 
     InputStream kmlInputStream =
-            new ByteArrayInputStream(transformedKml.getBytes(StandardCharsets.UTF_8));
+        new ByteArrayInputStream(transformedKml.getBytes(StandardCharsets.UTF_8));
     LOGGER.trace("EXITING: ResponseQueue transform");
     return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
   }
