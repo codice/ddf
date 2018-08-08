@@ -181,18 +181,21 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
     suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
 
+    SortBy[] sortbys = {
+      new SortByImpl(GeoCodingConstants.GAZETTEER_SORT_VALUE, SortOrder.ASCENDING)
+    };
+
+    suggestProps.put(ADDITIONAL_SORT_BYS, sortbys);
     Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
 
     QueryRequest suggestionRequest = new QueryRequestImpl(suggestionQuery, suggestProps);
 
     try {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
-
       if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
         List<Map.Entry<String, String>> suggestions =
             (List<Map.Entry<String, String>>)
                 suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
-
         return suggestions
             .stream()
             .map(suggestion -> new SuggestionImpl(suggestion.getKey(), suggestion.getValue()))

@@ -144,6 +144,9 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
     metacard.setAttribute(
         new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
+    metacard.setAttribute(
+        new AttributeImpl(
+            GeoCodingConstants.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
     if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
@@ -358,6 +361,28 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
       FileUtils.touch(processedFile);
     } catch (IOException e) {
       LOGGER.debug("Unable to create {} to indicate {} processed", processedIndicator, resource, e);
+    }
+  }
+
+  private long getSortPopVal(long popSize) {
+    if (popSize > 400_000) {
+      return GeoCodingConstants.POPULATION_OVER_400K;
+    } else if (popSize > 350_000 && popSize <= 400_000) {
+      return GeoCodingConstants.POPULATION_LT_400K_GT_350K;
+    } else if (popSize > 300_000 && popSize <= 350_000) {
+      return GeoCodingConstants.POPULATION_LT_350K_GT_300K;
+    } else if (popSize > 250_000 && popSize <= 300_000) {
+      return GeoCodingConstants.POPULATION_LT_300K_GT_250K;
+    } else if (popSize > 200_000 && popSize <= 250_000) {
+      return GeoCodingConstants.POPULATION_LT_250K_GT_200K;
+    } else if (popSize > 150_000 && popSize <= 200_000) {
+      return GeoCodingConstants.POPULATION_LT_200K_GT_150K;
+    } else if (popSize > 100_000 && popSize <= 150_000) {
+      return GeoCodingConstants.POPULATION_LT_150K_GT_100K;
+    } else if (popSize > 50_000 && popSize <= 100_000) {
+      return GeoCodingConstants.POPULATION_LT_100K_GT_50K;
+    } else {
+      return GeoCodingConstants.POPULATION_UNDER_50K;
     }
   }
 }
