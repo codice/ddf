@@ -57,7 +57,7 @@ public final class GeoCodingConstants {
 
   public static final String GAZETTEER_METACARD_TAG = "gazetteer";
 
-  public static final String GAZETTEER_SORT_VALUE = "gazetteer-sort-value";
+  public static final String GAZETTEER_SORT_VALUE = "gazetteerSortValue";
 
   public static final String SUGGEST_PLACE_KEY = "suggestPlace";
 
