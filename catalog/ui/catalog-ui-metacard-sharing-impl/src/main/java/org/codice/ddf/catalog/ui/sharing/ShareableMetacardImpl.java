@@ -204,7 +204,8 @@ public class ShareableMetacardImpl extends MetacardImpl {
   }
 
   private static boolean isSharingCapable(Metacard metacard) {
-    return metacard != null && metacard.getTags() != null
+    return metacard != null
+            && metacard.getTags() != null
             && (metacard.getTags().contains(QUERY_TEMPLATE_TAG)
                 || metacard.getTags().contains(WORKSPACE_TAG)
                 || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG))
