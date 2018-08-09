@@ -22,8 +22,9 @@ define([
     './dropdown',
     './dropdown.hbs',
     'component/select/select.collection.view',
+    'js/Common',
     'behaviors/button.behavior'
-], function (Marionette, _, $, CustomElements, DropdownCompanionView, DropdownModel, template, SelectView) {
+], function (Marionette, _, $, CustomElements, DropdownCompanionView, DropdownModel, template, SelectView, Common) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -101,7 +102,7 @@ define([
             return this.el;
         },
         determineSelections: function () {
-            var values = this.model.get('value');
+            const values = Common.getArrayFromValue(this.model.get('value'));
             if (this.options.isMultiSelect === undefined && (values[0] === undefined || values[0] === null)){
                 return values[0];  // otherwise placeholder (click here to select) won't appear
             }

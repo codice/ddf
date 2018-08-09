@@ -42,7 +42,7 @@ define([
         if (!multivalued){
             value = [value];
         }
-        return value;
+        return Common.getArrayFromValue(value);
     }
 
     return InputView.extend({

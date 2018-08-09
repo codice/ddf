@@ -265,6 +265,13 @@ define([
                 this.wrapMapCoordinates(lon, [-180, 180]),
                 this.wrapMapCoordinates(lat, [-90, 90])
             ]);
+        },
+        getArrayFromValue: function(value) {
+          if (value === undefined || value === '' || value === null) {
+            return []
+          } else {
+            return Array.isArray(value) ? value : [value]
+          }
         }
     };
 });

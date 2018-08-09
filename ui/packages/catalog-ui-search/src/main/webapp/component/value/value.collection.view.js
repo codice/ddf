@@ -20,8 +20,9 @@ define([
     './value.view',
     './value.collection',
     'js/CustomElements',
-    'moment'
-], function (Marionette, _, $, ValueView, ValueCollection, CustomElements, moment) {
+    'moment',
+    'js/Common'
+], function (Marionette, _, $, ValueView, ValueCollection, CustomElements, moment, Common) {
 
     return Marionette.CollectionView.extend({
         childView: ValueView,
@@ -52,8 +53,9 @@ define([
     },{
         generateValueCollectionView: function(propertyModel){
             var valueCollection = new ValueCollection();
-            if (propertyModel.get('value').length > 0){
-                valueCollection.add(propertyModel.get('value').map(function(value){
+            const value = Common.getArrayFromValue(propertyModel.get('value'))
+            if (value.length > 0){
+                valueCollection.add(value.map(function(value){
                     return {
                         value: value,
                         property: propertyModel
@@ -61,7 +63,7 @@ define([
                 }));
             } else if (!propertyModel.get('multivalued')) {
                 valueCollection.add({
-                        value: null,
+                        value: [],
                         property: propertyModel
                 });
             }
