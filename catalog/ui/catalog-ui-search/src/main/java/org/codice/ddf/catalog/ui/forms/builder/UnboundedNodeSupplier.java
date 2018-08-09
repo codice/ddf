@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -52,7 +52,16 @@ class UnboundedNodeSupplier<T> implements NodeSupplier<T> {
 
   @Override
   public T get() {
-    notEmpty(args);
+    // Per schema, it actually CAN be empty, but in our case the application has better ways to
+    // represent that (just use the plain predicate without a function)
+    requiredNotEmpty(args, "The argument list to a function cannot be empty");
     return reducer.apply(args);
+  }
+
+  private static void requiredNotEmpty(Collection<?> collection, String message) {
+    notNull(collection);
+    if (collection.isEmpty()) {
+      throw new IllegalStateException(message);
+    }
   }
 }

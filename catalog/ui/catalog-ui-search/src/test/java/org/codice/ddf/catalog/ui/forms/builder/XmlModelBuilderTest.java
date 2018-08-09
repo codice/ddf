@@ -17,9 +17,11 @@ import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
@@ -68,11 +70,13 @@ public class XmlModelBuilderTest {
 
     assertEquals(filter.getDeclaredType(), FilterType.class);
     forNode(filter)
-        .verifyTerminalTemplatedNode("/Filter/PropertyIsEqualTo", "name", "5", "id", true, false);
+        .verifyValueRef("/Filter/PropertyIsEqualTo", "name")
+        .verifyLiterals(
+            "/Filter/PropertyIsEqualTo/Function", ImmutableList.of("5", "id", "true", "false"));
   }
 
   @Test
-  public void testBinaryComparisonTypeEmbeddedFunctions() {
+  public void testBinaryComparisonTypeEmbeddedFunctions() throws Exception {
     JAXBElement filter =
         builder
             .isNotEqualTo(false)
@@ -90,8 +94,13 @@ public class XmlModelBuilderTest {
             .getResult();
 
     assertEquals(filter.getDeclaredType(), FilterType.class);
-    // TODO Do not add new methods to XPathAssertionSupport, which wasn't the best to begin with
-    // Use FilterNodeAssertionSupport instead
+    forNode(filter)
+        .verifyValueRef("/Filter/PropertyIsNotEqualTo", "name")
+        .verifyLiteral("/Filter/PropertyIsNotEqualTo/Function", 1, "5")
+        .verifyLiteral("/Filter/PropertyIsNotEqualTo/Function", 2, "id")
+        .verifyLiterals(
+            "/Filter/PropertyIsNotEqualTo/Function/Function", ImmutableList.of("true", "hello"))
+        .verifyLiteral("/Filter/PropertyIsNotEqualTo/Function", 3, "false");
   }
 
   @Test
@@ -187,47 +196,38 @@ public class XmlModelBuilderTest {
       return this;
     }
 
-    private XPathAssertionSupport verifyTerminalTemplatedNode(
-        String xpathToNode,
-        String valueRef,
-        String defaultValue,
-        String id,
-        boolean isVisible,
-        boolean isReadOnly)
+    private XPathAssertionSupport verifyValueRef(String xpathToNode, String valueRef)
         throws XPathExpressionException {
       String actualValueRef =
           (String)
               xPath
                   .compile(xpathToNode + "/ValueReference")
                   .evaluate(document, XPathConstants.STRING);
-
-      // Template values (in order)
-      String literal1 =
-          (String)
-              xPath
-                  .compile(xpathToNode + "/Function/Literal[1]")
-                  .evaluate(document, XPathConstants.STRING);
-      String literal2 =
-          (String)
-              xPath
-                  .compile(xpathToNode + "/Function/Literal[2]")
-                  .evaluate(document, XPathConstants.STRING);
-      String literal3 =
-          (String)
-              xPath
-                  .compile(xpathToNode + "/Function/Literal[3]")
-                  .evaluate(document, XPathConstants.STRING);
-      String literal4 =
-          (String)
-              xPath
-                  .compile(xpathToNode + "/Function/Literal[4]")
-                  .evaluate(document, XPathConstants.STRING);
-
       assertThat(actualValueRef, is(valueRef));
-      assertThat(literal1, is(defaultValue));
-      assertThat(literal2, is(id));
-      assertThat(literal3, is(Boolean.toString(isVisible)));
-      assertThat(literal4, is(Boolean.toString(isReadOnly)));
+      return this;
+    }
+
+    private XPathAssertionSupport verifyLiteral(String xpathToNode, int index, String literal)
+        throws XPathExpressionException {
+      String literalNode =
+          (String)
+              xPath
+                  .compile(xpathToNode + "/Literal[" + index + "]")
+                  .evaluate(document, XPathConstants.STRING);
+      assertThat(literalNode, is(literal));
+      return this;
+    }
+
+    private XPathAssertionSupport verifyLiterals(String xpathToNode, List<String> args)
+        throws XPathExpressionException {
+      for (int i = 1; i <= args.size(); i++) {
+        String literalNode =
+            (String)
+                xPath
+                    .compile(xpathToNode + "/Literal[" + i + "]")
+                    .evaluate(document, XPathConstants.STRING);
+        assertThat(literalNode, is(args.get(i - 1)));
+      }
       return this;
     }
   }

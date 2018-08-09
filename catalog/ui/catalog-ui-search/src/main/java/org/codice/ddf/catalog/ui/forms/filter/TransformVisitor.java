@@ -57,9 +57,10 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
           .put("After", FlatFilterBuilder::after)
           .put("BEFORE", FlatFilterBuilder::before)
           .put("Before", FlatFilterBuilder::before)
-          .put("ILIKE", b -> b.like(false, "", "", ""))
-          .put("PropertyIsLike", b -> b.like(false, "", "", ""))
-          //          .put("LIKE", b -> b.like(true, "", "", ""))
+          .put("ILIKE", b -> b.like(false, "%", "_", "\\"))
+          // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
+          //          .put("LIKE", b -> b.like(true, "%", "_", "\\"))
+          .put("PropertyIsLike", b -> b.like(false, "%", "_", "\\"))
           .put("=", b -> b.isEqualTo(false))
           .put("PropertyIsEqualTo", b -> b.isEqualTo(false))
           .put("!=", b -> b.isNotEqualTo(false))
@@ -93,17 +94,22 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
     builder.property(visitable.getValue());
   }
 
+  /**
+   * {@code <Literal/>} blocks map to a list of serializable, but for our purposes there is only
+   * ever one element in the list.
+   *
+   * @implNote See {@link VisitableXmlElementImpl.LiteralElement} for more details.
+   */
   @Override
   public void visitLiteralType(VisitableElement<List<Serializable>> visitable) {
     super.visitLiteralType(visitable);
     List<Serializable> values = visitable.getValue();
     if (values == null || values.isEmpty()) {
       LOGGER.debug("No values found on literal type");
+      builder.value(null);
       return;
     }
-
-    // Assumption: we only support one literal value
-    builder.value(values.get(0).toString());
+    builder.value(values.get(0));
   }
 
   @Override

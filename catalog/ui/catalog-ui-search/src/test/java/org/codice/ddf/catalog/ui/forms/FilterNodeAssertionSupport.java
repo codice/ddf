@@ -67,7 +67,7 @@ public class FilterNodeAssertionSupport {
   }
 
   public static void assertLeafNode(
-      Object target, String expectedType, String expectedProperty, String expectedValue) {
+      Object target, String expectedType, String expectedProperty, Serializable expectedValue) {
     assertLeafNode(
         target,
         expectedType,
@@ -93,7 +93,7 @@ public class FilterNodeAssertionSupport {
   }
 
   public static void assertFunctionNode(
-      Object target, String expectedName, List<String> expectedArgs) {
+      Object target, String expectedName, List<Object> expectedArgs) {
     Map<String, ?> node = assertObjectIsMap(target);
     assertThat(node.get(TYPE), is("FILTER_FUNCTION"));
 

@@ -52,6 +52,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
+                            org.codice.ddf.catalog.ui.filter,
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer
                         </Export-Package>
                         <Embed-Dependency>

@@ -26,7 +26,6 @@ import net.opengis.filter.v_2_0.BinaryLogicOpType;
 import net.opengis.filter.v_2_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0.ComparisonOpsType;
-import net.opengis.filter.v_2_0.DistanceBufferType;
 import net.opengis.filter.v_2_0.FilterType;
 import net.opengis.filter.v_2_0.FunctionType;
 import net.opengis.filter.v_2_0.LiteralType;
@@ -172,14 +171,16 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
   @Override
   public XmlModelBuilder dwithin(double distance, String units) {
-    beginTerminalType(Mapper::dwithin);
-    return this;
+    throw new UnsupportedOperationException(
+        "DWITHIN is not currently supported, use INTERSECTS instead");
   }
 
   @Override
   public XmlModelBuilder function(String name) {
     verifyResultNotYetRetrieved();
-    verifyTerminalNodeInProgress(); // TODO - Verify this; per schema functions can be predicates
+    // Per the 2.0 schema functions CAN be predicates themselves, but we've no use for the added
+    // complexity so we validate against it. Supported can be added later if desired.
+    verifyTerminalNodeInProgress(); // <--|
     supplierInProgress =
         new UnboundedNodeSupplier<>(
             args ->
@@ -202,8 +203,15 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   }
 
   @Override
+  public XmlModelBuilder value(Serializable value) {
+    setValue(value);
+    return this;
+  }
+
+  @Override
   public XmlModelBuilder value(boolean value) {
-    // TODO - How can we properly marshal Boolean values without resorting to this?
+    // Unable to marshal type "java.lang.Boolean" as an element because it is missing an
+    // @XmlRootElement annotation
     setValue(Boolean.toString(value));
     return this;
   }
@@ -248,7 +256,8 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
     verifyTerminalNodeInProgress();
     NodeSupplier<JAXBElement<?>> parent = supplierInProgress.getParent();
     if (parent == null) {
-      throw new IllegalStateException(
+      throw new NullPointerException(
+          // By definition, if the parent was null we should not have been called
           "Null parent should not have passed the check in the end() method, "
               + "verify the implementation of XmlModelBuilder for errors");
     }
@@ -422,10 +431,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       return FACTORY.createIntersects(binarySpatialType(children));
     }
 
-    private static JAXBElement<DistanceBufferType> dwithin(List<JAXBElement<?>> children) {
-      return FACTORY.createDWithin(distanceBufferType(children));
-    }
-
     private static BinaryLogicOpType binaryLogicType(List<JAXBElement<?>> ops) {
       return new BinaryLogicOpType().withOps(ops);
     }
@@ -449,11 +454,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static BinarySpatialOpType binarySpatialType(List<JAXBElement<?>> children) {
       return new BinarySpatialOpType().withExpressionOrAny(new ArrayList<>(children));
-    }
-
-    // TODO Need to expose the measure type (distance + units) somehow (composite factories?)
-    private static DistanceBufferType distanceBufferType(List<JAXBElement<?>> children) {
-      return new DistanceBufferType().withExpressionOrAny(new ArrayList<>(children));
     }
   }
 

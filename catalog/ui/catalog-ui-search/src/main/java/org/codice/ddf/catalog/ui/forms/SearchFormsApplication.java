@@ -54,7 +54,6 @@ import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
-import org.codice.ddf.catalog.ui.forms.model.FilterNodeValueSerializer;
 import org.codice.ddf.catalog.ui.forms.model.pojo.CommonTemplate;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
@@ -70,7 +69,6 @@ public class SearchFormsApplication implements SparkApplication {
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
           new JsonSerializerFactory()
-              .addPropertySerializer(new FilterNodeValueSerializer())
               .useAnnotations()
               .includeEmpty()
               .includeDefaultValues()
@@ -210,6 +208,15 @@ public class SearchFormsApplication implements SparkApplication {
         IllegalArgumentException.class,
         (e, req, res) -> {
           LOGGER.debug("Template input was not valid", e);
+          res.status(400);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));
+        });
+
+    exception(
+        IllegalStateException.class,
+        (e, req, res) -> {
+          LOGGER.debug("Template input was not valid, {}", e.getMessage().toLowerCase());
           res.status(400);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));

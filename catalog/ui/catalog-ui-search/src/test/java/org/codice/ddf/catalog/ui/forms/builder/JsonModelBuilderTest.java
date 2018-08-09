@@ -51,7 +51,7 @@ public class JsonModelBuilderTest {
             .isEqualTo(false)
             .property("name")
             .function("template.value.v1")
-            .value("5")
+            .value(5)
             .value("id")
             .value(true)
             .value(false)
@@ -64,8 +64,7 @@ public class JsonModelBuilderTest {
         "=",
         tar -> assertThat(tar, is("name")),
         tar ->
-            assertFunctionNode(
-                tar, "template.value.v1", ImmutableList.of("5", "id", "true", "false")));
+            assertFunctionNode(tar, "template.value.v1", ImmutableList.of(5, "id", true, false)));
   }
 
   @Test
@@ -75,7 +74,7 @@ public class JsonModelBuilderTest {
             .isNotEqualTo(false)
             .property("name")
             .function("function.A")
-            .value("5")
+            .value(1074882733456L)
             .value("id")
             .function("function.B")
             .value(true)
@@ -94,10 +93,10 @@ public class JsonModelBuilderTest {
             assertFunctionNode(
                 e2,
                 "function.A",
-                arg1 -> assertThat(arg1, is("5")),
+                arg1 -> assertThat(arg1, is(1074882733456L)),
                 arg2 -> assertThat(arg2, is("id")),
-                arg3 -> assertFunctionNode(arg3, "function.B", ImmutableList.of("true", "hello")),
-                arg4 -> assertThat(arg4, is("false"))));
+                arg3 -> assertFunctionNode(arg3, "function.B", ImmutableList.of(true, "hello")),
+                arg4 -> assertThat(arg4, is(false))));
   }
 
   @Test

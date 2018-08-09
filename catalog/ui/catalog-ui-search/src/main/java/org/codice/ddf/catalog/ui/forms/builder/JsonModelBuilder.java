@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import com.google.common.collect.Maps;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 
 /**
@@ -183,7 +181,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
   @Override
   public JsonModelBuilder function(String name) {
     verifyResultNotYetRetrieved();
-    verifyTerminalNodeInProgress(); // TODO - Verify this; per schema functions can be predicates
+    // Per the 2.0 schema functions CAN be predicates themselves, but we've no use for the added
+    // complexity so we validate against it. Supported can be added later if desired.
+    verifyTerminalNodeInProgress(); // <--|
     supplierInProgress =
         new UnboundedNodeSupplier<>(maps -> reduceFunction(name, maps), supplierInProgress);
     return this;
@@ -196,6 +196,12 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
   }
 
   @Override
+  public JsonModelBuilder value(Serializable value) {
+    setValue(value);
+    return this;
+  }
+
+  @Override
   public JsonModelBuilder value(String value) {
     setValue(value);
     return this;
@@ -203,7 +209,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
 
   @Override
   public JsonModelBuilder value(boolean value) {
-    setValue(Boolean.toString(value));
+    setValue(value);
     return this;
   }
 
@@ -287,25 +293,18 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
     Map<String, Object> node = new HashMap<>();
     node.put("type", "FILTER_FUNCTION");
     node.put("name", name);
-    node.put(
-        "args",
-        args.stream()
-            // Key makes no difference - args are a list not a map
-            .flatMap(m -> evalTermEntries("?", m))
-            .map(Map.Entry::getValue)
-            .collect(Collectors.toList()));
+    node.put("args", args.stream().map(this::selectTerminalEntity).collect(Collectors.toList()));
     return node;
   }
 
   private Map<String, ?> reduceTerminal(String op, List<Map<String, ?>> children) {
     Map<String, ?> propertyExpression = children.get(0);
     Map<String, ?> valueExpression = children.get(1);
-    return Stream.concat(
-            Stream.of(Maps.immutableEntry("type", op)),
-            Stream.concat(
-                evalTermEntries("property", propertyExpression),
-                evalTermEntries("value", valueExpression)))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    Map<String, Object> result = new HashMap<>();
+    result.put("type", op);
+    result.put("property", selectTerminalEntity(propertyExpression));
+    result.put("value", selectTerminalEntity(valueExpression));
+    return result;
   }
 
   /**
@@ -333,21 +332,19 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
    *
    * Both are valid expressions.
    *
-   * @param key the owner of the provided Json filter.
    * @param filter the Json filter itself; may only be a partial filter.
    * @throws IllegalArgumentException if the given filter has an unexpected format.
    * @return a stream of map entries that can be combined into a Json filter.
    */
-  private Stream<? extends Map.Entry<String, ?>> evalTermEntries(
-      String key, Map<String, ?> filter) {
+  private Object selectTerminalEntity(Map<String, ?> filter) {
     if (filter.containsKey("type")) {
-      return Stream.of(Maps.immutableEntry(key, filter));
+      return filter;
     }
-    if (filter.size() > 1) {
+    if (filter.isEmpty() || filter.size() > 1) {
       throw new IllegalArgumentException(
-          "Terminal filter expected to have only 1 entry " + filter.toString());
+          "Terminal filter expected to have exactly 1 entry " + filter.toString());
     }
-    return filter.entrySet().stream();
+    return filter.values().iterator().next();
   }
 
   private void verifyResultNotYetRetrieved() {

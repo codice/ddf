@@ -47,7 +47,7 @@ public class TransformVisitorJsonTest {
 
   private static final String DEPTH_PROP = "depth";
 
-  private static final String DEPTH_VAL = "100";
+  private static final Integer DEPTH_VAL = 100;
 
   private TransformVisitor<Map<String, ?>> visitor;
 
@@ -96,9 +96,9 @@ public class TransformVisitorJsonTest {
 
   @Test
   public void testVisitIntersectsWithFunction() throws Exception {
-    List<String> expectedArgs = new ArrayList<>();
+    List<Object> expectedArgs = new ArrayList<>();
     expectedArgs.add(null);
-    expectedArgs.addAll(ImmutableList.of("id", "true", "false"));
+    expectedArgs.addAll(ImmutableList.of("id", true, false));
     getRootXmlFilterNode("function-ops", "Intersects.xml").accept(visitor);
     assertLeafNode(
         visitor.getResult(),

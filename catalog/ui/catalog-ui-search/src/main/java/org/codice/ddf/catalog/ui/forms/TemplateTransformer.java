@@ -22,10 +22,13 @@ import ddf.catalog.data.types.Security;
 import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -54,6 +57,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TemplateTransformer {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateTransformer.class);
+
+  private static final JsonFunctionRegistry REGISTRY = new JsonFunctionRegistry();
 
   private final FilterWriter writer;
 
@@ -141,15 +146,16 @@ public class TemplateTransformer {
         return null;
       }
       JAXBElement<FilterType> root =
-          reader.unmarshalFilter(new ByteArrayInputStream(formsFilter.getBytes("UTF-8")));
+          reader.unmarshalFilter(
+              new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
           wrapped,
-          visitor.getResult(),
+          collapseFilterFunctions(visitor.getResult()),
           securityAttributes,
           metacardOwner,
           wrapped.getQuerySettings());
-    } catch (JAXBException | UnsupportedEncodingException e) {
+    } catch (JAXBException e) {
       LOGGER.error(
           "XML parsing failed for query template metacard's filter, with metacard id "
               + metacard.getId(),
@@ -231,5 +237,43 @@ public class TemplateTransformer {
 
     return ImmutableMap.of(
         Security.ACCESS_INDIVIDUALS, accessIndividuals, Security.ACCESS_GROUPS, accessGroups);
+  }
+
+  private static Map<String, ?> collapseFilterFunctions(Map<String, ?> filter) {
+    return transformFilterFunctions(
+        filter, JsonFunctionTransform::canApplyFromFunction, JsonFunctionTransform::fromFunction);
+  }
+
+  private static Map<String, ?> expandFilterFunctions(Map<String, ?> filter) {
+    return transformFilterFunctions(
+        filter, JsonFunctionTransform::canApplyToFunction, JsonFunctionTransform::toFunction);
+  }
+
+  private static Map<String, ?> transformFilterFunctions(
+      Map<String, ?> filter,
+      BiFunction<JsonFunctionTransform, ? super Map<String, ?>, Boolean> shouldDoTransform,
+      BiFunction<JsonFunctionTransform, ? super Map<String, ?>, ? extends Map<String, ?>>
+          howToDoTransform) {
+    if ("AND".equals(filter.get("type")) || "OR".equals(filter.get("type"))) {
+      return ImmutableMap.<String, Object>builder()
+          .put("type", filter.get("type"))
+          .put(
+              "filters",
+              ((List<Map<String, ?>>) filter.get("filters"))
+                  .stream()
+                  .map(TemplateTransformer::collapseFilterFunctions)
+                  .collect(Collectors.toList()))
+          .build();
+    }
+    Optional<JsonFunctionTransform> transform =
+        REGISTRY
+            .getTransforms()
+            .stream()
+            .filter(t -> shouldDoTransform.apply(t, filter))
+            .findFirst();
+    if (transform.isPresent()) {
+      return howToDoTransform.apply(transform.get(), filter);
+    }
+    return filter;
   }
 }

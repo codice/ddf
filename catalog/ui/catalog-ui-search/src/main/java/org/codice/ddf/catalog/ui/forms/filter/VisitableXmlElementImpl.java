@@ -16,7 +16,11 @@ package org.codice.ddf.catalog.ui.forms.filter;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -443,6 +447,14 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
    * hydrate a primitive type.
    */
   private static class LiteralElement extends VisitableXmlElementImpl<List<Serializable>> {
+    private static final List<Function<String, Serializable>> CONVERTERS =
+        ImmutableList.<Function<String, Serializable>>builder()
+            .add(Ints::tryParse)
+            .add(Longs::tryParse)
+            .add(Doubles::tryParse)
+            .add(LiteralElement::tryParseBoolean)
+            .build();
+
     private final List<Serializable> value;
 
     private LiteralElement(JAXBElement element) {
@@ -456,12 +468,42 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
               .map(JAXBElement::getValue)
               .map(LiteralType.class::cast)
               .map(LiteralType::getContent)
-              .orElseThrow(NullPointerException::new); // Should never occur - see super ctor
+              .orElseThrow(NullPointerException::new) // Should never occur - see super ctor
+              .stream()
+              .map(LiteralElement::parsePrimitive)
+              .collect(Collectors.toList());
     }
 
     @Override
     public List<Serializable> getValue() {
       return value;
+    }
+
+    private static Serializable parsePrimitive(Serializable literal) {
+      if (literal instanceof String) {
+        return parsePrimitive((String) literal);
+      }
+      return literal;
+    }
+
+    private static Serializable parsePrimitive(String raw) {
+      for (Function<String, Serializable> converter : CONVERTERS) {
+        Serializable result = converter.apply(raw);
+        if (result != null) {
+          return result;
+        }
+      }
+      return raw;
+    }
+
+    private static Serializable tryParseBoolean(String raw) {
+      if ("true".equalsIgnoreCase(raw)) {
+        return Boolean.TRUE;
+      }
+      if ("false".equalsIgnoreCase(raw)) {
+        return Boolean.FALSE;
+      }
+      return null;
     }
   }
 }
