@@ -112,28 +112,14 @@ public class CqlTransformHandler implements Route {
       return mapper.toJson(ImmutableMap.of("message", "Service not found"));
     }
 
-    attachFileWithTransformer(queryResponseTransformer, cqlQueryResponse, request, response);
+    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse);
 
     return "";
   }
 
-  private void attachFileWithTransformer(
-      ServiceReference<QueryResponseTransformer> queryResponseTransformer,
-      CqlQueryResponse cqlQueryResponse,
-      Request request,
-      Response response)
-      throws CatalogTransformerException, MimeTypeException, IOException {
-
-    setHttpAttributes(request, response, queryResponseTransformer);
-    outputFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse);
-  }
-
-  private void setHttpAttributes(
-      Request request,
-      Response response,
-      ServiceReference<QueryResponseTransformer> queryResponseTransformer)
+  private void setHttpAttributes(Request request, Response response, BinaryContent content)
       throws MimeTypeException {
-    String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
+    String mimeType = content.getMimeTypeValue();
     String fileExt = getFileExtFromMimeType(mimeType);
 
     String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase();
@@ -154,16 +140,18 @@ public class CqlTransformHandler implements Route {
     return allTypes.forName(mimeType).getExtension();
   }
 
-  private void outputFileToResponse(
+  private void attachFileToResponse(
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse)
-      throws CatalogTransformerException, IOException {
+      throws CatalogTransformerException, IOException, MimeTypeException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
             .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
+
+    setHttpAttributes(request, response, content);
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
@@ -179,7 +167,7 @@ public class CqlTransformHandler implements Route {
     response.status(HttpStatus.OK_200);
 
     LOGGER.trace(
-        "Successfully output file with transformer id {}",
+        "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
   }
 
