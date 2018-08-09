@@ -32,7 +32,7 @@ const withAdapter = (Component) =>
     };
 
 const template = () => '';
-const tagName = CustomElements.register('marionette-bridge');
+const tagName = CustomElements.register('marionette-bridge-new');
 
 module.exports = (Component) => {
     Component = withAdapter(Component);

@@ -85,7 +85,7 @@ define([
                         }));
                         break;
                     case 'geometry':
-                        this.input.show(new InputLocationView({
+                        this.input.show(new InputGeometryView({
                             model: this.model
                         }));
                         break;

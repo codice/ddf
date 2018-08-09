@@ -1,18 +1,22 @@
 @{customElementNamespace}input.is-geometry {
-    .error-form,
-    .error-ordering {
-        display: none;
-    }
+  label {
+    padding-left: 10px;
+    line-height: @minimumButtonSize;
+    margin: 0px;
+    white-space: normal;
+    word-break: break-all;
+    min-height: @minimumButtonSize;
+  }
 }
 
-@{customElementNamespace}input.is-geometry.error-form {
-    .error-form {
-        display: block;
-    }
-}
+@{customElementNamespace}input.is-geometry.is-editing {
+  > .if-editing {
+    position: relative;
+    top: unset;
+    transform: unset;
+  }
 
-@{customElementNamespace}input.is-geometry.error-ordering {
-    .error-ordering {
-        display: block;
-    }
+  > .if-viewing {
+      display: none;
+  }
 }

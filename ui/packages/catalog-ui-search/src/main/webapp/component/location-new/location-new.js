@@ -17,11 +17,10 @@ const { ddModel, dmsModel, usngModel } = require('./models');
 
 module.exports = Backbone.AssociatedModel.extend({
     defaults: {
-        drawing: false,
         showErrors: true,
         valid: true,
         error: undefined,
-        mode: undefined,
+        mode: 'wkt',
         wkt: '',
         dd: ddModel,
         dms: dmsModel,
