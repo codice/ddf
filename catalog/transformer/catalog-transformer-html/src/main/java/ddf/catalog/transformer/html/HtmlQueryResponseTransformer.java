@@ -20,7 +20,7 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.transformer.html.models.HtmlCategoryModel;
+import ddf.catalog.transformer.html.models.HtmlExportCategory;
 import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
@@ -34,7 +34,7 @@ public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
 
   private HtmlMetacardUtility htmlMetacardUtility;
 
-  public HtmlQueryResponseTransformer(List<HtmlCategoryModel> categoryList) {
+  public HtmlQueryResponseTransformer(List<HtmlExportCategory> categoryList) {
     this.htmlMetacardUtility = new HtmlMetacardUtility(categoryList);
   }
 

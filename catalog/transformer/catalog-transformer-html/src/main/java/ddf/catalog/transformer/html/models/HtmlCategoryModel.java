@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.lang.WordUtils;
 
-public class HtmlCategoryModel {
+public class HtmlCategoryModel implements HtmlExportCategory {
 
   private String title;
 
@@ -37,6 +37,10 @@ public class HtmlCategoryModel {
     this.attributeList = attributeList;
     this.attributeMappings = new TreeMap<>();
   }
+
+  public void init() {}
+
+  public void destroy(int code) {}
 
   public void setTitle(String title) {
     this.title = title;

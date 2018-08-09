@@ -11,22 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.transformer.html;
+package ddf.catalog.transformer.html.models;
 
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.html.models.HtmlExportCategory;
-import java.util.Collections;
+import ddf.catalog.data.Metacard;
 import java.util.List;
-import org.junit.Test;
 
-public class HtmlQueryResponseTransformerTest {
+public interface HtmlExportCategory {
 
-  private static final List<HtmlExportCategory> EMPTY_CATEGORY_LIST = Collections.emptyList();
+  void setTitle(String title);
 
-  @Test(expected = CatalogTransformerException.class)
-  public void testNullMetacardTransform() throws CatalogTransformerException {
-    HtmlQueryResponseTransformer htmlTransformer =
-        new HtmlQueryResponseTransformer(EMPTY_CATEGORY_LIST);
-    htmlTransformer.transform(null, Collections.emptyMap());
-  }
+  String getTitle();
+
+  void setAttributeList(List<String> attributeList);
+
+  List<String> getAttributeList();
+
+  void applyAttributeMappings(Metacard metacard);
 }

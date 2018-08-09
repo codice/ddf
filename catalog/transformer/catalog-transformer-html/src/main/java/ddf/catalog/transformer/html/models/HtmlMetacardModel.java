@@ -23,7 +23,7 @@ public class HtmlMetacardModel {
 
   private Metacard metacard;
 
-  private List<HtmlCategoryModel> categories;
+  private List<HtmlExportCategory> categories;
 
   public HtmlMetacardModel(Metacard metacard) {
     this.metacard = metacard;
@@ -31,7 +31,7 @@ public class HtmlMetacardModel {
     this.categories = new ArrayList<>();
   }
 
-  public HtmlMetacardModel(Metacard metacard, List<HtmlCategoryModel> categories) {
+  public HtmlMetacardModel(Metacard metacard, List<HtmlExportCategory> categories) {
     this.metacard = metacard;
     this.title = metacard.getTitle();
     this.categories = categories;
@@ -47,20 +47,20 @@ public class HtmlMetacardModel {
     return this.metacard;
   }
 
-  public void setCategories(List<HtmlCategoryModel> categories) {
+  public void setCategories(List<HtmlExportCategory> categories) {
     this.categories = categories;
   }
 
-  public List<HtmlCategoryModel> getCategories() {
+  public List<HtmlExportCategory> getCategories() {
     return this.categories;
   }
 
-  public void addCategory(HtmlCategoryModel category) {
+  public void addCategory(HtmlExportCategory category) {
     this.categories.add(category);
   }
 
   public void applyMetacard() {
-    for (HtmlCategoryModel category : categories) {
+    for (HtmlExportCategory category : categories) {
       category.applyAttributeMappings(metacard);
     }
   }

@@ -14,7 +14,7 @@
 package ddf.catalog.transformer.html;
 
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.html.models.HtmlCategoryModel;
+import ddf.catalog.transformer.html.models.HtmlExportCategory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +22,11 @@ import org.junit.Test;
 
 public class HtmlMetacardTransformerTest {
 
-  private static final List<HtmlCategoryModel> EMPTY_CATEGORY_LIST = Collections.emptyList();
+  private static final List<HtmlExportCategory> EMPTY_CATEGORY_LIST = Collections.emptyList();
 
   @Test(expected = CatalogTransformerException.class)
   public void testNullMetacardTransform() throws CatalogTransformerException {
     HtmlMetacardTransformer htmlTransformer = new HtmlMetacardTransformer(EMPTY_CATEGORY_LIST);
     htmlTransformer.transform(null, new HashMap<>());
   }
-
 }

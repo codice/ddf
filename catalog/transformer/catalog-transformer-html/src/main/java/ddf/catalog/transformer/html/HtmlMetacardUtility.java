@@ -24,8 +24,8 @@ import com.github.jknack.handlebars.helper.IfHelper;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 import ddf.catalog.transformer.html.models.HtmlBasicValueModel;
-import ddf.catalog.transformer.html.models.HtmlCategoryModel;
 import ddf.catalog.transformer.html.models.HtmlEmptyValueModel;
+import ddf.catalog.transformer.html.models.HtmlExportCategory;
 import ddf.catalog.transformer.html.models.HtmlMediaModel;
 import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class HtmlMetacardUtility {
 
   private static final String HTML_TEMPLATE = "template";
 
-  private List<HtmlCategoryModel> categoryList;
+  private List<HtmlExportCategory> categoryList;
 
   public HtmlMetacardUtility() {
     this.templateLoader = new ClassPathTemplateLoader();
@@ -71,7 +71,7 @@ public class HtmlMetacardUtility {
     }
   }
 
-  public HtmlMetacardUtility(List<HtmlCategoryModel> categoryList) {
+  public HtmlMetacardUtility(List<HtmlExportCategory> categoryList) {
     this();
 
     this.categoryList = categoryList;
@@ -121,11 +121,11 @@ public class HtmlMetacardUtility {
     return null;
   }
 
-  public void setCategoryList(List<HtmlCategoryModel> categoryList) {
+  public void setCategoryList(List<HtmlExportCategory> categoryList) {
     this.categoryList = categoryList;
   }
 
-  public List<HtmlCategoryModel> getCategoryList() {
+  public List<HtmlExportCategory> getCategoryList() {
     return this.categoryList;
   }
 }
