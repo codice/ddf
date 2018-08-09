@@ -87,7 +87,7 @@
               let d = new Date(0)
               d.setUTCSeconds(utcSeconds)
               this.addResultForm(new ResultForm({
-                createdOn: Common.getHumanReadableDate(d),
+                createdOn: Common.getHumanReadableDateTime(d),
                 id: element.id,
                 name: element.label,
                 type: 'result',
