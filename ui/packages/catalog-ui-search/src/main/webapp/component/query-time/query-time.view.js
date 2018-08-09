@@ -60,7 +60,7 @@ module.exports = Marionette.LayoutView.extend({
         var filters = [];
         var timeRange = this.basicTime.currentView.model.getValue()[0];
         let timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0];
-        timeSelection = (!Array.isArray(timeSelection) || !timeSelection.length) ? undefined : timeSelection;
+        timeSelection = (!timeSelection.length) ? undefined : timeSelection;
         let timeBefore, timeAfter, relativeFunction;
         switch (timeRange) {
             case 'before':
@@ -80,21 +80,21 @@ module.exports = Marionette.LayoutView.extend({
         if (timeBefore && timeSelection) {
             var timeFilter = {
                 type: 'OR',
-                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('BEFORE', selection, timeBefore))
+                filters: timeSelection.map((selection) => CQLUtils.generateFilter('BEFORE', selection, timeBefore))
             };
             filters.push(timeFilter);
         }
         if (timeAfter && timeSelection) {
             var timeFilter = {
                 type: 'OR',
-                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('AFTER', selection, timeAfter))
+                filters: timeSelection.map((selection) => CQLUtils.generateFilter('AFTER', selection, timeAfter))
             };
             filters.push(timeFilter);
         }
         if (relativeFunction && timeSelection) {
             var timeDuration = {
                 type: 'OR',
-                filters: Array.from(timeSelection, (selection) => CQLUtils.generateFilter('=', selection, relativeFunction))
+                filters: timeSelection.map((selection) => CQLUtils.generateFilter('=', selection, relativeFunction))
             };
             filters.push(timeDuration);
         }
