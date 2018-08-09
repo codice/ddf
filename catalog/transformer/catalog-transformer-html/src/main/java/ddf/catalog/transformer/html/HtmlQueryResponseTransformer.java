@@ -30,14 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class HtmlQueryResponseTransformer extends HtmlMetacard implements QueryResponseTransformer {
+public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
 
-  public HtmlQueryResponseTransformer() {
-    super();
-  }
+  private HtmlMetacardUtility htmlMetacardUtility;
 
   public HtmlQueryResponseTransformer(List<HtmlCategoryModel> categoryList) {
-    super(categoryList);
+    this.htmlMetacardUtility = new HtmlMetacardUtility(categoryList);
   }
 
   @Override
@@ -54,10 +52,10 @@ public class HtmlQueryResponseTransformer extends HtmlMetacard implements QueryR
     List<HtmlMetacardModel> metacardModels = new ArrayList<>();
 
     for (Metacard metacard : metacards) {
-      metacardModels.add(new HtmlMetacardModel(metacard, getCategoryList()));
+      metacardModels.add(new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()));
     }
 
-    String html = buildHtml(metacardModels);
+    String html = htmlMetacardUtility.buildHtml(metacardModels);
 
     if (html == null) {
       throw new CatalogTransformerException("Result set cannot be transformed to HTML");

@@ -14,14 +14,18 @@
 package ddf.catalog.transformer.html;
 
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transformer.html.models.HtmlCategoryModel;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 
 public class HtmlQueryResponseTransformerTest {
 
+  private static final List<HtmlCategoryModel> EMPTY_CATEGORY_LIST = Collections.emptyList();
+
   @Test(expected = CatalogTransformerException.class)
   public void testNullMetacardTransform() throws CatalogTransformerException {
-    HtmlQueryResponseTransformer htmlTransformer = new HtmlQueryResponseTransformer();
+    HtmlQueryResponseTransformer htmlTransformer = new HtmlQueryResponseTransformer(EMPTY_CATEGORY_LIST);
     htmlTransformer.transform(null, Collections.emptyMap());
   }
 }

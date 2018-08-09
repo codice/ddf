@@ -27,14 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HtmlMetacardTransformer extends HtmlMetacard implements MetacardTransformer {
+public class HtmlMetacardTransformer implements MetacardTransformer {
 
-  public HtmlMetacardTransformer() {
-    super();
-  }
+  private HtmlMetacardUtility htmlMetacardUtility;
 
   public HtmlMetacardTransformer(List<HtmlCategoryModel> categoryList) {
-    super(categoryList);
+    this.htmlMetacardUtility = new HtmlMetacardUtility(categoryList);
   }
 
   @Override
@@ -46,9 +44,9 @@ public class HtmlMetacardTransformer extends HtmlMetacard implements MetacardTra
     }
 
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
-    metacardModelList.add(new HtmlMetacardModel(metacard, getCategoryList()));
+    metacardModelList.add(new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()));
 
-    String html = buildHtml(metacardModelList);
+    String html = htmlMetacardUtility.buildHtml(metacardModelList);
 
     if (html == null) {
       throw new CatalogTransformerException("Metacard cannot be transformed to HTML");

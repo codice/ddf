@@ -33,7 +33,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HtmlMetacard {
+public class HtmlMetacardUtility {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HtmlMetacardTransformer.class);
 
@@ -53,7 +53,7 @@ public class HtmlMetacard {
 
   private List<HtmlCategoryModel> categoryList;
 
-  public HtmlMetacard() {
+  public HtmlMetacardUtility() {
     this.templateLoader = new ClassPathTemplateLoader();
     this.templateLoader.setPrefix(TEMPLATE_DIRECTORY);
     this.templateLoader.setSuffix(TEMPLATE_SUFFIX);
@@ -71,7 +71,7 @@ public class HtmlMetacard {
     }
   }
 
-  public HtmlMetacard(List<HtmlCategoryModel> categoryList) {
+  public HtmlMetacardUtility(List<HtmlCategoryModel> categoryList) {
     this();
 
     this.categoryList = categoryList;
