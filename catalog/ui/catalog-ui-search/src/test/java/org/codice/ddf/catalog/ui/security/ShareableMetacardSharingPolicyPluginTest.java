@@ -24,8 +24,6 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import java.util.Collections;
 import java.util.Map;
-import org.codice.ddf.catalog.ui.forms.data.AttributeGroupType;
-import org.codice.ddf.catalog.ui.forms.data.QueryTemplateType;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 import org.junit.Before;
@@ -66,11 +64,7 @@ public class ShareableMetacardSharingPolicyPluginTest {
             ImmutableMap.of(
                 Core.METACARD_OWNER,
                 ImmutableSet.of(EMAIL),
-                AttributeGroupType.ATTRIBUTE_GROUP_TAG,
-                Collections.singleton(AttributeGroupType.ATTRIBUTE_GROUP_TAG),
-                WorkspaceConstants.WORKSPACE_TAG,
-                Collections.singleton(WorkspaceConstants.WORKSPACE_TAG),
-                QueryTemplateType.QUERY_TEMPLATE_TAG,
-                Collections.singleton(QueryTemplateType.QUERY_TEMPLATE_TAG))));
+                ShareableMetacardImpl.SHARING_TAG,
+                ImmutableSet.of(ShareableMetacardImpl.SHARING_TAG))));
   }
 }
