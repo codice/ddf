@@ -48,11 +48,16 @@ define([
                 humanReadableDate: this.model.getValue() ? user.getUserReadableDate(this.model.getValue()) : this.model.getValue()
             });
         },
+        initialize: function() {
+            this.listenTo(user.get('user').get('preferences'), 'change:timeZone change:timeFormat', this.initializeDatepicker);
+            InputView.prototype.initialize.call(this);
+        },
         onRender: function () {
             this.initializeDatepicker();
             InputView.prototype.onRender.call(this);
         },
         initializeDatepicker: function(){
+            this.onDestroy();
             this.$el.find('.input-group.date').datetimepicker({
                 format: getDateFormat(),
                 timeZone: getTimeZone(),
@@ -101,8 +106,8 @@ define([
         listenForChange: function(){
             this.$el.on('dp.change click input change keyup', function(){
                 this.model.set('value', this.getCurrentValue());
+                this.validate();
             }.bind(this));
-
         },
         isValid: function(){
             var currentValue = this.$el.find('input').val();

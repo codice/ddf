@@ -198,6 +198,9 @@ define([
                 case 'DATE':
                     calculatedType = 'date';
                     break;
+                case 'TIME':
+                    calculatedType = 'time';
+                    break;
                 case 'BINARY':
                     calculatedType = 'thumbnail';
                     break;
