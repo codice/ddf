@@ -113,8 +113,11 @@
   </bean>
 
   <bean id="coreAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Core"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.coreAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Core"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>checksum</value>
@@ -145,8 +148,11 @@
   </bean>
 
   <bean id="dateTimeAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Date Time"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.coreAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Date Time"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>datetime.start</value>
@@ -157,8 +163,11 @@
   </bean>
 
   <bean id="locationAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Location"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.locationAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Location"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>location.altitude-meters</value>
@@ -170,8 +179,11 @@
   </bean>
 
   <bean id="mediaAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Media"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.mediaAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Media"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>media.format</value>
@@ -193,8 +205,11 @@
   </bean>
 
   <bean id="securityAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Security"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.securityAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Security"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>security.access-groups</value>
@@ -204,8 +219,11 @@
   </bean>
 
   <bean id="topicAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Topic"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.topicAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Topic"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>topic.category</value>
@@ -216,8 +234,11 @@
   </bean>
 
   <bean id="validationAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Validation"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.validationAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Validation"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>validation-warnings</value>
@@ -229,8 +250,11 @@
   </bean>
 
   <bean id="versionAttributes" class="ddf.catalog.transformer.html.models.HtmlCategoryModel">
-    <property name="title" value="Version"/>
+    <cm:managed-properties
+      persistent-id="ddf.catalog.transformer.html.versionAttributes"
+      update-strategy="container-managed"/>
 
+    <property name="title" value="Version"/>
     <property name="attributeList">
       <list value-type="java.lang.String">
         <value>version.action</value>

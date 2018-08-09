@@ -16,27 +16,173 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
   <OCD
-    name="HTML Metacard Transformer"
+    name="HTML Association Attributes"
     description="HTML Metacard Transformer"
-    id="ddf.catalog.transformer.html.HtmlMetacard">
+    id="ddf.catalog.transformer.html.associationAttributes">
     <AD
-      description=""
+      description="Association Attributes"
       name="Association Attributes"
-      id="ddf.catalog.transformer.html.associationAttributes"
+      id="attributeList"
       type="String"
+      cardinality="100"
       default="metacard.associations.related,metacard.associations.derived,associations.external"/>
-
-    <AD
-      description=""
-      name="Contact Attributes"
-      id="ddf.catalog.transformer.html.contactAttributes"
-      type="String"
-      default="contact.contributor-address,contact.contributor-email,contact.contributor-name,contact.contributor-phone,contact.creator-address,contact.creator-email,contact.creator-name,contact.creator-phone,contact.point-of-contact-address,contact.point-of-contact-email,contact.point-of-contact-name,contact.point-of-contact-phone,contact.publisher-address,contact.publisher-email,contact.publisher-name,contact.publisher-phone"/>
-
   </OCD>
 
-  <Designate pid="ddf.catalog.transformer.html.HtmlMetacard">
-    <Object ocdref="ddf.catalog.transformer.html.HtmlMetacard"/>
+  <OCD
+    name="HTML Contact Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.contactAttributes">
+    <AD
+      description="Contact Attributes"
+      name="Contact Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="contact.contributor-address,contact.contributor-email,contact.contributor-name,contact.contributor-phone,contact.creator-address,contact.creator-email,contact.creator-name,contact.creator-phone,contact.point-of-contact-address,contact.point-of-contact-email,contact.point-of-contact-name,contact.point-of-contact-phone,contact.publisher-address,contact.publisher-email,contact.publisher-name,contact.publisher-phone"/>
+  </OCD>
+
+  <OCD
+    name="HTML Core Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.coreAttributes">
+    <AD
+      description="Core Attributes"
+      name="Core Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="checksum,checksum-algorithm,created,description,expiration,id,language,location,modified,resource.derived-download-url,resource.derived-uri,resource-download-url,resource-size,resource-uri,source-id,thumbnail,title,datatype,metacard.created,metacard.modified,metacard.owner,metacard-tags"/>
+  </OCD>
+
+  <OCD
+    name="HTML Date Time Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.dateTimeAttributes">
+    <AD
+      description="Attributes"
+      name="Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="datetime.start,datetime.name,datetime.end"/>
+  </OCD>
+
+  <OCD
+    name="HTML Location Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.locationAttributes">
+    <AD
+      description="Core Attributes"
+      name="Core Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="location.country-code,location.crs-code,location.crs-name"/>
+  </OCD>
+
+  <OCD
+    name="HTML Media Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.mediaAttributes">
+    <AD
+      description="Attributes"
+      name="Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="media.format,media.format-version,media.bit-rate,media.bits-per-sample,media.compression,media.encoding,media.frame-center,media.frame-rate,media.height-pixels,media.number-of-bands,media.scanning-mode,media.type,media.width-pixels,media.duration"/>
+  </OCD>
+
+  <OCD
+    name="HTML Security Attributes"
+    description=""
+    id="ddf.catalog.transformer.html.securityAttributes">
+    <AD
+      description="Attributes"
+      name="Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="security.access-groups,security.access-individuals"/>
+  </OCD>
+
+  <OCD
+    name="HTML Topic Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.topicAttributes">
+    <AD
+      description="Topic Attributes"
+      name="Topic Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="topic.category,topic.keyword,topic.vocabulary"/>
+  </OCD>
+
+  <OCD
+    name="HTML Validation Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.validationAttributes">
+    <AD
+      description="Validation Attributes"
+      name="Validation Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="validation-warnings,validation-errors,failed-validators-warnings,failed-validators-errors"/>
+  </OCD>
+
+  <OCD
+    name="HTML Version Attributes"
+    description="HTML Metacard Transformer"
+    id="ddf.catalog.transformer.html.versionAttributes">
+    <AD
+      description="Version Attributes"
+      name="Version Attributes"
+      id="attributeList"
+      type="String"
+      cardinality="100"
+      default="version.action,version.edited-by,version.id,version.tags,version.types,version.type-binary,version.versioned-by"/>
+  </OCD>
+
+  <Designate pid="ddf.catalog.transformer.html.associationAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.associationAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.contactAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.contactAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.coreAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.coreAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.dateTimeAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.dateTimeAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.locationAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.locationAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.mediaAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.mediaAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.securityAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.securityAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.topicAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.topicAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.validationAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.validationAttributes"/>
+  </Designate>
+
+  <Designate pid="ddf.catalog.transformer.html.versionAttributes">
+    <Object ocdref="ddf.catalog.transformer.html.versionAttributes"/>
   </Designate>
 
 </metatype:MetaData>
