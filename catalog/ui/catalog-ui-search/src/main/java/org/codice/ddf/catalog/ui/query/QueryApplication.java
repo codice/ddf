@@ -95,7 +95,8 @@ public class QueryApplication implements SparkApplication, Function {
 
   public QueryApplication(
       List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
-    this.cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, bundleContext);
+    this.cqlTransformHandler =
+        new CqlTransformHandler(queryResponseTransformers, bundleContext, this);
   }
 
   @Override
@@ -208,7 +209,7 @@ public class QueryApplication implements SparkApplication, Function {
     }
   }
 
-  private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
+  public CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
     Stopwatch stopwatch = Stopwatch.createStarted();

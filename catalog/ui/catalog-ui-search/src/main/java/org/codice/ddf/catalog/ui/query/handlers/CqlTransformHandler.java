@@ -13,44 +13,29 @@
  */
 package org.codice.ddf.catalog.ui.query.handlers;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.util.impl.QueryFunction;
-import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
-import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
+import org.codice.ddf.catalog.ui.query.QueryApplication;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -80,6 +65,8 @@ public class CqlTransformHandler implements Route {
 
   private ActionRegistry actionRegistry;
 
+  private QueryApplication queryApplication;
+
   private final String GZIP = "gzip";
 
   private ObjectMapper mapper =
@@ -95,9 +82,12 @@ public class CqlTransformHandler implements Route {
   private EndpointUtil util;
 
   public CqlTransformHandler(
-      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
+      List<ServiceReference> queryResponseTransformers,
+      BundleContext bundleContext,
+      QueryApplication queryApplication) {
     this.queryResponseTransformers = queryResponseTransformers;
     this.bundleContext = bundleContext;
+    this.queryApplication = queryApplication;
   }
 
   @Override
@@ -105,7 +95,7 @@ public class CqlTransformHandler implements Route {
     String transformerId = request.params(":transformerId");
     String body = util.safeGetBody(request);
     CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-    CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+    CqlQueryResponse cqlQueryResponse = queryApplication.executeCqlQuery(cqlRequest);
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -134,34 +124,50 @@ public class CqlTransformHandler implements Route {
       Response response)
       throws CatalogTransformerException, MimeTypeException, IOException {
 
-    BinaryContent content;
+    setHttpAttributes(request, response, queryResponseTransformer);
+    outputFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse);
+  }
 
-    content =
-        bundleContext
-            .getService(queryResponseTransformer)
-            .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
-
+  private void setHttpAttributes(
+      Request request,
+      Response response,
+      ServiceReference<QueryResponseTransformer> queryResponseTransformer)
+      throws MimeTypeException {
     String mimeType = (String) queryResponseTransformer.getProperty("mime-type");
-    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
-    String fileExt;
+    String fileExt = getFileExtFromMimeType(mimeType);
 
-    fileExt = allTypes.forName(mimeType).getExtension();
+    String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase();
 
-    String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
-
-    boolean shouldGzip =
-        StringUtils.isNotBlank(acceptEncoding) && acceptEncoding.toLowerCase().contains(GZIP);
+    if (acceptEncoding.contains(GZIP)) {
+      LOGGER.trace("Request header accepts gzip");
+      response.header(HttpHeaders.CONTENT_ENCODING, GZIP);
+    }
 
     response.type(mimeType);
     String attachment =
         String.format("attachment;filename=export-%s%s", Instant.now().toString(), fileExt);
     response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
+  }
+
+  private String getFileExtFromMimeType(String mimeType) throws MimeTypeException {
+    MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+    return allTypes.forName(mimeType).getExtension();
+  }
+
+  private void outputFileToResponse(
+      Request request,
+      Response response,
+      ServiceReference<QueryResponseTransformer> queryResponseTransformer,
+      CqlQueryResponse cqlQueryResponse)
+      throws CatalogTransformerException, IOException {
+    BinaryContent content =
+        bundleContext
+            .getService(queryResponseTransformer)
+            .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
-      if (shouldGzip) {
-        response.header(HttpHeaders.CONTENT_ENCODING, GZIP);
-        LOGGER.trace("Request header accepts gzip");
+      if (request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP)) {
         try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
           IOUtils.copy(resultStream, gzipServletOutputStream);
         }
@@ -171,59 +177,10 @@ public class CqlTransformHandler implements Route {
     }
 
     response.status(HttpStatus.OK_200);
+
     LOGGER.trace(
-        "Response sent to transformer id {} in {} file format.",
-        queryResponseTransformer.getProperty("id"),
-        fileExt);
-  }
-
-  private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-    QueryFunction queryFunction =
-        (queryRequest) -> {
-          QueryResponse queryResponse = catalogFramework.query(queryRequest);
-          responses.add(queryResponse);
-          return queryResponse;
-        };
-
-    List<Result> results =
-        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-            .stream()
-            .collect(Collectors.toList());
-
-    QueryResponse response =
-        new QueryResponseImpl(
-            request,
-            results,
-            true,
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getHits)
-                .findFirst()
-                .orElse(-1l),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProperties)
-                .findFirst()
-                .orElse(Collections.emptyMap()));
-
-    stopwatch.stop();
-
-    return new CqlQueryResponse(
-        cqlRequest.getId(),
-        request,
-        response,
-        cqlRequest.getSource(),
-        stopwatch.elapsed(TimeUnit.MILLISECONDS),
-        cqlRequest.isNormalize(),
-        filterAdapter,
-        actionRegistry);
+        "Successfully output file with transformer id {}",
+        queryResponseTransformer.getProperty("id"));
   }
 
   public void setEndpointUtil(EndpointUtil util) {
