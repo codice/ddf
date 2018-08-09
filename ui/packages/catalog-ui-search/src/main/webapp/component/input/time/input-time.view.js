@@ -53,7 +53,7 @@ module.exports = InputView.extend({
         })
     },
     initialize() {
-        this.listenTo(user.get('user').get('preferences'), 'change:timeZone change:timeFormat', this.initializeTimePicker)
+        this.listenTo(user.get('user').get('preferences'), 'change:timeZone change:dateTimeFormat', this.initializeTimePicker)
         InputView.prototype.initialize.call(this)
     },
     onRender() {
@@ -117,14 +117,8 @@ module.exports = InputView.extend({
             datetimepicker.destroy()
         }
     },
-    //TODO: Refactor most other `timeFormat` codebase refererences to `dateTimeFormat` and move this logic to `Common.js`
     getTimeFormat() {
-        const format = user.get('user').get('preferences').get('timeFormat')
-        if (format === 'YYYY-MM-DD[T]HH:mm:ss.SSSZ' || format === 'DD MMM YYYY HH:mm:ss.SSS Z') {
-            return 'HH:mm:ss Z'
-        } else if (format === 'DD MMM YYYY h:mm:ss.SSS a Z') {
-            return 'hh:mm:ss a Z'
-        }
+        return user.get('user').get('preferences').get('dateTimeFormat')['timefmt']
     },
     getTimeZone() { 
         return user.get('user').get('preferences').get('timeZone') 

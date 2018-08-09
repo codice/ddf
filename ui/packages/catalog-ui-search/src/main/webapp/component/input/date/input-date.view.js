@@ -27,7 +27,7 @@ define([
 ], function (Marionette, _, $, template, CustomElements, moment, InputView, Common, user) {
 
     function getDateFormat() {
-        return user.get('user').get('preferences').get('timeFormat');
+        return user.get('user').get('preferences').get('dateTimeFormat')['datetimefmt'];
     }
 
     function getTimeZone() {
@@ -45,11 +45,11 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {
                 cid: this.cid,
-                humanReadableDate: this.model.getValue() ? user.getUserReadableDate(this.model.getValue()) : this.model.getValue()
+                humanReadableDate: this.model.getValue() ? user.getUserReadableDateTime(this.model.getValue()) : this.model.getValue()
             });
         },
         initialize: function() {
-            this.listenTo(user.get('user').get('preferences'), 'change:timeZone change:timeFormat', this.initializeDatepicker);
+            this.listenTo(user.get('user').get('preferences'), 'change:timeZone change:dateTimeFormat', this.initializeDatepicker);
             InputView.prototype.initialize.call(this);
         },
         onRender: function () {
@@ -69,7 +69,7 @@ define([
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
         handleValue: function(){
-            this.$el.find('.input-group.date').data('DateTimePicker').date(user.getUserReadableDate(this.model.getValue()));
+            this.$el.find('.input-group.date').data('DateTimePicker').date(user.getUserReadableDateTime(this.model.getValue()));
         },
         focus: function(){
             this.$el.find('input').select();
