@@ -61,7 +61,7 @@ public class CqlTransformHandler implements Route {
 
   private ActionRegistry actionRegistry;
 
-  private final String GZIP = "gzip";
+  private static final String GZIP = "gzip";
 
   private ObjectMapper mapper =
       new ObjectMapperImpl(
@@ -109,7 +109,7 @@ public class CqlTransformHandler implements Route {
     return "";
   }
 
-  private void setHttpAttributes(Request request, Response response, BinaryContent content)
+  private void setHttpHeaders(Request request, Response response, BinaryContent content)
       throws MimeTypeException {
     String mimeType = content.getMimeTypeValue();
     String fileExt = getFileExtFromMimeType(mimeType);
@@ -145,7 +145,7 @@ public class CqlTransformHandler implements Route {
             .getService(queryResponseTransformer)
             .transform(cqlQueryResponse.getQueryResponse(), Collections.emptyMap());
 
-    setHttpAttributes(request, response, content);
+    setHttpHeaders(request, response, content);
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
