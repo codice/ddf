@@ -114,9 +114,7 @@ public class CqlTransformHandler implements Route {
     String mimeType = content.getMimeTypeValue();
     String fileExt = getFileExtFromMimeType(mimeType);
 
-    String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase();
-
-    if (acceptEncoding.contains(GZIP)) {
+    if (containsGzip(request)) {
       LOGGER.trace("Request header accepts gzip");
       response.header(HttpHeaders.CONTENT_ENCODING, GZIP);
     }
@@ -130,6 +128,10 @@ public class CqlTransformHandler implements Route {
   private String getFileExtFromMimeType(String mimeType) throws MimeTypeException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     return allTypes.forName(mimeType).getExtension();
+  }
+
+  private Boolean containsGzip(Request request) {
+    return request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP);
   }
 
   private void attachFileToResponse(
@@ -147,7 +149,7 @@ public class CqlTransformHandler implements Route {
 
     try (OutputStream servletOutputStream = response.raw().getOutputStream();
         InputStream resultStream = content.getInputStream()) {
-      if (request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP)) {
+      if (containsGzip(request)) {
         try (OutputStream gzipServletOutputStream = new GZIPOutputStream(servletOutputStream)) {
           IOUtils.copy(resultStream, gzipServletOutputStream);
         }
