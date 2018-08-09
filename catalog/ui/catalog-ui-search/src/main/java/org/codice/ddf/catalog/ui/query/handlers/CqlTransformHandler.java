@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
@@ -141,7 +141,7 @@ public class CqlTransformHandler implements Route {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
-            .transform(cqlQueryResponse.getQueryResponse(), new HashMap<>());
+            .transform(cqlQueryResponse.getQueryResponse(), Collections.emptyMap());
 
     setHttpAttributes(request, response, content);
 
