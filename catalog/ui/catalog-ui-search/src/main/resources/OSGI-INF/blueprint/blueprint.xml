@@ -370,8 +370,7 @@
         <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
-        <argument ref="queryResponseTransformer"/>
-        <argument ref="blueprintBundleContext"/>
+        <argument ref="cqlTransformHandler"/>
     </bean>
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
@@ -616,6 +615,16 @@
                 <argument ref="filterBuilder"/>
             </bean>
         </argument>
+    </bean>
+
+    <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
+        <argument ref="queryResponseTransformer"/>
+        <argument ref="blueprintBundleContext"/>
+
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterAdapter" ref="filterAdapter"/>
+        <property name="actionRegistry" ref="metacardActionRegistry"/>
+        <property name="endpointUtil" ref="endpointUtil"/>
     </bean>
 
     <service ref="workspaceQueryService"

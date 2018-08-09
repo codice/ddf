@@ -18,7 +18,6 @@ import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.IOException;
@@ -35,7 +34,6 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
-import org.codice.ddf.catalog.ui.query.QueryApplication;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -57,15 +55,11 @@ public class CqlTransformHandler implements Route {
 
   private BundleContext bundleContext;
 
-  private FilterBuilder filterBuilder;
-
   private FilterAdapter filterAdapter;
 
   private CatalogFramework catalogFramework;
 
   private ActionRegistry actionRegistry;
-
-  private QueryApplication queryApplication;
 
   private final String GZIP = "gzip";
 
@@ -82,12 +76,9 @@ public class CqlTransformHandler implements Route {
   private EndpointUtil util;
 
   public CqlTransformHandler(
-      List<ServiceReference> queryResponseTransformers,
-      BundleContext bundleContext,
-      QueryApplication queryApplication) {
+      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
     this.queryResponseTransformers = queryResponseTransformers;
     this.bundleContext = bundleContext;
-    this.queryApplication = queryApplication;
   }
 
   @Override
@@ -95,7 +86,8 @@ public class CqlTransformHandler implements Route {
     String transformerId = request.params(":transformerId");
     String body = util.safeGetBody(request);
     CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-    CqlQueryResponse cqlQueryResponse = queryApplication.executeCqlQuery(cqlRequest);
+    CqlQueryResponse cqlQueryResponse =
+        util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -177,10 +169,6 @@ public class CqlTransformHandler implements Route {
 
   public void setCatalogFramework(CatalogFramework catalogFramework) {
     this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
   }
 
   public void setFilterAdapter(FilterAdapter filterAdapter) {

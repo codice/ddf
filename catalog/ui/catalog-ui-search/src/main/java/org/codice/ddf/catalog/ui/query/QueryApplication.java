@@ -20,29 +20,15 @@ import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.QueryFunction;
-import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -57,8 +43,6 @@ import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.opengis.feature.simple.SimpleFeature;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -93,10 +77,8 @@ public class QueryApplication implements SparkApplication, Function {
 
   private EndpointUtil util;
 
-  public QueryApplication(
-      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
-    this.cqlTransformHandler =
-        new CqlTransformHandler(queryResponseTransformers, bundleContext, this);
+  public QueryApplication(CqlTransformHandler cqlTransformHandler) {
+    this.cqlTransformHandler = cqlTransformHandler;
   }
 
   @Override
@@ -111,7 +93,8 @@ public class QueryApplication implements SparkApplication, Function {
         APPLICATION_JSON,
         (req, res) -> {
           CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+          CqlQueryResponse cqlQueryResponse =
+              util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
           return mapper.toJson(cqlQueryResponse);
         });
 
@@ -196,7 +179,7 @@ public class QueryApplication implements SparkApplication, Function {
     }
 
     try {
-      return executeCqlQuery(cqlRequest);
+      return util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
     } catch (UnsupportedQueryException e) {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(400, "Unsupported query request.");
@@ -209,73 +192,20 @@ public class QueryApplication implements SparkApplication, Function {
     }
   }
 
-  public CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-    QueryFunction queryFunction =
-        (queryRequest) -> {
-          QueryResponse queryResponse = catalogFramework.query(queryRequest);
-          responses.add(queryResponse);
-          return queryResponse;
-        };
-
-    List<Result> results =
-        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-            .stream()
-            .collect(Collectors.toList());
-
-    QueryResponse response =
-        new QueryResponseImpl(
-            request,
-            results,
-            true,
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getHits)
-                .findFirst()
-                .orElse(-1l),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProperties)
-                .findFirst()
-                .orElse(Collections.emptyMap()));
-
-    stopwatch.stop();
-
-    return new CqlQueryResponse(
-        cqlRequest.getId(),
-        request,
-        response,
-        cqlRequest.getSource(),
-        stopwatch.elapsed(TimeUnit.MILLISECONDS),
-        cqlRequest.isNormalize(),
-        filterAdapter,
-        actionRegistry);
-  }
-
   public void setCatalogFramework(CatalogFramework catalogFramework) {
     this.catalogFramework = catalogFramework;
-    cqlTransformHandler.setCatalogFramework(catalogFramework);
   }
 
   public void setFilterBuilder(FilterBuilder filterBuilder) {
     this.filterBuilder = filterBuilder;
-    cqlTransformHandler.setFilterBuilder(filterBuilder);
   }
 
   public void setFilterAdapter(FilterAdapter filterAdapter) {
     this.filterAdapter = filterAdapter;
-    cqlTransformHandler.setFilterAdapter(filterAdapter);
   }
 
   public void setActionRegistry(ActionRegistry actionRegistry) {
     this.actionRegistry = actionRegistry;
-    cqlTransformHandler.setActionRegistry(actionRegistry);
   }
 
   public void setFeatureService(FeatureService featureService) {
@@ -284,6 +214,5 @@ public class QueryApplication implements SparkApplication, Function {
 
   public void setEndpointUtil(EndpointUtil util) {
     this.util = util;
-    cqlTransformHandler.setEndpointUtil(util);
   }
 }
