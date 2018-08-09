@@ -249,10 +249,11 @@ public class KMLTransformerImpl implements KMLTransformer {
     return data;
   }
 
-  private static Object convertAttribute(Attribute attribute, AttributeDescriptor descriptor) {
+  private static Serializable convertAttribute(
+      Attribute attribute, AttributeDescriptor descriptor) {
 
     if (descriptor.isMultiValued()) {
-      List<Object> values = new ArrayList<>();
+      ArrayList<Serializable> values = new ArrayList<>();
       for (Serializable value : attribute.getValues()) {
         values.add(
             convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat()));
@@ -264,7 +265,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
   }
 
-  private static Object convertValue(
+  private static Serializable convertValue(
       String name, Serializable value, AttributeType.AttributeFormat format) {
     if (value == null) {
       return null;
