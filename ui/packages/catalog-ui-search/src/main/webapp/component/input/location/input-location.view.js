@@ -20,7 +20,7 @@ define([
     './input-location.hbs',
     'js/CustomElements',
     '../input.view',
-    'component/location-new/location-new.view'
+    'component/location-old/location-old.view'
 ], function (Marionette, _, $, template, CustomElements, InputView, LocationView) {
 
     return InputView.extend({

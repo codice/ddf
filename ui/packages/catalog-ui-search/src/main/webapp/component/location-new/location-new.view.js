@@ -33,7 +33,7 @@ const minimumBuffer = 0.000001;
 
 module.exports = Marionette.LayoutView.extend({
     template: () => `<div class="location-input"></div>`,
-    tagName: CustomElements.register('location-old'),
+    tagName: CustomElements.register('location-new'),
     regions: {
         location: '.location-input'
     },

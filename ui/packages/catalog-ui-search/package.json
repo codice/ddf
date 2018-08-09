@@ -90,7 +90,7 @@
     "uuid": "2.0.2",
     "vis": "4.15.0",
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",
-    "wkx": "0.4.1"
+    "wkx": "0.4.5"
   },
   "main": "src/main/webapp/js/ApplicationSetup.js",
   "alias": {

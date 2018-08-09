@@ -594,10 +594,6 @@
   version "10.5.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.0.tgz#f5b61395c09b47ac46aaa1452750c9a72b3d3673"
 
-"@types/node@^6.0.48":
-  version "6.0.103"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.103.tgz#4fddb6c254756e98004039da4e4f4230d1e397ca"
-
 "@types/openlayers@4.3.11":
   version "4.3.11"
   resolved "https://registry.yarnpkg.com/@types/openlayers/-/openlayers-4.3.11.tgz#60d9ff0503e0d6eb762e5634d3c44cadac22c88f"
@@ -16497,11 +16493,11 @@ wkt-parser@^1.2.0:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/wkt-parser/-/wkt-parser-1.2.2.tgz#fe8d87be682e299f76c9af6f6456bbbd7abbfd3a"
 
-wkx@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/wkx/-/wkx-0.4.1.tgz#2fc171b5e9cb55c6256fef4bde1f21be413befee"
+wkx@0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/wkx/-/wkx-0.4.5.tgz#a85e15a6e69d1bfaec2f3c523be3dfa40ab861d0"
   dependencies:
-    "@types/node" "^6.0.48"
+    "@types/node" "*"
 
 wordwrap@0.0.2:
   version "0.0.2"
