@@ -194,6 +194,8 @@
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="metacardActionRegistry"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
@@ -620,10 +622,6 @@
     <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
         <argument ref="queryResponseTransformer"/>
         <argument ref="blueprintBundleContext"/>
-
-        <property name="catalogFramework" ref="catalogFramework"/>
-        <property name="filterAdapter" ref="filterAdapter"/>
-        <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="endpointUtil" ref="endpointUtil"/>
     </bean>
 

@@ -93,8 +93,7 @@ public class QueryApplication implements SparkApplication, Function {
         APPLICATION_JSON,
         (req, res) -> {
           CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse =
-              util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
+          CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
           return mapper.toJson(cqlQueryResponse);
         });
 
@@ -179,7 +178,7 @@ public class QueryApplication implements SparkApplication, Function {
     }
 
     try {
-      return util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
+      return util.executeCqlQuery(cqlRequest);
     } catch (UnsupportedQueryException e) {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(400, "Unsupported query request.");

@@ -14,10 +14,7 @@
 package org.codice.ddf.catalog.ui.query.handlers;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.action.ActionRegistry;
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.IOException;
@@ -55,12 +52,6 @@ public class CqlTransformHandler implements Route {
 
   private BundleContext bundleContext;
 
-  private FilterAdapter filterAdapter;
-
-  private CatalogFramework catalogFramework;
-
-  private ActionRegistry actionRegistry;
-
   private static final String GZIP = "gzip";
 
   private ObjectMapper mapper =
@@ -86,8 +77,7 @@ public class CqlTransformHandler implements Route {
     String transformerId = request.params(":transformerId");
     String body = util.safeGetBody(request);
     CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-    CqlQueryResponse cqlQueryResponse =
-        util.executeCqlQuery(cqlRequest, catalogFramework, filterAdapter, actionRegistry);
+    CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -167,17 +157,5 @@ public class CqlTransformHandler implements Route {
 
   public void setEndpointUtil(EndpointUtil util) {
     this.util = util;
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterAdapter(FilterAdapter filterAdapter) {
-    this.filterAdapter = filterAdapter;
-  }
-
-  public void setActionRegistry(ActionRegistry actionRegistry) {
-    this.actionRegistry = actionRegistry;
   }
 }

@@ -105,6 +105,10 @@ public class EndpointUtil {
 
   private final FilterBuilder filterBuilder;
 
+  private final FilterAdapter filterAdapter;
+
+  private final ActionRegistry actionRegistry;
+
   private final List<InjectableAttribute> injectableAttributes;
 
   private final AttributeRegistry attributeRegistry;
@@ -135,12 +139,16 @@ public class EndpointUtil {
       List<MetacardType> metacardTypes,
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
+      FilterAdapter filterAdapter,
+      ActionRegistry actionRegistry,
       List<InjectableAttribute> injectableAttributes,
       AttributeRegistry attributeRegistry,
       ConfigurationApplication config) {
     this.metacardTypes = metacardTypes;
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
+    this.filterAdapter = filterAdapter;
+    this.actionRegistry = actionRegistry;
     this.injectableAttributes = injectableAttributes;
     this.attributeRegistry = attributeRegistry;
     this.config = config;
@@ -401,11 +409,7 @@ public class EndpointUtil {
     return objectMapper.toJson(result);
   }
 
-  public CqlQueryResponse executeCqlQuery(
-      CqlRequest cqlRequest,
-      CatalogFramework catalogFramework,
-      FilterAdapter filterAdapter,
-      ActionRegistry actionRegistry)
+  public CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
     Stopwatch stopwatch = Stopwatch.createStarted();
