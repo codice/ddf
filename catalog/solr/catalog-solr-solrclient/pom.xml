@@ -81,7 +81,6 @@
                         <Export-Package/>
                         <Embed-Dependency>
                             gson,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             platform-util,
                             security-core-impl,

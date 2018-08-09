@@ -43,7 +43,10 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.codice.ddf.cxf.SecureCxfClientFactory.AliasSelectorKeyManager;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.impl.ClientKeyInfo;
+import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl;
+import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl.AliasSelectorKeyManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -96,28 +99,28 @@ public class SecureCxfClientFactoryTest {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory;
     boolean invalid = false;
     try { // test empty string for url
-      secureCxfClientFactory = new SecureCxfClientFactory<>("", IDummy.class);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>("", IDummy.class);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
     try { // null for url
-      secureCxfClientFactory = new SecureCxfClientFactory<>(null, IDummy.class);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, IDummy.class);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
     try { // null for url and class
-      secureCxfClientFactory = new SecureCxfClientFactory<>(null, null);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, null);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
     try { // null for class
-      secureCxfClientFactory = new SecureCxfClientFactory<>(INSECURE_ENDPOINT, null);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -125,7 +128,7 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try {
       secureCxfClientFactory =
-          new SecureCxfClientFactory<>(
+          new SecureCxfClientFactoryImpl<>(
               null,
               null,
               null,
@@ -146,7 +149,7 @@ public class SecureCxfClientFactoryTest {
   public void testInsecureClient() throws SecurityServiceException {
     // positive case
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(INSECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
     // negative cases
@@ -165,7 +168,7 @@ public class SecureCxfClientFactoryTest {
   public void testInsecureWebClient() throws SecurityServiceException {
     // positive case
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(INSECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
     // negative cases
@@ -184,7 +187,7 @@ public class SecureCxfClientFactoryTest {
   public void testHttpsClient() throws SecurityServiceException {
     // positive case
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
     // negative cases
@@ -203,7 +206,7 @@ public class SecureCxfClientFactoryTest {
   public void testHttpsWebClient() throws SecurityServiceException {
     // positive case
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
     // negative cases
@@ -221,7 +224,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void validateConduit() throws SecurityServiceException {
     IDummy clientForSubject =
-        new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class, null, null, true, true)
+        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, null, null, true, true)
             .getClient();
     HTTPConduit httpConduit =
         WebClient.getConfig(WebClient.client(clientForSubject)).getHttpConduit();
@@ -234,7 +237,7 @@ public class SecureCxfClientFactoryTest {
     when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
     // positive case
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(
+        new SecureCxfClientFactoryImpl<>(
             SECURE_ENDPOINT, IDummy.class, null, null, false, false, mockPropertyResolver);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertThat(unsecuredClient.getBaseURI().toASCIIString(), is(SECURE_ENDPOINT));
@@ -255,7 +258,7 @@ public class SecureCxfClientFactoryTest {
     when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
     // positive case
     SecureCxfClientFactory<WebClient> secureCxfClientFactory =
-        new SecureCxfClientFactory<>(
+        new SecureCxfClientFactoryImpl<>(
             SECURE_ENDPOINT, WebClient.class, null, null, false, false, mockPropertyResolver);
     WebClient client = secureCxfClientFactory.getWebClient();
     assertThat(client, notNullValue());
@@ -316,7 +319,7 @@ public class SecureCxfClientFactoryTest {
     }
   }
 
-  private class MockWrapper<T> extends SecureCxfClientFactory<T> {
+  private class MockWrapper<T> extends SecureCxfClientFactoryImpl<T> {
 
     public MockWrapper(String endpointUrl, Class<T> interfaceClass)
         throws SecurityServiceException {

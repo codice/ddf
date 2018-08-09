@@ -141,7 +141,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-confluence-common,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             platform-util,

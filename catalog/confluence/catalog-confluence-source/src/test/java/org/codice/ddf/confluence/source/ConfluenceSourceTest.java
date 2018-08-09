@@ -72,7 +72,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.confluence.api.SearchResource;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -88,6 +89,8 @@ public class ConfluenceSourceTest {
   private FilterAdapter adapter = new GeotoolsFilterAdapterImpl();
 
   private SecureCxfClientFactory<SearchResource> factory;
+
+  private ClientFactoryFactory clientFactoryFactory;
 
   private EncryptionService encryptionService;
 
@@ -111,6 +114,7 @@ public class ConfluenceSourceTest {
     encryptionService = mock(EncryptionService.class);
     reader = mock(ResourceReader.class);
     factory = mock(SecureCxfClientFactory.class);
+    clientFactoryFactory = mock(ClientFactoryFactory.class);
     client = mock(SearchResource.class);
     registry = mock(AttributeRegistry.class);
     clientResponse = mock(Response.class);
@@ -132,7 +136,13 @@ public class ConfluenceSourceTest {
                     "attrib2", true, true, true, true, BasicTypes.STRING_TYPE)));
     confluence =
         new TestConfluenceSource(
-            adapter, encryptionService, transformer, reader, registry, factory);
+            adapter,
+            encryptionService,
+            transformer,
+            reader,
+            registry,
+            factory,
+            clientFactoryFactory);
     confluence.setAvailabilityPollInterval(1);
     confluence.setConfigurationPid("configPid");
     confluence.setEndpointUrl("https://confluence/rest/api/content");
@@ -385,7 +395,8 @@ public class ConfluenceSourceTest {
   @Test
   public void testInitNoEndpointUrl() throws Exception {
     ConfluenceSource source =
-        new ConfluenceSource(adapter, encryptionService, transformer, reader, registry);
+        new ConfluenceSource(
+            adapter, encryptionService, transformer, reader, registry, clientFactoryFactory);
     source.setUsername("myname");
     source.setPassword("mypass");
     source.init();
@@ -522,8 +533,9 @@ public class ConfluenceSourceTest {
         ConfluenceInputTransformer transformer,
         ResourceReader reader,
         AttributeRegistry registry,
-        SecureCxfClientFactory<SearchResource> mockFactory) {
-      super(adapter, encryptionService, transformer, reader, registry);
+        SecureCxfClientFactory<SearchResource> mockFactory,
+        ClientFactoryFactory clientFactoryFactory) {
+      super(adapter, encryptionService, transformer, reader, registry, clientFactoryFactory);
       this.mockFactory = mockFactory;
     }
 

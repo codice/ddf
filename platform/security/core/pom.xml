@@ -25,5 +25,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>security-core-impl</module>
+        <module>security-core-services</module>
     </modules>
 </project>
