@@ -85,7 +85,9 @@ define([
     properties.basicSearchTemporalSelectionDefault.forEach((proposedType) => {
         metacardStartingTypes[proposedType] = {
             id: proposedType,
-            type: 'DATE'
+            type: 'DATE',
+            alias: properties.attributeAliases[proposedType],
+            hidden: properties.isHidden(proposedType)
         }
     })
 
