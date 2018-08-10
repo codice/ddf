@@ -81,19 +81,20 @@ define([
 
     function handleAnyDateFilter(propertyValueMap, filter) {
         propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
-        if (propertyValueMap['anyDate'].filter(function (existingFilter) {
-                return existingFilter.type ===
-                    (filter.filters ? filter.filters[0].type : filter.type);
-            }).length === 0) {
-            const anyDateFilter = {
-                property: filter.filters ?
-                    filter.filters.map(subfilter => stripQuotes(subfilter.property)) :
-                    [stripQuotes(filter.property)],
-                type: filter.filters ? filter.filters[0].type : filter.type,
-                value: filter.filters ? filter.filters[0].value : filter.value
+        let existingFilter = propertyValueMap['anyDate'].filter(function (anyDateFilter) {
+            return anyDateFilter.type ===
+                (filter.filters ? filter.filters[0].type : filter.type);
+        })[0];
+        if (!existingFilter) {
+            existingFilter = {
+                property: []
             };
-            propertyValueMap['anyDate'].push(anyDateFilter);
+            propertyValueMap['anyDate'].push(existingFilter);
         }
+        existingFilter.property = existingFilter.property.concat(filter.filters ?
+            filter.filters.map(subfilter => stripQuotes(subfilter.property)) : [stripQuotes(filter.property)]);
+        existingFilter.type = filter.filters ? filter.filters[0].type : filter.type;
+        existingFilter.value = filter.filters ? filter.filters[0].value : filter.value;
     }
 
     function translateFilterToBasicMap(filter) {
