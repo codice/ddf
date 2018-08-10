@@ -115,13 +115,20 @@ module.exports = Marionette.LayoutView.extend({
             value: definition.id
         }));
 
+        let value = properties.basicSearchTemporalSelectionDefault ? 
+            [properties.basicSearchTemporalSelectionDefault] : [[]];
+
+        if (this.options.filter.anyDate) {
+            value = [this.options.filter.anyDate[0].property];
+        }
+
         this.basicTemporalSelections.show(new PropertyView({
             model: new Property({
               enumFiltering: true,
               enumMulti: true,
               enum: definitions,
               isEditing: true,
-              value: properties.basicSearchTemporalSelectionDefault ? [properties.basicSearchTemporalSelectionDefault] : [[]],
+              value: value,
               id: 'Apply Time Range To'
             })
           }));

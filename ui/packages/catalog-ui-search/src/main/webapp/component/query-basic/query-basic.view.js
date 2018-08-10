@@ -54,40 +54,61 @@ define([
             (typesFound.indexOf('datatype') >= 0);
     }
 
+    // strip extra quotes
+    const stripQuotes = (property) => {
+        return property.replace(/^"(.+(?="$))"$/, '$1');
+    }
+
     function isAnyDate(filter) {
-        var propertiesToCheck = ['created', 'modified', 'effective', 'metacard.created', 'metacard.modified'];
+        if (!filter.filters) {
+            return metacardDefinitions.metacardTypes[stripQuotes(filter.property)].type === 'DATE';
+        }
         var typesFound = {};
         var valuesFound = {};
-        if (filter.filters.length === propertiesToCheck.length) {
-            filter.filters.forEach(function (subfilter) {
-                typesFound[subfilter.type] = true;
-                valuesFound[subfilter.value] = true;
-                var indexOfType = propertiesToCheck.indexOf(CQLUtils.getProperty(subfilter));
-                if (indexOfType >= 0) {
-                    propertiesToCheck.splice(indexOfType, 1);
-                }
-            });
-            return propertiesToCheck.length === 0 && Object.keys(typesFound).length === 1 && Object.keys(valuesFound).length === 1;
+        filter.filters.forEach(function (subfilter) {
+            typesFound[subfilter.type] = true;
+            valuesFound[subfilter.value] = true;
+        });
+        typesFound = Object.keys(typesFound);
+        valuesFound = Object.keys(valuesFound);
+        if (typesFound.length > 1 || valuesFound.length > 1) {
+            return false;
+        } else {
+            const attributes = filter.filters.map(subfilter => subfilter.property);
+            return metacardDefinitions.metacardTypes[stripQuotes(attributes[0])].type === 'DATE';
         }
-        return false;
+    }
+
+    function handleAnyDateFilter(propertyValueMap, filter) {
+        propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
+        if (propertyValueMap['anyDate'].filter(function (existingFilter) {
+                return existingFilter.type ===
+                    (filter.filters ? filter.filters[0].type : filter.type);
+            }).length === 0) {
+            const anyDateFilter = {
+                property: filter.filters ?
+                    filter.filters.map(subfilter => stripQuotes(subfilter.property)) :
+                    [stripQuotes(filter.property)],
+                type: filter.filters ? filter.filters[0].type : filter.type,
+                value: filter.filters ? filter.filters[0].value : filter.value
+            };
+            propertyValueMap['anyDate'].push(anyDateFilter);
+        }
     }
 
     function translateFilterToBasicMap(filter) {
         var propertyValueMap = {};
         var downConversion = false;
 
-        if (filter.filters && isAnyDate(filter)) {
-            propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
-            if (propertyValueMap['anyDate'].filter(function (existingFilter) {
-                    return existingFilter.type === filter.filters[0].type;
-                }).length === 0) {
-                propertyValueMap['anyDate'].push(filter.filters[0]);
-            }
+        if (!filter.filters && isAnyDate(filter)) {
+            handleAnyDateFilter(propertyValueMap, filter);
         }
 
         if (filter.filters) {
             filter.filters.forEach(function (filter) {
-                if (!filter.filters) {
+                if (!filter.filters && isAnyDate(filter)) {
+                    handleAnyDateFilter(propertyValueMap, filter);
+                } else if (!filter.filters) {
                     propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
                     if (propertyValueMap[CQLUtils.getProperty(filter)].filter(function (existingFilter) {
                             return existingFilter.type === filter.type;
@@ -95,12 +116,7 @@ define([
                         propertyValueMap[CQLUtils.getProperty(filter)].push(filter);
                     }
                 } else if (!isNested(filter) && isAnyDate(filter)) {
-                    propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
-                    if (propertyValueMap['anyDate'].filter(function (existingFilter) {
-                            return existingFilter.type === filter.filters[0].type;
-                        }).length === 0) {
-                        propertyValueMap['anyDate'].push(filter.filters[0]);
-                    }
+                    handleAnyDateFilter(propertyValueMap, filter);
                 } else if (!isNested(filter) && isTypeLimiter(filter)) {
                     propertyValueMap[CQLUtils.getProperty(filter.filters[0])] = propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || [];
                     filter.filters.forEach(function (subfilter) {
