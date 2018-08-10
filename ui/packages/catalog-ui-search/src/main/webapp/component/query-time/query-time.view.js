@@ -122,6 +122,8 @@ module.exports = Marionette.LayoutView.extend({
             value = [this.options.filter.anyDate[0].property];
         }
 
+        value = [value[0].filter((attribute) => (!metacardDefinitions.metacardTypes[attribute].hidden))];
+
         this.basicTemporalSelections.show(new PropertyView({
             model: new Property({
               enumFiltering: true,
