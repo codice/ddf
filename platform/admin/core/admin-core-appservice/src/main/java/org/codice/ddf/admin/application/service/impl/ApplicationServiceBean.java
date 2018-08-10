@@ -15,6 +15,9 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -180,34 +183,58 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   @Override
   public void installFeature(String feature) {
+    LOGGER.trace("Installing feature {}", feature);
+
     try {
-      featuresService.installFeature(
-          feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                featuresService.installFeature(
+                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                return null;
+              });
     } catch (VirtualMachineError e) {
       throw e;
+    } catch (PrivilegedActionException e) {
+      handleInstallFeatureException(feature, e.getException());
     } catch (Throwable e) {
-      LOGGER.error(
-          "Could not start feature: {}. Refer to documentation for additional features that must be installed for this feature to install correctly.",
-          feature,
-          e);
-      throw new ApplicationServiceBeanException("Could not start profile feature: " + feature);
+      handleInstallFeatureException(feature, e);
     }
   }
 
   @Override
   public void uninstallFeature(String feature) {
+    LOGGER.trace("Uninstalling feature {}", feature);
+
     try {
       featuresService.uninstallFeature(
           feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
     } catch (VirtualMachineError e) {
       throw e;
+    } catch (PrivilegedActionException e) {
+      handleUninstallFeatureException(feature, e.getException());
     } catch (Throwable e) {
-      LOGGER.error(
-          "Could not uninstall feature: {}. Refer to documentation for additional features that must be uninstalled before this feature can properly uninstall.",
-          feature,
-          e);
-      throw new ApplicationServiceBeanException("Could not start profile feature: " + feature);
+      handleUninstallFeatureException(feature, e);
     }
+  }
+
+  private void handleInstallFeatureException(String feature, Throwable e) {
+    handleFeatureException(
+        String.format("Could not install feature %s", feature),
+        "{}. Refer to documentation for additional features that must be installed for this feature to install correctly.",
+        e);
+  }
+
+  private void handleUninstallFeatureException(String feature, Throwable e) {
+    handleFeatureException(
+        String.format("Could not uninstall feature %s", feature),
+        "{}. Refer to documentation for additional features that must be uninstalled before this feature can properly uninstall.",
+        e);
+  }
+
+  private void handleFeatureException(String errorMessage, String logMessage, Throwable e) {
+    LOGGER.error(logMessage, errorMessage, e);
+    throw new ApplicationServiceBeanException(errorMessage);
   }
 
   @Override
