@@ -13,8 +13,8 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.test.performance.jmeter</groupId>
@@ -49,10 +49,114 @@
                                         <target.port>${target.port}</target.port>
                                         <target.protocol>${target.protocol}</target.protocol>
                                     </propertiesJMeter>
-                                    <appendResultsTimestamp>true</appendResultsTimestamp>
-                                    <resultsFileNameDateFormat>YYYMMddHHmmss
-                                    </resultsFileNameDateFormat>
+                                    <testResultsTimestamp>false</testResultsTimestamp>
+                                    <!--<appendResultsTimestamp>true</appendResultsTimestamp>-->
+                                    <!--<resultsFileNameDateFormat>YYYMMddHHmmss-->
+                                    <!--</resultsFileNameDateFormat>-->
                                     <ignoreResultFailures>true</ignoreResultFailures>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!--<plugin>-->
+                    <!--<groupId>de.codecentric</groupId>-->
+                    <!--<artifactId>jmeter-graph-maven-plugin</artifactId>-->
+                    <!--<version>0.1.0</version>-->
+                    <!--<configuration>-->
+                    <!--<inputFile>${project.base.directory}/src/test/jmeter/result.txt</inputFile>-->
+                    <!--<graphs>-->
+                    <!--<graph>-->
+                    <!--<pluginType>ThreadsStateOverTime</pluginType>-->
+                    <!--<width>800</width>-->
+                    <!--<height>600</height>-->
+                    <!--<outputFile>${project.build.directory}/jmeter/result.png</outputFile>-->
+                    <!--</graph>-->
+                    <!--&lt;!&ndash; ... you can declare more <graph>-elements here &ndash;&gt;-->
+                    <!--</graphs>-->
+                    <!--</configuration>-->
+                    <!--</plugin>-->
+                    <plugin>
+                        <groupId>de.codecentric</groupId>
+                        <artifactId>jmeter-graph-maven-plugin</artifactId>
+                        <version>0.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>create-graphs</id>
+                                <goals>
+                                    <goal>create-graph</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <inputFile>${project.build.directory}/jmeter/results/XMLTransformerPerf-json.jtl</inputFile>
+                                    <graphs>
+                                        <graph>
+                                            <pluginType>ThreadsStateOverTime</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ThreadsStateOverTime.png</outputFile>
+                                        </graph>
+                                        <!-- ... you can declare more <graph>-elements here -->
+                                        <graph>
+                                            <pluginType>ResponseTimesOverTime</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ResponseTimesOverTime.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>TransactionsPerSecond</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-TransactionsPerSecond.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>BytesThroughputOverTime</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-BytesThroughputOverTime.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>HitsPerSecond</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-HitsPerSecond.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>LatenciesOverTime</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-LatenciesOverTime.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>ResponseCodesPerSecond</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ResponseCodesPerSecond.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>ResponseTimesDistribution</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ResponseTimesDistribution.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>ResponseTimesPercentiles</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ResponseTimesPercentiles.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>ThroughputVsThreads</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-ThroughputVsThreads.png</outputFile>
+                                        </graph>
+                                        <graph>
+                                            <pluginType>TimesVsThreads</pluginType>
+                                            <width>800</width>
+                                            <height>600</height>
+                                            <outputFile>${project.build.directory}/jmeter/results/XMLTransformer-TimesVsThreads.png</outputFile>
+                                        </graph>
+                                    </graphs>
                                 </configuration>
                             </execution>
                         </executions>
