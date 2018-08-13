@@ -15924,9 +15924,9 @@ username@3.0.0:
     execa "^0.7.0"
     mem "^1.1.0"
 
-"usng.js@https://github.com/codice/usng.js#b756a1dddd6292d7af44db363131d848a87a2be2":
-  version "0.1.1"
-  resolved "https://github.com/codice/usng.js#b756a1dddd6292d7af44db363131d848a87a2be2"
+usng.js@0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/usng.js/-/usng.js-0.2.3.tgz#944093f38984834ba9877f1879453962376c05f3"
 
 utf-8-validate@1.2.x:
   version "1.2.2"
