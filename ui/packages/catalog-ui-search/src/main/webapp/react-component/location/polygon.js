@@ -1,29 +1,13 @@
 const React = require('react');
+const BaseLine = require('./base.line');
 
-const { Units } = require('./common');
-const TextField = require('../text-field');
-
-const Polygon = (props) => {
-    const { polygon, polygonBufferWidth, polygonBufferUnits, cursor } = props;
-
-    return (
-        <div className="input-location">
-            <TextField
-                label="Polygon"
-                value={JSON.stringify(polygon)}
-                parse={JSON.parse}
-                onChange={cursor('polygon')}
-            />
-            <Units value={polygonBufferUnits} onChange={cursor('polygonBufferUnits')}>
-                <TextField 
-                    type="number" 
-                    label="Buffer width" 
-                    min={0.000001} 
-                    value={polygonBufferWidth} 
-                    onChange={cursor('polygonBufferWidth')}/>
-            </Units>
-        </div>
-    );
+const options = {
+    label: 'Polygon',
+    geometryKey: 'polygon',
+    unitKey: 'polygonBufferUnits',
+    widthKey: 'polygonBufferWidth'
 };
+
+const Polygon = (props) => <BaseLine {...props} {...options}/>;
 
 module.exports = Polygon;

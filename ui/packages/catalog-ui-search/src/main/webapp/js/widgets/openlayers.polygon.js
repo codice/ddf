@@ -150,8 +150,7 @@ Draw.PolygonView = Marionette.View.extend({
         const geometry = olUtils.wrapCoordinatesFromGeometry(sketchFeature.feature.getGeometry());
         this.setModelFromGeometry(geometry);
         this.drawBorderedPolygon(geometry);
-        this.listenTo(this.model, 'change:polygon', this.updateGeometry);
-        this.listenTo(this.model, 'change:polygonBufferWidth', this.updateGeometry);
+        this.listenTo(this.model, 'change:polygon change:polygonBufferWidth', this.updateGeometry);
 
         this.model.trigger("EndExtent", this.model);
         wreqr.vent.trigger('search:polydisplay', this.model);

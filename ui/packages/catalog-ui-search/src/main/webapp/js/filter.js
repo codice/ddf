@@ -332,6 +332,8 @@ function matchesFilter(metacard, filter) {
                         if (matchesCIRCLE(valuesToCheck[i], filter)) {
                             return true;
                         }
+                    } else if (CQLUtils.isPolygonFilter(filter)) {
+                        return true;
                     } else if (matchesLINESTRING(valuesToCheck[i], filter)) {
                         return true;
                     }
