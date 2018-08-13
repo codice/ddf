@@ -59,8 +59,15 @@ public class CqlTransformHandlerTest {
   private ServletOutputStream mockServletOutputStream;
   private HttpServletResponse mockHttpServiceResponse;
 
+  private static final String GZIP = "gzip";
   private static final String QUERY_PARAM = ":transformerId";
   private static final String RETURN_ID = "kml";
+  private static final String MIME_TYPE = "application/vnd.google-earth.kml+xml";
+  private static final String SAFE_BODY =
+      "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
+  private static final String CONTENT = "test";
+  private static final String SERVICE_NOT_FOUND = "{\"message\":\"Service not found\"}";
+  private static final String SERVICE_SUCCESS = "";
 
   @Before
   public void setUp() throws Exception {
@@ -71,10 +78,9 @@ public class CqlTransformHandlerTest {
     mockQueryResponseTransformer = mock(ServiceReference.class);
     when(mockQueryResponseTransformer.getProperty(Core.ID)).thenReturn(RETURN_ID);
 
-    String message = "test";
-    MimeType mimeType = new MimeType("application/vnd.google-earth.kml+xml");
+    MimeType mimeType = new MimeType(MIME_TYPE);
     mockBinaryContent =
-        new BinaryContentImpl(new ByteArrayInputStream(message.getBytes()), mimeType);
+        new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
 
     queryResponseTransformers.add(mockQueryResponseTransformer);
     cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, mockBundleContext);
@@ -83,9 +89,7 @@ public class CqlTransformHandlerTest {
     mockRequest = mock(Request.class);
     mockResponse = mock(Response.class);
 
-    when(mockEndpointUtil.safeGetBody(mockRequest))
-        .thenReturn(
-            "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}");
+    when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
 
     mockCqlQueryResponse = mock(CqlQueryResponse.class);
 
@@ -117,18 +121,18 @@ public class CqlTransformHandlerTest {
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
-    assertThat(res, is("{\"message\":\"Service not found\"}"));
+    assertThat(res, is(SERVICE_NOT_FOUND));
   }
 
   @Test
   public void testServiceFoundWithValidResponseAndGzip() throws Exception {
-    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("gzip");
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(GZIP);
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
-    assertThat(res, is(""));
+    assertThat(res, is(SERVICE_SUCCESS));
   }
 
   @Test
@@ -139,6 +143,6 @@ public class CqlTransformHandlerTest {
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
-    assertThat(res, is(""));
+    assertThat(res, is(SERVICE_SUCCESS));
   }
 }
