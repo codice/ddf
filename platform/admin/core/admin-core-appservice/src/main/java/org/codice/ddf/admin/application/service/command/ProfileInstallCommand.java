@@ -21,6 +21,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -82,6 +85,24 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
           "Profile Name must not start with '.', '/', or a windows drive letter");
     }
 
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                installProfile(applicationService, featuresService, bundleService, profileName);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      throw e.getException();
+    }
+  }
+
+  private void installProfile(
+      ApplicationService applicationService,
+      FeaturesService featuresService,
+      BundleService bundleService,
+      String profileName)
+      throws Exception {
     Optional<Feature> optionalProfile = getProfile(applicationService, profileName);
     Optional<Map<String, List<String>>> optionalExtraProfiles = getProfile(profileName);
 
