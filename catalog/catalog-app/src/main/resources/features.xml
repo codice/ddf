@@ -202,6 +202,17 @@
         <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-transformer-html" version="${project.version}"
+             description="Html Metacard and Query Response Transformer">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}</bundle>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-association.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-association
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-contact.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-contact
+        </configfile>
+    </feature>
+
     <feature name="catalog-transformer-metadata" version="${project.version}"
              description="Retrieves the attribute, Metadata, from the Metacard.">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
@@ -517,6 +528,7 @@
         <feature>catalog-rest</feature>
         <feature>catalog-confluence-source</feature>
         <feature>catalog-plugin-jpeg2000</feature>
+        <feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-metadata</feature>
         <feature>catalog-transformer-xsltengine</feature>
         <feature>catalog-transformer-resource</feature>

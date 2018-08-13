@@ -30,7 +30,7 @@
       id="attributeList"
       type="String"
       cardinality="100"
-      default="metacard.associations.related,metacard.associations.derived,associations.external"/>
+      default=""/>
   </OCD>
 
   <Designate pid="ddf.catalog.transformer.html.categories" factoryPid="ddf.catalog.transformer.html.categories">

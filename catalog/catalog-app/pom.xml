@@ -251,6 +251,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-html</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
