@@ -24,6 +24,8 @@ REM Start Solr if needed
 IF "%start.solr%" == "true" (
 	CALL %GET_PROPERTY% solr.http.port 8994
 	CALL %GET_PROPERTY% solr.http.protocol https
+	CALL %GET_PROPERTY% solr.max.heap.size 2g
+	CALL SET SOLR_JAVA_MEM=-Xmx!solr.max.heap.size!
 
 	IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
 		ECHO Unkown Solr protocol %solr.http.protocol% found in system.properties file
