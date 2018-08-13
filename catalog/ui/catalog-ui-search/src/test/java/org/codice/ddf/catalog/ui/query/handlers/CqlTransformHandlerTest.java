@@ -74,8 +74,18 @@ public class CqlTransformHandlerTest {
     initMocks(this);
 
     mockBundleContext = mock(BundleContext.class);
-    queryResponseTransformers = new ArrayList<>();
+    mockEndpointUtil = mock(EndpointUtil.class);
+    mockRequest = mock(Request.class);
+    mockResponse = mock(Response.class);
+    mockCqlQueryResponse = mock(CqlQueryResponse.class);
+    mockQueryResponse = mock(QueryResponse.class);
+    mockServiceReference = mock(QueryResponseTransformer.class);
     mockQueryResponseTransformer = mock(ServiceReference.class);
+    mockServletOutputStream = mock(ServletOutputStream.class);
+    mockHttpServiceResponse = mock(HttpServletResponse.class);
+
+    queryResponseTransformers = new ArrayList<>();
+
     when(mockQueryResponseTransformer.getProperty(Core.ID)).thenReturn(RETURN_ID);
 
     MimeType mimeType = new MimeType(MIME_TYPE);
@@ -83,32 +93,22 @@ public class CqlTransformHandlerTest {
         new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
 
     queryResponseTransformers.add(mockQueryResponseTransformer);
+
     cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, mockBundleContext);
-
-    mockEndpointUtil = mock(EndpointUtil.class);
-    mockRequest = mock(Request.class);
-    mockResponse = mock(Response.class);
-
-    when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
-
-    mockCqlQueryResponse = mock(CqlQueryResponse.class);
-
-    when(mockEndpointUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
 
     cqlTransformHandler.setEndpointUtil(mockEndpointUtil);
 
-    mockQueryResponse = mock(QueryResponse.class);
+    when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
+
+    when(mockEndpointUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
+
     when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
 
-    mockServiceReference = mock(QueryResponseTransformer.class);
     when(mockBundleContext.getService(mockQueryResponseTransformer))
         .thenReturn(mockServiceReference);
+
     when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
         .thenReturn(mockBinaryContent);
-
-    mockServletOutputStream = mock(ServletOutputStream.class);
-
-    mockHttpServiceResponse = mock(HttpServletResponse.class);
 
     when(mockResponse.raw()).thenReturn(mockHttpServiceResponse);
 
