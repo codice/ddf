@@ -22,6 +22,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
@@ -58,6 +59,9 @@ public class CqlTransformHandlerTest {
   private ServletOutputStream mockServletOutputStream;
   private HttpServletResponse mockHttpServiceResponse;
 
+  private static final String QUERY_PARAM = ":transformerId";
+  private static final String RETURN_ID = "kml";
+
   @Before
   public void setUp() throws Exception {
     initMocks(this);
@@ -65,7 +69,7 @@ public class CqlTransformHandlerTest {
     mockBundleContext = mock(BundleContext.class);
     queryResponseTransformers = new ArrayList<>();
     mockQueryResponseTransformer = mock(ServiceReference.class);
-    when(mockQueryResponseTransformer.getProperty("id")).thenReturn("kml");
+    when(mockQueryResponseTransformer.getProperty(Core.ID)).thenReturn(RETURN_ID);
 
     String message = "test";
     MimeType mimeType = new MimeType("application/vnd.google-earth.kml+xml");
@@ -109,7 +113,7 @@ public class CqlTransformHandlerTest {
 
   @Test
   public void testNoServiceFound() throws Exception {
-    when(mockRequest.params(":transformerId")).thenReturn("xml");
+    when(mockRequest.params(QUERY_PARAM)).thenReturn("xml");
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
@@ -120,7 +124,7 @@ public class CqlTransformHandlerTest {
   public void testServiceFoundWithValidResponseAndGzip() throws Exception {
     when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("gzip");
 
-    when(mockRequest.params(":transformerId")).thenReturn("kml");
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
@@ -131,7 +135,7 @@ public class CqlTransformHandlerTest {
   public void testServiceFoundWithValidResponseNoGzip() throws Exception {
     when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("");
 
-    when(mockRequest.params(":transformerId")).thenReturn("kml");
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
