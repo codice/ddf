@@ -211,6 +211,30 @@
         <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-contact.config">
             mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-contact
         </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-core.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-core
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-dateTime.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-dateTime
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-location.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-location
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-media.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-media
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-security.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-security
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-topic.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-topic
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-validation.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-validation
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.html.categories-version.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}/config/default-category-version
+        </configfile>
     </feature>
 
     <feature name="catalog-transformer-metadata" version="${project.version}"

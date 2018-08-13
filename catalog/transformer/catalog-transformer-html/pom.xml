@@ -104,6 +104,46 @@
                   <type>config</type>
                   <classifier>default-category-contact</classifier>
                 </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-core.config</file>
+                  <type>config</type>
+                  <classifier>default-category-core</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-dateTime.config</file>
+                  <type>config</type>
+                  <classifier>default-category-dateTime</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-location.config</file>
+                  <type>config</type>
+                  <classifier>default-category-location</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-media.config</file>
+                  <type>config</type>
+                  <classifier>default-category-media</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-security.config</file>
+                  <type>config</type>
+                  <classifier>default-category-security</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-topic.config</file>
+                  <type>config</type>
+                  <classifier>default-category-topic</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-validation.config</file>
+                  <type>config</type>
+                  <classifier>default-category-validation</classifier>
+                </artifact>
+                <artifact>
+                  <file>src/main/resources/default-category-version.config</file>
+                  <type>config</type>
+                  <classifier>default-category-version</classifier>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>

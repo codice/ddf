@@ -29,7 +29,9 @@ import ddf.catalog.transformer.html.models.HtmlExportCategory;
 import ddf.catalog.transformer.html.models.HtmlMediaModel;
 import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +77,13 @@ public class HtmlMetacardUtility {
     this();
 
     this.categoryList = categoryList;
+  }
+
+  private static List<HtmlExportCategory> sortCategoryList(List<HtmlExportCategory> categoryList) {
+    return categoryList
+        .stream()
+        .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
+        .collect(Collectors.toList());
   }
 
   private void registerHelpers() {
@@ -126,6 +135,6 @@ public class HtmlMetacardUtility {
   }
 
   public List<HtmlExportCategory> getCategoryList() {
-    return this.categoryList;
+    return sortCategoryList(this.categoryList);
   }
 }
