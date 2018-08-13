@@ -21,10 +21,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.Operation;
@@ -302,14 +304,14 @@ public class QueryOperations extends DescribableImpl {
           .getFilterBuilder()
           .allOf(
               nonVersionTags,
-              frameworkProperties.getValidationQueryFactory().getFilterWithValidationFilter(),
+              getFilterWithValidationFilter(),
               frameworkProperties.getFilterBuilder().anyOf(originalFilter));
     }
 
     return frameworkProperties
         .getFilterBuilder()
         .allOf(
-            frameworkProperties.getValidationQueryFactory().getFilterWithValidationFilter(),
+            getFilterWithValidationFilter(),
             frameworkProperties.getFilterBuilder().anyOf(originalFilter));
   }
 
@@ -711,6 +713,23 @@ public class QueryOperations extends DescribableImpl {
         filterBuilder.anyOf(
             filterBuilder.attribute(Metacard.TAGS).is().like().text(MetacardVersion.VERSION_TAG),
             filterBuilder.attribute(Metacard.TAGS).is().like().text(DeletedMetacard.DELETED_TAG)));
+  }
+
+  private Filter getFilterWithValidationFilter() {
+    FilterBuilder builder = frameworkProperties.getFilterBuilder();
+    return builder.anyOf(
+        builder
+            .attribute(Validation.VALIDATION_ERRORS)
+            .is()
+            .like()
+            .text(FilterDelegate.WILDCARD_CHAR),
+        builder.attribute(Validation.VALIDATION_ERRORS).empty(),
+        builder
+            .attribute(Validation.VALIDATION_WARNINGS)
+            .is()
+            .like()
+            .text(FilterDelegate.WILDCARD_CHAR),
+        builder.attribute(Validation.VALIDATION_WARNINGS).empty());
   }
 
   static class QuerySources {

@@ -19,7 +19,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.delegate.ValidationQueryDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Request;
@@ -29,7 +28,6 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
@@ -105,15 +103,6 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
 
     if (input != null) {
       Query query = input.getQuery();
-
-      try {
-        // already contain validation error or warning filter no need to modify filter
-        if (filterAdapter.adapt(query, new ValidationQueryDelegate())) {
-          return input;
-        }
-      } catch (UnsupportedQueryException e) {
-        LOGGER.info("This attribute filter is not supported by ValidationQueryDelegate.", e);
-      }
 
       if (query != null) {
 

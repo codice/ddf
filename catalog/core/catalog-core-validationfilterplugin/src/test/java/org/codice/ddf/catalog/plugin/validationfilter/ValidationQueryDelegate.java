@@ -20,7 +20,7 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
 
   private String validationType;
 
-  public ValidationQueryDelegate(String validationType){
+  public ValidationQueryDelegate(String validationType) {
     this.validationType = validationType;
   }
   /**
@@ -83,11 +83,6 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
 
   @Override
   public Boolean propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
-    return arguments != null
-        && arguments
-            .stream()
-            .anyMatch(
-                a ->
-                    a.equals(validationType));
+    return arguments != null && arguments.stream().anyMatch(a -> a.equals(validationType));
   }
 }

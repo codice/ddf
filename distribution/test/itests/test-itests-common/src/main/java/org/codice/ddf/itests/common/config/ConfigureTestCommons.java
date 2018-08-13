@@ -31,6 +31,9 @@ public class ConfigureTestCommons {
   public static final String CACHING_FEDERATION_STRATEGY_PID =
       "ddf.catalog.federation.impl.CachingFederationStrategy";
 
+  public static final String VALIDATION_FILTER_PLUGIN_PID =
+      "org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin";
+
   public static final String METACARD_ATTRIBUTE_SECURITY_POLICY_PLUGIN_PID =
       "org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin";
 
@@ -47,7 +50,7 @@ public class ConfigureTestCommons {
 
   public static void configureShowInvalidMetacards(
       String showErrors, String showWarnings, AdminConfig configAdmin) throws IOException {
-    Configuration config = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID, null);
+    Configuration config = configAdmin.getConfiguration(VALIDATION_FILTER_PLUGIN_PID, null);
 
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("showErrors", showErrors);
