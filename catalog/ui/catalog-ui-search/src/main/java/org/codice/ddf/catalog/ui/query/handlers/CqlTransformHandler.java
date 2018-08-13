@@ -76,8 +76,15 @@ public class CqlTransformHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     String transformerId = request.params(":transformerId");
     String body = util.safeGetBody(request);
-    CqlRequest cqlRequest = mapper.readValue(body, CqlRequest.class);
-    CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
+    CqlRequest cqlRequest;
+
+    try {
+      cqlRequest = mapper.readValue(body, CqlRequest.class);
+    } catch (Exception e) {
+      LOGGER.debug("Error fetching cql request, empty or invalid body.");
+      response.status(HttpStatus.BAD_REQUEST_400);
+      return mapper.toJson(ImmutableMap.of("message", "Bad request"));
+    }
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -94,6 +101,8 @@ public class CqlTransformHandler implements Route {
       return mapper.toJson(ImmutableMap.of("message", "Service not found"));
     }
 
+    CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
+
     attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse);
 
     return "";
@@ -102,6 +111,12 @@ public class CqlTransformHandler implements Route {
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
       throws MimeTypeException {
     String mimeType = content.getMimeTypeValue();
+
+    if (mimeType == null) {
+      LOGGER.debug("Failure to fetch file extension, mime-type is empty");
+      throw new MimeTypeException("Binary Content contains null mime-type value.");
+    }
+
     String fileExt = getFileExtFromMimeType(mimeType);
 
     if (containsGzip(request)) {
