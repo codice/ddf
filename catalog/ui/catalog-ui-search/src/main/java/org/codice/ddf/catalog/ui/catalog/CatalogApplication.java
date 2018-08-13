@@ -99,9 +99,11 @@ public class CatalogApplication implements SparkApplication {
         (req, res) -> {
           final BinaryContent content = catalogService.getSourcesInfo();
 
-          res.status(HttpStatus.SC_OK);
-          res.body(IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
-          res.type(content.getMimeTypeValue());
+          try (InputStream inputStream = content.getInputStream()) {
+            res.status(HttpStatus.SC_OK);
+            res.body(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+            res.type(content.getMimeTypeValue());
+          }
 
           // Add the Accept-ranges header to let the client know that we accept ranges in bytes
           res.header(HEADER_ACCEPT_RANGES, BYTES);
@@ -125,9 +127,12 @@ public class CatalogApplication implements SparkApplication {
             final BinaryContent content =
                 catalogService.createMetacard(req.raw(), req.queryParams(TRANSFORM));
 
-            res.status(HttpStatus.SC_OK);
-            res.body(IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
-            res.type(content.getMimeTypeValue());
+            try (InputStream inputStream = content.getInputStream()) {
+              res.status(HttpStatus.SC_OK);
+              res.body(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
+              res.type(content.getMimeTypeValue());
+            }
+
             return res;
           } catch (CatalogServiceException e) {
             return createBadRequestResponse(res, e.getMessage());
@@ -290,11 +295,14 @@ public class CatalogApplication implements SparkApplication {
       res.status(HttpStatus.SC_OK);
       res.type(content.getMimeTypeValue());
 
-      int bytesCopied = IOUtils.copy(content.getInputStream(), res.raw().getOutputStream());
-      res.raw().setContentLength(bytesCopied);
-      res.raw()
-          .flushBuffer(); // Flashing buffer so Spark won't set the body based on the return value
+      try (InputStream inputStream = content.getInputStream()) {
+        int bytesCopied = IOUtils.copy(inputStream, res.raw().getOutputStream());
+        res.raw().setContentLength(bytesCopied);
+        res.raw()
+            .flushBuffer(); // Flashing buffer so Spark won't set the body based on the return value
 
+        res.raw().getOutputStream().close();
+      }
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
       res.header(HEADER_ACCEPT_RANGES, BYTES);
 
