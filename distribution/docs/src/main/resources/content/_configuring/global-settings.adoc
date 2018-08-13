@@ -477,6 +477,13 @@ Thumbs.db
 |zookeeperhost1:2181,zookeeperhost2:2181,zookeeperhost3:2181
 |No
 
+|Solr max heap size
+|solr.max.heap.size
+|String
+|Memory settings for the Solr server
+|2g
+|Yes
+
 |===
 
 These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
