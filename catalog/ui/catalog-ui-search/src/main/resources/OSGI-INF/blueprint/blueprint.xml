@@ -261,10 +261,10 @@
         <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
     </reference-list>
 
-    <bean id="queryResponseTransformer" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
     <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
                     member-type="service-reference">
-        <reference-listener ref="queryResponseTransformer" bind-method="bindService" unbind-method="unbindService"/>
+        <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 
     <bean id="workspaceTransformer"
@@ -620,7 +620,7 @@
     </bean>
 
     <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
-        <argument ref="queryResponseTransformer"/>
+        <argument ref="queryResponseTransformers"/>
         <argument ref="blueprintBundleContext"/>
         <property name="endpointUtil" ref="endpointUtil"/>
     </bean>
