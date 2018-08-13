@@ -1,9 +1,8 @@
 const React = require('react');
 
-const Group = require('./group');
+const Group = require('react-component/group');
 const CustomElements = require('js/CustomElements');
 const Component = CustomElements.registerReact('list-editor');
-const { set, remove } = require('immutable');
 
 const DmsEntry = (props) => {
     const { value } = props;

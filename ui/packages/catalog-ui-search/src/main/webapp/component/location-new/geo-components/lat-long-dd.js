@@ -1,9 +1,11 @@
 const React = require('react');
 
-const { Radio, RadioItem, TextField, Group } = require('../inputs');
+const Group = require('react-component/group');
+const { Radio, RadioItem } = require('react-component/radio');
+const TextField = require('react-component/text-field');
+const { Units } = require('react-component/location/common');
 const { ListEditor, DdEntry } = require('../inputs/list-editor');
 const { DdLatitude, DdLongitude } = require('./coordinates');
-const { Units } = require('../common');
 const { validateDdPoint } = require('../utils');
 const errorMessages = require('../utils/errors');
 

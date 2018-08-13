@@ -1,12 +1,13 @@
 const React = require('react');
 
-const { Radio, RadioItem, TextField, Group } = require('../inputs');
+const Group = require('react-component/group');
+const { Radio, RadioItem } = require('react-component/radio');
+const TextField = require('react-component/text-field');
+const { Units } = require('react-component/location/common');
 const { ListEditor, DmsEntry } = require('../inputs/list-editor');
 const { DmsLatitude, DmsLongitude } = require('./coordinates');
-const { Units } = require('../common');
-const { validateDmsPoint } = require('../utils');
+const { validateDmsPoint, errorMessages } = require('../utils');
 const Direction = require('./direction');
-const errorMessages = require('../utils/errors');
 
 const latitudeDirections = ['N', 'S'];
 const longitudeDirections = ['E', 'W'];

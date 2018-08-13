@@ -1,6 +1,6 @@
 const React = require('react');
 
-const Group = require('./group');
+const Group = require('react-component/group');
 const MaskedInput = require('react-text-mask').default;
 
 const CustomElements = require('js/CustomElements');

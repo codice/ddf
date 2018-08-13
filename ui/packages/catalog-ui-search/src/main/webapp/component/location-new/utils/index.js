@@ -2,6 +2,7 @@ const validateWkt = require('./wkt-utils');
 const { ddToWkt, validateDd, validateDdPoint } = require('./dd-utils');
 const { dmsToWkt, validateDms, validateDmsPoint } = require('./dms-utils');
 const { usngToWkt, validateUsng, validateUsngGrid } = require('./usng-utils');
+const errorMessages = require('./errors');
 
 module.exports = {
     validateWkt,
@@ -13,5 +14,6 @@ module.exports = {
     validateUsngGrid,
     ddToWkt,
     dmsToWkt,
-    usngToWkt
+    usngToWkt,
+    errorMessages
 };
