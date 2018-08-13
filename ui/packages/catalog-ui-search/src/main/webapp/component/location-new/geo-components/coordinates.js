@@ -60,7 +60,6 @@ const DmsLongitude = (props) => {
 };
 
 const DdLatitude = (props) => {
-    const { value, onChange } = props;
     return (
         <Coordinate
             placeholder="latitude"
