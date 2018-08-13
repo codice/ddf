@@ -49,7 +49,7 @@ public class CqlTransformHandlerTest {
   private List<ServiceReference> queryResponseTransformers;
   private CqlTransformHandler cqlTransformHandler;
   private ServiceReference<QueryResponseTransformer> mockQueryResponseTransformer;
-  private BinaryContent mockBinaryContent;
+  private BinaryContent binaryContent;
   private EndpointUtil mockEndpointUtil;
   private Request mockRequest;
   private Response mockResponse;
@@ -91,8 +91,7 @@ public class CqlTransformHandlerTest {
     when(mockQueryResponseTransformer.getProperty(Core.ID)).thenReturn(RETURN_ID);
 
     MimeType mimeType = new MimeType(MIME_TYPE);
-    mockBinaryContent =
-        new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
+    binaryContent = new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
 
     queryResponseTransformers.add(mockQueryResponseTransformer);
 
@@ -110,7 +109,7 @@ public class CqlTransformHandlerTest {
         .thenReturn(mockServiceReference);
 
     when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
-        .thenReturn(mockBinaryContent);
+        .thenReturn(binaryContent);
 
     when(mockResponse.raw()).thenReturn(mockHttpServiceResponse);
 
