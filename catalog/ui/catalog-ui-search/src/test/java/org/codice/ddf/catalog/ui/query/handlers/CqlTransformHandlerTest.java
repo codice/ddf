@@ -60,8 +60,10 @@ public class CqlTransformHandlerTest {
   private HttpServletResponse mockHttpServiceResponse;
 
   private static final String GZIP = "gzip";
+  private static final String NO_GZIP = "";
   private static final String QUERY_PARAM = ":transformerId";
   private static final String RETURN_ID = "kml";
+  private static final String OTHER_RETURN_ID = "xml";
   private static final String MIME_TYPE = "application/vnd.google-earth.kml+xml";
   private static final String SAFE_BODY =
       "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
@@ -117,7 +119,7 @@ public class CqlTransformHandlerTest {
 
   @Test
   public void testNoServiceFound() throws Exception {
-    when(mockRequest.params(QUERY_PARAM)).thenReturn("xml");
+    when(mockRequest.params(QUERY_PARAM)).thenReturn(OTHER_RETURN_ID);
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
@@ -137,7 +139,7 @@ public class CqlTransformHandlerTest {
 
   @Test
   public void testServiceFoundWithValidResponseNoGzip() throws Exception {
-    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("");
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn(NO_GZIP);
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
