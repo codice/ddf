@@ -1,11 +1,11 @@
 const React = require('react');
 
-const { Radio, RadioItem, TextField, TextArea } = require('../inputs');
+const { Radio, RadioItem } = require('react-component/radio');
+const TextField = require('react-component/text-field');
+const { Units } = require('react-component/location/common');
 const { ListEditor, UsngEntry } = require('../inputs/list-editor');
 const { UsngCoordinate } = require('./coordinates');
-const { Units } = require('../common');
-const { validateUsngGrid } = require('../utils');
-const errorMessages = require('../utils/errors');
+const { validateUsngGrid, errorMessages } = require('../utils');
 
 const Point = (props) => {
     const { usng, setState } = props;

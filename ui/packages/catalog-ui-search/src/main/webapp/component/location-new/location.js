@@ -1,7 +1,6 @@
 const React = require('react');
 
-const { Button, Radio, RadioItem } = require('./inputs');
-
+const { Radio, RadioItem } = require('react-component/radio');
 const { WKT, LatLongDD, LatLongDMS, USNG } = require('./geo-components');
 const plugin = require('plugins/location');
 const produce = require('immer').default;
