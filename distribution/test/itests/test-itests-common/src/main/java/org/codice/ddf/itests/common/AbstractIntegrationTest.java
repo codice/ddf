@@ -139,9 +139,9 @@ public abstract class AbstractIntegrationTest {
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
 
-  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(10);
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(20);
 
-  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(10);
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(20);
 
   private static final String UNABLE_TO_DETERMINE_EXAM_DIR_ERROR =
       "Unable to determine current exam directory";
@@ -892,12 +892,12 @@ public abstract class AbstractIntegrationTest {
   }
 
   public void clearCatalog() {
-    String output = console.runCommand(REMOVE_ALL, REMOVE_ALL_TIMEOUT);
+    String output = console.runCommand(REMOVE_ALL, GENERIC_TIMEOUT_MILLISECONDS);
     LOGGER.debug("{} output: {}", REMOVE_ALL, output);
   }
 
   public void clearCache() {
-    console.runCommand(CLEAR_CACHE);
+    console.runCommand(CLEAR_CACHE, GENERIC_TIMEOUT_MILLISECONDS);
   }
 
   protected boolean isCatalogEmpty() {
