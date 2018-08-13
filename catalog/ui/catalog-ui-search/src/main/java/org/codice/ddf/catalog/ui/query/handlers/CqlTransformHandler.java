@@ -67,9 +67,12 @@ public class CqlTransformHandler implements Route {
   private EndpointUtil util;
 
   public CqlTransformHandler(
-      List<ServiceReference> queryResponseTransformers, BundleContext bundleContext) {
+      List<ServiceReference> queryResponseTransformers,
+      BundleContext bundleContext,
+      EndpointUtil endpointUtil) {
     this.queryResponseTransformers = queryResponseTransformers;
     this.bundleContext = bundleContext;
+    this.util = endpointUtil;
   }
 
   @Override
@@ -168,9 +171,5 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
-  }
-
-  public void setEndpointUtil(EndpointUtil util) {
-    this.util = util;
   }
 }

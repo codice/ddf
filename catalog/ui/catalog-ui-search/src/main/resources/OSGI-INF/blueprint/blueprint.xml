@@ -622,7 +622,7 @@
     <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
         <argument ref="queryResponseTransformers"/>
         <argument ref="blueprintBundleContext"/>
-        <property name="endpointUtil" ref="endpointUtil"/>
+        <argument ref="endpointUtil"/>
     </bean>
 
     <service ref="workspaceQueryService"

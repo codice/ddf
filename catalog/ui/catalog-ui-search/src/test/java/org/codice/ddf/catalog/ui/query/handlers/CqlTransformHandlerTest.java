@@ -85,9 +85,8 @@ public class CqlTransformHandlerTest {
 
     queryResponseTransformers.add(mockQueryResponseTransformer);
 
-    cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, mockBundleContext);
-
-    cqlTransformHandler.setEndpointUtil(mockEndpointUtil);
+    cqlTransformHandler =
+        new CqlTransformHandler(queryResponseTransformers, mockBundleContext, mockEndpointUtil);
 
     when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
 
