@@ -47,103 +47,93 @@ public class CqlTransformHandlerTest {
   private BundleContext mockBundleContext;
   private List<ServiceReference> queryResponseTransformers;
   private CqlTransformHandler cqlTransformHandler;
+  private ServiceReference<QueryResponseTransformer> mockQueryResponseTransformer;
+  private BinaryContent mockBinaryContent;
+  private EndpointUtil mockEndpointUtil;
+  private Request mockRequest;
+  private Response mockResponse;
+  private CqlQueryResponse mockCqlQueryResponse;
+  private QueryResponse mockQueryResponse;
+  private QueryResponseTransformer mockServiceReference;
+  private ServletOutputStream mockServletOutputStream;
+  private HttpServletResponse mockHttpServiceResponse;
 
   @Before
   public void setUp() throws Exception {
     initMocks(this);
-  }
 
-  @Test
-  public void testNoServiceFound() throws Exception {
     mockBundleContext = mock(BundleContext.class);
-
     queryResponseTransformers = new ArrayList<>();
-    ServiceReference<QueryResponseTransformer> mockQueryResponseTransformer =
-        mock(ServiceReference.class);
+    mockQueryResponseTransformer = mock(ServiceReference.class);
     when(mockQueryResponseTransformer.getProperty("id")).thenReturn("kml");
 
-    queryResponseTransformers.add(mockQueryResponseTransformer);
+    String message = "test";
+    MimeType mimeType = new MimeType("application/vnd.google-earth.kml+xml");
+    mockBinaryContent =
+        new BinaryContentImpl(new ByteArrayInputStream(message.getBytes()), mimeType);
 
+    queryResponseTransformers.add(mockQueryResponseTransformer);
     cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, mockBundleContext);
 
-    EndpointUtil mockEndpointUtil = mock(EndpointUtil.class);
-
-    Request mockRequest = mock(Request.class);
-    Response mockResponse = mock(Response.class);
+    mockEndpointUtil = mock(EndpointUtil.class);
+    mockRequest = mock(Request.class);
+    mockResponse = mock(Response.class);
 
     when(mockEndpointUtil.safeGetBody(mockRequest))
         .thenReturn(
             "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}");
 
-    CqlQueryResponse mockCqlQueryResponse = mock(CqlQueryResponse.class);
+    mockCqlQueryResponse = mock(CqlQueryResponse.class);
 
     when(mockEndpointUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
 
     cqlTransformHandler.setEndpointUtil(mockEndpointUtil);
 
+    mockQueryResponse = mock(QueryResponse.class);
+    when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
+
+    mockServiceReference = mock(QueryResponseTransformer.class);
+    when(mockBundleContext.getService(mockQueryResponseTransformer))
+        .thenReturn(mockServiceReference);
+    when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
+        .thenReturn(mockBinaryContent);
+
+    mockServletOutputStream = mock(ServletOutputStream.class);
+
+    mockHttpServiceResponse = mock(HttpServletResponse.class);
+
+    when(mockResponse.raw()).thenReturn(mockHttpServiceResponse);
+
+    when(mockHttpServiceResponse.getOutputStream()).thenReturn(mockServletOutputStream);
+  }
+
+  @Test
+  public void testNoServiceFound() throws Exception {
     when(mockRequest.params(":transformerId")).thenReturn("xml");
+
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is("{\"message\":\"Service not found\"}"));
   }
 
   @Test
-  public void testServiceFoundWithSuccessfulResponse() throws Exception {
-    mockBundleContext = mock(BundleContext.class);
-
-    queryResponseTransformers = new ArrayList<>();
-    ServiceReference<QueryResponseTransformer> mockQueryResponseTransformer =
-        mock(ServiceReference.class);
-    when(mockQueryResponseTransformer.getProperty("id")).thenReturn("kml");
-
-    String message = "test";
-    MimeType mimeType = new MimeType("application/vnd.google-earth.kml+xml");
-    BinaryContent mockBinaryContent =
-        new BinaryContentImpl(new ByteArrayInputStream(message.getBytes()), mimeType);
-
-    queryResponseTransformers.add(mockQueryResponseTransformer);
-
-    cqlTransformHandler = new CqlTransformHandler(queryResponseTransformers, mockBundleContext);
-
-    EndpointUtil mockEndpointUtil = mock(EndpointUtil.class);
-
-    Request mockRequest = mock(Request.class);
-    Response mockResponse = mock(Response.class);
-
+  public void testServiceFoundWithValidResponseAndGzip() throws Exception {
     when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("gzip");
-
-    when(mockEndpointUtil.safeGetBody(mockRequest))
-        .thenReturn(
-            "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}");
-
-    CqlQueryResponse mockCqlQueryResponse = mock(CqlQueryResponse.class);
-
-    when(mockEndpointUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
-
-    cqlTransformHandler.setEndpointUtil(mockEndpointUtil);
-
-    QueryResponse mockQueryResponse = mock(QueryResponse.class);
-    when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
-
-    QueryResponseTransformer mockServiceReference = mock(QueryResponseTransformer.class);
-    when(mockBundleContext.getService(mockQueryResponseTransformer))
-        .thenReturn(mockServiceReference);
-    when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
-        .thenReturn(mockBinaryContent);
-
-    ServletOutputStream mockServletOutputStream = mock(ServletOutputStream.class);
-
-    HttpServletResponse mockHttpServiceResponse = mock(HttpServletResponse.class);
-
-    when(mockResponse.raw()).thenReturn(mockHttpServiceResponse);
-
-    when(mockHttpServiceResponse.getOutputStream()).thenReturn(mockServletOutputStream);
 
     when(mockRequest.params(":transformerId")).thenReturn("kml");
 
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
-    System.out.println(res);
+    assertThat(res, is(""));
+  }
+
+  @Test
+  public void testServiceFoundWithValidResponseNoGzip() throws Exception {
+    when(mockRequest.headers(HttpHeaders.ACCEPT_ENCODING)).thenReturn("");
+
+    when(mockRequest.params(":transformerId")).thenReturn("kml");
+
+    String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(""));
   }
