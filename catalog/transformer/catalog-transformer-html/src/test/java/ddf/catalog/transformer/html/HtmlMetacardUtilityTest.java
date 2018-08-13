@@ -75,7 +75,8 @@ public class HtmlMetacardUtilityTest {
   public void testMetacardCreation() {
     Metacard metacard = new MetacardImpl();
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility(EMPTY_CATEGORY_LIST);
+    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
+    // HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility(EMPTY_CATEGORY_LIST);
 
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, EMPTY_CATEGORY_LIST));
