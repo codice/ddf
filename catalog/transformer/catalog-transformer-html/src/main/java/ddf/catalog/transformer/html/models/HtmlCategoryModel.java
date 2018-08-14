@@ -70,7 +70,6 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     this.attributeMappings = new TreeMap<>();
 
     for (String attrKey : attributeList) {
-      // TODO Figure out what the difference between getValue() is and getValues()
       String readableKey = getHumanReadableAttribute(attrKey);
       Attribute attr = metacard.getAttribute(attrKey);
 
