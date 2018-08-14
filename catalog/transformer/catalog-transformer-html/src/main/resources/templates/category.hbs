@@ -10,17 +10,17 @@
         <td class="attribute-name">{{ @key }}</td>
 
         {{#isEmptyValue}}
-          <td class="attribute-value empty-attribute">{{ emptyFieldValue }}</td>
+          <td class="attribute-value empty-attribute">{{ value }}</td>
         {{/isEmptyValue}}
 
         {{#isMediaValue}}
           <td class="attribute-value media-attribute">
-            <img src="data:image/png;base64, {{ this.data }}"/>
+            <img src="data:image/png;base64, {{ value }}"/>
           </td>
         {{/isMediaValue}}
 
         {{#isBasicValue}}
-          <td class="attribute-value">{{ this.value }}</td>
+          <td class="attribute-value">{{ value }}</td>
         {{/isBasicValue}}
 
       </tr>

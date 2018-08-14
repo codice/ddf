@@ -42,11 +42,6 @@
     <dependency>
       <groupId>ddf.catalog.core</groupId>
       <artifactId>catalog-core-api-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>ddf.platform</groupId>

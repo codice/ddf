@@ -13,10 +13,6 @@
  */
 package ddf.catalog.transformer.html.models;
 
-public class HtmlEmptyValueModel implements HtmlValueModel {
-  private final String emptyFieldValue = "--";
-
-  public String getValue() {
-    return emptyFieldValue;
-  }
+public interface HtmlValueModel {
+  String getValue();
 }

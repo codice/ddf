@@ -13,10 +13,14 @@
  */
 package ddf.catalog.transformer.html.models;
 
-public class HtmlBasicValueModel {
+public class HtmlBasicValueModel implements HtmlValueModel {
   private Object value;
 
   public HtmlBasicValueModel(Object value) {
     this.value = value;
+  }
+
+  public String getValue() {
+    return this.value.toString();
   }
 }

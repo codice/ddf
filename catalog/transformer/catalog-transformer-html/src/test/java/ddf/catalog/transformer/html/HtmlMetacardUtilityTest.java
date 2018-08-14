@@ -13,7 +13,7 @@
  */
 package ddf.catalog.transformer.html;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import ddf.catalog.data.Metacard;
@@ -60,8 +60,12 @@ public class HtmlMetacardUtilityTest {
         "Version"
       };
 
+  private HtmlMetacardUtility htmlMetacardUtility;
+
   @Before
   public void setup() {
+    this.htmlMetacardUtility = new HtmlMetacardUtility();
+
     associationsList = new ArrayList<>();
     associationsList.add(Associations.RELATED);
     associationsList.add(Associations.DERIVED);
@@ -75,16 +79,13 @@ public class HtmlMetacardUtilityTest {
   public void testMetacardCreation() {
     Metacard metacard = new MetacardImpl();
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
-    // HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility(EMPTY_CATEGORY_LIST);
-
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, EMPTY_CATEGORY_LIST));
     metacardModelList.add(new HtmlMetacardModel(metacard, EMPTY_CATEGORY_LIST));
 
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
-    assertThat(doc.select(METACARD_CLASS).size(), is(metacardModelList.size()));
+    assertThat(doc.select(METACARD_CLASS), hasSize(metacardModelList.size()));
   }
 
   @Test
@@ -95,12 +96,10 @@ public class HtmlMetacardUtilityTest {
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, categories));
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
-
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
-    assertThat(doc.select(METACARD_CLASS).size(), is(metacardModelList.size()));
-    assertThat(doc.select(CATEGORY_CLASS).size(), is(categories.size()));
+    assertThat(doc.select(METACARD_CLASS), hasSize(metacardModelList.size()));
+    assertThat(doc.select(CATEGORY_CLASS), hasSize(categories.size()));
   }
 
   @Test
@@ -116,14 +115,12 @@ public class HtmlMetacardUtilityTest {
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, categories));
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
-
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
-    assertThat(doc.select(METACARD_CLASS).size(), is(metacardModelList.size()));
-    assertThat(doc.select(CATEGORY_CLASS).size(), is(categories.size()));
-    assertThat(doc.select(CATEGORY_TABLE_CLASS).size(), is(categories.size()));
-    assertThat(doc.select(METACARD_ATTRIBUTE_CLASS).size(), is(associationsList.size()));
+    assertThat(doc.select(METACARD_CLASS), hasSize(metacardModelList.size()));
+    assertThat(doc.select(CATEGORY_CLASS), hasSize(categories.size()));
+    assertThat(doc.select(CATEGORY_TABLE_CLASS), hasSize(categories.size()));
+    assertThat(doc.select(METACARD_ATTRIBUTE_CLASS), hasSize(associationsList.size()));
   }
 
   @Test
@@ -139,12 +136,10 @@ public class HtmlMetacardUtilityTest {
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, categories));
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
-
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
-    assertThat(doc.select(METACARD_ATTRIBUTE_CLASS).size(), is(associationsList.size()));
-    assertThat(doc.select(EMPTY_ATTRIBUTE_CLASS).size(), is(1));
+    assertThat(doc.select(METACARD_ATTRIBUTE_CLASS), hasSize(associationsList.size()));
+    assertThat(doc.select(EMPTY_ATTRIBUTE_CLASS), hasSize(1));
   }
 
   @Test
@@ -158,11 +153,9 @@ public class HtmlMetacardUtilityTest {
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
     metacardModelList.add(new HtmlMetacardModel(metacard, categories));
 
-    HtmlMetacardUtility htmlMetacardUtility = new HtmlMetacardUtility();
-
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
-    assertThat(doc.select(MEDIA_ATTRIBUTE_CLASS).size(), is(1));
+    assertThat(doc.select(MEDIA_ATTRIBUTE_CLASS), hasSize(1));
   }
 
   private List<HtmlExportCategory> getAllEmptyCategories(String[] categoryTitles) {

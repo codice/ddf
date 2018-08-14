@@ -19,6 +19,7 @@ import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.IfHelper;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,8 @@ public class HtmlMetacardUtility {
 
   private Template template;
 
+  private MimeType mimeType;
+
   private static final String TEMPLATE_DIRECTORY = "/templates";
 
   private static final String TEMPLATE_SUFFIX = ".hbs";
@@ -56,26 +61,34 @@ public class HtmlMetacardUtility {
   private List<HtmlExportCategory> categoryList;
 
   public HtmlMetacardUtility() {
+    try {
+      this.mimeType = new MimeType("text/html");
+    } catch (MimeTypeParseException e) {
+      LOGGER.warn("Failed to apply mimetype text/html");
+    }
+
     this.templateLoader = new ClassPathTemplateLoader();
     this.templateLoader.setPrefix(TEMPLATE_DIRECTORY);
     this.templateLoader.setSuffix(TEMPLATE_SUFFIX);
 
     this.handlebars = new Handlebars(this.templateLoader);
 
-    this.resolvers = new ValueResolver[] {FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE};
+    this.resolvers =
+        new ValueResolver[] {
+          FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE
+        };
 
     this.registerHelpers();
 
     try {
       this.template = this.handlebars.compile(HTML_TEMPLATE);
     } catch (IOException e) {
-      LOGGER.error("Failed to compile handlebars template {}", HTML_TEMPLATE, e);
+      LOGGER.warn("Failed to compile handlebars template {}", HTML_TEMPLATE, e);
     }
   }
 
   public HtmlMetacardUtility(List<HtmlExportCategory> categoryList) {
     this();
-
     this.categoryList = categoryList;
   }
 
@@ -124,7 +137,7 @@ public class HtmlMetacardUtility {
       Context context = Context.newBuilder(metacardModels).resolver(resolvers).build();
       return template.apply(context);
     } catch (IOException e) {
-      LOGGER.error("Failed to apply context to {}{}", HTML_TEMPLATE, TEMPLATE_SUFFIX, e);
+      LOGGER.warn("Failed to apply context to {}{}", HTML_TEMPLATE, TEMPLATE_SUFFIX, e);
     }
 
     return null;
@@ -136,5 +149,9 @@ public class HtmlMetacardUtility {
 
   public List<HtmlExportCategory> getCategoryList() {
     return sortCategoryList(this.categoryList);
+  }
+
+  public MimeType getMimeType() {
+    return this.mimeType;
   }
 }

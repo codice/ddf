@@ -15,7 +15,7 @@ package ddf.catalog.transformer.html.models;
 
 import java.util.Base64;
 
-public class HtmlMediaModel {
+public class HtmlMediaModel implements HtmlValueModel {
   private String data;
 
   public HtmlMediaModel(byte[] rawData) {
@@ -29,5 +29,9 @@ public class HtmlMediaModel {
 
     byte[] encoded = Base64.getEncoder().encode(rawData);
     return new String(encoded);
+  }
+
+  public String getValue() {
+    return this.data;
   }
 }
