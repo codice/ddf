@@ -50,10 +50,10 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
 
     if (html == null) {
       throw new CatalogTransformerException("Metacard cannot be transformed to HTML");
-    } else {
-      return new BinaryContentImpl(
-          new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)),
-          htmlMetacardUtility.getMimeType());
     }
+
+    return new BinaryContentImpl(
+        new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)),
+        htmlMetacardUtility.getMimeType());
   }
 }

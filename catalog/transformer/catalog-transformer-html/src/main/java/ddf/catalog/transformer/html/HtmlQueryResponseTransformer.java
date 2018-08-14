@@ -59,8 +59,10 @@ public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
 
     if (html == null) {
       throw new CatalogTransformerException("Result set cannot be transformed to HTML");
-    } else {
-      return new BinaryContentImpl(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)));
     }
+
+    return new BinaryContentImpl(
+        new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)),
+        htmlMetacardUtility.getMimeType());
   }
 }

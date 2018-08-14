@@ -137,7 +137,7 @@ public class HtmlMetacardUtility {
       Context context = Context.newBuilder(metacardModels).resolver(resolvers).build();
       return template.apply(context);
     } catch (IOException e) {
-      LOGGER.warn("Failed to apply context to {}{}", HTML_TEMPLATE, TEMPLATE_SUFFIX, e);
+      LOGGER.warn("Failed to apply model to {}{}", HTML_TEMPLATE, TEMPLATE_SUFFIX, e);
     }
 
     return null;
