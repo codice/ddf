@@ -58,7 +58,6 @@ public class CqlTransformHandlerTest {
   @Mock private BundleContext mockBundleContext;
   @Mock private EndpointUtil mockEndpointUtil;
   @Mock private Request mockRequest;
-  // @Mock private Response mockResponse;
   @Mock private CqlQueryResponse mockCqlQueryResponse;
   @Mock private QueryResponse mockQueryResponse;
   @Mock private QueryResponseTransformer mockServiceReference;
