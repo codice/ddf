@@ -13,9 +13,13 @@
  */
 package org.codice.ddf.itests.common;
 
-import static org.codice.ddf.itests.common.AbstractIntegrationTest.REMOVE_ALL;
-import static org.codice.ddf.itests.common.AbstractIntegrationTest.REMOVE_ALL_TIMEOUT;
+import static com.jayway.restassured.RestAssured.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.with;
+import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
+import static org.hamcrest.Matchers.hasXPath;
 
+import com.jayway.restassured.response.ValidatableResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -24,9 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
@@ -159,16 +166,59 @@ public class SystemStateManager {
       serviceManager.waitForAllBundles();
 
       // reset the catalog
-      String output = console.runCommand(REMOVE_ALL, REMOVE_ALL_TIMEOUT);
-      LOGGER.debug("{} output: {}", REMOVE_ALL, output);
-      console.runCommand("catalog:removeall -f -p --cache");
-
+      clearCatalogAndWait();
       console.runCommand(
           "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
       LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
 
     } catch (Exception e) {
       LOGGER.error("Error resetting system configuration.", e);
+    }
+  }
+
+  private void clearCatalogAndWait() {
+    clearCatalog();
+    clearCache();
+    with()
+        .pollInterval(1, SECONDS)
+        .await()
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
+        .until(this::isCatalogEmpty);
+  }
+
+  public void clearCatalog() {
+    String output =
+        console.runCommand(
+            AbstractIntegrationTest.REMOVE_ALL,
+            AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS);
+    LOGGER.debug("{} output: {}", AbstractIntegrationTest.REMOVE_ALL, output);
+  }
+
+  private void clearCache() {
+    String output =
+        console.runCommand(
+            "catalog:removeall -f -p --cache",
+            AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS);
+    LOGGER.debug("{} output: {}", "catalog:removeall -f -p --cache", output);
+  }
+
+  private boolean isCatalogEmpty() {
+
+    try {
+      String query =
+          new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
+      ValidatableResponse response =
+          given()
+              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+              .body(query)
+              .auth()
+              .basic("admin", "admin")
+              .post(AbstractIntegrationTest.CSW_PATH.getUrl())
+              .then();
+      response.body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsMatched=\"0\"]"));
+      return true;
+    } catch (AssertionError e) {
+      return false;
     }
   }
 
