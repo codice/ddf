@@ -181,11 +181,6 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
     suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
 
-    SortBy[] sortbys = {
-      new SortByImpl(GeoCodingConstants.GAZETTEER_SORT_VALUE, SortOrder.ASCENDING)
-    };
-
-    suggestProps.put(ADDITIONAL_SORT_BYS, sortbys);
     Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
 
     QueryRequest suggestionRequest = new QueryRequestImpl(suggestionQuery, suggestProps);
@@ -235,6 +230,12 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       LOGGER.debug("GeoEntry metacard does not contain population attribute.");
     }
 
+    attribute = metacard.getAttribute(GeoEntryAttributes.GAZETTEER_SORT_VALUE);
+    if (attribute != null) {
+      geoEntryBuilder.gazSort((Integer) attribute.getValue());
+    } else {
+      LOGGER.debug("GeoEntry does not contain gazetteer sort value");
+    }
     String location = getStringAttributeFromMetacard(metacard, Core.LOCATION);
     if (StringUtils.isNotBlank(location)) {
       try {

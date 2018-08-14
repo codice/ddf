@@ -31,6 +31,8 @@ public class GeoEntry {
 
   private final String importLocation;
 
+  private final int gazSort;
+
   private GeoEntry(final Builder builder) {
     name = builder.name;
     latitude = builder.latitude;
@@ -40,6 +42,7 @@ public class GeoEntry {
     alternateNames = builder.alternateNames;
     countryCode = builder.countryCode;
     importLocation = builder.importLocation;
+    gazSort = builder.gazSort;
   }
 
   public static class Builder {
@@ -58,6 +61,8 @@ public class GeoEntry {
     private String countryCode;
 
     private String importLocation;
+
+    private int gazSort;
 
     public Builder name(final String name) {
       this.name = name;
@@ -81,6 +86,11 @@ public class GeoEntry {
 
     public Builder population(final long population) {
       this.population = population;
+      return this;
+    }
+
+    public Builder gazSort(final Integer gazSort) {
+      this.gazSort = gazSort.intValue();
       return this;
     }
 
