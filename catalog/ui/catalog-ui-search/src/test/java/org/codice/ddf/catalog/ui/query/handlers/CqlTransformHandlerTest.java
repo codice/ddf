@@ -39,6 +39,7 @@ import javax.ws.rs.core.HttpHeaders;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -169,7 +170,7 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_NOT_FOUND));
-    assertThat(mockResponse.status(), is(404));
+    assertThat(mockResponse.status(), is(HttpStatus.NOT_FOUND_404));
   }
 
   @Test
@@ -181,7 +182,7 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_SUCCESS));
-    assertThat(mockResponse.status(), is(200));
+    assertThat(mockResponse.status(), is(HttpStatus.OK_200));
     assertTrue(
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
@@ -197,7 +198,7 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_SUCCESS));
-    assertThat(mockResponse.status(), is(200));
+    assertThat(mockResponse.status(), is(HttpStatus.OK_200));
     assertTrue(
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
