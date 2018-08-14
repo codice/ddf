@@ -146,7 +146,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
         new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
     metacard.setAttribute(
         new AttributeImpl(
-            GeoCodingConstants.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
+            GeoEntryAttributes.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
     if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
