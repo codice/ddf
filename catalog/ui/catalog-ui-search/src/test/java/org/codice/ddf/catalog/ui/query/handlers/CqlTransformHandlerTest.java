@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.catalog.ui.query.handlers;
 
+import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -27,7 +29,9 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.activation.MimeType;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +57,7 @@ public class CqlTransformHandlerTest {
   @Mock private BundleContext mockBundleContext;
   @Mock private EndpointUtil mockEndpointUtil;
   @Mock private Request mockRequest;
-  @Mock private Response mockResponse;
+  // @Mock private Response mockResponse;
   @Mock private CqlQueryResponse mockCqlQueryResponse;
   @Mock private QueryResponse mockQueryResponse;
   @Mock private QueryResponseTransformer mockServiceReference;
@@ -71,10 +75,67 @@ public class CqlTransformHandlerTest {
   private static final String CONTENT = "test";
   private static final String SERVICE_NOT_FOUND = "{\"message\":\"Service not found\"}";
   private static final String SERVICE_SUCCESS = "";
+  private static final String ATTACHMENT_REGEX =
+      "^attachment;filename=export-\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\dZ."
+          + RETURN_ID
+          + "$";
+
+  private class MockResponse extends Response {
+
+    String contentType = "";
+    int statusCode = 0;
+    Map<String, String> headers = new HashMap<>();
+    HttpServletResponse mockHttpServletResponse;
+
+    MockResponse(HttpServletResponse mockHttpServletResponse) {
+      this.mockHttpServletResponse = mockHttpServletResponse;
+    }
+
+    @Override
+    public void type(String contentType) {
+      this.contentType = contentType;
+    }
+
+    @Override
+    public String type() {
+      return this.contentType;
+    }
+
+    @Override
+    public void status(int statusCode) {
+      this.statusCode = statusCode;
+    }
+
+    @Override
+    public int status() {
+      return this.statusCode;
+    }
+
+    @Override
+    public void header(String header, String value) {
+      headers.put(header, value);
+    }
+
+    public Map<String, String> getHeaders() {
+      return this.headers;
+    }
+
+    @Override
+    public HttpServletResponse raw() {
+      return this.mockHttpServletResponse;
+    }
+  }
+
+  private MockResponse mockResponse;
 
   @Before
   public void setUp() throws Exception {
+
     initMocks(this);
+
+    when(mockHttpServiceResponse.getOutputStream()).thenReturn(mockServletOutputStream);
+
+    mockResponse = new MockResponse(mockHttpServiceResponse);
 
     queryResponseTransformers = new ArrayList<>();
 
@@ -99,10 +160,6 @@ public class CqlTransformHandlerTest {
 
     when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
         .thenReturn(binaryContent);
-
-    when(mockResponse.raw()).thenReturn(mockHttpServiceResponse);
-
-    when(mockHttpServiceResponse.getOutputStream()).thenReturn(mockServletOutputStream);
   }
 
   @Test
@@ -112,6 +169,7 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_NOT_FOUND));
+    assertThat(mockResponse.status(), is(404));
   }
 
   @Test
@@ -123,6 +181,10 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_SUCCESS));
+    assertThat(mockResponse.status(), is(200));
+    assertTrue(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
+    assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
   }
 
   @Test
@@ -134,5 +196,9 @@ public class CqlTransformHandlerTest {
     String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
 
     assertThat(res, is(SERVICE_SUCCESS));
+    assertThat(mockResponse.status(), is(200));
+    assertTrue(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
+    assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
   }
 }
