@@ -82,10 +82,10 @@ public class CqlTransformHandlerTest {
 
   private class MockResponse extends Response {
 
-    String contentType = "";
-    int statusCode = 0;
-    Map<String, String> headers = new HashMap<>();
-    HttpServletResponse mockHttpServletResponse;
+    private String contentType = "";
+    private int statusCode = 0;
+    private Map<String, String> headers = new HashMap<>();
+    private HttpServletResponse mockHttpServletResponse;
 
     MockResponse(HttpServletResponse mockHttpServletResponse) {
       this.mockHttpServletResponse = mockHttpServletResponse;
@@ -185,6 +185,7 @@ public class CqlTransformHandlerTest {
     assertTrue(
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
+    assertThat(mockResponse.type(), is(MIME_TYPE));
   }
 
   @Test
@@ -200,5 +201,6 @@ public class CqlTransformHandlerTest {
     assertTrue(
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
+    assertThat(mockResponse.type(), is(MIME_TYPE));
   }
 }
