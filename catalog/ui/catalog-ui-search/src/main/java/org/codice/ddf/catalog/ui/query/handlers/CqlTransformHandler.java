@@ -24,7 +24,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-import javax.validation.constraints.Null;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -100,7 +99,7 @@ public class CqlTransformHandler implements Route {
     ServiceReference<QueryResponseTransformer> queryResponseTransformer =
         queryResponseTransformers
             .stream()
-            .filter(transformer -> transformer.getProperty("id").equals(transformerId))
+            .filter(transformer -> transformerId.equals(transformer.getProperty("id")))
             .findFirst()
             .orElse(null);
 
@@ -139,7 +138,8 @@ public class CqlTransformHandler implements Route {
     response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
   }
 
-  private String getFileExtFromMimeType(String mimeType) throws MimeTypeException, NullPointerException {
+  private String getFileExtFromMimeType(String mimeType)
+      throws MimeTypeException, NullPointerException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (fileExt == null || StringUtils.isEmpty(fileExt)) {
