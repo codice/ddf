@@ -207,8 +207,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     LOGGER.trace("Uninstalling feature {}", feature);
 
     try {
-      featuresService.uninstallFeature(
-          feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                featuresService.uninstallFeature(
+                    feature, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+                return null;
+              });
     } catch (VirtualMachineError e) {
       throw e;
     } catch (PrivilegedActionException e) {
