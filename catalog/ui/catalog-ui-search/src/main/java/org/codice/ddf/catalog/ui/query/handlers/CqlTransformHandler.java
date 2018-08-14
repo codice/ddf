@@ -24,7 +24,9 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
+import javax.validation.constraints.Null;
 import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.boon.json.JsonParserFactory;
@@ -83,6 +85,10 @@ public class CqlTransformHandler implements Route {
 
     try {
       cqlRequest = mapper.readValue(body, CqlRequest.class);
+      if (cqlRequest == null) {
+        LOGGER.debug("Cql request parsed from body evaluated to  null.");
+        throw new NullPointerException("Cql request is null.");
+      }
     } catch (Exception e) {
       LOGGER.debug("Error fetching cql request, empty or invalid body.");
       response.status(HttpStatus.BAD_REQUEST_400);
@@ -112,7 +118,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
-      throws MimeTypeException {
+      throws MimeTypeException, NullPointerException {
     String mimeType = content.getMimeTypeValue();
 
     if (mimeType == null) {
@@ -133,8 +139,13 @@ public class CqlTransformHandler implements Route {
     response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
   }
 
-  private String getFileExtFromMimeType(String mimeType) throws MimeTypeException {
+  private String getFileExtFromMimeType(String mimeType) throws MimeTypeException, NullPointerException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+    String fileExt = allTypes.forName(mimeType).getExtension();
+    if (fileExt == null || StringUtils.isEmpty(fileExt)) {
+      LOGGER.debug("Fetching file extension from mime-type resulted in null or empty.");
+      throw new NullPointerException("Failure fetching file extension from mime type");
+    }
     return allTypes.forName(mimeType).getExtension();
   }
 
@@ -147,7 +158,7 @@ public class CqlTransformHandler implements Route {
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse)
-      throws CatalogTransformerException, IOException, MimeTypeException {
+      throws CatalogTransformerException, IOException, MimeTypeException, NullPointerException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
