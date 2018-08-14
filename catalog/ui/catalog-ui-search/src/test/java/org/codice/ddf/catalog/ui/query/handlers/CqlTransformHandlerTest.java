@@ -36,6 +36,7 @@ import javax.activation.MimeType;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
+import org.boon.Boon;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -74,7 +75,7 @@ public class CqlTransformHandlerTest {
       "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
   private static final String CONTENT = "test";
   private static final String SERVICE_NOT_FOUND = "{\"message\":\"Service not found\"}";
-  private static final String SERVICE_SUCCESS = "";
+  private static final String SERVICE_SUCCESS = Boon.toJson("");
   private static final String ATTACHMENT_REGEX =
       "^attachment;filename=export-\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\dZ."
           + RETURN_ID
@@ -166,7 +167,7 @@ public class CqlTransformHandlerTest {
   public void testNoServiceFound() throws Exception {
     when(mockRequest.params(QUERY_PARAM)).thenReturn(OTHER_RETURN_ID);
 
-    String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
+    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
     assertThat(res, is(SERVICE_NOT_FOUND));
     assertThat(mockResponse.status(), is(HttpStatus.NOT_FOUND_404));
@@ -178,7 +179,7 @@ public class CqlTransformHandlerTest {
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
-    String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
+    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
@@ -194,7 +195,7 @@ public class CqlTransformHandlerTest {
 
     when(mockRequest.params(QUERY_PARAM)).thenReturn(RETURN_ID);
 
-    String res = (String) cqlTransformHandler.handle(mockRequest, mockResponse);
+    String res = Boon.toJson(cqlTransformHandler.handle(mockRequest, mockResponse));
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));

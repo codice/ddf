@@ -103,7 +103,7 @@ public class QueryApplication implements SparkApplication, Function {
           res.header("Content-Encoding", "gzip");
         });
 
-    post("/cql/transform/:transformerId", cqlTransformHandler);
+    post("/cql/transform/:transformerId", cqlTransformHandler, mapper::toJson);
 
     get(
         "/geofeature/suggestions",

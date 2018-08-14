@@ -86,7 +86,7 @@ public class CqlTransformHandler implements Route {
     } catch (Exception e) {
       LOGGER.debug("Error fetching cql request, empty or invalid body.");
       response.status(HttpStatus.BAD_REQUEST_400);
-      return mapper.toJson(ImmutableMap.of("message", "Bad request"));
+      return ImmutableMap.of("message", "Bad request");
     }
 
     LOGGER.trace("Finding transformer to transform query response.");
@@ -101,7 +101,7 @@ public class CqlTransformHandler implements Route {
     if (queryResponseTransformer == null) {
       LOGGER.debug("Could not find transformer with id: {}", transformerId);
       response.status(HttpStatus.NOT_FOUND_404);
-      return mapper.toJson(ImmutableMap.of("message", "Service not found"));
+      return ImmutableMap.of("message", "Service not found");
     }
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
