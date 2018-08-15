@@ -51,6 +51,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
@@ -241,6 +242,21 @@ public class MetacardApplication implements SparkApplication {
         (req, res) -> {
           String id = req.params(":id");
           return util.getJson(validator.getFullValidation(util.getMetacard(id)));
+        });
+
+    post(
+        "/prevalidate",
+        APPLICATION_JSON,
+        (req, res) -> {
+          Map<String, Object> stringObjectMap =
+              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+          MetacardImpl metacard = new MetacardImpl();
+          stringObjectMap
+              .keySet()
+              .stream()
+              .map(s -> new AttributeImpl(s, (List<Serializable>) stringObjectMap.get(s)))
+              .forEach(metacard::setAttribute);
+          return util.getJson(validator.getValidation(metacard));
         });
 
     post(

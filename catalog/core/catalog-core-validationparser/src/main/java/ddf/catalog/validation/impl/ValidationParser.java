@@ -30,6 +30,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
+import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.impl.validator.EnumerationValidator;
 import ddf.catalog.validation.impl.validator.FutureDateValidator;
 import ddf.catalog.validation.impl.validator.ISO3CountryCodeValidator;
@@ -37,6 +38,7 @@ import ddf.catalog.validation.impl.validator.MatchAnyValidator;
 import ddf.catalog.validation.impl.validator.PastDateValidator;
 import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.RangeValidator;
+import ddf.catalog.validation.impl.validator.RelationshipValidator;
 import ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator;
 import ddf.catalog.validation.impl.validator.SizeValidator;
 import java.io.File;
@@ -48,6 +50,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -399,7 +402,13 @@ public class ValidationParser implements ArtifactInstaller {
       Changeset changeset, Map<String, List<Outer.Validator>> validators) {
     List<Callable<Boolean>> staged = new ArrayList<>();
     for (Map.Entry<String, List<Outer.Validator>> entry : validators.entrySet()) {
-      Set<AttributeValidator> attributeValidators = validatorFactory(entry.getValue());
+      Set<ValidatorWrapper> validatorWrappers = validatorFactory(entry.getKey(), entry.getValue());
+      Set<AttributeValidator> attributeValidators =
+          validatorWrappers
+              .stream()
+              .map(ValidatorWrapper::getAttributeValidators)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
       String attributeName = entry.getKey();
       staged.add(
           () -> {
@@ -407,16 +416,47 @@ public class ValidationParser implements ArtifactInstaller {
             changeset.attributeValidators.put(attributeName, attributeValidators);
             return true;
           });
+      validatorWrappers
+          .stream()
+          .map(ValidatorWrapper::getMetacardValidators)
+          .flatMap(Collection::stream)
+          .collect(Collectors.toSet())
+          .forEach(
+              validator ->
+                  staged.add(
+                      () -> {
+                        ServiceRegistration<MetacardValidator> registration =
+                            getBundleContext()
+                                .registerService(MetacardValidator.class, validator, null);
+                        changeset.metacardValidatorServices.add(registration);
+                        return registration != null;
+                      }));
+      validatorWrappers
+          .stream()
+          .map(ValidatorWrapper::getReportingMetacardValidators)
+          .flatMap(Collection::stream)
+          .collect(Collectors.toSet())
+          .forEach(
+              validator ->
+                  staged.add(
+                      () -> {
+                        ServiceRegistration<ReportingMetacardValidator> registration =
+                            getBundleContext()
+                                .registerService(ReportingMetacardValidator.class, validator, null);
+                        changeset.reportingMetacardValidatorServices.add(registration);
+                        return registration != null;
+                      }));
     }
     return staged;
   }
 
-  private Set<AttributeValidator> validatorFactory(List<Outer.Validator> validators) {
+  private Set<ValidatorWrapper> validatorFactory(
+      String attribute, List<Outer.Validator> validators) {
     return validators
         .stream()
         .filter(Objects::nonNull)
         .filter(v -> StringUtils.isNotBlank(v.validator))
-        .map(this::getValidator)
+        .map((Outer.Validator key) -> getValidator(attribute, key))
         .collect(toSet());
   }
 
@@ -475,36 +515,43 @@ public class ValidationParser implements ArtifactInstaller {
     return metacardValidators;
   }
 
-  private AttributeValidator getValidator(Outer.Validator validator) {
+  private ValidatorWrapper getValidator(String key, Outer.Validator validator) {
+    ValidatorWrapper wrapper = new ValidatorWrapper();
     switch (validator.validator) {
       case "size":
         {
           long lmin = Long.parseLong(validator.arguments.get(0));
           long lmax = Long.parseLong(validator.arguments.get(1));
-          return new SizeValidator(lmin, lmax);
+          wrapper.attributeValidator(new SizeValidator(lmin, lmax));
+          break;
         }
       case "pattern":
         {
           String regex = validator.arguments.get(0);
-          return new PatternValidator(regex);
+          wrapper.attributeValidator(new PatternValidator(regex));
+          break;
         }
       case "pastdate":
         {
-          return PastDateValidator.getInstance();
+          wrapper.attributeValidator(PastDateValidator.getInstance());
+          break;
         }
       case "futuredate":
         {
-          return FutureDateValidator.getInstance();
+          wrapper.attributeValidator(FutureDateValidator.getInstance());
+          break;
         }
       case "enumeration":
         {
           Set<String> values = new HashSet<>(validator.arguments);
-          return new EnumerationValidator(values, false);
+          wrapper.attributeValidator(new EnumerationValidator(values, false));
+          break;
         }
       case "enumerationignorecase":
         {
           Set<String> values = new HashSet<>(validator.arguments);
-          return new EnumerationValidator(values, true);
+          wrapper.attributeValidator(new EnumerationValidator(values, true));
+          break;
         }
       case "range":
         {
@@ -512,26 +559,84 @@ public class ValidationParser implements ArtifactInstaller {
           BigDecimal max = new BigDecimal(validator.arguments.get(1));
           if (validator.arguments.size() > 2) {
             BigDecimal epsilon = new BigDecimal(validator.arguments.get(2));
-            return new RangeValidator(min, max, epsilon);
+            wrapper.attributeValidator(new RangeValidator(min, max, epsilon));
           }
-          return new RangeValidator(min, max);
+          wrapper.attributeValidator(new RangeValidator(min, max));
+          break;
         }
       case "iso3_country":
         {
-          return new ISO3CountryCodeValidator(false);
+          wrapper.attributeValidator(new ISO3CountryCodeValidator(false));
+          break;
         }
       case "iso3_countryignorecase":
         {
-          return new ISO3CountryCodeValidator(true);
+          wrapper.attributeValidator(new ISO3CountryCodeValidator(true));
+          break;
         }
       case "match_any":
         {
           List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
-          return new MatchAnyValidator(
-              collection.stream().map(this::getValidator).collect(Collectors.toList()));
+          wrapper.attributeValidator(
+              new MatchAnyValidator(
+                  collection
+                      .stream()
+                      .map((Outer.Validator key1) -> getValidator(key, key1))
+                      .map(ValidatorWrapper::getAttributeValidators)
+                      .flatMap(Collection::stream)
+                      .collect(Collectors.toList())));
+          break;
+        }
+      case "relationship":
+        {
+          RelationshipValidator relationshipValidator =
+              new RelationshipValidator(
+                  key,
+                  validator.arguments.get(0),
+                  validator.arguments.get(1),
+                  validator.arguments.get(2),
+                  validator
+                      .arguments
+                      .subList(3, validator.arguments.size())
+                      .toArray(new String[] {}));
+          wrapper.metacardValidator(relationshipValidator);
+          wrapper.reportingMetacardValidator(relationshipValidator);
+          break;
         }
       default:
         throw new IllegalStateException("Validator does not exist. (" + validator.validator + ")");
+    }
+    return wrapper;
+  }
+
+  /** TODO DDF-3578 once MetacardValidator is eliminated, this pattern can be cleaned up */
+  private class ValidatorWrapper {
+    private List<MetacardValidator> metacardValidators = new ArrayList<>();
+    private List<ReportingMetacardValidator> reportingMetacardValidators = new ArrayList<>();
+    private List<AttributeValidator> attributeValidators = new ArrayList<>();
+
+    void attributeValidator(AttributeValidator validator) {
+      attributeValidators.add(validator);
+    }
+
+    void metacardValidator(MetacardValidator validator) {
+      metacardValidators.add(validator);
+    }
+
+    void reportingMetacardValidator(ReportingMetacardValidator validator) {
+      reportingMetacardValidators.add(validator);
+    }
+
+    public List<MetacardValidator> getMetacardValidators() {
+      return metacardValidators;
+    }
+
+    public List<ReportingMetacardValidator> getReportingMetacardValidators() {
+      return reportingMetacardValidators;
+    }
+
+    public List<AttributeValidator> getAttributeValidators() {
+      return attributeValidators;
     }
   }
 
@@ -636,6 +741,7 @@ public class ValidationParser implements ArtifactInstaller {
     if (changeset != null) {
       undoMetacardTypes(changeset.metacardTypeServices);
       undoMetacardValidators(changeset.metacardValidatorServices);
+      undoReportingMetacardValidators(changeset.reportingMetacardValidatorServices);
       undoAttributes(changeset.attributes);
       undoDefaults(changeset.defaults);
       undoAttributeValidators(changeset.attributeValidators);
@@ -652,6 +758,11 @@ public class ValidationParser implements ArtifactInstaller {
   private void undoMetacardValidators(
       List<ServiceRegistration<MetacardValidator>> metacardValidatorServices) {
     metacardValidatorServices.forEach(ServiceRegistration::unregister);
+  }
+
+  private void undoReportingMetacardValidators(
+      List<ServiceRegistration<ReportingMetacardValidator>> reportingMetacardValidatorServices) {
+    reportingMetacardValidatorServices.forEach(ServiceRegistration::unregister);
   }
 
   private void undoAttributes(Set<AttributeDescriptor> attributes) {
@@ -764,6 +875,9 @@ public class ValidationParser implements ArtifactInstaller {
 
     private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
         new ArrayList<>();
+
+    private final List<ServiceRegistration<ReportingMetacardValidator>>
+        reportingMetacardValidatorServices = new ArrayList<>();
 
     private final Set<AttributeDescriptor> attributes = new HashSet<>();
 

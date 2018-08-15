@@ -165,21 +165,21 @@ define([
         },
         updateValidation: function(validationReport){
             this._validationReport = validationReport;
-            var $validationElement = this.$el.find('> .property-label .property-validation');
+            var $validationElement = this.$el.find('.property-validation');
             if (validationReport.errors.length > 0){
                 this.$el.removeClass('has-warning').addClass('has-error');
                 $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
                 var validationMessage = validationReport.errors.reduce(function(totalMessage, currentMessage){
                     return totalMessage + currentMessage;
                 }, '');
-                $validationElement.attr('title', validationMessage);
+                this.setMessage($validationElement, validationMessage);
             } else if (validationReport.warnings.length > 0) {
                 this.$el.addClass('has-warning').removeClass('has-error');
                 $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
                 var validationMessage = validationReport.warnings.reduce(function(totalMessage, currentMessage){
                     return totalMessage + currentMessage;
                 }, '');
-                $validationElement.attr('title', validationMessage);
+                this.setMessage($validationElement, validationMessage);
             }
             this.handleBulkValidation(validationReport);
         },
@@ -193,19 +193,29 @@ define([
                          var validationMessage = validationReport.errors.reduce(function(totalMessage, currentMessage){
                              return totalMessage + currentMessage;
                          }, '');
-                         $validationElement.attr('title', validationMessage);
+                         this.setMessage($validationElement, validationMessage);
                      } else if (validationReport.warnings.length > 0){
                          $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
                          var validationMessage = validationReport.warnings.reduce(function(totalMessage, currentMessage){
                              return totalMessage + currentMessage;
                          }, '');
-                         $validationElement.attr('title', validationMessage);
+                         this.setMessage($validationElement, validationMessage);
                      }
                  }
             });
         },
+        setMessage: function(elements, message){
+            _.forEach(elements, (function(el){
+                var element = $(el);
+                if(element.is('div')){
+                    element.find('.validationMessage').text(message);
+                } else {
+                    element.attr('title', message);
+                }
+            }));
+        },
         clearValidation: function(){
-            var $validationElement = this.$el.find('> .property-label .property-validation');
+            var $validationElement = this.$el.find('.property-validation');
             this.$el.removeClass('has-warning').removeClass('has-error');
             $validationElement.addClass('is-hidden');
 

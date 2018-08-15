@@ -13,6 +13,7 @@ import ddf.catalog.data.impl.MetacardTypeImpl
 import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
+import ddf.catalog.validation.ReportingMetacardValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
@@ -485,6 +486,24 @@ class ValidationParserSpec extends Specification {
         attributeValidatorRegistry.getValidators("title").size() == 2
     }
 
+    def "test relationship validator "() {
+        setup:
+        file.withPrintWriter { it.write(relationshipAttributeValidator) }
+
+        mockStatic(FrameworkUtil.class)
+        def Bundle mockBundle = Mock(Bundle)
+        when(FrameworkUtil.getBundle(ValidationParser.class)).thenReturn(mockBundle)
+
+        def BundleContext mockBundleContext = Mock(BundleContext)
+        mockBundle.getBundleContext() >> mockBundleContext
+
+        when:
+        validationParser.install(file)
+
+        then:
+        2 * mockBundleContext.registerService(*_)
+    }
+
 
     String valid = '''
 {
@@ -730,6 +749,19 @@ class ValidationParserSpec extends Specification {
                         "arguments": ["sc-[0-9]\\+"] 
                     }
                 ]
+            }
+        ]
+    }
+}
+'''
+
+    String relationshipAttributeValidator = '''
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "relationship",
+                "arguments": [null, "mustHave", "description", null]
             }
         ]
     }
