@@ -81,6 +81,16 @@ define([
         }
     }
 
+    // needed to handle erroneous or currently unknown attributes (they could be picked up after searching a source)
+    properties.basicSearchTemporalSelectionDefault.forEach((proposedType) => {
+        metacardStartingTypes[proposedType] = {
+            id: proposedType,
+            type: 'DATE',
+            alias: properties.attributeAliases[proposedType],
+            hidden: properties.isHidden(proposedType)
+        }
+    })
+
     return new (Backbone.Model.extend({
         initialize: function () {
             this.updateSortedMetacardTypes();

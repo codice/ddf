@@ -47,6 +47,10 @@
             width: 50%;
             transition: transform @coreTransitionTime linear, width @coreTransitionTime linear;
         }
+        > .footer-cancel,
+        > .footer-new {
+            width: 100%;
+        }
     }
 
     @keyframes new-ingest{
@@ -102,18 +106,17 @@
     }
 
     .details-footer button {
-        transform: translateX(-200%);
+        transform: translateX(-100%);
     }
 }
 
 @{customElementNamespace}ingest-details.is-finished {
     .details-footer button {
-        transform: translateX(-300%);
+        transform: translateX(-200%);
     }
 
     .details-footer button.footer-new {
-        transform: translateX(-150%);
-        width: 100%;
+        transform: translateX(-200%);
     }
 }
 

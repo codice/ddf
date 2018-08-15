@@ -19,8 +19,7 @@ priority "grant";
 //                        Content Directory Monitor (CDM) Permissions
 // Adding required permissions for a new Content Directory Monitor.
 //
-// If the directory being monitored is located in DDF's home directory or the CDM is being configured
-// to monitor a WebDav server, then adding these permissions is not required and these instructions can be ignored.
+// If monitoring a WebDav server, then adding these permissions is not required and these instructions can be ignored.
 //
 // Configuring CDM requires adding read and write permissions to the directory being monitored. For
 // each configured CDM, the following 2 permissions are required:
@@ -35,13 +34,27 @@ priority "grant";
 // If a CDM configuration is deleted, then the corresponding permissions that were added should be
 // deleted to avoid granting unnecessary permissions to parts of the system.
 //
-grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader" {
+grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader/com.google.guava/catalog-core-standardframework/org.apache.tika.core" {
     // Add required CDM permissions here.
 
     // Example:
     // permission java.io.FilePermission "/test/some/monitored/directory", "read";
     // permission java.io.FilePermission "/test/some/monitored/directory${/}-", "read, write";
 }
+
+//                        URL Resource Reader Permissions
+// Adding required permissions for the URL Resource Reader to retrieve file resources.
+//
+//
+// The default configuration of the URL Resource Reader prevents it from reading arbitrary directories. To read from a directory, permission entries need to be added to this policy file.
+// This is an example of how to give the URL Resource Reader permission to access a directory and everything it contains.
+// grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+     //# Add permission to read the directoroy
+     // permission java.io.FilePermission "/test/some/directory", "read";
+     
+     //# Add permission to recursively read the files and sub directories
+     // permission java.io.FilePermission "/test/some/directory${/}-", "read";
+// }
 
 //                       Security-Hardening: Backup Log File Permissions
 //  Adding required permissions to the logger for read and write access to modified backup log files

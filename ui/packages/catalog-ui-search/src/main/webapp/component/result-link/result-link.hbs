@@ -11,12 +11,13 @@
  *
  **/
  --}}
-<input class="query-title" placeholder="Search Name" value="{{this.title}}" data-help="Displays the name given to the search."/>
-<div class="is-actions">
-    <span class="button-title">
-        {{this.title}}
-    </span>
-    <span class="is-button fa fa-pencil trigger-edit"></span>
-    <div class="is-button search-interactions">
+<div class="is-header">
+    Follow External Link(s)
+</div>
+<div class="is-divider"></div>
+{{#each this}}
+    <div title="{{this}}">
+        <a href="{{this}}" target="_blank" class="is-link">{{this}}</a>
     </div>
+{{/each}}
 </div>

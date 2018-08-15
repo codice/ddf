@@ -81,9 +81,10 @@ program
 program
   .command('start')
   .description('start the dev server')
+  .option('-N, --no-open', 'do not open default browser')
   .option('-a, --auth <auth>', 'auth <username:password> (default: admin:admin)')
   .option('-e, --env <env>', 'build environment <development|test|production>')
-  .option('-o, --open', 'open default browser')
+  .option('--proxy <target>', 'set proxy target (default: https://localhost:8993)')
   .option('--port <port>', 'dev server port (default: 8080)')
   .option('--host <host>', 'dev server host (default: localhost)')
   .action(wrap('./lib/start'))

@@ -16,11 +16,13 @@ package ddf.catalog.source.solr;
 import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+import static ddf.catalog.Constants.SUGGESTION_BUILD_KEY;
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
+import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_BUILD;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_FILTER_QUERY;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
@@ -164,16 +166,23 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
 
-    Serializable suggestQueryProp = request.getPropertyValue(SUGGESTION_QUERY_KEY);
-    Serializable suggestContextProp = request.getPropertyValue(SUGGESTION_CONTEXT_KEY);
-    Serializable suggestDictProp = request.getPropertyValue(SUGGESTION_DICT_KEY);
+    Serializable suggestQuery = request.getPropertyValue(SUGGESTION_QUERY_KEY);
+    Serializable suggestContext = request.getPropertyValue(SUGGESTION_CONTEXT_KEY);
+    Serializable suggestDict = request.getPropertyValue(SUGGESTION_DICT_KEY);
 
-    if (suggestQueryProp instanceof String && suggestContextProp instanceof String) {
+    if (suggestQuery instanceof String
+        && suggestContext instanceof String
+        && suggestDict instanceof String) {
       query = new SolrQuery();
       query.setRequestHandler("/suggest");
-      query.setParam(SUGGEST_Q, (String) suggestQueryProp);
-      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, (String) suggestContextProp);
-      query.setParam(SUGGEST_DICT, (String) suggestDictProp);
+      query.setParam(SUGGEST_Q, (String) suggestQuery);
+      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, (String) suggestContext);
+      query.setParam(SUGGEST_DICT, (String) suggestDict);
+
+      Serializable buildSuggesterIndex = request.getPropertyValue(SUGGESTION_BUILD_KEY);
+      if (buildSuggesterIndex instanceof Boolean) {
+        query.setParam(SUGGEST_BUILD, (Boolean) buildSuggesterIndex);
+      }
     }
 
     long totalHits = 0;

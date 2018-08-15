@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,21 +9,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="details-text">
-    <div class="details-results" title="{{resultCount}}"> 
-        {{#if pending}}
-            <i class="fa fa-circle-o-notch fa-spin is-critical-animation"></i>
-        {{/if}}
-        {{#if failed}}
-            <i class="fa fa-warning"></i>
-        {{/if}}
-        {{resultCount}}
-    </div>
-    <div class="details-status" title="Last run {{queryStatus}}">
-        {{queryStatus}}
-    </div>
-</div>
-<div class="details-view is-button" title="Show the full status for the search." data-help="Show the full status for the search.">
+const Marionette = require('marionette');
+import { render } from 'react-dom';
+import React from 'react';
+const Parser = require('html-react-parser');
 
-</div>
+Marionette.ItemView.prototype.attachElContent = function(rendering) {
+    this.triggerMethod('before:react:attach', rendering); 
+    render(
+        React.isValidElement(rendering) ? rendering : Parser(rendering),
+        this.el
+    );
+    this.triggerMethod('after:react:attach', rendering);
+    return this;
+}

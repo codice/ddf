@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.codice.ddf.catalog.ui.security.ShareableMetacardImpl;
+import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 
 public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
 

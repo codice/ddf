@@ -89,7 +89,10 @@
         <aries.util.version>1.1.3</aries.util.version>
         <!-- END enterprise properties -->
 
-        <!-- START versions for CXF features -->
+        <!-- START versions for CXF features
+
+        DDF changes made
+        - Updated cxf.hibernate.validator.version to 5.3.6.Final and cxf.jasypt.bundle.version to 1.9.2_1 -->
         <!-- please maintain alphabetical order here -->
         <cxf.abdera.osgi.version>1.1.3_2</cxf.abdera.osgi.version>
         <cxf.abdera.version>1.1.3</cxf.abdera.version>
@@ -109,11 +112,11 @@
         </cxf.geronimo.transaction.version>
         <cxf.guava.version>${guava.version}</cxf.guava.version>
         <cxf.hazelcast.version>3.9.2</cxf.hazelcast.version>
-        <cxf.hibernate.validator.version>5.2.3.Final</cxf.hibernate.validator.version>
+        <cxf.hibernate.validator.version>5.3.6.Final</cxf.hibernate.validator.version>
         <cxf.httpcomponents.asyncclient.version>4.1.3</cxf.httpcomponents.asyncclient.version>
         <cxf.httpcomponents.core.version>4.4.9</cxf.httpcomponents.core.version>
         <cxf.james.mim4j.version>0.7.2</cxf.james.mim4j.version>
-        <cxf.jasypt.bundle.version>1.9.0_1</cxf.jasypt.bundle.version>
+        <cxf.jasypt.bundle.version>1.9.2_1</cxf.jasypt.bundle.version>
         <cxf.javassist.version>3.21.0-GA</cxf.javassist.version>
         <cxf.javax.annotation-api.version>${javax.annotation-api.version}
         </cxf.javax.annotation-api.version>

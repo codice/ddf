@@ -11,7 +11,7 @@ These subscriptions optionally specify a filter criteria so that only events o
 As metacards are created, updated, and deleted, the Catalog's Event Processor is invoked (as a post-ingest plugin) for each of these events.
 The Event Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
 
-For more information on creating subscriptions, see <<_creating_a_subscription,Creating a Subscription>>.
+For more information on creating subscriptions, see <<{integrating-prefix}creating_a_subscription,Creating a Subscription>>.
 
 ===== Installing the Event Processor
 

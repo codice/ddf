@@ -5,13 +5,15 @@
   "version": "0.0.1",
   "license": "LGPL-3.0",
   "scripts": {
-    "startplus": "ace start --open",
+    "prestart": "ace disable-idp",
     "start": "ace start",
     "pretest": "ace bundle --env=test",
     "test": "ace test ./target/test/index.html",
-    "testplus": "ace start --env=test --open",
+    "start:test": "ace start --env=test",
     "build": "ace bundle",
-    "postbuild": "ace package"
+    "postbuild": "ace package",
+    "m2": "yarn install:m2",
+    "install:m2": "ace clean && ace bundle && ace package && ace install"
   },
   "repository": {
     "type": "git",
@@ -55,6 +57,7 @@
     "font-awesome": "4.7",
     "geo-convex-hull": "1.2.0",
     "golden-layout": "1.5.8",
+    "html-react-parser": "0.4.6",
     "jquery": "3.2.1",
     "jquery-ui": "1.12.1",
     "jquery-ui-multiselect-widget": "1.17.0",
@@ -80,7 +83,7 @@
     "terraformer": "1.0.5",
     "terraformer-wkt-parser": "1.1.0",
     "urijs": "1.19.1",
-    "usng.js": "https://github.com/codice/usng.js#b756a1dddd6292d7af44db363131d848a87a2be2",
+    "usng.js": "0.2.3",
     "uuid": "2.0.2",
     "vis": "4.15.0",
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",

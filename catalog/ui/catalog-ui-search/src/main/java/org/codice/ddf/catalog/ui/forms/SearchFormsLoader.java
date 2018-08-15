@@ -23,6 +23,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -100,32 +103,43 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
    * <p>Caution should be exercised when executing code as system. Results from querying as system
    * are never returned to the client or cached. This means there is no risk of data leak.
    *
-   * @param framework the catalog framework, for creating system templates.
-   * @param util for querying the catalog.
+   * @param catalogFramework the catalog framework, for creating system templates.
+   * @param endpointUtil for querying the catalog.
    * @param systemTemplates system templates loaded from config.
    */
   public static void bootstrap(
-      CatalogFramework framework, EndpointUtil util, List<Metacard> systemTemplates) {
-    Set<String> queryTitles =
-        executeAsSystem(() -> titlesTransform(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG)));
-    Set<String> resultTitles =
-        executeAsSystem(() -> titlesTransform(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG)));
-
-    List<Metacard> dedupedTemplateMetacards =
-        Stream.concat(
-                systemTemplates
-                    .stream()
-                    .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
-                    .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
-                systemTemplates
-                    .stream()
-                    .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
-                    .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
-            .collect(Collectors.toList());
-
-    if (!dedupedTemplateMetacards.isEmpty()) {
-      executeAsSystem(() -> framework.create(new CreateRequestImpl(dedupedTemplateMetacards)));
+      CatalogFramework catalogFramework,
+      EndpointUtil endpointUtil,
+      List<Metacard> systemTemplates) {
+    Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    if (systemSubject == null) {
+      throw new SecurityException("Could not get systemSubject to initialize system templates");
     }
+
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+    Failsafe.with(
+            new RetryPolicy()
+                .retryOn(Collections.singletonList(RuntimeException.class))
+                .withMaxRetries(5)
+                .withBackoff(2, 60, TimeUnit.SECONDS))
+        .with(executor)
+        .onComplete(
+            (result, error) -> {
+              if (result != null) {
+                LOGGER.info("Successfully loaded System Search Forms {}", result);
+              } else if (error != null) {
+
+                LOGGER.error("Failed to load System Search Forms", error);
+              }
+              executor.shutdown();
+            })
+        .run(
+            () ->
+                systemSubject.execute(
+                    () ->
+                        SearchFormsLoader.createSystemMetacards(
+                            endpointUtil, systemTemplates, catalogFramework)));
   }
 
   @Override
@@ -337,26 +351,28 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     };
   }
 
-  /**
-   * Caution should be used with this, as it elevates the permissions to the System user.
-   *
-   * <p>Operations that throw an {@link Exception} will be tried (in total) a maximum of 3 times
-   * before actually failing.
-   *
-   * @param func What to execute as the System
-   * @param <T> Generic return type of func
-   * @return result of the callable func
-   */
-  private static <T> T executeAsSystem(Callable<T> func) {
-    Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
-    if (systemSubject == null) {
-      throw new SecurityException("Could not get systemSubject to initialize system templates");
+  private static void createSystemMetacards(
+      EndpointUtil util, List<Metacard> systemTemplates, CatalogFramework catalogFramework) {
+    Set<String> queryTitles = titlesTransform(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG));
+    Set<String> resultTitles = titlesTransform(util.getMetacardsByFilter(ATTRIBUTE_GROUP_TAG));
+    List<Metacard> dedupedTemplateMetacards =
+        Stream.concat(
+                systemTemplates
+                    .stream()
+                    .filter(QueryTemplateMetacard::isQueryTemplateMetacard)
+                    .filter(metacard -> !queryTitles.contains(metacard.getTitle())),
+                systemTemplates
+                    .stream()
+                    .filter(AttributeGroupMetacard::isAttributeGroupMetacard)
+                    .filter(metacard -> !resultTitles.contains(metacard.getTitle())))
+            .collect(Collectors.toList());
+
+    if (!dedupedTemplateMetacards.isEmpty()) {
+      try {
+        catalogFramework.create(new CreateRequestImpl(dedupedTemplateMetacards));
+      } catch (SourceUnavailableException | IngestException e) {
+        throw new RuntimeException("Could not load System Templates", e);
+      }
     }
-    return Failsafe.with(
-            new RetryPolicy()
-                .retryOn(Collections.singletonList(Exception.class))
-                .withMaxRetries(5)
-                .withBackoff(2, 60, TimeUnit.SECONDS))
-        .get(() -> systemSubject.execute(func));
   }
 }

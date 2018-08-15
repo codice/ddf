@@ -57,7 +57,7 @@ The name of the default `MetacardType` can be retrieved from `ddf.catalog.data
 The default metacard type has the following required attributes.
 Though the following attributes are required on all metacard types, setting their values is optional except for ID.
 
-<<_core_attributes,Core Attributes>>
+<<{metadata-prefix}core_attributes,Core Attributes>>
 
 [NOTE]
 ====
@@ -80,7 +80,7 @@ Required attributes must be the base of all extensible metacard types. 
 
 [WARNING]
 ====
-Not all <<_catalog_providers,Catalog Providers>> support extensible metacards.
+Not all <<{managing-prefix}catalog_providers,Catalog Providers>> support extensible metacards.
 Nevertheless, each Catalog Provider should at least have support for the default `MetacardType`; i.e., it should be able to store and query on the attributes and attribute formats specified by the default metacard type.
 Catalog providers are neither expected nor required to store attributes that are not in a given metacard's type.
 
@@ -107,7 +107,7 @@ While this component has been tested and is functional, it may change as more in
 ====
 
 The `MetacardTypeRegistry` allows ${branding} components, primarily catalog providers and sources, to make available the `MetacardTypes` that they support. 
-It maintains a list of all supported `MetacardTypes` in the `CatalogFramework`, so that other components such as <<_endpoints,Endpoints>>, <<_types_of_plugins,Plugins>>, and <<_transformers,Transformers>> can make use of those `MetacardTypes`. 
+It maintains a list of all supported `MetacardTypes` in the `CatalogFramework`, so that other components such as <<{integrating-prefix}endpoints,Endpoints>>, <<{architecture-prefix}types_of_plugins,Plugins>>, and <<{architecture-prefix}transformers,Transformers>> can make use of those `MetacardTypes`. 
 The `MetacardType` is essential for a component in the `CatalogFramework` to understand how it should interpret a metacard by knowing what attributes are available in that metacard. 
 
 For example, an endpoint receiving incoming metadata can perform a lookup in the `MetacardTypeRegistry` to find a corresponding `MetacardType`. 

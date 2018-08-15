@@ -60,17 +60,27 @@ module.exports = Backbone.Model.extend({
             issues: false
         };
     },
+    bindCallbacks() {
+        this.handleUploadProgress = this.handleUploadProgress.bind(this);
+        this.handleSending = this.handleSending.bind(this);
+        this.handleSuccess = this.handleSuccess.bind(this);
+        this.handleError = this.handleError.bind(this);
+        this.handleComplete = this.handleComplete.bind(this);
+        this.handleQueueComplete = this.handleQueueComplete.bind(this);
+    },
     initialize: function(attributes, options) {
+        this.bindCallbacks();
         this.options = options;
         this.setupDropzoneListeners();
     },
     setupDropzoneListeners: function() {
         if (this.options.dropzone) {
-            this.options.dropzone.on('sending', this.handleSending.bind(this));
-            this.options.dropzone.on('uploadprogress', this.handleUploadProgress.bind(this));
-            this.options.dropzone.on('error', this.handleError.bind(this));
-            this.options.dropzone.on('success', this.handleSuccess.bind(this));
-            this.options.dropzone.on('complete', this.handleComplete.bind(this));
+            this.options.dropzone.on('sending', this.handleSending);
+            this.options.dropzone.on('uploadprogress', this.handleUploadProgress);
+            this.options.dropzone.on('error', this.handleError);
+            this.options.dropzone.on('success', this.handleSuccess);
+            this.options.dropzone.on('complete', this.handleComplete);
+            this.options.dropzone.on('queuecomplete', this.handleQueueComplete);
         }
     },
     handleSending: function(file) {
@@ -97,6 +107,21 @@ module.exports = Backbone.Model.extend({
     hasChildren() {
         return this.get('children') && this.get('children').length > 1;
     },
+    handleQueueComplete() {
+        // https://github.com/enyo/dropzone/blob/v4.3.0/dist/dropzone.js#L56
+        // if we remove callbacks too early this loop will fail, look to see if updating to latest fixes this
+        setTimeout(() => {
+            this.unlistenToDropzone();
+        }, 0);
+    },
+    unlistenToDropzone() {
+        this.options.dropzone.off('sending', this.handleSending);
+        this.options.dropzone.off('queuecomplete', this.handleQueueComplete);
+        this.options.dropzone.off('uploadprogress', this.handleUploadProgress);
+        this.options.dropzone.off('success', this.handleSuccess);
+        this.options.dropzone.off('error', this.handleError);
+        this.options.dropzone.off('complete', this.handleComplete);
+    },  
     handleSuccess: function(file) {
         if (fileMatches(file, this)) {
             let message = `${file.name} uploaded successfully.`;

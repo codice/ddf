@@ -12,13 +12,13 @@
  **/
  --}}
  <div class="if-editing">
-    <input id="{{cid}}" type="number" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}"
+    <input id="{{cid}}" type="number" placeholder="{{property.placeholder}}" name="{{property.id}}"
            {{#if property.min}} min="{{property.min}}" {{/if}}
            {{#if property.max}} max="{{property.max}}" {{/if}}>
     <div class="units">
         <span class="units-value">{{value}}</span><span class="units-label">{{property.units}}</span>
     </div>
-    <input id="{{cid}}" type="range" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}"
+    <input id="{{cid}}" type="range" placeholder="{{property.placeholder}}" name="{{property.id}}"
            {{#if property.min}} min="{{property.min}}" {{/if}}
            {{#if property.max}} max="{{property.max}}" {{/if}}>
  </div>

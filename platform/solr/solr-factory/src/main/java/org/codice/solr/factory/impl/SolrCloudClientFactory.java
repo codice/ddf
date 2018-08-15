@@ -129,7 +129,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       }
       if (!collections.contains(collection)) {
         response =
-            CollectionAdminRequest.createCollection(collection, shardCount, shardCount)
+            CollectionAdminRequest.createCollection(collection, collection, shardCount, shardCount)
                 .setMaxShardsPerNode(maximumShardsPerNode)
                 .setReplicationFactor(replicationFactor)
                 .process(client);

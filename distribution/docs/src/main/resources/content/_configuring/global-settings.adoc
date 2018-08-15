@@ -435,6 +435,13 @@ Thumbs.db
 
 6+^h|[[SolrProperties]]Solr Catalog Provider Properties
 
+|Start Solr server
+|start.solr
+|Boolean
+|If true, application manages Solr server lifecycle
+|true
+|Yes
+
 |Solr Catalog Client
 |solr.client
 |String
@@ -449,11 +456,11 @@ Thumbs.db
 |8994
 |Yes
 
-|Solr server URL
+|[[_solr_server_url]]Solr server URL
 |solr.http.url
 |String
 |URL for a HTTP Solr server (required for HTTP Solr)
-|http://localhost:${solr.http.port}/solr
+|https://localhost:8994/solr
 |Yes
 
 |Solr Data Directory

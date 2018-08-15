@@ -24,11 +24,7 @@
     "marionette": "backbone.marionette"
   },
   "scripts": {
-    "startplus": "ace start --open",
     "start": "ace start",
-    "pretest": "ace bundle --env=test",
-    "test": "ace test ./target/test/index.html",
-    "testplus": "ace start --env=test --open",
     "build": "ace bundle",
     "postbuild": "ace package"
   },

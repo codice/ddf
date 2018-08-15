@@ -33,9 +33,8 @@ public class SessionManagementApplication implements SparkApplication {
         "/session/expiry",
         (req, res) -> {
           String body = sessionManagement.getExpiry(req.raw());
-          res.body(body);
           res.status(200);
-          return res;
+          return body;
         });
 
     get(
@@ -45,12 +44,11 @@ public class SessionManagementApplication implements SparkApplication {
 
           if (body == null) {
             res.status(500);
-            return res;
+            return "";
           }
 
-          res.body(body);
           res.status(200);
-          return res;
+          return body;
         });
 
     get(
@@ -58,8 +56,7 @@ public class SessionManagementApplication implements SparkApplication {
         (req, res) -> {
           URI uri = sessionManagement.getInvalidate(req.raw());
           res.status(200);
-          res.body(uri.toString());
-          return res;
+          return uri.toString();
         });
   }
 }

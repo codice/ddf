@@ -324,6 +324,11 @@
             <artifactId>platform-configuration-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-metacard-sharing-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -359,6 +364,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
+                        <!--todo: why do we embed spark-core if it's a bundle? https://codice.atlassian.net/browse/DDF-3883-->
                         <Embed-Dependency>
                             antlr4-runtime,
                             c3p0,
@@ -383,7 +389,8 @@
                             versioning-common,
                             filter-v_2_0,
                             ows-v_1_1_0-schema,
-                            jaxb2-basics-runtime
+                            jaxb2-basics-runtime,
+                            catalog-ui-metacard-sharing-impl
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>

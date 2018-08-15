@@ -54,13 +54,19 @@ module.exports = Marionette.LayoutView.extend({
     dropzone: undefined,
     uploadBatchModel: undefined,
     dropzoneAnimationRequestDetails: undefined,
+    resetDropzone() {
+        this.dropzone.options.autoProcessQueue = false;
+    },
     triggerNewUpload() {
         this.onBeforeDestroy();
         this.render();
         this.onBeforeShow();
+        this.resetDropzone();
+    },
+    onFirstRender() {
+        this.setupDropzone();
     },
     onBeforeShow: function() {
-        this.setupDropzone();
         this.setupBatchModel();
         this.showFiles();
         this.showSummary();

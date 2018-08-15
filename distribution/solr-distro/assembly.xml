@@ -38,6 +38,12 @@
     </dependencySets>
     <fileSets>
         <fileSet>
+            <!--This can be removed once Solr is upgraded to 7.5/8.0-->
+            <!--https://issues.apache.org/jira/browse/SOLR-12538-->
+            <directory>src/main/resources/solrFiles</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.build.directory}/solr-${solr.version}</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
