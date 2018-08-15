@@ -124,10 +124,8 @@ public class CqlTransformHandler implements Route {
     }
 
     Arguments arguments = mapper.readValue(body, Arguments.class);
-    Map<String, Serializable> serializableArguments;
-    if (arguments.getArguments() == null) {
-      serializableArguments = Collections.emptyMap();
-    } else {
+    Map<String, Serializable> serializableArguments = Collections.emptyMap();
+    if (arguments.getArguments() != null) {
       serializableArguments = arguments.getSerializableArguments();
     }
 
