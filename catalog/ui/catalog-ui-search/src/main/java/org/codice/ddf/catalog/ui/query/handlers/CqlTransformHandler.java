@@ -154,7 +154,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
-      throws MimeTypeException, IllegalArgumentException {
+      throws MimeTypeException, IllegalArgumentException, NullPointerException {
     String mimeType = content.getMimeTypeValue();
 
     if (mimeType == null) {
@@ -186,8 +186,14 @@ public class CqlTransformHandler implements Route {
     return fileExt;
   }
 
-  private Boolean containsGzip(Request request) {
-    return request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP);
+  private Boolean containsGzip(Request request) throws NullPointerException {
+    Boolean containsGzip = false;
+    try {
+      containsGzip = request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP);
+    } catch (NullPointerException e) {
+      LOGGER.debug("Request header Accept-Encoding is null", e);
+    }
+    return containsGzip;
   }
 
   private void attachFileToResponse(
@@ -196,7 +202,8 @@ public class CqlTransformHandler implements Route {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Map<String, Serializable> arguments)
-      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException {
+      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException,
+          NullPointerException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
