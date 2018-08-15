@@ -13,21 +13,29 @@
  */
 package ddf.catalog.transformer.html.models;
 
-import ddf.catalog.data.Metacard;
-import java.util.List;
-import java.util.Map;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
-public interface HtmlExportCategory {
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import org.junit.Test;
 
-  void setTitle(String title);
+public class HtmlMediaModelTest {
 
-  String getTitle();
+  @Test
+  public void testNullRawData() {
+    HtmlMediaModel mediaModel = new HtmlMediaModel(null);
+    assertNull(mediaModel.getValue());
+  }
 
-  void setAttributeList(List<String> attributeList);
+  @Test
+  public void testValidRawData() {
+    String data = "Hello World";
+    byte[] rawData = data.getBytes(StandardCharsets.UTF_8);
+    byte[] encoded = Base64.getEncoder().encode(rawData);
 
-  List<String> getAttributeList();
-
-  void applyAttributeMappings(Metacard metacard);
-
-  Map<String, HtmlValueModel> getAttributes();
+    HtmlMediaModel mediaModel = new HtmlMediaModel(rawData);
+    assertThat(mediaModel.getValue(), is(new String(encoded)));
+  }
 }

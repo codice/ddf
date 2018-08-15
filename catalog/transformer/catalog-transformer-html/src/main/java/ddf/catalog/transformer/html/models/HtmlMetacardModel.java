@@ -55,11 +55,7 @@ public class HtmlMetacardModel {
     return this.categories;
   }
 
-  public void addCategory(HtmlExportCategory category) {
-    this.categories.add(category);
-  }
-
-  public void applyMetacard() {
+  private void applyMetacard() {
     for (HtmlExportCategory category : categories) {
       category.applyAttributeMappings(metacard);
     }

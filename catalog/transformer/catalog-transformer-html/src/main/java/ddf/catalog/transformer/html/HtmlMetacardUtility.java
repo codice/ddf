@@ -61,6 +61,16 @@ public class HtmlMetacardUtility {
   private List<HtmlExportCategory> categoryList;
 
   public HtmlMetacardUtility() {
+    this(HTML_TEMPLATE);
+  }
+
+  public HtmlMetacardUtility(List<HtmlExportCategory> categoryList) {
+    this(HTML_TEMPLATE);
+    this.categoryList = categoryList;
+    sortCategoryList();
+  }
+
+  public HtmlMetacardUtility(String template) {
     try {
       this.mimeType = new MimeType("text/html");
     } catch (MimeTypeParseException e) {
@@ -81,22 +91,20 @@ public class HtmlMetacardUtility {
     this.registerHelpers();
 
     try {
-      this.template = this.handlebars.compile(HTML_TEMPLATE);
+      this.template = this.handlebars.compile(template);
     } catch (IOException e) {
       LOGGER.warn("Failed to compile handlebars template {}", HTML_TEMPLATE, e);
     }
   }
 
-  public HtmlMetacardUtility(List<HtmlExportCategory> categoryList) {
-    this();
-    this.categoryList = categoryList;
-  }
-
-  private static List<HtmlExportCategory> sortCategoryList(List<HtmlExportCategory> categoryList) {
-    return categoryList
-        .stream()
-        .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
-        .collect(Collectors.toList());
+  public void sortCategoryList() {
+    if (this.categoryList != null) {
+      this.categoryList =
+          categoryList
+              .stream()
+              .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
+              .collect(Collectors.toList());
+    }
   }
 
   private void registerHelpers() {
@@ -146,10 +154,11 @@ public class HtmlMetacardUtility {
 
   public void setCategoryList(List<HtmlExportCategory> categoryList) {
     this.categoryList = categoryList;
+    sortCategoryList();
   }
 
   public List<HtmlExportCategory> getCategoryList() {
-    return sortCategoryList(this.categoryList);
+    return this.categoryList;
   }
 
   public MimeType getMimeType() {

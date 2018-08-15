@@ -13,13 +13,26 @@
  */
 package ddf.catalog.transformer.html;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.html.models.HtmlExportCategory;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 public class HtmlMetacardTransformerTest {
+
+  private static final String METACARD_CLASS = ".metacard";
 
   private static final List<HtmlExportCategory> EMPTY_CATEGORY_LIST = Collections.emptyList();
 
@@ -27,5 +40,23 @@ public class HtmlMetacardTransformerTest {
   public void testNullMetacardTransform() throws CatalogTransformerException {
     HtmlMetacardTransformer htmlTransformer = new HtmlMetacardTransformer(EMPTY_CATEGORY_LIST);
     htmlTransformer.transform(null, Collections.emptyMap());
+  }
+
+  @Test
+  public void testMetacardTransform() throws CatalogTransformerException, IOException {
+    Metacard metacard = new MetacardImpl();
+    HtmlMetacardTransformer htmlTransformer = new HtmlMetacardTransformer(EMPTY_CATEGORY_LIST);
+    BinaryContent binaryContent = htmlTransformer.transform(metacard, Collections.emptyMap());
+
+    Document doc = getHtmlDocument(binaryContent);
+
+    assertThat(doc.select(METACARD_CLASS), hasSize(1));
+  }
+
+  private Document getHtmlDocument(BinaryContent binaryContent) throws IOException {
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(binaryContent.getInputStream(), writer, "UTF-8");
+
+    return Jsoup.parse(writer.toString());
   }
 }

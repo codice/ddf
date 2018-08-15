@@ -14,6 +14,8 @@
 package ddf.catalog.transformer.html;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import ddf.catalog.data.Metacard;
@@ -26,12 +28,15 @@ import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.activation.MimeTypeParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
 public class HtmlMetacardUtilityTest {
+
+  private static final String TEMPLATE_NOT_FOUND = "notFound.hbs";
 
   private static final String METACARD_CLASS = ".metacard";
   private static final String CATEGORY_CLASS = ".metacard-category";
@@ -156,6 +161,43 @@ public class HtmlMetacardUtilityTest {
     Document doc = Jsoup.parse(htmlMetacardUtility.buildHtml(metacardModelList));
 
     assertThat(doc.select(MEDIA_ATTRIBUTE_CLASS), hasSize(1));
+  }
+
+  @Test
+  public void testNullHtmlMetacardModelList() {
+    assertNull(this.htmlMetacardUtility.buildHtml(null));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testTemplateNotFound() {
+    HtmlMetacardUtility utility = new HtmlMetacardUtility(TEMPLATE_NOT_FOUND);
+    utility.buildHtml(new ArrayList<>());
+  }
+
+  @Test
+  public void testSortCategoryList() {
+    List<HtmlExportCategory> categoryList = new ArrayList<>();
+    categoryList.add(new HtmlCategoryModel("Zebra", null));
+    categoryList.add(new HtmlCategoryModel("Alpaca", null));
+
+    HtmlMetacardUtility utility = new HtmlMetacardUtility(categoryList);
+    utility.sortCategoryList();
+
+    assertThat(utility.getCategoryList().get(0).getTitle(), is("Alpaca"));
+  }
+
+  @Test
+  public void testSortNullCategoryList() {
+    HtmlMetacardUtility utility = new HtmlMetacardUtility();
+    utility.setCategoryList(null);
+    utility.sortCategoryList();
+
+    assertNull(utility.getCategoryList());
+  }
+
+  @Test
+  public void testBaseMimeType() throws MimeTypeParseException {
+    assertThat(this.htmlMetacardUtility.getMimeType().getBaseType(), is("text/html"));
   }
 
   private List<HtmlExportCategory> getAllEmptyCategories(String[] categoryTitles) {
