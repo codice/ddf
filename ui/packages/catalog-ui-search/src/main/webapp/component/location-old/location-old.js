@@ -13,12 +13,11 @@
 define([
     'underscore',
     'backbone',
-    'wellknown/wellknown',
     'usng.js/usng',
     'js/store',
     'js/Common',
-    'wreqr'
-], function (_, Backbone, wellknown, usngs, store, Common, wreqr) {
+    'require'
+], function (_, Backbone, usngs, store, Common, require) {
 
     var converter = new usngs.Converter();
     var minimumDifference = 0.0001;
@@ -27,6 +26,13 @@ define([
     // offset used by utm for southern hemisphere
     var northingOffset = 10000000;
     var usngPrecision = 6;
+    const {
+        dmsCoordinateToDD,
+        parseDmsCoordinate,
+        ddToDmsCoordinateLat,
+        ddToDmsCoordinateLon,
+        getSecondsPrecision
+     } = require('component/location-new/utils/dms-utils');
 
     function convertToValid(key, model){
         if (key.mapSouth !== undefined && 
@@ -79,6 +85,14 @@ define([
             east: undefined,
             south: undefined,
             west: undefined,
+            dmsNorth: '',
+            dmsSouth: '',
+            dmsEast: '',
+            dmsWest: '',
+            dmsNorthDirection: 'N',
+            dmsSouthDirection: 'N',
+            dmsEastDirection: 'E',
+            dmsWestDirection: 'E',
             mapNorth: undefined,
             mapEast: undefined,
             mapWest: undefined,
@@ -88,6 +102,10 @@ define([
             locationType: 'latlon',
             lat: undefined,
             lon: undefined,
+            dmsLat: '',
+            dmsLon: '',
+            dmsLatDirection: 'N',
+            dmsLonDirection: 'E',
             bbox: undefined,
             usngbb: undefined,
             usng: undefined,
@@ -129,6 +147,12 @@ define([
                                
         initialize: function(){
             this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
+            this.listenTo(this, 'change:dmsNorth change:dmsNorthDirection', this.setBboxDmsNorth);
+            this.listenTo(this, 'change:dmsSouth change:dmsSouthDirection', this.setBboxDmsSouth);
+            this.listenTo(this, 'change:dmsEast change:dmsEastDirection', this.setBboxDmsEast);
+            this.listenTo(this, 'change:dmsWest change:dmsWestDirection', this.setBboxDmsWest);
+            this.listenTo(this, 'change:dmsLat change:dmsLatDirection', this.setRadiusDmsLat);
+            this.listenTo(this, 'change:dmsLon change:dmsLonDirection', this.setRadiusDmsLon);
             this.listenTo(this, 'change:locationType', this.handleLocationType);
             this.listenTo(this, 'change:bbox', this.setBboxLatLon);
             this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
@@ -249,6 +273,8 @@ define([
                     function(_this) { _this.clearUtmLowerRight(true); });
 
                 this.set(result);
+            } else if (this.get('locationType') === "dms") {
+                this.setBboxDmsFromMap();
             }
         },
 
@@ -302,9 +328,8 @@ define([
             var lat = this.get('lat'),
                 lon = this.get('lon');
 
-            if (store.get('content').get('drawing') || this.get('locationType') === 'latlon') {
-
-            if (lat !== undefined && lon !== undefined) {
+            if (((store.get('content').get('drawing') || this.get('locationType') === 'latlon'))
+                  && lat !== undefined && lon !== undefined) {
                 try {
                     var usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision);
                     this.set('usng', usngsStr, {silent: true});
@@ -324,7 +349,14 @@ define([
 
                 }
             }
-            }
+        },
+
+        setRadiusDmsLat: function() {
+            this.setLatLonFromDms('dmsLat', 'dmsLatDirection', 'lat');
+        },
+
+        setRadiusDmsLon: function() {
+            this.setLatLonFromDms('dmsLon', 'dmsLonDirection', 'lon');
         },
 
         setBboxUsng: function () {
@@ -463,6 +495,69 @@ define([
             }
         },
 
+        setBboxDmsNorth: function() {
+            this.setLatLonFromDms('dmsNorth', 'dmsNorthDirection', 'north');
+        },
+
+        setBboxDmsSouth: function() {
+            this.setLatLonFromDms('dmsSouth', 'dmsSouthDirection', 'south');
+        },
+
+        setBboxDmsEast: function() {
+            this.setLatLonFromDms('dmsEast', 'dmsEastDirection', 'east');
+        },
+
+        setBboxDmsWest: function() {
+            this.setLatLonFromDms('dmsWest', 'dmsWestDirection', 'west');
+        },
+
+        setBboxDmsFromMap: function() {
+            const dmsNorth = ddToDmsCoordinateLat(this.get('mapNorth'), getSecondsPrecision(this.get('dmsNorth')));
+            const dmsSouth = ddToDmsCoordinateLat(this.get('mapSouth'), getSecondsPrecision(this.get('dmsSouth')));
+            const dmsWest = ddToDmsCoordinateLon(this.get('mapWest'), getSecondsPrecision(this.get('dmsWest')));
+            const dmsEast = ddToDmsCoordinateLon(this.get('mapEast'), getSecondsPrecision(this.get('dmsEast')));
+            this.set({
+                dmsNorth: (dmsNorth && dmsNorth.coordinate) || '',
+                dmsNorthDirection: (dmsNorth && dmsNorth.direction) || 'N',
+                dmsSouth: (dmsSouth && dmsSouth.coordinate) || '',
+                dmsSouthDirection: (dmsSouth && dmsSouth.direction) || 'N',
+                dmsWest: (dmsWest && dmsWest.coordinate) || '',
+                dmsWestDirection: (dmsWest && dmsWest.direction) || 'E',
+                dmsEast: (dmsEast && dmsEast.coordinate) || '',
+                dmsEastDirection: (dmsEast && dmsEast.direction) || 'E'
+            });
+        },
+
+        setRadiusDmsFromMap: function() {
+            const dmsLat = ddToDmsCoordinateLat(this.get('lat'), getSecondsPrecision(this.get('dmsLat')));
+            const dmsLon = ddToDmsCoordinateLon(this.get('lon'), getSecondsPrecision(this.get('dmsLon')));
+            this.set({
+                dmsLat: (dmsLat && dmsLat.coordinate) || '',
+                dmsLatDirection: (dmsLat && dmsLat.direction) || 'N',
+                dmsLon: (dmsLon && dmsLon.coordinate) || '',
+                dmsLonDirection: (dmsLon && dmsLon.direction) || 'E',
+            });
+        },
+
+        setLatLonFromDms: function (dmsCoordinateKey, dmsDirectionKey, latLonKey) {
+            const coordinate = {};
+            coordinate.coordinate = this.get(dmsCoordinateKey);
+
+            const isDmsInputIncomplete = coordinate.coordinate && coordinate.coordinate.includes("_");
+            if (isDmsInputIncomplete) {
+                return;
+            }
+
+            coordinate.direction = this.get(dmsDirectionKey);
+
+            const dmsCoordinate = parseDmsCoordinate(coordinate);
+            if (dmsCoordinate) {
+                this.set(latLonKey, dmsCoordinateToDD(dmsCoordinate));
+            } else {
+                this.set(latLonKey, undefined);
+            }
+        },
+
         handleLocationType: function(){
             if (this.get('locationType') === 'latlon') {
                 this.set({
@@ -471,6 +566,9 @@ define([
                     east: this.get('mapEast'),
                     west: this.get('mapWest')
                 });
+            } else if (this.get('locationType') === 'dms') {
+                this.setBboxDmsFromMap();
+                this.setRadiusDmsFromMap();
             }
         },
 
@@ -672,7 +770,5 @@ define([
         parseUtmPointRadius: function() {
             return this.parseUtm(this.get('utmEasting'), this.get('utmNorthing'), this.get('utmZone'), this.get('utmHemisphere'));
         }
-
-
     });
 });

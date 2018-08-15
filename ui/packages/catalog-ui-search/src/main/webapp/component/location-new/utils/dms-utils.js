@@ -19,6 +19,10 @@ const errorMessages = require('./errors');
 const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$');
 const minimumDifference = 0.0001;
 
+const LAT_DEGREES_DIGITS = 2;
+const LON_DEGREES_DIGITS = 3;
+const DEFAULT_SECONDS_PRECISION = 4;
+
 function dmsCoordinateIsBlank(coordinate) {
     return coordinate.coordinate.length === 0;
 }
@@ -264,8 +268,82 @@ function validateDms(dms) {
     return { valid: valid, error: error };
 }
 
+/*
+ *  Decimal degrees -> DMS conversion utils
+ */
+function ddToDmsCoordinateLat(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    if (isNaN(dd)) {
+        return undefined;
+    }
+
+    const direction = dd >= 0 ? 'N' : 'S';
+    return ddToDmsCoordinate(dd, direction, LAT_DEGREES_DIGITS, secondsPrecision);
+}
+
+function ddToDmsCoordinateLon(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    if (isNaN(dd)) {
+        return undefined;
+    }
+
+    const direction = dd >= 0 ? 'E' : 'W';
+    return ddToDmsCoordinate(dd, direction, LON_DEGREES_DIGITS, secondsPrecision);
+}
+
+function ddToDmsCoordinate(dd, direction, degreesPad, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    const ddAbsoluteValue = Math.abs(dd);
+    const degrees = Math.trunc(ddAbsoluteValue);
+    const degreeFraction = ddAbsoluteValue - degrees;
+    const minutes = Math.trunc(60 * degreeFraction);
+    const seconds = 3600 * degreeFraction - 60 * minutes;
+    const secondsRounded = roundTo(seconds, secondsPrecision);
+    return {
+        coordinate: `${pad(degrees, degreesPad)}°${pad(minutes, 2)}'${padDecimal(secondsRounded, 2)}"`,
+        direction: direction
+    };
+}
+
+function roundTo(num, sigDigits) {
+    const scaler = 10 ** sigDigits;
+    return Math.round(num * scaler) / scaler;
+}
+
+function pad(num, width) {
+    let numStr = num.toString();
+    while (numStr.length < width) {
+        numStr = '0' + numStr;
+    }
+    return numStr;
+}
+
+function padDecimal(num, width) {
+    let numStr = num.toString();
+    if (numStr.indexOf('.') < 0) {
+        return pad(num, width);
+    }
+    while (numStr.indexOf('.') < width) {
+        numStr = '0' + numStr;
+    }
+    return numStr;
+}
+
+function getSecondsPrecision(dmsCoordinate) {
+    const decimalIndex = dmsCoordinate.indexOf('.');
+    // Must subtract 2 instead of 1 because the DMS coordinate ends with "
+    const lastNumberIndex = dmsCoordinate.length - 2;
+    if (decimalIndex > -1 && lastNumberIndex > decimalIndex) {
+        return lastNumberIndex - decimalIndex;
+    } else {
+        return undefined;
+    }
+}
+
 module.exports = {
     dmsToWkt,
     validateDms,
-    validateDmsPoint
+    validateDmsPoint,
+    dmsCoordinateToDD,
+    parseDmsCoordinate,
+    ddToDmsCoordinateLat,
+    ddToDmsCoordinateLon,
+    getSecondsPrecision
 };

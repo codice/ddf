@@ -196,7 +196,7 @@ An existing search can be updated by selecting the search in the *Search* tab of
 +
 ** [[_spatial_search_details]]*Spatial Search Details*
 [no-bullet]
-*** Search by latitude/longitude, USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
+*** Search by latitude/longitude (decimal degrees or degrees minutes seconds), USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
 +
 ** [[_type_search_details]]*Type Search Details*
 [no-bullet]
