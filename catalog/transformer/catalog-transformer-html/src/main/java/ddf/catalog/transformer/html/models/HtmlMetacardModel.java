@@ -36,7 +36,7 @@ public class HtmlMetacardModel {
     this.title = metacard.getTitle();
     this.categories = categories;
 
-    this.applyMetacard();
+    this.applyAttributeMappingsToMetacard();
   }
 
   public void setMetacard(Metacard metacard) {
@@ -55,7 +55,7 @@ public class HtmlMetacardModel {
     return this.categories;
   }
 
-  private void applyMetacard() {
+  private void applyAttributeMappingsToMetacard() {
     for (HtmlExportCategory category : categories) {
       category.applyAttributeMappings(metacard);
     }

@@ -180,19 +180,14 @@ public class HtmlMetacardUtilityTest {
     categoryList.add(new HtmlCategoryModel("Zebra", null));
     categoryList.add(new HtmlCategoryModel("Alpaca", null));
 
-    HtmlMetacardUtility utility = new HtmlMetacardUtility(categoryList);
-    utility.sortCategoryList();
+    categoryList = HtmlMetacardUtility.sortCategoryList(categoryList);
 
-    assertThat(utility.getCategoryList().get(0).getTitle(), is("Alpaca"));
+    assertThat(categoryList.get(0).getTitle(), is("Alpaca"));
   }
 
   @Test
   public void testSortNullCategoryList() {
-    HtmlMetacardUtility utility = new HtmlMetacardUtility();
-    utility.setCategoryList(null);
-    utility.sortCategoryList();
-
-    assertNull(utility.getCategoryList());
+    assertNull(HtmlMetacardUtility.sortCategoryList(null));
   }
 
   @Test

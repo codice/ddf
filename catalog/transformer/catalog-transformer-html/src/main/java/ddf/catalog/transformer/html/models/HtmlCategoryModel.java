@@ -26,21 +26,20 @@ public class HtmlCategoryModel implements HtmlExportCategory {
 
   private List<String> attributeList;
 
-  private Map<String, HtmlValueModel> attributeMappings;
-
-  public HtmlCategoryModel() {
-    this.attributeMappings = new TreeMap<>();
-  }
+  private Map<String, HtmlValueModel> attributeMappings = new TreeMap<>();
 
   public HtmlCategoryModel(String title, List<String> attributeList) {
     this.title = title;
     this.attributeList = attributeList;
-    this.attributeMappings = new TreeMap<>();
   }
 
-  public void init() {}
+  public void init() {
+    // Called from blueprint
+  }
 
-  public void destroy(int code) {}
+  public void destroy(int code) {
+    // Called from blueprint
+  }
 
   public void setTitle(String title) {
     this.title = title;
@@ -67,8 +66,6 @@ public class HtmlCategoryModel implements HtmlExportCategory {
   }
 
   public void applyAttributeMappings(Metacard metacard) {
-    this.attributeMappings = new TreeMap<>();
-
     for (String attrKey : attributeList) {
       String readableKey = getHumanReadableAttribute(attrKey);
       Attribute attr = metacard.getAttribute(attrKey);
@@ -87,7 +84,7 @@ public class HtmlCategoryModel implements HtmlExportCategory {
   private String getHumanReadableAttribute(String attr) {
     int periodIndex = attr.lastIndexOf('.');
     if (periodIndex != -1) {
-      attr = attr.substring(periodIndex + 1, attr.length());
+      attr = attr.substring(periodIndex + 1);
     }
 
     attr = attr.replaceAll("-", " ");

@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 public class HtmlMetacardTransformer implements MetacardTransformer {
 
@@ -43,12 +44,15 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
       throw new CatalogTransformerException("Null metacard cannot be transformed to HTML");
     }
 
+    List<HtmlExportCategory> categoryList =
+        HtmlMetacardUtility.sortCategoryList(htmlMetacardUtility.getCategoryList());
+
     List<HtmlMetacardModel> metacardModelList = new ArrayList<>();
-    metacardModelList.add(new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()));
+    metacardModelList.add(new HtmlMetacardModel(metacard, categoryList));
 
     String html = htmlMetacardUtility.buildHtml(metacardModelList);
 
-    if (html == null) {
+    if (StringUtils.isEmpty(html)) {
       throw new CatalogTransformerException("Metacard cannot be transformed to HTML");
     }
 

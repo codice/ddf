@@ -13,6 +13,8 @@
  */
 package ddf.catalog.transformer.html;
 
+import static java.util.stream.Collectors.toList;
+
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 
 public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
 
@@ -46,18 +49,16 @@ public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
       throw new CatalogTransformerException("Null result set cannot be transformed to HTML");
     }
 
-    List<Metacard> metacards =
-        sourceResponse.getResults().stream().map(Result::getMetacard).collect(Collectors.toList());
+    final List<HtmlMetacardModel> metacardModels =
+        sourceResponse
+            .getResults()
+            .stream()
+            .map(Result::getMetacard)
+            .map(metacard -> new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()))
+            .collect(toList());
 
-    List<HtmlMetacardModel> metacardModels = new ArrayList<>();
-
-    for (Metacard metacard : metacards) {
-      metacardModels.add(new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()));
-    }
-
-    String html = htmlMetacardUtility.buildHtml(metacardModels);
-
-    if (html == null) {
+    final String html = htmlMetacardUtility.buildHtml(metacardModels);
+    if (StringUtils.isEmpty(html)) {
       throw new CatalogTransformerException("Result set cannot be transformed to HTML");
     }
 

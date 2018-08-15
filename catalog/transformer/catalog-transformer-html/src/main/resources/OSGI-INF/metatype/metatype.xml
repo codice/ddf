@@ -29,7 +29,7 @@
       name="Attributes"
       id="attributeList"
       type="String"
-      cardinality="100"
+      cardinality="10000"
       default=""/>
   </OCD>
 

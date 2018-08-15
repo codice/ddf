@@ -37,9 +37,10 @@ import javax.activation.MimeTypeParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Utility class that loads templates and renders html based on object models. */
 public class HtmlMetacardUtility {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HtmlMetacardTransformer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HtmlMetacardUtility.class);
 
   private TemplateLoader templateLoader;
 
@@ -49,7 +50,7 @@ public class HtmlMetacardUtility {
 
   private Template template;
 
-  private MimeType mimeType;
+  private static MimeType mimeType;
 
   private String htmlTemplate;
 
@@ -61,6 +62,14 @@ public class HtmlMetacardUtility {
 
   private List<HtmlExportCategory> categoryList;
 
+  static {
+    try {
+      mimeType = new MimeType("text/html");
+    } catch (MimeTypeParseException e) {
+      LOGGER.warn("Failed to apply mimetype text/html");
+    }
+  }
+
   public HtmlMetacardUtility() {
     this(HTML_TEMPLATE);
   }
@@ -68,16 +77,9 @@ public class HtmlMetacardUtility {
   public HtmlMetacardUtility(List<HtmlExportCategory> categoryList) {
     this(HTML_TEMPLATE);
     this.categoryList = categoryList;
-    sortCategoryList();
   }
 
   public HtmlMetacardUtility(String htmlTemplate) {
-    try {
-      this.mimeType = new MimeType("text/html");
-    } catch (MimeTypeParseException e) {
-      LOGGER.warn("Failed to apply mimetype text/html");
-    }
-
     this.htmlTemplate = htmlTemplate;
 
     this.templateLoader = new ClassPathTemplateLoader();
@@ -100,16 +102,22 @@ public class HtmlMetacardUtility {
     }
   }
 
-  public void sortCategoryList() {
-    if (this.categoryList != null) {
-      this.categoryList =
-          categoryList
-              .stream()
-              .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
-              .collect(Collectors.toList());
+  public static List<HtmlExportCategory> sortCategoryList(List<HtmlExportCategory> categories) {
+    if (categories != null) {
+      return categories
+          .stream()
+          .sorted(Comparator.comparing(HtmlExportCategory::getTitle))
+          .collect(Collectors.toList());
     }
+
+    return null;
   }
 
+  /**
+   * This method registers helpers that are used in the handlebars templates. When a method value
+   * resolver is called it will evaluate the condition in each helper and appropriately evaluate
+   * that block of code like an if-else structure.
+   */
   private void registerHelpers() {
     handlebars.registerHelper(
         "isBasicValue",
@@ -139,14 +147,14 @@ public class HtmlMetacardUtility {
         });
   }
 
-  public <T> String buildHtml(T metacardModels) {
+  public <T> String buildHtml(T model) {
 
-    if (metacardModels == null) {
+    if (model == null) {
       return null;
     }
 
     try {
-      Context context = Context.newBuilder(metacardModels).resolver(resolvers).build();
+      Context context = Context.newBuilder(model).resolver(resolvers).build();
       return template.apply(context);
     } catch (IOException e) {
       LOGGER.warn("Failed to apply model to {}{}", htmlTemplate, TEMPLATE_SUFFIX, e);
@@ -157,7 +165,6 @@ public class HtmlMetacardUtility {
 
   public void setCategoryList(List<HtmlExportCategory> categoryList) {
     this.categoryList = categoryList;
-    sortCategoryList();
   }
 
   public List<HtmlExportCategory> getCategoryList() {
