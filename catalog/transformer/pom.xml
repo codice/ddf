@@ -113,6 +113,6 @@
         <module>catalog-transformer-preview</module>
         <module>catalog-transformer-csv-common</module>
         <module>catalog-transformer-csv-queryresponse</module>
-      <module>catalog-transformer-html</module>
+        <module>catalog-transformer-html</module>
     </modules>
 </project>

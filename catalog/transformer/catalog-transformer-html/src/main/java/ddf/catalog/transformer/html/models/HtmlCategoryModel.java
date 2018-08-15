@@ -26,7 +26,7 @@ public class HtmlCategoryModel implements HtmlExportCategory {
 
   private List<String> attributeList;
 
-  private Map<String, Object> attributeMappings;
+  private Map<String, HtmlValueModel> attributeMappings;
 
   public HtmlCategoryModel() {
     this.attributeMappings = new TreeMap<>();
@@ -58,11 +58,11 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     return this.attributeList;
   }
 
-  public void setAttributes(Map<String, Object> attributes) {
+  public void setAttributes(Map<String, HtmlValueModel> attributes) {
     this.attributeMappings = attributes;
   }
 
-  public Map<String, Object> getAttributes() {
+  public Map<String, HtmlValueModel> getAttributes() {
     return this.attributeMappings;
   }
 

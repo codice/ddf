@@ -103,6 +103,7 @@ public class HtmlMetacardUtility {
     handlebars.registerHelper(
         "isBasicValue",
         new IfHelper() {
+          @Override
           public CharSequence apply(Object context, Options options) throws IOException {
             return (context instanceof HtmlBasicValueModel) ? options.fn() : options.inverse();
           }
