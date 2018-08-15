@@ -164,6 +164,11 @@ public class CqlTransformHandler implements Route {
 
     String fileExt = getFileExtFromMimeType(mimeType);
 
+    if (fileExt == null) {
+      LOGGER.debug("Invalid file extension from mimetype {}", mimeType);
+      throw new NullPointerException("Mime-type resulted in null file extension");
+    }
+
     if (containsGzip(request)) {
       LOGGER.trace("Request header accepts gzip");
       response.header(HttpHeaders.CONTENT_ENCODING, GZIP);
