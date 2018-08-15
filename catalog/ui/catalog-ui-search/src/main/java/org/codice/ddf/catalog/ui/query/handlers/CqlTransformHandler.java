@@ -115,7 +115,7 @@ public class CqlTransformHandler implements Route {
       cqlRequest = mapper.readValue(body, CqlRequest.class);
       if (cqlRequest == null) {
         LOGGER.debug("Cql request parsed from body evaluated to  null.");
-        throw new NullPointerException("Cql request is null.");
+        throw new IllegalArgumentException("Cql request is null.");
       }
     } catch (Exception e) {
       LOGGER.debug("Error fetching cql request");
@@ -123,12 +123,12 @@ public class CqlTransformHandler implements Route {
       return ImmutableMap.of("message", "Bad request");
     }
 
-    Map<String, Serializable> arguments;
-
-    try {
-      arguments = mapper.readValue(body, Arguments.class).getSerializableArguments();
-    } catch (NullPointerException e) {
-      arguments = Collections.emptyMap();
+    Arguments arguments = mapper.readValue(body, Arguments.class);
+    Map<String, Serializable> serializableArguments;
+    if (arguments.getArguments() == null) {
+      serializableArguments = Collections.emptyMap();
+    } else {
+      serializableArguments = arguments.getSerializableArguments();
     }
 
     LOGGER.trace("Finding transformer to transform query response.");
@@ -148,13 +148,14 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
-    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
+    attachFileToResponse(
+        request, response, queryResponseTransformer, cqlQueryResponse, serializableArguments);
 
     return "";
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
-      throws MimeTypeException, IllegalArgumentException, NullPointerException {
+      throws MimeTypeException, IllegalArgumentException {
     String mimeType = content.getMimeTypeValue();
 
     if (mimeType == null) {
@@ -166,7 +167,7 @@ public class CqlTransformHandler implements Route {
 
     if (fileExt == null) {
       LOGGER.debug("Invalid file extension from mimetype {}", mimeType);
-      throw new NullPointerException("Mime-type resulted in null file extension");
+      throw new IllegalArgumentException("Mime-type resulted in null file extension");
     }
 
     if (containsGzip(request)) {
@@ -191,14 +192,13 @@ public class CqlTransformHandler implements Route {
     return fileExt;
   }
 
-  private Boolean containsGzip(Request request) throws NullPointerException {
-    Boolean containsGzip = false;
-    try {
-      containsGzip = request.headers(HttpHeaders.ACCEPT_ENCODING).toLowerCase().contains(GZIP);
-    } catch (NullPointerException e) {
-      LOGGER.debug("Request header Accept-Encoding is null", e);
+  private Boolean containsGzip(Request request) {
+    String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
+    if (request.headers(HttpHeaders.ACCEPT_ENCODING) != null) {
+      return acceptEncoding.toLowerCase().contains(GZIP);
     }
-    return containsGzip;
+    LOGGER.debug("Request header Accept-Encoding is null");
+    return false;
   }
 
   private void attachFileToResponse(
@@ -207,8 +207,7 @@ public class CqlTransformHandler implements Route {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Map<String, Serializable> arguments)
-      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException,
-          NullPointerException {
+      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
