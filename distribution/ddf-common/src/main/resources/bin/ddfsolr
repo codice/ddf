@@ -61,6 +61,7 @@ set_security_properties() {
 
 
 start_solr() {
+    export SOLR_JAVA_MEM=-Xmx$($GET solr.max.heap.size)
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi

@@ -37,6 +37,7 @@ No configuration.
  start.solr=true
  solr.client=HttpSolrClient
  solr.http.port=8994
+ solr.max.heap.size=2g
  ----
 
 .[[_solr_cloud]]Solr Cloud
