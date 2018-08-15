@@ -28,7 +28,6 @@ import ddf.catalog.transformer.html.models.HtmlBasicValueModel;
 import ddf.catalog.transformer.html.models.HtmlEmptyValueModel;
 import ddf.catalog.transformer.html.models.HtmlExportCategory;
 import ddf.catalog.transformer.html.models.HtmlMediaModel;
-import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +51,8 @@ public class HtmlMetacardUtility {
 
   private MimeType mimeType;
 
+  private String htmlTemplate;
+
   private static final String TEMPLATE_DIRECTORY = "/templates";
 
   private static final String TEMPLATE_SUFFIX = ".hbs";
@@ -70,12 +71,14 @@ public class HtmlMetacardUtility {
     sortCategoryList();
   }
 
-  public HtmlMetacardUtility(String template) {
+  public HtmlMetacardUtility(String htmlTemplate) {
     try {
       this.mimeType = new MimeType("text/html");
     } catch (MimeTypeParseException e) {
       LOGGER.warn("Failed to apply mimetype text/html");
     }
+
+    this.htmlTemplate = htmlTemplate;
 
     this.templateLoader = new ClassPathTemplateLoader();
     this.templateLoader.setPrefix(TEMPLATE_DIRECTORY);
@@ -91,7 +94,7 @@ public class HtmlMetacardUtility {
     this.registerHelpers();
 
     try {
-      this.template = this.handlebars.compile(template);
+      this.template = this.handlebars.compile(htmlTemplate);
     } catch (IOException e) {
       LOGGER.warn("Failed to compile handlebars template {}", HTML_TEMPLATE, e);
     }
@@ -136,7 +139,7 @@ public class HtmlMetacardUtility {
         });
   }
 
-  public String buildHtml(List<HtmlMetacardModel> metacardModels) {
+  public <T> String buildHtml(T metacardModels) {
 
     if (metacardModels == null) {
       return null;
@@ -146,7 +149,7 @@ public class HtmlMetacardUtility {
       Context context = Context.newBuilder(metacardModels).resolver(resolvers).build();
       return template.apply(context);
     } catch (IOException e) {
-      LOGGER.warn("Failed to apply model to {}{}", HTML_TEMPLATE, TEMPLATE_SUFFIX, e);
+      LOGGER.warn("Failed to apply model to {}{}", htmlTemplate, TEMPLATE_SUFFIX, e);
     }
 
     return null;
