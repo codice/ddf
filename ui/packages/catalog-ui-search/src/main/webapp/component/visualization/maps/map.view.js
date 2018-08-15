@@ -138,6 +138,7 @@ module.exports = Marionette.LayoutView.extend({
     geometryCollectionView: undefined,
     map: undefined,
     mapModel: undefined,
+    hasLoadedMap: false,
     initialize: function(options) {
         if (!options.selectionInterface) {
             throw 'Selection interface has not been provided';
@@ -287,6 +288,7 @@ module.exports = Marionette.LayoutView.extend({
     initializeMap: function(){
         this.loadMap().then(function(Map) {
             this.createMap(Map);
+            this.hasLoadedMap = true;
         }.bind(this));
     },
     startLoading: function() {
