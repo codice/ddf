@@ -61,23 +61,6 @@ public final class GeoCodingConstants {
 
   public static final int COUNTRY_GAZETTEER_SORT_VALUE = 11;
 
-  public static final int POPULATION_OVER_400K = 10;
-
-  public static final int POPULATION_LT_400K_GT_350K = 9;
-
-  public static final int POPULATION_LT_350K_GT_300K = 8;
-
-  public static final int POPULATION_LT_300K_GT_250K = 7;
-
-  public static final int POPULATION_LT_250K_GT_200K = 6;
-
-  public static final int POPULATION_LT_200K_GT_150K = 5;
-
-  public static final int POPULATION_LT_150K_GT_100K = 4;
-
-  public static final int POPULATION_LT_100K_GT_50K = 3;
-
-  public static final int POPULATION_UNDER_50K = 2;
   // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
   // been destroyed.
   public static final List<String> CITY_FEATURE_CODES =
