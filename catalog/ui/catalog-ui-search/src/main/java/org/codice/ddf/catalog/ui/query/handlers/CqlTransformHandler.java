@@ -154,7 +154,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
-      throws MimeTypeException, NullPointerException {
+      throws MimeTypeException, IllegalArgumentException {
     String mimeType = content.getMimeTypeValue();
 
     if (mimeType == null) {
@@ -181,9 +181,9 @@ public class CqlTransformHandler implements Route {
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (fileExt == null || StringUtils.isEmpty(fileExt)) {
       LOGGER.debug("Fetching file extension from mime-type resulted in null or empty.");
-      throw new NullPointerException("Failure fetching file extension from mime type");
+      throw new IllegalArgumentException("Failure fetching file extension from mime type");
     }
-    return allTypes.forName(mimeType).getExtension();
+    return fileExt;
   }
 
   private Boolean containsGzip(Request request) {
@@ -196,7 +196,7 @@ public class CqlTransformHandler implements Route {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Map<String, Serializable> arguments)
-      throws CatalogTransformerException, IOException, MimeTypeException, NullPointerException {
+      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
