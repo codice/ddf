@@ -20,9 +20,12 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
@@ -76,6 +79,32 @@ public class CqlTransformHandler implements Route {
     this.util = endpointUtil;
   }
 
+  public class Arguments {
+    private Map<String, Object> arguments;
+
+    public Arguments() {
+      this.arguments = Collections.emptyMap();
+    }
+
+    public void setArguments(Map<String, Object> arguments) {
+      this.arguments = arguments;
+    }
+
+    public Map<String, Object> getArguments() {
+      return this.arguments;
+    }
+
+    public Map<String, Serializable> getSerializableArguments() {
+      Map<String, Serializable> serializableMap =
+          this.getArguments()
+              .entrySet()
+              .stream()
+              .filter(entry -> entry.getValue() instanceof Serializable)
+              .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
+      return serializableMap;
+    }
+  }
+
   @Override
   public Object handle(Request request, Response response) throws Exception {
     String transformerId = request.params(":transformerId");
@@ -89,9 +118,17 @@ public class CqlTransformHandler implements Route {
         throw new NullPointerException("Cql request is null.");
       }
     } catch (Exception e) {
-      LOGGER.debug("Error fetching cql request, empty or invalid body.");
+      LOGGER.debug("Error fetching cql request");
       response.status(HttpStatus.BAD_REQUEST_400);
       return ImmutableMap.of("message", "Bad request");
+    }
+
+    Map<String, Serializable> arguments;
+
+    try {
+      arguments = mapper.readValue(body, Arguments.class).getSerializableArguments();
+    } catch (NullPointerException e) {
+      arguments = Collections.emptyMap();
     }
 
     LOGGER.trace("Finding transformer to transform query response.");
@@ -111,7 +148,7 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
-    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse);
+    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
 
     return "";
   }
@@ -157,12 +194,13 @@ public class CqlTransformHandler implements Route {
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
-      CqlQueryResponse cqlQueryResponse)
+      CqlQueryResponse cqlQueryResponse,
+      Map<String, Serializable> arguments)
       throws CatalogTransformerException, IOException, MimeTypeException, NullPointerException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
-            .transform(cqlQueryResponse.getQueryResponse(), Collections.emptyMap());
+            .transform(cqlQueryResponse.getQueryResponse(), arguments);
 
     setHttpHeaders(request, response, content);
 

@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -28,7 +29,6 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +117,7 @@ public class CqlTransformHandlerTest {
       headers.put(header, value);
     }
 
-    public Map<String, String> getHeaders() {
+    Map<String, String> getHeaders() {
       return this.headers;
     }
 
@@ -159,7 +159,7 @@ public class CqlTransformHandlerTest {
     when(mockBundleContext.getService(mockQueryResponseTransformer))
         .thenReturn(mockServiceReference);
 
-    when(mockServiceReference.transform(mockQueryResponse, Collections.emptyMap()))
+    when(mockServiceReference.transform(any(QueryResponse.class), anyMap()))
         .thenReturn(binaryContent);
   }
 
