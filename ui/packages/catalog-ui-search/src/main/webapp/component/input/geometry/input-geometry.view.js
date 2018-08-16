@@ -51,7 +51,7 @@ module.exports = InputView.extend({
         this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
     },
     handleValue: function(){
-        this.locationRegion.currentView.model.set('value', this.model.get('value'));
+        this.locationRegion.currentView.model.set('wkt', this.model.get('value'));
     },
     getCurrentValue: function(){
         return this.locationRegion.currentView.getCurrentValue();

@@ -9,9 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-const bridge = require('./marionette-bridge');
-const LocationInput = bridge(require('./location'));
+const { reactToMarionette } = require('component/transmute');
+const LocationInput = reactToMarionette(require('./location'));
 
 if (process.env.NODE_ENV !== 'production') {
     module.hot.accept('./location', () => {
@@ -21,15 +20,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 const Marionette = require('marionette');
 const _ = require('underscore');
-const wreqr = require('wreqr');
-const store = require('js/store');
 const CustomElements = require('js/CustomElements');
 const LocationNewModel = require('./location-new');
-const CQLUtils = require('js/CQLUtils');
-const ShapeUtils = require('js/ShapeUtils');
-
-const minimumDifference = 0.0001;
-const minimumBuffer = 0.000001;
 
 module.exports = Marionette.LayoutView.extend({
     template: () => `<div class="location-input"></div>`,
@@ -46,16 +38,10 @@ module.exports = Marionette.LayoutView.extend({
         this.location.show(
             new LocationInput({
                 model: this.model,
-                onDraw: (drawingType) => {
-                    wreqr.vent.trigger('search:draw' + this.model.get('mode'), this.model);
-                }
             })
         );
     },
     getCurrentValue: function() {
         return this.model.getValue();
     },
-    onDestroy: function() {
-        wreqr.vent.trigger('search:drawend', this.model);
-    }
 });

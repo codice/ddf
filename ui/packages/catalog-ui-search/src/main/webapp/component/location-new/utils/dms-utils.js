@@ -109,20 +109,20 @@ function parseDmsCoordinate(coordinate) {
 }
 
 function validateLatitudeRange(coordinate) {
-    if (coordinate.degrees > 90 || coordinate.minutes > 60 || coordinate.seconds > 60) {
+    if (coordinate.degrees > 90 || coordinate.minutes >= 60 || coordinate.seconds >= 60) {
         return false;
     }
-    if (coordinate.degrees === 90 && (coordinate.minutes >= 0 || coordinate.seconds >= 0)) {
+    if (coordinate.degrees === 90 && (coordinate.minutes > 0 || coordinate.seconds > 0)) {
         return false;
     }
     return true;
 }
 
 function validateLongitudeRange(coordinate) {
-    if (coordinate.degrees > 180 || coordinate.minutes > 60 || coordinate.seconds > 60) {
+    if (coordinate.degrees > 180 || coordinate.minutes >= 60 || coordinate.seconds >= 60) {
         return false;
     }
-    if (coordinate.degrees === 90 && (coordinate.minutes >= 0 || coordinate.seconds >= 0)) {
+    if (coordinate.degrees === 180 && (coordinate.minutes > 0 || coordinate.seconds > 0)) {
         return false;
     }
     return true;
@@ -234,12 +234,18 @@ function validateDms(dms) {
             if (!dms.line.list.every(validateDmsPoint)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (dms.line.list.length < 2) {
+                valid = false;
+                error = errorMessages.tooFewPointsLine;
             }
             break;
         case 'polygon':
             if (!dms.polygon.list.every(validateDmsPoint)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (dms.polygon.list.length < 3) {
+                valid = false;
+                error = errorMessages.tooFewPointsPolygon;
             }
             break;
         case 'boundingbox':

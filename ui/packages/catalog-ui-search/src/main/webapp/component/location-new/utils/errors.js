@@ -26,7 +26,7 @@ const errorMessages = {
     invalidCoordinates: 'Invalid coordinates',
     invalidUsngGrid: 'Invalid USNG / MGRS grid',
     invalidRadius: 'Radius must be greater than 0 and at most 10,000 kilometers',
-    invalidList: 'One or more list entries are invalid',
+    invalidList: 'One or more entries are invalid',
     invalidBoundingBoxDd: `Invalid bounding box. Coordinates must satisfy the following conditions:
                            North > South
                            East > West
@@ -39,6 +39,8 @@ const errorMessages = {
                             North - South >= 0.36" (seconds)
                             East - West >= 0.36" (seconds)
                            `,
+    tooFewPointsLine: 'Lines must contain 2 or more points',
+    tooFewPointsPolygon: 'Polygons must contain 3 or more points',
 
 }
 
