@@ -113,14 +113,15 @@ public class CqlTransformHandler implements Route {
 
     try {
       cqlRequest = mapper.readValue(body, CqlRequest.class);
-      if (cqlRequest == null) {
-        LOGGER.debug("Cql request parsed from body evaluated to  null.");
-        throw new IllegalArgumentException("Cql request is null.");
-      }
     } catch (Exception e) {
       LOGGER.debug("Error fetching cql request");
       response.status(HttpStatus.BAD_REQUEST_400);
-      return ImmutableMap.of("message", "Bad request");
+      return ImmutableMap.of("message", "Error retrieving cql request");
+    }
+
+    if (cqlRequest.getCql() == null) {
+      LOGGER.debug("Cql not found in request");
+      return ImmutableMap.of("message", "Cql not found in request");
     }
 
     Arguments arguments = mapper.readValue(body, Arguments.class);
@@ -183,7 +184,7 @@ public class CqlTransformHandler implements Route {
       throws MimeTypeException, IllegalArgumentException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
-    if (fileExt == null || StringUtils.isEmpty(fileExt)) {
+    if (StringUtils.isEmpty(fileExt)) {
       LOGGER.debug("Fetching file extension from mime-type resulted in null or empty.");
       throw new IllegalArgumentException("Failure fetching file extension from mime type");
     }
@@ -192,7 +193,7 @@ public class CqlTransformHandler implements Route {
 
   private Boolean containsGzip(Request request) {
     String acceptEncoding = request.headers(HttpHeaders.ACCEPT_ENCODING);
-    if (request.headers(HttpHeaders.ACCEPT_ENCODING) != null) {
+    if (acceptEncoding != null) {
       return acceptEncoding.toLowerCase().contains(GZIP);
     }
     LOGGER.debug("Request header Accept-Encoding is null");
