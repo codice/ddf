@@ -80,28 +80,26 @@ public class CqlTransformHandler implements Route {
   }
 
   public class Arguments {
-    private Map<String, Object> arguments;
+    private Map<String, Object> args;
 
     public Arguments() {
-      this.arguments = Collections.emptyMap();
+      this.args = Collections.emptyMap();
     }
 
     public void setArguments(Map<String, Object> arguments) {
-      this.arguments = arguments;
+      this.args = arguments;
     }
 
     public Map<String, Object> getArguments() {
-      return this.arguments;
+      return this.args;
     }
 
     public Map<String, Serializable> getSerializableArguments() {
-      Map<String, Serializable> serializableMap =
-          this.getArguments()
-              .entrySet()
-              .stream()
-              .filter(entry -> entry.getValue() instanceof Serializable)
-              .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
-      return serializableMap;
+      return this.args
+          .entrySet()
+          .stream()
+          .filter(entry -> entry.getValue() instanceof Serializable)
+          .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
     }
   }
 
@@ -163,11 +161,6 @@ public class CqlTransformHandler implements Route {
     }
 
     String fileExt = getFileExtFromMimeType(mimeType);
-
-    if (fileExt == null) {
-      LOGGER.debug("Invalid file extension from mimetype {}", mimeType);
-      throw new IllegalArgumentException("Mime-type resulted in null file extension");
-    }
 
     if (containsGzip(request)) {
       LOGGER.trace("Request header accepts gzip");
