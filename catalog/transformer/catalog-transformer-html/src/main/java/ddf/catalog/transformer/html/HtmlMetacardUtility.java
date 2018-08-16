@@ -163,10 +163,6 @@ public class HtmlMetacardUtility {
     return null;
   }
 
-  public void setCategoryList(List<HtmlExportCategory> categoryList) {
-    this.categoryList = categoryList;
-  }
-
   public List<HtmlExportCategory> getCategoryList() {
     return this.categoryList;
   }

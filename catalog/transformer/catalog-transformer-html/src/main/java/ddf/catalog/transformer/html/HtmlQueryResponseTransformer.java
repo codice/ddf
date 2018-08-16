@@ -16,7 +16,6 @@ package ddf.catalog.transformer.html;
 import static java.util.stream.Collectors.toList;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
@@ -27,10 +26,8 @@ import ddf.catalog.transformer.html.models.HtmlMetacardModel;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
