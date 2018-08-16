@@ -30,6 +30,8 @@ public class GeoEntryAttributes implements MetacardType {
 
   public static final String IMPORT_LOCATION = "ext.import-location";
 
+  public static final String GAZETTEER_SORT_VALUE = "ext.gazetteer-sort-value";
+
   private static final String METACARD_TYPENAME = "GeoEntryAttributes";
 
   private static final Set<AttributeDescriptor> DESCRIPTORS =
@@ -41,7 +43,8 @@ public class GeoEntryAttributes implements MetacardType {
           new AttributeDescriptorImpl(
               POPULATION_ATTRIBUTE_NAME, true, true, false, false, BasicTypes.LONG_TYPE),
           new AttributeDescriptorImpl(
-              IMPORT_LOCATION, true, true, false, false, BasicTypes.STRING_TYPE));
+              IMPORT_LOCATION, true, true, false, false, BasicTypes.STRING_TYPE),
+              new AttributeDescriptorImpl(GAZETTEER_SORT_VALUE, true, true, false, false, BasicTypes.INTEGER_TYPE));
 
   @Override
   public String getName() {

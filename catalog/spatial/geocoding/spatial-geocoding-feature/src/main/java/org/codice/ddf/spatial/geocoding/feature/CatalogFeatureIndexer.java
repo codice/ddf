@@ -47,6 +47,7 @@ import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.opengis.feature.simple.SimpleFeature;
 
 public class CatalogFeatureIndexer implements FeatureIndexer {
@@ -138,6 +139,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       List<Serializable> tags =
           Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG);
       metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
+      metacard.setAttribute(new AttributeImpl(GeoEntryAttributes.GAZETTEER_SORT_VALUE, GeoCodingConstants.COUNTRY_GAZETTEER_SORT_VALUE));
       return metacard;
     }
 

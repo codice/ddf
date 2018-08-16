@@ -59,6 +59,8 @@ public final class GeoCodingConstants {
 
   public static final String SUGGEST_PLACE_KEY = "suggestPlace";
 
+  public static final int COUNTRY_GAZETTEER_SORT_VALUE = 11;
+
   // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
   // been destroyed.
   public static final List<String> CITY_FEATURE_CODES =
