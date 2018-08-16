@@ -33,7 +33,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
@@ -117,19 +116,14 @@ public class FilterInjector implements EventListenerHook {
 
         if (service.getFilterRegistration(DELEGATING_FILTER) == null) {
           LOGGER.error(
-              "Platform filter delegate failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. Attempting to resolve the issue by restarting the bundle.",
+              "Platform filter delegate failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. A system restart is recommended.",
               refBundle.getSymbolicName(),
               refBundle.getBundleId(),
               refBundle.getSymbolicName());
-
-          // Restarting the missed servlet context bundle so the injector will be able to perform
-          // its job.
-          refBundle.stop();
-          refBundle.start();
         }
       }
 
-    } catch (InvalidSyntaxException | BundleException e) {
+    } catch (InvalidSyntaxException e) {
       LOGGER.error(
           "Problem checking ServletContexts for DelegateServletFilter injections. One of the servlets running might not have all of the needed filters injected. A system restart is recommended. See debug logs for additional details.");
       LOGGER.debug("Additional Details:", e);
