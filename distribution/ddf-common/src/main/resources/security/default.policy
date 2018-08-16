@@ -183,7 +183,7 @@ grant codeBase "file:/org.apache.karaf.jaas.command" {
 
 grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}-", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.config.xml", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read";
     permission java.io.FilePermission "pax-logging.properties", "read";
     permission java.net.SocketPermission "*", "listen,resolve";
 }
