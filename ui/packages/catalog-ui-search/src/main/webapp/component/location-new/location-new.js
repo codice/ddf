@@ -45,22 +45,18 @@ module.exports = Backbone.AssociatedModel.extend({
         }
 
         const mode = this.get('mode');
-        var wkt;
         switch (mode) {
             case 'wkt':
-                wkt = this.get(mode);
-                break;
+                return this.get(mode);
             case 'dd':
-                wkt = ddToWkt(this.get(mode));
-                break;
+                return ddToWkt(this.get(mode));
             case 'dms':
-                wkt = dmsToWkt(this.get(mode));
-                break;
+                return dmsToWkt(this.get(mode));
             case 'usng':
-                wkt = usngToWkt(this.get(mode));
-                break;
+                return usngToWkt(this.get(mode));
+            default:
+                return null;
         }
-        return wkt;
     },
 
     /* Run the appropriate validator for the active mode. Blank input is considered valid */

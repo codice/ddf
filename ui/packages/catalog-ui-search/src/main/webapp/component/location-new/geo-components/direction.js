@@ -32,8 +32,7 @@ class Direction extends React.Component {
                     onMouseDown={this.handleMouseDown.bind(this)}
                     onKeyPress={this.handleKeyPress.bind(this)}
                     onChange={(e) => e.stopPropagation()}
-                    >
-                </input>
+                />
             </Component>
         );
     }

@@ -1,25 +1,10 @@
 @{customElementNamespace}location-new {
   display: block;
-
   width: auto;
-
-  .location-draw {
-    margin: 10px 0;
-    width: 100%;
-  }
-
-  .input-group {
-     border: none;
-     display: flex;
-     width: 100%;
-  }
-
-  .input-group-addon {
-    border: none;
-  }
 
   .form-group {
     .input-group-addon {
+      border: none;
       display: table-cell;
       font-size: @minimumFontSize;
       padding: 0px @minimumSpacing;
@@ -29,6 +14,8 @@
     }
 
     .input-group {
+      border: none;
+      display: flex;
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
 
@@ -66,11 +53,9 @@
     padding-left: 0px;
     max-width: 2 * @minimumScreenSize;
     float: none;
-    width: 100%;
   }
   .input-location {
     border-radius: @border-radius;
-    border: 1px solid rgba(255, 255, 255, 0.4)
   }
 
   .input-location + .input-location {

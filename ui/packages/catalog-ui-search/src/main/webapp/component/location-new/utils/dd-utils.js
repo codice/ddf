@@ -193,6 +193,9 @@ function validateDd(dd) {
             if (!dd.line.list.every(validateDdPoint)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (dd.line.list.length < 2) {
+                valid = false;
+                error = errorMessages.tooFewPointsLine;
             }
             break;
         case 'polygon':

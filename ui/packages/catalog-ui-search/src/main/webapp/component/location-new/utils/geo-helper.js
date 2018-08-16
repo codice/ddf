@@ -67,6 +67,7 @@ function computeDestination(point, bearing, distance) {
 }
 
 /*
+ * TODO: Convert to use Spatial4j buffered point, e.g. BUFFER(POINT(0 0), 10)
  * Given a point and distance, returns an n-point polygon approximating a circle surrounding the
  * point with radius equal to the input distance.
  * @param point: wkx Point

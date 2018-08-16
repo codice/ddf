@@ -15,7 +15,6 @@
 const wkx = require('wkx');
 const usng = require('usng.js/usng');
 const converter = new usng.Converter();
-const { mgrs } = require('proj4').default;
 
 const { computeCircle, toKilometers } = require('./geo-helper');
 const errorMessages = require('./errors');
@@ -62,11 +61,11 @@ function usngToWkt(usng) {
             break;
         case 'boundingbox':
             const grid = converter.isUSNG(usng.boundingbox);
-            const bbox = mgrs.inverse(grid);
-            const minLon = bbox[0];
-            const minLat = bbox[1];
-            const maxLon = bbox[2];
-            const maxLat = bbox[3];
+            const bbox = converter.USNGtoLL(grid, false);
+            const minLon = bbox.west;
+            const minLat = bbox.south;
+            const maxLon = bbox.east;
+            const maxLat = bbox.north;
             const nw = new wkx.Point(minLon, maxLat);
             const ne = new wkx.Point(maxLon, maxLat);
             const se = new wkx.Point(maxLon, minLat);

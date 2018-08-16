@@ -59,33 +59,37 @@ const Circle = (props) => {
 const Line = (props) => {
     const { dd, setState } = props;
     return (
-        <ListEditor
-            list={dd.line.list}
-            EntryType={DdEntry}
-            input={dd.line.point}
-            validateInput={validateDdPoint}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidCoordinates;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.dd.line.list = value;
-                draft.dd.line.point.latitude = '';
-                draft.dd.line.point.longitude = '';
-            })}
-            onRemove={setState((draft, value) => draft.dd.line.list = value)}
-            >
-            <Group>
-                <DdLatitude
-                    value={dd.line.point.latitude}
-                    onChange={setState((draft, value) => draft.dd.line.point.latitude = value)}
-                />
-                <DdLongitude
-                    value={dd.line.point.longitude}
-                    onChange={setState((draft, value) => draft.dd.line.point.longitude = value)}
-                />
-            </Group>
-        </ListEditor>
+        <div>
+
+        </div>
+
+//        <ListEditor
+//            list={dd.line.list}
+//            EntryType={DdEntry}
+//            input={dd.line.point}
+//            validateInput={validateDdPoint}
+//            onError={setState((draft, value) => {
+//                draft.valid = false;
+//                draft.error = errorMessages.invalidCoordinates;
+//            })}
+//            onAdd={setState((draft, value) => {
+//                draft.dd.line.list = value;
+//                draft.dd.line.point.latitude = '';
+//                draft.dd.line.point.longitude = '';
+//            })}
+//            onRemove={setState((draft, value) => draft.dd.line.list = value)}
+//            >
+//            <Group>
+//                <DdLatitude
+//                    value={dd.line.point.latitude}
+//                    onChange={setState((draft, value) => draft.dd.line.point.latitude = value)}
+//                />
+//                <DdLongitude
+//                    value={dd.line.point.longitude}
+//                    onChange={setState((draft, value) => draft.dd.line.point.longitude = value)}
+//                />
+//            </Group>
+//        </ListEditor>
     );
 }
 

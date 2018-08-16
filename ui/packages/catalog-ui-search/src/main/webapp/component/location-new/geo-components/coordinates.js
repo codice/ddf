@@ -4,39 +4,35 @@ const TextField = require('react-component/text-field');
 const MaskedTextField = require('../inputs/masked-text-field');
 const { latitudeDMSMask, longitudeDMSMask } = require('./masks');
 
-class Coordinate extends React.Component {
-    render() {
-        const { placeholder, value, onChange, children, ...props } = this.props;
-        return (
-            <div className="coordinate">
-                <TextField
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    {...props}
-                />
-                {children}
-            </div>
-        );
-    }
+const Coordinate = (props) => {
+    const { placeholder, value, onChange, children, ...otherProps } = props;
+    return (
+        <div className="coordinate">
+            <TextField
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                {...otherProps}
+            />
+            {children}
+        </div>
+    );
 }
 
-class MaskedCoordinate extends React.Component {
-    render() {
-        const { placeholder, mask, value, onChange, children, ...props } = this.props;
-        return (
-            <div className="coordinate">
-                <MaskedTextField
-                    placeholder={placeholder}
-                    mask={mask}
-                    value={value}
-                    onChange={onChange}
-                    {...props}
-                />
-                {children}
-            </div>
-        );
-    }
+const MaskedCoordinate = (props) => {
+    const { placeholder, mask, value, onChange, children, ...otherProps } = props;
+    return (
+        <div className="coordinate">
+            <MaskedTextField
+                placeholder={placeholder}
+                mask={mask}
+                value={value}
+                onChange={onChange}
+                {...otherProps}
+            />
+            {children}
+        </div>
+    );
 }
 
 const DmsLatitude = (props) => {

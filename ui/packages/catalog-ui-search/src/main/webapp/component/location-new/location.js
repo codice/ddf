@@ -2,10 +2,9 @@ const React = require('react');
 
 const { Radio, RadioItem } = require('react-component/radio');
 const { WKT, LatLongDD, LatLongDMS, USNG } = require('./geo-components');
-const plugin = require('plugins/location');
 const produce = require('immer').default;
 
-const inputs = plugin({
+const inputs = {
     wkt: {
         label: 'WKT',
         Component: WKT
@@ -22,7 +21,7 @@ const inputs = plugin({
         label: 'USNG/MGRS',
         Component: USNG
     }
-});
+};
 
 const drawTypes = ['wkt', 'dd', 'dms', 'usng'];
 
@@ -55,10 +54,9 @@ const LocationInput = (props) => {
     );
 };
 
-module.exports = ({ state, setState, options }) => (
+module.exports = ({ state, setState }) => (
     <LocationInput
         {...state}
-        onDraw={options.onDraw}
         setState={(producer) => (value) => {
             const nextState = produce(state, draft => { producer(draft, value) });
             setState(nextState);
