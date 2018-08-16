@@ -148,7 +148,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private void setHttpHeaders(Request request, Response response, BinaryContent content)
-      throws MimeTypeException, IllegalArgumentException {
+      throws MimeTypeException {
     String mimeType = content.getMimeTypeValue();
 
     if (mimeType == null) {
@@ -170,7 +170,7 @@ public class CqlTransformHandler implements Route {
   }
 
   private String getFileExtFromMimeType(String mimeType)
-      throws MimeTypeException, IllegalArgumentException {
+      throws MimeTypeException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (StringUtils.isEmpty(fileExt)) {
@@ -195,7 +195,7 @@ public class CqlTransformHandler implements Route {
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
       CqlQueryResponse cqlQueryResponse,
       Map<String, Serializable> arguments)
-      throws CatalogTransformerException, IOException, MimeTypeException, IllegalArgumentException {
+      throws CatalogTransformerException, IOException, MimeTypeException {
     BinaryContent content =
         bundleContext
             .getService(queryResponseTransformer)
