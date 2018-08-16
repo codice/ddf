@@ -179,7 +179,6 @@
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
                             gml-v_3_2_1-schema,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             platform-util-unavailableurls,
                             platform-util

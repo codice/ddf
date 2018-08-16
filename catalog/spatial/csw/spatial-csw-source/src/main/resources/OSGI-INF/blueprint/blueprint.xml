@@ -28,6 +28,7 @@
                filter="(shortname=URLResourceReader)"/>
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="metacardTypes" class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -91,6 +92,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -136,6 +138,7 @@
             <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
             <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -179,6 +182,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -222,6 +226,7 @@
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
             <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <!-- CSW Store Properties -->
             <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
             <property name="cswTransactionWriter" ref="cswTransactionWriter"/>

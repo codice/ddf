@@ -349,6 +349,11 @@
             <artifactId>powermock-module-junit4-rule-agent</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!--Spock dependencies-->
         <dependency>

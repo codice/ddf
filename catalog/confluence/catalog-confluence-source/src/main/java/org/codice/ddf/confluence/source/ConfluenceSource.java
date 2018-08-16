@@ -65,7 +65,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.confluence.api.SearchResource;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,8 @@ public class ConfluenceSource extends MaskableImpl
   private static final String USERNAME_KEY = "username";
 
   private static final String PASSWORD_KEY = "password";
+
+  private final ClientFactoryFactory clientFactoryFactory;
 
   private String endpointUrl;
 
@@ -126,12 +129,14 @@ public class ConfluenceSource extends MaskableImpl
       EncryptionService encryptionService,
       ConfluenceInputTransformer transformer,
       ResourceReader reader,
-      AttributeRegistry attributeRegistry) {
+      AttributeRegistry attributeRegistry,
+      ClientFactoryFactory clientFactoryFactory) {
     this.filterAdapter = adapter;
     this.encryptionService = encryptionService;
     this.transformer = transformer;
     this.resourceReader = reader;
     this.attributeRegistry = attributeRegistry;
+    this.clientFactoryFactory = clientFactoryFactory;
   }
 
   public void init() {
@@ -141,10 +146,12 @@ public class ConfluenceSource extends MaskableImpl
 
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
       SecurityLogger.audit("Setting up confluence client for user {}", username);
-      factory = new SecureCxfClientFactory<>(endpointUrl, SearchResource.class, username, password);
+      factory =
+          clientFactoryFactory.getSecureCxfClientFactory(
+              endpointUrl, SearchResource.class, username, password);
     } else {
       SecurityLogger.audit("Setting up confluence client for anonymous access");
-      factory = new SecureCxfClientFactory<>(endpointUrl, SearchResource.class);
+      factory = clientFactoryFactory.getSecureCxfClientFactory(endpointUrl, SearchResource.class);
     }
   }
 

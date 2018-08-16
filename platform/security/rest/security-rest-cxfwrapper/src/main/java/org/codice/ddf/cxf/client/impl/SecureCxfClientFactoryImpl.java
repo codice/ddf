@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.cxf;
+package org.codice.ddf.cxf.client.impl;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
@@ -31,12 +31,15 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.PrivilegedAction;
+import java.security.SecurityPermission;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -69,6 +72,7 @@ import org.apache.shiro.subject.Subject;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -85,9 +89,9 @@ import org.slf4j.LoggerFactory;
  *   <li>Most non-DDF systems do not know how to handle SAML assertions in the auth header.
  * </ol>
  */
-public class SecureCxfClientFactory<T> {
+public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactoryImpl.class);
 
   private final JAXRSClientFactoryBean clientFactory;
 
@@ -107,6 +111,9 @@ public class SecureCxfClientFactory<T> {
   private static final String AUTO_REDIRECT_ALLOW_REL_URI = "http.redirect.relative.uri";
 
   private static final String AUTO_REDIRECT_MAX_SAME_URI_COUNT = "http.redirect.max.same.uri.count";
+
+  private static final SecurityPermission CREATE_CLIENT_PERMISSION =
+      new SecurityPermission("createCxfClient");
 
   private Integer sameUriRedirectMax = SAME_URI_REDIRECT_MAX;
 
@@ -136,17 +143,19 @@ public class SecureCxfClientFactory<T> {
         new ResponseUnmarshaller());
   }
 
-  /** @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean, boolean) */
-  public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass) {
+  /**
+   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean)
+   */
+  public SecureCxfClientFactoryImpl(String endpointUrl, Class<T> interfaceClass) {
     this(endpointUrl, interfaceClass, null, null, false, false);
   }
 
-  public SecureCxfClientFactory(
+  public SecureCxfClientFactoryImpl(
       String endpointUrl, Class<T> interfaceClass, String username, String password) {
     this(endpointUrl, interfaceClass, null, null, false, false, null, null, username, password);
   }
 
-  public SecureCxfClientFactory(
+  public SecureCxfClientFactoryImpl(
       String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
@@ -177,7 +186,7 @@ public class SecureCxfClientFactory<T> {
    * @param disableCnCheck disable ssl check for common name / host name match
    * @param allowRedirects allow this client to follow redirects
    */
-  public SecureCxfClientFactory(
+  public SecureCxfClientFactoryImpl(
       String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
@@ -237,7 +246,8 @@ public class SecureCxfClientFactory<T> {
    * @param connectionTimeout timeout for the connection
    * @param receiveTimeout timeout for receiving responses
    */
-  public SecureCxfClientFactory(
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
       String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
@@ -272,7 +282,8 @@ public class SecureCxfClientFactory<T> {
    * @param keyInfo client key info for 2-way ssl
    * @param sslProtocol SSL protocol to use (e.g. TLSv1.2)
    */
-  public SecureCxfClientFactory(
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
       String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
@@ -315,7 +326,8 @@ public class SecureCxfClientFactory<T> {
    * @param username a String representing the username
    * @param password a String representing a password
    */
-  public SecureCxfClientFactory(
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
       String endpointUrl,
       Class<T> interfaceClass,
       List<?> providers,
@@ -358,20 +370,30 @@ public class SecureCxfClientFactory<T> {
    * each new request in order to ensure that the security token is up-to-date each time.
    */
   public T getClientForSubject(Subject subject) {
-    String asciiString = clientFactory.getAddress();
+    final java.lang.SecurityManager security = System.getSecurityManager();
 
-    T newClient = getNewClient();
-
-    if (!basicAuth && StringUtils.startsWithIgnoreCase(asciiString, "https")) {
-      if (subject instanceof ddf.security.Subject) {
-        RestSecurity.setSubjectOnClient(
-            (ddf.security.Subject) subject, WebClient.client(newClient));
-      }
+    if (security != null) {
+      security.checkPermission(CREATE_CLIENT_PERMISSION);
     }
 
-    auditRemoteConnection(asciiString);
+    return AccessController.doPrivileged(
+        (PrivilegedAction<T>)
+            () -> {
+              String asciiString = clientFactory.getAddress();
 
-    return newClient;
+              T newClient = getNewClient();
+
+              if (!basicAuth && StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+                if (subject instanceof ddf.security.Subject) {
+                  RestSecurity.setSubjectOnClient(
+                      (ddf.security.Subject) subject, WebClient.client(newClient));
+                }
+              }
+
+              auditRemoteConnection(asciiString);
+
+              return newClient;
+            });
   }
 
   public Integer getSameUriRedirectMax() {

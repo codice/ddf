@@ -38,6 +38,8 @@ import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +81,8 @@ public class FilterPlugin implements AccessPlugin {
   }
 
   protected Subject getSystemSubject() {
-    return SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    return AccessController.doPrivileged(
+        (PrivilegedAction<Subject>) () -> SECURITY.runAsAdmin(SECURITY::getSystemSubject));
   }
 
   @Override
