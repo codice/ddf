@@ -84,10 +84,18 @@ let bootstrapPromise = sharedSearchFormPromise();
     };
    },
    checkIfShareable: function(template) {
+       if(this.checkIfOwner(template)){
+           return false;
+       }
        if (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) {
            return true;
        }
        return false;
+   },
+   checkIfOwner: function(template) {
+       if(user.get('user').get('userid')===template.owner){
+         return true;
+       }
    },
    checkIfInGroup: function(template) {
        let myGroups = user.get('user').get('roles');
