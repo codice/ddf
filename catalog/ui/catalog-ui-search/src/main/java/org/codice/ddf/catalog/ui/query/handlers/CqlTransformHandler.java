@@ -169,8 +169,7 @@ public class CqlTransformHandler implements Route {
     response.header(HttpHeaders.CONTENT_DISPOSITION, attachment);
   }
 
-  private String getFileExtFromMimeType(String mimeType)
-      throws MimeTypeException {
+  private String getFileExtFromMimeType(String mimeType) throws MimeTypeException {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (StringUtils.isEmpty(fileExt)) {
