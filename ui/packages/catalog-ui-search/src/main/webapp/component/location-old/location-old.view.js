@@ -93,7 +93,6 @@ module.exports = Marionette.LayoutView.extend({
                         wreqr.vent.trigger('search:circledisplay', this.model);
                     } else if (CQLUtils.isPolygonFilter(filter)) {
                         this.handlePolygonDeserialization(filter);
-                        break;
                     } else {
                         let pointText = filterValue.substring(11);
                         pointText = pointText.substring(0, pointText.length - 1);

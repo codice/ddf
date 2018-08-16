@@ -32,7 +32,7 @@ class PolygonRenderView extends GeometryRenderView {
         this.cameraMagnitude;
         this.animationFrameId;
 
-        this.init({...options, events: 'change:polygon change:polygonBufferWidth, change:polygonBufferUnits'});
+        this.init({...options, events: 'change:polygon change:polygonBufferWidth change:polygonBufferUnits'});
     }
     
     init = (options) => {
