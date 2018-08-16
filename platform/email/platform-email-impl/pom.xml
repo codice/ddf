@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-            <version>1.5.5</version>
+            <version>${javax-mail.version}</version>
         </dependency>
         <dependency>
             <groupId>net.iharder</groupId>
