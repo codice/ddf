@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.ui.query.handlers;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.when;
@@ -80,8 +80,6 @@ public class CqlTransformHandlerTest {
       "^attachment;filename=export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z."
           + RETURN_ID
           + "$";
-  private static final String FILE_ATTACHMENT_ERROR_MESSAGE =
-      "The response Content-Disposition header does not contain a file attachment that matches the proper regular expression";
 
   private class MockResponse extends Response {
 
@@ -185,9 +183,9 @@ public class CqlTransformHandlerTest {
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
-    assertTrue(
-        FILE_ATTACHMENT_ERROR_MESSAGE,
-        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
+    assertThat(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION),
+        matchesPattern(ATTACHMENT_REGEX));
     assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
     assertThat(mockResponse.type(), is(MIME_TYPE));
   }
@@ -202,9 +200,9 @@ public class CqlTransformHandlerTest {
 
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
-    assertTrue(
-        FILE_ATTACHMENT_ERROR_MESSAGE,
-        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
+    assertThat(
+        mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION),
+        matchesPattern(ATTACHMENT_REGEX));
     assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
     assertThat(mockResponse.type(), is(MIME_TYPE));
   }
