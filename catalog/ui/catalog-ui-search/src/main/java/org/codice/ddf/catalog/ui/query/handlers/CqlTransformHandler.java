@@ -51,13 +51,11 @@ import spark.utils.IOUtils;
 public class CqlTransformHandler implements Route {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlTransformHandler.class);
-
-  private List<ServiceReference> queryResponseTransformers;
-
-  private BundleContext bundleContext;
-
   private static final String GZIP = "gzip";
 
+  private EndpointUtil util;
+  private List<ServiceReference> queryResponseTransformers;
+  private BundleContext bundleContext;
   private ObjectMapper mapper =
       new ObjectMapperImpl(
           new JsonParserFactory().usePropertyOnly(),
@@ -67,8 +65,6 @@ public class CqlTransformHandler implements Route {
               .includeDefaultValues()
               .setJsonFormatForDates(false)
               .useAnnotations());
-
-  private EndpointUtil util;
 
   public CqlTransformHandler(
       List<ServiceReference> queryResponseTransformers,

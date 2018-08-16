@@ -77,9 +77,11 @@ public class CqlTransformHandlerTest {
   private static final String SERVICE_NOT_FOUND = "{\"message\":\"Service not found\"}";
   private static final String SERVICE_SUCCESS = Boon.toJson("");
   private static final String ATTACHMENT_REGEX =
-      "^attachment;filename=export-\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\dZ."
+      "^attachment;filename=export-\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z."
           + RETURN_ID
           + "$";
+  private static final String FILE_ATTACHMENT_ERROR_MESSAGE =
+      "The response Content-Disposition header does not contain a file attachment that matches the proper regular expression";
 
   private class MockResponse extends Response {
 
@@ -184,6 +186,7 @@ public class CqlTransformHandlerTest {
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
     assertTrue(
+        FILE_ATTACHMENT_ERROR_MESSAGE,
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertThat(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING), is(GZIP));
     assertThat(mockResponse.type(), is(MIME_TYPE));
@@ -200,6 +203,7 @@ public class CqlTransformHandlerTest {
     assertThat(res, is(SERVICE_SUCCESS));
     assertThat(mockResponse.status(), is(HttpStatus.OK_200));
     assertTrue(
+        FILE_ATTACHMENT_ERROR_MESSAGE,
         mockResponse.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).matches(ATTACHMENT_REGEX));
     assertNull(mockResponse.getHeaders().get(HttpHeaders.CONTENT_ENCODING));
     assertThat(mockResponse.type(), is(MIME_TYPE));
