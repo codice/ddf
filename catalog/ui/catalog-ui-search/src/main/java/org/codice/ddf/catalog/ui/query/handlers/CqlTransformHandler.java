@@ -107,7 +107,7 @@ public class CqlTransformHandler implements Route {
 
     try {
       cqlRequest = mapper.readValue(body, CqlRequest.class);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       LOGGER.debug("Error fetching cql request");
       response.status(HttpStatus.BAD_REQUEST_400);
       return ImmutableMap.of("message", "Error retrieving cql request");
