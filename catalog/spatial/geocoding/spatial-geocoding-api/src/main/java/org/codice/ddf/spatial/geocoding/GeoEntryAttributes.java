@@ -44,7 +44,8 @@ public class GeoEntryAttributes implements MetacardType {
               POPULATION_ATTRIBUTE_NAME, true, true, false, false, BasicTypes.LONG_TYPE),
           new AttributeDescriptorImpl(
               IMPORT_LOCATION, true, true, false, false, BasicTypes.STRING_TYPE),
-              new AttributeDescriptorImpl(GAZETTEER_SORT_VALUE, true, true, false, false, BasicTypes.INTEGER_TYPE));
+          new AttributeDescriptorImpl(
+              GAZETTEER_SORT_VALUE, true, true, false, false, BasicTypes.INTEGER_TYPE));
 
   @Override
   public String getName() {

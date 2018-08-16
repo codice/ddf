@@ -144,7 +144,9 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
     metacard.setAttribute(
         new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
-    metacard.setAttribute(new AttributeImpl(GeoEntryAttributes.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
+    metacard.setAttribute(
+        new AttributeImpl(
+            GeoEntryAttributes.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
     if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
@@ -363,7 +365,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
   }
 
   private long getSortPopVal(long popSize) {
-    //gives a sorting score from 2-10 based on population
+    // gives a sorting score from 2-10 based on population
     return Math.min(10, (popSize - 1) / 50_000 + 2);
   }
 }
