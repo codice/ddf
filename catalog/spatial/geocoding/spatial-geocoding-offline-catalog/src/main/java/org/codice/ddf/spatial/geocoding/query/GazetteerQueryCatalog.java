@@ -187,12 +187,10 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
 
     try {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
-
       if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
         List<Map.Entry<String, String>> suggestions =
             (List<Map.Entry<String, String>>)
                 suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
-
         return suggestions
             .stream()
             .map(suggestion -> new SuggestionImpl(suggestion.getKey(), suggestion.getValue()))
@@ -232,6 +230,12 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       LOGGER.debug("GeoEntry metacard does not contain population attribute.");
     }
 
+    attribute = metacard.getAttribute(GeoEntryAttributes.GAZETTEER_SORT_VALUE);
+    if (attribute != null) {
+      geoEntryBuilder.gazSort((Integer) attribute.getValue());
+    } else {
+      LOGGER.debug("GeoEntry does not contain gazetteer sort value");
+    }
     String location = getStringAttributeFromMetacard(metacard, Core.LOCATION);
     if (StringUtils.isNotBlank(location)) {
       try {
