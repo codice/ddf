@@ -17,7 +17,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -55,6 +54,8 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -127,6 +128,8 @@ public class URLResourceReaderTest {
         }
       };
 
+  private ClientFactoryFactory clientFactoryFactory;
+
   private MimeTypeMapper mimeTypeMapper;
 
   private CustomMimeTypeResolver customResolver;
@@ -157,11 +160,13 @@ public class URLResourceReaderTest {
     resolvers.add(tikaResolver);
     resolvers.add(this.customResolver);
     this.mimeTypeMapper = new MimeTypeMapperImpl(resolvers);
+    this.clientFactoryFactory = new ClientFactoryFactoryImpl();
   }
 
   @Test
   public void testURLResourceReaderBadQualifier() {
-    URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader =
+        new TestURLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
     String filePath = TEST_PATH + MPEG_FILE_NAME_1;
 
@@ -320,7 +325,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testURLResourceIOException() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
 
     String filePath = "JUMANJI!!!!";
 
@@ -343,7 +348,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testUrlToNonExistentFile() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
 
     String filePath = ABSOLUTE_PATH + TEST_PATH + "NonExistentFile.jpg";
 
@@ -570,7 +575,7 @@ public class URLResourceReaderTest {
 
   @Test
   public void testURLResourceReaderQualifierSet() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
 
     Set<String> qualifiers = resourceReader.getSupportedSchemes();
 
@@ -610,7 +615,7 @@ public class URLResourceReaderTest {
   @Test
   public void testRemoveARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
 
@@ -631,7 +636,7 @@ public class URLResourceReaderTest {
   @Test
   public void testAddARootResourceDirectory() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
 
@@ -662,7 +667,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesNullInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
 
@@ -681,7 +686,7 @@ public class URLResourceReaderTest {
   @Test
   public void testSetRootResourceDirectoriesEmptySetInput() throws Exception {
     // Setup (2 paths)
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
         ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf"));
 
@@ -697,7 +702,7 @@ public class URLResourceReaderTest {
   public void testSetRootResourceDirectoriesInvalidPath() throws Exception {
     // Setup (1 valid paths, 1 invalid path)
     String invalidPath = "\0";
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
 
     // Perform Test
     resourceReader.setRootResourceDirectories(
@@ -708,31 +713,10 @@ public class URLResourceReaderTest {
     assertThat(rootResourceDirectories.size(), is(1));
   }
 
-  @Test
-  public void testSetRedirect() throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
-    WebClient client =
-        resourceReader.getWebClient(
-            HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
-    assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
-
-    resourceReader.setFollowRedirects(true);
-    client =
-        resourceReader.getWebClient(
-            HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
-    assertTrue(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
-
-    resourceReader.setFollowRedirects(false);
-    client =
-        resourceReader.getWebClient(
-            HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1, new HashMap<>());
-    assertFalse(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
-  }
-
   private void verifyFile(
       String filePath, String filename, String expectedMimeType, String... rootResourceDirectories)
       throws Exception {
-    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+    URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(
         new HashSet<String>(Arrays.asList(rootResourceDirectories)));
 
@@ -803,7 +787,8 @@ public class URLResourceReaderTest {
       arguments.put(ContentItem.QUALIFIER_KEYWORD, qualifier);
     }
 
-    TestURLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
+    TestURLResourceReader resourceReader =
+        new TestURLResourceReader(mimeTypeMapper, clientFactoryFactory);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
 
     // Test using the URL ResourceReader
@@ -836,8 +821,9 @@ public class URLResourceReaderTest {
 
     public String capturedWebClientUri;
 
-    public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
-      super(mimeTypeMapper);
+    public TestURLResourceReader(
+        MimeTypeMapper mimeTypeMapper, ClientFactoryFactory clientFactoryFactory) {
+      super(mimeTypeMapper, clientFactoryFactory);
     }
 
     @Override

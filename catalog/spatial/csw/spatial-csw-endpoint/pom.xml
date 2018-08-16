@@ -201,7 +201,6 @@
                             spatial-csw-transformer,
                             catalog-core-api-impl,
                             platform-util,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             geospatial,
                             platform-util,

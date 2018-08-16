@@ -58,7 +58,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryPackageType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -124,13 +124,14 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService) {
-    super(context, cswSourceConfiguration, provider, factory, encryptionService);
+    super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
   }
 
-  public RegistryStoreImpl(EncryptionService encryptionService) {
-    super(encryptionService);
+  public RegistryStoreImpl(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+    super(encryptionService, clientFactoryFactory);
   }
 
   @Override

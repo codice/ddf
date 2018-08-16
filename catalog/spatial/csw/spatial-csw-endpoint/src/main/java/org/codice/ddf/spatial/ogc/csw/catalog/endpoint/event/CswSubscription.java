@@ -17,6 +17,7 @@ import ddf.catalog.event.impl.SubscriptionImpl;
 import ddf.catalog.operation.QueryRequest;
 import java.util.Set;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.opengis.filter.Filter;
@@ -36,23 +37,29 @@ public class CswSubscription extends SubscriptionImpl {
   }
 
   public CswSubscription(
-      TransformerManager mimeTypeTransformerManager, GetRecordsType request, QueryRequest query)
+      TransformerManager mimeTypeTransformerManager,
+      GetRecordsType request,
+      QueryRequest query,
+      ClientFactoryFactory clientFactoryFactory)
       throws CswException {
     this(
         request,
         query.getQuery(),
-        new SendEvent(mimeTypeTransformerManager, request, query),
+        new SendEvent(mimeTypeTransformerManager, request, query, clientFactoryFactory),
         query.getSourceIds(),
         query.isEnterprise());
   }
 
   public static CswSubscription getFilterlessSubscription(
-      TransformerManager mimeTypeTransformerManager, GetRecordsType request, QueryRequest query)
+      TransformerManager mimeTypeTransformerManager,
+      GetRecordsType request,
+      QueryRequest query,
+      ClientFactoryFactory clientFactoryFactory)
       throws CswException {
     return new CswSubscription(
         request,
         Filter.INCLUDE,
-        new SendEvent(mimeTypeTransformerManager, request, query),
+        new SendEvent(mimeTypeTransformerManager, request, query, clientFactoryFactory),
         null,
         false);
   }

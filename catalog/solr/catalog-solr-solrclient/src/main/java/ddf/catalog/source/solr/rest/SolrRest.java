@@ -22,7 +22,8 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,8 @@ public class SolrRest {
   private static final String K1_PROPERTY = "k1";
 
   private static final String B_PROPERTY = "b";
+
+  private final ClientFactoryFactory clientFactoryFactory;
 
   private LinkedTreeMap<String, Object> similarityFormat;
 
@@ -63,8 +66,9 @@ public class SolrRest {
 
   private String solrBaseUrl;
 
-  public SolrRest() {
+  public SolrRest(ClientFactoryFactory clientFactoryFactory) {
     gson = new Gson();
+    this.clientFactoryFactory = clientFactoryFactory;
   }
 
   public void setK1(Float k1) {
@@ -111,13 +115,17 @@ public class SolrRest {
   public void init() {
     if (StringUtils.isNotBlank(solrBaseUrl)) {
       solrCatalogSchemaClientFactory =
-          new SecureCxfClientFactory<>(getSolrCatalogSchemaUrl(), SolrRestClient.class);
+          clientFactoryFactory.getSecureCxfClientFactory(
+              getSolrCatalogSchemaUrl(), SolrRestClient.class);
       solrCatalogUpdateClientFactory =
-          new SecureCxfClientFactory<>(getSolrCatalogUpdateUrl(), SolrUpdateClient.class);
+          clientFactoryFactory.getSecureCxfClientFactory(
+              getSolrCatalogUpdateUrl(), SolrUpdateClient.class);
       solrMetacardCacheSchemaClientFactory =
-          new SecureCxfClientFactory<>(getSolrMetacardCacheSchemaUrl(), SolrRestClient.class);
+          clientFactoryFactory.getSecureCxfClientFactory(
+              getSolrMetacardCacheSchemaUrl(), SolrRestClient.class);
       solrMetacardCacheUpdateClientFactory =
-          new SecureCxfClientFactory<>(getSolrMetacardCacheUpdateUrl(), SolrUpdateClient.class);
+          clientFactoryFactory.getSecureCxfClientFactory(
+              getSolrMetacardCacheUpdateUrl(), SolrUpdateClient.class);
 
       similarityFormat = new LinkedTreeMap<>();
       similarityFormat.put("class", "solr.BM25SimilarityFactory");
