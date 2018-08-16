@@ -1160,7 +1160,7 @@
             <str name="field">title_txt</str>
             <str name="contextField">metacard-tags_txt</str>
             <str name="weightField">ext.gazetteer-sort-value_int</str>
-            <str name="sortField">ext.populations_lng</str>
+            <str name="sortField">ext.population_lng</str>
             <str name="payloadField">id_txt</str>
             <str name="buildOnStartup">false</str>
         </lst>
