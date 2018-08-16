@@ -55,6 +55,7 @@ import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.DictionaryMap;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -100,6 +101,8 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private final EventProcessor eventProcessor;
 
+  private final ClientFactoryFactory clientFactoryFactory;
+
   private DatatypeFactory datatypeFactory;
 
   private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
@@ -110,13 +113,15 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager schemaTransformerManager,
       TransformerManager inputTransformerManager,
       Validator validator,
-      CswQueryFactory queryFactory) {
+      CswQueryFactory queryFactory,
+      ClientFactoryFactory clientFactoryFactory) {
     this.eventProcessor = eventProcessor;
     this.mimeTypeTransformerManager = mimeTypeTransformerManager;
     this.schemaTransformerManager = schemaTransformerManager;
     this.inputTransformerManager = inputTransformerManager;
     this.validator = validator;
     this.queryFactory = queryFactory;
+    this.clientFactoryFactory = clientFactoryFactory;
 
     try {
       this.datatypeFactory = DatatypeFactory.newInstance();
@@ -406,9 +411,10 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     QueryRequest query = queryFactory.getQuery(request);
     // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
-      return CswSubscription.getFilterlessSubscription(mimeTypeTransformerManager, request, query);
+      return CswSubscription.getFilterlessSubscription(
+          mimeTypeTransformerManager, request, query, clientFactoryFactory);
     }
-    return new CswSubscription(mimeTypeTransformerManager, request, query);
+    return new CswSubscription(mimeTypeTransformerManager, request, query, clientFactoryFactory);
   }
 
   public synchronized String addOrUpdateSubscription(

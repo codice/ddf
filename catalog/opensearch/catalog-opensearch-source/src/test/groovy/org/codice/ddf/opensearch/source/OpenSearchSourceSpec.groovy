@@ -27,7 +27,9 @@ import ddf.security.SecurityConstants
 import ddf.security.Subject
 import ddf.security.encryption.EncryptionService
 import org.apache.cxf.jaxrs.client.WebClient
-import org.codice.ddf.cxf.SecureCxfClientFactory
+import org.codice.ddf.cxf.client.ClientFactoryFactory
+import org.codice.ddf.cxf.client.SecureCxfClientFactory
+import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl
 import org.codice.ddf.opensearch.OpenSearchConstants
 import org.opengis.filter.Filter
 import org.opengis.filter.PropertyIsLike
@@ -43,6 +45,11 @@ import spock.lang.Unroll
 
 import javax.ws.rs.core.Response
 import java.nio.charset.StandardCharsets
+import static org.mockito.Matchers.any
+import static org.mockito.Matchers.anyBoolean
+import static org.mockito.Matchers.anyInt
+import static org.mockito.Matchers.anyString
+import static org.mockito.Mockito.when
 
 class OpenSearchSourceSpec extends Specification {
 
@@ -90,7 +97,7 @@ class OpenSearchSourceSpec extends Specification {
             getWebClientForSubject(subject) >> webClient
         }
 
-        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService)) {
+        source = new OpenSearchSource(new GeotoolsFilterAdapterImpl(), new OpenSearchParserImpl(), new OpenSearchFilterVisitor(), Mock(EncryptionService), new ClientFactoryFactoryImpl()) {
 
             @Override
             protected Bundle getBundle() {

@@ -80,8 +80,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.cxf.ClientKeyInfo;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -168,6 +168,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private final EncryptionService encryptionService;
 
+  private final ClientFactoryFactory clientFactoryFactory;
+
   private String wfsUrl;
 
   private String wfsVersion;
@@ -241,7 +243,7 @@ public class WfsSource extends AbstractWfsSource {
       FilterAdapter filterAdapter,
       BundleContext context,
       AvailabilityTask task,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService,
       WfsMetacardTypeRegistry wfsMetacardTypeRegistry,
       List<MetacardTypeEnhancer> metacardTypeEnhancers)
@@ -250,7 +252,7 @@ public class WfsSource extends AbstractWfsSource {
     this.filterAdapter = filterAdapter;
     this.context = context;
     this.availabilityTask = task;
-    this.factory = factory;
+    this.clientFactoryFactory = clientFactoryFactory;
     this.encryptionService = encryptionService;
     this.wfsMetacardTypeRegistry = wfsMetacardTypeRegistry;
     this.metacardTypeEnhancers = metacardTypeEnhancers;
@@ -261,17 +263,20 @@ public class WfsSource extends AbstractWfsSource {
             Collections.singletonList(FEATURE_MEMBER_ELEMENT),
             FeatureTypeType.class);
     initProviders();
+    createClientFactory();
     configureWfsFeatures();
   }
 
   public WfsSource(
       EncryptionService encryptionService,
       WfsMetacardTypeRegistry wfsMetacardTypeRegistry,
-      FeatureTransformationService featureTransformationService) {
+      FeatureTransformationService featureTransformationService,
+      ClientFactoryFactory clientFactoryFactory) {
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
     this.encryptionService = encryptionService;
+    this.clientFactoryFactory = clientFactoryFactory;
     this.wfsMetadata =
         new WfsMetadataImpl<>(
             this::getId,
@@ -379,7 +384,7 @@ public class WfsSource extends AbstractWfsSource {
   private void createClientFactory() {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),
@@ -393,7 +398,7 @@ public class WfsSource extends AbstractWfsSource {
     } else if (StringUtils.isNotBlank(getCertAlias())
         && StringUtils.isNotBlank(getKeystorePath())) {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),
@@ -402,11 +407,12 @@ public class WfsSource extends AbstractWfsSource {
               this.allowRedirects,
               null,
               null,
-              new ClientKeyInfo(getCertAlias(), getKeystorePath()),
+              getCertAlias(),
+              getKeystorePath(),
               getSslProtocol());
     } else {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),

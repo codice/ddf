@@ -97,6 +97,15 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-cxfwrapper</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -109,7 +118,10 @@
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util
+                            platform-util-unavailableurls,
+                            ddf-security-common,
+                            platform-util,
+                            security-core-impl
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.resource.impl,
@@ -118,6 +130,15 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
+                        <Import-Package>
+                            !com.rometools.utils,
+                            !ddf.security.liberty.paos.impl,
+                            !org.codice.ddf.security.common.jaxrs,
+                            !ddf.security.assertion.impl,
+                            !org.codice.ddf.platform.util.http,
+                            !org.codice.ddf.cxf,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -139,7 +160,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.76</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>

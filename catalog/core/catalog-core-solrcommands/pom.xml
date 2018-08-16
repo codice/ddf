@@ -149,6 +149,11 @@
             <artifactId>org.apache.karaf.shell.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.11.0</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

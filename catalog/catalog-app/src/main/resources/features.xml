@@ -30,6 +30,7 @@
 
     <feature name="catalog-core-api" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
+        <feature>security-core</feature>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
