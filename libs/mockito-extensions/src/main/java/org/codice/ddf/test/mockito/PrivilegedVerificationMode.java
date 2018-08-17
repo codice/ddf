@@ -11,17 +11,18 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.common.mockito;
+package org.codice.ddf.test.mockito;
 
 import static org.mockito.Mockito.times;
 
-import com.google.common.annotations.Beta;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import org.mockito.Incubating;
 import org.mockito.exceptions.base.MockitoAssertionError;
+import org.mockito.internal.debugging.LocationImpl;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.internal.verification.api.VerificationDataInOrder;
@@ -38,7 +39,7 @@ import org.mockito.verification.VerificationMode;
  * <p><b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-@Beta
+@Incubating
 public class PrivilegedVerificationMode implements VerificationMode, VerificationInOrderMode {
 
   private final VerificationMode mode;
@@ -48,8 +49,8 @@ public class PrivilegedVerificationMode implements VerificationMode, Verificatio
   }
 
   /**
-   * Wraps another {@link VerificationMode} instance and ensures all the expected calls were made
-   * inside a {@code AccessController.doPrivileged()} block.
+   * Wraps another {@link VerificationMode} instance and ensures all {@code verify()} calls from the
+   * specified mode were made inside a {@code AccessController.doPrivileged()} block.
    *
    * @param mode {@link VerificationMode} instance to wrap with a privileged check
    * @return wrapped {@link VerificationMode} instance
@@ -59,8 +60,8 @@ public class PrivilegedVerificationMode implements VerificationMode, Verificatio
   }
 
   /**
-   * Returns a {@link VerificationMode} object that ensures a single expected calls was made inside
-   * a {@code AccessController.doPrivileged()} block.
+   * Returns a {@link VerificationMode} object that ensures a single {@code verify} code was made
+   * inside a {@code AccessController.doPrivileged()} block.
    *
    * @return wrapped {@link VerificationMode} instance
    */
@@ -70,8 +71,6 @@ public class PrivilegedVerificationMode implements VerificationMode, Verificatio
 
   @Override
   public void verify(VerificationData verificationData) {
-    String target = verificationData.getTarget().toString();
-
     mode.verify(verificationData);
 
     verify(verificationData.getTarget(), verificationData.getAllInvocations());
@@ -79,8 +78,6 @@ public class PrivilegedVerificationMode implements VerificationMode, Verificatio
 
   @Override
   public void verifyInOrder(VerificationDataInOrder verificationDataInOrder) {
-    String target = verificationDataInOrder.getWanted().toString();
-
     if (!(mode instanceof VerificationInOrderMode)) {
       throw new MockitoAssertionError(mode.toString() + " cannot be used in ordered mode");
     }
@@ -97,46 +94,57 @@ public class PrivilegedVerificationMode implements VerificationMode, Verificatio
 
   private void verify(MatchableInvocation wanted, List<Invocation> invocations) {
 
-    if (invocations.size() == 0) {
+    if (invocations.isEmpty()) {
       return;
     }
 
-    try {
-      Location location = invocations.get(0).getLocation();
-      Field stackTraceHolderField = getStackTraceHolderField(location);
+    Location location = invocations.get(0).getLocation();
+    Field stackTraceHolderField = getStackTraceHolderField(wanted, location);
 
-      for (Invocation invocation : invocations) {
-        if (wanted.matches(invocation)) {
-          if (getStackTraceElements(stackTraceHolderField, invocation)
-              .noneMatch(this::isDoPrivilegedCall)) {
-            throw new MockitoAssertionError(
-                wanted.toString() + " not called in a doPrivileged block");
-          }
-        }
-      }
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      throw new MockitoAssertionError(
-          "Failed to verify that "
-              + wanted.toString()
-              + " was called in a doPrivileged block, most likely because Mockito's"
-              + " VerificationData implementation has changed.");
+    if (invocations
+        .stream()
+        .filter(wanted::matches)
+        .flatMap(i -> getStackTraceElements(stackTraceHolderField, wanted, i))
+        .noneMatch(this::isDoPrivilegedCall)) {
+      throw new MockitoAssertionError(wanted + " not called in a doPrivileged block");
     }
   }
 
   private Stream<StackTraceElement> getStackTraceElements(
-      Field stackTraceHolderField, Invocation invocation) throws IllegalAccessException {
-    return Arrays.stream(
-        ((Throwable) stackTraceHolderField.get(invocation.getLocation())).getStackTrace());
+      Field stackTraceHolderField, MatchableInvocation wanted, Invocation invocation) {
+    try {
+      return Arrays.stream(
+          ((Throwable) stackTraceHolderField.get(invocation.getLocation())).getStackTrace());
+    } catch (IllegalAccessException e) {
+      throw getMockitoImplementationChangedException(wanted);
+    }
   }
 
-  private Field getStackTraceHolderField(Location location) throws NoSuchFieldException {
-    Field stackTraceHolderField = location.getClass().getDeclaredField("stackTraceHolder");
-    stackTraceHolderField.setAccessible(true);
-    return stackTraceHolderField;
+  private Field getStackTraceHolderField(MatchableInvocation wanted, Location location) {
+    if (!(location instanceof LocationImpl)) {
+      throw getMockitoImplementationChangedException(wanted);
+    }
+
+    try {
+      Field stackTraceHolderField = location.getClass().getDeclaredField("stackTraceHolder");
+      stackTraceHolderField.setAccessible(true);
+      return stackTraceHolderField;
+    } catch (NoSuchFieldException e) {
+      throw getMockitoImplementationChangedException(wanted);
+    }
   }
 
   private boolean isDoPrivilegedCall(StackTraceElement e) {
     return e.getClassName().equals(AccessController.class.getName())
         && e.getMethodName().startsWith("doPrivileged");
+  }
+
+  private MockitoAssertionError getMockitoImplementationChangedException(
+      MatchableInvocation wanted) {
+    return new MockitoAssertionError(
+        "Failed to verify that "
+            + wanted
+            + " was called in a doPrivileged block, most likely because Mockito's"
+            + " internal implementation has changed.");
   }
 }

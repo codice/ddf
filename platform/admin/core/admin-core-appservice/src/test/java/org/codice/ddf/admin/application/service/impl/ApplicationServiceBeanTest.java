@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import static org.codice.ddf.test.common.mockito.PrivilegedVerificationMode.privileged;
-import static org.codice.ddf.test.common.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
+import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
+import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
@@ -57,7 +57,7 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
-import org.codice.ddf.test.common.mockito.StackCaptor;
+import org.codice.ddf.test.mockito.StackCaptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

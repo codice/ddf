@@ -11,13 +11,13 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.common.mockito;
+package org.codice.ddf.test.mockito;
 
 import static org.mockito.Mockito.doAnswer;
 
-import com.google.common.annotations.Beta;
 import java.util.concurrent.atomic.AtomicReference;
 import org.mockito.AdditionalAnswers;
+import org.mockito.Incubating;
 import org.mockito.stubbing.Stubber;
 
 /**
@@ -42,7 +42,7 @@ import org.mockito.stubbing.Stubber;
  * <p><b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-@Beta
+@Incubating
 public class StackCaptor {
   AtomicReference<StackTraceElement[]> stackTraceElements = new AtomicReference<>();
 
