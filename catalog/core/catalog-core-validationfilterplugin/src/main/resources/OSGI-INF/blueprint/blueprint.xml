@@ -17,12 +17,9 @@
 
     <reference id="filterBuilder"
                interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="filterAdapter"
-               interface="ddf.catalog.filter.FilterAdapter"/>
 
     <bean id="validationPlugin"
       class="org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin">
-        <argument ref="filterAdapter"/>
         <argument ref="filterBuilder"/>
         <cm:managed-properties
           persistent-id="org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin"
@@ -31,7 +28,7 @@
             <list/>
         </property>
         <property name="showErrors" value="false"/>
-        <property name="showWarnings" value="false"/>
+        <property name="showWarnings" value="true"/>
     </bean>
 
     <service ref="validationPlugin" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"/>

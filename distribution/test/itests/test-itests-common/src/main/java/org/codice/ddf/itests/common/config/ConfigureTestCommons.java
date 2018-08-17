@@ -28,9 +28,6 @@ public class ConfigureTestCommons {
   public static final String METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID =
       "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin";
 
-  public static final String CACHING_FEDERATION_STRATEGY_PID =
-      "ddf.catalog.federation.impl.CachingFederationStrategy";
-
   public static final String VALIDATION_FILTER_PLUGIN_PID =
       "org.codice.ddf.catalog.plugin.validationfilter.ValidationFilterPlugin";
 
@@ -43,6 +40,14 @@ public class ConfigureTestCommons {
       List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
     Configuration config =
         configAdmin.getConfiguration(METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, null);
+    Dictionary<String, Object> properties = new DictionaryMap<>();
+    properties.put("attributeMap", securityAttributeMappings);
+    config.update(properties);
+  }
+
+  public static void configureValidationFilterPlugin(
+      List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
+    Configuration config = configAdmin.getConfiguration(VALIDATION_FILTER_PLUGIN_PID, null);
     Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("attributeMap", securityAttributeMappings);
     config.update(properties);

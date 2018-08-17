@@ -20,7 +20,7 @@
 |attributeMap
 |String
 |Mapping of SECURITY attribute to user attribute.
-|invalid-state=system-admin
+|invalid-state=data-manager
 |false
 
 |Show errors
@@ -34,7 +34,7 @@
 |showWarnings
 |Boolean
 |Sets whether validation warnings filter is appended to the query request.
-|false
+|true
 |false
 
 |===

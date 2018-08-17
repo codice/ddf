@@ -17,14 +17,12 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Validation;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
@@ -53,19 +51,16 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
 
   private static final String EXITING = "EXITING {}";
 
-  private FilterAdapter filterAdapter;
-
   private FilterBuilder filterBuilder;
 
-  private static Map<String, List<String>> attributeMap = new HashMap<>();
+  private Map<String, List<String>> attributeMap = new HashMap<>();
 
   private boolean showErrors = false;
 
-  private boolean showWarnings = false;
+  private boolean showWarnings = true;
 
-  public ValidationFilterPlugin(FilterAdapter filterAdapter, FilterBuilder filterBuilder) {
-    LOGGER.trace("INSIDE: QueryRequestValidityFilterPlugin constructor");
-    this.filterAdapter = filterAdapter;
+  public ValidationFilterPlugin(FilterBuilder filterBuilder) {
+    LOGGER.trace("INSIDE: ValidationFilterPlugin constructor");
     this.filterBuilder = filterBuilder;
   }
 
@@ -83,20 +78,16 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
       String[] keyValue = attributeMapping.split("=");
       attributeMap.put(
           keyValue[0].trim(),
-          Arrays.asList(keyValue[1].split(","))
-              .stream()
-              .map(String::trim)
-              .collect(Collectors.toList()));
+          Arrays.stream(keyValue[1].split(",")).map(String::trim).collect(Collectors.toList()));
     }
   }
 
   public void setAttributeMap(Map<String, List<String>> attributeMap) {
-    ValidationFilterPlugin.attributeMap = attributeMap;
+    this.attributeMap = attributeMap;
   }
 
   @Override
-  public QueryRequest process(Source source, QueryRequest input)
-      throws PluginExecutionException, StopProcessingException {
+  public QueryRequest process(Source source, QueryRequest input) throws StopProcessingException {
     String methodName = "process";
     LOGGER.trace(ENTERING, methodName);
     QueryRequest newQueryRequest = input;
@@ -105,17 +96,7 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
       Query query = input.getQuery();
 
       if (query != null) {
-
-        Subject subject = getSubject(input);
-        HashMap<String, Set<String>> securityMap = new HashMap<>();
-
-        for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
-          securityMap.put(attributeMapping.getKey(), new HashSet<>(attributeMapping.getValue()));
-        }
-
-        Attribute attr = new AttributeImpl(Metacard.SECURITY, securityMap);
-        boolean subjectCanViewInvalidData =
-            checkPermissions(attr, subject, CollectionPermission.READ_ACTION);
+        boolean subjectCanViewInvalidData = canViewInvalidData(input);
 
         List<Filter> filters = new ArrayList<>();
         if (!subjectCanViewInvalidData || !showErrors) {
@@ -148,6 +129,20 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
     return newQueryRequest;
   }
 
+  private boolean canViewInvalidData(QueryRequest input) throws StopProcessingException {
+
+    Subject subject = getSubject(input);
+    HashMap<String, Set<String>> securityMap = new HashMap<>();
+
+    for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
+      securityMap.put(attributeMapping.getKey(), new HashSet<>(attributeMapping.getValue()));
+    }
+
+    Attribute attr = new AttributeImpl(Metacard.SECURITY, securityMap);
+
+    return checkPermissions(attr, subject, CollectionPermission.READ_ACTION);
+  }
+
   private Subject getSubject(Request input) throws StopProcessingException {
     Object securityAssertion = input.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
     Subject subject;
@@ -172,7 +167,7 @@ public class ValidationFilterPlugin implements PreFederatedQueryPlugin {
     if (MapUtils.isNotEmpty(map)) {
       securityPermission = new KeyValueCollectionPermission(action, map);
     } else {
-      securityPermission = new KeyValueCollectionPermission(action);
+      return false;
     }
     return subject.isPermitted(securityPermission);
   }

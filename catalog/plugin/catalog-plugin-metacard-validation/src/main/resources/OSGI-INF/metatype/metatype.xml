@@ -21,7 +21,7 @@
         <AD
                 description="Mapping of Metacard SECURITY attribute to user attribute."
                 name="Attribute map" id="attributeMap" required="false" type="String"
-                default="invalid-state=system-admin" cardinality="100"/>
+                default="invalid-state=data-manager" cardinality="100"/>
         <AD
                 description="Sets whether metacards with validation errors are filtered."
                 name="Filter errors" id="filterErrors" type="Boolean"

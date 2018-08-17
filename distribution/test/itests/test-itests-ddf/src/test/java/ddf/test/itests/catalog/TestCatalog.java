@@ -1970,31 +1970,35 @@ public class TestCatalog extends AbstractIntegrationTest {
   @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-2743
   public void testMetacardDefinitionJsonFile() throws Exception {
     final String newMetacardTypeName = "new.metacard.type";
-    getServiceManager().stopFeature(true, "catalog-security-filter");
-    File file =
-        ingestDefinitionJsonWithWaitCondition(
-            "definitions.json",
-            () -> {
-              expect("Service to be available: " + MetacardType.class.getName())
-                  .within(30, TimeUnit.SECONDS)
-                  .until(
-                      () ->
-                          getServiceManager()
-                              .getServiceReferences(
-                                  MetacardType.class, "(name=" + newMetacardTypeName + ")"),
-                      not(empty()));
-              return null;
-            });
+    String id = null;
+    File file = null;
 
-    String ddfMetacardXml = getFileContent("metacard1.xml");
-
-    String modifiedMetacardXml =
-        ddfMetacardXml
-            .replaceFirst("ddf\\.metacard", newMetacardTypeName)
-            .replaceFirst("resource-uri", "new-attribute-required-2");
-    String id = ingest(modifiedMetacardXml, "text/xml");
-    configureShowInvalidMetacards("true", "true", getAdminConfig());
     try {
+      getServiceManager().stopFeature(true, "catalog-security-filter");
+      file =
+          ingestDefinitionJsonWithWaitCondition(
+              "definitions.json",
+              () -> {
+                expect("Service to be available: " + MetacardType.class.getName())
+                    .within(30, TimeUnit.SECONDS)
+                    .until(
+                        () ->
+                            getServiceManager()
+                                .getServiceReferences(
+                                    MetacardType.class, "(name=" + newMetacardTypeName + ")"),
+                        not(empty()));
+                return null;
+              });
+
+      String ddfMetacardXml = getFileContent("metacard1.xml");
+
+      String modifiedMetacardXml =
+          ddfMetacardXml
+              .replaceFirst("ddf\\.metacard", newMetacardTypeName)
+              .replaceFirst("resource-uri", "new-attribute-required-2");
+      id = ingest(modifiedMetacardXml, "text/xml");
+      configureShowInvalidMetacards("true", "true", getAdminConfig());
+
       String newMetacardXpath = format("/metacards/metacard[@id=\"%s\"]", id);
 
       getOpenSearch("xml", null, null, "q=*")

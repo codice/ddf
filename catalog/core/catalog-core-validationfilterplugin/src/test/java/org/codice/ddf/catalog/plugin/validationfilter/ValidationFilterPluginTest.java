@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.plugin.validationfilter;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -29,7 +28,6 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
@@ -67,9 +65,6 @@ public class ValidationFilterPluginTest {
   @Before
   public void setup() {
 
-    CatalogProvider catProvider1 = mock(CatalogProvider.class);
-    when(catProvider1.getId()).thenReturn("cat1");
-
     source = mock(CatalogProvider.class);
     when(source.getId()).thenReturn("cat1");
 
@@ -83,48 +78,73 @@ public class ValidationFilterPluginTest {
         new ValidationQueryDelegate(Validation.VALIDATION_WARNINGS);
     testValidationErrorQueryDelegate = new ValidationQueryDelegate(Validation.VALIDATION_ERRORS);
 
-    plugin = new ValidationFilterPlugin(filterAdapter, filterBuilder);
+    plugin = new ValidationFilterPlugin(filterBuilder);
+
+    List<String> attributeMapping = new ArrayList<>();
+    attributeMapping.add("invalid-state=data-manager,system-admin");
+    plugin.setAttributeMap(attributeMapping);
   }
 
   @Test
   public void testEmptyAttributeMapping() {
     plugin.setAttributeMap(new ArrayList<>());
-    assertEquals(plugin.getAttributeMap().isEmpty(), true);
+    assertThat(plugin.getAttributeMap().isEmpty(), is(true));
   }
 
   @Test
   public void testAttributeMapping() {
-    List<String> attributeMapping = new ArrayList<>();
-    attributeMapping.add("invalid-state=datamanager,admin");
-    plugin.setAttributeMap(attributeMapping);
     Map<String, List<String>> attributeMap = plugin.getAttributeMap();
 
-    assertEquals(true, attributeMap.containsKey("invalid-state"));
-    assertEquals(2, attributeMap.get("invalid-state").size());
-    assertEquals(true, attributeMap.get("invalid-state").contains("datamanager"));
-    assertEquals(true, attributeMap.get("invalid-state").contains("admin"));
+    assertThat(attributeMap.containsKey("invalid-state"), is(true));
+    assertThat(attributeMap.get("invalid-state").size(), is(2));
+    assertThat(attributeMap.get("invalid-state").contains("data-manager"), is(true));
+    assertThat(attributeMap.get("invalid-state").contains("system-admin"), is(true));
   }
 
   @Test
   public void testAttributeMap() {
     Map<String, List<String>> attributeMapping = new HashMap<>();
     List<String> attributes = new ArrayList<>();
-    attributes.add("datamanager");
-    attributes.add("admin");
+    attributes.add("data-manager");
+    attributes.add("system-admin");
     attributeMapping.put("invalid-state", attributes);
 
     plugin.setAttributeMap(attributeMapping);
     Map<String, List<String>> attributeMap = plugin.getAttributeMap();
 
-    assertEquals(true, attributeMap.containsKey("invalid-state"));
-    assertEquals(2, attributeMap.get("invalid-state").size());
-    assertEquals(true, attributeMap.get("invalid-state").contains("datamanager"));
-    assertEquals(true, attributeMap.get("invalid-state").contains("admin"));
+    assertThat(attributeMap.containsKey("invalid-state"), is(true));
+    assertThat(attributeMap.get("invalid-state").size(), is(2));
+    assertThat(attributeMap.get("invalid-state").contains("data-manager"), is(true));
+    assertThat(attributeMap.get("invalid-state").contains("system-admin"), is(true));
+  }
+
+  @Test
+  public void testEmptyAttributeMap() throws StopProcessingException, UnsupportedQueryException {
+    Map<String, List<String>> attributeMapping = new HashMap<>();
+
+    QueryImpl query =
+        new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
+
+    when(subject.isPermitted(any(KeyValueCollectionPermission.class)))
+        .thenReturn(canViewInvalidData);
+
+    QueryRequest queryRequest = new QueryRequestImpl(query, false, null, properties);
+
+    plugin.setAttributeMap(attributeMapping);
+    plugin.setShowErrors(true);
+    plugin.setShowWarnings(true);
+
+    QueryRequest returnQuery = plugin.process(source, queryRequest);
+
+    assertThat(
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
+    assertThat(
+        filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
   }
 
   @Test
   public void testHideErrorWarningWithPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -142,13 +162,13 @@ public class ValidationFilterPluginTest {
         filterAdapter.adapt(returnQuery.getQuery(), testValidationErrorQueryDelegate), is(true));
     assertThat(
         filterAdapter.adapt(returnQuery.getQuery(), testValidationWarningQueryDelegate), is(true));
-    assertEquals(false, plugin.isShowErrors());
-    assertEquals(false, plugin.isShowWarnings());
+    assertThat(plugin.isShowErrors(), is(false));
+    assertThat(plugin.isShowWarnings(), is(false));
   }
 
   @Test
   public void testHideErrorWarningWithNoPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -169,7 +189,7 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testShowErrorWarningWithNoPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -190,7 +210,7 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testShowErrorWarningWithPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -211,7 +231,7 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testShowErrorHideWarningWithPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -232,7 +252,7 @@ public class ValidationFilterPluginTest {
 
   @Test
   public void testHideErrorShowWarningWithPermission()
-      throws PluginExecutionException, StopProcessingException, UnsupportedQueryException {
+      throws StopProcessingException, UnsupportedQueryException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
@@ -252,7 +272,7 @@ public class ValidationFilterPluginTest {
   }
 
   @Test(expected = StopProcessingException.class)
-  public void testInvalidSubject() throws PluginExecutionException, StopProcessingException {
+  public void testInvalidSubject() throws StopProcessingException {
     QueryImpl query =
         new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT).is().equalTo().text("sample"));
 
