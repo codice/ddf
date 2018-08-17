@@ -71,9 +71,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            commons-io
-                        </Embed-Dependency>
                         <Export-Package />
                         <Import-Package>
                             !com.sun.management,
