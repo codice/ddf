@@ -52,6 +52,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -117,6 +121,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private KmlMarshaller kmlMarshaller;
 
+  private DateTimeFormatter formatter;
+
   public KMLTransformerImpl(
       BundleContext bundleContext,
       String defaultStylingName,
@@ -128,6 +134,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     this.styleMapper = Validate.notNull(mapper, "KmlStyleMap must not be null.");
     this.templateHelper = new DescriptionTemplateHelper(actionProvider);
     this.kmlMarshaller = Validate.notNull(kmlMarshaller, "KmlMarshaller must not be null.");
+    this.formatter = DateTimeFormatter.ofPattern(ISO_8601_DATE_FORMAT);
 
     final URL stylingUrl = context.getBundle().getResource(defaultStylingName);
 
@@ -231,11 +238,8 @@ public class KMLTransformerImpl implements KMLTransformer {
       final String attributeName = attributeDescriptor.getName();
       final Attribute attribute = metacard.getAttribute(attributeName);
       if (attribute != null) {
-        String attributeValue =
-            convertAttribute(attribute, attributeDescriptor)
-                .toString()
-                .replace("[", "")
-                .replace("]", "");
+        String attributeValue = convertAttribute(attribute, attributeDescriptor).toString();
+        attributeValue = StringUtils.removeStart(StringUtils.removeEnd(attributeValue, "]"), "[");
         final Data data = getData(attributeName, attributeValue);
         extendedData.addToData(data);
       }
@@ -249,8 +253,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     return data;
   }
 
-  private static Serializable convertAttribute(
-      Attribute attribute, AttributeDescriptor descriptor) {
+  private Serializable convertAttribute(Attribute attribute, AttributeDescriptor descriptor) {
 
     if (descriptor.isMultiValued()) {
       ArrayList<Serializable> values = new ArrayList<>();
@@ -265,7 +268,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
   }
 
-  private static Serializable convertValue(
+  private Serializable convertValue(
       String name, Serializable value, AttributeType.AttributeFormat format) {
     if (value == null) {
       return null;
@@ -280,13 +283,10 @@ public class KMLTransformerImpl implements KMLTransformer {
               name);
           return null;
         }
-        // Creating date format instance each time is inefficient, however
-        // it is not a threadsafe class so we are not able to put it in a static
-        // class variable. If this proves to be a slowdown this class should be refactored
-        // such that we don't need this method to be static.
-        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return dateFormat.format((Date) value);
+        Instant instant = ((Date) value).toInstant();
+        ZoneId zoneId = ZoneId.of("UTC");
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
+        return zonedDateTime.format(formatter);
       case BINARY:
         byte[] bytes = (byte[]) value;
         return DatatypeConverter.printBase64Binary(bytes);
