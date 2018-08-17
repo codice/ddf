@@ -13,6 +13,7 @@
  */
 package ddf.catalog.transformer.html;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
@@ -165,13 +166,13 @@ public class HtmlMetacardUtilityTest {
 
   @Test
   public void testNullHtmlMetacardModelList() {
-    assertNull(this.htmlMetacardUtility.buildHtml(null));
+    assertThat(this.htmlMetacardUtility.buildHtml(null), is(nullValue()));
   }
 
   @Test()
   public void testTemplateNotFound() {
     HtmlMetacardUtility utility = new HtmlMetacardUtility(TEMPLATE_NOT_FOUND);
-    assertNull(utility.buildHtml(new ArrayList<>()));
+    assertThat(utility.buildHtml(new ArrayList<>()), is(nullValue()));
   }
 
   @Test
@@ -187,7 +188,7 @@ public class HtmlMetacardUtilityTest {
 
   @Test
   public void testSortNullCategoryList() {
-    assertNull(HtmlMetacardUtility.sortCategoryList(null));
+    assertThat(HtmlMetacardUtility.sortCategoryList(null), is(nullValue()));
   }
 
   @Test
