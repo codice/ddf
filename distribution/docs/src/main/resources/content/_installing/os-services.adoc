@@ -22,7 +22,7 @@ in this document are inadequate.
 This prevents the ${branding} scripts from attempting to manage Solr's lifecycle.
 . <<{managing-prefix}run_solr_as_managed_service,Configure Solr to run as a managed service>>.
 . Start ${branding} and verify it is communicating correctly with Solr. To verify, first log out
-of ${branding}. Then navigate to ${catalog_ui} (login when prompted). If ${catalog_ui} opens
+of ${branding}. Then navigate to ${catalog-ui} (login when prompted). If ${catalog-ui} opens
 without errors, ${branding} is communicating successfully with Solr.
 . <<{managing-prefix}run_${branding-lowercase}_as_a_managed_service,
 Configure ${branding} as a managed service>>.

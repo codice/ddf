@@ -12,7 +12,7 @@ SET SOLR_EXEC=%DDF_HOME%\solr\bin\solr.cmd
 CALL %GET_PROPERTY% solr.http.port
 CALL %GET_PROPERTY% solr.http.protocol
 CALL %GET_PROPERTY% solr.max.heap.size 2g
-CALL SET SOLR_JAVA_MEM=-Xmx!solr.max.heap.size!
+CALL SET SOLR_JAVA_MEM="-Xms512m -Xmx!solr.max.heap.size!"
 
 IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
     ECHO Unkown Solr protocol %solr.http.protocol% found in system.properties file
