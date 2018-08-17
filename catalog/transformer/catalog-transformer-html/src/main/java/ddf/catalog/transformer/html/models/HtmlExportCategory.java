@@ -21,8 +21,8 @@ import java.util.Map;
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  *
- * Every category in an HTML export must implement this interface for it to be configurable through
- * the admin UI.
+ * <p>Every category in an HTML export must implement this interface for it to be configurable
+ * through the admin UI.
  */
 public interface HtmlExportCategory {
 
