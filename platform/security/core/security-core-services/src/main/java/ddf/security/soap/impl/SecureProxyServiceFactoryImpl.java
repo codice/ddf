@@ -13,13 +13,15 @@
  */
 package ddf.security.soap.impl;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import ddf.security.ws.proxy.ProxyServiceFactory;
+import ddf.security.ws.proxy.WsdlSuffixRetriever;
 import java.io.Serializable;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +54,7 @@ import org.apache.wss4j.policy.SP12Constants;
 import org.apache.wss4j.policy.SPConstants;
 import org.apache.wss4j.policy.model.IssuedToken;
 import org.codice.ddf.platform.util.http.UnavailableUrls;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.ddf.security.common.HttpUtils;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -75,13 +78,17 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
   // STS Client
   private STSClientConfiguration stsClientConfig;
 
+  private WsdlSuffixRetriever wsdlSuffixRetriever;
+
   public SecureProxyServiceFactoryImpl(STSClientConfiguration stsClientConfig) {
     this.stsClientConfig = stsClientConfig;
+    this.wsdlSuffixRetriever = address -> "?wsdl";
   }
 
-  // For when you need to support a SOAP service that doesn't like following standards.
-  protected String appendWsdlExtension(String url) {
-    return url + "?wsdl";
+  public SecureProxyServiceFactoryImpl(
+      STSClientConfiguration stsClientConfig, WsdlSuffixRetriever wsdlSuffixRetriever) {
+    this.stsClientConfig = stsClientConfig;
+    this.wsdlSuffixRetriever = wsdlSuffixRetriever;
   }
 
   /**
@@ -155,17 +162,19 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
     configureProxyFactoryProperties(clientFactory, token, wsp);
     clientFactory.getOutInterceptors().add(new TokenPassThroughInterceptor());
 
-    ProxyServiceType proxyServiceType;
-    try {
-      proxyServiceType = clientFactory.create(wsp.serviceClass);
-    } catch (ServiceConstructionException e) {
-      LOGGER.debug("Unable to use WSDL to build client. Attempting to use service class.", e);
-      unavailableWsdls.add(wsp.endpointWsdlURL);
-      clientFactory.getClientFactoryBean().getServiceFactory().setPopulateFromClass(true);
-      proxyServiceType = clientFactory.create(wsp.serviceClass);
-    }
-
-    return proxyServiceType;
+    return AccessController.doPrivileged(
+        (PrivilegedAction<ProxyServiceType>)
+            () -> {
+              try {
+                return clientFactory.create(wsp.serviceClass);
+              } catch (ServiceConstructionException e) {
+                LOGGER.debug(
+                    "Unable to use WSDL to build client. Attempting to use service class.", e);
+                unavailableWsdls.add(wsp.endpointWsdlURL);
+                clientFactory.getClientFactoryBean().getServiceFactory().setPopulateFromClass(true);
+                return clientFactory.create(wsp.serviceClass);
+              }
+            });
   }
 
   /**
@@ -184,48 +193,56 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
     String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
     String stsPropertiesPath = stsClientConfig.getTokenProperties();
 
-    STSClient stsClient = new STSClient(bus);
-    if (stsAddress != null && !stsAddress.isEmpty()) {
-      LOGGER.debug("Setting WSDL location on STSClient: {}", stsAddress);
-      stsClient.setWsdlLocation(stsAddress);
-      LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
-      stsClient.setServiceName(stsServiceName);
-      LOGGER.debug("Setting endpoint name on STSClient: {}", stsEndpointName);
-      stsClient.setEndpointName(stsEndpointName);
-      LOGGER.debug("Setting addressing namespace on STSClient: {}", ADDRESSING_NAMESPACE);
-      stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
+    return AccessController.doPrivileged(
+        (PrivilegedAction<STSClient>)
+            () -> {
+              STSClient stsClient = new STSClient(bus);
+              if (stsAddress != null && !stsAddress.isEmpty()) {
+                LOGGER.debug("Setting WSDL location on STSClient: {}", stsAddress);
+                stsClient.setWsdlLocation(stsAddress);
+                LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
+                stsClient.setServiceName(stsServiceName);
+                LOGGER.debug("Setting endpoint name on STSClient: {}", stsEndpointName);
+                stsClient.setEndpointName(stsEndpointName);
+                LOGGER.debug("Setting addressing namespace on STSClient: {}", ADDRESSING_NAMESPACE);
+                stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
 
-      Map<String, Object> map = new HashMap<String, Object>();
+                Map<String, Object> map = new HashMap<>();
 
-      // Properties loader should be able to find the properties file no
-      // matter where it is
-      if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
-        LOGGER.debug("Setting signature properties on STSClient: {}", signaturePropertiesPath);
-        Properties signatureProperties = PropertiesLoader.loadProperties(signaturePropertiesPath);
-        map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
-      }
-      if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
-        LOGGER.debug("Setting encryption properties on STSClient: {}", encryptionPropertiesPath);
-        Properties encryptionProperties = PropertiesLoader.loadProperties(encryptionPropertiesPath);
-        map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
-      }
-      if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
-        LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
-        Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
-        map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
-      }
+                // Properties loader should be able to find the properties file no
+                // matter where it is
+                PropertiesLoader propertiesLoader = PropertiesLoader.getInstance();
+                if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
+                  LOGGER.debug(
+                      "Setting signature properties on STSClient: {}", signaturePropertiesPath);
+                  Properties signatureProperties =
+                      propertiesLoader.loadProperties(signaturePropertiesPath);
+                  map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
+                }
+                if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
+                  LOGGER.debug(
+                      "Setting encryption properties on STSClient: {}", encryptionPropertiesPath);
+                  Properties encryptionProperties =
+                      propertiesLoader.loadProperties(encryptionPropertiesPath);
+                  map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
+                }
+                if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
+                  LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
+                  Properties stsProperties = propertiesLoader.loadProperties(stsPropertiesPath);
+                  map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
+                }
 
-      LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
-      map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
-      map.put(
-          SecurityConstants.DISABLE_STS_CLIENT_WSMEX_CALL_USING_EPR_ADDRESS,
-          Boolean.TRUE.toString());
-      stsClient.setProperties(map);
-    } else {
-      LOGGER.debug("STS address is null, unable to create STS Client");
-    }
-    LOGGER.debug("Done configuring STS client");
-    return stsClient;
+                LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
+                map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
+                map.put(
+                    SecurityConstants.DISABLE_STS_CLIENT_WSMEX_CALL_USING_EPR_ADDRESS,
+                    Boolean.TRUE.toString());
+                stsClient.setProperties(map);
+              } else {
+                LOGGER.debug("STS address is null, unable to create STS Client");
+              }
+              return stsClient;
+            });
   }
 
   /**
@@ -264,19 +281,20 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         LOGGER.debug("Setting incoming SAML assertion to outgoing federated client");
         properties.put(SecurityConstants.TOKEN, token);
       }
+      PropertiesLoader propertiesLoader = PropertiesLoader.getInstance();
       if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
         LOGGER.debug("Setting signature properties: {}", signaturePropertiesPath);
-        Properties signatureProperties = PropertiesLoader.loadProperties(signaturePropertiesPath);
+        Properties signatureProperties = propertiesLoader.loadProperties(signaturePropertiesPath);
         properties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
       }
       if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
         LOGGER.debug("Setting sts properties: {}", stsPropertiesPath);
-        Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
+        Properties stsProperties = propertiesLoader.loadProperties(stsPropertiesPath);
         properties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
       }
       if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
         LOGGER.debug("Setting encryption properties: {}", encryptionPropertiesPath);
-        Properties encryptionProperties = PropertiesLoader.loadProperties(encryptionPropertiesPath);
+        Properties encryptionProperties = propertiesLoader.loadProperties(encryptionPropertiesPath);
         properties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
       }
       properties.put(
@@ -297,118 +315,142 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
     public void handleMessage(Message message) throws Fault {
       AssertionInfoMap aim = message.get(AssertionInfoMap.class);
       // extract Assertion information
+      if (aim == null) {
+        return;
+      }
 
-      if (aim != null) {
-        Collection<AssertionInfo> ais = getAllAssertionsByLocalname(aim, SPConstants.ISSUED_TOKEN);
+      Collection<AssertionInfo> ais = getAllAssertionsByLocalname(aim, SPConstants.ISSUED_TOKEN);
+      if (ais == null) {
+        return;
+      }
 
-        if (ais != null) {
-          IssuedToken itok = (IssuedToken) ais.iterator().next().getAssertion();
-          SecurityToken token =
-              (SecurityToken) message.getContextualProperty(SecurityConstants.TOKEN);
+      IssuedToken itok = (IssuedToken) ais.iterator().next().getAssertion();
+      SecurityToken token = (SecurityToken) message.getContextualProperty(SecurityConstants.TOKEN);
+      boolean shouldRequestNewToken = false;
+      if (token == null || itok == null) {
+        return;
+      }
 
-          boolean shouldRequestNewToken = false;
-          if (token != null && itok != null) {
-            SecurityAssertion securityAssertion = new SecurityAssertionImpl(token);
+      SecurityAssertion securityAssertion = new SecurityAssertionImpl(token);
+      Element requestSecurityTokenTemplate = itok.getRequestSecurityTokenTemplate();
+      List<AttributeStatement> attributeStatements = securityAssertion.getAttributeStatements();
 
-            Element requestSecurityTokenTemplate = itok.getRequestSecurityTokenTemplate();
-            List<AttributeStatement> attributeStatements =
-                securityAssertion.getAttributeStatements();
+      XMLStreamReader xmlStreamReader =
+          StaxUtils.createXMLStreamReader(requestSecurityTokenTemplate);
+      try {
+        while (xmlStreamReader.hasNext()) {
+          int event = xmlStreamReader.next();
+          switch (event) {
+            case XMLStreamConstants.START_ELEMENT:
+              {
+                String localName = xmlStreamReader.getLocalName();
+                String elementText;
+                switch (localName) {
+                  case "TokenType":
+                    elementText = xmlStreamReader.getElementText();
 
-            XMLStreamReader xmlStreamReader =
-                StaxUtils.createXMLStreamReader(requestSecurityTokenTemplate);
-            try {
-              while (xmlStreamReader.hasNext()) {
-                int event = xmlStreamReader.next();
-                switch (event) {
-                  case XMLStreamConstants.START_ELEMENT:
-                    {
-                      String localName = xmlStreamReader.getLocalName();
-                      String elementText;
-                      switch (localName) {
-                        case "TokenType":
-                          elementText = xmlStreamReader.getElementText();
-                          // check that the token type is the same
-                          if (elementText == null
-                              || !securityAssertion.getTokenType().equals(elementText.trim())) {
-                            shouldRequestNewToken = true;
-                          }
-                          break;
-                        case "KeyType":
-                          elementText = xmlStreamReader.getElementText();
-                          // bearer only lines up with bearer, so make sure they match
-                          if (StringUtils.containsIgnoreCase(elementText, "bearer")) {
-                            if (!securityAssertion
-                                .getSubjectConfirmations()
-                                .stream()
-                                .anyMatch(s -> StringUtils.containsIgnoreCase(s, "bearer"))) {
-                              shouldRequestNewToken = true;
-                            }
-                          }
-                          // either of these key types can line up with either of the key
-                          // confirmation methods
-                          if (StringUtils.containsIgnoreCase(elementText, "publickey")
-                              || StringUtils.containsIgnoreCase(elementText, "symmetrickey")) {
-                            if (!securityAssertion
-                                .getSubjectConfirmations()
-                                .stream()
-                                .anyMatch(
-                                    s ->
-                                        StringUtils.containsIgnoreCase(s, "holder-of-key")
-                                            || StringUtils.containsIgnoreCase(
-                                                s, "sender-vouches"))) {
-                              shouldRequestNewToken = true;
-                            }
-                          }
-                          break;
-                        case "ClaimType":
-                          int attributeCount = xmlStreamReader.getAttributeCount();
-                          boolean foundRequired = true;
-                          boolean isOptional = true;
-                          String uri = "";
-                          for (int i = 0; i < attributeCount; i++) {
-                            String attrLocalName = xmlStreamReader.getAttributeLocalName(i);
-                            String attributeValue = xmlStreamReader.getAttributeValue(i);
-                            if (attrLocalName.equalsIgnoreCase("Optional")) {
-                              isOptional = Boolean.parseBoolean(attributeValue);
-                            }
-                            if (attrLocalName.equalsIgnoreCase("Uri")) {
-                              uri = attributeValue;
-                            }
-                          }
-                          if (!isOptional) {
-                            // claim is not optional so make sure that the assertion we have
-                            // includes it
-                            foundRequired = false;
-                            for (AttributeStatement attributeStatement : attributeStatements) {
-                              for (Attribute attribute : attributeStatement.getAttributes()) {
-                                if (attribute.getName().equals(uri)) {
-                                  // found the required attribute, so we don't need to do anything
-                                  // else
-                                  foundRequired = true;
-                                }
-                              }
-                            }
-                          }
-                          // there is a required attribute that the token doesn't contain so we need
-                          // to get a new one
-                          if (!foundRequired) {
-                            shouldRequestNewToken = true;
-                          }
-                          break;
-                      }
-                    }
+                    shouldRequestNewToken =
+                        shouldRequestNewTokenFromTokenType(securityAssertion, elementText);
+                    break;
+                  case "KeyType":
+                    elementText = xmlStreamReader.getElementText();
+                    shouldRequestNewToken =
+                        shouldRequestNewTokenFromKeyType(securityAssertion, elementText);
+                    break;
+                  case "ClaimType":
+                    int attributeCount = xmlStreamReader.getAttributeCount();
+                    shouldRequestNewToken =
+                        shouldRequestNewTokenFromClaimType(
+                            attributeStatements, xmlStreamReader, attributeCount);
+                    break;
                 }
               }
-            } catch (XMLStreamException e) {
-              throw new Fault(e);
-            }
-            if (shouldRequestNewToken) {
-              message.put(SecurityConstants.TOKEN, null);
-              message.put(SecurityConstants.STS_TOKEN_ON_BEHALF_OF, token.getToken());
+          }
+        }
+      } catch (XMLStreamException e) {
+        throw new Fault(e);
+      }
+      if (shouldRequestNewToken) {
+        message.put(SecurityConstants.TOKEN, null);
+        message.put(SecurityConstants.STS_TOKEN_ON_BEHALF_OF, token.getToken());
+      }
+    }
+
+    private boolean shouldRequestNewTokenFromClaimType(
+        List<AttributeStatement> attributeStatements,
+        XMLStreamReader xmlStreamReader,
+        int attributeCount) {
+      boolean shouldRequestNewToken = false;
+      boolean foundRequired = true;
+      boolean isOptional = true;
+      String uri = "";
+      for (int i = 0; i < attributeCount; i++) {
+        String attrLocalName = xmlStreamReader.getAttributeLocalName(i);
+        String attributeValue = xmlStreamReader.getAttributeValue(i);
+        if (attrLocalName.equalsIgnoreCase("Optional")) {
+          isOptional = Boolean.parseBoolean(attributeValue);
+        }
+        if (attrLocalName.equalsIgnoreCase("Uri")) {
+          uri = attributeValue;
+        }
+      }
+      if (!isOptional) {
+        // claim is not optional so make sure that the assertion we have
+        // includes it
+        foundRequired = false;
+        for (AttributeStatement attributeStatement : attributeStatements) {
+          for (Attribute attribute : attributeStatement.getAttributes()) {
+            if (attribute.getName().equals(uri)) {
+              // found the required attribute, so we don't need to do anything
+              // else
+              foundRequired = true;
             }
           }
         }
       }
+      // there is a required attribute that the token doesn't contain so we need
+      // to get a new one
+      if (!foundRequired) {
+        shouldRequestNewToken = true;
+      }
+      return shouldRequestNewToken;
+    }
+
+    private boolean shouldRequestNewTokenFromKeyType(
+        SecurityAssertion securityAssertion, String elementText) {
+      boolean shouldRequestNewToken = false;
+      // bearer only lines up with bearer, so make sure they match
+      if (StringUtils.containsIgnoreCase(elementText, "bearer")
+          && securityAssertion
+              .getSubjectConfirmations()
+              .stream()
+              .noneMatch(s -> StringUtils.containsIgnoreCase(s, "bearer"))) {
+        shouldRequestNewToken = true;
+      }
+      // either of these key types can line up with either of the key
+      // confirmation methods
+      if (StringUtils.containsIgnoreCase(elementText, "publickey")
+          || StringUtils.containsIgnoreCase(elementText, "symmetrickey")
+              && securityAssertion
+                  .getSubjectConfirmations()
+                  .stream()
+                  .noneMatch(
+                      s ->
+                          StringUtils.containsIgnoreCase(s, "holder-of-key")
+                              || StringUtils.containsIgnoreCase(s, "sender-vouches"))) {
+        shouldRequestNewToken = true;
+      }
+      return shouldRequestNewToken;
+    }
+
+    private boolean shouldRequestNewTokenFromTokenType(
+        SecurityAssertion securityAssertion, String elementText) {
+      boolean shouldRequestNewToken = false;
+      // check that the token type is the same
+      if (elementText == null || !securityAssertion.getTokenType().equals(elementText.trim())) {
+        shouldRequestNewToken = true;
+      }
+      return shouldRequestNewToken;
     }
 
     static Collection<AssertionInfo> getAllAssertionsByLocalname(
@@ -459,6 +501,11 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
       this.endpointName = endpointName;
       this.endpointAddress = HttpUtils.stripQueryString(endpointAddress);
       this.endpointWsdlURL = appendWsdlExtension(this.endpointAddress);
+    }
+
+    // For when you need to support a SOAP service that doesn't like following standards.
+    private String appendWsdlExtension(String url) {
+      return url + wsdlSuffixRetriever.retrieveWsdlSuffix(url);
     }
   }
 }

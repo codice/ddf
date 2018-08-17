@@ -19,7 +19,8 @@
 
     <ext:property-placeholder/>
 
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
@@ -76,14 +77,19 @@
              interface="javax.servlet.http.HttpSessionListener"/>
 
     <bean id="subjectIdentityImpl"
-      class="ddf.security.impl.SubjectIdentityImpl">
+          class="ddf.security.impl.SubjectIdentityImpl">
         <cm:managed-properties
-          persistent-id="ddf.security.SubjectIdentity"
-          update-strategy="container-managed"/>
+                persistent-id="ddf.security.SubjectIdentity"
+                update-strategy="container-managed"/>
         <property name="identityAttribute" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
     </bean>
 
     <service id="subjectIdentity" ref="subjectIdentityImpl"
-      interface="ddf.security.SubjectIdentity"/>
+             interface="ddf.security.SubjectIdentity"/>
+
+    <bean id="proxyServiceFactoryFactory" class="ddf.security.soap.impl.SecureProxyServiceFactoryFactoryImpl"/>
+
+    <service id="proxyServiceFactoryFactoryService" ref="proxyServiceFactoryFactory"
+             interface="ddf.security.ws.proxy.ProxyServiceFactoryFactory"/>
 
 </blueprint>
