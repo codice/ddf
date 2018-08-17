@@ -66,7 +66,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
   private static final Map<Long, String> BUNDLE_LOCATIONS = new ConcurrentHashMap<>();
 
-  private FeaturesService featuresService = null;
+  private final FeaturesService featuresService;
 
   private static final Path APPLICATION_DEFINITIONS_FOLDER =
       Paths.get("etc", "application-definitions");
@@ -137,6 +137,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     return profiles;
   }
 
+  @Override
   public List<FeatureDetails> getAllFeatures() {
     List<FeatureDetails> features = new ArrayList<>();
     try {
