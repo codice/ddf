@@ -300,7 +300,7 @@ public class KMLTransformerImpl implements KMLTransformer {
       case XML:
       case FLOAT:
       case GEOMETRY:
-        return value.toString();
+        return value;
       case OBJECT:
       default:
         return null;
