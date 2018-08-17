@@ -91,6 +91,8 @@ module.exports = Marionette.LayoutView.extend({
                             radius: filter.distance
                         });
                         wreqr.vent.trigger('search:circledisplay', this.model);
+                    } else if (CQLUtils.isPolygonFilter(filter)) {
+                        this.handlePolygonDeserialization(filter);
                     } else {
                         let pointText = filterValue.substring(11);
                         pointText = pointText.substring(0, pointText.length - 1);
@@ -110,11 +112,7 @@ module.exports = Marionette.LayoutView.extend({
                     if (!filterValue || typeof filterValue !== 'string') {
                         break;
                     }
-                    this.model.set({
-                        mode: 'poly',
-                        polygon: CQLUtils.arrayFromPolygonWkt(filterValue)
-                    });
-                    wreqr.vent.trigger('search:polydisplay', this.model);
+                    this.handlePolygonDeserialization({polygon: CQLUtils.arrayFromPolygonWkt(filterValue)});
                     break;
                 // these cases are for when the model matches the location model
                 case 'BBOX':
@@ -130,11 +128,7 @@ module.exports = Marionette.LayoutView.extend({
                     break;
                 case 'MULTIPOLYGON':
                 case 'POLYGON':
-                    this.model.set({
-                        mode: 'poly',
-                        polygon: filter.polygon,
-                    });
-                    wreqr.vent.trigger('search:polydisplay', this.model);
+                    this.handlePolygonDeserialization(filter);
                     break;
                 case 'POINTRADIUS':
                     this.model.set({
@@ -156,6 +150,17 @@ module.exports = Marionette.LayoutView.extend({
                     break;
             }
         }
+    },
+    handlePolygonDeserialization(filter) {
+        const polygonArray = (filter.value && filter.value.value && CQLUtils.arrayFromPolygonWkt(filter.value.value)) || [];
+        const bufferWidth = filter.polygonBufferWidth || filter.distance;
+
+        this.model.set({
+            mode: 'poly',
+            polygon: filter.polygon || polygonArray,
+            ...(bufferWidth && {polygonBufferWidth: bufferWidth})
+        });
+        wreqr.vent.trigger('search:polydisplay', this.model);
     },
     clearLocation: function() {
         this.model.set({
