@@ -17,17 +17,21 @@ import ddf.catalog.data.Metacard;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Every category in an HTML export must implement this interface for it to be configurable through
+ * the admin UI.
+ */
 public interface HtmlExportCategory {
 
   void setTitle(String title);
 
   String getTitle();
 
-  void setAttributeList(List<String> attributeList);
+  void setAttributes(List<String> attributes);
 
-  List<String> getAttributeList();
+  List<String> getAttributes();
 
   void applyAttributeMappings(Metacard metacard);
 
-  Map<String, HtmlValueModel> getAttributes();
+  Map<String, HtmlValueModel> getAttributeMappings();
 }

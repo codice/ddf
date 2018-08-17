@@ -46,10 +46,9 @@
       init-method="init" destroy-method="destroy">
 
       <property name="title" value=""/>
-      <property name="attributeList"><list/></property>
+      <property name="attributes"><list/></property>
 
-      <!-- What does this component do and why doesn't it need a persistent ID? -->
-      <cm:managed-properties persistent-id="" update-strategy="component-managed"
+      <cm:managed-properties persistent-id="" update-strategy="container-managed"
         update-method="refresh"/>
     </cm:managed-component>
   </cm:managed-service-factory>

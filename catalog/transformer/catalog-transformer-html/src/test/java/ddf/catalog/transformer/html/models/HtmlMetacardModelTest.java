@@ -26,6 +26,8 @@ import org.junit.Test;
 
 public class HtmlMetacardModelTest {
 
+  private static final String METACARD_TITLE = "The Title";
+
   private List<String> coreList;
 
   @Before
@@ -37,7 +39,7 @@ public class HtmlMetacardModelTest {
   @Test
   public void testCategoryAttributeList() {
     MetacardImpl metacard = new MetacardImpl();
-    metacard.setAttribute(Core.TITLE, "The Title");
+    metacard.setAttribute(Core.TITLE, METACARD_TITLE);
 
     List<HtmlExportCategory> categoryList = new ArrayList<>();
     categoryList.add(new HtmlCategoryModel("Core", coreList));
@@ -45,13 +47,13 @@ public class HtmlMetacardModelTest {
     HtmlMetacardModel metacardModel = new HtmlMetacardModel(metacard, categoryList);
     HtmlExportCategory category = metacardModel.getCategories().get(0);
 
-    assertTrue(category.getAttributeList().contains(Core.TITLE));
+    assertTrue(category.getAttributes().contains(Core.TITLE));
   }
 
   @Test
   public void testCategoryAttributeMapping() {
     MetacardImpl metacard = new MetacardImpl();
-    metacard.setAttribute(Core.TITLE, "The Title");
+    metacard.setAttribute(Core.TITLE, METACARD_TITLE);
 
     List<HtmlExportCategory> categoryList = new ArrayList<>();
     categoryList.add(new HtmlCategoryModel("Core", coreList));
@@ -59,6 +61,6 @@ public class HtmlMetacardModelTest {
     HtmlMetacardModel metacardModel = new HtmlMetacardModel(metacard, categoryList);
     HtmlExportCategory category = metacardModel.getCategories().get(0);
 
-    assertThat(category.getAttributes().get("Title").getValue(), is("The Title"));
+    assertThat(category.getAttributeMappings().get("Title").getValue(), is(METACARD_TITLE));
   }
 }

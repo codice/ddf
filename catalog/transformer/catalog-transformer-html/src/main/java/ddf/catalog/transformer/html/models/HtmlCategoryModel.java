@@ -15,6 +15,7 @@ package ddf.catalog.transformer.html.models;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class HtmlCategoryModel implements HtmlExportCategory {
 
   private String title;
 
-  private List<String> attributeList;
+  private List<String> attributes;
 
   private Map<String, HtmlValueModel> attributeMappings = new TreeMap<>();
 
@@ -33,9 +34,9 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     this("", new ArrayList<>());
   }
 
-  public HtmlCategoryModel(String title, List<String> attributeList) {
+  public HtmlCategoryModel(String title, List<String> attributes) {
     this.title = title;
-    this.attributeList = attributeList;
+    this.attributes = attributes;
   }
 
   public void init() {
@@ -54,30 +55,30 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     return this.title;
   }
 
-  public void setAttributeList(List<String> attributeList) {
-    this.attributeList = attributeList;
+  public void setAttributes(List<String> attributes) {
+    this.attributes = attributes;
   }
 
-  public List<String> getAttributeList() {
-    return this.attributeList;
+  public List<String> getAttributes() {
+    return this.attributes;
   }
 
   public void setAttributes(Map<String, HtmlValueModel> attributes) {
     this.attributeMappings = attributes;
   }
 
-  public Map<String, HtmlValueModel> getAttributes() {
+  public Map<String, HtmlValueModel> getAttributeMappings() {
     return this.attributeMappings;
   }
 
   public void applyAttributeMappings(Metacard metacard) {
-    for (String attrKey : attributeList) {
+    for (String attrKey : attributes) {
       String readableKey = getHumanReadableAttribute(attrKey);
       Attribute attr = metacard.getAttribute(attrKey);
 
       if (attr == null) {
         this.attributeMappings.put(readableKey, new HtmlEmptyValueModel());
-      } else if (attrKey.equals("thumbnail")) {
+      } else if (attrKey.equals(Core.THUMBNAIL)) {
         byte[] imageData = (byte[]) attr.getValue();
         this.attributeMappings.put(readableKey, new HtmlMediaModel(imageData));
       } else {
@@ -87,13 +88,15 @@ public class HtmlCategoryModel implements HtmlExportCategory {
   }
 
   private String getHumanReadableAttribute(String attr) {
-    int periodIndex = attr.lastIndexOf('.');
+    String readableAttr = attr;
+
+    int periodIndex = readableAttr.lastIndexOf('.');
     if (periodIndex != -1) {
-      attr = attr.substring(periodIndex + 1);
+      readableAttr = attr.substring(periodIndex + 1);
     }
 
-    attr = attr.replaceAll("-", " ");
+    readableAttr = readableAttr.replaceAll("-", " ");
 
-    return WordUtils.capitalizeFully(attr);
+    return WordUtils.capitalizeFully(readableAttr);
   }
 }

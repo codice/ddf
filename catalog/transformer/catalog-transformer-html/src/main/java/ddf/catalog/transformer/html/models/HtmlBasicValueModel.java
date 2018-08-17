@@ -20,6 +20,7 @@ public class HtmlBasicValueModel implements HtmlValueModel {
     this.value = value;
   }
 
+  @Override
   public String getValue() {
     return this.value.toString();
   }

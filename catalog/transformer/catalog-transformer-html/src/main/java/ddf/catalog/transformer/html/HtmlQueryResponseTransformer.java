@@ -46,12 +46,15 @@ public class HtmlQueryResponseTransformer implements QueryResponseTransformer {
       throw new CatalogTransformerException("Null result set cannot be transformed to HTML");
     }
 
+    List<HtmlExportCategory> categoryList =
+        HtmlMetacardUtility.sortCategoryList(htmlMetacardUtility.getCategoryList());
+
     final List<HtmlMetacardModel> metacardModels =
         sourceResponse
             .getResults()
             .stream()
             .map(Result::getMetacard)
-            .map(metacard -> new HtmlMetacardModel(metacard, htmlMetacardUtility.getCategoryList()))
+            .map(metacard -> new HtmlMetacardModel(metacard, categoryList))
             .collect(toList());
 
     final String html = htmlMetacardUtility.buildHtml(metacardModels);

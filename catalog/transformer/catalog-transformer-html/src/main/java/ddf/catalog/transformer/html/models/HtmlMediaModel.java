@@ -31,6 +31,7 @@ public class HtmlMediaModel implements HtmlValueModel {
     return new String(encoded);
   }
 
+  @Override
   public String getValue() {
     return this.data;
   }

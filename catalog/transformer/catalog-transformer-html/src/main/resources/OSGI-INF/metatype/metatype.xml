@@ -16,7 +16,7 @@
 
   <OCD
     name="HTML Export Categories"
-    description="The categories that organize an metacard export to HTML"
+    description="The categories that organize a metacard export to HTML"
     id="ddf.catalog.transformer.html.categories">
     <AD
       description="The title of the category in an HTML export"
@@ -27,7 +27,7 @@
     <AD
       description="All of the attributes that will be in this category of the metacard export"
       name="Attributes"
-      id="attributeList"
+      id="attributes"
       type="String"
       cardinality="10000"
       default=""/>

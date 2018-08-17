@@ -88,7 +88,6 @@
     {{/each}}
 
     <script>
-      const EMPTY_FIELD_STRING = "--";
       function init() {
       }
       function expandCard(metacard) {
@@ -111,21 +110,14 @@
           collapseCard(metacard);
         }
       }
-      function isEmpty(attrElement) {
-        let attrValue = attrElement.innerText;
-        if (attrValue == EMPTY_FIELD_STRING) {
-          return true;
-        }
-        return false;
-      }
       function toggleEmptyFields() {
-        var attributes = document.getElementsByClassName("metacard-attribute");
-        var hideFields = document.querySelector('#empty-fields-checkbox').checked;
-        for (let attribute of attributes) {
-          let attrElement = attribute.getElementsByClassName("attribute-value")[0];
-          if (hideFields && isEmpty(attrElement)) {
+        let hideFields = document.querySelector('#empty-fields-checkbox').checked;
+        let emptyAttributes = document.getElementsByClassName("empty-attribute");
+
+        for (let attribute of emptyAttributes) {
+          if (hideFields) {
             attribute.style.display = "none";
-          } else if (!hideFields) {
+          } else {
             attribute.style.display = "";
           }
         }

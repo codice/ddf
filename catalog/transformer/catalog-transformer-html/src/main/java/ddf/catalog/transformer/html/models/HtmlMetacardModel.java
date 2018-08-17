@@ -34,7 +34,7 @@ public class HtmlMetacardModel {
   public HtmlMetacardModel(Metacard metacard, List<HtmlExportCategory> categories) {
     this.metacard = metacard;
     this.title = metacard.getTitle();
-    this.categories = categories;
+    this.categories = new ArrayList<>(categories);
 
     this.applyAttributeMappingsToMetacard();
   }
