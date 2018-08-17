@@ -27,6 +27,9 @@ deny {
 
     // Load classes into any protection domain
     permission java.lang.RuntimePermission "createClassLoader";
+
+    permission org.osgi.framework.ServicePermission "org.codice.acdebugger.PermissionService", "get, register";
+    permission org.osgi.framework.ServicePermission "org.osgi.service.condpermadmin.ConditionalPermissionAdmin", "get";
 }
 
 grant
@@ -65,8 +68,11 @@ grant codeBase "file:/org.apache.felix.fileinstall" {
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
 }
 
-grant codeBase "file:/platform-osgi-condpermadmin" {
+grant codeBase "file:/platform-osgi-condpermadmin/acdebugger-backdoor" {
     permission java.io.FilePermission "${ddf.home.perm}security${/}-", "read";
+    permission org.osgi.framework.ServicePermission "org.codice.acdebugger.PermissionService", "get, register";
+    permission org.osgi.framework.ServicePermission "org.osgi.service.condpermadmin.ConditionalPermissionAdmin", "get";
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
 }
 
 grant codeBase "file:/org.apache.felix.configadmin" {
