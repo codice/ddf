@@ -580,7 +580,7 @@
 
     <feature name="platform-email" version="${project.version}" start-level="50">
         <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
-        <bundle>mvn:com.sun.mail/javax.mail/1.5.5</bundle>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
         <feature>security-logger</feature>

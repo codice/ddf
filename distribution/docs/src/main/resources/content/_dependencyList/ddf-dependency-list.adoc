@@ -38,7 +38,7 @@
 * com.rometools:rome-utils:jar:1.9.0
 * com.rometools:rome:jar:1.9.0
 * com.sparkjava:spark-core:jar:2.5.5
-* com.sun.mail:javax.mail:jar:1.5.5
+* com.sun.mail:javax.mail:jar:1.5.6
 * com.sun.xml.bind:jaxb-core:jar:2.2.11
 * com.sun.xml.bind:jaxb-impl:jar:2.2.11
 * com.thoughtworks.xstream:xstream:jar:1.4.9
