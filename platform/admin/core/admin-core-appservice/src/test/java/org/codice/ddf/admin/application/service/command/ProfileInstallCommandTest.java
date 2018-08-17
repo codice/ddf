@@ -13,11 +13,13 @@
  */
 package org.codice.ddf.admin.application.service.command;
 
+import static org.codice.ddf.test.common.mockito.PrivilegedVerificationMode.privileged;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -247,32 +249,36 @@ public class ProfileInstallCommandTest {
 
     InOrder inOrder = Mockito.inOrder(applicationService, featuresService, bundleService);
 
-    verify(featuresService, times(3))
+    verify(featuresService, privileged(times(3)))
         .installFeature(anyString(), (EnumSet<FeaturesService.Option>) any());
-    inOrder.verify(featuresService).installFeature(eq("feature1"), eq(NO_AUTO_REFRESH));
-    inOrder.verify(featuresService).installFeature(eq("feature2"), eq(NO_AUTO_REFRESH));
-
-    verify(featuresService, times(2)).uninstallFeature(anyString(), anyString(), any());
     inOrder
-        .verify(featuresService)
+        .verify(featuresService, privileged())
+        .installFeature(eq("feature1"), eq(NO_AUTO_REFRESH));
+    inOrder
+        .verify(featuresService, privileged())
+        .installFeature(eq("feature2"), eq(NO_AUTO_REFRESH));
+
+    verify(featuresService, privileged(times(2))).uninstallFeature(anyString(), anyString(), any());
+    inOrder
+        .verify(featuresService, privileged())
         .uninstallFeature(eq("feature3"), anyString(), eq(NO_AUTO_REFRESH));
     inOrder
-        .verify(featuresService)
+        .verify(featuresService, privileged())
         .uninstallFeature(eq("feature4"), anyString(), eq(NO_AUTO_REFRESH));
 
     verify(bundleService.getBundle(anyString()), times(2)).stop();
     inOrder.verify(bundleService).getBundle("bundle1");
     inOrder.verify(bundleService).getBundle("bundle2");
     inOrder
-        .verify(featuresService)
+        .verify(featuresService, privileged())
         .installFeature(eq("admin-post-install-modules"), eq(NO_AUTO_REFRESH));
   }
 
   private void verifyMocksNoOp() throws Exception {
-    verify(featuresService, times(0)).installFeature(anyString(), eq(NO_AUTO_REFRESH));
-    verify(featuresService, times(0))
+    verify(featuresService, never()).installFeature(anyString(), eq(NO_AUTO_REFRESH));
+    verify(featuresService, never())
         .uninstallFeature(anyString(), anyString(), eq(NO_AUTO_REFRESH));
-    verify(bundleService, times(0)).getBundle(anyString());
+    verify(bundleService, never()).getBundle(anyString());
   }
 
   private Feature createMockFeature(String name) {
