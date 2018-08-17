@@ -45,9 +45,9 @@
                 <exclude>system/**/*elasticsearch*</exclude>
                 <exclude>system/**/*kibana*</exclude>
                 <exclude>system/**/pax-web-tomcat*</exclude>
-                <exclude>**/jetty/**/9.3.14.v20161028/*</exclude>
+                <exclude>**/jetty/**/9.4.6.v20170531/*</exclude>
                 <exclude>**/jetty/**/8.1.14.v20131031/*</exclude>
-                <exclude>**/pax/web/**/6.0.6/*</exclude>
+                <exclude>**/pax/web/**/7.0.0/*</exclude>
                 <!--
                 Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
                 when running client script it logs in as "karaf" user without requiring a password.
@@ -179,6 +179,11 @@
         <fileSet>
             <directory>${setup.folder}/ext</directory>
             <outputDirectory>/lib/ext</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>${setup.folder}/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
         </fileSet>
 
         <!-- Deployable Files -->

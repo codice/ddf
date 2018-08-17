@@ -58,6 +58,12 @@
             <artifactId>catalog-opensearch-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <!-- Overriding the version from the root pom due to dependency conflicts with parboiled-java -->
+            <version>6.0</version>
+        </dependency>
         <!--test dependencies-->
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -92,10 +98,6 @@
                             parboiled-java,
                             parboiled-core
                         </Embed-Dependency>
-                        <Import-Package>
-                            !org.objectweb.asm,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

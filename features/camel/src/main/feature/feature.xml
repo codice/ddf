@@ -18,7 +18,7 @@
 
     <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
 
-    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.features/spring-legacy/${karaf.version}/xml/features</repository>
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 

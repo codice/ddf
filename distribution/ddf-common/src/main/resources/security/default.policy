@@ -112,7 +112,7 @@ grant codeBase "file:/registry-federation-admin-impl/registry-publication-action
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/fabric8-karaf-checks/registry-publication-update-handler" {
+grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.camel-core/com.google.guava/ddf-pubsub/registry-source-configuration-handler/registry-api-impl/org.apache.camel.camel-blueprint/fabric8-karaf-checks/registry-publication-update-handler/org.eclipse.jetty.websocket.server" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -200,7 +200,7 @@ grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadact
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
-grant codeBase "file:/security-sts-server/security-sts-realm/catalog-opensearch-source/catalog-opensearch-endpoint" {
+grant codeBase "file:/security-sts-server/catalog-opensearch-source/catalog-opensearch-endpoint" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -298,7 +298,7 @@ grant codeBase "file:/security-rest-authn-impl/security-core-api/security-core-s
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
-grant codeBase "file:/org.apache.cxf.cxf-rt-bindings-soap/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api/security-filter-csrf" {
+grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http/org.ops4j.pax.web.pax-web-runtime/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-extender-whiteboard/org.ops4j.pax.web.pax-web-extender-war/org.eclipse.jetty.util/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.security/org.eclipse.jetty.io/javax.servlet-api/org.apache.shiro.core/security-filter-web-sso/security-filter-login/security-filter-authorization/platform-filter-response/platform-filter-clientinfo/platform-filter-delegate/security-interceptor-guest-wrapper/security-interceptor-guest/security-handler-api/security-filter-csrf" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -386,7 +386,7 @@ grant codeBase "file:/platform-country-converter-local" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}fipsToIso.properties", "read";
 }
 
-grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/org.eclipse.jetty.websocket.server/session-management-impl" {
+grant codeBase "file:/admin-core-migration-commands/catalog-core-solrcommands/security-sts-attributequeryclaimshandler/catalog-confluence-source/org.eclipse.jetty.websocket.common/session-management-impl/security-sts-realm/security-core-impl/security-sts-server/org.eclipse.jetty.websocket.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}*", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}*", "read";
 }
@@ -404,7 +404,7 @@ grant codeBase "file:/ddf.thirdparty.rest-assured" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
-grant codeBase "file:/PAXEXAM-PROBE/ddf.thirdparty.restito/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/sample-soap-endpoint" {
+grant codeBase "file:/PAXEXAM-PROBE/sample-soap-endpoint/ddf.thirdparty.restito/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete,execute";
 }
@@ -414,6 +414,7 @@ grant {
     permission java.io.FilePermission "${test.resources.dir}${/}-", "read, write, delete";
     permission java.io.FilePermission "${test.resources.dir}*", "read, write, delete";
     permission java.io.FilePermission "${test.resources.dir}${/}*", "read, write, delete";
+    permission java.io.FilePermission "${java.home}${/}conf${/}jaxm.properties", "read";
 }
 
 grant {

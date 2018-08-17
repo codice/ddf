@@ -63,6 +63,7 @@ public class ITBrandingFeatures {
   }
 
   @Inject private FeaturesService featuresService;
+  @Inject private FeatureUtilities featureUtilities;
 
   private String featureName;
 
@@ -72,6 +73,6 @@ public class ITBrandingFeatures {
 
   @Test
   public void installAndUninstallFeature() throws Exception {
-    FeatureUtilities.installAndUninstallFeature(featuresService, featureName);
+    featureUtilities.installAndUninstallFeature(featuresService, featureName);
   }
 }
