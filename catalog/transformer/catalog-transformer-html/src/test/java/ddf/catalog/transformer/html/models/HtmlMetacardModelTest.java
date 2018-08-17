@@ -15,7 +15,6 @@ package ddf.catalog.transformer.html.models;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
@@ -47,7 +46,7 @@ public class HtmlMetacardModelTest {
     HtmlMetacardModel metacardModel = new HtmlMetacardModel(metacard, categoryList);
     HtmlExportCategory category = metacardModel.getCategories().get(0);
 
-    assertTrue(category.getAttributes().contains(Core.TITLE));
+    assertThat(category.getAttributes().contains(Core.TITLE), is(true));
   }
 
   @Test

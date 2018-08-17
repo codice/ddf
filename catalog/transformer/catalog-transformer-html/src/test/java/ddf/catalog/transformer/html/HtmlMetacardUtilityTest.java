@@ -168,10 +168,10 @@ public class HtmlMetacardUtilityTest {
     assertNull(this.htmlMetacardUtility.buildHtml(null));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test()
   public void testTemplateNotFound() {
     HtmlMetacardUtility utility = new HtmlMetacardUtility(TEMPLATE_NOT_FOUND);
-    utility.buildHtml(new ArrayList<>());
+    assertNull(utility.buildHtml(new ArrayList<>()));
   }
 
   @Test

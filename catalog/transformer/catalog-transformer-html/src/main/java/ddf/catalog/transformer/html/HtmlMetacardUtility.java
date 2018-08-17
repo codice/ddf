@@ -97,8 +97,6 @@ public class HtmlMetacardUtility {
           MethodValueResolver.INSTANCE
         };
 
-    this.registerHelpers();
-
     try {
       this.template = this.handlebars.compile(htmlTemplate);
     } catch (IOException e) {
@@ -117,43 +115,9 @@ public class HtmlMetacardUtility {
     return null;
   }
 
-  /**
-   * This method registers helpers that are used in the handlebars templates. When a method value
-   * resolver is called it will evaluate the condition in each helper and appropriately evaluate
-   * that block of code like an if-else structure.
-   */
-  private void registerHelpers() {
-    handlebars.registerHelper(
-        "isBasicValue",
-        new IfHelper() {
-          @Override
-          public CharSequence apply(Object context, Options options) throws IOException {
-            return (context instanceof HtmlBasicValueModel) ? options.fn() : options.inverse();
-          }
-        });
-
-    handlebars.registerHelper(
-        "isEmptyValue",
-        new IfHelper() {
-          @Override
-          public CharSequence apply(Object context, Options options) throws IOException {
-            return (context instanceof HtmlEmptyValueModel) ? options.fn() : options.inverse();
-          }
-        });
-
-    handlebars.registerHelper(
-        "isMediaValue",
-        new IfHelper() {
-          @Override
-          public CharSequence apply(Object context, Options options) throws IOException {
-            return (context instanceof HtmlMediaModel) ? options.fn() : options.inverse();
-          }
-        });
-  }
-
   public <T> String buildHtml(T model) {
 
-    if (model == null) {
+    if (model == null || template == null) {
       return null;
     }
 
