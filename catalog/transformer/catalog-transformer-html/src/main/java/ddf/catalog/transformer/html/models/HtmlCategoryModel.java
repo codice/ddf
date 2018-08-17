@@ -28,7 +28,13 @@ public class HtmlCategoryModel implements HtmlExportCategory {
 
   private List<String> attributes;
 
-  private Map<String, HtmlValueModel> attributeMappings = new TreeMap<>();
+  private Map<String, ValueModel> attributeMappings = new TreeMap<>();
+
+  private static final String EMPTY_ATTRIBUTE_TEMPLATE = "emptyAttribute";
+
+  private static final String BASIC_ATTRIBUTE_TEMPLATE = "basicAttribute";
+
+  private static final String MEDIA_ATTRIBUTE_TEMPLATE = "mediaAttribute";
 
   public HtmlCategoryModel() {
     this("", new ArrayList<>());
@@ -63,11 +69,11 @@ public class HtmlCategoryModel implements HtmlExportCategory {
     return this.attributes;
   }
 
-  public void setAttributes(Map<String, HtmlValueModel> attributes) {
+  public void setAttributes(Map<String, ValueModel> attributes) {
     this.attributeMappings = attributes;
   }
 
-  public Map<String, HtmlValueModel> getAttributeMappings() {
+  public Map<String, ValueModel> getAttributeMappings() {
     return this.attributeMappings;
   }
 
@@ -76,14 +82,19 @@ public class HtmlCategoryModel implements HtmlExportCategory {
       String readableKey = getHumanReadableAttribute(attrKey);
       Attribute attr = metacard.getAttribute(attrKey);
 
+      ValueModel model;
+
       if (attr == null) {
-        this.attributeMappings.put(readableKey, new HtmlEmptyValueModel());
+        model = new HtmlEmptyValueModel(EMPTY_ATTRIBUTE_TEMPLATE);
+        this.attributeMappings.put(readableKey, model);
       } else if (attrKey.equals(Core.THUMBNAIL)) {
         byte[] imageData = (byte[]) attr.getValue();
-        this.attributeMappings.put(readableKey, new HtmlMediaModel(imageData));
+        model = new HtmlMediaModel(MEDIA_ATTRIBUTE_TEMPLATE, imageData);
       } else {
-        this.attributeMappings.put(readableKey, new HtmlBasicValueModel(attr.getValue()));
+        model = new HtmlBasicValueModel(BASIC_ATTRIBUTE_TEMPLATE, attr.getValue());
       }
+
+      this.attributeMappings.put(readableKey, model);
     }
   }
 

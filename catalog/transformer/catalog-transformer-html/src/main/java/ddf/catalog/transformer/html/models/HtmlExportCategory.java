@@ -33,5 +33,5 @@ public interface HtmlExportCategory {
 
   void applyAttributeMappings(Metacard metacard);
 
-  Map<String, HtmlValueModel> getAttributeMappings();
+  Map<String, ValueModel> getAttributeMappings();
 }

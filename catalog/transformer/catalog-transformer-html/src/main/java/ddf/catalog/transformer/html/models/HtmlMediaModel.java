@@ -15,10 +15,11 @@ package ddf.catalog.transformer.html.models;
 
 import java.util.Base64;
 
-public class HtmlMediaModel implements HtmlValueModel {
+public class HtmlMediaModel extends ValueModel {
   private String data;
 
-  public HtmlMediaModel(byte[] rawData) {
+  public HtmlMediaModel(String template, byte[] rawData) {
+    super(template);
     this.data = getEncodedThumbnail(rawData);
   }
 

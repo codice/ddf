@@ -21,6 +21,7 @@ import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
+import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.helper.IfHelper;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
@@ -90,7 +91,10 @@ public class HtmlMetacardUtility {
 
     this.resolvers =
         new ValueResolver[] {
-          FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE
+          FieldValueResolver.INSTANCE,
+          MapValueResolver.INSTANCE,
+          JavaBeanValueResolver.INSTANCE,
+          MethodValueResolver.INSTANCE
         };
 
     this.registerHelpers();

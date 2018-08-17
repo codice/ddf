@@ -13,6 +13,19 @@
  */
 package ddf.catalog.transformer.html.models;
 
-public interface HtmlValueModel {
-  String getValue();
+import ddf.catalog.transformer.html.HtmlMetacardUtility;
+
+public abstract class ValueModel {
+
+  private HtmlMetacardUtility htmlMetacardUtility;
+
+  public ValueModel(String template) {
+    this.htmlMetacardUtility = new HtmlMetacardUtility(template);
+  }
+
+  public String renderTemplate() {
+    return htmlMetacardUtility.buildHtml(this);
+  }
+
+  public abstract String getValue();
 }
