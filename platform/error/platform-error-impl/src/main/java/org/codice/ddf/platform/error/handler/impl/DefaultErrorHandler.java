@@ -13,16 +13,17 @@
  */
 package org.codice.ddf.platform.error.handler.impl;
 
+import static org.boon.Boon.toJson;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codice.ddf.platform.error.handler.ErrorHandler;
 import org.eclipse.jetty.util.ByteArrayISO8859Writer;
 import org.osgi.framework.Bundle;
@@ -32,21 +33,26 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultErrorHandler implements ErrorHandler {
 
-  private static final String SERVER_ERROR_PLEASE_SEE_LOGS = "Server Error, please see logs.";
+  public static final String SERVER_ERROR_PLEASE_SEE_LOGS = "Server Error, please see logs.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultErrorHandler.class);
 
   private static final int BUFFER_SIZE = 4096;
 
-  private String errorHtml = SERVER_ERROR_PLEASE_SEE_LOGS;
+  private String indexHtml = SERVER_ERROR_PLEASE_SEE_LOGS;
 
-  private Properties codeMessageProperties = new Properties();
-
-  public DefaultErrorHandler() {
-    try (InputStream inputStream = readResource("/codeMessages.properties")) {
-      codeMessageProperties.load(inputStream);
-    } catch (IOException e) {
-      LOGGER.error("Unable to load codeMessages properties", e);
+  private void initIndexHtml() {
+    if (SERVER_ERROR_PLEASE_SEE_LOGS.equals(indexHtml)) {
+      Bundle bundle = FrameworkUtil.getBundle(DefaultErrorHandler.class);
+      if (null != bundle) {
+        try {
+          indexHtml = IOUtils.toString(bundle.getEntry("/index.html").openStream());
+        } catch (Exception e) {
+          LOGGER.debug("Unable to read/parse index.html.", e);
+        }
+      } else {
+        LOGGER.debug("Unable to retrieve Bundle");
+      }
     }
   }
 
@@ -59,48 +65,29 @@ public class DefaultErrorHandler implements ErrorHandler {
       String uri,
       HttpServletRequest request,
       HttpServletResponse response) {
-    initErrorHtml();
+    initIndexHtml();
 
-    Map<String, String> attributesMap = new HashMap<>();
-    attributesMap.put("code", String.valueOf(code));
-    attributesMap.put("message", message);
-    attributesMap.put("uri", uri);
+    String stack = ExceptionUtils.getFullStackTrace(throwable);
+
+    Map<String, String> jsonMap = new HashMap<>();
+    jsonMap.put("code", String.valueOf(code));
+    jsonMap.put("message", message);
+    jsonMap.put("type", type);
+    jsonMap.put("throwable", stack);
+    jsonMap.put("uri", uri);
+    String data = toJson(jsonMap);
+    String encodedBytes = Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
+
+    String localIndexHtml = indexHtml.replace("WINDOW_DATA", "\"" + encodedBytes + "\"");
 
     response.setStatus(code);
     response.setContentType("text/html");
-
-    String output =
-        errorHtml.replace(
-            "{{codeMessage}}", codeMessageProperties.getProperty(String.valueOf(code)));
-
     try (ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(BUFFER_SIZE)) {
-      for (Entry<String, String> row : attributesMap.entrySet()) {
-        output = output.replace("{{" + row.getKey() + "}}", row.getValue());
-      }
-      writer.write(output);
+      writer.write(localIndexHtml);
       writer.flush();
       writer.writeTo(response.getOutputStream());
     } catch (IOException e) {
       LOGGER.debug("Unable to write error html data to client.");
-    }
-  }
-
-  private void initErrorHtml() {
-    if (SERVER_ERROR_PLEASE_SEE_LOGS.equals(errorHtml)) {
-      try (InputStream input = readResource("/error.html")) {
-        errorHtml = IOUtils.toString(input, StandardCharsets.UTF_8);
-      } catch (IOException e) {
-        LOGGER.debug("Unable to read/parse error.html.", e);
-      }
-    }
-  }
-
-  private InputStream readResource(String resourcePath) throws IOException {
-    Bundle bundle = FrameworkUtil.getBundle(DefaultErrorHandler.class);
-    if (null != bundle) {
-      return bundle.getEntry(resourcePath).openStream();
-    } else {
-      throw new IOException("Unable to retrieve bundle");
     }
   }
 }
