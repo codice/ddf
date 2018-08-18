@@ -53,9 +53,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            org.codice.ddf.platform.error.servlet
-                        </Export-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

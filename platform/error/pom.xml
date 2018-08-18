@@ -26,7 +26,6 @@
         <module>platform-error-api</module>
         <module>platform-error-impl</module>
         <module>platform-error-servlet</module>
-        <module>platform-error-page-injector</module>
     </modules>
     <packaging>pom</packaging>
 </project>
