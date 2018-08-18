@@ -18,38 +18,26 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
-        <artifactId>ddf</artifactId>
+        <artifactId>distribution</artifactId>
         <version>2.14.0-SNAPSHOT</version>
     </parent>
-    <artifactId>distribution</artifactId>
+    <artifactId>docker</artifactId>
+    <groupId>ddf.distribution</groupId>
     <packaging>pom</packaging>
-    <name>DDF Distribution</name>
-    <properties>
-        <sitename.default>ddf.distribution</sitename.default>
-    </properties>
+    <name>DDF ::  Distribution :: Docker</name>
+
     <modules>
-        <module>sdk</module>
-        <module>solr-distro</module>
-        <module>console-branding</module>
-        <module>ddf-branding-plugin</module>
-        <module>ddf-common</module>
-        <module>kernel</module>
-        <module>docs</module>
-        <module>ddf</module>
-        <module>docker</module>
-        <!--Test needs to be the last module because it depends on artifacts from earlier modules-->
-        <module>test</module>
+        <module>solr</module>
     </modules>
     <build>
-        <plugins>
-            <!-- Need to have JaCoCo plugin otherwise surefire fails because ${argLine} is undefined -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.26.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
