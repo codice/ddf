@@ -18,11 +18,9 @@ const usngModel = {
     units: 'meters'
   },
   line: {
-    point: '',
     list: []
   },
   polygon: {
-    point: '',
     list: []
   },
   boundingbox: ''

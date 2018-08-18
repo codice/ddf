@@ -33,11 +33,9 @@ const dmsModel = {
     units: 'meters'
   },
   line: {
-    point: {...dmsPoint},
     list: []
   },
   polygon: {
-    point: {...dmsPoint},
     list: []
   },
   boundingbox: {
@@ -48,4 +46,7 @@ const dmsModel = {
   }
 }
 
-module.exports = dmsModel;
+module.exports = {
+  dmsPoint,
+  dmsModel,
+};

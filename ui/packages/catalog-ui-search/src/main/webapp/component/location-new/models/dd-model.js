@@ -23,11 +23,9 @@ const ddModel = {
     units: 'meters'
   },
   line: {
-    point: {...ddPoint},
     list: []
   },
   polygon: {
-    point: {...ddPoint},
     list: []
   },
   boundingbox: {
@@ -38,4 +36,7 @@ const ddModel = {
   }
 }
 
-module.exports = ddModel;
+module.exports = {
+  ddPoint,
+  ddModel,
+};

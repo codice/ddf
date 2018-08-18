@@ -4,95 +4,43 @@ const Group = require('react-component/group');
 const CustomElements = require('js/CustomElements');
 const Component = CustomElements.registerReact('list-editor');
 
-const DmsEntry = (props) => {
-    const { value } = props;
-    const point = value.latitude.coordinate
-                + value.latitude.direction
-                + ", "
-                + value.longitude.coordinate
-                + value.longitude.direction;
-    return (
-        <li className="entry">
-            <span className="entry-text">{point}</span>
-            <button className="button-remove" onClick={() => props.onRemove(props.index)}>
-                <span>x</span>
-            </button>
-        </li>
-    );
-};
-
-const DdEntry = (props) => {
-    const { value } = props;
-    const point = value.latitude + "°"
-                + ", "
-                + value.longitude + "°"
-    return (
-        <li className="entry">
-            <span className="entry-text">{point}</span>
-            <button className="button-remove" onClick={() => props.onRemove(props.index)}>
-                <span>x</span>
-            </button>
-        </li>
-    );
-};
-
-const UsngEntry = (props) => {
-    return (
-        <li className="entry">
-            <span className="entry-text">{props.value}</span>
-            <button className="button-remove" onClick={() => props.onRemove(props.index)}>
-                <span>x</span>
-            </button>
-        </li>
-    );
-};
-
-class ListEditor extends React.Component {
-    onAdd() {
-        const { list, input, validateInput, onAdd, onError } = this.props;
+class ListEditor extends React.Component{
+    handleAdd() {
+        const { list, defaultItem, onChange } = this.props;
         const newList = list.slice();
-        newList.push(input);
-        if (validateInput(input)) {
-            onAdd(newList);
-        } else {
-            onError();
-        }
+        newList.push(defaultItem);
+        onChange(newList);
     }
 
-    onRemove(index) {
-        const newList = this.props.list.slice();
+    handleRemove(index) {
+        const { list, onChange } = this.props;
+        const newList = list.slice();
         newList.splice(index, 1);
-        this.props.onRemove(newList);
+        onChange(newList);
     }
 
     render() {
-        const { EntryType, list, children } = this.props;
-        const entries = list.map((entry, index) =>
-            <EntryType
-                value={entry}
-                key={index}
-                index={index}
-                onRemove={this.onRemove.bind(this)}
-            />
+        const listItems = React.Children.map(this.props.children, (child, index) =>
+            <li className="item">
+                <Group>
+                    {child}
+                    <button className="button-remove is-negative" onClick={this.handleRemove.bind(this, index)} >
+                        <span className="fa fa-minus" />
+                    </button>
+                </Group>
+            </li>
         );
-
         return (
             <Component>
-                <Group>
-                    {children}
-                    <button className="button-add" onClick={this.onAdd.bind(this)}>+</button>
-                </Group>
                 <ul className="list">
-                    {entries}
+                    {listItems}
                 </ul>
+                <button className="button-add is-positive" onClick={this.handleAdd.bind(this)} >
+                    <span className="fa fa-plus" />
+                </button>
             </Component>
         );
     }
 }
 
-module.exports = {
-    ListEditor,
-    DmsEntry,
-    DdEntry,
-    UsngEntry
-};
+module.exports = ListEditor;
