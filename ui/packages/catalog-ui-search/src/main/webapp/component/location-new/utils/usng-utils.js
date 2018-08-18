@@ -127,15 +127,21 @@ function validateUsng(usng) {
             }
             break;
         case 'line':
-            if (!usng.line.list.some(validateUsngGrid)) {
+            if (!usng.line.list.every(validateUsngGrid)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (usng.line.list.length < 2) {
+                valid = false;
+                error = errorMessages.tooFewPointsLine;
             }
             break;
         case 'polygon':
-            if (!usng.polygon.list.some(validateUsngGrid)) {
+            if (!usng.polygon.list.every(validateUsngGrid)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (usng.line.list.length < 3) {
+                valid = false;
+                error = errorMessages.tooFewPointsPolygon;
             }
             break;
         case 'boundingbox':

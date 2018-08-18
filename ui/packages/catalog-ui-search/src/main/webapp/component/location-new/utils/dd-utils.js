@@ -202,6 +202,9 @@ function validateDd(dd) {
             if (!dd.polygon.list.every(validateDdPoint)) {
                 valid = false;
                 error = errorMessages.invalidList;
+            } else if (dd.polygon.list.length < 3) {
+                valid = false;
+                error = errorMessages.tooFewPointsPolygon;
             }
             break;
         case 'boundingbox':

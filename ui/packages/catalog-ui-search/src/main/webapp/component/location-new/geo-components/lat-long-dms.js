@@ -4,9 +4,10 @@ const Group = require('react-component/group');
 const { Radio, RadioItem } = require('react-component/radio');
 const TextField = require('react-component/text-field');
 const { Units } = require('react-component/location/common');
-const { ListEditor, DmsEntry } = require('../inputs/list-editor');
+const ListEditor = require('../inputs/list-editor');
 const { DmsLatitude, DmsLongitude } = require('./coordinates');
 const { validateDmsPoint, errorMessages } = require('../utils');
+const { dmsPoint } = require('../models');
 const Direction = require('./direction');
 
 const latitudeDirections = ['N', 'S'];
@@ -83,90 +84,76 @@ const Circle = (props) => {
 
 const Line = (props) => {
     const { dms, setState } = props;
+    const points = dms.line.list.map((entry, index) =>
+        <Group key={index}>
+            <DmsLatitude
+                value={dms.line.list[index].latitude.coordinate}
+                onChange={setState((draft, value) => draft.dms.line.list[index].latitude.coordinate = value)}
+                >
+                <Direction
+                    options={latitudeDirections}
+                    value={dms.line.list[index].latitude.direction}
+                    onChange={setState((draft, value) => draft.dms.line.list[index].latitude.direction = value)}
+                />
+            </DmsLatitude>
+            <DmsLongitude
+                value={dms.line.list[index].longitude.coordinate}
+                onChange={setState((draft, value) => draft.dms.line.list[index].longitude.coordinate = value)}
+                >
+                <Direction
+                    options={longitudeDirections}
+                    value={dms.line.list[index].longitude.direction}
+                    onChange={setState((draft, value) => draft.dms.line.list[index].longitude.direction = value)}
+                />
+            </DmsLongitude>
+        </Group>
+    );
+
     return (
         <ListEditor
             list={dms.line.list}
-            EntryType={DmsEntry}
-            input={dms.line.point}
-            validateInput={validateDmsPoint}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidCoordinates;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.dms.line.list = value;
-                draft.dms.line.point.latitude.coordinate = '';
-                draft.dms.line.point.longitude.coordinate = '';
-            })}
-            onRemove={setState((draft, value) => draft.dms.line.list = value)}
+            defaultItem={dmsPoint}
+            onChange={setState((draft, value) => {draft.dms.line.list = value})}
             >
-            <Group>
-                <DmsLatitude
-                    value={dms.line.point.latitude.coordinate}
-                    onChange={setState((draft, value) => draft.dms.line.point.latitude.coordinate = value)}
-                    >
-                    <Direction
-                        options={latitudeDirections}
-                        value={dms.line.point.latitude.direction}
-                        onChange={setState((draft, value) => draft.dms.line.point.latitude.direction = value)}
-                    />
-                </DmsLatitude>
-                <DmsLongitude
-                    value={dms.line.point.longitude.coordinate}
-                    onChange={setState((draft, value) => draft.dms.line.point.longitude.coordinate = value)}
-                    >
-                    <Direction
-                        options={longitudeDirections}
-                        value={dms.line.point.longitude.direction}
-                        onChange={setState((draft, value) => draft.dms.line.point.longitude.direction = value)}
-                    />
-                </DmsLongitude>
-            </Group>
+            {points}
         </ListEditor>
     );
 };
 
 const Polygon = (props) => {
     const { dms, setState } = props;
+    const points = dms.polygon.list.map((entry, index) =>
+        <Group key={index}>
+            <DmsLatitude
+                value={dms.polygon.list[index].latitude.coordinate}
+                onChange={setState((draft, value) => draft.dms.polygon.list[index].latitude.coordinate = value)}
+                >
+                <Direction
+                    options={latitudeDirections}
+                    value={dms.polygon.list[index].latitude.direction}
+                    onChange={setState((draft, value) => draft.dms.polygon.list[index].latitude.direction = value)}
+                />
+            </DmsLatitude>
+            <DmsLongitude
+                value={dms.polygon.list[index].longitude.coordinate}
+                onChange={setState((draft, value) => draft.dms.polygon.list[index].longitude.coordinate = value)}
+                >
+                <Direction
+                    options={longitudeDirections}
+                    value={dms.polygon.list[index].longitude.direction}
+                    onChange={setState((draft, value) => draft.dms.polygon.list[index].longitude.direction = value)}
+                />
+            </DmsLongitude>
+        </Group>
+    );
+
     return (
         <ListEditor
             list={dms.polygon.list}
-            EntryType={DmsEntry}
-            input={dms.polygon.point}
-            validateInput={validateDmsPoint}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidCoordinates;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.dms.polygon.list = value;
-                draft.dms.polygon.point.latitude.coordinate = '';
-                draft.dms.polygon.point.longitude.coordinate = '';
-            })}
-            onRemove={setState((draft, value) => draft.dms.polygon.list = value)}
+            defaultItem={dmsPoint}
+            onChange={setState((draft, value) => {draft.dms.polygon.list = value})}
             >
-            <Group>
-                <DmsLatitude
-                    value={dms.polygon.point.latitude.coordinate}
-                    onChange={setState((draft, value) => draft.dms.polygon.point.latitude.coordinate = value)}
-                    >
-                    <Direction
-                        options={latitudeDirections}
-                        value={dms.polygon.point.latitude.direction}
-                        onChange={setState((draft, value) => draft.dms.polygon.point.latitude.direction = value)}
-                    />
-                </DmsLatitude>
-                <DmsLongitude
-                    value={dms.polygon.point.longitude.coordinate}
-                    onChange={setState((draft, value) => draft.dms.polygon.point.longitude.coordinate = value)}
-                    >
-                    <Direction
-                        options={longitudeDirections}
-                        value={dms.polygon.point.longitude.direction}
-                        onChange={setState((draft, value) => draft.dms.polygon.point.longitude.direction = value)}
-                    />
-                </DmsLongitude>
-            </Group>
+            {points}
         </ListEditor>
     );
 };

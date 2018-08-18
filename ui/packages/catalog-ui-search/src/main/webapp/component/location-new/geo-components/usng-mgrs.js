@@ -3,7 +3,7 @@ const React = require('react');
 const { Radio, RadioItem } = require('react-component/radio');
 const TextField = require('react-component/text-field');
 const { Units } = require('react-component/location/common');
-const { ListEditor, UsngEntry } = require('../inputs/list-editor');
+const ListEditor = require('../inputs/list-editor');
 const { UsngCoordinate } = require('./coordinates');
 const { validateUsngGrid, errorMessages } = require('../utils');
 
@@ -41,52 +41,42 @@ const Circle = (props) => {
 
 const Line = (props) => {
     const { usng, setState } = props;
+    const grids = usng.line.list.map((entry, index) =>
+        <UsngCoordinate
+            value={usng.line.list[index]}
+            onChange={setState((draft, value) => draft.usng.line.list[index] = value)}
+            key={index}
+        />
+    );
+
     return (
         <ListEditor
             list={usng.line.list}
-            EntryType={UsngEntry}
-            input={usng.line.point}
-            validateInput={validateUsngGrid}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidUsngGrid;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.usng.line.list = value;
-                draft.usng.line.point = '';
-            })}
-            onRemove={setState((draft, value) => draft.usng.line.list = value)}
+            defaultItem=""
+            onChange={setState((draft, value) => {draft.usng.line.list = value})}
             >
-            <UsngCoordinate
-                value={usng.line.point}
-                onChange={setState((draft, value) => draft.usng.line.point = value)}
-            />
+            {grids}
         </ListEditor>
     );
 };
 
 const Polygon = (props) => {
     const { usng, setState } = props;
+    const grids = usng.polygon.list.map((entry, index) =>
+        <UsngCoordinate
+            value={usng.polygon.list[index]}
+            onChange={setState((draft, value) => draft.usng.polygon.list[index] = value)}
+            key={index}
+        />
+    );
+
     return (
         <ListEditor
             list={usng.polygon.list}
-            EntryType={UsngEntry}
-            input={usng.polygon.point}
-            validateInput={validateUsngGrid}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidUsngGrid;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.usng.polygon.list = value;
-                draft.usng.polygon.point = '';
-            })}
-            onRemove={setState((draft, value) => draft.usng.polygon.list = value)}
+            defaultItem=""
+            onChange={setState((draft, value) => {draft.usng.polygon.list = value})}
             >
-            <UsngCoordinate
-                value={usng.polygon.point}
-                onChange={setState((draft, value) => draft.usng.polygon.point = value)}
-            />
+            {grids}
         </ListEditor>
     );
 };

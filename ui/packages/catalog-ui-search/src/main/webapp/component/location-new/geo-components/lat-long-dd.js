@@ -4,9 +4,10 @@ const Group = require('react-component/group');
 const { Radio, RadioItem } = require('react-component/radio');
 const TextField = require('react-component/text-field');
 const { Units } = require('react-component/location/common');
-const { ListEditor, DdEntry } = require('../inputs/list-editor');
+const ListEditor = require('../inputs/list-editor');
 const { DdLatitude, DdLongitude } = require('./coordinates');
 const { validateDdPoint } = require('../utils');
+const { ddPoint } = require('../models');
 const errorMessages = require('../utils/errors');
 
 const minimumDifference = 0.0001;
@@ -58,70 +59,52 @@ const Circle = (props) => {
 
 const Line = (props) => {
     const { dd, setState } = props;
-    return (
-        <div>
-
-        </div>
-
-//        <ListEditor
-//            list={dd.line.list}
-//            EntryType={DdEntry}
-//            input={dd.line.point}
-//            validateInput={validateDdPoint}
-//            onError={setState((draft, value) => {
-//                draft.valid = false;
-//                draft.error = errorMessages.invalidCoordinates;
-//            })}
-//            onAdd={setState((draft, value) => {
-//                draft.dd.line.list = value;
-//                draft.dd.line.point.latitude = '';
-//                draft.dd.line.point.longitude = '';
-//            })}
-//            onRemove={setState((draft, value) => draft.dd.line.list = value)}
-//            >
-//            <Group>
-//                <DdLatitude
-//                    value={dd.line.point.latitude}
-//                    onChange={setState((draft, value) => draft.dd.line.point.latitude = value)}
-//                />
-//                <DdLongitude
-//                    value={dd.line.point.longitude}
-//                    onChange={setState((draft, value) => draft.dd.line.point.longitude = value)}
-//                />
-//            </Group>
-//        </ListEditor>
+    const points = dd.line.list.map((entry, index) =>
+        <Group key={index}>
+            <DdLatitude
+                value={dd.line.list[index].latitude}
+                onChange={setState((draft, value) => draft.dd.line.list[index].latitude = value)}
+            />
+            <DdLongitude
+                value={dd.line.list[index].longitude}
+                onChange={setState((draft, value) => draft.dd.line.list[index].longitude = value)}
+            />
+        </Group>
     );
-}
+
+    return (
+        <ListEditor
+            list={dd.line.list}
+            defaultItem={ddPoint}
+            onChange={setState((draft, value) => {draft.dd.line.list = value})}
+            >
+            {points}
+        </ListEditor>
+    );
+};
 
 const Polygon = (props) => {
     const { dd, setState } = props;
+    const points = dd.polygon.list.map((entry, index) =>
+        <Group key={index}>
+            <DdLatitude
+                value={dd.polygon.list[index].latitude}
+                onChange={setState((draft, value) => draft.dd.polygon.list[index].latitude = value)}
+            />
+            <DdLongitude
+                value={dd.polygon.list[index].longitude}
+                onChange={setState((draft, value) => draft.dd.polygon.list[index].longitude = value)}
+            />
+        </Group>
+    );
+
     return (
         <ListEditor
             list={dd.polygon.list}
-            EntryType={DdEntry}
-            input={dd.polygon.point}
-            validateInput={validateDdPoint}
-            onError={setState((draft, value) => {
-                draft.valid = false;
-                draft.error = errorMessages.invalidCoordinates;
-            })}
-            onAdd={setState((draft, value) => {
-                draft.dd.polygon.list = value;
-                draft.dd.polygon.point.latitude = '';
-                draft.dd.polygon.point.longitude = '';
-            })}
-            onRemove={setState((draft, value) => draft.dd.polygon.list = value)}
+            defaultItem={ddPoint}
+            onChange={setState((draft, value) => {draft.dd.polygon.list = value})}
             >
-            <Group>
-                <DdLatitude
-                    value={dd.polygon.point.latitude}
-                    onChange={setState((draft, value) => draft.dd.polygon.point.latitude = value)}
-                />
-                <DdLongitude
-                    value={dd.polygon.point.longitude}
-                    onChange={setState((draft, value) => draft.dd.polygon.point.longitude = value)}
-                />
-            </Group>
+            {points}
         </ListEditor>
     );
 };
