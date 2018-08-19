@@ -24,6 +24,6 @@ const usngModel = {
     list: []
   },
   boundingbox: ''
-}
+};
 
 module.exports = usngModel;

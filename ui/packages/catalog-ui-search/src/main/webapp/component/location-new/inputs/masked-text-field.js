@@ -11,14 +11,14 @@ const MaskedTextField = (props) => {
     return (
         <Component>
             <Group>
-                {label !== undefined ? (
+                {label != null ? (
                     <span className="input-group-addon">{label}&nbsp;</span>
                 ) : null}
                 <MaskedInput
                     onChange={(e) => onChange(e.target.value)}
                     {...args}
                 />
-                {addon !== undefined ? (
+                {addon != null ? (
                     <label className="input-group-addon">{addon}</label>
                 ) : null}
             </Group>

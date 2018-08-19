@@ -19,6 +19,29 @@ const converter = new usng.Converter();
 const { computeCircle, toKilometers } = require('./geo-helper');
 const errorMessages = require('./errors');
 
+function validateUsngGrid(grid) {
+    return converter.isUSNG(grid) !== 0;
+}
+
+function gridIsBlank(grid) {
+    return grid.length === 0;
+}
+
+function inputIsBlank(usng) {
+    switch(usng.shape) {
+        case 'point':
+            return gridIsBlank(usng.point);
+        case 'circle':
+            return gridIsBlank(usng.circle.point);
+        case 'line':
+            return usng.line.list.length === 0;
+        case 'polygon':
+            return usng.polygon.list.length === 0;
+        case 'boundingbox':
+            return gridIsBlank(usng.boundingbox);
+    }
+}
+
 /*
  *  USNG/MGRS -> WKT conversion utils
  */
@@ -70,7 +93,7 @@ function usngToWkt(usng) {
             const ne = new wkx.Point(maxLon, maxLat);
             const se = new wkx.Point(maxLon, minLat);
             const sw = new wkx.Point(minLon, minLat);
-            return new wkx.Polygon([nw, ne, se, sw, nw]).toWkt();
+            wkt = new wkx.Polygon([nw, ne, se, sw, nw]).toWkt();
             break;
     }
     return wkt;
@@ -79,36 +102,13 @@ function usngToWkt(usng) {
 /*
  *  USNG/MGRS validation utils
  */
-function validateUsngGrid(grid) {
-    return converter.isUSNG(grid) !== 0;
-}
-
-function gridIsBlank(grid) {
-    return grid.length === 0;
-}
-
-function inputIsBlank(usng) {
-    switch(usng.shape) {
-        case 'point':
-            return gridIsBlank(usng.point);
-        case 'circle':
-            return gridIsBlank(usng.circle.point);
-        case 'line':
-            return usng.line.list.length === 0;
-        case 'polygon':
-            return usng.polygon.list.length === 0;
-        case 'boundingbox':
-            return gridIsBlank(usng.boundingbox);
-    }
-}
-
 function validateUsng(usng) {
     if (inputIsBlank(usng)) {
-        return { valid: true, error: undefined };
+        return { valid: true, error: null };
     }
 
     var valid = true;
-    var error = undefined;
+    var error = null;
     switch (usng.shape) {
         case 'point':
             if (!validateUsngGrid(usng.point)) {

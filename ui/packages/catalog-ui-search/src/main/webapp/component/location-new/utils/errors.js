@@ -41,7 +41,6 @@ const errorMessages = {
                            `,
     tooFewPointsLine: 'Lines must contain 2 or more points',
     tooFewPointsPolygon: 'Polygons must contain 3 or more points',
-
-}
+};
 
 module.exports = errorMessages;

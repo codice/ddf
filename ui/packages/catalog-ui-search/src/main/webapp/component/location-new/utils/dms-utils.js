@@ -19,6 +19,60 @@ const errorMessages = require('./errors');
 const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$');
 const minimumDifference = 0.0001;
 
+function dmsCoordinateIsBlank(coordinate) {
+    return coordinate.coordinate.length === 0;
+}
+
+function dmsPointIsBlank(point) {
+    return dmsCoordinateIsBlank(point.latitude) && dmsCoordinateIsBlank(point.longitude);
+}
+
+function inputIsBlank(dms) {
+    switch(dms.shape) {
+        case 'point':
+            return dmsPointIsBlank(dms.point);
+        case 'circle':
+            return dmsPointIsBlank(dms.circle.point);
+        case 'line':
+            return dms.line.list.length === 0;
+        case 'polygon':
+            return dms.polygon.list.length === 0;
+        case 'boundingbox':
+            return dmsCoordinateIsBlank(dms.boundingbox.north)
+                && dmsCoordinateIsBlank(dms.boundingbox.south)
+                && dmsCoordinateIsBlank(dms.boundingbox.east)
+                && dmsCoordinateIsBlank(dms.boundingbox.west);
+    }
+}
+
+function parseDmsCoordinate(coordinate) {
+   const matches = dmsRegex.exec(coordinate.coordinate);
+   if (matches == null) {
+       return null;
+   }
+
+   const seconds = parseFloat(matches[3]);
+   if (isNaN(seconds)) {
+       return null;
+   }
+
+   return {
+       degrees: parseInt(matches[1]),
+       minutes: parseInt(matches[2]),
+       seconds: seconds,
+       direction: coordinate.direction
+   };
+}
+
+function dmsCoordinateToDD(coordinate) {
+   const dd = coordinate.degrees + (coordinate.minutes / 60) + (coordinate.seconds / 3600);
+   if (coordinate.direction === 'N' || coordinate.direction === 'E') {
+       return dd;
+   } else {
+       return -dd;
+   }
+}
+
 /*
  *  DMS -> WKT conversion utils
  */
@@ -80,34 +134,6 @@ function dmsToWkt(dms) {
 /*
  *  DMS validation utils
  */
-function dmsCoordinateToDD(coordinate) {
-    const dd = coordinate.degrees + (coordinate.minutes / 60) + (coordinate.seconds / 3600);
-    if (coordinate.direction === 'N' || coordinate.direction === 'E') {
-        return dd;
-    } else {
-        return -dd;
-    }
-}
-
-function parseDmsCoordinate(coordinate) {
-    const matches = dmsRegex.exec(coordinate.coordinate);
-    if (matches == null) {
-        return null;
-    }
-
-    const seconds = parseFloat(matches[3]);
-    if (isNaN(seconds)) {
-        return null;
-    }
-
-    return {
-        degrees: parseInt(matches[1]),
-        minutes: parseInt(matches[2]),
-        seconds: seconds,
-        direction: coordinate.direction
-    };
-}
-
 function validateLatitudeRange(coordinate) {
     if (coordinate.degrees > 90 || coordinate.minutes >= 60 || coordinate.seconds >= 60) {
         return false;
@@ -180,39 +206,13 @@ function validateDmsBoundingBox(boundingbox) {
     return true;
 }
 
-function dmsCoordinateIsBlank(coordinate) {
-    return coordinate.coordinate.length === 0;
-}
-
-function dmsPointIsBlank(point) {
-    return dmsCoordinateIsBlank(point.latitude) && dmsCoordinateIsBlank(point.longitude);
-}
-
-function inputIsBlank(dms) {
-    switch(dms.shape) {
-        case 'point':
-            return dmsPointIsBlank(dms.point);
-        case 'circle':
-            return dmsPointIsBlank(dms.circle.point);
-        case 'line':
-            return dms.line.list.length === 0;
-        case 'polygon':
-            return dms.polygon.list.length === 0;
-        case 'boundingbox':
-            return dmsCoordinateIsBlank(dms.boundingbox.north)
-                && dmsCoordinateIsBlank(dms.boundingbox.south)
-                && dmsCoordinateIsBlank(dms.boundingbox.east)
-                && dmsCoordinateIsBlank(dms.boundingbox.west);
-    }
-}
-
 function validateDms(dms) {
     if (inputIsBlank(dms)) {
-        return { valid: true, error: undefined };
+        return { valid: true, error: null };
     }
 
     var valid = true;
-    var error = undefined;
+    var error = null;
     switch(dms.shape) {
         case 'point':
             if (!validateDmsPoint(dms.point)) {

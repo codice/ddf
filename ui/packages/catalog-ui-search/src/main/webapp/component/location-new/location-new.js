@@ -19,7 +19,7 @@ module.exports = Backbone.AssociatedModel.extend({
     defaults: {
         showErrors: true,
         valid: true,
-        error: undefined,
+        error: null,
         mode: 'wkt',
         wkt: '',
         dd: ddModel,
@@ -27,11 +27,11 @@ module.exports = Backbone.AssociatedModel.extend({
         usng: usngModel
     },
 
-    initialize: function() {
+    initialize() {
         this.listenTo(this, 'change:wkt change:dms change:dd change:usng change:mode', this.validate.bind(this));
     },
 
-    isValid: function() {
+    isValid() {
         return this.get('valid');
     },
 
@@ -39,7 +39,7 @@ module.exports = Backbone.AssociatedModel.extend({
      * Return the active input converted to WKT. If the input failed validation, return "INVALID".
      * If the input is blank, return null.
      */
-    getValue: function() {
+    getValue() {
         if (!this.isValid()) {
             return "INVALID";
         }
@@ -60,7 +60,7 @@ module.exports = Backbone.AssociatedModel.extend({
     },
 
     /* Run the appropriate validator for the active mode. Blank input is considered valid */
-    validate: function() {
+    validate() {
         const mode = this.get('mode');
         var validationReport;
         switch (mode) {

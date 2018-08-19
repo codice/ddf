@@ -19,6 +19,33 @@ const errorMessages = require('./errors');
 const ddRegex = new RegExp("^-?[0-9]*\.?[0-9]*$");
 const minimumDifference = 0.0001;
 
+
+function ddCoordinateIsBlank(coordinate) {
+    return coordinate.length === 0;
+}
+
+function ddPointIsBlank(point) {
+    return ddCoordinateIsBlank(point.latitude) && ddCoordinateIsBlank(point.longitude);
+}
+
+function inputIsBlank(dd) {
+    switch(dd.shape) {
+        case 'point':
+            return ddPointIsBlank(dd.point);
+        case 'circle':
+            return ddPointIsBlank(dd.circle.point);
+        case 'line':
+            return dd.line.list.length === 0;
+        case 'polygon':
+            return dd.polygon.list.length === 0;
+        case 'boundingbox':
+            return ddCoordinateIsBlank(dd.boundingbox.north)
+                && ddCoordinateIsBlank(dd.boundingbox.south)
+                && ddCoordinateIsBlank(dd.boundingbox.east)
+                && ddCoordinateIsBlank(dd.boundingbox.west);
+    }
+}
+
 /*
  *  Decimal degrees -> WKT conversion utils
  */
@@ -125,7 +152,7 @@ function validateDdBoundingBox(boundingbox) {
         || !validateLatitudeRange(south)
         || !validateLongitudeRange(east)
         || !validateLongitudeRange(west)) {
-        return false
+        return false;
     }
 
     if (north < south || east < west) {
@@ -139,39 +166,13 @@ function validateDdBoundingBox(boundingbox) {
     return true;
 }
 
-function ddCoordinateIsBlank(coordinate) {
-    return coordinate.length === 0;
-}
-
-function ddPointIsBlank(point) {
-    return ddCoordinateIsBlank(point.latitude) && ddCoordinateIsBlank(point.longitude);
-}
-
-function inputIsBlank(dd) {
-    switch(dd.shape) {
-        case 'point':
-            return ddPointIsBlank(dd.point);
-        case 'circle':
-            return ddPointIsBlank(dd.circle.point);
-        case 'line':
-            return dd.line.list.length === 0;
-        case 'polygon':
-            return dd.polygon.list.length === 0;
-        case 'boundingbox':
-            return ddCoordinateIsBlank(dd.boundingbox.north)
-                && ddCoordinateIsBlank(dd.boundingbox.south)
-                && ddCoordinateIsBlank(dd.boundingbox.east)
-                && ddCoordinateIsBlank(dd.boundingbox.west);
-    }
-}
-
 function validateDd(dd) {
     if (inputIsBlank(dd)) {
-        return { valid: true, error: undefined };
+        return { valid: true, error: null };
     }
 
     var valid = true;
-    var error = undefined;
+    var error = null;
     switch(dd.shape) {
         case 'point':
             if (!validateDdPoint(dd.point)) {

@@ -58,7 +58,7 @@ module.exports = ({ state, setState }) => (
     <LocationInput
         {...state}
         setState={(producer) => (value) => {
-            const nextState = produce(state, draft => { producer(draft, value) });
+            const nextState = produce(state, (draft) => { producer(draft, value); });
             setState(nextState);
         }}
     />

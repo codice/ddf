@@ -36,8 +36,8 @@ const Circle = (props) => {
                 />
             </Units>
         </div>
-    )
-}
+    );
+};
 
 const Line = (props) => {
     const { usng, setState } = props;
@@ -53,7 +53,7 @@ const Line = (props) => {
         <ListEditor
             list={usng.line.list}
             defaultItem=""
-            onChange={setState((draft, value) => {draft.usng.line.list = value})}
+            onChange={setState((draft, value) => draft.usng.line.list = value)}
             >
             {grids}
         </ListEditor>
@@ -74,7 +74,7 @@ const Polygon = (props) => {
         <ListEditor
             list={usng.polygon.list}
             defaultItem=""
-            onChange={setState((draft, value) => {draft.usng.polygon.list = value})}
+            onChange={setState((draft, value) => draft.usng.polygon.list = value)}
             >
             {grids}
         </ListEditor>

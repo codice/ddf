@@ -12,7 +12,7 @@
 const ddPoint = {
   latitude: '',
   longitude: ''
-}
+};
 
 const ddModel = {
   shape: 'point',
@@ -34,7 +34,7 @@ const ddModel = {
     east: '',
     west: ''
   }
-}
+};
 
 module.exports = {
   ddPoint,

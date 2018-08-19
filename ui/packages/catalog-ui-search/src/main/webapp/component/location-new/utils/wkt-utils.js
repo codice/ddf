@@ -22,7 +22,7 @@ function convertUserValueToWKT(val){
         if (value.indexOf('((') === 0) {
             var endOfMultiPoint = value.indexOf('))') + 2;
             var multipointStr = value.substring(0, endOfMultiPoint);
-            multipointStr = multipointStr.split('((').join('(').split('),(').join(',').split('))').join(')')
+            multipointStr = multipointStr.split('((').join('(').split('),(').join(',').split('))').join(')');
             return multipointStr + value.substring(endOfMultiPoint);
         } else {
             return value;
@@ -94,11 +94,11 @@ function inputIsBlank(wkt) {
 
 function validateWkt(wkt) {
     if (inputIsBlank(wkt)) {
-        return { valid: true, error: undefined };
+        return { valid: true, error: null };
     }
 
     var valid = true;
-    var error = undefined;
+    var error = null;
     if (!checkForm(wkt)) {
         valid = false;
         error = errorMessages.malformedWkt;
@@ -106,7 +106,7 @@ function validateWkt(wkt) {
         valid = false;
         error = errorMessages.invalidWktCoordinates;
     }
-    return { valid: valid, error: error }
+    return { valid: valid, error: error };
 }
 
 module.exports = validateWkt;
