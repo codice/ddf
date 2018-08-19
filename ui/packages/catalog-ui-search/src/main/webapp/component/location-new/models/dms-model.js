@@ -12,17 +12,17 @@
 const dmsLatitude = {
   coordinate: '',
   direction: 'N'
-}
+};
 
 const dmsLongitude = {
   coordinate: '',
   direction: 'E'
-}
+};
 
 const dmsPoint = {
   latitude: {...dmsLatitude},
   longitude: {...dmsLongitude}
-}
+};
 
 const dmsModel = {
   shape: 'point',
@@ -44,7 +44,7 @@ const dmsModel = {
     east: {...dmsLongitude},
     west: {...dmsLongitude}
   }
-}
+};
 
 module.exports = {
   dmsPoint,

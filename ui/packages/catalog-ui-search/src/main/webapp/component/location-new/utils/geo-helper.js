@@ -14,6 +14,14 @@
  **/
 const wkx = require('wkx');
 
+function degreesToRadians(degrees) {
+    return degrees * Math.PI / 180;
+}
+
+function radiansToDegrees(radians) {
+    return radians * 180 / Math.PI;
+}
+
 /*
  * Constants used for the calculations below:
  * R is Earth's approximate radius. Assumes a perfect circle, which will produce at most 0.5% error
@@ -23,14 +31,6 @@ const MIN_LAT = degreesToRadians(-90);
 const MAX_LAT = degreesToRadians(90);
 const MIN_LON = degreesToRadians(-180);
 const MAX_LON = degreesToRadians(180);
-
-function degreesToRadians(degrees) {
-    return degrees * Math.PI / 180;
-}
-
-function radiansToDegrees(radians) {
-    return radians * 180 / Math.PI;
-}
 
 /*
  * Given a starting point, initial bearing, and distance travelled, returns the destination point
@@ -67,7 +67,7 @@ function computeDestination(point, bearing, distance) {
 }
 
 /*
- * TODO: Convert to use Spatial4j buffered point, e.g. BUFFER(POINT(0 0), 10)
+ * TODO: Use Spatial4j buffered point, e.g. BUFFER(POINT(0 0), 10), instead of approximating circle
  * Given a point and distance, returns an n-point polygon approximating a circle surrounding the
  * point with radius equal to the input distance.
  * @param point: wkx Point
@@ -96,22 +96,16 @@ function toKilometers(distance, units) {
     switch (units) {
         case 'meters':
             return distance / 1000;
-            break;
         case 'kilometers':
             return distance;
-            break;
         case 'feet':
             return distance * 0.0003048;
-            break;
         case 'yards':
             return distance * 0.0009144;
-            break;
         case 'miles':
             return distance * 1.609344;
-            break;
         case 'nautical miles':
             return distance * 1.852;
-            break;
     }
 }
 

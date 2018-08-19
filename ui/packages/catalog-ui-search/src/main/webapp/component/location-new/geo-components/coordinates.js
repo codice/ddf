@@ -17,7 +17,7 @@ const Coordinate = (props) => {
             {children}
         </div>
     );
-}
+};
 
 const MaskedCoordinate = (props) => {
     const { placeholder, mask, value, onChange, children, ...otherProps } = props;
@@ -33,7 +33,7 @@ const MaskedCoordinate = (props) => {
             {children}
         </div>
     );
-}
+};
 
 const DmsLatitude = (props) => {
     return (

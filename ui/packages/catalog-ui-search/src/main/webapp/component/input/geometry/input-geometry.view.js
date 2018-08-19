@@ -29,34 +29,34 @@ module.exports = InputView.extend({
     regions: {
         locationRegion: '.location-region'
     },
-    serializeData: function () {
+    serializeData() {
         var value = this.model.get('value');
         return {
             label: value
         };
     },
-    onRender: function () {
+    onRender() {
         this.initializeRadio()
         InputView.prototype.onRender.call(this);
     },
-    listenForChange: function(){
+    listenForChange() {
          this.listenTo(this.locationRegion.currentView.model, 'change', this.triggerChange);
     },
-    initializeRadio: function(){
+    initializeRadio() {
         this.locationRegion.show(new LocationView({
             model: this.model
         }));
     },
-    handleReadOnly: function () {
+    handleReadOnly() {
         this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
     },
-    handleValue: function(){
+    handleValue() {
         this.locationRegion.currentView.model.set('wkt', this.model.get('value'));
     },
-    getCurrentValue: function(){
+    getCurrentValue() {
         return this.locationRegion.currentView.getCurrentValue();
     },
-    triggerChange: function(){
+    triggerChange() {
         this.model.set('value', this.getCurrentValue());
     }
 });

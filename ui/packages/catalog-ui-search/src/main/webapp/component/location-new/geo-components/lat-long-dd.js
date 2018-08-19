@@ -26,7 +26,7 @@ const Point = (props) => {
             />
         </Group>
     );
-}
+};
 
 const Circle = (props) => {
     const { dd, setState } = props;
@@ -76,7 +76,7 @@ const Line = (props) => {
         <ListEditor
             list={dd.line.list}
             defaultItem={ddPoint}
-            onChange={setState((draft, value) => {draft.dd.line.list = value})}
+            onChange={setState((draft, value) => draft.dd.line.list = value)}
             >
             {points}
         </ListEditor>
@@ -102,7 +102,7 @@ const Polygon = (props) => {
         <ListEditor
             list={dd.polygon.list}
             defaultItem={ddPoint}
-            onChange={setState((draft, value) => {draft.dd.polygon.list = value})}
+            onChange={setState((draft, value) => draft.dd.polygon.list = value)}
             >
             {points}
         </ListEditor>

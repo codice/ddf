@@ -39,7 +39,7 @@ const Point = (props) => {
             </DmsLongitude>
         </Group>
     );
-}
+};
 
 const Circle = (props) => {
     const { dms, setState } = props;
@@ -113,7 +113,7 @@ const Line = (props) => {
         <ListEditor
             list={dms.line.list}
             defaultItem={dmsPoint}
-            onChange={setState((draft, value) => {draft.dms.line.list = value})}
+            onChange={setState((draft, value) => draft.dms.line.list = value)}
             >
             {points}
         </ListEditor>
@@ -151,7 +151,7 @@ const Polygon = (props) => {
         <ListEditor
             list={dms.polygon.list}
             defaultItem={dmsPoint}
-            onChange={setState((draft, value) => {draft.dms.polygon.list = value})}
+            onChange={setState((draft, value) => draft.dms.polygon.list = value)}
             >
             {points}
         </ListEditor>

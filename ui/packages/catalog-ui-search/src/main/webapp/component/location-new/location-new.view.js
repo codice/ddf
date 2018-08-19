@@ -29,19 +29,19 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         location: '.location-input'
     },
-    initialize: function(options) {
+    initialize(options) {
         this.propertyModel = this.model;
         this.model = new LocationNewModel();
         _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
     },
-    onRender: function() {
+    onRender() {
         this.location.show(
             new LocationInput({
                 model: this.model,
             })
         );
     },
-    getCurrentValue: function() {
+    getCurrentValue() {
         return this.model.getValue();
     },
 });
