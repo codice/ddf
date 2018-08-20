@@ -2,22 +2,25 @@
 
 SRC=${CONFIG_SRC:=configs}
 DEST=${CORE_DEST:=cores/}
-CORE=${1}
+CORES="$@"
 
-if [ -z "${CORE}" ]; then
+if [ -z "${CORES}" ]; then
   printf "\nNo core arguent given\n"
   exit 1
 fi
 
-printf "\nCreating core ${CORE}...\n\tUsing configs from ${SRC}\n\tStoring in ${DEST}\n"
+for core in "$@"
+do
+  printf "\nCreating core ${core}...\n\tUsing configs from ${SRC}\n\tStoring in ${DEST}\n"
 
-mkdir -p ${DEST}/${CORE}/conf
-cp -r ${SRC}/* ${DEST}/${CORE}/conf/
-
-cat > ${DEST}/${CORE}/core.properties << EOF
-name=${CORE}
+  mkdir -p ${DEST}/${core}/conf
+  cp -r ${SRC}/* ${DEST}/${core}/conf/
+cat > ${DEST}/${core}/core.properties << EOF
+name=${core}
 config=solrconfig.xml
 schema=schema.xml
 dataDir=data
 ulogDir=data
 EOF
+
+done

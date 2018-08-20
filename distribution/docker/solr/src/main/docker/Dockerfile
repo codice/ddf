@@ -17,11 +17,13 @@ COPY maven/solr.xml /seed/solr.xml
 COPY maven/stopwords.txt /seed/stopwords.txt
 COPY maven/stopwords_en.txt /seed/stopwords_en.txt
 COPY maven/synonyms.txt /seed/synonyms.txt
-COPY maven/createCore.sh /usr/local/bin/create-core
+COPY maven/createCore.sh /usr/local/bin/create-ddf-core
+RUN chmod 755 /usr/local/bin/create-ddf-core
 RUN chown -R solr:solr /seed
 USER solr
 
-
-# Set ENV vars for use by create-core script
+# Set ENV vars for use by create-ddf-core script
 ENV CONFIG_SRC=/seed
-ENV CORE_DEST=/opt/solr/server/solr
+ENV CORE_DEST=/opt/solr/server/solr/cores
+RUN mkdir -p $CORE_DEST
+RUN /usr/local/bin/create-ddf-core catalog metacard_cache alerts preferences subscriptions
