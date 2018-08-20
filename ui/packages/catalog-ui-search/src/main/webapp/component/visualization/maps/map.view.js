@@ -329,6 +329,10 @@ module.exports = Marionette.LayoutView.extend({
             var locationModel;
             switch (filter.type) {
                 case 'DWITHIN':
+                    if (CQLUtils.isPolygonFilter(filter)) {
+                        this.handleFilterAsPolygon(filter.value, color, filter.distance);
+                        break;
+                    }
                     if (CQLUtils.isPointRadiusFilter(filter)) {
                         pointText = filter.value.value.substring(6);
                         pointText = pointText.substring(0, pointText.length - 1);
@@ -356,15 +360,19 @@ module.exports = Marionette.LayoutView.extend({
                     }
                     break;
                 case 'INTERSECTS':
-                    var filterValue = typeof(filter.value) === 'string' ? filter.value : filter.value.value;
-                    locationModel = new LocationModel({
-                        polygon: CQLUtils.arrayFromPolygonWkt(filterValue),
-                        color: color
-                    });
-                    this.map.showPolygonShape(locationModel);
+                    this.handleFilterAsPolygon(filter.value, color, filter.distance);
                     break;
             }
         }
+    },
+    handleFilterAsPolygon(value, color, distance) {
+        const filterValue = typeof(value) === 'string' ? value : value.value;
+        const locationModel = new LocationModel({
+            polygon: CQLUtils.arrayFromPolygonWkt(filterValue),
+            color: color,
+            ...(distance && {polygonBufferWidth: distance})
+        });
+        this.map.showPolygonShape(locationModel);
     },
     removePreviousLocations: function(){
         this.map.destroyShapes();

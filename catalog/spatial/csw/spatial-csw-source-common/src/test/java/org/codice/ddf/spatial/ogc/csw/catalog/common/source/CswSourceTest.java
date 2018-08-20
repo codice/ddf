@@ -24,6 +24,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -76,7 +78,8 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -1415,9 +1418,50 @@ public class CswSourceTest extends TestCswSourceBase {
     doReturn(csw).when(mockFactory).getClient();
     doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
 
+    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
+
     CswSourceStub cswSource =
         new CswSourceStub(
-            mockContext, cswSourceConfiguration, mockProvider, mockFactory, encryptionService);
+            mockContext,
+            cswSourceConfiguration,
+            mockProvider,
+            clientFactoryFactory,
+            encryptionService);
     cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     cswSource.setFilterBuilder(builder);
     cswSource.setContext(context);

@@ -19,6 +19,9 @@ import javax.xml.namespace.QName;
 /**
  * Factory for creating proxy services for Service Endpoint Interfaces (SEIs)
  *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * * * be * removed in a future version of the library. </b>
+ *
  * @since 2.3.0
  */
 public interface ProxyServiceFactory {

@@ -18,7 +18,7 @@ import ddf.security.encryption.EncryptionService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswSource;
 import org.osgi.framework.BundleContext;
@@ -28,13 +28,14 @@ public class CswSourceImpl extends AbstractCswSource {
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService) {
-    super(context, cswSourceConfiguration, provider, factory, encryptionService);
+    super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
   }
 
-  public CswSourceImpl(EncryptionService encryptionService) {
-    super(encryptionService);
+  public CswSourceImpl(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+    super(encryptionService, clientFactoryFactory);
   }
 
   @Override

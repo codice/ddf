@@ -39,6 +39,7 @@
     <reference id="registryPublicationService"
                interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
     <reference id="metaTypeService" interface="org.osgi.service.metatype.MetaTypeService"/>
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
     <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors"
           factory-method="newSingleThreadScheduledExecutor">
@@ -163,6 +164,8 @@
         </interfaces>
         <cm:managed-component class="org.codice.ddf.registry.api.impl.RegistryStoreImpl"
                               init-method="init" destroy-method="destroy">
+            <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterBuilder" ref="filterBuilder"/>
             <property name="filterAdapter" ref="filterAdapter"/>
@@ -200,7 +203,6 @@
             <property name="metacardMarshaller" ref="metacardMarshaller"/>
             <property name="pullAllowed" value="true"/>
             <property name="pushAllowed" value="true"/>
-            <argument ref="encryptionService"/>
             <property name="configAdmin" ref="configurationAdmin"/>
             <property name="registryId" value=""/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"

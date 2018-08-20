@@ -251,7 +251,6 @@
                             catalog-core-api-impl,
                             commons-collections4,
                             ogc-tools-gml-jts,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,

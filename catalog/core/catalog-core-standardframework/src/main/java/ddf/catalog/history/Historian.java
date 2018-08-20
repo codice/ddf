@@ -56,6 +56,8 @@ import ddf.security.SubjectIdentity;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -634,7 +636,9 @@ public class Historian {
       security = Security.getInstance();
     }
 
-    Subject systemSubject = security.runAsAdmin(security::getSystemSubject);
+    Subject systemSubject =
+        AccessController.doPrivileged(
+            (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
 
     if (systemSubject == null) {
       throw new IllegalStateException("Could not get systemSubject to version metacards.");
