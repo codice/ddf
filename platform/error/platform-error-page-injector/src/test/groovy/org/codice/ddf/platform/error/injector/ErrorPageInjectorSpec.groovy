@@ -17,6 +17,7 @@ package org.codice.ddf.platform.error.injector
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
+import org.osgi.framework.FrameworkUtil
 import org.osgi.framework.ServiceEvent
 import org.osgi.framework.ServiceReference
 import spock.lang.Shared
@@ -28,6 +29,7 @@ import javax.servlet.ServletContext
 import javax.servlet.Servlet
 import javax.servlet.SessionCookieConfig
 import java.lang.reflect.Field
+import java.util.concurrent.ScheduledExecutorService
 
 class ErrorPageInjectorSpec extends Specification {
 
@@ -37,6 +39,7 @@ class ErrorPageInjectorSpec extends Specification {
     def bundleContext
     def servletContext
     def service
+    def executorService
 
     def setup() {
 
@@ -82,6 +85,20 @@ class ErrorPageInjectorSpec extends Specification {
 
         where:
         e << [ ServiceEvent.UNREGISTERING, ServiceEvent.MODIFIED_ENDMATCH, ServiceEvent.MODIFIED ]
+    }
+
+    def 'test init returns on a null bundle '() {
+        setup:
+        def injector = new ErrorPageInjector()
+        //  Because optionals can't be mocked this leads to a null pointer if a mocked bundle is returned
+        bundle.getBundleContext() >> null
+        bundleContext.getAllServiceReferences(null, _) >> null
+
+        when:
+        injector.init()
+
+        then:
+        0 * bundleContext.getAllServiceReferences(_,_);
     }
 
 }

@@ -74,6 +74,7 @@
     <feature name="platform-error-page-injector" version="${project.version}"
              description="Adding a better error page to Jetty">
         <feature>platform-error-servlet</feature>
+
         <bundle>mvn:ddf.platform.error/platform-error-page-injector/${project.version}</bundle>
     </feature>
 
@@ -96,8 +97,8 @@
         <feature prerequisite="true">platform-filter-delegate</feature>
         <!-- prerequisite=true is set because the platform-error-page-injector needs to start running before -->
         <!-- any web servlets are initialized to properly add filters and error pages -->
-        <feature prerequisite="true">platform-error-page-injector</feature>
         <feature>platform-paxweb-jettyconfig</feature>
+        <feature>platform-error-page-injector</feature>
         <feature>war</feature>
     </feature>
 
