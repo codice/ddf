@@ -14,13 +14,7 @@ documentation cannot account for all possible configurations. Please consult the
 documentation for the operating system and its init manager if the instructions
 in this document are inadequate.
 
-==== Procedure for using managed services
-. If ${branding} is running, stop it.
-. Edit `<${branding}_HOME>/etc/system.properties` and set `start.solr=false`.
-This prevents the ${branding} scripts from attempting to manage Solr's lifecycle.
-. <<{managing-prefix}run_solr_as_managed_service,Configure Solr to run as a managed service>>.
-. Start ${branding} and verify it is communicating correctly with Solr. To verify, first log out
-of ${branding}. Then navigate to ${catalog-ui} (login when prompted). If ${catalog-ui} opens
-without errors, ${branding} is communicating successfully with Solr.
-. <<{managing-prefix}run_${branding-lowercase}_as_a_managed_service,
-Configure ${branding} as a managed service>>.
+* <<{managing-prefix}run_solr_as_managed_service,Configure Solr to run as a managed service>>
+
+* <<{managing-prefix}run_${branding-lowercase}_as_a_managed_service,
+Configure ${branding} to run as a managed service>>
