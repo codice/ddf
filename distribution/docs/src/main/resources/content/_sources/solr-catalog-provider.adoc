@@ -70,12 +70,6 @@ Zookeeper helps manage the overall structure.
 
 [NOTE]
 ====
-Solr Cloud is currently in Beta version.
-Bugs and feature changes may affect the final release.
-====
-
-[NOTE]
-====
 The instructions on setting up Solr Cloud for ${branding} only include setup in a *NIX environment.
 ====
 
