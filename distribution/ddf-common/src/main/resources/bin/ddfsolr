@@ -60,7 +60,6 @@ set_security_properties() {
       export SOLR_SSL_WANT_CLIENT_AUTH=false
 }
 
-
 start_solr() {
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties

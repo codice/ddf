@@ -20,7 +20,7 @@ These instructions are for unix operating systems running the systemd
 Use the full path to the file.
 +
 ----
- systemctl enable <${branding}_HOME>/solr/service/solr.service>
+ systemctl enable <${branding}_HOME>/solr/service/solr.service
 ----
 
 . Start the service.
