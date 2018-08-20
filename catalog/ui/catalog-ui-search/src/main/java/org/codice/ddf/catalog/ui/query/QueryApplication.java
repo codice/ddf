@@ -21,10 +21,6 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.action.ActionRegistry;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.List;
@@ -52,14 +48,6 @@ public class QueryApplication implements SparkApplication, Function {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryApplication.class);
 
   private static final String APPLICATION_JSON = "application/json";
-
-  private CatalogFramework catalogFramework;
-
-  private FilterBuilder filterBuilder;
-
-  private FilterAdapter filterAdapter;
-
-  private ActionRegistry actionRegistry;
 
   private FeatureService featureService;
 
@@ -189,22 +177,6 @@ public class QueryApplication implements SparkApplication, Function {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(500, "Error while processing query request.");
     }
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
-  }
-
-  public void setFilterAdapter(FilterAdapter filterAdapter) {
-    this.filterAdapter = filterAdapter;
-  }
-
-  public void setActionRegistry(ActionRegistry actionRegistry) {
-    this.actionRegistry = actionRegistry;
   }
 
   public void setFeatureService(FeatureService featureService) {

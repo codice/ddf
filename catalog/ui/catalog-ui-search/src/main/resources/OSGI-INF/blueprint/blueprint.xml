@@ -366,10 +366,6 @@
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
-        <property name="catalogFramework" ref="catalogFramework"/>
-        <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="filterAdapter" ref="filterAdapter"/>
-        <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
         <argument ref="cqlTransformHandler"/>
