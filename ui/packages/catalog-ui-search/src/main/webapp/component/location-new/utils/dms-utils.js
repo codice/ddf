@@ -135,7 +135,7 @@ function dmsToWkt(dms) {
  *  DMS validation utils
  */
 function validateLatitudeRange(coordinate) {
-    if (coordinate.degrees > 90 || coordinate.minutes >= 60 || coordinate.seconds >= 60) {
+    if (coordinate.degrees > 90 || coordinate.minutes > 60 || coordinate.seconds > 60) {
         return false;
     }
     if (coordinate.degrees === 90 && (coordinate.minutes > 0 || coordinate.seconds > 0)) {
@@ -145,7 +145,7 @@ function validateLatitudeRange(coordinate) {
 }
 
 function validateLongitudeRange(coordinate) {
-    if (coordinate.degrees > 180 || coordinate.minutes >= 60 || coordinate.seconds >= 60) {
+    if (coordinate.degrees > 180 || coordinate.minutes > 60 || coordinate.seconds > 60) {
         return false;
     }
     if (coordinate.degrees === 180 && (coordinate.minutes > 0 || coordinate.seconds > 0)) {
