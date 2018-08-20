@@ -55,13 +55,13 @@ public class CqlTransformHandlerTest {
   private CqlTransformHandler cqlTransformHandler;
   private BinaryContent binaryContent;
 
-  @Mock private ServiceReference<QueryResponseTransformer> mockQueryResponseTransformer;
+  @Mock private ServiceReference<QueryResponseTransformer> mockServiceReference;
   @Mock private BundleContext mockBundleContext;
   @Mock private EndpointUtil mockEndpointUtil;
   @Mock private Request mockRequest;
   @Mock private CqlQueryResponse mockCqlQueryResponse;
   @Mock private QueryResponse mockQueryResponse;
-  @Mock private QueryResponseTransformer mockServiceReference;
+  @Mock private QueryResponseTransformer mockQueryResponseTransformer;
   @Mock private ServletOutputStream mockServletOutputStream;
   @Mock private HttpServletResponse mockHttpServiceResponse;
 
@@ -140,12 +140,12 @@ public class CqlTransformHandlerTest {
 
     queryResponseTransformers = new ArrayList<>();
 
-    when(mockQueryResponseTransformer.getProperty(Core.ID)).thenReturn(RETURN_ID);
+    when(mockServiceReference.getProperty(Core.ID)).thenReturn(RETURN_ID);
 
     MimeType mimeType = new MimeType(MIME_TYPE);
     binaryContent = new BinaryContentImpl(new ByteArrayInputStream(CONTENT.getBytes()), mimeType);
 
-    queryResponseTransformers.add(mockQueryResponseTransformer);
+    queryResponseTransformers.add(mockServiceReference);
 
     cqlTransformHandler =
         new CqlTransformHandler(queryResponseTransformers, mockBundleContext, mockEndpointUtil);
@@ -156,10 +156,10 @@ public class CqlTransformHandlerTest {
 
     when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
 
-    when(mockBundleContext.getService(mockQueryResponseTransformer))
-        .thenReturn(mockServiceReference);
+    when(mockBundleContext.getService(mockServiceReference))
+        .thenReturn(mockQueryResponseTransformer);
 
-    when(mockServiceReference.transform(any(QueryResponse.class), anyMap()))
+    when(mockQueryResponseTransformer.transform(any(QueryResponse.class), anyMap()))
         .thenReturn(binaryContent);
   }
 

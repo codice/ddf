@@ -91,12 +91,12 @@ public class CqlTransformHandler implements Route {
     }
 
     public Map<String, Serializable> getSerializableArguments() {
-      if(this.args != null) {
+      if (this.args != null) {
         return this.args
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getValue() instanceof Serializable)
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() instanceof Serializable)
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> (Serializable) e.getValue()));
       }
       return Collections.emptyMap();
     }
@@ -121,7 +121,8 @@ public class CqlTransformHandler implements Route {
       return ImmutableMap.of("message", "Cql not found in request");
     }
 
-    Map<String, Serializable> arguments = mapper.readValue(body, Arguments.class).getSerializableArguments();
+    Map<String, Serializable> arguments =
+        mapper.readValue(body, Arguments.class).getSerializableArguments();
 
     LOGGER.trace("Finding transformer to transform query response.");
 
@@ -140,8 +141,7 @@ public class CqlTransformHandler implements Route {
 
     CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
 
-    attachFileToResponse(
-        request, response, queryResponseTransformer, cqlQueryResponse, arguments);
+    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
 
     return "";
   }
@@ -152,7 +152,7 @@ public class CqlTransformHandler implements Route {
 
     if (mimeType == null) {
       LOGGER.debug("Failure to fetch file extension, mime-type is empty");
-      throw new MimeTypeException("Binary Content contains null mime-type value.");
+      throw new IllegalArgumentException("Binary Content contains null mime-type value.");
     }
 
     String fileExt = getFileExtFromMimeType(mimeType);
@@ -172,7 +172,7 @@ public class CqlTransformHandler implements Route {
     MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
     String fileExt = allTypes.forName(mimeType).getExtension();
     if (StringUtils.isEmpty(fileExt)) {
-      LOGGER.debug("Fetching file extension from mime-type resulted in null or empty.");
+      LOGGER.debug("Null or empty file extension from mime-type {}", mimeType);
     }
     return fileExt;
   }
