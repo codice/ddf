@@ -63,7 +63,7 @@ public class CqlTransformHandlerTest {
   @Mock private QueryResponse mockQueryResponse;
   @Mock private QueryResponseTransformer mockQueryResponseTransformer;
   @Mock private ServletOutputStream mockServletOutputStream;
-  @Mock private HttpServletResponse mockHttpServiceResponse;
+  @Mock private HttpServletResponse mockHttpServletResponse;
 
   private static final String GZIP = "gzip";
   private static final String NO_GZIP = "";
@@ -134,9 +134,9 @@ public class CqlTransformHandlerTest {
 
     initMocks(this);
 
-    when(mockHttpServiceResponse.getOutputStream()).thenReturn(mockServletOutputStream);
+    when(mockHttpServletResponse.getOutputStream()).thenReturn(mockServletOutputStream);
 
-    mockResponse = new MockResponse(mockHttpServiceResponse);
+    mockResponse = new MockResponse(mockHttpServletResponse);
 
     queryResponseTransformers = new ArrayList<>();
 
