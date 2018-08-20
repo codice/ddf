@@ -32,13 +32,6 @@ No installation is required because ${branding} includes a distribution of Apach
 .Configuring Solr Server
 No configuration.
 
-.Solr Server System Properties (default values)
- ----
- start.solr=true
- solr.client=HttpSolrClient
- solr.http.port=8994
- ----
-
 .[[_solr_cloud]]Solr Cloud
 Solr Cloud is a cluster of distributed Solr servers used for high
 availability and scalability. If the ${branding} needs to be available with little or no downtime,

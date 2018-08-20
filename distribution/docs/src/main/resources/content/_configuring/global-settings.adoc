@@ -470,6 +470,13 @@ Thumbs.db
 |`${home_directory}`/solr/server/solr
 |Yes
 
+|Solr Heap Size
+|solr.mem
+|String
+|Amount of memory allocated the Solr server JRE
+|2g
+|Yes
+
 |Zookeeper Nodes
 |solr.cloud.zookeeper
 |String
