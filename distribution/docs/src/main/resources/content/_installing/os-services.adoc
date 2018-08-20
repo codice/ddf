@@ -8,12 +8,10 @@
 === {title}
 
 The lifecycle of ${branding} and Solr processes can be managed by the operating
-system. The procedures for installing a processes as a service varies by operating
-system and the particular init manager used by the operating system.
-The ${branding} documentation provides instructions to install
-${branding} and as managed services for supported platform. However, the
-documentation cannot account for all possible environments. Please consult the
-documentation for the operating system and its init manager for if the instructions
+system. The ${branding} documentation provides instructions to install
+${branding} as a managed services on supported unix platforms. However, the
+documentation cannot account for all possible configurations. Please consult the
+documentation for the operating system and its init manager if the instructions
 in this document are inadequate.
 
 ==== Procedure for using managed services

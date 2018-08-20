@@ -1,18 +1,14 @@
-@ECHO off
+@ECHO OFF
 SETLOCAL enabledelayedexpansion
 SET COMMAND=%1
 SET DIRNAME=%~dp0%
-
 PUSHD %DIRNAME%..
 SET DDF_HOME=%CD%
-
 SET GET_PROPERTY=%DIRNAME%get_property.bat
 SET SOLR_EXEC=%DDF_HOME%\solr\bin\solr.cmd
-
 CALL %GET_PROPERTY% solr.http.port
 CALL %GET_PROPERTY% solr.http.protocol
 CALL %GET_PROPERTY% solr.max.heap.size 2g
-CALL SET SOLR_JAVA_MEM="-Xms512m -Xmx!solr.max.heap.size!"
 
 IF NOT "!solr.http.protocol!"=="http" IF NOT "!solr.http.protocol!"=="https" (
     ECHO Unkown Solr protocol %solr.http.protocol% found in system.properties file
@@ -45,13 +41,15 @@ IF "!solr.http.protocol!"=="https" (
     CALL SET SOLR_SSL_WANT_CLIENT_AUTH=false
 )
 
+IF "%COMMAND%"=="" ECHO Missing command. Use start, restart, stop.
+
 IF "%COMMAND%"=="start" (
     IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
     IF "!solr.http.protocol!"=="https" ECHO Using Solr secure configuration
-        CALL %SOLR_EXEC% start -p !solr.http.port!
+        CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.max.heap.size!
 )
 
-IF "%COMMAND%"=="restart" CALL %SOLR_EXEC% restart -p !solr.http.port!
+IF "%COMMAND%"=="restart" CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.max.heap.size!
 
 IF "%COMMAND%"=="stop" CALL %SOLR_EXEC% stop -p !solr.http.port!
 

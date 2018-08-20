@@ -7,11 +7,11 @@
 
 ==== {title}
 
-These instructions are configuring Solr as a service managed by the operating system. A common
+These instructions are for configuring Solr as a service managed by the operating system. A common
 reason is to start Solr when the system boots.
 
 ===== Configure Solr as a Systemd Service
-These instructions are for the unix family of operating systems running the systemd
+These instructions are for unix operating systems running the systemd
  init manager. If configuring a Windows system, see
  <<{managing-prefix}configure_solr_as_a_windows_service,Configure Solr as a Windows Service>>
 
