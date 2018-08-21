@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,10 +9,44 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <div class='location-region'></div>
-</div>
-<div class="if-viewing">
-    <label>{{label}}</label>
-</div>
+const dmsLatitude = {
+  coordinate: '',
+  direction: 'N'
+};
+
+const dmsLongitude = {
+  coordinate: '',
+  direction: 'E'
+};
+
+const dmsPoint = {
+  latitude: {...dmsLatitude},
+  longitude: {...dmsLongitude}
+};
+
+const dmsModel = {
+  shape: 'point',
+  point: {...dmsPoint},
+  circle: {
+    point: {...dmsPoint},
+    radius: '1',
+    units: 'meters'
+  },
+  line: {
+    list: []
+  },
+  polygon: {
+    list: []
+  },
+  boundingbox: {
+    north: {...dmsLatitude},
+    south: {...dmsLatitude},
+    east: {...dmsLongitude},
+    west: {...dmsLongitude}
+  }
+};
+
+module.exports = {
+  dmsPoint,
+  dmsModel,
+};

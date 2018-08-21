@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,10 +9,34 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <div class='location-region'></div>
-</div>
-<div class="if-viewing">
-    <label>{{label}}</label>
-</div>
+const ddPoint = {
+  latitude: '',
+  longitude: ''
+};
+
+const ddModel = {
+  shape: 'point',
+  point: {...ddPoint},
+  circle: {
+    point: {...ddPoint},
+    radius: '1',
+    units: 'meters'
+  },
+  line: {
+    list: []
+  },
+  polygon: {
+    list: []
+  },
+  boundingbox: {
+    north: '',
+    south: '',
+    east: '',
+    west: ''
+  }
+};
+
+module.exports = {
+  ddPoint,
+  ddModel,
+};

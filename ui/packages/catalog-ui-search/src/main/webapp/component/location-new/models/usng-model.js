@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,10 +9,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <div class='location-region'></div>
-</div>
-<div class="if-viewing">
-    <label>{{label}}</label>
-</div>
+const usngModel = {
+  shape: 'point',
+  point: '',
+  circle: {
+    point: '',
+    radius: 1,
+    units: 'meters'
+  },
+  line: {
+    list: []
+  },
+  polygon: {
+    list: []
+  },
+  boundingbox: ''
+};
+
+module.exports = usngModel;
