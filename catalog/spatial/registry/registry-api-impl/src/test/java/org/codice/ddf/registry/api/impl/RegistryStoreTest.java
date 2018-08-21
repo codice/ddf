@@ -18,6 +18,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -73,7 +76,8 @@ import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
@@ -108,6 +112,8 @@ public class RegistryStoreTest {
 
   private CswSourceConfiguration cswSourceConfiguration;
 
+  private ClientFactoryFactory clientFactoryFactory;
+
   private SecureCxfClientFactory factory;
 
   private TransformerManager transformer;
@@ -138,6 +144,42 @@ public class RegistryStoreTest {
     provider = mock(Converter.class);
     cswSourceConfiguration = new CswSourceConfiguration();
     factory = mock(SecureCxfClientFactory.class);
+    clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(factory);
     transformer = mock(TransformerManager.class);
     encryptionService = mock(EncryptionService.class);
     configAdmin = mock(ConfigurationAdmin.class);
@@ -146,47 +188,12 @@ public class RegistryStoreTest {
     queryResults = new ArrayList<>();
     registryStore =
         spy(
-            new RegistryStoreImpl(
-                context, cswSourceConfiguration, provider, factory, encryptionService) {
-              @Override
-              protected void validateOperation() {}
-
-              @Override
-              public boolean isAvailable() {
-                return availability;
-              }
-
-              @Override
-              protected SourceResponse query(
-                  QueryRequest queryRequest,
-                  ElementSetType elementSetName,
-                  List<QName> elementNames,
-                  Csw csw)
-                  throws UnsupportedQueryException {
-                if (queryResults == null) {
-                  throw new UnsupportedQueryException("Test - Bad Query");
-                }
-                return new SourceResponseImpl(queryRequest, queryResults);
-              }
-
-              @Override
-              protected CapabilitiesType getCapabilities() {
-                return mock(CapabilitiesType.class);
-              }
-
-              @Override
-              public void configureCswSource() {};
-
-              @Override
-              protected Subject getSystemSubject() {
-                return subject;
-              }
-
-              @Override
-              BundleContext getBundleContext() {
-                return context;
-              }
-            });
+            new RegistryStoreStub(
+                context,
+                cswSourceConfiguration,
+                provider,
+                clientFactoryFactory,
+                encryptionService));
 
     registryStore.setFilterBuilder(filterBuilder);
     registryStore.setFilterAdapter(filterAdapter);
@@ -440,7 +447,11 @@ public class RegistryStoreTest {
     RegistryStoreImpl registryStore =
         spy(
             new RegistryStoreImpl(
-                context, cswSourceConfiguration, provider, factory, encryptionService) {
+                context,
+                cswSourceConfiguration,
+                provider,
+                clientFactoryFactory,
+                encryptionService) {
               @Override
               protected void validateOperation() {}
 
@@ -540,5 +551,54 @@ public class RegistryStoreTest {
     mcard.setMetadata(xml);
     mcard.setTitle("testRegistryMetacard");
     return mcard;
+  }
+
+  public class RegistryStoreStub extends RegistryStoreImpl {
+
+    public RegistryStoreStub(
+        BundleContext context,
+        CswSourceConfiguration cswSourceConfiguration,
+        Converter provider,
+        ClientFactoryFactory clientFactoryFactory,
+        EncryptionService encryptionService) {
+      super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
+      initClientFactory();
+    }
+
+    @Override
+    protected void validateOperation() {}
+
+    @Override
+    public boolean isAvailable() {
+      return availability;
+    }
+
+    @Override
+    protected SourceResponse query(
+        QueryRequest queryRequest, ElementSetType elementSetName, List<QName> elementNames, Csw csw)
+        throws UnsupportedQueryException {
+      if (queryResults == null) {
+        throw new UnsupportedQueryException("Test - Bad Query");
+      }
+      return new SourceResponseImpl(queryRequest, queryResults);
+    }
+
+    @Override
+    protected CapabilitiesType getCapabilities() {
+      return mock(CapabilitiesType.class);
+    }
+
+    @Override
+    public void configureCswSource() {};
+
+    @Override
+    protected Subject getSystemSubject() {
+      return subject;
+    }
+
+    @Override
+    BundleContext getBundleContext() {
+      return context;
+    }
   }
 }

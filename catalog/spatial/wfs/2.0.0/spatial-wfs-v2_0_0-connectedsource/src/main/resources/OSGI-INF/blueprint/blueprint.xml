@@ -33,6 +33,10 @@
                     interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory"
                     availability="optional"/>
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsConnectedSource.id"
             factory-pid="Wfs_v2_0_0_Connected_Source"
@@ -57,6 +61,8 @@
             <property name="disableSorting" value="false"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

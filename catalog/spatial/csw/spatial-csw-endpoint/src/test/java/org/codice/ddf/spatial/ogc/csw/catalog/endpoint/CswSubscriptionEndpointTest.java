@@ -17,6 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -51,6 +53,8 @@ import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
@@ -130,6 +134,8 @@ public class CswSubscriptionEndpointTest {
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+  private ClientFactoryFactory clientFactoryFactory;
+
   @Before
   public void setUp() throws Exception {
     systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
@@ -169,11 +175,49 @@ public class CswSubscriptionEndpointTest {
     configAdminRef = mock(ServiceReference.class);
     configAdmin = mock(ConfigurationAdmin.class);
     config = mock(Configuration.class);
+    SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+    clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
     Configuration[] configArry = {config};
 
     defaultRequest = createDefaultGetRecordsRequest();
     subscription =
-        new CswSubscription(mockMimeTypeManager, defaultRequest.get202RecordsType(), query);
+        new CswSubscription(
+            mockMimeTypeManager, defaultRequest.get202RecordsType(), query, clientFactoryFactory);
 
     when(osgiFilter.toString()).thenReturn(FILTER_STR);
     doReturn(serviceRegistration)
@@ -202,7 +246,8 @@ public class CswSubscriptionEndpointTest {
             mockInputManager,
             validator,
             queryFactory,
-            mockContext);
+            mockContext,
+            clientFactoryFactory);
   }
 
   @Test
@@ -449,14 +494,16 @@ public class CswSubscriptionEndpointTest {
         TransformerManager inputTransformerManager,
         Validator validator,
         CswQueryFactory queryFactory,
-        BundleContext context) {
+        BundleContext context,
+        ClientFactoryFactory clientFactoryFactory) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,
           schemaTransformerManager,
           inputTransformerManager,
           validator,
-          queryFactory);
+          queryFactory,
+          clientFactoryFactory);
       this.bundleContext = context;
     }
 

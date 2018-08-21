@@ -11,23 +11,20 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.cxf;
+package ddf.security.ws.proxy;
 
-public class ClientKeyInfo {
-  private String alias;
-
-  private String keystorePath;
-
-  public ClientKeyInfo(String alias, String keystorePath) {
-    this.alias = alias;
-    this.keystorePath = keystorePath;
-  }
-
-  public String getAlias() {
-    return alias;
-  }
-
-  public String getKeystorePath() {
-    return keystorePath;
-  }
+/**
+ * Retrieves the WSDL suffix to be used.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * * be * removed in a future version of the library. </b>
+ */
+public interface WsdlSuffixRetriever {
+  /**
+   * Retrieves the WSDL suffix
+   *
+   * @param address
+   * @return
+   */
+  String retrieveWsdlSuffix(String address);
 }

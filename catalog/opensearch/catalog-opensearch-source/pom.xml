@@ -128,7 +128,6 @@
                             rome-utils,
                             jdom2,
                             catalog-opensearch-api,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             catalog-core-api-impl,
                             security-core-impl,
