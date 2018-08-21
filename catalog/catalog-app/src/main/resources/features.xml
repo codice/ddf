@@ -282,6 +282,7 @@
 
     <feature name="catalog-security-filter" version="${project.version}"
              description="Catalog Security Filtering">
+        <feature>catalog-core-api</feature>
         <feature>security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
