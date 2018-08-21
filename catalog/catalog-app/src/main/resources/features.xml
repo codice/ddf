@@ -316,6 +316,41 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-zip/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-transformer-rtf" version="${project.version}"
+             description="Rtf Metacard and Query Response Transformer">
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}</bundle>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-association.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-association
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-contact.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-contact
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-core.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-core
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-dateTime.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-dateTime
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-location.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-location
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-media.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-media
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-security.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-security
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-topic.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-topic
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-validation.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-validation
+        </configfile>
+        <configfile finalname="${ddf.etc}/ddf.catalog.transformer.output.rtf.categories-version.config">
+            mvn:ddf.catalog.transformer/catalog-transformer-rtf/${project.version}/config/default-category-version
+        </configfile>
+    </feature>
+
     <feature name="catalog-security-filter" version="${project.version}"
              description="Catalog Security Filtering">
         <feature>catalog-core-api</feature>
@@ -578,6 +613,7 @@
         <feature>catalog-transformer-csv</feature>
         <feature>catalog-transformer-xml</feature>
         <feature>catalog-transformer-zip</feature>
+        <feature>catalog-transformer-rtf</feature>
         <feature>catalog-security-filter</feature>
         <feature>catalog-security-operationplugin</feature>
         <feature>catalog-security-plugin</feature>

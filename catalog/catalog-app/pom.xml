@@ -663,5 +663,10 @@
             <artifactId>catalog-plugin-gazetteer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-rtf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
