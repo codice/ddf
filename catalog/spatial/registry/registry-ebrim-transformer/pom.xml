@@ -100,7 +100,7 @@
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
-            <version>1.22.0</version>
+            <version>${google-http-client.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
