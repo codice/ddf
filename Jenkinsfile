@@ -55,7 +55,7 @@ pipeline {
                         timeout(time: 3, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
-                                sh 'mvn install -B -pl !$DOCS -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                sh 'mvn install -B -DskipStatic=true -DskipTests=true $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 sh 'mvn clean install -B -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                             }
@@ -70,7 +70,7 @@ pipeline {
                         }
                         timeout(time: 3, unit: 'HOURS') {
                             withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
-                                bat 'mvn install -B -pl !%DOCS% -DskipStatic=true -DskipTests=true %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                                bat 'mvn install -B -DskipStatic=true -DskipTests=true %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                                 bat 'mvn clean install -B -pl !%ITESTS% -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/%CHANGE_TARGET% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                                 bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                             }
@@ -79,16 +79,43 @@ pipeline {
                 }
             }
         }
-        // The full build will be run against all regular branches
-        stage('Full Build') {
+        stage('Full Build Except Itests') {
             when { expression { env.CHANGE_ID == null } }
             parallel {
                 stage ('Linux') {
                     steps {
-                        timeout(time: 3, unit: 'HOURS') {
+                        // This timeout was reduced from 3 hours after this stage was modified to no longer run the itests. In the future, we may want to reduce it further if there is confidence that the build will finish faster.
+                        timeout(time: 2, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                 sh 'mvn clean install -B -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                            }
+                        }
+                    }
+                }
+                stage ('Windows') {
+                    agent { label 'server-2016-large'}
+                    steps {
+                        retry(3) {
+                            checkout scm
+                        }
+                        timeout(time: 2, unit: 'HOURS') {
+                            withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
+                                bat 'mvn clean install -B -pl !%ITESTS% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Integration Tests Only Build') {
+            when { expression { env.CHANGE_ID == null } }
+            parallel {
+                stage ('Linux') {
+                    steps {
+                        timeout(time: 2, unit: 'HOURS') {
+                            // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
+                            withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                 sh 'mvn install -B -pl $ITESTS -nsu $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                             }
                         }
@@ -100,9 +127,9 @@ pipeline {
                         retry(3) {
                             checkout scm
                         }
-                        timeout(time: 3, unit: 'HOURS') {
+                        timeout(time: 2, unit: 'HOURS') {
                             withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
-                                bat 'mvn clean install -B -pl !%ITESTS% %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
+                                bat 'mvn clean install -B -DskipStatic=true -DskipTests=true'
                                 bat 'mvn install -B -pl %ITESTS% -nsu %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
                             }
                         }

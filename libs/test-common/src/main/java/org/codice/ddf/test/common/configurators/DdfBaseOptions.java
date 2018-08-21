@@ -15,11 +15,18 @@ package org.codice.ddf.test.common.configurators;
 
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.test.common.configurators.BundleOptionBuilder.BundleOption;
 import org.codice.ddf.test.common.configurators.FeatureOptionBuilder.FeatureOption;
@@ -206,7 +213,10 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
         editConfigurationFilePut(PAX_WEB_CONFIG_FILE, "org.osgi.service.http.enabled", "true"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, "ddf.home", "${karaf.home}"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.EXTERNAL_HOST, "localhost"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_HOST, "localhost"));
+        editConfigurationFilePut(SYSTEM_PROPERTIES_FILE, SystemBaseUrl.INTERNAL_HOST, "localhost"),
+        installStartupFile(
+            getClass().getClassLoader().getResource("blacklisted.properties"),
+            "/etc/blacklisted.properties"));
   }
 
   private Option getLoggingOptions() {
@@ -260,5 +270,33 @@ public abstract class DdfBaseOptions implements ApplicationOptions {
             PAX_LOGGING_CONFIG_FILE, String.format(LOGGER_NAME, loggerId), loggerName),
         editConfigurationFilePut(
             PAX_LOGGING_CONFIG_FILE, String.format(LOGGER_LEVEL, loggerId), logLevel));
+  }
+
+  /**
+   * Copies the content of a JAR resource to the destination specified before the container starts
+   * up. Useful to add test configuration files before tests are run.
+   *
+   * @param resource URL to the JAR resource to copy
+   * @param destination destination relative to DDF_HOME
+   * @return option object
+   * @throws IOException thrown if a problem occurs while copying the resource
+   */
+  protected Option installStartupFile(URL resource, String destination) {
+    try (InputStream is = resource.openStream()) {
+      return installStartupFile(is, destination);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  private Option installStartupFile(InputStream is, String destination) {
+    try {
+      File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
+      tempFile.deleteOnExit();
+      FileUtils.copyInputStreamToFile(is, tempFile);
+      return replaceConfigurationFile(destination, tempFile);
+    } catch (IOException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 }

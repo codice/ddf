@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
@@ -34,6 +35,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -56,6 +58,10 @@ public class EndpointUtilTest {
   EndpointUtil endpointUtil;
 
   FilterBuilder filterBuilderMock;
+
+  FilterAdapter filterAdapterMock;
+
+  ActionRegistry actionRegistryMock;
 
   QueryResponse responseMock;
 
@@ -89,6 +95,8 @@ public class EndpointUtilTest {
         mock(ContextualExpressionBuilder.class);
 
     filterBuilderMock = mock(FilterBuilder.class);
+    filterAdapterMock = mock(FilterAdapter.class);
+    actionRegistryMock = mock(ActionRegistry.class);
     responseMock = mock(QueryResponse.class);
     metacardMock = mock(Metacard.class);
     resultMock = mock(Result.class);
@@ -113,6 +121,8 @@ public class EndpointUtilTest {
             metacardTypeList,
             catalogFrameworkMock,
             filterBuilderMock,
+            filterAdapterMock,
+            actionRegistryMock,
             injectableAttributeList,
             attributeRegistryMock,
             configurationApplicationMock);

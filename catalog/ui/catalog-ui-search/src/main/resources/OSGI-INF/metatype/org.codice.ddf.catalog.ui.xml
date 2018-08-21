@@ -188,6 +188,13 @@
             default="true"
             required="false"/>
 
+        <AD id="basicSearchTemporalSelectionDefault"
+            name="Basic Search Temporal Selections"
+            description="Enable Basic Search Temporal Selections."
+            type="String"
+            cardinality="10000"
+            default="created,effective,modified,metacard.created,metacard.modified"/>
+
         <AD id="typeNameMapping"
             name="Type Name Mapping"
             description="Mapping of display names to content types in the form name=type."

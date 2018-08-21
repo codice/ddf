@@ -50,7 +50,7 @@ permission java.io.FilePermission "<OTHER_DIRECTORY_PATH>", "read";
 The first permission entry allows the URL Resource Reader to read the directory. The second permission entry allows the URL Resource Reader to recursively read the contents of the directory. 
 The trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
 
-===== Using the URL Resource Reader
+==== Using the URL Resource Reader
 
 `URLResourceReader` will be used by the Catalog Framework to obtain a resource whose metacard is cataloged in the local data store.
 This particular `ResourceReader` will be chosen by the `CatalogFramework` if the requested resource's URL has a protocol of `http`, `https`, or `file`.  
@@ -74,7 +74,3 @@ If a resource was requested with the URL `udp://123.45.67.89:80/SampleResourceS
 ====
 If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the ${branding} instance.
 ====
-
-===== Usage Limitations of the URL Resource Reader
-
-None.

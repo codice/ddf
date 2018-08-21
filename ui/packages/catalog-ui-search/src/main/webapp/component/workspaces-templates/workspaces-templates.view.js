@@ -24,9 +24,11 @@ define([
     'component/loading/loading.view',
     'js/Transitions',
     'component/property/property.view',
-    'properties'
+    'component/property/property',
+    'properties',
+    'behaviors/region.behavior'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, 
-    Transitions, PropertyView, properties) {
+    Transitions, PropertyView, PropertyModel, properties) {
 
     var triggers = {
         expand: 'homeTemplates:expand',
@@ -34,53 +36,53 @@ define([
     };
 
     return Marionette.LayoutView.extend({
-        setDefaultModel: function(){
-        },
         template: template,
         tagName: CustomElements.register('workspaces-templates'),
-        modelEvents: {
-        },
         events: {
             'click .home-templates-choices-choice': 'createNewWorkspace',
             'click .home-templates-header-button': 'toggleExpansion',
-            'click .adhoc-go': 'startAdhocSearch'
+            'click .adhoc-go': 'startAdhocSearch',
+            'keyup .adhoc-search': 'handleAdhocKeyup'
         },
-        regions: {
-            'adhocSearch': '.adhoc-search'
-        },
-        ui: {
-        },
-        initialize: function(){
-        },
-        onRender: function(){
-            this.adhocSearch.show(PropertyView.getPropertyView({
+        behaviors() {
+            this.adhocSearchModel = new PropertyModel({
                 value: [''],
                 label: '',
                 type: 'STRING',
                 showValidationIssues: false,
                 showLabel: false,
-                placeholder: 'Search ' + properties.branding + ' ' + properties.product
-            }));
-            this.adhocSearch.currentView.turnOnEditing();
-            this.setupAdhocListeners();
-        },
-        focus: function(){
-            this.adhocSearch.currentView.focus();
-        },
-        setupAdhocListeners: function(){
-            this.adhocSearch.currentView.$el.keyup((event) => {
-                switch(event.keyCode){
-                    case 13:
-                        this.startAdhocSearch();
-                    break;
-                    default:
-                    break;
-                }
+                placeholder: 'Search ' + properties.branding + ' ' + properties.product,
+                isEditing: true
             });
+            return {
+                region: {
+                    regions: [
+                        {
+                            selector: '.adhoc-search',
+                            view: PropertyView,
+                            viewOptions: {
+                                model: this.adhocSearchModel
+                            }
+                        }
+                    ]
+                }
+            }
+        },  
+        focus: function(){
+            
+        },
+        handleAdhocKeyup(event) {
+            switch(event.keyCode){
+                case 13:
+                    this.startAdhocSearch();
+                break;
+                default:
+                break;
+            }
         },
         startAdhocSearch: function(){
             this.prepForCreateNewWorkspace();
-            store.get('workspaces').createAdhocWorkspace(this.adhocSearch.currentView.model.get('value')[0]);
+            store.get('workspaces').createAdhocWorkspace(this.adhocSearchModel.get('value')[0]);
         },
         prepForCreateNewWorkspace: function(){
             var loadingview = new LoadingView();

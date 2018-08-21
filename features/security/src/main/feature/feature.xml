@@ -33,6 +33,7 @@
              description="Security Core">
         <bundle start-level="30">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature>cxf-rt-security</feature>
+        <feature>cxf-jaxrs</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <feature>common-system</feature>
 
@@ -47,6 +48,7 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}
         </bundle>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-clientapi/${project.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}
         </bundle>
@@ -165,7 +167,8 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-sts-realm</feature>
         <feature>util-uuidgenerator</feature>
-        <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
 	<feature>security-migratable</feature>
     </feature>
 
@@ -577,7 +580,7 @@
 
     <feature name="platform-email" version="${project.version}" start-level="50">
         <bundle>mvn:commons-lang/commons-lang/${commons-lang.version}</bundle>
-        <bundle>mvn:com.sun.mail/javax.mail/1.5.5</bundle>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
         <feature>guava</feature>
         <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
         <feature>security-logger</feature>

@@ -61,7 +61,7 @@ import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -88,20 +88,21 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
    * @param context The {@link BundleContext} from the OSGi Framework
    * @param cswSourceConfiguration the configuration of this source
    * @param provider transform provider to transform results
-   * @param factory client factory already configured for this source
+   * @param clientFactoryFactory client factory already configured for this source
    */
   public AbstractCswStore(
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService) {
-    super(context, cswSourceConfiguration, provider, factory, encryptionService);
+    super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
   }
 
   /** Instantiates a CswStore. */
-  public AbstractCswStore(EncryptionService encryptionService) {
-    super(encryptionService);
+  public AbstractCswStore(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+    super(encryptionService, clientFactoryFactory);
   }
 
   @Override

@@ -242,7 +242,14 @@ module.exports = Marionette.LayoutView.extend({
         .done((data, textStatus, jqxhr) => {
             _this.model.set({
                 type: 'custom'
-            })
+            });
+            const preferences = _user.getQuerySettings();
+            if (preferences.get('template')) {
+                preferences.set('type', 'custom');
+            } else {
+                preferences.set('type', 'text');
+            }
+            _user.savePreferences();
         })
         .fail((jqxhr, textStatus, errorThrown) => {
             announcement.announce({

@@ -63,7 +63,7 @@ public class PlatformMigratable implements Migratable {
           Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
           Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
           Paths.get("etc", "fipsToIso.properties"),
-          Paths.get("etc", "log4j2.config.xml"),
+          Paths.get("etc", "log4j2.xml"),
           Paths.get("etc", "certs", "meta"),
           Paths.get("etc", "certs", "1"),
           Paths.get("bin", "karaf"),

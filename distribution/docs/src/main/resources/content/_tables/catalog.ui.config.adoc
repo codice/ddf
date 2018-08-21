@@ -209,6 +209,21 @@ Example:
 |true
 |false
 
+|Basic Search Temporal Selections
+|basicSearchTemporalSelectionDefault
+|String
+|Enable Basic Search Temporal Selections.
+|created, +
+datetime.end, +
+datetime.start, +
+effective, +
+expiration, +
+metacard.created, +
+metacard.modified, +
+metacard.version.versioned-on, +
+modified
+|false
+
 |Type Name Mapping
 |typeNameMapping
 |String

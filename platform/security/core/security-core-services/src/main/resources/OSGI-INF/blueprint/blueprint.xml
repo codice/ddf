@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+                               http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <ext:property-placeholder/>
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"
+               filter="(id=uuidGenerator)"/>
+
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
+    <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
+                    ext:proxy-method="greedy"/>
+
+    <bean id="securityManagerImpl" class="ddf.security.service.impl.SecurityManagerImpl">
+        <cm:managed-properties persistent-id="ddf.security.service.SecurityManager"
+                               update-strategy="container-managed"/>
+        <property name="realms" ref="realmList"/>
+        <property name="usernameAttributeList">
+            <list>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
+                <value>uid</value>
+            </list>
+        </property>
+    </bean>
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
+    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
+
+    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
+        <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
+        <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
+        <argument ref="encryptionService"/>
+    </bean>
+
+    <bean id="logoutMessageImpl" class="ddf.security.samlp.impl.LogoutMessageImpl">
+        <argument ref="uuidGenerator"/>
+        <cm:managed-properties persistent-id="ddf.security.samlp.LogoutMessage"
+                               update-strategy="container-managed"/>
+        <property name="systemCrypto" ref="crypto"/>
+    </bean>
+
+    <service ref="logoutMessageImpl" interface="ddf.security.samlp.LogoutMessage"/>
+
+    <service ref="configSecurityLogger"
+             interface="org.osgi.service.cm.SynchronousConfigurationListener"/>
+
+    <service id="serviceManager" ref="securityManagerImpl"
+             interface="ddf.security.service.SecurityManager"/>
+
+    <service interface="ddf.security.http.SessionFactory">
+        <service-properties>
+            <entry key="id" value="http"/>
+        </service-properties>
+        <bean class="ddf.security.http.impl.HttpSessionFactory"/>
+    </service>
+
+    <bean id="sessionListener" class="ddf.security.listener.AuditingHttpSessionListener"/>
+
+    <service id="sessionListenerService" ref="sessionListener"
+             interface="javax.servlet.http.HttpSessionListener"/>
+
+    <bean id="subjectIdentityImpl"
+          class="ddf.security.impl.SubjectIdentityImpl">
+        <cm:managed-properties
+                persistent-id="ddf.security.SubjectIdentity"
+                update-strategy="container-managed"/>
+        <property name="identityAttribute" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+    </bean>
+
+    <service id="subjectIdentity" ref="subjectIdentityImpl"
+             interface="ddf.security.SubjectIdentity"/>
+
+    <bean id="proxyServiceFactoryFactory" class="ddf.security.soap.impl.SecureProxyServiceFactoryFactoryImpl"/>
+
+    <service id="proxyServiceFactoryFactoryService" ref="proxyServiceFactoryFactory"
+             interface="ddf.security.ws.proxy.ProxyServiceFactoryFactory"/>
+
+</blueprint>

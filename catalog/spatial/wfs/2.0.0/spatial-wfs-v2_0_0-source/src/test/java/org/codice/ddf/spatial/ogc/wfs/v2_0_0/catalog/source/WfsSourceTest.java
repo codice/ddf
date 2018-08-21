@@ -24,6 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +67,8 @@ import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
@@ -122,6 +126,8 @@ public class WfsSourceTest {
 
   private SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
 
+  private ClientFactoryFactory mockClientFactory = mock(ClientFactoryFactory.class);
+
   private EncryptionService encryptionService = mock(EncryptionService.class);
 
   public WfsSource getWfsSource(
@@ -143,6 +149,42 @@ public class WfsSourceTest {
       throws WfsException, SecurityServiceException {
     mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
+
+    when(mockClientFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
 
     // GetCapabilities Response
     when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
@@ -217,7 +259,7 @@ public class WfsSourceTest {
             new GeotoolsFilterAdapterImpl(),
             mockContext,
             mockAvailabilityTask,
-            mockFactory,
+            mockClientFactory,
             encryptionService);
 
     source.setMetacardToFeatureMapper(mappers);
@@ -236,6 +278,42 @@ public class WfsSourceTest {
 
     mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
+
+    when(mockClientFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
+    when(mockClientFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(mockFactory);
 
     // GetCapabilities Response
     when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
@@ -307,7 +385,7 @@ public class WfsSourceTest {
             new GeotoolsFilterAdapterImpl(),
             mockContext,
             mockAvailabilityTask,
-            mockFactory,
+            mockClientFactory,
             encryptionService);
 
     wfsSource.setFeatureCollectionReader(mockReader);

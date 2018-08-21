@@ -46,7 +46,8 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.security.common.OutgoingSubjectRetrievalInterceptor;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -106,7 +107,10 @@ public class SendEvent implements DeliveryMethod, Pingable {
   SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
 
   public SendEvent(
-      TransformerManager transformerManager, GetRecordsType request, QueryRequest query)
+      TransformerManager transformerManager,
+      GetRecordsType request,
+      QueryRequest query,
+      ClientFactoryFactory clientFactoryFactory)
       throws CswException {
 
     URL deliveryMethodUrl;
@@ -142,7 +146,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
     List providers = ImmutableList.of(new CswRecordCollectionMessageBodyWriter(transformerManager));
 
     cxfClientFactory =
-        new SecureCxfClientFactory<>(
+        clientFactoryFactory.getSecureCxfClientFactory(
             callbackUrl.toString(), CswSubscribe.class, providers, null, false, false);
     cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor());
     try {

@@ -78,8 +78,8 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
-import org.codice.ddf.cxf.ClientKeyInfo;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
@@ -165,6 +165,8 @@ public class WfsSource extends AbstractWfsSource {
     }
   }
 
+  private final ClientFactoryFactory clientFactoryFactory;
+
   private String wfsUrl;
 
   private String wfsVersion;
@@ -219,25 +221,27 @@ public class WfsSource extends AbstractWfsSource {
       FilterAdapter filterAdapter,
       BundleContext context,
       AvailabilityTask task,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory clientFactoryFactory,
       EncryptionService encryptionService)
       throws SecurityServiceException {
 
     this.filterAdapter = filterAdapter;
     this.context = context;
     this.availabilityTask = task;
-    this.factory = factory;
+    this.clientFactoryFactory = clientFactoryFactory;
     this.encryptionService = encryptionService;
     initProviders();
+    createClientFactory();
     configureWfsFeatures();
   }
 
-  public WfsSource(EncryptionService encryptionService) {
+  public WfsSource(EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
     // Required for bean creation
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
     this.encryptionService = encryptionService;
+    this.clientFactoryFactory = clientFactoryFactory;
   }
 
   /**
@@ -324,7 +328,7 @@ public class WfsSource extends AbstractWfsSource {
   private void createClientFactory() {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),
@@ -338,7 +342,7 @@ public class WfsSource extends AbstractWfsSource {
     } else if (StringUtils.isNotBlank(getCertAlias())
         && StringUtils.isNotBlank(getKeystorePath())) {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),
@@ -347,11 +351,12 @@ public class WfsSource extends AbstractWfsSource {
               false,
               null,
               null,
-              new ClientKeyInfo(getCertAlias(), getKeystorePath()),
+              getCertAlias(),
+              getKeystorePath(),
               getSslProtocol());
     } else {
       factory =
-          new SecureCxfClientFactory(
+          clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
               Wfs.class,
               initProviders(),

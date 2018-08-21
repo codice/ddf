@@ -24,7 +24,6 @@ import ddf.catalog.resource.ResourceReader;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +53,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.tika.Tika;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +95,8 @@ public class URLResourceReader implements ResourceReader {
   private static final Set<String> QUALIFIER_SET =
       ImmutableSet.of(URL_HTTP_SCHEME, URL_HTTPS_SCHEME, URL_FILE_SCHEME);
 
+  private final ClientFactoryFactory clientFactoryFactory;
+
   /** Mapper for file extensions-to-mime types (and vice versa) */
   private MimeTypeMapper mimeTypeMapper;
 
@@ -103,13 +105,17 @@ public class URLResourceReader implements ResourceReader {
   private boolean followRedirects = false;
 
   /** Default URLResourceReader constructor. */
-  public URLResourceReader() {}
+  public URLResourceReader(ClientFactoryFactory clientFactoryFactory) {
+    this.clientFactoryFactory = clientFactoryFactory;
+  }
 
-  public URLResourceReader(MimeTypeMapper mimeTypeMapper) {
+  public URLResourceReader(
+      MimeTypeMapper mimeTypeMapper, ClientFactoryFactory clientFactoryFactory) {
     if (mimeTypeMapper == null) {
       LOGGER.debug("mimeTypeMapper is NULL");
     }
     this.mimeTypeMapper = mimeTypeMapper;
+    this.clientFactoryFactory = clientFactoryFactory;
 
     LOGGER.debug(
         "Supported Schemes for {}: {}", URLResourceReader.class.getSimpleName(), QUALIFIER_SET);
@@ -353,13 +359,6 @@ public class URLResourceReader implements ResourceReader {
 
       WebClient client = getWebClient(resourceURI.toString(), properties);
 
-      Object subjectObj = properties.get(SecurityConstants.SECURITY_SUBJECT);
-      if (subjectObj != null) {
-        Subject subject = (Subject) subjectObj;
-        LOGGER.debug("Setting Subject on webclient: {}", subject);
-        RestSecurity.setSubjectOnClient(subject, client);
-      }
-
       Response response = client.get();
 
       MultivaluedMap<String, Object> headers = response.getHeaders();
@@ -584,17 +583,30 @@ public class URLResourceReader implements ResourceReader {
   }
 
   protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
-    WebClient client;
+    SecureCxfClientFactory<WebClient> factory;
     if (properties.get(USERNAME) != null && properties.get(PASSWORD) != null) {
-      client =
-          WebClient.create(
-              uri, (String) properties.get(USERNAME), (String) properties.get(PASSWORD), null);
+      factory =
+          clientFactoryFactory.getSecureCxfClientFactory(
+              uri,
+              WebClient.class,
+              null,
+              null,
+              false,
+              getFollowRedirects(),
+              null,
+              null,
+              (String) properties.get(USERNAME),
+              (String) properties.get(PASSWORD));
     } else {
-      client = WebClient.create(uri);
+      factory =
+          clientFactoryFactory.getSecureCxfClientFactory(
+              uri, WebClient.class, null, null, false, getFollowRedirects());
     }
-
-    WebClient.getConfig(client).getHttpConduit().getClient().setAutoRedirect(getFollowRedirects());
-    return client;
+    Serializable subject = properties.get(SecurityConstants.SECURITY_SUBJECT);
+    if (subject instanceof org.apache.shiro.subject.Subject) {
+      return factory.getClientForSubject((org.apache.shiro.subject.Subject) subject);
+    }
+    return factory.getWebClient();
   }
 
   @Override
