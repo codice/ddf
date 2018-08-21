@@ -15,13 +15,13 @@ REM Remove the restart file indicator so we can detect later if restart was requ
 IF EXIST "%DIRNAME%restart.jvm" DEL "%DIRNAME%restart.jvm"
 
 REM Get Solr start property
-CALL %GET_PROPERTY% start.solr
+CALL %GET_PROPERTY% solr.start
 
 REM Get Karaf start property
 CALL %GET_PROPERTY% start.ddf
 
 REM Start Solr if needed
-IF "%start.solr%" == "true" (
+IF "%solr.start%" == "true" (
     CALL %SOLR_EXEC% restart
 )
 
@@ -41,7 +41,7 @@ IF EXIST "%DIRNAME%restart.jvm" (
 EXIT /B
 
 :STOP_SOLR
-IF "%SOLR_CLIENT%" == "HttpSolrClient" (
+IF "%solr.start%" == "true" (
   ECHO Stopping Solr process on port %SOLR_PORT%
   CALL %SOLR_EXEC% stop
 )
