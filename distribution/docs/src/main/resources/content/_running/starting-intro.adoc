@@ -28,6 +28,12 @@ Update the wrapper.java.additional -Xmx value
 ----
 ====
 
+.Solr Memory Considerations
+[NOTE]
+====
+If the ${branding} will be ingesting many records at a time, consider increasing the `solr.max.heap.size` in the `system.properties` file. More information can be found in the https://lucene.apache.org/solr/guide/7_4/taking-solr-to-production.html[Solr documentation].
+====
+
 .JMX Connectivity Considerations
 [NOTE]
 ====
