@@ -69,7 +69,7 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 ===== Configuring Memory Allocation for the ${branding} Java Virtual Machine
 
 [[_jvm_memory_configuration]]
-The amount of memory allocated to the Java Virtual Machine host ${branding} bu the operating
+The amount of memory allocated to the Java Virtual Machine host ${branding} by the operating
 system can be increased by updating the `setenv` script:
 
 .Setenv Scripts: *NIX
@@ -115,7 +115,7 @@ Comment out the -XX:+DisableAttachMechanism line and re-number remainder lines a
 
 [NOTE]
 ====
-This section applies only if to configurations that manage the lifecycle of the Solr server.
+This section applies only to configurations that manage the lifecycle of the Solr server.
 It does not apply to Solr Cloud configurations.
 ====
 The Solr server consumes large amount of memory when it ingests documents. If the Solr server

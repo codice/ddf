@@ -21,7 +21,7 @@ To import previously exported configuration settings:
 . Install ${branding} by unzipping its distribution.
 . Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include (but is not limited to) external certificates or monitored directories.
 . Launch the newly installed ${branding}.
-. Make sure to install and re-enable the ${branding} <<{managing-prefix}managed_services,service>> on the new system if it was installed and enabled on the original system
+. Make sure to install and re-enable the ${branding} <<{managing-prefix}managed_services,service>> on the new system if it was installed and enabled on the original system.
 . Copy the previously exported files from your secure locations to the `exported` directory underneath `${home_directory}`.
 . Either:
 .. Step through the installation process.
