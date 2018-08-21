@@ -41,8 +41,6 @@ IF EXIST "%DIRNAME%restart.jvm" (
 EXIT /B
 
 :STOP_SOLR
-IF "%solr.start%" == "true" (
-  ECHO Stopping Solr process on port %SOLR_PORT%
-  CALL %SOLR_EXEC% stop
-)
+IF "%solr.start%" == "true" CALL %SOLR_EXEC% stop
+
 GOTO :EOF
