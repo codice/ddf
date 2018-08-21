@@ -9,6 +9,7 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 :metadata-prefix: _
 :quickstart-prefix: _
 :using-prefix: _
+:reference: appendix
 
 :sectnums!:
 == Introduction
@@ -67,6 +68,10 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/application-reference.ftl">
 
-<#include "build/appendices.ftl">
+[appendix]
+<#include "build/reference.ftl">
+
+[appendix]
+<#include "build/metadata-reference.ftl">
 
 include::${project.build.directory}/doc-contents/content/scripts.html[]

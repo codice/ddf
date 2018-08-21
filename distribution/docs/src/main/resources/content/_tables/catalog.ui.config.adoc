@@ -466,7 +466,7 @@ thumbnail
 |Upload Editor: Attribute Configuration
 |attributeEnumMap
 |String
-|List of attributes to show in the upload editor. See <<_catalog_taxonomy_definitions,Catalog Taxonomy>>
+|List of attributes to show in the upload editor. See <<{metadata-prefix}catalog_taxonomy_definitions,Catalog Taxonomy>>
 for a list of supported attributes.
 
 Supported entry syntax: +

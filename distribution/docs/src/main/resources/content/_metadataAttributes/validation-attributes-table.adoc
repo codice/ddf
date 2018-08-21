@@ -1,5 +1,5 @@
 ﻿:title: Validation Attributes
-:type: subAppendix
+:type: subMetadataReference
 :order: 10
 :parent: Catalog Taxonomy Definitions
 :status: published

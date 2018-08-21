@@ -1,9 +1,8 @@
 :title: Packages Removed From Whitelist
-:type: appendix
+:type: reference
 :parent: Application Whitelists
-:children: none
 :status: published
-:order: 09
+:order: 00
 :summary: List of packages removed from the whitelist
 
 == {title}

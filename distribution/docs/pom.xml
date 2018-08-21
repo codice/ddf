@@ -107,6 +107,11 @@
                                             <type>pdf</type>
                                             <classifier>developing</classifier>
                                         </artifact>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/pdf/reference.pdf</file>
+                                            <type>pdf</type>
+                                            <classifier>reference</classifier>
+                                        </artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
@@ -456,6 +461,11 @@
                                     <file>${project.build.directory}/docs/html/developing.html</file>
                                     <type>html</type>
                                     <classifier>developing</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/docs/html/reference.html</file>
+                                    <type>html</type>
+                                    <classifier>reference</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

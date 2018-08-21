@@ -1,5 +1,5 @@
 :title: Dependency List
-:type: appendix
+:type: reference
 :status: published
 :parent: ${ddf-branding} Dependency List
 :order: 00
