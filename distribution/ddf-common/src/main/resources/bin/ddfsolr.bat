@@ -45,11 +45,13 @@ IF "%COMMAND%"=="" ECHO Missing command. Use start, restart, stop.
 
 IF "%COMMAND%"=="start" (
     IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
-    IF "!solr.http.protocol!"=="https" ECHO Using Solr secure configuration
-        CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.mem!
+    CALL %SOLR_EXEC% start -p !solr.http.port! -m !solr.mem!
 )
 
-IF "%COMMAND%"=="restart" CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.mem!
+IF "%COMMAND%"=="restart" (
+    IF "!solr.http.protocol!"=="http" ECHO **** USING INSECURE SOLR CONFIGURATION ****
+    CALL %SOLR_EXEC% restart -p !solr.http.port! -m !solr.mem!
+)
 
 IF "%COMMAND%"=="stop" CALL %SOLR_EXEC% stop -p !solr.http.port!
 
