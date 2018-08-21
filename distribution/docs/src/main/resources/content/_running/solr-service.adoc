@@ -63,7 +63,7 @@ systemctl enable <${branding}_HOME>/solr/service/solr.service
 . Start the service.
 +
 ----
-systemctl enable solr
+systemctl start solr
 ----
 
 . Check the status of Solr

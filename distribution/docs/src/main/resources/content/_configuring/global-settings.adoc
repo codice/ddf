@@ -453,7 +453,7 @@ zookeeperhost2:2181,
 zookeeperhost3:2181
 |Yes
 
-6+^h|Managed Solr Server Properties
+6+^h|[[_managed_solr_properties]]Managed Solr Server Properties
 
 |Start Solr server
 |solr.start
