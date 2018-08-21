@@ -50,9 +50,6 @@
                                         <target.protocol>${target.protocol}</target.protocol>
                                     </propertiesJMeter>
                                     <testResultsTimestamp>false</testResultsTimestamp>
-                                    <!--<appendResultsTimestamp>true</appendResultsTimestamp>-->
-                                    <!--<resultsFileNameDateFormat>YYYMMddHHmmss-->
-                                    <!--</resultsFileNameDateFormat>-->
                                     <ignoreResultFailures>true</ignoreResultFailures>
                                 </configuration>
                             </execution>
