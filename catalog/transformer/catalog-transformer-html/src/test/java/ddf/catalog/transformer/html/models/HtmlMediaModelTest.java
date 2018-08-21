@@ -23,11 +23,9 @@ import org.junit.Test;
 
 public class HtmlMediaModelTest {
 
-  private static final String MEDIA_ATTRIBUTE_TEMPLATE = "mediaAttribute";
-
   @Test
   public void testNullRawData() {
-    HtmlMediaModel mediaModel = new HtmlMediaModel(MEDIA_ATTRIBUTE_TEMPLATE, null);
+    HtmlMediaModel mediaModel = new HtmlMediaModel(null);
     assertNull(mediaModel.getValue());
   }
 
@@ -37,7 +35,7 @@ public class HtmlMediaModelTest {
     byte[] rawData = data.getBytes(StandardCharsets.UTF_8);
     byte[] encoded = Base64.getEncoder().encode(rawData);
 
-    HtmlMediaModel mediaModel = new HtmlMediaModel(MEDIA_ATTRIBUTE_TEMPLATE, rawData);
+    HtmlMediaModel mediaModel = new HtmlMediaModel(rawData);
     assertThat(mediaModel.getValue(), is(new String(encoded)));
   }
 }

@@ -13,11 +13,13 @@
  */
 package ddf.catalog.transformer.html.models;
 
-public class HtmlEmptyValueModel extends ValueModel {
+public class HtmlEmptyValueModel extends HtmlValueModel {
   private final String emptyFieldValue = "--";
 
-  public HtmlEmptyValueModel(String template) {
-    super(template);
+  private static final String EMPTY_ATTRIBUTE_TEMPLATE = "emptyAttribute";
+
+  public HtmlEmptyValueModel() {
+    super(EMPTY_ATTRIBUTE_TEMPLATE);
   }
 
   @Override

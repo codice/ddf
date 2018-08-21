@@ -15,11 +15,11 @@ package ddf.catalog.transformer.html.models;
 
 import ddf.catalog.transformer.html.HtmlMetacardUtility;
 
-public abstract class ValueModel {
+public abstract class HtmlValueModel {
 
   private HtmlMetacardUtility htmlMetacardUtility;
 
-  public ValueModel(String template) {
+  public HtmlValueModel(String template) {
     this.htmlMetacardUtility = new HtmlMetacardUtility(template);
   }
 
