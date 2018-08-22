@@ -41,6 +41,15 @@
         <module>test</module>
     </modules>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${fabric8.docker.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- Need to have JaCoCo plugin otherwise surefire fails because ${argLine} is undefined -->
             <plugin>
