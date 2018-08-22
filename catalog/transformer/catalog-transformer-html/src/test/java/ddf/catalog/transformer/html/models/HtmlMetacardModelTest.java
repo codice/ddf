@@ -13,6 +13,7 @@
  */
 package ddf.catalog.transformer.html.models;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -46,7 +47,7 @@ public class HtmlMetacardModelTest {
     HtmlMetacardModel metacardModel = new HtmlMetacardModel(metacard, categoryList);
     HtmlExportCategory category = metacardModel.getCategories().get(0);
 
-    assertThat(category.getAttributes().contains(Core.TITLE), is(true));
+    assertThat(category.getAttributes(), hasItem(Core.TITLE));
   }
 
   @Test
@@ -60,6 +61,7 @@ public class HtmlMetacardModelTest {
     HtmlMetacardModel metacardModel = new HtmlMetacardModel(metacard, categoryList);
     HtmlExportCategory category = metacardModel.getCategories().get(0);
 
-    assertThat(category.getAttributeMappings().get("Title").getValue(), is(METACARD_TITLE));
+    String titleValue = category.getAttributeMappings().get("Title").getValue();
+    assertThat(titleValue, is(METACARD_TITLE));
   }
 }

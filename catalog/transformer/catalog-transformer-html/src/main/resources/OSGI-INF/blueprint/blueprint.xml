@@ -61,8 +61,7 @@
       <property name="title" value=""/>
       <property name="attributes"><list/></property>
 
-      <cm:managed-properties persistent-id="" update-strategy="container-managed"
-        update-method="refresh"/>
+      <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
     </cm:managed-component>
   </cm:managed-service-factory>
 

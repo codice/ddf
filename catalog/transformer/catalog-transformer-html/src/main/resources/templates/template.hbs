@@ -88,8 +88,6 @@
     {{/each}}
 
     <script>
-      function init() {
-      }
       function expandCard(metacard) {
         var categories = metacard.getElementsByClassName("metacard-categories")[0];
         categories.style.display = "block";
@@ -129,8 +127,6 @@
         let icon = button.getElementsByTagName("i")[0];
         icon.className = icon.className === "down" ? "up" : "down";
       }
-
-      init();
     </script>
   </body>
 </html>
