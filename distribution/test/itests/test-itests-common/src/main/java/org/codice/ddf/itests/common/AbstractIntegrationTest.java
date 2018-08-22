@@ -347,9 +347,6 @@ public abstract class AbstractIntegrationTest {
   public static final DynamicUrl RESOURCE_DOWNLOAD_ENDPOINT_ROOT =
       new DynamicUrl(SERVICE_ROOT, "/internal/catalog/download/cache");
 
-  public static final DynamicUrl COMETD_ENDPOINT =
-      new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/search/cometd/");
-
   static {
     // Make Pax URL use the maven.repo.local setting if present
     if (System.getProperty(MVN_LOCAL_REPO) != null) {

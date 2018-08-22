@@ -78,52 +78,6 @@ There are three policies available.
 
 If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
 
-===== Asynchronous Search & Retrieval
-
-Asynchronous Search & Retrieval allows a requestor to execute multiple queries at once, begin multiple product downloads while query results are being returned, cancel queries and downloads, and receive status on the state of incoming query results and product downloads.
-
-.Important Terms for Asynchronous Search
-[cols="3" options="header"]
-|===
-|Capability
-|Description
-|Endpoint Integration
-
-|Asynchronous Search
-|Search multiple sources simultaneously
-|Search UI
-
-|Product caching
-|Allows quick retrieval of already downloaded products
-|${ddf-catalog}
-
-|Canceling Product Downloads
-|The ability to cancel a download in progress
-|${ddf-catalog}
-
-|Activities
-a|Activities
-* `download`
-* `retry`
-* `cancel`
-* `pause`
-* `remove`
-* `resume`
-|${ddf-catalog}, CometD endpoint
-
-|Notifications
-|Time-stamped messages of an action
-|${ddf-catalog}, Search UI/CometD endpoint
-
-|Workspaces
-|Ability to save and manage queries and save metacards
-|${ddf-platform}, Search UI/CometD endpoint
-
-|3D Map support
-|Ability to execute a geospatial search using a 3D map
-|N/A
-
-|===
 
 ===== Product Retrieval
 
