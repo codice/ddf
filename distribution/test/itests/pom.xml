@@ -36,7 +36,6 @@
         <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
         <pax.url.version>2.4.5</pax.url.version>
         <!-- End pax exam properties -->
-        <cometd.version>3.0.9</cometd.version>
     </properties>
     <dependencyManagement>
         <dependencies>

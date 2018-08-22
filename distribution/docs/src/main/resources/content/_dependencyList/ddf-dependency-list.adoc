@@ -244,12 +244,6 @@
 * org.codice.usng4j:usng4j-api:jar:0.1
 * org.codice.usng4j:usng4j-impl:jar:0.1
 * org.codice:lux:jar:1.2
-* org.cometd.java:bayeux-api:jar:3.0.9
-* org.cometd.java:cometd-java-annotations:jar:3.0.9
-* org.cometd.java:cometd-java-client:jar:3.0.7
-* org.cometd.java:cometd-java-client:jar:3.0.9
-* org.cometd.java:cometd-java-common:jar:3.0.9
-* org.cometd.java:cometd-java-server:jar:3.0.9
 * org.eclipse.jetty:jetty-http:jar:9.3.24.v20180605
 * org.eclipse.jetty:jetty-server:jar:9.3.24.v20180605
 * org.eclipse.jetty:jetty-servlet:jar:9.3.24.v20180605
