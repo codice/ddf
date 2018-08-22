@@ -13,6 +13,7 @@
  */
 package ddf.catalog.impl.operations
 
+import ddf.action.ActionRegistry
 import ddf.catalog.content.StorageProvider
 import ddf.catalog.data.ContentType
 import ddf.catalog.impl.FrameworkProperties
@@ -75,7 +76,7 @@ class SourceOperationsSpec extends Specification {
             federatedSources = fedSources
             sourcePoller = this.sourcePoller
         }
-        sourceOperations = new SourceOperations(frameworkProperties)
+        sourceOperations = new SourceOperations(frameworkProperties, Mock(ActionRegistry))
         sourceOperations.setId(SOURCE_ID)
         sourceOperations.bind(catalogProviders.get(0))
     }
