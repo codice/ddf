@@ -142,11 +142,20 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(
         new AttributeImpl(
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
+    Integer gazetteerSortValue = getGeoNameGazetterSortByFeatureClass(geoEntry);
+    boolean addedGazetteerSortValue = false;
+    if (gazetteerSortValue != null) {
+      metacard.setAttribute(
+          new AttributeImpl(
+              GeoEntryAttributes.GAZETTEER_SORT_VALUE, gazetteerSortValue.intValue()));
+      addedGazetteerSortValue = true;
+    }
     metacard.setAttribute(
         new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
-    metacard.setAttribute(
-        new AttributeImpl(
-            GeoEntryAttributes.GAZETTEER_SORT_VALUE, getSortPopVal(geoEntry.getPopulation())));
+    if (!addedGazetteerSortValue) {
+      metacard.setAttribute(
+          new AttributeImpl(GeoEntryAttributes.GAZETTEER_SORT_VALUE, geoEntry.getPopulation()));
+    }
     if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
@@ -364,8 +373,62 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     }
   }
 
-  private long getSortPopVal(long popSize) {
-    // gives a sorting score from 2-10 based on population
-    return Math.min(10, (popSize - 1) / 50_000 + 2);
+  private Integer getGeoNameGazetterSortByFeatureClass(GeoEntry geoEntry) {
+    Integer gazetteerSortValue = null;
+    switch (geoEntry.getFeatureClass()) {
+      case GeoCodingConstants.ADMIN_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ADMIN_FEATURE_CLASS);
+        break;
+      case GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS:
+        if (geoEntry.getFeatureCode().equals(GeoCodingConstants.OCEAN_FEATURE_CODE)
+            || geoEntry.getFeatureCode().equals(GeoCodingConstants.SEA_FEATURE_CODE)) {
+          gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+        } else {
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS);
+        }
+        break;
+      case GeoCodingConstants.AREA_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.AREA_FEATURE_CLASS);
+        break;
+      case GeoCodingConstants.POPULATED_FEATURE_CLASS:
+        break;
+      case GeoCodingConstants.ROAD_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ROAD_FEATURE_CLASS);
+        break;
+      case GeoCodingConstants.SPOT_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.SPOT_FEATURE_CLASS);
+        break;
+      case GeoCodingConstants.MOUNTAIN_FEATURE_CLASS:
+        if (geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_FEATURE_CODE)
+            || geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_RANGE_FEATURE_CODE)) {
+          gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+        } else {
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.MOUNTAIN_FEATURE_CLASS);
+        }
+        break;
+      case GeoCodingConstants.UNDERSEA_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.UNDERSEA_FEATURE_CLASS);
+        break;
+      case GeoCodingConstants.VEGETATION_FEATURE_CLASS:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+        break;
+      default:
+        gazetteerSortValue =
+            GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+        break;
+    }
+    return gazetteerSortValue;
   }
 }
