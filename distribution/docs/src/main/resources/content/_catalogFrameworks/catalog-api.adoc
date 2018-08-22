@@ -216,12 +216,8 @@ ${branding} can send/receive notifications of "Activities" occuring in the syste
 ====== Notifications
 
 Currently, the notifications provide information about product retrieval only.
-For example, in the ${branding} Search UI, after a user initiates a resource download, they receive notifications when the download completed, failed, canceled, or is being retried.
 
 ====== Activities
 
 Activity events include the status and progress of actions that are being performed by the user, such as searches and downloads.
-Activities can be enabled by selecting "Show tasks" in the Standard Search UI configuration.
-A list of all activities opens in a drop-down menu, from which activities can be read and deleted.
-If a download activity is being performed, the Activity drop-down menu provides the link to retrieve the product.
-If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down menu until the action being performed is complete.
+
