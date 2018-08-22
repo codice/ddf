@@ -58,6 +58,7 @@
     "geo-convex-hull": "1.2.0",
     "golden-layout": "1.5.8",
     "html-react-parser": "0.4.6",
+    "immer": "1.5.0",
     "jquery": "3.2.1",
     "jquery-ui": "1.12.1",
     "jquery-ui-multiselect-widget": "1.17.0",
@@ -73,6 +74,7 @@
     "react": "16.4.1",
     "react-dom": "16.4.1",
     "react-redux": "5.0.7",
+    "react-text-mask": "5.4.1",
     "redux": "3.5.2",
     "redux-thunk": "2.1.0",
     "rpc-websockets": "4.0.0",
@@ -87,7 +89,7 @@
     "uuid": "2.0.2",
     "vis": "4.15.0",
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",
-    "wkx": "0.4.1"
+    "wkx": "0.4.5"
   },
   "main": "src/main/webapp/js/ApplicationSetup.js",
   "alias": {

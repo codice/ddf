@@ -78,6 +78,18 @@
                                     <type>properties</type>
                                     <classifier>catalog-ui-config</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.theme.config
+                                    </file>
+                                    <type>properties</type>
+                                    <classifier>catalog-ui-theme-config</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.hidden.config
+                                    </file>
+                                    <type>properties</type>
+                                    <classifier>catalog-ui-attribute-hidden-config</classifier>
+                                </artifact>
                             </artifacts>
                         </configuration>
                     </execution>

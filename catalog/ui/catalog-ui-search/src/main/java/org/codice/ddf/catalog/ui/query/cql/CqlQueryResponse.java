@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.boon.json.annotations.JsonIgnore;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.slf4j.Logger;
@@ -50,6 +51,8 @@ public class CqlQueryResponse {
 
   private final Status status;
 
+  private final QueryResponse queryResponse;
+
   public CqlQueryResponse(
       String id,
       QueryRequest request,
@@ -60,6 +63,8 @@ public class CqlQueryResponse {
       FilterAdapter filterAdapter,
       ActionRegistry actionRegistry) {
     this.id = id;
+
+    this.queryResponse = queryResponse;
 
     status = new Status(queryResponse, source, elapsedTime);
 
@@ -131,6 +136,11 @@ public class CqlQueryResponse {
       LOGGER.debug("Unable to parse search terms", e);
     }
     return searchTerms;
+  }
+
+  @JsonIgnore
+  public QueryResponse getQueryResponse() {
+    return queryResponse;
   }
 
   public List<CqlResult> getResults() {

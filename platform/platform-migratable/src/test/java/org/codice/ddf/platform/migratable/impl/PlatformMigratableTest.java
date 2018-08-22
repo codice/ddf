@@ -63,7 +63,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * ./ddfExport/etc/certs/meta ./ddfExport/etc/config.properties ./ddfExport/etc/custom.properties
  * ./ddfExport/etc/ddf-wrapper.conf ./ddfExport/etc/fipsToIso.properties ./ddfExport/etc/keystores
  * ./ddfExport/etc/keystores/serverKeystore.jks ./ddfExport/etc/keystores/serverTruststore.jks
- * ./ddfExport/etc/log4j2.config.xml ./ddfExport/etc/org.codice.ddf.admin.applicationlist.properties
+ * ./ddfExport/etc/log4j2.xml ./ddfExport/etc/org.codice.ddf.admin.applicationlist.properties
  * ./ddfExport/etc/pdp ./ddfExport/etc/pdp/ddf-metacard-attribute-ruleset.cfg
  * ./ddfExport/etc/pdp/ddf-user-attribute-ruleset.cfg ./ddfExport/etc/startup.properties
  * ./ddfExport/etc/system.properties ./ddfExport/etc/users.attributes
@@ -78,7 +78,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * ./ddfImport/etc/certs/meta ./ddfImport/etc/config.properties ./ddfImport/etc/custom.properties
  * ./ddfImport/etc/ddf-wrapper.conf ./ddfImport/etc/fipsToIso.properties ./ddfImport/etc/keystores
  * ./ddfImport/etc/keystores/serverKeystore.jks ./ddfImport/etc/keystores/serverTruststore.jks
- * ./ddfImport/etc/log4j2.config.xml ./ddfImport/etc/org.codice.ddf.admin.applicationlist.properties
+ * ./ddfImport/etc/log4j2.xml ./ddfImport/etc/org.codice.ddf.admin.applicationlist.properties
  * ./ddfImport/etc/pdp ./ddfImport/etc/pdp/ddf-metacard-attribute-ruleset.cfg
  * ./ddfImport/etc/pdp/ddf-user-attribute-ruleset.cfg ./ddfImport/etc/startup.properties
  * ./ddfImport/etc/system.properties ./ddfImport/etc/users.attributes
@@ -136,7 +136,7 @@ public class PlatformMigratableTest {
           Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
           Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
           Paths.get("etc", "fipsToIso.properties"),
-          Paths.get("etc", "log4j2.config.xml"),
+          Paths.get("etc", "log4j2.xml"),
           Paths.get("etc", "certs", "meta"),
           Paths.get("etc", "certs", "1"),
           Paths.get("bin", "karaf"),
