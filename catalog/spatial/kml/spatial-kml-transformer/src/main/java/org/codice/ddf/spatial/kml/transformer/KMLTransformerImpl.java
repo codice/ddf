@@ -238,10 +238,15 @@ public class KMLTransformerImpl implements KMLTransformer {
       final String attributeName = attributeDescriptor.getName();
       final Attribute attribute = metacard.getAttribute(attributeName);
       if (attribute != null) {
-        String attributeValue = convertAttribute(attribute, attributeDescriptor).toString();
-        attributeValue = StringUtils.removeStart(StringUtils.removeEnd(attributeValue, "]"), "[");
-        final Data data = getData(attributeName, attributeValue);
-        extendedData.addToData(data);
+        Serializable convertAttribute = convertAttribute(attribute, attributeDescriptor);
+        if (convertAttribute == null) {
+          LOGGER.debug("Attribute {} converted to null value.", attributeName);
+        } else {
+          String attributeValue = convertAttribute.toString();
+          attributeValue = StringUtils.removeStart(StringUtils.removeEnd(attributeValue, "]"), "[");
+          final Data data = getData(attributeName, attributeValue);
+          extendedData.addToData(data);
+        }
       }
     }
     placemark.setExtendedData(extendedData);
