@@ -1,3 +1,0 @@
-:imagesdir: ./images
-:toc: left
-:branding: DDF

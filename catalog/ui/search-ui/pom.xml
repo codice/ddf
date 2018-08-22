@@ -25,7 +25,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>simple</module>
-        <module>standard</module>
         <module>search-redirect</module>
         <module>search-htmltransformer</module>
         <module>search-endpoint</module>

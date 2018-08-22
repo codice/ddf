@@ -45,15 +45,6 @@
         <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>
     </feature>
 
-    <feature name="search-ui-deprecated" version="${project.version}" description="Search UI">
-        <feature>camel-http</feature>
-        <feature>javax-inject</feature>
-        <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
-        <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
-        <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
-    </feature>
-
     <feature name="simple-search-ui" version="${project.version}">
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
     </feature>
