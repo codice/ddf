@@ -114,9 +114,9 @@
 
         for (let attribute of emptyAttributes) {
           if (hideFields) {
-            attribute.style.display = "none";
+            attribute.parentElement.style.display = "none";
           } else {
-            attribute.style.display = "";
+            attribute.parentElement.style.display = "";
           }
         }
       }
