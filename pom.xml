@@ -115,7 +115,6 @@
         <gib.enabled>false</gib.enabled>
         <gib.failOnError>false</gib.failOnError>
 
-
         <!--Frontend properties-->
         <backbone.modelbinder.version>1.1.0</backbone.modelbinder.version>
         <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
@@ -311,6 +310,8 @@
         <surefire.argline.append/>
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
+
+        <fabric8.docker.plugin.version>0.27.1</fabric8.docker.plugin.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
