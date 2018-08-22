@@ -21,7 +21,6 @@
     </formats>
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>ddf.platform.solr:solr-xpath</include>
             </includes>
@@ -35,13 +34,27 @@
             </includes>
             <outputDirectory>/server/lib</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.codice.pro-grade:pro-grade</include>
+            </includes>
+            <outputDirectory>/security</outputDirectory>
+        </dependencySet>
     </dependencySets>
     <fileSets>
         <fileSet>
-            <!--This can be removed once Solr is upgraded to 7.5/8.0-->
-            <!--https://issues.apache.org/jira/browse/SOLR-12538-->
-            <directory>src/main/resources/solrFiles</directory>
+            <directory>src/main/resources
+            </directory>
             <outputDirectory>/</outputDirectory>
+            <!--These changes are included to turn on Pro-Grade Security Manager for Solr-->
+            <includes>
+                <include>security/solr-default.policy</include>
+                <include>bin/solr</include>
+                <!--This can be changed once Solr is upgraded to 7.5/8.0-->
+                <!--https://issues.apache.org/jira/browse/SOLR-12538-->
+                <include>bin/solr.cmd</include>
+            </includes>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}/solr-${solr.version}</directory>
