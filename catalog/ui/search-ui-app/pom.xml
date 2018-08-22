@@ -79,28 +79,16 @@
                                     <classifier>catalog-ui-config</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.theme
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.theme.config
                                     </file>
                                     <type>properties</type>
-                                    <classifier>catalog-ui-theme</classifier>
+                                    <classifier>catalog-ui-theme-config</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.aliases
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.hidden.config
                                     </file>
                                     <type>properties</type>
-                                    <classifier>catalog-ui-attribute-aliases</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.hidden
-                                    </file>
-                                    <type>properties</type>
-                                    <classifier>catalog-ui-attribute-hidden</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>src/main/resources/etc/org.codice.ddf.catalog.ui.attribute.descriptions
-                                    </file>
-                                    <type>properties</type>
-                                    <classifier>catalog-ui-attribute-descriptions</classifier>
+                                    <classifier>catalog-ui-attribute-hidden-config</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

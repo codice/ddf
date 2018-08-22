@@ -30,20 +30,12 @@
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>
 
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.theme" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-theme
+        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.theme.config" override="false">
+            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-theme-config
         </configfile>
 
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.attribute.aliases" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-aliases
-        </configfile>
-
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.attribute.hidden" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-hidden
-        </configfile>
-
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.attribute.descriptions" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-descriptions
+        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.attribute.hidden.config" override="false">
+            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-hidden-config
         </configfile>
 
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
