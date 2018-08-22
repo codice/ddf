@@ -27,6 +27,11 @@
 
 @echo off
 
+@REM ******************************************************
+@REM *****          DDF SECURITY MANAGER              *****
+set "SEC_MAN_ARGS=-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.policy==../security/solr-default.policy -Dsolr.ssl.keystore=%SOLR_SSL_KEY_STORE% -Dsolr.ssl.truststore=%SOLR_SSL_TRUST_STORE% -classpath ../security/pro-grade-1.1.3.jar;start.jar org.eclipse.jetty.start.Main"
+@REM ******************************************************
+
 IF "%OS%"=="Windows_NT" setlocal enabledelayedexpansion enableextensions
 
 set "PASS_TO_RUN_EXAMPLE="
@@ -1308,7 +1313,8 @@ IF "%FG%"=="1" (
     -Dlog4j.configurationFile="%LOG4J_CONFIG%" -DSTOP.PORT=!STOP_PORT! -DSTOP.KEY=%STOP_KEY% ^
     -Dsolr.solr.home="%SOLR_HOME%" -Dsolr.install.dir="%SOLR_TIP%" -Dsolr.default.confdir="%DEFAULT_CONFDIR%" ^
     -Djetty.host=%SOLR_JETTY_HOST% -Djetty.port=%SOLR_PORT% -Djetty.home="%SOLR_SERVER_DIR%" ^
-    -Djava.io.tmpdir="%SOLR_SERVER_DIR%\tmp" -jar start.jar %SOLR_JETTY_CONFIG% "%SOLR_JETTY_ADDL_CONFIG%"
+    -Djava.io.tmpdir="%SOLR_SERVER_DIR%\tmp" %SEC_MAN_ARGS% ^
+    %SOLR_JETTY_CONFIG% "%SOLR_JETTY_ADDL_CONFIG%"
 ) ELSE (
   START /B "Solr-%SOLR_PORT%" /D "%SOLR_SERVER_DIR%" ^
     "%JAVA%" %SERVEROPT% %SOLR_JAVA_MEM% %START_OPTS% ^
@@ -1316,7 +1322,8 @@ IF "%FG%"=="1" (
     -Dsolr.log.muteconsole ^
     -Dsolr.solr.home="%SOLR_HOME%" -Dsolr.install.dir="%SOLR_TIP%" -Dsolr.default.confdir="%DEFAULT_CONFDIR%" ^
     -Djetty.host=%SOLR_JETTY_HOST% -Djetty.port=%SOLR_PORT% -Djetty.home="%SOLR_SERVER_DIR%" ^
-    -Djava.io.tmpdir="%SOLR_SERVER_DIR%\tmp" -jar start.jar %SOLR_JETTY_CONFIG% "%SOLR_JETTY_ADDL_CONFIG%" > "!SOLR_LOGS_DIR!\solr-%SOLR_PORT%-console.log"
+    -Djava.io.tmpdir="%SOLR_SERVER_DIR%\tmp" %SEC_MAN_ARGS% ^
+   %SOLR_JETTY_CONFIG% "%SOLR_JETTY_ADDL_CONFIG%" > "!SOLR_LOGS_DIR!\solr-%SOLR_PORT%-console.log"
   echo %SOLR_PORT%>"%SOLR_TIP%"\bin\solr-%SOLR_PORT%.port
 
   REM now wait to see Solr come online ...
