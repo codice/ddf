@@ -102,6 +102,11 @@
     </Appenders>
 
     <Loggers>
+        <Root level="info">
+            <AppenderRef ref="out"/>
+            <AppenderRef ref="osgi-karafConsole"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Root>
         <Logger name="securityLogger" level="info" additivity="false">
             <AppenderRef ref="securityFailover"/>
             <AppenderRef ref="syslog"/>
@@ -162,11 +167,5 @@
         This is a result of suppressing SCR annotations in the GraphQLServlet.-->
         <Logger name="org.ops4j.pax.web.utils.ServletContainerInitializerScanner" level="error"/>
         <!--END Suppress logging for miscellaneous packages-->
-
-        <Root level="info">
-            <AppenderRef ref="out"/>
-            <AppenderRef ref="osgi-karafConsole"/>
-            <AppenderRef ref="osgi-platformLogging"/>
-        </Root>
     </Loggers>
 </Configuration>
