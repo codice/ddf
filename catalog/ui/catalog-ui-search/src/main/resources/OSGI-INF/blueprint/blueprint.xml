@@ -194,6 +194,8 @@
     <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="metacardActionRegistry"/>
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
@@ -257,6 +259,12 @@
     <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
                     availability="optional">
         <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
+    </reference-list>
+
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
+                    member-type="service-reference">
+        <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
     </reference-list>
 
     <bean id="workspaceTransformer"
@@ -358,12 +366,9 @@
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
-        <property name="catalogFramework" ref="catalogFramework"/>
-        <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="filterAdapter" ref="filterAdapter"/>
-        <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
+        <argument ref="cqlTransformHandler"/>
     </bean>
 
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
@@ -612,6 +617,12 @@
                 <argument ref="filterBuilder"/>
             </bean>
         </argument>
+    </bean>
+
+    <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
+        <argument ref="queryResponseTransformers"/>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="endpointUtil"/>
     </bean>
 
     <service ref="workspaceQueryService"

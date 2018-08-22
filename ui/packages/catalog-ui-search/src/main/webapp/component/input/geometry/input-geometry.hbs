@@ -12,44 +12,8 @@
  **/
  --}}
 <div class="if-editing">
-    <input id="{{cid}}" value="{{value}}" placeholder="{{property.placeholder}}" name="{{property.id}}">
-    <div class="for-error">
-        <div class="error-form">
-            <span class="fa fa-exclamation-triangle"></span> Malformed WKT.  Note that coordinates are ordered longitude then latitude.
-            <div>See <a href="https://en.wikipedia.org/wiki/Well-known_text" target="_blank">WKT</a> for details and examples such as:</div>
-            <div>POINT (50 40)</div>
-            <div>LINESTRING (30 10, 10 30, 40 40)</div>
-            <div>POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))</div>
-            <div>MULTIPOINT (10 40, 40 30, 20 20, 30 10)</div>
-            <div>MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))</div>
-            <div>MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))</div>
-            <div>GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))</div>
-        </div>
-        <div class="error-ordering">
-            <span class="fa fa-exclamation-triangle"></span>
-            Invalid lon / lat coordinates.
-        </div>
-    </div>
+    <div class='location-region'></div>
 </div>
 <div class="if-viewing">
-    <label>
-        {{value}}
-    </label>
-    <div class="for-error">
-        <div class="error-form">
-            <span class="fa fa-exclamation-triangle"></span> Malformed WKT.  Note that coordinates are ordered longitude then latitude.
-            <div>See <a href="https://en.wikipedia.org/wiki/Well-known_text" target="_blank">WKT</a> for details and examples such as:</div>
-            <div>POINT (50 40)</div>
-            <div>LINESTRING (30 10, 10 30, 40 40)</div>
-            <div>POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))</div>
-            <div>MULTIPOINT (10 40, 40 30, 20 20, 30 10)</div>
-            <div>MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))</div>
-            <div>MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))</div>
-            <div>GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))</div>
-        </div>
-        <div class="error-ordering">
-            <span class="fa fa-exclamation-triangle"></span>
-            Invalid lon / lat coordinates.
-        </div>
-    </div>
+    <label>{{label}}</label>
 </div>

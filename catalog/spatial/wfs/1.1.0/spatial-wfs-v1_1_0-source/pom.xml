@@ -208,7 +208,6 @@
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_1_0-converter,
                             catalog-core-api-impl,
-                            security-rest-cxfwrapper,
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,

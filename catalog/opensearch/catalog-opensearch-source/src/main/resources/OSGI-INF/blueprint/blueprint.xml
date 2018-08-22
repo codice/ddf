@@ -27,6 +27,8 @@
     <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
                filter="(shortname=URLResourceReader)"/>
 
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="openSearchFilterVisitor"
@@ -48,6 +50,7 @@
             <argument ref="openSearchParserImpl"/>
             <argument ref="openSearchFilterVisitor"/>
             <argument ref="encryptionService"/>
+            <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed"/>
             <property name="shortname" value="DDF-OS"/>

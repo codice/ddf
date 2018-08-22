@@ -91,10 +91,12 @@ module.exports = Marionette.LayoutView.extend({
         });
         this.$el.find('.editor[data-js]').each((index, element) => {
             const instanceJS = this[element.getAttribute('data-js')].toString();
+            const raw = element.getAttribute('data-raw') === 'true' ? true : false;
+            const value = raw ? instanceJS : beautify(instanceJS.slice(instanceJS.indexOf('{') + 1, instanceJS.lastIndexOf('}')))
             renderAce({
                 where: element,
                 mode: 'javascript',
-                value: beautify(instanceJS.slice(instanceJS.indexOf('{') + 1, instanceJS.lastIndexOf('}'))),
+                value: value,
                 view: this
             });
         });

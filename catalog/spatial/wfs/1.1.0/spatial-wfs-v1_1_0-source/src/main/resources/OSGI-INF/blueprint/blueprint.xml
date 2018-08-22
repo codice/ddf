@@ -33,6 +33,8 @@
 
     <reference id="featureTransformationService" interface="org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService"/>
 
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v110_Federated_Source"
@@ -42,6 +44,7 @@
             <argument ref="encryptionService"/>
             <argument ref="metacardTypeRegistry"/>
             <argument ref="featureTransformationService"/>
+            <argument ref="clientFactoryFactory"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value=""/>

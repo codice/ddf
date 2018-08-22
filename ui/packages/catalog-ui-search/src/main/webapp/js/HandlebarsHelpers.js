@@ -323,4 +323,6 @@ define([
             Handlebars.registerHelper(helper, helpers[helper]);
         }
     }
+
+    return helpers;
 });

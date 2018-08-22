@@ -83,7 +83,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.opensearch.OpenSearch;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -125,6 +126,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
   protected final EncryptionService encryptionService;
+
+  private final ClientFactoryFactory clientFactoryFactory;
 
   @Nullable private SecureCxfClientFactory<OpenSearch> factory;
 
@@ -179,13 +182,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       FilterAdapter filterAdapter,
       OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
-      EncryptionService encryptionService) {
+      EncryptionService encryptionService,
+      ClientFactoryFactory clientFactoryFactory) {
     this(
         filterAdapter,
         openSearchParser,
         openSearchFilterVisitor,
         encryptionService,
-        (elements, sourceResponse) -> {});
+        (elements, sourceResponse) -> {},
+        clientFactoryFactory);
   }
 
   /**
@@ -197,12 +202,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
       EncryptionService encryptionService,
-      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
+      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer,
+      ClientFactoryFactory clientFactoryFactory) {
     this.filterAdapter = filterAdapter;
     this.encryptionService = encryptionService;
     this.openSearchParser = openSearchParser;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
     this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
+    this.clientFactoryFactory = clientFactoryFactory;
   }
 
   /**
@@ -224,7 +231,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
       String url, String username, String password) {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-      return new SecureCxfClientFactory<>(
+      return clientFactoryFactory.getSecureCxfClientFactory(
           url,
           OpenSearch.class,
           null,
@@ -236,7 +243,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           username,
           password);
     } else {
-      return new SecureCxfClientFactory<>(
+      return clientFactoryFactory.getSecureCxfClientFactory(
           url,
           OpenSearch.class,
           null,

@@ -66,10 +66,6 @@ const base = ({ alias = {}, env }) => ({
       title: 'My App',
       filename: 'index.html',
       template: resolve('src/main/webapp/index.html')
-    }),
-    new webpack.ProvidePlugin({
-      ReactDOM: 'react-dom',
-      React: 'react'
     })
   ],
   externals: {

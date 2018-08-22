@@ -18,7 +18,7 @@ import ddf.security.encryption.EncryptionService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswStore;
 import org.osgi.framework.BundleContext;
@@ -33,13 +33,14 @@ public class TransactionalCswStoreImpl extends AbstractCswStore {
       BundleContext context,
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
-      SecureCxfClientFactory factory,
+      ClientFactoryFactory factory,
       EncryptionService encryptionService) {
     super(context, cswSourceConfiguration, provider, factory, encryptionService);
   }
 
-  public TransactionalCswStoreImpl(EncryptionService encryptionService) {
-    super(encryptionService);
+  public TransactionalCswStoreImpl(
+      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+    super(encryptionService, clientFactoryFactory);
   }
 
   @Override

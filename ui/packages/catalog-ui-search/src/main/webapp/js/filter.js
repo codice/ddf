@@ -29,6 +29,23 @@ const getDurationFromRelativeValue = (value) => {
     return value.substring(9, value.length - 1);
 }
 
+const polygonStringToCoordinates = (polygonString) => {
+    try {
+        return polygonString
+            .substring('POLYGON(('.length, polygonString.length - '))'.length)
+            .split(',')
+            .map(stringPair => {
+                const pair = stringPair.split(' ');
+                return [Number(pair[0]), Number(pair[1])];
+            });
+    } catch(error) {
+        console.error(error);
+        return [];
+    }    
+}
+
+const createBufferedPolygon = (coordinates, distance) => Turf.buffer(Turf.lineString(coordinates), Math.max(distance, 1), 'meters');
+
 function checkTokenWithWildcard(token, filter) {
     var filterRegex = new RegExp(filter.split('*').join('.*'));
     return filterRegex.test(token);
@@ -164,6 +181,15 @@ function matchesPOLYGON(value, filter) {
         return true;
     }
     return false;
+}
+
+const matchesBufferedPOLYGON = (value, filter) => {
+    const bufferedPolygon = createBufferedPolygon(polygonStringToCoordinates(filter.value.value), filter.distance);
+    const teraformedPolygon = new Terraformer.Polygon({
+        type: 'Polygon',
+        coordinates: bufferedPolygon.geometry.coordinates
+    });
+    return intersects(teraformedPolygon, value);
 }
 
 function matchesCIRCLE(value, filter) {
@@ -330,6 +356,10 @@ function matchesFilter(metacard, filter) {
                 case 'DWITHIN':
                     if (CQLUtils.isPointRadiusFilter(filter)) {
                         if (matchesCIRCLE(valuesToCheck[i], filter)) {
+                            return true;
+                        }
+                    } else if (CQLUtils.isPolygonFilter(filter)) {
+                        if (matchesBufferedPOLYGON(valuesToCheck[i], filter)) {
                             return true;
                         }
                     } else if (matchesLINESTRING(valuesToCheck[i], filter)) {

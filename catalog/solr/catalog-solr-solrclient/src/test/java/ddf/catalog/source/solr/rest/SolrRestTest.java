@@ -15,9 +15,11 @@ package ddf.catalog.source.solr.rest;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +29,7 @@ public class SolrRestTest {
 
   @Before
   public void setUp() {
-    solrRest = new SolrRest();
+    solrRest = new SolrRest(mock(ClientFactoryFactory.class));
   }
 
   @Test

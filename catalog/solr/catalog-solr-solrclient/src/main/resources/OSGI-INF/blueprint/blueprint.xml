@@ -24,10 +24,13 @@
 
     <ext:property-placeholder/>
 
+    <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
     <bean class="ddf.catalog.source.solr.rest.SolrRest" id="solrRestClient" init-method="init">
         <cm:managed-properties persistent-id="ddf.catalog.source.solr.rest.SolrRest"
                                update-strategy="component-managed"
                                update-method="refresh"/>
+        <argument ref="clientFactoryFactory"/>
         <property name="k1" value="1.25"/>
         <property name="b" value="0.75" />
         <property name="solrBaseUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
