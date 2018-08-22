@@ -28,15 +28,17 @@ public class HtmlCategoryModel implements HtmlExportCategory {
 
   private List<String> attributes;
 
-  private Map<String, HtmlValueModel> attributeMappings = new TreeMap<>();
+  private Map<String, HtmlValueModel> attributeMappings;
 
   public HtmlCategoryModel() {
     this("", new ArrayList<>());
+    this.attributeMappings = new TreeMap<>();
   }
 
   public HtmlCategoryModel(String title, List<String> attributes) {
     this.title = title;
     this.attributes = attributes;
+    this.attributeMappings = new TreeMap<>();
   }
 
   public void init() {
@@ -72,6 +74,8 @@ public class HtmlCategoryModel implements HtmlExportCategory {
   }
 
   public void applyAttributeMappings(Metacard metacard) {
+    this.attributeMappings = new TreeMap<>();
+
     for (String attrKey : attributes) {
       String readableKey = getHumanReadableAttribute(attrKey);
       Attribute attr = metacard.getAttribute(attrKey);

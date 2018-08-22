@@ -16,6 +16,7 @@ package ddf.catalog.transformer.html.models;
 import ddf.catalog.data.Metacard;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HtmlMetacardModel {
 
@@ -34,7 +35,12 @@ public class HtmlMetacardModel {
   public HtmlMetacardModel(Metacard metacard, List<HtmlExportCategory> categories) {
     this.metacard = metacard;
     this.title = metacard.getTitle();
-    this.categories = new ArrayList<>(categories);
+
+    this.categories =
+        categories
+            .stream()
+            .map(category -> new HtmlCategoryModel(category.getTitle(), category.getAttributes()))
+            .collect(Collectors.toList());
 
     this.applyAttributeMappingsToMetacard();
   }
