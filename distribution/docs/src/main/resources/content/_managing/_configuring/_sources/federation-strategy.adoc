@@ -22,7 +22,7 @@ The Catalog Federation Strategy configuration can be found in the ${admin-consol
 . Select *Configuration*
 . Select *Catalog Federation Strategy*.
 
-See <<{application-prefix}ddf.catalog.federation.impl.CachingFederationStrategy,Federation Strategy configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.federation.impl.CachingFederationStrategy,Federation Strategy configurations>> for all possible configurations.
 
 ==== Catalog Federation Strategy [[_catalogFederationStrategy]]
 

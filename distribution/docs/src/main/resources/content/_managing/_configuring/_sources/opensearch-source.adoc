@@ -34,7 +34,7 @@ Configure an existing OpenSearch Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Select the name of the source to edit.
 
-See <<{application-prefix}OpenSearchSource,OpenSearch Source configurations>> for all possible configurations.
+See <<{reference-prefix}OpenSearchSource,OpenSearch Source configurations>> for all possible configurations.
 
 .Using OpenSearch Source
 Use the OpenSearch source if querying a CDR-compliant search service is desired.
@@ -89,11 +89,11 @@ If multiple point radius searches are encountered, each point radius is converte
 |bbox
 |Pulled from the query if it is a bounding-box query. +
  +
-Or else, calculated from the query if it is a single geometry or polygon query and the <<{application-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
+Or else, calculated from the query if it is a single geometry or polygon query and the <<{reference-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
 NOTE: Converting a polygon that crosses the antimeridian to a bounding box will produce an incorrect bounding box. +
 //TODO DDF-3742
  +
-Or else, calculated from the query if it is a geometry collection and the <<{application-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
+Or else, calculated from the query if it is a geometry collection and the <<{reference-prefix}shouldConvertToBBox,`shouldConvertToBBox`>> configuration option is `true`.
 Note: An approximate bounding box is used to represent the geometry collection encompassing all of the geometries within it +
 Area between the geometries are also included in the bounding box. Hence widen the search area.
 

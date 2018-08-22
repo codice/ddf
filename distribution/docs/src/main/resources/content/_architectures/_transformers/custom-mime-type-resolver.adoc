@@ -46,6 +46,6 @@ The configurable properties for the Custom Mime Type Resolver are accessed from 
 
 * `Ddf_Custom_Mime_Type_Resolver`
 
-See <<{application-prefix}DDF_Custom_Mime_Type_Resolver,Custom Mime Type Resolver configurations>> for all possible configurations.
+See <<{reference-prefix}DDF_Custom_Mime_Type_Resolver,Custom Mime Type Resolver configurations>> for all possible configurations.
 
 '''

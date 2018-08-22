@@ -31,7 +31,7 @@ Configure an Existing CSW Specification Profile Federated Source through the ${a
 . Select the *Sources* tab.
 . Select the name of the source to edit.
 
-See <<{application-prefix}Csw_Federated_Source,CSW Specification Profile Federated Source configurations>> for all possible configurations.
+See <<{reference-prefix}Csw_Federated_Source,CSW Specification Profile Federated Source configurations>> for all possible configurations.
 
 .Usage Limitations of the CSW Specification Profile Federated Source
 * Nearest neighbor spatial searches are not supported.

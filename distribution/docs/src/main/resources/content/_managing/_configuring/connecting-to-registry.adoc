@@ -8,7 +8,7 @@
 == {title}
 
 Another approach to configuring federation is to use the *${ddf-registry}* application to locate sources in a network/enterprise.
-See <<{application-prefix}installing_registry,${ddf-registry} Application Reference>> for details on installing the ${ddf-registry} application.
+See <<{reference-prefix}installing_registry,${ddf-registry} Application Reference>> for details on installing the ${ddf-registry} application.
 Use the registry to subscribe to and federate with other instances of ${branding}.
 
 [NOTE]

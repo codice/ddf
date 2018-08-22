@@ -7,7 +7,7 @@
 
 == {title }
 
-All caching properties are part of the <<{application-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
+All caching properties are part of the <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
 
 === Invalidating the Product Cache
 

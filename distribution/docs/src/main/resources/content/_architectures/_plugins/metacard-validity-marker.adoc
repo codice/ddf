@@ -26,7 +26,7 @@ This plugin is installed by default with a standard installation in the ${ddf-ca
 
 ===== Configuring Metacard Validity Marker
 
-See <<{application-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
 
 ===== Using Metacard Validity Marker
 

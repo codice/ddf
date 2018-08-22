@@ -10,7 +10,7 @@ The Identification Plugin assigns IDs to registry metacards and adds/updates IDs
 ===== Installing the Identification Plugin
 
 The Identification Plugin is not installed by default in a standard installation.
-It is installed by default with the <<{application-prefix}installing_registry, ${ddf-registry}>> application.
+It is installed by default with the <<{reference-prefix}installing_registry, ${ddf-registry}>> application.
 
 ===== Configuring the Identification Plugin
 

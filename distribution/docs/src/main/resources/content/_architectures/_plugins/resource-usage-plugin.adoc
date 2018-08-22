@@ -21,4 +21,4 @@ The Resource Usage Plugin can be configured from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select *Data Usage*.
 
-See <<{application-prefix}org.codice.ddf.resourcemanagement.usage,Resource Usage Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.resourcemanagement.usage,Resource Usage Plugin configurations>> for all possible configurations.

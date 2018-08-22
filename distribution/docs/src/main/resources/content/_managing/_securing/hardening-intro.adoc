@@ -13,7 +13,7 @@ To harden ${branding}, extra security precautions are required.
 
 Where available, necessary migitations to harden an installation of ${branding} are called out in the following configuration steps.
 
-Refer to the <<{application-prefix}hardening_checklist,Hardening Checklist>> for a compilation of these mitigations.
+Refer to the <<{reference-prefix}hardening_checklist,Hardening Checklist>> for a compilation of these mitigations.
 ****
 
 [NOTE]

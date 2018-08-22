@@ -26,4 +26,4 @@ To configure the Expiration Date Pre-Ingest Plugin:
 . Select the *Configuration* tab.
 . Select the *Expiration Date Pre-Ingest Plugin*.
 
-See <<{application-prefix}org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin,Expiration Date Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin,Expiration Date Plugin configurations>> for all possible configurations.

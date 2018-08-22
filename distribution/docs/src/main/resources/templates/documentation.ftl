@@ -1,6 +1,5 @@
 = ${branding-expanded} Documentation: Complete Documentation
 include::${project.build.directory}/doc-contents/content/config.adoc[]
-:application-prefix: _
 :architecture-prefix: _
 :developing-prefix: _
 :integrating-prefix: _
@@ -8,6 +7,7 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 :managing-prefix: _
 :metadata-prefix: _
 :quickstart-prefix: _
+:reference-prefix: _
 :using-prefix: _
 :reference: appendix
 

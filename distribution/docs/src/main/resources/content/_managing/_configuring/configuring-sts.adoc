@@ -49,7 +49,7 @@ Configure the client connecting to the STS.
 . Open the *Security STS Client* configuration.
 . Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
 
-See <<{application-prefix}ddf.security.sts.client.configuration,Security STS Client>> table for all configuration options.
+See <<{reference-prefix}ddf.security.sts.client.configuration,Security STS Client>> table for all configuration options.
 
 The ${branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
 
@@ -61,7 +61,7 @@ Connect to the server hosting the STS.
 . Select the *Security STS Server* configuration.
 . Verify the hostname and usernames are correct.
 
-See <<{application-prefix}ddf.security.sts,Security STS Server>> table for all configuration options.
+See <<{reference-prefix}ddf.security.sts,Security STS Server>> table for all configuration options.
 
 .SAML Name ID
 Set up alternatives to displaying the username of the logged in user.

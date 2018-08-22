@@ -26,7 +26,7 @@ To configure the Catalog Backup Plugin:
 . Select *Configuration* tab.
 . Select *Backup Post-Ingest Plugin*.
 
-See <<{application-prefix}ddf.catalog.backup.CatalogBackupPlugin,Catalog Backup Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.backup.CatalogBackupPlugin,Catalog Backup Plugin configurations>> for all possible configurations.
 
 ===== Usage Limitations of the Catalog Backup Plugin
 

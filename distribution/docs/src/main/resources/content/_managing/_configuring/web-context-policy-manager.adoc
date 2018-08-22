@@ -14,7 +14,7 @@ It defines:
 * the type of authentication that a context requires.
 * any user attributes required for authorization.
 
-See <<{application-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
+See <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
 === Context Realms
 
