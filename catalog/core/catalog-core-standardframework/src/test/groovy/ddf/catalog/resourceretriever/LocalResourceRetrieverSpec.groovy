@@ -35,7 +35,7 @@ class LocalResourceRetrieverSpec extends Specification {
 
         Attribute derivedResourceUriAttr = Mock(Attribute)
         derivedResourceUriAttr.getValues() >> [derivedUri.toASCIIString()]
-        resourceMetacard.getAttribute(Core.RESOURCE_URI) >> derivedResourceUriAttr
+        resourceMetacard.getAttribute(Core.DERIVED_RESOURCE_URI) >> derivedResourceUriAttr
 
         def mainUri = new URI("doesnt:matter")
         localResourceReader = new LocalResourceRetriever([resourceReader], mainUri, resourceMetacard, props)
