@@ -521,7 +521,7 @@ define([
                 dmsWestDirection: (dmsWest && dmsWest.direction) || Direction.East,
                 dmsEast: (dmsEast && dmsEast.coordinate) || '',
                 dmsEastDirection: (dmsEast && dmsEast.direction) || Direction.East
-            });
+            }, {silent: true});
         },
 
         setRadiusDmsFromMap: function() {
@@ -532,7 +532,7 @@ define([
                 dmsLatDirection: (dmsLat && dmsLat.direction) || Direction.North,
                 dmsLon: (dmsLon && dmsLon.coordinate) || '',
                 dmsLonDirection: (dmsLon && dmsLon.direction) || Direction.East,
-            });
+            }, {silent: true});
         },
 
         setLatLonFromDms: function (dmsCoordinateKey, dmsDirectionKey, latLonKey) {
