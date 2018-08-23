@@ -300,8 +300,6 @@ public class CatalogApplication implements SparkApplication {
         res.raw().setContentLength(bytesCopied);
         res.raw()
             .flushBuffer(); // Flashing buffer so Spark won't set the body based on the return value
-
-        res.raw().getOutputStream().close();
       }
       // Add the Accept-ranges header to let the client know that we accept ranges in bytes
       res.header(HEADER_ACCEPT_RANGES, BYTES);
