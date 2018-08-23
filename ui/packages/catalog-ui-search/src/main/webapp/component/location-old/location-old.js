@@ -321,7 +321,7 @@ define([
             var lat = this.get('lat'),
                 lon = this.get('lon');
 
-            if (((store.get('content').get('drawing') || this.get('locationType') === 'latlon'))
+            if ((store.get('content').get('drawing') || this.get('locationType') === 'latlon')
                   && lat !== undefined && lon !== undefined) {
                 try {
                     var usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision);
