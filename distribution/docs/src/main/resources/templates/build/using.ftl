@@ -16,7 +16,7 @@ None.
 
 <#assign count=0>
 <#list usings?sort_by("order") as userInterface>
-<#if (userInterface.status == "published")>
+<#if (userInterface.status == "published" && userInterface.summary != "")>
 <#assign count++>
 
 == ${userInterface.title}
