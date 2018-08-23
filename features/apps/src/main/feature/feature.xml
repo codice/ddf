@@ -68,7 +68,8 @@
         <feature>metrics-services</feature>
         <feature>security-logger</feature>
         <feature>persistence-core</feature>
-        <feature>error</feature>
+        <feature>error-api</feature>
+        <feature>error-impl</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
