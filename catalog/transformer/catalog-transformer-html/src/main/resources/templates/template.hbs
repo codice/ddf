@@ -1,0 +1,248 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<html>
+  <head>
+    <style>
+      /* Overall Settings */
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      html {
+        font-family: 'helvetica', 'arial', 'sans-serif';
+        font-size: 62.5%;
+      }
+
+      h1 {
+        padding: 0;
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: #FFFFFF;
+      }
+
+      h3 {
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+      }
+
+      /* Navigation */
+
+      .control-panel-wrap {
+        padding: 10px 0;
+        background: #f1f1f1;
+        border-bottom: solid 1px #e1e1e1;
+        margin-bottom: 40px;
+      }
+
+      .control-panel {
+        display: table;
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        font-size: 1.6rem;
+      }
+
+      .hide-empty-fields {
+        width: 50%;
+        display: table-cell;
+      }
+
+      .hide-empty-fields input {
+        margin-right: 7px;
+      }
+
+      .metacard-main-controls {
+        width: 50%;
+        display: table-cell;
+        cursor: pointer;
+        text-align: right;
+      }
+
+
+
+      /* Metacards */
+
+      .metacard {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 1000px;
+        font-size: 1.6rem;
+      }
+
+      .metacard-controls {
+        text-align: right;
+        color: #5DB090;
+      }
+
+      .metacard-controls .expand-card,
+      .metacard-controls .collapse-card {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .metacard-controls .expand-card:hover,
+      .metacard-controls .collapse-card:hover {
+        color: #333333;
+      }
+
+      .metacard-title {
+        padding: 20px 10px;
+        background: #3d4e5f;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+
+      .metacard-panel {
+        border: solid 1px #e1e1e1;
+        margin-top: 10px;
+        margin-bottom: 80px;
+        background: #f8f8f8;
+      }
+
+      .metacard-categories {
+
+      }
+
+      .metacard-category {
+        padding: 20px;
+        color: #5DB090;
+      }
+
+      .category-control,
+      .category-control:focus,
+      .category-control:active {
+        border: 0px;
+        margin-top: 3px;
+        outline: none;
+      }
+
+      i {
+        display: inline-block;
+        border: solid #5DB090;
+        border-width: 0 3px 3px 0;
+        padding: 3px;
+        margin: 0px 7px;
+      }
+
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+      }
+
+      .down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+      }
+
+      .category-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .category-table td, th {
+        border: 1px solid #e1e1e1;
+        padding: 10px;
+      }
+
+      .category-table tr:nth-child(even) {
+        background-color: #eff2f6;
+      }
+
+      .category-table tr:nth-child(odd) {
+        background-color: #FFFFFF;
+      }
+
+      .category-table tr:hover {
+        background-color: #dae1e9;
+      }
+
+      .category-table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background: #7B8B9D;
+        color: #FFFFFF;
+        font-weight:  400;
+      }
+
+      .attribute-name {
+        width: 40% !important;
+      }
+    </style>
+  </head>
+  <body>
+
+  <div class="control-panel-wrap">
+    <div class="control-panel">
+      <div class="hide-empty-fields">
+        <input id="empty-fields-checkbox" type="checkbox" onchange="toggleEmptyFields()">Hide empty fields
+      </div>
+
+      <div class="metacard-main-controls">
+        <span class="expand-card" onclick="expandAll()">Expand All</span>
+        <span> | </span>
+        <span class="collapse-card" onclick="collapseAll()">Collapse All</span>
+      </div>
+    </div>
+  </div>
+
+    {{#each this}}
+      {{> metacard}}
+    {{/each}}
+
+    <script>
+      function expandCard(metacard) {
+        var categories = metacard.getElementsByClassName("metacard-categories")[0];
+        categories.style.display = "block";
+      }
+      function collapseCard(metacard) {
+        var categories = metacard.getElementsByClassName("metacard-categories")[0];
+        categories.style.display = "none";
+      }
+      function expandAll() {
+        var metacards = document.getElementsByClassName("metacard");
+        for (let metacard of metacards) {
+          expandCard(metacard);
+        }
+      }
+      function collapseAll() {
+        var metacards = document.getElementsByClassName("metacard");
+        for (let metacard of metacards) {
+          collapseCard(metacard);
+        }
+      }
+      function toggleEmptyFields() {
+        let hideFields = document.querySelector('#empty-fields-checkbox').checked;
+        let emptyAttributes = document.getElementsByClassName("empty-attribute");
+
+        for (let attribute of emptyAttributes) {
+          if (hideFields) {
+            attribute.parentElement.style.display = "none";
+          } else {
+            attribute.parentElement.style.display = "";
+          }
+        }
+      }
+      function toggleCategory(category) {
+        let table = category.getElementsByClassName("category-table")[0];
+        table.style.display = table.style.display === "" ? "none" : "";
+        let button = category.getElementsByClassName("category-control")[0];
+        let icon = button.getElementsByTagName("i")[0];
+        icon.className = icon.className === "down" ? "up" : "down";
+      }
+    </script>
+  </body>
+</html>
