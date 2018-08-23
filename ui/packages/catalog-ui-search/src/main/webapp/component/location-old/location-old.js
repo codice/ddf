@@ -16,8 +16,8 @@ define([
     'usng.js/usng',
     'js/store',
     'js/Common',
-    'require'
-], function (_, Backbone, usngs, store, Common, require) {
+    'component/location-new/utils/dms-utils'
+], function (_, Backbone, usngs, store, Common, dmsUtils) {
 
     var converter = new usngs.Converter();
     var minimumDifference = 0.0001;
@@ -26,13 +26,6 @@ define([
     // offset used by utm for southern hemisphere
     var northingOffset = 10000000;
     var usngPrecision = 6;
-    const {
-        dmsCoordinateToDD,
-        parseDmsCoordinate,
-        ddToDmsCoordinateLat,
-        ddToDmsCoordinateLon,
-        getSecondsPrecision
-     } = require('component/location-new/utils/dms-utils');
 
     function convertToValid(key, model){
         if (key.mapSouth !== undefined && 
@@ -512,10 +505,10 @@ define([
         },
 
         setBboxDmsFromMap: function() {
-            const dmsNorth = ddToDmsCoordinateLat(this.get('mapNorth'), getSecondsPrecision(this.get('dmsNorth')));
-            const dmsSouth = ddToDmsCoordinateLat(this.get('mapSouth'), getSecondsPrecision(this.get('dmsSouth')));
-            const dmsWest = ddToDmsCoordinateLon(this.get('mapWest'), getSecondsPrecision(this.get('dmsWest')));
-            const dmsEast = ddToDmsCoordinateLon(this.get('mapEast'), getSecondsPrecision(this.get('dmsEast')));
+            const dmsNorth = dmsUtils.ddToDmsCoordinateLat(this.get('mapNorth'), dmsUtils.getSecondsPrecision(this.get('dmsNorth')));
+            const dmsSouth = dmsUtils.ddToDmsCoordinateLat(this.get('mapSouth'), dmsUtils.getSecondsPrecision(this.get('dmsSouth')));
+            const dmsWest = dmsUtils.ddToDmsCoordinateLon(this.get('mapWest'), dmsUtils.getSecondsPrecision(this.get('dmsWest')));
+            const dmsEast = dmsUtils.ddToDmsCoordinateLon(this.get('mapEast'), dmsUtils.getSecondsPrecision(this.get('dmsEast')));
             this.set({
                 dmsNorth: (dmsNorth && dmsNorth.coordinate) || '',
                 dmsNorthDirection: (dmsNorth && dmsNorth.direction) || 'N',
@@ -529,8 +522,8 @@ define([
         },
 
         setRadiusDmsFromMap: function() {
-            const dmsLat = ddToDmsCoordinateLat(this.get('lat'), getSecondsPrecision(this.get('dmsLat')));
-            const dmsLon = ddToDmsCoordinateLon(this.get('lon'), getSecondsPrecision(this.get('dmsLon')));
+            const dmsLat = dmsUtils.ddToDmsCoordinateLat(this.get('lat'), dmsUtils.getSecondsPrecision(this.get('dmsLat')));
+            const dmsLon = dmsUtils.ddToDmsCoordinateLon(this.get('lon'), dmsUtils.getSecondsPrecision(this.get('dmsLon')));
             this.set({
                 dmsLat: (dmsLat && dmsLat.coordinate) || '',
                 dmsLatDirection: (dmsLat && dmsLat.direction) || 'N',
@@ -550,9 +543,9 @@ define([
 
             coordinate.direction = this.get(dmsDirectionKey);
 
-            const dmsCoordinate = parseDmsCoordinate(coordinate);
+            const dmsCoordinate = dmsUtils.parseDmsCoordinate(coordinate);
             if (dmsCoordinate) {
-                this.set(latLonKey, dmsCoordinateToDD(dmsCoordinate));
+                this.set(latLonKey, dmsUtils.dmsCoordinateToDD(dmsCoordinate));
             } else {
                 this.set(latLonKey, undefined);
             }
