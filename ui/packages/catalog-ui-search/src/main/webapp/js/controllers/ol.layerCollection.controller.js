@@ -94,7 +94,7 @@ const AGM = (opts) => {
    //  - https://developers.arcgis.com/rest/services-reference/map-tile.htm
    const tileUrlFunction = (tileCoord) => {
         const [z, x, y] = tileCoord;
-        return `${url}tile/${z - 1}/${-y - 1}/${x}`;
+        return `${url}/tile/${z - 1}/${-y - 1}/${x}`;
     }
 
     return createTile({ ...opts, tileUrlFunction }, ol.source.XYZ);
