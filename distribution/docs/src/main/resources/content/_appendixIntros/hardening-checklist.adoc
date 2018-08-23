@@ -1,13 +1,14 @@
 :title: Hardening Checklist
-:type: subSecuring
+:type: referenceIntro
 :status: published
 :summary: Checklist of hardening steps.
 :parent: Security Hardening
-:order: 00
+:order: 03
 
 == {title}
 
-The following list enumerates the required mitigations needed for hardening:
+The following list enumerates the required mitigations needed for hardening. It is not intended to be a step-by-step procedure.
+To harden a new system, perform configuration as <<{managing-prefix}configuring,documented>>.
 
 * [ ] <<{managing-prefix}auditing,Configure Auditing>>
 * [ ] <<{managing-prefix}setting_directory_permissions, Set Directory Permissions>>

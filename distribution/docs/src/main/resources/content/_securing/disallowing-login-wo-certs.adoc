@@ -1,5 +1,5 @@
 :title: Disallowing Login Without Certificates
-:type: configuration
+:type: subSecuring
 :status: published
 :parent: Managing Keystores and Certificates
 :summary: Requiring certificate to log in.

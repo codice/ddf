@@ -26,7 +26,7 @@ System administrators MUST perform the following steps prior to deploying bundle
 [IMPORTANT]
 ====
 The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the `${branding}_USER` should have read-only access to `${home_directory}`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
+For example the `${branding}USER` should have read-only access to `${home_directory}`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
 ====
 
 .Setting Directory Permissions on Windows
@@ -59,7 +59,7 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 * Create instances sub-directory if does not exist
 ** `mkdir -p ${home_directory}/instances`
 * Change group ownership on sub-directories
-** `chgrp -R ${branding}_GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
+** `chgrp -R ${branding}GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
 * Change group permissions
 ** `chmod -R g-w ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
 * Remove permissions for other users
