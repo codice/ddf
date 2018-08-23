@@ -143,19 +143,16 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
         new AttributeImpl(
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
     Integer gazetteerSortValue = getGeoNameGazetterSortByFeatureClass(geoEntry);
-    boolean addedGazetteerSortValue = false;
     if (gazetteerSortValue != null) {
       metacard.setAttribute(
           new AttributeImpl(
               GeoEntryAttributes.GAZETTEER_SORT_VALUE, gazetteerSortValue.intValue()));
-      addedGazetteerSortValue = true;
-    }
-    metacard.setAttribute(
-        new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
-    if (!addedGazetteerSortValue) {
+    } else {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.GAZETTEER_SORT_VALUE, geoEntry.getPopulation()));
     }
+    metacard.setAttribute(
+        new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
     if (StringUtils.isNotBlank(geoEntry.getImportLocation())) {
       metacard.setAttribute(
           new AttributeImpl(GeoEntryAttributes.IMPORT_LOCATION, geoEntry.getImportLocation()));
@@ -375,59 +372,64 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private Integer getGeoNameGazetterSortByFeatureClass(GeoEntry geoEntry) {
     Integer gazetteerSortValue = null;
-    switch (geoEntry.getFeatureClass()) {
-      case GeoCodingConstants.ADMIN_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ADMIN_FEATURE_CLASS);
-        break;
-      case GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS:
-        if (geoEntry.getFeatureCode().equals(GeoCodingConstants.OCEAN_FEATURE_CODE)
-            || geoEntry.getFeatureCode().equals(GeoCodingConstants.SEA_FEATURE_CODE)) {
-          gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
-        } else {
+    if (geoEntry.getFeatureClass() == null) {
+      return gazetteerSortValue;
+    } else {
+      switch (geoEntry.getFeatureClass()) {
+        case GeoCodingConstants.ADMIN_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ADMIN_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS:
+          if (geoEntry.getFeatureCode().equals(GeoCodingConstants.OCEAN_FEATURE_CODE)
+              || geoEntry.getFeatureCode().equals(GeoCodingConstants.SEA_FEATURE_CODE)) {
+            gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+          } else {
+            gazetteerSortValue =
+                GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                    GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS);
+          }
+          break;
+        case GeoCodingConstants.AREA_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.AREA_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.POPULATED_FEATURE_CLASS:
+          break;
+        case GeoCodingConstants.ROAD_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ROAD_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.SPOT_FEATURE_CLASS:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.SPOT_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.MOUNTAIN_FEATURE_CLASS:
+          if (geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_FEATURE_CODE)
+              || geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_RANGE_FEATURE_CODE)) {
+            gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
+          } else {
+            gazetteerSortValue =
+                GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                    GeoCodingConstants.MOUNTAIN_FEATURE_CLASS);
+          }
+          break;
+        case GeoCodingConstants.UNDERSEA_FEATURE_CLASS:
           gazetteerSortValue =
               GeoCodingConstants.FEATURE_CLASS_VALUES.get(
-                  GeoCodingConstants.HYDROGRAPHIC_FEATURE_CLASS);
-        }
-        break;
-      case GeoCodingConstants.AREA_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.AREA_FEATURE_CLASS);
-        break;
-      case GeoCodingConstants.POPULATED_FEATURE_CLASS:
-        break;
-      case GeoCodingConstants.ROAD_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.ROAD_FEATURE_CLASS);
-        break;
-      case GeoCodingConstants.SPOT_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.SPOT_FEATURE_CLASS);
-        break;
-      case GeoCodingConstants.MOUNTAIN_FEATURE_CLASS:
-        if (geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_FEATURE_CODE)
-            || geoEntry.getFeatureCode().equals(GeoCodingConstants.MOUNTAIN_RANGE_FEATURE_CODE)) {
-          gazetteerSortValue = GeoCodingConstants.SPECIAL_GAZETTEER_SORT_VALUE;
-        } else {
+                  GeoCodingConstants.UNDERSEA_FEATURE_CLASS);
+          break;
+        case GeoCodingConstants.VEGETATION_FEATURE_CLASS:
           gazetteerSortValue =
               GeoCodingConstants.FEATURE_CLASS_VALUES.get(
-                  GeoCodingConstants.MOUNTAIN_FEATURE_CLASS);
-        }
-        break;
-      case GeoCodingConstants.UNDERSEA_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(GeoCodingConstants.UNDERSEA_FEATURE_CLASS);
-        break;
-      case GeoCodingConstants.VEGETATION_FEATURE_CLASS:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(
-                GeoCodingConstants.VEGETATION_FEATURE_CLASS);
-        break;
-      default:
-        gazetteerSortValue =
-            GeoCodingConstants.FEATURE_CLASS_VALUES.get(
-                GeoCodingConstants.VEGETATION_FEATURE_CLASS);
-        break;
+                  GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+          break;
+        default:
+          gazetteerSortValue =
+              GeoCodingConstants.FEATURE_CLASS_VALUES.get(
+                  GeoCodingConstants.VEGETATION_FEATURE_CLASS);
+          break;
+      }
     }
     return gazetteerSortValue;
   }
