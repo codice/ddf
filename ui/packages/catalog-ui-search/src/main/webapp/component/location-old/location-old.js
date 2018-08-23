@@ -342,6 +342,8 @@ define([
                 } catch(err){
 
                 }
+
+                this.setRadiusDmsFromMap();
             }
         },
 
