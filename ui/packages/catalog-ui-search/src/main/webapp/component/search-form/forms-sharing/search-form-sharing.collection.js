@@ -12,109 +12,112 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- const _ = require('underscore');
- const $ = require('jquery');
- const Backbone = require('backbone');
- const SearchForm = require('../search-form');
- const Common = require('js/Common');
- const user = require('component/singletons/user-instance');
+/* global require */
+const _ = require('underscore')
+const $ = require('jquery')
+const Backbone = require('backbone')
+const SearchForm = require('../search-form')
+const Common = require('js/Common')
+const user = require('component/singletons/user-instance')
 
- let sharedTemplates = [];
- let promiseIsResolved = false;
- const sharedSearchFormPromise = () => $.ajax({
-    type: 'GET',
-    context: this,
-    url: './internal/forms/query',
-    contentType: 'application/json',
-    success: function (data) {
-        sharedTemplates = data;
-        promiseIsResolved = true;
-    }
-});
+let sharedTemplates = []
+let promiseIsResolved = false
+const sharedSearchFormPromise = () => $.ajax({
+  type: 'GET',
+  context: this,
+  url: './internal/forms/query',
+  contentType: 'application/json',
+  success: function (data) {
+    sharedTemplates = data
+    promiseIsResolved = true
+  }
+})
 
-let bootstrapPromise = sharedSearchFormPromise();
+let bootstrapPromise = sharedSearchFormPromise()
 
- module.exports = Backbone.AssociatedModel.extend({
-   model: SearchForm,
-   defaults: {
-        doneLoading: false,
-        sharedSearchForms: []
-   },
-   initialize: function() {
-       this.addMySharedForms();
-   },
-    relations: [{
-        type: Backbone.Many,
-        key: 'sharedSearchForms',
-        collectionType: Backbone.Collection.extend({
-            model: SearchForm,
-            initialize: function() {}
+module.exports = Backbone.AssociatedModel.extend({
+  model: SearchForm,
+  defaults: {
+    doneLoading: false,
+    sharedSearchForms: []
+  },
+  initialize: function () {
+    this.addMySharedForms()
+  },
+  relations: [{
+    type: Backbone.Many,
+    key: 'sharedSearchForms',
+    collectionType: Backbone.Collection.extend({
+      model: SearchForm,
+      initialize: function () {}
+    })
+  }],
+  addMySharedForms: function () {
+    if (!this.isDestroyed) {
+      if (promiseIsResolved === true) {
+        promiseIsResolved = false
+        bootstrapPromise = new sharedSearchFormPromise()
+      }
+      bootstrapPromise.then(() => {
+        $.each(sharedTemplates, (index, value) => {
+          if (this.checkIfShareable(value)) {
+            let utcSeconds = value.created / 1000
+            let d = new Date(0)
+            d.setUTCSeconds(utcSeconds)
+            this.addSearchForm(new SearchForm({
+              createdOn: Common.getHumanReadableDate(d),
+              id: value.id,
+              name: value.title,
+              description: value.description,
+              type: 'custom',
+              filterTemplate: JSON.stringify(value.filterTemplate),
+              accessIndividuals: value.accessIndividuals,
+              accessGroups: value.accessGroups,
+              createdBy: value.creator,
+              owner: value.owner,
+              querySettings: value.querySettings
+            }))
+          }
         })
-    }],
-   addMySharedForms: function() {
-    if (!this.isDestroyed){
-        if (promiseIsResolved === true) {
-            promiseIsResolved = false;
-            bootstrapPromise = new sharedSearchFormPromise();
-        }
-        bootstrapPromise.then(() => {
-            $.each(sharedTemplates, (index, value) => {
-                if (this.checkIfShareable(value)) {
-                    let utcSeconds = value.created / 1000;
-                    let d = new Date(0);
-                    d.setUTCSeconds(utcSeconds);
-                    this.addSearchForm(new SearchForm({
-                        createdOn: Common.getHumanReadableDate(d),
-                        id: value.id,
-                        name: value.title,
-                        description: value.description,
-                        type: 'custom',
-                        filterTemplate: JSON.stringify(value.filterTemplate),
-                        accessIndividuals: value.accessIndividuals,
-                        accessGroups: value.accessGroups,
-                        createdBy: value.creator,
-                        owner: value.owner,
-                        querySettings: value.querySettings
-                    }));
-                }
-            });
-            this.doneLoading();
-        })
+        this.doneLoading()
+      })
     };
-   },
-   checkIfShareable: function(template) {
-       if (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) {
-           return true;
-       }
-       return false;
-   },
-   checkIfInGroup: function(template) {
-       let myGroups = user.get('user').get('roles');
-       let roleIntersection = myGroups.filter(function(n) {
-        return template.accessGroups.indexOf(n) !== -1;
-       });
+  },
+  checkIfShareable: function (template) {
+    if ((this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) && !this.checkIfOwner(template)) {
+      return true
+    }
+    return false
+  },
+  checkIfOwner: function (template) {
+    return user.get('user').get('userid') === template.owner
+  },
+  checkIfInGroup: function (template) {
+    let myGroups = user.get('user').get('roles')
+    let roleIntersection = myGroups.filter(function (n) {
+      return template.accessGroups.indexOf(n) !== -1
+    })
 
-       return !_.isEmpty(roleIntersection);
-   },
-   checkIfInIndividiuals: function(template) {
-       let myEmail = [user.get('user').get('email')];
-       let accessIndividualIntersection = myEmail.filter(function(n) {
-        return template.accessIndividuals.indexOf(n) !== -1;
-       });
+    return !_.isEmpty(roleIntersection)
+  },
+  checkIfInIndividiuals: function (template) {
+    let myEmail = [user.get('user').get('email')]
+    let accessIndividualIntersection = myEmail.filter(function (n) {
+      return template.accessIndividuals.indexOf(n) !== -1
+    })
 
-       return !_.isEmpty(accessIndividualIntersection);
-   },
-    addSearchForm: function(searchForm) {
-        this.get('sharedSearchForms').add(searchForm);
-    },
-    getDoneLoading: function() {
-        return this.get('doneLoading');
-    },
-    doneLoading: function() {
-        this.set('doneLoading', true);
-    },
-    getCollection: function() {
-        return this.get('sharedSearchForms');
-    },
- });
+    return !_.isEmpty(accessIndividualIntersection)
+  },
+  addSearchForm: function (searchForm) {
+    this.get('sharedSearchForms').add(searchForm)
+  },
+  getDoneLoading: function () {
+    return this.get('doneLoading')
+  },
+  doneLoading: function () {
+    this.set('doneLoading', true)
+  },
+  getCollection: function () {
+    return this.get('sharedSearchForms')
+  }
+})
