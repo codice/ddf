@@ -456,7 +456,7 @@ zookeeperhost3:2181
 6+^h|[[_managed_solr_properties]]Managed Solr Server Properties
 
 |Start Solr server
-|solr.start
+|start.solr
 |Boolean
 |If true, application manages Solr server lifecycle
 |true
