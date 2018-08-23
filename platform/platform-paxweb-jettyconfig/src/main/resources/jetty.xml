@@ -56,21 +56,22 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure_9_0.dtd">
         </Arg>
     </Call>
 
-    <!--<Get name="handler">-->
-        <!--<Call name="addHandler">-->
-          <!--<Arg>-->
-            <!--<New id="RequestLog"-->
-                <!--class="org.eclipse.jetty.server.handler.RequestLogHandler"/>-->
-          <!--</Arg>-->
-        <!--</Call>-->
-    <!--</Get>-->
-    <!--<Ref refid="RequestLog">-->
-        <!--<Set name="requestLog">-->
-            <!--<New id="RequestLogImpl" class="org.codice.ddf.pax.web.jetty.AccessRequestLog">-->
-                <!--<Set name="resource">/access.xml</Set>-->
-                <!--<Set name="quiet">true</Set>-->
-            <!--</New>-->
-        <!--</Set>-->
-    <!--</Ref>-->
+    <Get name="handler">
+        <Call name="addHandler">
+          <Arg>
+            <New id="RequestLog"
+                class="org.eclipse.jetty.server.handler.RequestLogHandler"/>
+          </Arg>
+        </Call>
+    </Get>
+    <Ref refid="RequestLog">
+        <Set name="requestLog">
+            <New id="RequestLogImpl" class="org.codice.ddf.pax.web.jetty.AccessRequestLog">
+                <Set name="resource">/access.xml</Set>
+                <Set name="quiet">true</Set>
+                <Call name="start"/>
+            </New>
+        </Set>
+    </Ref>
 
 </Configure>

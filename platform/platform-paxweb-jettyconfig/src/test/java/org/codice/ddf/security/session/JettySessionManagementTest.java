@@ -47,6 +47,8 @@ public class JettySessionManagementTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
+    // To get the AccessRequestLog to log in the target folder
+    System.setProperty("ddf.data", "target");
     server = new Server();
     HandlerList handlers = new HandlerList();
     server.setHandler(handlers);
