@@ -13,7 +13,8 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import static org.codice.ddf.admin.application.service.impl.ApplicationServiceBeanTest.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
+import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
+import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
@@ -23,7 +24,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,16 +32,13 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.Appender;
-import java.security.AccessController;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -60,13 +57,11 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
-import org.hamcrest.CustomMatcher;
+import org.codice.ddf.test.mockito.StackCaptor;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Stubber;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.metatype.MetaTypeInformation;
@@ -250,19 +245,13 @@ public class ApplicationServiceBeanTest {
 
   @Test
   public void testInstallFeatureCallIsPrivileged() throws Exception {
-    StackCaptor stackCaptor = new StackCaptor();
-
-    stackCaptor
-        .doCaptureStack()
-        .when(mockFeaturesService)
-        .installFeature(anyString(), any(EnumSet.class));
-
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(
             testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
     serviceBean.installFeature("profile-name");
 
-    assertThat(stackCaptor.getStack(), stackContainsDoPrivilegedCall());
+    verify(mockFeaturesService, privileged(times(1)))
+        .installFeature(eq("profile-name"), any(EnumSet.class));
   }
 
   @Test
@@ -607,58 +596,5 @@ public class ApplicationServiceBeanTest {
         "Should return the list of plugins given to it.",
         serviceBean.getPluginsForApplication(TEST_APP_NAME).get(0),
         is(plugin1JSON));
-  }
-
-  public static class StackCaptor {
-    AtomicReference<StackTraceElement[]> stackTraceElements = new AtomicReference<>();
-
-    public Stubber doCaptureStack() {
-      return doAnswer(
-          AdditionalAnswers.answerVoid(
-              o -> stackTraceElements.set(Thread.currentThread().getStackTrace())));
-    }
-
-    public Stubber doCaptureStackAndReturn(Object value) {
-      return doAnswer(
-          AdditionalAnswers.answer(
-              o -> {
-                stackTraceElements.set(Thread.currentThread().getStackTrace());
-                return value;
-              }));
-    }
-
-    public StackTraceElement[] getStack() {
-      return stackTraceElements.get();
-    }
-  }
-
-  public static class StackContainsDoPrivilegedCalls extends CustomMatcher<StackTraceElement[]> {
-
-    private final int times;
-
-    public StackContainsDoPrivilegedCalls(int times) {
-      super("Stack contains call to AccessController.doPrivileged");
-      this.times = times;
-    }
-
-    public static StackContainsDoPrivilegedCalls stackContainsDoPrivilegedCall() {
-      return new StackContainsDoPrivilegedCalls(1);
-    }
-
-    public static StackContainsDoPrivilegedCalls stackContainsDoPrivilegedCalls(int times) {
-      return new StackContainsDoPrivilegedCalls(times);
-    }
-
-    @Override
-    public boolean matches(Object o) {
-      return (o instanceof StackTraceElement[])
-          && Arrays.stream((StackTraceElement[]) o)
-                  .filter(
-                      e ->
-                          e.getClassName().equals(AccessController.class.getName())
-                              && e.getMethodName().startsWith("doPrivileged"))
-                  .count()
-              == times;
-    }
   }
 }

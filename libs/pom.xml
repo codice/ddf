@@ -43,5 +43,6 @@
         <module>alerts</module>
         <module>test-common</module>
         <module>failsafe-controller</module>
+        <module>mockito-extensions</module>
     </modules>
 </project>
