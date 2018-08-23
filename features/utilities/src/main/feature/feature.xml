@@ -55,11 +55,17 @@
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="error" version="${project.version}"
-             description="Platform error handler.">
+    <feature name="error-api" version="${project.version}"
+             description="Platform error handler API.">
         <bundle>mvn:ddf.platform.error/platform-error-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.error/platform-error-servlet/${project.version}</bundle>
         <bundle>mvn:io.fastjson/boon/${boon.version}</bundle>
+    </feature>
+
+    <feature name="error-impl" version="${project.version}"
+             description="Platform error handler">
+        <feature>error-api</feature>
+        <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
     </feature>
 
     <feature name="mime-core-api" version="${project.version}"
