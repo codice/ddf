@@ -65,7 +65,7 @@ let bootstrapPromise = sharedSearchFormPromise();
                     let d = new Date(0);
                     d.setUTCSeconds(utcSeconds);
                     this.addSearchForm(new SearchForm({
-                        createdOn: Common.getHumanReadableDate(d),
+                        createdOn: Common.getHumanReadableDateTime(d),
                         id: value.id,
                         name: value.title,
                         description: value.description,

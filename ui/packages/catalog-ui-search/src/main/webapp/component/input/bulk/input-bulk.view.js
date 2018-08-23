@@ -102,7 +102,7 @@ define([
                             valueInfo.value[0] = 'No Value';
                         } else {
                             valueInfo.value = valueInfo.value.map(function(value){
-                                return user.getUserReadableDate(value);
+                                return user.getUserReadableDateTime(value);
                             });
                             return valueInfo;
                         }
@@ -156,7 +156,7 @@ define([
                     switch(type){
                         case 'date':
                             label = label.map(function(text){
-                            return user.getUserReadableDate(text);
+                            return user.getUserReadableDateTime(text);
                             });
                             value = value.map(function(text){
                                 return moment(text);
