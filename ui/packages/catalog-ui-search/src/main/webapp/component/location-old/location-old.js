@@ -26,6 +26,7 @@ define([
     // offset used by utm for southern hemisphere
     var northingOffset = 10000000;
     var usngPrecision = 6;
+    const Direction = dmsUtils.Direction;
 
     function convertToValid(key, model){
         if (key.mapSouth !== undefined && 
@@ -82,10 +83,10 @@ define([
             dmsSouth: '',
             dmsEast: '',
             dmsWest: '',
-            dmsNorthDirection: 'N',
-            dmsSouthDirection: 'N',
-            dmsEastDirection: 'E',
-            dmsWestDirection: 'E',
+            dmsNorthDirection: Direction.North,
+            dmsSouthDirection: Direction.North,
+            dmsEastDirection: Direction.East,
+            dmsWestDirection: Direction.East,
             mapNorth: undefined,
             mapEast: undefined,
             mapWest: undefined,
@@ -97,8 +98,8 @@ define([
             lon: undefined,
             dmsLat: '',
             dmsLon: '',
-            dmsLatDirection: 'N',
-            dmsLonDirection: 'E',
+            dmsLatDirection: Direction.North,
+            dmsLonDirection: Direction.East,
             bbox: undefined,
             usngbb: undefined,
             usng: undefined,
@@ -511,13 +512,13 @@ define([
             const dmsEast = dmsUtils.ddToDmsCoordinateLon(this.get('mapEast'), dmsUtils.getSecondsPrecision(this.get('dmsEast')));
             this.set({
                 dmsNorth: (dmsNorth && dmsNorth.coordinate) || '',
-                dmsNorthDirection: (dmsNorth && dmsNorth.direction) || 'N',
+                dmsNorthDirection: (dmsNorth && dmsNorth.direction) || Direction.North,
                 dmsSouth: (dmsSouth && dmsSouth.coordinate) || '',
-                dmsSouthDirection: (dmsSouth && dmsSouth.direction) || 'N',
+                dmsSouthDirection: (dmsSouth && dmsSouth.direction) || Direction.North,
                 dmsWest: (dmsWest && dmsWest.coordinate) || '',
-                dmsWestDirection: (dmsWest && dmsWest.direction) || 'E',
+                dmsWestDirection: (dmsWest && dmsWest.direction) || Direction.East,
                 dmsEast: (dmsEast && dmsEast.coordinate) || '',
-                dmsEastDirection: (dmsEast && dmsEast.direction) || 'E'
+                dmsEastDirection: (dmsEast && dmsEast.direction) || Direction.East
             });
         },
 
@@ -526,9 +527,9 @@ define([
             const dmsLon = dmsUtils.ddToDmsCoordinateLon(this.get('lon'), dmsUtils.getSecondsPrecision(this.get('dmsLon')));
             this.set({
                 dmsLat: (dmsLat && dmsLat.coordinate) || '',
-                dmsLatDirection: (dmsLat && dmsLat.direction) || 'N',
+                dmsLatDirection: (dmsLat && dmsLat.direction) || Direction.North,
                 dmsLon: (dmsLon && dmsLon.coordinate) || '',
-                dmsLonDirection: (dmsLon && dmsLon.direction) || 'E',
+                dmsLonDirection: (dmsLon && dmsLon.direction) || Direction.East,
             });
         },
 

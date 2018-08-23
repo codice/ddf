@@ -23,6 +23,13 @@ const LAT_DEGREES_DIGITS = 2;
 const LON_DEGREES_DIGITS = 3;
 const DEFAULT_SECONDS_PRECISION = 4;
 
+const Direction = Object.freeze({
+  North: 'N',
+  South: 'S',
+  East: 'E',
+  West: 'W'
+});
+
 function dmsCoordinateIsBlank(coordinate) {
     return coordinate.coordinate.length === 0;
 }
@@ -70,7 +77,7 @@ function parseDmsCoordinate(coordinate) {
 
 function dmsCoordinateToDD(coordinate) {
    const dd = coordinate.degrees + (coordinate.minutes / 60) + (coordinate.seconds / 3600);
-   if (coordinate.direction === 'N' || coordinate.direction === 'E') {
+   if (coordinate.direction === Direction.North || coordinate.direction === Direction.East) {
        return dd;
    } else {
        return -dd;
@@ -310,14 +317,14 @@ function ddToDmsCoordinate(dd, direction, degreesPad, secondsPrecision = DEFAULT
 
 function ddToDmsCoordinateLat(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
     if (!isNaN(dd)) {
-        const direction = dd >= 0 ? 'N' : 'S';
+        const direction = dd >= 0 ? Direction.North : Direction.South;
         return ddToDmsCoordinate(dd, direction, LAT_DEGREES_DIGITS, secondsPrecision);
     }
 }
 
 function ddToDmsCoordinateLon(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
     if (!isNaN(dd)) {
-        const direction = dd >= 0 ? 'E' : 'W';
+        const direction = dd >= 0 ? Direction.East : Direction.West;
         return ddToDmsCoordinate(dd, direction, LON_DEGREES_DIGITS, secondsPrecision);
     }
 }
@@ -339,5 +346,6 @@ module.exports = {
     parseDmsCoordinate,
     ddToDmsCoordinateLat,
     ddToDmsCoordinateLon,
-    getSecondsPrecision
+    getSecondsPrecision,
+    Direction
 };

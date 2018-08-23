@@ -27,6 +27,7 @@ const CustomElements = require('js/CustomElements');
 const LocationOldModel = require('./location-old');
 const CQLUtils = require('js/CQLUtils');
 const ShapeUtils = require('js/ShapeUtils');
+const { Direction } = require('component/location-new/utils/dms-utils');
 
 const minimumDifference = 0.0001;
 const minimumBuffer = 0.000001;
@@ -172,16 +173,16 @@ module.exports = Marionette.LayoutView.extend({
             dmsSouth: '',
             dmsEast: '',
             dmsWest: '',
-            dmsNorthDirection: 'N',
-            dmsSouthDirection: 'N',
-            dmsEastDirection: 'E',
-            dmsWestDirection: 'E',
+            dmsNorthDirection: Direction.North,
+            dmsSouthDirection: Direction.North,
+            dmsEastDirection: Direction.East,
+            dmsWestDirection: Direction.East,
             lat: undefined,
             lon: undefined,
             dmsLat: '',
             dmsLon: '',
-            dmsLatDirection: 'N',
-            dmsLonDirection: 'E',
+            dmsLatDirection: Direction.North,
+            dmsLonDirection: Direction.East,
             radius: 1,
             bbox: undefined,
             polygon: undefined,

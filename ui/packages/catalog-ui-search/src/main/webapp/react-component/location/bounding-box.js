@@ -8,7 +8,8 @@ const { Radio, RadioItem } = require('../radio');
 const { Zone, Hemisphere } = require('./common');
 
 const { DmsLatitude, DmsLongitude } = require('component/location-new/geo-components/coordinates');
-const Direction = require('component/location-new/geo-components/direction');
+const DirectionInput = require('component/location-new/geo-components/direction');
+const { Direction } = require('component/location-new/utils/dms-utils');
 
 const minimumDifference = 0.0001;
 
@@ -161,8 +162,8 @@ const BoundingBoxDms = (props) => {
         cursor
     } = props;
 
-    const latitudeDirections = ['N', 'S'];
-    const longitudeDirections = ['E', 'W'];
+    const latitudeDirections = [Direction.North, Direction.South];
+    const longitudeDirections = [Direction.East, Direction.West];
 
     return (
         <div className="input-location">
@@ -171,7 +172,7 @@ const BoundingBoxDms = (props) => {
                 value={dmsWest}
                 onChange={cursor('dmsWest')}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dmsWestDirection}
                     onChange={cursor('dmsWestDirection')}
@@ -182,7 +183,7 @@ const BoundingBoxDms = (props) => {
                 value={dmsSouth}
                 onChange={cursor('dmsSouth')}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dmsSouthDirection}
                     onChange={cursor('dmsSouthDirection')}
@@ -193,7 +194,7 @@ const BoundingBoxDms = (props) => {
                 value={dmsEast}
                 onChange={cursor('dmsEast')}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dmsEastDirection}
                     onChange={cursor('dmsEastDirection')}
@@ -204,7 +205,7 @@ const BoundingBoxDms = (props) => {
                 value={dmsNorth}
                 onChange={cursor('dmsNorth')}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dmsNorthDirection}
                     onChange={cursor('dmsNorthDirection')}

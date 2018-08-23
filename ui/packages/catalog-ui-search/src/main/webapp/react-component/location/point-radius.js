@@ -6,7 +6,8 @@ const TextField = require('../text-field');
 const { Units, Zone, Hemisphere } = require('./common');
 
 const { DmsLatitude, DmsLongitude } = require('component/location-new/geo-components/coordinates');
-const Direction = require('component/location-new/geo-components/direction');
+const DirectionInput = require('component/location-new/geo-components/direction');
+const { Direction } = require('component/location-new/utils/dms-utils');
 
 const PointRadiusLatLon = (props) => {
     const { lat, lon, radius, radiusUnits, cursor } = props;
@@ -60,8 +61,8 @@ const PointRadiusUtm = (props) => {
 
 const PointRadiusDms = (props) => {
     const { dmsLat, dmsLon, dmsLatDirection, dmsLonDirection, radius, radiusUnits, cursor } = props;
-    const latitudeDirections = ['N', 'S'];
-    const longitudeDirections = ['E', 'W'];
+    const latitudeDirections = [Direction.North, Direction.South];
+    const longitudeDirections = [Direction.East, Direction.West];
 
     return (
         <div>
@@ -70,7 +71,7 @@ const PointRadiusDms = (props) => {
                 value={dmsLat}
                 onChange={cursor('dmsLat')}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dmsLatDirection}
                     onChange={cursor('dmsLatDirection')}
@@ -81,7 +82,7 @@ const PointRadiusDms = (props) => {
                 value={dmsLon}
                 onChange={cursor('dmsLon')}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dmsLonDirection}
                     onChange={cursor('dmsLonDirection')}

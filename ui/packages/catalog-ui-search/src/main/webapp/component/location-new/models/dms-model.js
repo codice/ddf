@@ -9,14 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+const { Direction } = require('../utils/dms-utils');
+
 const dmsLatitude = {
   coordinate: '',
-  direction: 'N'
+  direction: Direction.North
 };
 
 const dmsLongitude = {
   coordinate: '',
-  direction: 'E'
+  direction: Direction.East
 };
 
 const dmsPoint = {
