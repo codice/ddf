@@ -15,6 +15,7 @@ package ddf.security.samlp;
 
 import static org.apache.commons.lang.CharEncoding.UTF_8;
 import static org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA256;
+
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
