@@ -507,15 +507,6 @@
 
     <suppress>
         <notes>
-            These CVEs are not an issue since the software is not exposing STOMP over WebSocket
-            endpoints.
-        </notes>
-        <cve>CVE-2018-1270</cve>
-        <cve>CVE-2018-1275</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
             These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
             version of jetty that does not fall within those ranges.
         </notes>
