@@ -48,6 +48,8 @@ public class ShareableMetacardImpl extends MetacardImpl {
 
   public static final String WORKSPACE_TAG = "workspace";
 
+  public static final String SHARING_TAG = "shareable";
+
   protected ShareableMetacardImpl(MetacardType type) {
     super(type);
   }
@@ -203,8 +205,10 @@ public class ShareableMetacardImpl extends MetacardImpl {
 
   private static boolean isSharingCapable(Metacard metacard) {
     return metacard != null
-        && (metacard.getTags().contains(QUERY_TEMPLATE_TAG)
-            || metacard.getTags().contains(WORKSPACE_TAG)
-            || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG));
+            && metacard.getTags() != null
+            && (metacard.getTags().contains(QUERY_TEMPLATE_TAG)
+                || metacard.getTags().contains(WORKSPACE_TAG)
+                || metacard.getTags().contains(ATTRIBUTE_GROUP_TAG))
+        || metacard.getTags().contains(SHARING_TAG);
   }
 }
