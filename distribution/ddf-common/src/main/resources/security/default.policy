@@ -53,8 +53,17 @@ grant
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read";
 }
 
+grant codeBase "file:/security-filter-csrf" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
+}
+
 grant codeBase "file:/admin-core-appservice" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}application-definitions", "read";
 }
 
 grant codeBase "file:/org.apache.felix.fileinstall" {
