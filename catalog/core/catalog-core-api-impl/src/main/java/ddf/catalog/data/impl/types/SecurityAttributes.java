@@ -33,6 +33,14 @@ public class SecurityAttributes implements Security, MetacardType {
     Set<AttributeDescriptor> descriptors = new HashSet<>();
     descriptors.add(
         new AttributeDescriptorImpl(
+            ACCESS_ADMINISTRATORS,
+            true /* indexed */,
+            true /* stored */,
+            true /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
             ACCESS_GROUPS,
             true /* indexed */,
             true /* stored */,

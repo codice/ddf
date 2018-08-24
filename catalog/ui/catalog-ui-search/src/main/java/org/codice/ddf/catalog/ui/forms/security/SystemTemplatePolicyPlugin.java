@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import org.codice.ddf.catalog.ui.security.ShareableMetacardSecurityConfiguration;
+import org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration;
 
 public class SystemTemplatePolicyPlugin extends AbstractPolicyPlugin {
-  private final ShareableMetacardSecurityConfiguration config;
+  private final AccessControlSecurityConfiguration config;
 
   private final Predicate<Metacard> isSystemTemplateMetacard =
       (metacard) ->
@@ -35,7 +35,7 @@ public class SystemTemplatePolicyPlugin extends AbstractPolicyPlugin {
               && metacard.getTags() != null
               && metacard.getTags().contains(SYSTEM_TEMPLATE);
 
-  public SystemTemplatePolicyPlugin(ShareableMetacardSecurityConfiguration config) {
+  public SystemTemplatePolicyPlugin(AccessControlSecurityConfiguration config) {
     this.config = config;
   }
 

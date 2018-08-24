@@ -15,15 +15,17 @@ package org.codice.ddf.catalog.ui.metacard.workspace;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Associations;
+import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
+import org.codice.ddf.catalog.ui.security.AccessControlUtil;
 
-public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
+public class WorkspaceMetacardImpl extends MetacardImpl {
 
   public static final MetacardType TYPE = new WorkspaceMetacardType();
 
@@ -41,12 +43,7 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
     super(metacard);
   }
 
-  /**
-   * Wrap any metacard as a WorkspaceMetacardImpl.
-   *
-   * @param metacard
-   * @return
-   */
+  /** Wrap any metacard as a WorkspaceMetacardImpl. */
   public static WorkspaceMetacardImpl from(Metacard metacard) {
     return new WorkspaceMetacardImpl(metacard);
   }
@@ -62,18 +59,18 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
     return workspace;
   }
 
-  /**
-   * Check if a given metacard is a workspace metacard by checking the tags metacard attribute.
-   *
-   * @param metacard
-   * @return
-   */
+  public Metacard setOwner(String email) {
+    setAttribute(Core.METACARD_OWNER, email);
+    return this;
+  }
+
+  /** Check if a given metacard is a workspace metacard by checking the tags metacard attribute. */
   public static boolean isWorkspaceMetacard(Metacard metacard) {
     return metacard != null && metacard.getTags().contains(WorkspaceConstants.WORKSPACE_TAG);
   }
 
   public List<String> getMetacards() {
-    return getValuesOrEmpty(Associations.RELATED);
+    return AccessControlUtil.getValuesOrEmpty(this, Associations.RELATED);
   }
 
   public void setMetacards(List<String> items) {
@@ -81,7 +78,7 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
   }
 
   public List<String> getQueries() {
-    return getValuesOrEmpty(WorkspaceConstants.WORKSPACE_QUERIES);
+    return AccessControlUtil.getValuesOrEmpty(this, WorkspaceConstants.WORKSPACE_QUERIES);
   }
 
   public WorkspaceMetacardImpl setQueries(List<String> queries) {
@@ -90,7 +87,7 @@ public class WorkspaceMetacardImpl extends ShareableMetacardImpl {
   }
 
   public List<String> getContent() {
-    return getValuesOrEmpty(WorkspaceConstants.WORKSPACE_LISTS);
+    return AccessControlUtil.getValuesOrEmpty(this, WorkspaceConstants.WORKSPACE_LISTS);
   }
 
   public WorkspaceMetacardImpl setContent(List<String> lists) {

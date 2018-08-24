@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
 import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
@@ -31,23 +32,23 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ShareableMetacardPolicyExtension implements PolicyExtension {
+public class AccessControlPolicyExtension implements PolicyExtension {
 
-  private static final Set<String> SHARED_PERMISSIONS_IMPLIED =
+  private static final Set<String> ACCESS_CONTROL_IMPLIED =
       new ImmutableSet.Builder<String>()
-          .addAll(Constants.SHAREABLE_TAGS.iterator())
           .add(
               Core.METACARD_OWNER,
+              SecurityAttributes.ACCESS_ADMINISTRATORS,
               SecurityAttributes.ACCESS_INDIVIDUALS,
               SecurityAttributes.ACCESS_GROUPS)
           .build();
 
-  private ShareableMetacardSecurityConfiguration config;
+  private AccessControlSecurityConfiguration config;
 
   private SubjectIdentity subjectIdentity;
 
-  public ShareableMetacardPolicyExtension(
-      ShareableMetacardSecurityConfiguration config, SubjectIdentity subjectIdentity) {
+  public AccessControlPolicyExtension(
+      AccessControlSecurityConfiguration config, SubjectIdentity subjectIdentity) {
     this.config = config;
     this.subjectIdentity = subjectIdentity;
   }
@@ -87,6 +88,12 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
     return predicate(permissions, Core.METACARD_OWNER, subjectIdentity.getIdentityAttribute());
   }
 
+  private Predicate<CollectionPermission> accessAdministrators(
+      Map<String, Set<String>> permissions) {
+    return predicate(
+        permissions, Security.ACCESS_ADMINISTRATORS, subjectIdentity.getIdentityAttribute());
+  }
+
   private Predicate<CollectionPermission> individuals(Map<String, Set<String>> permissions) {
     return predicate(
         permissions, SecurityAttributes.ACCESS_INDIVIDUALS, subjectIdentity.getIdentityAttribute());
@@ -102,12 +109,15 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
       KeyValueCollectionPermission allPerms) {
     List<KeyValuePermission> permissions = getPermissions(allPerms);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
-    if (Collections.disjoint(grouped.keySet(), SHARED_PERMISSIONS_IMPLIED)) {
-      return match; // ignore all but sharing permissions
+
+    // There is nothing to imply if the incoming permission set doesn't contain _ALL_ ACL attributes
+    if (Collections.disjoint(grouped.keySet(), ACCESS_CONTROL_IMPLIED)) {
+      return match; // Simply imply nothing early on (essentially a no-op in this extension)
     }
 
     Predicate<CollectionPermission> isSystem = system();
     Predicate<CollectionPermission> isOwner = owner(grouped);
+    Predicate<CollectionPermission> hasAccessAdministrators = accessAdministrators(grouped);
     Predicate<CollectionPermission> hasAccessIndividuals = individuals(grouped);
     Predicate<CollectionPermission> hasAccessGroups = groups(grouped);
 
@@ -117,10 +127,12 @@ public class ShareableMetacardPolicyExtension implements PolicyExtension {
         () -> {
           if (isSystem.test(subject) || isOwner.test(subject)) {
             return grouped.keySet(); // all permissions are implied
-          } else if (hasAccessIndividuals.test(subject) || hasAccessGroups.test(subject)) {
-            return SHARED_PERMISSIONS_IMPLIED;
+          } else if (hasAccessAdministrators.test(subject)
+              || hasAccessIndividuals.test(subject)
+              || hasAccessGroups.test(subject)) {
+            return ACCESS_CONTROL_IMPLIED; // access control perms implied
           } else {
-            return Constants.SHAREABLE_TAGS;
+            return Collections.emptySet(); // nothing is implied
           }
         };
 

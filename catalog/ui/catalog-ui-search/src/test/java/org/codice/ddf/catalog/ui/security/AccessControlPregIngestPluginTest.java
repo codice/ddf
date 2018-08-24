@@ -33,15 +33,12 @@ import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.security.SubjectIdentity;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Map;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
-import org.codice.ddf.catalog.ui.sharing.ShareableMetacardImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ShareableMetacardPreIngestPluginTest {
+public class AccessControlPregIngestPluginTest {
 
   private static final String TEST_ID_ATTR =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
@@ -54,10 +51,10 @@ public class ShareableMetacardPreIngestPluginTest {
     when(subjectIdentity.getUniqueIdentifier(any())).thenReturn("owner");
   }
 
-  private ShareableMetacardPreIngestPlugin makePlugin() {
+  private AccessControlPregIngestPlugin makePlugin() {
     Subject subject = mock(Subject.class);
 
-    return new ShareableMetacardPreIngestPlugin(subjectIdentity) {
+    return new AccessControlPregIngestPlugin(subjectIdentity) {
       @Override
       protected Subject getSubject() {
         return subject;
@@ -67,7 +64,7 @@ public class ShareableMetacardPreIngestPluginTest {
 
   @Test
   public void testCreateShouldIgnoreNonShareableMetacards() throws Exception {
-    ShareableMetacardPreIngestPlugin plugin = makePlugin();
+    AccessControlPregIngestPlugin plugin = makePlugin();
     Metacard metacard = new MetacardImpl();
 
     plugin.process(new CreateRequestImpl(metacard));
@@ -78,12 +75,11 @@ public class ShareableMetacardPreIngestPluginTest {
   public void testCreateShareableSuccess() throws Exception {
     when(subjectIdentity.getIdentityAttribute()).thenReturn(TEST_ID_ATTR);
 
-    ShareableMetacardPreIngestPlugin plugin = makePlugin();
-    ShareableMetacardImpl shareableMetacard = new ShareableMetacardImpl();
-    shareableMetacard.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    AccessControlPregIngestPlugin plugin = makePlugin();
+    Metacard metacard = new MetacardImpl();
 
-    plugin.process(new CreateRequestImpl(shareableMetacard));
-    assertThat(shareableMetacard.getOwner(), is("owner"));
+    plugin.process(new CreateRequestImpl(metacard));
+    assertThat(AccessControlUtil.getOwner(metacard), is("owner"));
   }
 
   private UpdateRequest updateRequest(Metacard prev, Metacard next) {
@@ -102,7 +98,7 @@ public class ShareableMetacardPreIngestPluginTest {
 
   @Test
   public void testUpdateIgnoreNonShareableMetacards() throws Exception {
-    ShareableMetacardPreIngestPlugin plugin = makePlugin();
+    AccessControlPregIngestPlugin plugin = makePlugin();
 
     MetacardImpl prev = new MetacardImpl();
     prev.setId("id");
@@ -116,31 +112,29 @@ public class ShareableMetacardPreIngestPluginTest {
 
   @Test
   public void testUpdatePreserveOwner() throws Exception {
-    ShareableMetacardPreIngestPlugin plugin = makePlugin();
+    AccessControlPregIngestPlugin plugin = makePlugin();
 
-    ShareableMetacardImpl prev = new ShareableMetacardImpl("id");
-    ShareableMetacardImpl next = ShareableMetacardImpl.clone(prev);
-    prev.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
-    next.setTags(Collections.singleton(WorkspaceConstants.WORKSPACE_TAG));
+    Metacard prev = new MetacardImpl();
+    Metacard next = prev;
 
-    prev.setOwner("prev");
+    AccessControlUtil.setOwner(prev, "prev");
 
-    assertThat(next.getOwner(), nullValue());
+    assertThat(AccessControlUtil.getOwner(next), nullValue());
     plugin.process(updateRequest(prev, next));
-    assertThat(next.getOwner(), is(prev.getOwner()));
+    assertThat(AccessControlUtil.getOwner(next), is(AccessControlUtil.getOwner(prev)));
   }
 
   @Test
-  public void testUpdateAllowOwnerChange() throws Exception {
-    ShareableMetacardPreIngestPlugin plugin = makePlugin();
+  public void testUpdateAllowOwnerChange() {
+    AccessControlPregIngestPlugin plugin = makePlugin();
 
-    ShareableMetacardImpl prev = new ShareableMetacardImpl("id");
-    ShareableMetacardImpl next = ShareableMetacardImpl.clone(prev);
+    Metacard prev = new MetacardImpl();
+    Metacard next = prev;
 
-    prev.setOwner("prev");
-    next.setOwner("next");
+    AccessControlUtil.setOwner(prev, "prev");
+    AccessControlUtil.setOwner(next, "next");
 
     plugin.process(updateRequest(prev, next));
-    assertThat(next.getOwner(), is("next"));
+    assertThat(AccessControlUtil.getOwner(next), is("next"));
   }
 }
