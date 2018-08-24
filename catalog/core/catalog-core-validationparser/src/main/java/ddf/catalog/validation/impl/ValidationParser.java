@@ -456,7 +456,7 @@ public class ValidationParser implements ArtifactInstaller {
         .stream()
         .filter(Objects::nonNull)
         .filter(v -> StringUtils.isNotBlank(v.validator))
-        .map((Outer.Validator key) -> getValidator(attribute, key))
+        .map((Outer.Validator validator) -> getValidator(attribute, validator))
         .collect(toSet());
   }
 
@@ -517,17 +517,18 @@ public class ValidationParser implements ArtifactInstaller {
 
   private ValidatorWrapper getValidator(String key, Outer.Validator validator) {
     ValidatorWrapper wrapper = new ValidatorWrapper();
+    List<String> arguments = validator.arguments;
     switch (validator.validator) {
       case "size":
         {
-          long lmin = Long.parseLong(validator.arguments.get(0));
-          long lmax = Long.parseLong(validator.arguments.get(1));
+          long lmin = Long.parseLong(arguments.get(0));
+          long lmax = Long.parseLong(arguments.get(1));
           wrapper.attributeValidator(new SizeValidator(lmin, lmax));
           break;
         }
       case "pattern":
         {
-          String regex = validator.arguments.get(0);
+          String regex = arguments.get(0);
           wrapper.attributeValidator(new PatternValidator(regex));
           break;
         }
@@ -543,22 +544,22 @@ public class ValidationParser implements ArtifactInstaller {
         }
       case "enumeration":
         {
-          Set<String> values = new HashSet<>(validator.arguments);
+          Set<String> values = new HashSet<>(arguments);
           wrapper.attributeValidator(new EnumerationValidator(values, false));
           break;
         }
       case "enumerationignorecase":
         {
-          Set<String> values = new HashSet<>(validator.arguments);
+          Set<String> values = new HashSet<>(arguments);
           wrapper.attributeValidator(new EnumerationValidator(values, true));
           break;
         }
       case "range":
         {
-          BigDecimal min = new BigDecimal(validator.arguments.get(0));
-          BigDecimal max = new BigDecimal(validator.arguments.get(1));
-          if (validator.arguments.size() > 2) {
-            BigDecimal epsilon = new BigDecimal(validator.arguments.get(2));
+          BigDecimal min = new BigDecimal(arguments.get(0));
+          BigDecimal max = new BigDecimal(arguments.get(1));
+          if (arguments.size() > 2) {
+            BigDecimal epsilon = new BigDecimal(arguments.get(2));
             wrapper.attributeValidator(new RangeValidator(min, max, epsilon));
           }
           wrapper.attributeValidator(new RangeValidator(min, max));
@@ -574,31 +575,32 @@ public class ValidationParser implements ArtifactInstaller {
           wrapper.attributeValidator(new ISO3CountryCodeValidator(true));
           break;
         }
-      case "match_any":
+      case MATCH_ANY:
         {
           List<Outer.Validator> collection = ((Outer.ValidatorCollection) validator).validators;
-          wrapper.attributeValidator(
-              new MatchAnyValidator(
-                  collection
-                      .stream()
-                      .map((Outer.Validator key1) -> getValidator(key, key1))
-                      .map(ValidatorWrapper::getAttributeValidators)
-                      .flatMap(Collection::stream)
-                      .collect(Collectors.toList())));
+          List<AttributeValidator> attributeValidators =
+              collection
+                  .stream()
+                  .map((Outer.Validator key1) -> getValidator(key, key1))
+                  .map(ValidatorWrapper::getAttributeValidators)
+                  .flatMap(Collection::stream)
+                  .collect(Collectors.toList());
+          MatchAnyValidator matchAnyValidator = new MatchAnyValidator(attributeValidators);
+          wrapper.attributeValidator(matchAnyValidator);
           break;
         }
       case "relationship":
         {
+          if (arguments.size() < 4) {
+            throw new IllegalArgumentException("Not enough parameters for relationship validator");
+          }
           RelationshipValidator relationshipValidator =
               new RelationshipValidator(
                   key,
-                  validator.arguments.get(0),
-                  validator.arguments.get(1),
-                  validator.arguments.get(2),
-                  validator
-                      .arguments
-                      .subList(3, validator.arguments.size())
-                      .toArray(new String[] {}));
+                  arguments.get(0),
+                  arguments.get(1),
+                  arguments.get(2),
+                  arguments.subList(3, arguments.size()).toArray(new String[] {}));
           wrapper.metacardValidator(relationshipValidator);
           wrapper.reportingMetacardValidator(relationshipValidator);
           break;

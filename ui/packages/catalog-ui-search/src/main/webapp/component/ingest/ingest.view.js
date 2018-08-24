@@ -63,7 +63,7 @@ module.exports = Marionette.LayoutView.extend({
     );
   },
   filterMessage: function (message) {
-    return message.split(' ').map(word => properties.attributeAliases[word] ? properties.attributeAliases[word] : word).join(' ');
+    return message.split(' ').map(word => properties.attributeAliases[word] || word).join(' ');
   },
   validateAttributes: function(callback) {
     var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView();
@@ -77,8 +77,8 @@ module.exports = Marionette.LayoutView.extend({
     }).then(
       _.bind(function(response) {
         response.forEach(attribute => {
-          attribute.errors = attribute.errors.map(error => this.filterMessage(error));
-          attribute.warnings = attribute.warnings.map(warning => this.filterMessage(warning));
+          attribute.errors = attribute.errors.map(this.filterMessage);
+          attribute.warnings = attribute.warnings.map(this.filterMessage);
         });
         propertyCollectionView.updateValidation(response);
         if (

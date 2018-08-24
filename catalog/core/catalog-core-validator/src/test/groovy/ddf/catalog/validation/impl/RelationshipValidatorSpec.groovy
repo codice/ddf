@@ -28,7 +28,7 @@ class RelationshipValidatorSpec extends Specification {
     public static final String MUST_HAVE = "mustHave"
     public static final String CANNOT_HAVE = "cannotHave"
     public static final String CAN_ONLY_HAVE = "canOnlyHave"
-    public MetacardImpl metacard
+    public MetacardImpl metacard = new MetacardImpl()
 
     def "invalid relationship"() {
         when:
@@ -120,7 +120,6 @@ class RelationshipValidatorSpec extends Specification {
     }
 
     void setAttribute(String attribute, String... value) {
-        metacard = metacard == null ? new MetacardImpl() : metacard
         value = value == null ? new String[0] : value
         metacard.setAttribute(new AttributeImpl(attribute, Arrays.asList(value)))
     }

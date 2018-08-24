@@ -14,6 +14,7 @@ import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
+import ddf.catalog.validation.impl.validator.RelationshipValidator
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
@@ -496,12 +497,12 @@ class ValidationParserSpec extends Specification {
 
         def BundleContext mockBundleContext = Mock(BundleContext)
         mockBundle.getBundleContext() >> mockBundleContext
-
         when:
         validationParser.install(file)
 
         then:
-        2 * mockBundleContext.registerService(*_)
+        1 * mockBundleContext.registerService(_, _ as MetacardValidator, _)
+        1 * mockBundleContext.registerService(_, _ as ReportingMetacardValidator, _)
     }
 
 

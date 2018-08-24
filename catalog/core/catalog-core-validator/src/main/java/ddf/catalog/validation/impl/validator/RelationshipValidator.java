@@ -23,6 +23,7 @@ import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,10 +36,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 public class RelationshipValidator implements ReportingMetacardValidator, MetacardValidator {
-  private Map<String, Function<Attribute, Optional<ValidationViolation>>> relationships =
+  private final Map<String, Function<Attribute, Optional<ValidationViolation>>> relationships =
       new HashMap<>();
-  private String sourceAttribute;
-  private String sourceValue;
+  private final String sourceAttribute;
+  private final String sourceValue;
   private final String relationship;
   private final String targetAttribute;
   private final List<String> targetValues;
@@ -52,10 +53,6 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     relationships.put("mustHave", this::mustHave);
     relationships.put("cannotHave", this::cannotHave);
     relationships.put("canOnlyHave", this::canOnlyHave);
-    if (!relationships.keySet().contains(relationship)) {
-      throw new IllegalArgumentException(
-          "Unrecognized relationship " + relationship + "for validator " + this.toString());
-    }
     this.sourceAttribute = sourceAttribute;
     this.sourceValue = sourceValue;
     this.relationship = relationship;
@@ -65,19 +62,27 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
     } else {
       this.targetValues = Collections.emptyList();
     }
+    if (!relationships.keySet().contains(relationship)) {
+      throw new IllegalArgumentException(
+          "Unrecognized relationship " + relationship + " for validator " + this.toString());
+    }
   }
 
   @Override
   public Optional<MetacardValidationReport> validateMetacard(Metacard metacard) {
     Attribute attribute = metacard.getAttribute(sourceAttribute);
     if (attribute != null
-        && attribute.getValues().stream().filter(Objects::nonNull).count() > 0
+        && attribute.getValues().stream().anyMatch(Objects::nonNull)
         && (StringUtils.isEmpty(sourceValue) || attribute.getValues().contains(sourceValue))) {
       MetacardValidationReportImpl report = new MetacardValidationReportImpl();
       Optional<ValidationViolation> violation =
           relationships.get(relationship).apply(metacard.getAttribute(targetAttribute));
       violation.ifPresent(report::addAttributeViolation);
-      return Optional.of(report);
+      if (violation.isPresent()) {
+        return Optional.of(report);
+      } else {
+        return Optional.empty();
+      }
     } else {
       return Optional.empty();
     }
@@ -92,13 +97,13 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
                 : "a value")
             + ".",
         attribute == null
-            || attribute
-                    .getValues()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .filter(s -> StringUtils.isNotEmpty(s.toString()))
-                    .count()
-                < 1);
+            || !attribute
+                .getValues()
+                .stream()
+                .map(Objects::toString)
+                .filter(StringUtils::isNotEmpty)
+                .collect(Collectors.toCollection(ArrayList::new))
+                .containsAll(targetValues));
   }
 
   private Optional<ValidationViolation> cannotHave(Attribute attribute) {
@@ -109,6 +114,7 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
                 .getValues()
                 .stream()
                 .map(Objects::toString)
+                .filter(StringUtils::isNotEmpty)
                 .anyMatch(targetValues::contains));
   }
 
@@ -120,6 +126,7 @@ public class RelationshipValidator implements ReportingMetacardValidator, Metaca
                 .getValues()
                 .stream()
                 .map(Objects::toString)
+                .filter(StringUtils::isNotEmpty)
                 .allMatch(targetValues::contains));
   }
 
