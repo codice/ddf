@@ -132,6 +132,12 @@ The `validator` key must have a value of one of the following:
                 ]
             }
         ]
+        "title": [
+             {
+                 "validator": "relationship",
+                 "arguments": [<optional attribute value>, "<mustHave|cannotHave|canOnlyHave>", "description", <optional target value(s)>]
+             }
+         ]
     }
 }
 ----
