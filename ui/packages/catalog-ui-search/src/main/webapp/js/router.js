@@ -17,7 +17,6 @@ const $ = require('jquery')
 const Backbone = require('backbone')
 const Application = require('application')
 const router = require('component/router/router')
-//const RouterView = require('component/router/router.view');
 import ReactRouter from '../react-component/container/router-container';
 import React from 'react';
 import { render } from 'react-dom';
