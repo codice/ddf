@@ -30,7 +30,8 @@ module.exports = Marionette.LayoutView.extend({
     },
 
     events: {
-        'click .low-bandwidth-button' : 'continueLoading'
+        'click .low-bandwidth-button' : 'continueLoading',
+        'click .low-bandwidth-button-close' : 'closeMap'
     },
 
     initialize: function(options) {
@@ -50,5 +51,9 @@ module.exports = Marionette.LayoutView.extend({
         } else {
             this.mapContainer.show(new OpenlayersView(this.options));
         }
+    },
+
+    closeMap: function() {
+        this.options.container.close();
     }
 });
