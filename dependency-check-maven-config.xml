@@ -513,6 +513,16 @@
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>
     </suppress>
+
+    <suppress>
+        <notes>
+            These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
+            version of jetty that does not fall within those ranges.
+        </notes>
+        <cve>CVE-2017-7658</cve>
+        <cve>CVE-2017-7657</cve>
+    </suppress>
+
     <suppress>
         <notes><![CDATA[
         Nearly all of these are not an issue because either we are not using those features entirely or (and in addition to the fact) that solr is now running as an external process and completely locked down, so no one could access solr to take advantage of these vulnerabilites. All communication is controlled by DDF.
