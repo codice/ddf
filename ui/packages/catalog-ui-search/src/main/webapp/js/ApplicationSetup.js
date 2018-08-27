@@ -30,6 +30,7 @@ $.ajaxSetup({
 if (process.env.NODE_ENV !== 'production') {
     $('html').addClass('is-development');
     if (module.hot) {
+        require('react-hot-loader');
         $('html').addClass('is-hot-reloading');
     }
 }

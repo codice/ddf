@@ -39,6 +39,9 @@ module.exports = Marionette.LayoutView.extend({
         if (this.options.routeDefinitions === undefined) {
             throw "Route definitions must be passed in as an option.";
         }
+    },
+    onBeforeShow() {
+        this.showRoute();
         this.listenTo(router, 'change', this.showRoute);
     },
     showRoute() {

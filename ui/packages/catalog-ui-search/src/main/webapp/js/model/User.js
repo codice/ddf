@@ -291,6 +291,9 @@ define([
                 relatedModel: User.Preferences
             }
         ],
+        getUserName() {
+            return this.get('username');
+        },
         isGuestUser: function () {
             return this.get('isGuest');
         },
@@ -338,6 +341,9 @@ define([
             } catch (e) {
                 return {};
             }
+        },
+        getUserName() {
+            return this.get('user').getUserName();
         },
         getPreferences: function() {
             return this.get('user').getPreferences();

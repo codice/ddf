@@ -25,8 +25,9 @@ export class BaseWorker {
     defaultReply(message: String) {
         console.log(message)
     }
-    onmessage(oEvent) {
+    onmessage(oEvent: any) {
         if (oEvent.data instanceof Object && oEvent.data.hasOwnProperty('method')) {
+            //@ts-ignore
             this[oEvent.data.method](oEvent.data);
         } else {
             this.defaultReply(oEvent.data);

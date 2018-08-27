@@ -26,7 +26,13 @@ define([
 
     function getLoadingCompanion(linkedView) {
         return loadingCompanions.filter(function(loadingCompanion){
-            return loadingCompanion.options.linkedView.cid === linkedView.cid;
+            return loadingCompanion.options.element === linkedView.el;
+        })[0];
+    }
+
+    function getElementLoadingCompanion(element) {
+        return loadingCompanions.filter(function(loadingCompanion){
+            return loadingCompanion.options.element === element;
         })[0];
     }
 
@@ -47,7 +53,9 @@ define([
                 this.shown = true;
                 this.$el.trigger('shown.'+this.cid);
             }.bind(this));
-            this.listenTo(this.options.linkedView, 'destroy', this.destroy);
+            if (this.options.linkedView) {
+                this.listenTo(this.options.linkedView, 'destroy', this.destroy);
+            }
         },
         shown: false,
         stop: function(){
@@ -63,18 +71,40 @@ define([
         },
         updatePosition: function(){
             window.requestAnimationFrame(function(){
-                if (!this.isDestroyed && !this.options.linkedView.isDestroyed) {
-                    var boundingBox = this.options.linkedView.el.getBoundingClientRect();
-                    this.$el.css('left', boundingBox.left).css('top', boundingBox.top)
-                        .css('width', boundingBox.width).css('height', boundingBox.height);
-                    this.$el.toggleClass('is-hidden', Positioning.isEffectivelyHidden(this.options.linkedView.el));
-                    this.updatePosition();
+                if (this.isDestroyed) {
+                    return;
                 }
+                if (this.options.linkedView && this.options.linkedView.isDestroyed) {
+                    return;
+                }
+                var boundingBox = this.options.element.getBoundingClientRect();
+                this.$el.css('left', boundingBox.left).css('top', boundingBox.top)
+                    .css('width', boundingBox.width).css('height', boundingBox.height);
+                this.$el.toggleClass('is-hidden', Positioning.isEffectivelyHidden(this.options.element));
+                this.updatePosition();
             }.bind(this));
         }
     });
 
     return {
+        loadElement(el) {
+            if (!el) {
+                throw "Must pass the el you're wanting to have a loader on top of.";
+            }
+            loadingCompanions.push(new LoadingCompanionView({
+                element: el
+            }));
+        },
+        stopLoadingElement(el) {
+            if (!el) {
+                throw "Must pass the el you're wanting to have a loader on top of.";
+            }
+            const loadingCompanion = getElementLoadingCompanion(el);
+            if (loadingCompanion){
+                loadingCompanion.stop();
+                loadingCompanions.splice(loadingCompanions.indexOf(loadingCompanion), 1);
+            }
+        },
         beginLoading: function(linkedView, appendTo){
             if (!linkedView){
                 throw "Must pass the view you're calling the loader from.";
@@ -84,6 +114,7 @@ define([
                 if (!getLoadingCompanion(linkedView)) {
                     loadingCompanions.push(new LoadingCompanionView({
                         linkedView: linkedView,
+                        element: linkedView.el,
                         appendTo: appendTo
                     }));
                 }
