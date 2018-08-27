@@ -161,7 +161,7 @@ define([
                     }).length > 1))) {
                 return false;
             }
-            if (this.getAppropriateString(child.get('value')).indexOf(filterValue) === -1) {
+            if (this.getAppropriateString(child.get('label')).indexOf(filterValue) === -1) {
                 return false;
             }
             return true;
