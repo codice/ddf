@@ -277,6 +277,7 @@
     <feature name="security-sts-server" version="${project.version}"
              description="Security STS.">
         <feature>sts-prereqs</feature>
+        <feature>guava</feature>
         <configfile finalname="${ddf.etc}/ws-security/attributeMap.properties">
             mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
         </configfile>
