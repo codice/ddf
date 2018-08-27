@@ -24,7 +24,7 @@ START_SOLR="false"
 refresh_properties() {
     # Extract values from Java properties file
     START_KARAF=$($GET "start.ddf")
-    START_SOLR=$($GET "start.solr")
+    START_SOLR=$($GET "solr.start")
 }
 
 
