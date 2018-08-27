@@ -97,6 +97,8 @@ public class TestPlatform extends AbstractIntegrationTest {
             .auth()
             .preemptive()
             .basic(ADMIN, ADMIN)
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header("Origin", REPORT_GENERATION_URL.getUrl())
             .expect()
             .statusCode(200)
             .when()
