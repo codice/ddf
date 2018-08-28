@@ -18,4 +18,4 @@ For, example this configuration can provide warnings that system usage is monito
 . Select *Enable System Usage Message*.
 . Enter text in the remaining fields and save.
 
-See the <<{application-prefix}ddf.platform.ui.config,Platform UI>> for all possible configurations.
+See the <<{reference-prefix}ddf.platform.ui.config,Platform UI>> for all possible configurations.

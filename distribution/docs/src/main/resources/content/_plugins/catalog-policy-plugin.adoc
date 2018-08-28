@@ -20,4 +20,4 @@ To configure the Catalog Policy Plugin:
 . Select *Configuration* tab.
 . Select *Catalog Policy Plugin*.
 
-See <<{application-prefix}org.codice.ddf.catalog.security.CatalogPolicy,Catalog Policy Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.security.CatalogPolicy,Catalog Policy Plugin configurations>> for all possible configurations.

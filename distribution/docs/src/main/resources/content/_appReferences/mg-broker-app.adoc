@@ -28,7 +28,7 @@ The standard installation of the ${message-broker} application has no configurab
 
 ==== Configuring the ${message-broker} for a Highly Available Cluster
 
-Prior to making these configuration changes, follow the instructions in <<_installing,Installing ${branding}>> to install ${branding} on two physically-separate hosts.
+Prior to making these configuration changes, follow the instructions in <<{managing-prefix}installing,Installing ${branding}>> to install ${branding} on two physically-separate hosts.
 
 . Configure each of the ${branding} installations to point to each other in a live/backup server configuration. One server will have an additional step to be designated as the backup.
 . Modify custom.system.properties: +
@@ -135,7 +135,7 @@ If you are setting up multiple ${branding} instances in a cluster for high avail
 ====
 
 The ${ddf-security} STS LDAP Login and ${ddf-security} STS LDAP Claims Handler bundles are responsible for authenticating and authorizing users with your LDAP server.
-To configure them for your LDAP server, follow the instructions in <<${ddf-security} STS LDAP Login,${ddf-security} STS LDAP Login>> and <<${ddf-security} STS LDAP Claims Handler,${ddf-security} STS LDAP Claims Handler>>.
+To configure them for your LDAP server, follow the instructions in <<{integrating-prefix}security_sts_ldap_login,STS LDAP Login>> and <<{integrating-prefix}security_sts_ldap_claims_handler, STS LDAP Claims Handler>>.
 
 Once the STS LDAP Login and Claims Handlers are configured, update `${home_directory}/etc/org.apache.activemq.artemis.cfg` to use the `ldap` realm (just change `domain=karaf` to `domain=ldap`):
 
@@ -188,7 +188,7 @@ To update the username and password:
 === Using the ${message-broker} Application
 
 The ${message-broker} app can be used through the ${admin-console}.
-See the <<{application-prefix}route_manager,Route Manager>> and the <<{application-prefix}undelivered_messages_ui,Undelivered Messages UI>> for more information.
+See the <<{reference-prefix}route_manager,Route Manager>> and the <<{reference-prefix}undelivered_messages_ui,Undelivered Messages UI>> for more information.
 
 ==== Undelivered Messages UI
 

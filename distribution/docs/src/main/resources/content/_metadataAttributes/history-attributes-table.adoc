@@ -1,5 +1,5 @@
 :title: History Attributes
-:type: subAppendix
+:type: subMetadataReference
 :order: 04
 :parent: Catalog Taxonomy Definitions
 :status: published

@@ -24,4 +24,4 @@ To configure the Metacard Backup S3 Storage Provider:
 . Select *Configuration* tab.
 . Select *Metacard Backup S3 Storage Provider*.
 
-See <<{application-prefix}Metacard_S3_Storage_Route,Metacard Backup S3 Storage Provider configurations>> for all possible configurations.
+See <<{reference-prefix}Metacard_S3_Storage_Route,Metacard Backup S3 Storage Provider configurations>> for all possible configurations.

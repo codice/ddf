@@ -8,7 +8,7 @@
 The GeoCoder Plugin is a pre-ingest plugin that is responsible for populating the Metacard's `Location.COUNTRY_CODE` attribute if the Metacard has an associated location.
 If there is a valid country code for the Metacard, it will be in ISO 3166-1 alpha-3 format.
 If the metacard's country code is already populated, the plugin will *not* override it.
-The GeoCoder relies on either the WebService or <<{application-prefix}offline_gazetteer_service,Offline Gazetteer>> to retrieve country code information.
+The GeoCoder relies on either the WebService or <<{reference-prefix}offline_gazetteer_service,Offline Gazetteer>> to retrieve country code information.
 
 [WARNING]
 ====
@@ -30,4 +30,4 @@ To configure the GeoCoder Plugin:
 
 These are the available configurations:
 
-See <<{application-prefix}org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin configurations>> for all possible configurations.

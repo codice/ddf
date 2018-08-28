@@ -13,7 +13,7 @@ The configurations for Security STS LDAP and Roles Claims Handler and Security S
 ====
 
 Use the <<{integrating-prefix}encryption_service,Encryption Service>>, from the ${command-console} to set passwords for your LDAP server.
-Then change the LDAP Bind User Password in the <<{application-prefix}Claims_Handler_Manager, Security STS LDAP and Roles Claims Handler>> configurations to use the encrypted password.
+Then change the LDAP Bind User Password in the <<{reference-prefix}Claims_Handler_Manager, Security STS LDAP and Roles Claims Handler>> configurations to use the encrypted password.
 
 A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
@@ -23,4 +23,4 @@ For example, the `LDAPClaimsHandler` takes in the user's credentials and retriev
 These attributes are then mapped and added to the SAML assertion being created.
 Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
 
-See the <<{application-prefix}Claims_Handler_Manager,Security STS LDAP and Roles Claims Handler>> for all possible configurations.
+See the <<{reference-prefix}Claims_Handler_Manager,Security STS LDAP and Roles Claims Handler>> for all possible configurations.

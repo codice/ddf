@@ -18,7 +18,7 @@ The Metacard Attribute Security Policy Plugin combines existing metacard attribu
 . Select the *Configuration* tab
 . Select the *Metacard Attribute Security Policy Plugin*.
 
-Sample configuration of the <<{application-prefix}metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>.
+Sample configuration of the <<{reference-prefix}metacard_attribute_security_policy_plugin,Metacard Attribute Security Policy Plugin>>.
 
 To configure the plugin to combine the attributes `sourceattribute1` and `sourceattribute2` into a new
 attribute `destinationattribute1` using the union,
@@ -32,7 +32,7 @@ enter these two lines under the title **Metacard Union Attributes**
 |`sourceattribute2=destinationattribute1`
 |===
 
-See <<{application-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin configurations>> for all possible configurations.
 
 === Configuring the Metacard Validation Marker Plugin
 
@@ -47,7 +47,7 @@ Metacards that are invalid according to an "enforced" validator will not be inge
 .. If desired, enter the ID of any metacard validator to enforce. This will prevent ingest of metacards that fail validation.
 .. If desired, check *Enforce Errors* or *Enforce Warnings*, or both.
 
-See <<{application-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin,Metacard Validity Marker Plugin configurations>> for all possible configurations.
 
 === Configuring the Metacard Validity Filter Plugin
 
@@ -60,7 +60,7 @@ The <<{architecture-prefix}metacard_validity_filter_plugin,Metacard Validity Fil
 .. Check *Filter Errors* to hide metacards with errors from users.
 .. Check *Filter Warnings* to hide metacards with warnings from users.
 
-See <<{application-prefix}ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin configurations>> for all possible configurations.
+See <<{reference-prefix}ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin configurations>> for all possible configurations.
 
 === Configuring the XML Attribute Security Policy Plugin
 
@@ -71,6 +71,6 @@ The XML Attribute Security Policy Plugin finds security attributes contained in 
 . Select the *Configuration* tab.
 . Select the *XML Attribute Security Policy Plugin* configuration.
 
-See <<{application-prefix}org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin
+See <<{reference-prefix}org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin
  configurations>> for all possible configurations.
 

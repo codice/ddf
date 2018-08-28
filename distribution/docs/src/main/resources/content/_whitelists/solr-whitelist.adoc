@@ -1,7 +1,6 @@
 :title: ${ddf-solr} Whitelist
-:type: appendix
+:type: reference
 :parent: Application Whitelists
-:children: none
 :status: published
 :order: 05
 :summary: ${ddf-solr} whitelist.

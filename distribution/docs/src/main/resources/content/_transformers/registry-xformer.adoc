@@ -12,7 +12,7 @@ It also returns the `ebrim` message from the metacard metadata.
 
 The Registry Transformer is installed with the ${ddf-registry} application.
 
-. <<{application-prefix}installing_registry,Install ${ddf-registry}>> application.
+. <<{reference-prefix}installing_registry,Install ${ddf-registry}>> application.
 
 ===== Configuring the Registry Transformer
 

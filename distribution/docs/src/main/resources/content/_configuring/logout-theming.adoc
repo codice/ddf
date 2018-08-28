@@ -20,4 +20,4 @@ time for the user to submit will be rejected.
 
 . *Default value*: 3600000 (milliseconds)
 
-See <<{application-prefix}org.codice.ddf.security.idp.client.LogoutRequestService, Logout Configuration>> for detailed information.
+See <<{reference-prefix}org.codice.ddf.security.idp.client.LogoutRequestService, Logout Configuration>> for detailed information.

@@ -1,5 +1,5 @@
 :title: Mp4 Additional Attribute
-:type: subAppendix
+:type: subMetadataReference
 :order: 01
 :parent: File Format-specific Attributes
 :status: published

@@ -10,7 +10,7 @@
 ${catalog-ui} provides an option to allow users to submit Query Feedback.
 
 .Configuring Query Feedback
-. First, configure the *Email Service* to point to a mail server. See <<{application-prefix}org.codice.ddf.platform.email.impl.SmtpClientImpl,Email Service Configurations>>.
+. First, configure the *Email Service* to point to a mail server. See <<{reference-prefix}org.codice.ddf.platform.email.impl.SmtpClientImpl,Email Service Configurations>>.
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
@@ -67,4 +67,4 @@ The following keywords in the templates will be replaced with submission-specifi
 . Add comments in the input box.
 . Select the *Send* button.
 
-See <<{application-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for default Query Feedback configurations.
+See <<{reference-prefix}org.codice.ddf.catalog.ui.config,Catalog UI Search Configurations>> for default Query Feedback configurations.
