@@ -21,7 +21,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF Admin</name>
-    <artifactId>admin</artifactId>
+    <artifactId>platform-admin</artifactId>
     <groupId>ddf.admin</groupId>
     <packaging>pom</packaging>
     <modules>

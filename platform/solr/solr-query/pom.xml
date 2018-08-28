@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform.solr</groupId>
-        <artifactId>solr</artifactId>
+        <artifactId>platform-solr</artifactId>
         <version>2.14.0-SNAPSHOT</version>
     </parent>
     <artifactId>solr-query</artifactId>
