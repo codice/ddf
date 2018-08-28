@@ -27,7 +27,7 @@ import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.filter.OrFilter;
 
 public class RoleClaimsHandler implements ClaimsHandler {
 
@@ -48,7 +49,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
   private Map<String, String> claimsLdapAttributeMapping;
 
-  private LDAPConnectionFactory connectionFactory;
+  private ConnectionFactory connectionFactory;
 
   private String delimiter = ";";
 
@@ -137,11 +138,11 @@ public class RoleClaimsHandler implements ClaimsHandler {
     this.groupBaseDn = groupBaseDn;
   }
 
-  public LDAPConnectionFactory getLdapConnectionFactory() {
+  public ConnectionFactory getLdapConnectionFactory() {
     return connectionFactory;
   }
 
-  public void setLdapConnectionFactory(LDAPConnectionFactory connection) {
+  public void setLdapConnectionFactory(ConnectionFactory connection) {
     this.connectionFactory = connection;
   }
 
@@ -240,41 +241,49 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
         String membershipValue = user;
 
-        AndFilter filter;
-        ConnectionEntryReader entryReader;
-        if (!membershipUserAttribute.equals(loginUserAttribute)) {
-          String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
-          filter = new AndFilter();
-          filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
-          entryReader =
-              connection.search(
-                  baseDN, SearchScope.WHOLE_SUBTREE, filter.toString(), membershipUserAttribute);
-          while (entryReader.hasNext()) {
-            if (entryReader.isEntry()) {
-              SearchResultEntry entry = entryReader.readEntry();
+        String baseDN = AttributeMapLoader.getBaseDN(principal, userBaseDn, overrideCertDn);
+        AndFilter filter = new AndFilter();
+        filter.and(new EqualsFilter(this.getLoginUserAttribute(), user));
+        ConnectionEntryReader entryReader =
+            connection.search(
+                baseDN, SearchScope.WHOLE_SUBTREE, filter.toString(), membershipUserAttribute);
+        String userDN = loginUserAttribute + "=" + user + "," + baseDN;
+        String specificUserBaseDN = baseDN;
+        while (entryReader.hasNext()) {
+          if (entryReader.isEntry()) {
+            SearchResultEntry entry = entryReader.readEntry();
 
+            userDN = entry.getName().toString();
+            specificUserBaseDN = userDN.substring(userDN.indexOf(",") + 1);
+            if (!membershipUserAttribute.equals(loginUserAttribute)) {
               Attribute attr = entry.getAttribute(membershipUserAttribute);
               if (attr != null) {
                 for (ByteString value : attr) {
                   membershipValue = value.toString();
                 }
               }
-            } else {
-              // Got a continuation reference
-              LOGGER.debug("Referral ignored while searching for user {}", user);
             }
+          } else {
+            // Got a continuation reference
+            LOGGER.debug("Referral ignored while searching for user {}", user);
+            entryReader.readReference();
           }
         }
 
         filter = new AndFilter();
-        String userBaseDN =
-            AttributeMapLoader.getBaseDN(principal, getUserBaseDn(), overrideCertDn);
         filter
             .and(new EqualsFilter("objectClass", getObjectClass()))
             .and(
-                new EqualsFilter(
-                    getMemberNameAttribute(),
-                    getMembershipUserAttribute() + "=" + membershipValue + "," + userBaseDN));
+                new OrFilter()
+                    .or(
+                        new EqualsFilter(
+                            getMemberNameAttribute(),
+                            getMembershipUserAttribute()
+                                + "="
+                                + membershipValue
+                                + ","
+                                + specificUserBaseDN))
+                    .or(new EqualsFilter(getMemberNameAttribute(), userDN)));
 
         if (bindResult.isSuccess()) {
           LOGGER.trace(
@@ -306,6 +315,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
             } else {
               // Got a continuation reference
               LOGGER.debug("Referral ignored while searching for user {}", user);
+              entryReader.readReference();
             }
           }
         } else {

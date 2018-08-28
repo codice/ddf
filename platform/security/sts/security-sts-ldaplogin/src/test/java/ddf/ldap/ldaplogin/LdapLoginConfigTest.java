@@ -65,7 +65,7 @@ public class LdapLoginConfigTest {
   public void testLdapLoginConfig() {
     LdapService ldapService = new LdapService(context);
 
-    LdapLoginConfig ldapConfigOne = createLdapConfig(ldapService);
+    LdapLoginConfig ldapConfigOne = createLdapConfig(ldapService, "ldaps://ldap:1636");
     ldapConfigOne.configure();
     String configIdOne = ldapConfigOne.getId();
 
@@ -74,7 +74,8 @@ public class LdapLoginConfigTest {
         .registerService(
             eq(JaasRealm.class), any(JaasRealm.class), Matchers.<Dictionary<String, Object>>any());
 
-    LdapLoginConfig ldapConfigTwo = createLdapConfig(ldapService);
+    LdapLoginConfig ldapConfigTwo =
+        createLdapConfig(ldapService, "ldaps://ldap:1636", "ldaps://ldap2:1636");
     ldapConfigTwo.configure();
     String configIdTwo = ldapConfigTwo.getId();
 
@@ -111,17 +112,18 @@ public class LdapLoginConfigTest {
     assertThat(ldapService.delete(configIdTwo), is(equalTo(true)));
   }
 
-  private LdapLoginConfig createLdapConfig(LdapService ldapService) {
+  private LdapLoginConfig createLdapConfig(LdapService ldapService, String... ldapUrl) {
     LdapLoginConfig ldapConfig = new LdapLoginConfig(context);
     ldapConfig.setLdapService(ldapService);
     ldapConfig.setLdapBindUserDn("cn=admin");
     ldapConfig.setLdapBindUserPass("password");
-    ldapConfig.setLdapUrl("ldaps://ldap:1636");
+    ldapConfig.setLdapUrl(ldapUrl);
     ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
     ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
     ldapConfig.setStartTls(false);
     ldapConfig.setLoginUserAttribute("uid");
     ldapConfig.setMembershipUserAttribute("uid");
+    ldapConfig.setMemberNameAttribute("member");
     ldapConfig.setBindMethod("Simple");
     ldapConfig.setRealm("");
     ldapConfig.setKdcAddress("");
@@ -132,6 +134,9 @@ public class LdapLoginConfigTest {
     Map<String, String> ldapProps = new HashMap<>();
     ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, userDn);
     ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_PASS, "secret");
+    ldapProps.put(LdapLoginConfig.LOGIN_USER_ATTRIBUTE, "uid");
+    ldapProps.put(LdapLoginConfig.MEMBER_USER_ATTRIBUTE, "cn");
+    ldapProps.put(LdapLoginConfig.MEMBER_NAME_ATTRIBUTE, "member");
     ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
     ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
     ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
@@ -145,7 +150,7 @@ public class LdapLoginConfigTest {
   @Test
   public void testSetUserNameAttribute() {
     LdapService ldapService = new LdapService(context);
-    LdapLoginConfig config = createLdapConfig(ldapService);
+    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
     config.setLoginUserAttribute("cn");
 
     config.configure();
@@ -154,13 +159,13 @@ public class LdapLoginConfigTest {
     assertThat(properties.getProperty(USER_FILTER_OPTIONS_KEY), is("(cn=%u)"));
     assertThat(
         properties.getProperty(ROLE_FILTER_OPTIONS_KEY),
-        is("(member=uid=%u,ou=users,dc=example,dc=com)"));
+        is("(|(member=uid=%u,ou=users,dc=example,dc=com)(member=%fqdn)(member=cn=%u,%dn))"));
   }
 
   @Test
   public void testSetMembershipAttribute() {
     LdapService ldapService = new LdapService(context);
-    LdapLoginConfig config = createLdapConfig(ldapService);
+    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
     config.setMembershipUserAttribute("cn");
 
     config.configure();
@@ -169,6 +174,22 @@ public class LdapLoginConfigTest {
     assertThat(properties.getProperty(USER_FILTER_OPTIONS_KEY), is("(uid=%u)"));
     assertThat(
         properties.getProperty(ROLE_FILTER_OPTIONS_KEY),
-        is("(member=cn=%u,ou=users,dc=example,dc=com)"));
+        is("(|(member=cn=%u,ou=users,dc=example,dc=com)(member=%fqdn)(member=uid=%u,%dn))"));
+  }
+
+  @Test
+  public void testSetMemberNameAttribute() {
+    LdapService ldapService = new LdapService(context);
+    LdapLoginConfig config = createLdapConfig(ldapService, "ldaps://ldap:1636");
+    config.setMemberNameAttribute("uniqueMember");
+
+    config.configure();
+
+    Properties properties = ldapService.getModules().get(0).getOptions();
+    assertThat(properties.getProperty(USER_FILTER_OPTIONS_KEY), is("(uid=%u)"));
+    assertThat(
+        properties.getProperty(ROLE_FILTER_OPTIONS_KEY),
+        is(
+            "(|(uniqueMember=uid=%u,ou=users,dc=example,dc=com)(uniqueMember=%fqdn)(uniqueMember=uid=%u,%dn))"));
   }
 }

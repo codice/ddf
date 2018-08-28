@@ -26,7 +26,7 @@ import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
 import org.forgerock.opendj.ldap.SearchScope;
@@ -44,7 +44,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
   private String propertyFileLocation;
 
-  private LDAPConnectionFactory connectionFactory;
+  private ConnectionFactory connectionFactory;
 
   private String bindUserCredentials;
 
@@ -62,11 +62,11 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     super();
   }
 
-  public LDAPConnectionFactory getLdapConnectionFactory() {
+  public ConnectionFactory getLdapConnectionFactory() {
     return connectionFactory;
   }
 
-  public void setLdapConnectionFactory(LDAPConnectionFactory connection) {
+  public void setLdapConnectionFactory(ConnectionFactory connection) {
     this.connectionFactory = connection;
   }
 
@@ -169,6 +169,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             } else {
               // Got a continuation reference
               LOGGER.debug("Referral ignored while searching for user {}", user);
+              entryReader.readReference();
             }
           }
         } else {

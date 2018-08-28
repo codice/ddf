@@ -67,7 +67,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
-import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.junit.After;
 import org.junit.Before;
@@ -101,7 +101,7 @@ public class LdapModuleTest {
 
     server = TestServer.getInstance();
     LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
-    LDAPConnectionFactory ldapConnectionFactory =
+    ConnectionFactory ldapConnectionFactory =
         ldapLoginConfig.createLdapConnectionFactory(TestServer.getUrl("ldap"), false);
     module =
         TestModule.getInstance(
