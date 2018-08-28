@@ -20,7 +20,7 @@ describe('<AutoComplete />', () => {
             done();
         };
         const wrapper = shallow(<AutoComplete onChange={onChange} />);
-        wrapper.find(Menu).prop('onChange')('test');
+        wrapper.find('Menu').prop('onChange')('test');
     });
 
     it('should display all suggestions', () => {
@@ -32,7 +32,7 @@ describe('<AutoComplete />', () => {
                 { id: 'three', name: 'three' }
             ]
         });
-        expect(wrapper.find(MenuItem).length).to.equal(3);
+        expect(wrapper.find('MenuItem').length).to.equal(3);
     });
 
     it('should fetch suggestions on user input', (done) => {
@@ -48,7 +48,7 @@ describe('<AutoComplete />', () => {
         };
         const wrapper = shallow(<AutoComplete url="./suggestions" fetch={fetch} debounce={0} />);
         expect(wrapper.state('loading')).to.equal(false);
-        wrapper.find(TextField).prop('onChange')('test');
+        wrapper.find('TextField').prop('onChange')('test');
     });
 
     it('should inform user when endpoint is unavailable', (done) => {
@@ -62,6 +62,6 @@ describe('<AutoComplete />', () => {
             throw new Error('unavailable');
         };
         const wrapper = shallow(<AutoComplete url="./suggestions" fetch={fetch} debounce={0} onError={onError} />);
-        wrapper.find(TextField).prop('onChange')('test');
+        wrapper.find('TextField').prop('onChange')('test');
     });
 });
