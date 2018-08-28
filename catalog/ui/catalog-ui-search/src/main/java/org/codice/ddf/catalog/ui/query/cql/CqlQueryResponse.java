@@ -51,7 +51,7 @@ public class CqlQueryResponse {
 
   private final Status status;
 
-  private final QueryResponse queryResponse;
+  @JsonIgnore private final QueryResponse queryResponse;
 
   public CqlQueryResponse(
       String id,
@@ -138,7 +138,6 @@ public class CqlQueryResponse {
     return searchTerms;
   }
 
-  @JsonIgnore
   public QueryResponse getQueryResponse() {
     return queryResponse;
   }

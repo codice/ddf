@@ -47,7 +47,8 @@ public class JsonRpc implements WebSocket {
               .includeEmpty()
               .includeNulls()
               .includeDefaultValues()
-              .setJsonFormatForDates(false));
+              .setJsonFormatForDates(false)
+              .useAnnotations());
 
   public JsonRpc(Map<String, Function> methods) {
     this.methods = methods;
