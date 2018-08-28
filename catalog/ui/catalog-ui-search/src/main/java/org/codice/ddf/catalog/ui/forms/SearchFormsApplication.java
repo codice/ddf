@@ -216,7 +216,7 @@ public class SearchFormsApplication implements SparkApplication {
     exception(
         IllegalStateException.class,
         (e, req, res) -> {
-          LOGGER.debug("Template input was not valid, {}", e.getMessage().toLowerCase());
+          LOGGER.debug("Template input was not valid, {}", e);
           res.status(400);
           res.header(CONTENT_TYPE, APPLICATION_JSON);
           res.body(util.getJson(ImmutableMap.of(RESP_MSG, "Input was not valid.")));

@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.forms.builder;
 
-import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -49,7 +48,7 @@ public class XmlModelBuilderTest {
   @Test
   public void testBinaryComparisonType() throws Exception {
     JAXBElement filter = builder.isEqualTo(false).property("name").value("value").end().getResult();
-    assertEquals(filter.getDeclaredType(), FilterType.class);
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
     forNode(filter).verifyTerminalNode("/Filter/PropertyIsEqualTo", "name", "value");
   }
 
@@ -68,7 +67,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertEquals(filter.getDeclaredType(), FilterType.class);
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
     forNode(filter)
         .verifyValueRef("/Filter/PropertyIsEqualTo", "name")
         .verifyLiterals(
@@ -93,7 +92,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertEquals(filter.getDeclaredType(), FilterType.class);
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
     forNode(filter)
         .verifyValueRef("/Filter/PropertyIsNotEqualTo", "name")
         .verifyLiteral("/Filter/PropertyIsNotEqualTo/Function", 1, "5")
@@ -119,7 +118,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertEquals(filter.getDeclaredType(), FilterType.class);
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
     forNode(filter).verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "value");
   }
 
@@ -149,7 +148,7 @@ public class XmlModelBuilderTest {
             .end()
             .getResult();
 
-    assertEquals(filter.getDeclaredType(), FilterType.class);
+    assertThat(filter.getDeclaredType(), is(FilterType.class));
     forNode(filter)
         .verifyTerminalNode("/Filter/And/PropertyIsEqualTo", "name", "Bob")
         .verifyTerminalNode("/Filter/And/PropertyIsGreaterThanOrEqualTo", "benumber", "0.45")

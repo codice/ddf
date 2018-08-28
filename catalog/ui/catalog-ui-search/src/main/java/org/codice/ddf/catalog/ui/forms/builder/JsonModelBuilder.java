@@ -41,14 +41,14 @@ import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
-  private final Deque<NodeReducer<Map<String, ?>>> logicOpCache;
+public class JsonModelBuilder implements FlatFilterBuilder<Map<String, Object>> {
+  private final Deque<NodeReducer<Map<String, Object>>> logicOpCache;
 
-  private final Deque<List<Map<String, ?>>> depth;
+  private final Deque<List<Map<String, Object>>> depth;
 
-  private NodeSupplier<Map<String, ?>> supplierInProgress = null;
+  private NodeSupplier<Map<String, Object>> supplierInProgress = null;
 
-  private Map<String, ?> rootNode = null;
+  private Map<String, Object> rootNode = null;
 
   private boolean complete = false;
 
@@ -70,7 +70,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
    *     exists to return.
    */
   @Override
-  public Map<String, ?> getResult() {
+  public Map<String, Object> getResult() {
     if (!complete) {
       verifyTerminalNodeNotInProgress();
       verifyLogicalNodeNotInProgress();
@@ -232,7 +232,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
     verifyLogicalNodeInProgress();
     verifyLogicalNodeHasChildren();
     verifyLogicalNodeHasEnoughChildrenPerSchema();
-    Map<String, ?> result = logicOpCache.pop().apply(depth.pop());
+    Map<String, Object> result = logicOpCache.pop().apply(depth.pop());
     if (depth.isEmpty()) {
       rootNode = result;
     } else {
@@ -247,14 +247,14 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
   private void endFunctionType() {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    NodeSupplier<Map<String, ?>> parent = supplierInProgress.getParent();
+    NodeSupplier<Map<String, Object>> parent = supplierInProgress.getParent();
     if (parent == null) {
       throw new IllegalStateException(
           "Null parent should not have passed the check in the end() method, "
               + "verify the implementation of JsonModelBuilder for errors");
     }
 
-    Map<String, ?> result = supplierInProgress.get();
+    Map<String, Object> result = supplierInProgress.get();
     parent.setNext(result);
     supplierInProgress = parent;
   }
@@ -282,14 +282,14 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
     supplierInProgress.setNext(Collections.singletonMap("value", value));
   }
 
-  private Map<String, ?> reduceLogic(String op, List<Map<String, ?>> children) {
+  private Map<String, Object> reduceLogic(String op, List<Map<String, Object>> children) {
     Map<String, Object> node = new HashMap<>();
     node.put("type", op);
     node.put("filters", children);
     return node;
   }
 
-  private Map<String, ?> reduceFunction(String name, List<Map<String, ?>> args) {
+  private Map<String, Object> reduceFunction(String name, List<Map<String, Object>> args) {
     Map<String, Object> node = new HashMap<>();
     node.put("type", "FILTER_FUNCTION");
     node.put("name", name);
@@ -297,9 +297,9 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
     return node;
   }
 
-  private Map<String, ?> reduceTerminal(String op, List<Map<String, ?>> children) {
-    Map<String, ?> propertyExpression = children.get(0);
-    Map<String, ?> valueExpression = children.get(1);
+  private Map<String, Object> reduceTerminal(String op, List<Map<String, Object>> children) {
+    Map<String, Object> propertyExpression = children.get(0);
+    Map<String, Object> valueExpression = children.get(1);
     Map<String, Object> result = new HashMap<>();
     result.put("type", op);
     result.put("property", selectTerminalEntity(propertyExpression));
@@ -336,7 +336,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, ?>> {
    * @throws IllegalArgumentException if the given filter has an unexpected format.
    * @return a stream of map entries that can be combined into a Json filter.
    */
-  private Object selectTerminalEntity(Map<String, ?> filter) {
+  private Object selectTerminalEntity(Map<String, Object> filter) {
     if (filter.containsKey("type")) {
       return filter;
     }

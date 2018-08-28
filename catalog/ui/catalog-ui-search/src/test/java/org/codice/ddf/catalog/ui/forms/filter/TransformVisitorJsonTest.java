@@ -49,7 +49,7 @@ public class TransformVisitorJsonTest {
 
   private static final Integer DEPTH_VAL = 100;
 
-  private TransformVisitor<Map<String, ?>> visitor;
+  private TransformVisitor<Map<String, Object>> visitor;
 
   @Before
   public void setup() {
@@ -103,8 +103,8 @@ public class TransformVisitorJsonTest {
     assertLeafNode(
         visitor.getResult(),
         "INTERSECTS",
-        tar -> assertThat(tar, is("location")),
-        tar -> assertFunctionNode(tar, "template.value.v1", expectedArgs));
+        node -> assertThat(node, is("location")),
+        node -> assertFunctionNode(node, "template.value.v1", expectedArgs));
   }
 
   @Test

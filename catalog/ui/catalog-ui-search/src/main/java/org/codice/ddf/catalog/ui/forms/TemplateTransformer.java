@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -131,7 +130,7 @@ public class TemplateTransformer {
     }
 
     QueryTemplateMetacard wrapped = new QueryTemplateMetacard(metacard);
-    TransformVisitor<Map<String, ?>> visitor = new TransformVisitor<>(new JsonModelBuilder());
+    TransformVisitor<Map<String, Object>> visitor = new TransformVisitor<>(new JsonModelBuilder());
 
     String metacardOwner = retrieveOwnerIfPresent(metacard);
     Map<String, List<Serializable>> securityAttributes = retrieveSecurityIfPresent(metacard);
@@ -239,41 +238,51 @@ public class TemplateTransformer {
         Security.ACCESS_INDIVIDUALS, accessIndividuals, Security.ACCESS_GROUPS, accessGroups);
   }
 
-  private static Map<String, ?> collapseFilterFunctions(Map<String, ?> filter) {
+  private static Map<String, Object> collapseFilterFunctions(Map<String, Object> filter) {
     return transformFilterFunctions(
         filter, JsonFunctionTransform::canApplyFromFunction, JsonFunctionTransform::fromFunction);
   }
 
-  private static Map<String, ?> expandFilterFunctions(Map<String, ?> filter) {
+  private static Map<String, Object> expandFilterFunctions(Map<String, Object> filter) {
     return transformFilterFunctions(
         filter, JsonFunctionTransform::canApplyToFunction, JsonFunctionTransform::toFunction);
   }
 
-  private static Map<String, ?> transformFilterFunctions(
-      Map<String, ?> filter,
-      BiFunction<JsonFunctionTransform, ? super Map<String, ?>, Boolean> shouldDoTransform,
-      BiFunction<JsonFunctionTransform, ? super Map<String, ?>, ? extends Map<String, ?>>
+  /**
+   * Transform a filter JSON structure based upon the invocations provided.
+   *
+   * @param filter original filter JSON map.
+   * @param shouldDoTransform invocation on transform; calls appropriate boolean check.
+   * @param howToDoTransform invocation on transform; calls the actual transform itself.
+   * @return transformed filter JSON map.
+   */
+  private static Map<String, Object> transformFilterFunctions(
+      Map<String, Object> filter,
+      BiFunction<JsonFunctionTransform, Map<String, Object>, Boolean> shouldDoTransform,
+      BiFunction<JsonFunctionTransform, Map<String, Object>, Map<String, Object>>
           howToDoTransform) {
     if ("AND".equals(filter.get("type")) || "OR".equals(filter.get("type"))) {
       return ImmutableMap.<String, Object>builder()
           .put("type", filter.get("type"))
           .put(
               "filters",
-              ((List<Map<String, ?>>) filter.get("filters"))
+              ((List<Map<String, Object>>) filter.get("filters"))
                   .stream()
+                  // This will also be a BiFunction param when filter func expansions are needed
+                  // Hard-coded to "collapseFilterFunctions" for now
                   .map(TemplateTransformer::collapseFilterFunctions)
                   .collect(Collectors.toList()))
           .build();
     }
-    Optional<JsonFunctionTransform> transform =
-        REGISTRY
-            .getTransforms()
-            .stream()
-            .filter(t -> shouldDoTransform.apply(t, filter))
-            .findFirst();
-    if (transform.isPresent()) {
-      return howToDoTransform.apply(transform.get(), filter);
-    }
-    return filter;
+    // Note that, depending upon the context:
+    // shouldDoTransform.apply is calling either "canApplyFromFunction" or "canApplyToFunction"
+    // howToDoTransform.apply is calling either "fromFunction" or "toFunction"
+    return REGISTRY
+        .getTransforms()
+        .stream()
+        .filter(t -> shouldDoTransform.apply(t, filter))
+        .findFirst()
+        .map(t -> howToDoTransform.apply(t, filter))
+        .orElse(filter);
   }
 }
