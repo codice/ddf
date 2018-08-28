@@ -34,8 +34,7 @@
     </feature>
 
     <feature name="broker-route-manager" version="${project.version}">
-        <bundle>mvn:org.codice.ddf.broker/broker-route-manager/${project.version}
-        </bundle>
+        <bundle>mvn:org.codice.ddf.broker/broker-route-manager/${project.version}</bundle>
     </feature>
 
     <feature name="artemis" version="${artemis.version}" description="Full ActiveMQ Artemis broker with default configuration">
@@ -79,7 +78,8 @@
         <configfile finalname="etc/org.apache.activemq.artemis.cfg">mvn:org.apache.activemq/artemis-features/${artemis.version}/cfg</configfile>
         <configfile finalname="etc/artemis.xml">mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/artemis</configfile>
 
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>
+        <bundle dependency="true">mvn:javax.jms/javax.jms-api/2.0.1</bundle>
+        <!--<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>-->
 
         <bundle>mvn:org.apache.activemq/artemis-native/${artemis.version}</bundle>
         <bundle>mvn:org.apache.activemq/artemis-server-osgi/${artemis.version}</bundle>
@@ -92,7 +92,8 @@
 
     <feature name="artemis-jms-client" version="${artemis.version}" description="ActiveMQ Artemis JMS Client libraries">
         <feature>artemis-common</feature>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>
+        <bundle dependency="true">mvn:javax.jms/javax.jms-api/2.0.1</bundle>
+        <!--<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>-->
         <bundle>mvn:org.apache.activemq/artemis-jms-client-osgi/${artemis.version}</bundle>
     </feature>
 
@@ -107,7 +108,8 @@
     <feature name="artemis-amqp-client" version="${artemis.version}" description="ActiveMQ Artemis AMQP Client libraries" start-level="80">
         <feature>transaction</feature>
         <feature>netty-core</feature>
-        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>
+        <bundle dependency="true">mvn:javax.jms/javax.jms-api/2.0.1</bundle>
+        <!--<bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms_2_spec.version}</bundle>-->
         <bundle>mvn:org.apache.qpid/proton-j/${proton.version}</bundle>
         <bundle>mvn:org.apache.qpid/qpid-jms-client/${qpid-jms.version}</bundle>
     </feature>

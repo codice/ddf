@@ -50,7 +50,7 @@
         - Removed properties that are not used
         - Replaced the value of "geronimo-jms2-spec-version" with "${geronimo-jms_2_spec.version}" to keep it in line with the rest of the project
         - Added netty41 version and removed netty40 version
-        - Updated qpid-proton-j-bundle-version and qpid-jms-client-version to 0.19.0 and 0.23.0 respectively-->
+        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match -->
         <aws-java-sdk-bundle-version>1.11.344_1</aws-java-sdk-bundle-version>
         <c3p0-bundle-version>0.9.5.2_2</c3p0-bundle-version>
         <commons-codec-version>1.11</commons-codec-version>
