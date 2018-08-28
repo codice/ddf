@@ -238,13 +238,11 @@ public class KMLTransformerImpl implements KMLTransformer {
       final String attributeName = attributeDescriptor.getName();
       final Attribute attribute = metacard.getAttribute(attributeName);
       if (attribute != null) {
-        Serializable convertedAttribute = convertAttribute(attribute, attributeDescriptor);
-        if (convertedAttribute == null) {
+        Serializable attributeValue = convertAttribute(attribute, attributeDescriptor);
+        if (attributeValue == null) {
           LOGGER.debug("Attribute {} converted to null value.", attributeName);
         } else {
-          String attributeValue = convertedAttribute.toString();
-          attributeValue = StringUtils.removeStart(StringUtils.removeEnd(attributeValue, "]"), "[");
-          final Data data = getData(attributeName, attributeValue);
+          final Data data = getData(attributeName, attributeValue.toString());
           extendedData.addToData(data);
         }
       }
@@ -266,7 +264,14 @@ public class KMLTransformerImpl implements KMLTransformer {
         values.add(
             convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat()));
       }
-      return (Serializable) values;
+      String stringList = "";
+      for (int i = 0; i < values.size(); i++) {
+        if (i != 0) {
+          stringList += ", ";
+        }
+        stringList += values.get(i);
+      }
+      return stringList;
     } else {
       return convertValue(
           attribute.getName(), attribute.getValue(), descriptor.getType().getAttributeFormat());
