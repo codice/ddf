@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import org.jasig.cas.client.util.AbstractCasFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,14 @@ import org.slf4j.LoggerFactory;
 public class ProxyFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFilter.class);
 
-  private List<Filter> filters;
+  private List<AbstractCasFilter> filters;
 
   private boolean initialized;
 
+  private String serverName = "";
+
   /** @param filters The CAS filters to add to the filter chain. */
-  public ProxyFilter(List<Filter> filters) {
+  public ProxyFilter(List<AbstractCasFilter> filters) {
     this.filters = filters;
     initialized = false;
   }
@@ -89,7 +92,7 @@ public class ProxyFilter implements Filter {
         filterProxyChain.getClass().getName(),
         servletRequest,
         servletResponse);
-    filterProxyChain.doFilter(servletRequest, servletResponse);
+    filterProxyChain.doFilter(new FilteredRequest(httpServletRequest, serverName), servletResponse);
   }
 
   /** @see javax.servlet.Filter#init(javax.servlet.FilterConfig) */
@@ -102,5 +105,9 @@ public class ProxyFilter implements Filter {
 
       initialized = true;
     }
+  }
+
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
   }
 }
