@@ -1,5 +1,5 @@
 :title: Metadata Attributes
-:type: appendixIntro
+:type: metadataIntro
 :status: published
 :children: Metadata Attributes, Catalog Taxonomy, All Formats Supported
 :order: 01
