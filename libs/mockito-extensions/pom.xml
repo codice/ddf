@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -17,32 +17,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf</groupId>
-        <artifactId>ddf</artifactId>
+        <artifactId>lib</artifactId>
+        <groupId>ddf.lib</groupId>
         <version>2.14.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.lib</groupId>
-    <artifactId>lib</artifactId>
-    <packaging>pom</packaging>
-    <name>DDF Lib</name>
-    <description>DDF Libraries</description>
-    <modules>
-        <module>libs-pomfix</module>
-        <module>libs-pomfix-run</module>
-        <module>activities</module>
-        <module>httpproxy</module>
-        <module>notifications</module>
-        <module>platform-configuration-impl</module>
-        <module>common-system</module>
-        <module>checksum</module>
-        <module>klv</module>
-        <module>mpeg-transport-stream</module>
-        <module>geospatial</module>
-        <module>owasp-diff-runner</module>
-        <module>spock-shaded</module>
-        <module>alerts</module>
-        <module>test-common</module>
-        <module>failsafe-controller</module>
-        <module>mockito-extensions</module>
-    </modules>
+
+    <name>DDF :: Libs :: Mockito Extensions</name>
+    <artifactId>mockito-extensions</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest-all.version}</version>
+        </dependency>
+    </dependencies>
 </project>

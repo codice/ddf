@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
+import static org.codice.ddf.test.mockito.PrivilegedVerificationMode.privileged;
+import static org.codice.ddf.test.mockito.StackContainsDoPrivilegedCalls.stackContainsDoPrivilegedCall;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atMost;
@@ -54,6 +57,7 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
+import org.codice.ddf.test.mockito.StackCaptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -85,6 +89,9 @@ public class ApplicationServiceBeanTest {
   private static final String TEST_LOCATION = "TestLocation";
 
   private static final String TEST_REPO_NAME = "TestRepo";
+
+  private static final String DO_PRIVILEGED_STACK_ELEMENT =
+      "java.security.AccessController.doPrivileged";
 
   private ApplicationService testAppService;
 
@@ -234,6 +241,34 @@ public class ApplicationServiceBeanTest {
     EnumSet<FeaturesService.Option> options = captor.getValue();
     assertThat(options, hasSize(1));
     assertThat(options, hasItem(FeaturesService.Option.NoAutoRefreshBundles));
+  }
+
+  @Test
+  public void testInstallFeatureCallIsPrivileged() throws Exception {
+    ApplicationServiceBean serviceBean =
+        new ApplicationServiceBean(
+            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    serviceBean.installFeature("profile-name");
+
+    verify(mockFeaturesService, privileged(times(1)))
+        .installFeature(eq("profile-name"), any(EnumSet.class));
+  }
+
+  @Test
+  public void testUninstallFeatureCallIsPrivileged() throws Exception {
+    StackCaptor stackCaptor = new StackCaptor();
+
+    stackCaptor
+        .doCaptureStack()
+        .when(mockFeaturesService)
+        .uninstallFeature(anyString(), any(EnumSet.class));
+
+    ApplicationServiceBean serviceBean =
+        new ApplicationServiceBean(
+            testAppService, testConfigAdminExt, mBeanServer, mockFeaturesService);
+    serviceBean.uninstallFeature("profile-name");
+
+    assertThat(stackCaptor.getStack(), stackContainsDoPrivilegedCall());
   }
 
   /**
