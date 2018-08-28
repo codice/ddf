@@ -284,22 +284,16 @@ function roundTo(num, sigDigits) {
 }
 
 function pad(num, width) {
-    let numStr = num.toString();
-    while (numStr.length < width) {
-        numStr = '0' + numStr;
-    }
-    return numStr;
+    return num.toString().padStart(width, '0');
 }
 
 function padDecimal(num, width) {
-    let numStr = num.toString();
-    if (numStr.indexOf('.') < 0) {
+    const decimalParts = num.toString().split('.');
+    if (decimalParts.length > 1) {
+        return decimalParts[0].padStart(width, '0') + '.' + decimalParts[1];
+    } else {
         return pad(num, width);
     }
-    while (numStr.indexOf('.') < width) {
-        numStr = '0' + numStr;
-    }
-    return numStr;
 }
 
 function ddToDmsCoordinate(dd, direction, degreesPad, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
