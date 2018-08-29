@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.util;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
@@ -39,6 +40,7 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,19 +57,19 @@ import org.opengis.filter.Or;
 
 public class EndpointUtilTest {
 
-  EndpointUtil endpointUtil;
+  private EndpointUtil endpointUtil;
 
-  FilterBuilder filterBuilderMock;
+  private FilterBuilder filterBuilderMock;
 
-  FilterAdapter filterAdapterMock;
+  private FilterAdapter filterAdapterMock;
 
-  ActionRegistry actionRegistryMock;
+  private ActionRegistry actionRegistryMock;
 
-  QueryResponse responseMock;
+  private QueryResponse responseMock;
 
-  Metacard metacardMock;
+  private Metacard metacardMock;
 
-  Result resultMock;
+  private Result resultMock;
 
   @Before
   public void setUp() throws Exception {
@@ -194,6 +196,12 @@ public class EndpointUtilTest {
     }
 
     return resultMockList;
+  }
+
+  @Test
+  public void testParseDateEmptyString() {
+    Serializable serializable = endpointUtil.parseDate("");
+    assertThat(serializable, nullValue());
   }
 
   @Test

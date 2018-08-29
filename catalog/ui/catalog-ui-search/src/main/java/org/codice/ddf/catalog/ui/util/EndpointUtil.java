@@ -93,6 +93,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
+import spark.utils.StringUtils;
 
 public class EndpointUtil {
 
@@ -581,6 +582,10 @@ public class EndpointUtil {
     }
 
     if (!(value instanceof String)) {
+      return null;
+    }
+
+    if (StringUtils.isEmpty(value)) {
       return null;
     }
 
