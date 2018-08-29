@@ -36,6 +36,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import de.micromata.opengis.kml.v_2_2_0.Data;
@@ -280,33 +281,33 @@ public class KMLTransformerImplTest {
 
     for (Data data : dataList) {
       switch (data.getName()) {
-        case "id":
+        case Core.ID:
           assertThat(data.getValue(), is(METACARD_ID));
           break;
-        case "title":
+        case Core.TITLE:
           assertThat(data.getValue(), is(METACARD_TITLE));
           break;
-        case "location":
+        case Core.LOCATION:
           assertThat(data.getValue(), is(POINT_WKT));
           break;
-        case "metadata-content-type":
+        case Metacard.CONTENT_TYPE:
           assertThat(data.getValue(), is(METACARD_TYPE));
           break;
-        case "metadata-content-type-version":
+        case Metacard.CONTENT_TYPE_VERSION:
           assertThat(data.getValue(), is(METACARD_VERSION));
           break;
-        case "metadata":
+        case Core.METADATA:
           assertThat(data.getValue(), is(METACARD_METADATA));
           break;
-        case "metacard-tags":
+        case Core.METACARD_TAGS:
           assertThat(
               data.getValue(),
-              is(METACARD_TAGS.asList().get(0) + ", " + METACARD_TAGS.asList().get(1)));
+              is(METACARD_TAGS.asList().get(0) + "," + METACARD_TAGS.asList().get(1)));
           break;
-        case "modified":
-        case "effective":
-        case "expiration":
-        case "created":
+        case Core.MODIFIED:
+        case Metacard.EFFECTIVE:
+        case Core.EXPIRATION:
+        case Core.CREATED:
           assertThat(data.getValue(), is(METACARD_DATE_STRING));
           break;
       }

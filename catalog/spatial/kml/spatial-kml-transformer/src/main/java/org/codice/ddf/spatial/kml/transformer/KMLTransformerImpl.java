@@ -261,17 +261,13 @@ public class KMLTransformerImpl implements KMLTransformer {
     if (descriptor.isMultiValued()) {
       List<Serializable> values = new ArrayList<>();
       for (Serializable value : attribute.getValues()) {
-        values.add(
-            convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat()));
-      }
-      String stringList = "";
-      for (int i = 0; i < values.size(); i++) {
-        if (i != 0) {
-          stringList += ", ";
+        Serializable convertedValue =
+            convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat());
+        if (convertedValue != null) {
+          values.add(convertedValue);
         }
-        stringList += values.get(i);
       }
-      return stringList;
+      return StringUtils.join(values, ",");
     } else {
       return convertValue(
           attribute.getName(), attribute.getValue(), descriptor.getType().getAttributeFormat());
