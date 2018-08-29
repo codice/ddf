@@ -35,7 +35,6 @@
         <module>cxf</module>
         <module>migration</module>
         <module>admin</module>
-        <module>notifications</module>
         <module>solr</module>
         <module>security</module>
         <module>utilities</module>

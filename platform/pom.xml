@@ -366,7 +366,6 @@
         <module>compression</module>
         <module>solr</module>
         <module>persistence</module>
-        <module>notifications</module>
         <module>mime</module>
         <module>metrics</module>
         <module>platform-scheduler</module>
