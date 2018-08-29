@@ -10,7 +10,6 @@
  *
  **/
 import { BaseWorkerInstance } from './worker-instance.base';
-import { Worker } from 'cluster';
 var LessWorker = require('js/workers/less.worker');
 var instance = new BaseWorkerInstance(new LessWorker());
 
@@ -23,10 +22,10 @@ class LessWorkerModel extends Backbone.Model {
     defaults() {
         return {
             isRendering: false,
-            worker: undefined
+            worker: this.getWorker()
         };
     }
-    postMessage(data) {
+    postMessage(data: any) {
         this.set('isRendering', true);
         this.getWorker().postMessage(data);
     }
@@ -34,7 +33,7 @@ class LessWorkerModel extends Backbone.Model {
         this.getWorker().subscribe(callback);
     }
     initialize() {
-        this.getWorker().subscribe((data) => {
+        this.getWorker().subscribe(() => {
             this.set('isRendering', false);
         })
     }

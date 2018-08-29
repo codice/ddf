@@ -17,7 +17,9 @@ const $ = require('jquery')
 const Backbone = require('backbone')
 const Application = require('application')
 const router = require('component/router/router')
-const RouterView = require('component/router/router.view');
+import ReactRouter from '../react-component/container/router-container';
+import React from 'react';
+import { render } from 'react-dom';
 const plugin = require('plugins/router')
 // notfound route needs to come at the end otherwise no other routes will work
 const routeDefinitions = {
@@ -39,7 +41,11 @@ const onComponentResolution = function(deferred, component) {
     deferred.resolve(this.component);
 }
 
-initializeRoutes(routeDefinitions);
+//initializeRoutes(routeDefinitions);
+render(
+    <ReactRouter routeDefinitions={routeDefinitions}></ReactRouter>,
+    Application.App.router.$el[0]
+);
 
 const Router = Backbone.Router.extend({
     preloadRoutes() {

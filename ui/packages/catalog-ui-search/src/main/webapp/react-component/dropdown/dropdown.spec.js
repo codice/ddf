@@ -38,6 +38,6 @@ describe('<Dropdown />', () => {
                 <Mock />
             </Dropdown>
         );
-        expect(wrapper.find(Mock).length).to.equal(1);
+        expect(wrapper.find('Mock').length).to.equal(1);
     });
 });

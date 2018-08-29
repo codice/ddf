@@ -10,66 +10,100 @@ const DropdownGuideView = require('dev/component/dropdown-guide/dropdown-guide.v
 const InputGuideView = require('dev/component/input-guide/input-guide.view');
 const JSXGuideView = require('dev/component/jsx-guide/jsx-guide.view');
 const RegionGuideView = require('dev/component/region-guide/region-guide.view');
+import Button from '../button';
+import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container';
+import React from 'react';
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('dev-guide'),
     className: 'pad-bottom',
-    regions: {
-        componentGuide: '> .container > .section > .component',
-        componentDetails: '> .container > .component-details'
+    initialize() {
+        this.componentGuideModel = new Property({
+            enumFiltering: true,
+            showLabel: false,
+            value: ['Card'],
+            isEditing: true,
+            enum: [
+                {
+                    label: 'Card',
+                    value: 'Card'
+                }, 
+                {
+                    label: 'Button',
+                    value: 'Button'
+                },
+                {
+                    label: 'Button (react)',
+                    value: 'ButtonReact'
+                },
+                {
+                    label: 'Static Dropdowns (deprecated)',
+                    value: 'Static Dropdowns'
+                },
+                {
+                    label: 'Dropdowns',
+                    value: 'Dropdowns',
+                },
+                {
+                    label: 'Inputs',
+                    value: 'Inputs'
+                },
+                {
+                    label: 'JSX',
+                    value: 'JSX'
+                },
+                {
+                    label: 'Regions (Layout Views)',
+                    value: 'Regions'
+                }
+            ],
+            id: 'component'
+        });
+        this.listenTo(this.componentGuideModel, 'change:value', this.render);
     },
-    onBeforeShow() {
-        this.componentGuide.show(new PropertyView({
-            model: new Property({
-                enumFiltering: true,
-                showLabel: false,
-                value: ['Card'],
-                enum: [
-                    {
-                        label: 'Card',
-                        value: 'Card'
-                    }, 
-                    {
-                        label: 'Button',
-                        value: 'Button'
-                    },
-                    {
-                        label: 'Static Dropdowns (deprecated)',
-                        value: 'Static Dropdowns'
-                    },
-                    {
-                        label: 'Dropdowns',
-                        value: 'Dropdowns',
-                    },
-                    {
-                        label: 'Inputs',
-                        value: 'Inputs'
-                    },
-                    {
-                        label: 'JSX',
-                        value: 'JSX'
-                    },
-                    {
-                        label: 'Regions (Layout Views)',
-                        value: 'Regions'
+    template(data) {
+        const ComponentToShow = this.getComponentToShow();
+        return (
+            <React.Fragment>
+                <div className="container limit-to-center">
+                    <div className="section">
+                        <div className="is-header">
+                            Component / Pattern
+                        </div>
+                        <div className="component">
+                            <MarionetteRegionContainer 
+                                view={PropertyView}
+                                viewOptions={() => {
+                                    return {
+                                        model: this.componentGuideModel
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                    {ComponentToShow.prototype._isMarionetteView ? 
+                        <MarionetteRegionContainer 
+                            className="component-details"
+                            view={ComponentToShow}
+                        /> : 
+                            <ComponentToShow />
                     }
-                ],
-                id: 'component'
-            })
-        }));
-        this.componentGuide.currentView.turnOnEditing();
-        this.listenTo(this.componentGuide.currentView.model, 'change:value', this.updateComponentDetails);
-        this.updateComponentDetails();
+                </div>
+            </React.Fragment>
+        )
     },
-    updateComponentDetails() {
+    getComponentToShow() {
         let componentToShow;
-        switch(this.componentGuide.currentView.model.get('value')[0]) {
+        switch(this.componentGuideModel.get('value')[0]) {
             case 'Card':
             componentToShow = CardGuideView;
             break;
             case 'Button':
             componentToShow = ButtonGuideView;
+            break;
+            case 'ButtonReact':
+            componentToShow = Button;
             break;
             case 'Dropdowns':
             componentToShow = DropdownGuideView;
@@ -90,6 +124,6 @@ module.exports = Marionette.LayoutView.extend({
             componentToShow = CardGuideView;
             break;
         }
-        this.componentDetails.show(new componentToShow());
+        return componentToShow;
     }
 });

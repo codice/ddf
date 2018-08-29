@@ -7,9 +7,12 @@ module.exports = function (source, map) {
     const options = {
         prefix: 'ddf/',
         resolve(filePath) {
-            const absolutePathToFile = path.join(rootContext, `${filePath}.js`);
-            if (fs.existsSync(absolutePathToFile)) {
+            const possibleAbsolutePathToJSFile = path.join(rootContext, `${filePath}.js`);
+            const possibleAbsolutePathToTSXFile = path.join(rootContext, `${filePath}.tsx`);
+            if (fs.existsSync(possibleAbsolutePathToJSFile)) {
                 return filePath;
+            } else if (fs.existsSync(possibleAbsolutePathToTSXFile)) {
+                return filePath;  
             } else {
                 return `${this.prefix}${filePath}`;
             }
@@ -50,7 +53,7 @@ module.exports = function (source, map) {
       `
       var $ = require('jquery')
       var onComponentResolution = function(deferred, options, component) {
-        this.component = this.component || new component(options);
+        this.component = this.component || (component.default ? component.default : new component(options))
         deferred.resolve(this.component);
       }
       module.exports = { ${routesObjectString} }`

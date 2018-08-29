@@ -14,10 +14,10 @@ export class BaseWorkerInstance {
     constructor(private worker: Worker) {
         worker.onmessage = this.onmessage.bind(this)
     }
-    postMessage({method: String}) {
-        this.worker.postMessage(arguments[0]);
+    postMessage(message: {method: String}) {
+        this.worker.postMessage(message);
     }
-    onmessage(event) {
+    onmessage(event: any) {
         this.subscriptions.forEach((subscription) => {
             subscription(event.data);
         });

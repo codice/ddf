@@ -10,9 +10,8 @@ describe('<Mount />', () => {
   })
 
   it('should fire off when unmounted', (done) => {
-    const div = document.createElement('div')
-    const wrapper = mount(<Mount off={() => done()} />, { attachTo: div })
-    wrapper.detach()
+    const wrapper = mount(<Mount off={() => done()} />)
+    wrapper.unmount()
   })
 
   it('should fire did when rendered', (done) => {

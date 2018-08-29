@@ -24,7 +24,7 @@ describe('<Menu />', () => {
                 <MenuItem value="three" />
             </Menu>
         );
-        expect(wrapper.find(MenuItem).length).to.equal(3);
+        expect(wrapper.find('MenuItem').length).to.equal(3);
     });
 
     it('should have the correct <MenuItem /> selected', () => {
