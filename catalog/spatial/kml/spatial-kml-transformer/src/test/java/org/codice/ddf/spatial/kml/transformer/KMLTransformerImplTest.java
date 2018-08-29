@@ -97,9 +97,7 @@ public class KMLTransformerImplTest {
 
   private static final ImmutableSet<String> METACARD_TAGS = ImmutableSet.of("item1", "item2");
 
-  private static final Date METACARD_DATE = new Date(2000, 11, 21);
-
-  private static final String METACARD_DATE_STRING = "3900-12-21T07:00:00.000+0000";
+  private static final String METACARD_DATE_STRING = "3900-12-21T14:00:00.000+0000";
 
   private static final String METACARD_ID = "1234567890";
 
@@ -113,6 +111,8 @@ public class KMLTransformerImplTest {
 
   private static final String METACARD_TITLE = "myTitle";
 
+  private static Date metacardDate = new Date(2000, 11, 21);
+
   private static BundleContext mockContext = mock(BundleContext.class);
 
   private static Bundle mockBundle = mock(Bundle.class);
@@ -123,6 +123,11 @@ public class KMLTransformerImplTest {
 
   @BeforeClass
   public static void setUp() throws IOException {
+    metacardDate =
+        new Date(
+            metacardDate.getTime()
+                - Calendar.getInstance().getTimeZone().getOffset(metacardDate.getTime()));
+
     when(mockContext.getBundle()).thenReturn(mockBundle);
     URL url = KMLTransformerImplTest.class.getResource(DEFAULT_STYLE_LOCATION);
     when(mockBundle.getResource(any(String.class))).thenReturn(url);
@@ -255,10 +260,10 @@ public class KMLTransformerImplTest {
     MetacardImpl metacard = createMockMetacard();
 
     metacard.setLocation(POINT_WKT);
-    metacard.setCreatedDate(METACARD_DATE);
-    metacard.setEffectiveDate(METACARD_DATE);
-    metacard.setExpirationDate(METACARD_DATE);
-    metacard.setModifiedDate(METACARD_DATE);
+    metacard.setCreatedDate(metacardDate);
+    metacard.setEffectiveDate(metacardDate);
+    metacard.setExpirationDate(metacardDate);
+    metacard.setModifiedDate(metacardDate);
     metacard.setTags(METACARD_TAGS);
 
     final Set<AttributeDescriptor> attributeDescriptors =
