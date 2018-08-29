@@ -19,6 +19,17 @@ const errorMessages = require('./errors');
 const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$');
 const minimumDifference = 0.0001;
 
+const LAT_DEGREES_DIGITS = 2;
+const LON_DEGREES_DIGITS = 3;
+const DEFAULT_SECONDS_PRECISION = 4;
+
+const Direction = Object.freeze({
+  North: 'N',
+  South: 'S',
+  East: 'E',
+  West: 'W'
+});
+
 function dmsCoordinateIsBlank(coordinate) {
     return coordinate.coordinate.length === 0;
 }
@@ -66,7 +77,7 @@ function parseDmsCoordinate(coordinate) {
 
 function dmsCoordinateToDD(coordinate) {
    const dd = coordinate.degrees + (coordinate.minutes / 60) + (coordinate.seconds / 3600);
-   if (coordinate.direction === 'N' || coordinate.direction === 'E') {
+   if (coordinate.direction === Direction.North || coordinate.direction === Direction.East) {
        return dd;
    } else {
        return -dd;
@@ -264,8 +275,71 @@ function validateDms(dms) {
     return { valid: valid, error: error };
 }
 
+/*
+ *  Decimal degrees -> DMS conversion utils
+ */
+function roundTo(num, sigDigits) {
+    const scaler = 10 ** sigDigits;
+    return Math.round(num * scaler) / scaler;
+}
+
+function pad(num, width) {
+    return num.toString().padStart(width, '0');
+}
+
+function padDecimal(num, width) {
+    const decimalParts = num.toString().split('.');
+    if (decimalParts.length > 1) {
+        return decimalParts[0].padStart(width, '0') + '.' + decimalParts[1];
+    } else {
+        return pad(num, width);
+    }
+}
+
+function ddToDmsCoordinate(dd, direction, degreesPad, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    const ddAbsoluteValue = Math.abs(dd);
+    const degrees = Math.trunc(ddAbsoluteValue);
+    const degreeFraction = ddAbsoluteValue - degrees;
+    const minutes = Math.trunc(60 * degreeFraction);
+    const seconds = 3600 * degreeFraction - 60 * minutes;
+    const secondsRounded = roundTo(seconds, secondsPrecision);
+    return {
+        coordinate: `${pad(degrees, degreesPad)}°${pad(minutes, 2)}'${padDecimal(secondsRounded, 2)}"`,
+        direction
+    };
+}
+
+function ddToDmsCoordinateLat(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    if (!isNaN(dd)) {
+        const direction = dd >= 0 ? Direction.North : Direction.South;
+        return ddToDmsCoordinate(dd, direction, LAT_DEGREES_DIGITS, secondsPrecision);
+    }
+}
+
+function ddToDmsCoordinateLon(dd, secondsPrecision = DEFAULT_SECONDS_PRECISION) {
+    if (!isNaN(dd)) {
+        const direction = dd >= 0 ? Direction.East : Direction.West;
+        return ddToDmsCoordinate(dd, direction, LON_DEGREES_DIGITS, secondsPrecision);
+    }
+}
+
+function getSecondsPrecision(dmsCoordinate) {
+    const decimalIndex = dmsCoordinate.indexOf('.');
+    // Must subtract 2 instead of 1 because the DMS coordinate ends with "
+    const lastNumberIndex = dmsCoordinate.length - 2;
+    if (decimalIndex > -1 && lastNumberIndex > decimalIndex) {
+        return lastNumberIndex - decimalIndex;
+    }
+}
+
 module.exports = {
     dmsToWkt,
     validateDms,
-    validateDmsPoint
+    validateDmsPoint,
+    dmsCoordinateToDD,
+    parseDmsCoordinate,
+    ddToDmsCoordinateLat,
+    ddToDmsCoordinateLon,
+    getSecondsPrecision,
+    Direction
 };

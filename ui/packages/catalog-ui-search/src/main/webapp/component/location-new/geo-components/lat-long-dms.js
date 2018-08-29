@@ -8,10 +8,11 @@ const ListEditor = require('../inputs/list-editor');
 const { DmsLatitude, DmsLongitude } = require('./coordinates');
 const { validateDmsPoint, errorMessages } = require('../utils');
 const { dmsPoint } = require('../models');
-const Direction = require('./direction');
+const DirectionInput = require('./direction');
+const { Direction } = require('../utils/dms-utils');
 
-const latitudeDirections = ['N', 'S'];
-const longitudeDirections = ['E', 'W'];
+const latitudeDirections = [Direction.North, Direction.South];
+const longitudeDirections = [Direction.East, Direction.West];
 
 const Point = (props) => {
     const { dms, setState } = props;
@@ -21,7 +22,7 @@ const Point = (props) => {
                 value={dms.point.latitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.point.latitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dms.point.latitude.direction}
                     onChange={setState((draft, value) => draft.dms.point.latitude.direction = value)}
@@ -31,7 +32,7 @@ const Point = (props) => {
                 value={dms.point.longitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.point.longitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dms.point.longitude.direction}
                     onChange={setState((draft, value) => draft.dms.point.longitude.direction = value)}
@@ -50,7 +51,7 @@ const Circle = (props) => {
                     value={dms.circle.point.latitude.coordinate}
                     onChange={setState((draft, value) => draft.dms.circle.point.latitude.coordinate = value)}
                     >
-                    <Direction
+                    <DirectionInput
                         options={latitudeDirections}
                         value={dms.circle.point.latitude.direction}
                         onChange={setState((draft, value) => draft.dms.circle.point.latitude.direction = value)}
@@ -60,7 +61,7 @@ const Circle = (props) => {
                     value={dms.circle.point.longitude.coordinate}
                     onChange={setState((draft, value) => draft.dms.circle.point.longitude.coordinate = value)}
                     >
-                    <Direction
+                    <DirectionInput
                         options={longitudeDirections}
                         value={dms.circle.point.longitude.direction}
                         onChange={setState((draft, value) => draft.dms.circle.point.longitude.direction = value)}
@@ -90,7 +91,7 @@ const Line = (props) => {
                 value={dms.line.list[index].latitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.line.list[index].latitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dms.line.list[index].latitude.direction}
                     onChange={setState((draft, value) => draft.dms.line.list[index].latitude.direction = value)}
@@ -100,7 +101,7 @@ const Line = (props) => {
                 value={dms.line.list[index].longitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.line.list[index].longitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dms.line.list[index].longitude.direction}
                     onChange={setState((draft, value) => draft.dms.line.list[index].longitude.direction = value)}
@@ -128,7 +129,7 @@ const Polygon = (props) => {
                 value={dms.polygon.list[index].latitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.polygon.list[index].latitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dms.polygon.list[index].latitude.direction}
                     onChange={setState((draft, value) => draft.dms.polygon.list[index].latitude.direction = value)}
@@ -138,7 +139,7 @@ const Polygon = (props) => {
                 value={dms.polygon.list[index].longitude.coordinate}
                 onChange={setState((draft, value) => draft.dms.polygon.list[index].longitude.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dms.polygon.list[index].longitude.direction}
                     onChange={setState((draft, value) => draft.dms.polygon.list[index].longitude.direction = value)}
@@ -167,7 +168,7 @@ const BoundingBox = (props) => {
                 value={dms.boundingbox.south.coordinate}
                 onChange={setState((draft, value) => draft.dms.boundingbox.south.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dms.boundingbox.south.direction}
                     onChange={setState((draft, value) => draft.dms.boundingbox.south.direction = value)}
@@ -178,7 +179,7 @@ const BoundingBox = (props) => {
                 value={dms.boundingbox.north.coordinate}
                 onChange={setState((draft, value) => draft.dms.boundingbox.north.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={latitudeDirections}
                     value={dms.boundingbox.north.direction}
                     onChange={setState((draft, value) => draft.dms.boundingbox.north.direction = value)}
@@ -189,7 +190,7 @@ const BoundingBox = (props) => {
                 value={dms.boundingbox.west.coordinate}
                 onChange={setState((draft, value) => draft.dms.boundingbox.west.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dms.boundingbox.west.direction}
                     onChange={setState((draft, value) => draft.dms.boundingbox.west.direction = value)}
@@ -200,7 +201,7 @@ const BoundingBox = (props) => {
                 value={dms.boundingbox.east.coordinate}
                 onChange={setState((draft, value) => draft.dms.boundingbox.east.coordinate = value)}
                 >
-                <Direction
+                <DirectionInput
                     options={longitudeDirections}
                     value={dms.boundingbox.east.direction}
                     onChange={setState((draft, value) => draft.dms.boundingbox.east.direction = value)}

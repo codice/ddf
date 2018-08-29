@@ -7,6 +7,10 @@ const { Radio, RadioItem } = require('../radio');
 
 const { Zone, Hemisphere } = require('./common');
 
+const { DmsLatitude, DmsLongitude } = require('component/location-new/geo-components/coordinates');
+const DirectionInput = require('component/location-new/geo-components/direction');
+const { Direction } = require('component/location-new/utils/dms-utils');
+
 const minimumDifference = 0.0001;
 
 const BoundingBoxLatLon = (props) => {
@@ -143,13 +147,82 @@ const BoundingBoxUtm = (props) => {
     );
 };
 
+const BoundingBoxDms = (props) => {
+    const {
+        dmsSouth,
+        dmsNorth,
+        dmsWest,
+        dmsEast,
+
+        dmsSouthDirection,
+        dmsNorthDirection,
+        dmsWestDirection,
+        dmsEastDirection,
+
+        cursor
+    } = props;
+
+    const latitudeDirections = [Direction.North, Direction.South];
+    const longitudeDirections = [Direction.East, Direction.West];
+
+    return (
+        <div className="input-location">
+            <DmsLongitude
+                label='West'
+                value={dmsWest}
+                onChange={cursor('dmsWest')}
+                >
+                <DirectionInput
+                    options={longitudeDirections}
+                    value={dmsWestDirection}
+                    onChange={cursor('dmsWestDirection')}
+                />
+            </DmsLongitude>
+            <DmsLatitude
+                label='South'
+                value={dmsSouth}
+                onChange={cursor('dmsSouth')}
+                >
+                <DirectionInput
+                    options={latitudeDirections}
+                    value={dmsSouthDirection}
+                    onChange={cursor('dmsSouthDirection')}
+                />
+            </DmsLatitude>
+            <DmsLongitude
+                label='East'
+                value={dmsEast}
+                onChange={cursor('dmsEast')}
+                >
+                <DirectionInput
+                    options={longitudeDirections}
+                    value={dmsEastDirection}
+                    onChange={cursor('dmsEastDirection')}
+                />
+            </DmsLongitude>
+            <DmsLatitude
+                label='North'
+                value={dmsNorth}
+                onChange={cursor('dmsNorth')}
+                >
+                <DirectionInput
+                    options={latitudeDirections}
+                    value={dmsNorthDirection}
+                    onChange={cursor('dmsNorthDirection')}
+                />
+            </DmsLatitude>
+        </div>
+    );
+};
+
 const BoundingBox = (props) => {
     const { cursor, locationType } = props;
 
     const inputs = {
         latlon: BoundingBoxLatLon,
         usng: BoundingBoxUsngMgrs,
-        utm: BoundingBoxUtm
+        utm: BoundingBoxUtm,
+        dms: BoundingBoxDms
     };
 
     const Component = inputs[locationType] || null;
@@ -157,7 +230,8 @@ const BoundingBox = (props) => {
     return (
         <div>
             <Radio value={locationType} onChange={cursor('locationType')}>
-                <RadioItem value="latlon">Lat / Lon</RadioItem>
+                <RadioItem value="latlon">Lat/Lon (DD)</RadioItem>
+                <RadioItem value="dms">Lat/Lon (DMS)</RadioItem>
                 <RadioItem value="usng">USNG / MGRS</RadioItem>
                 <RadioItem value="utm">UTM</RadioItem>
             </Radio>
