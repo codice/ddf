@@ -9,7 +9,7 @@
 
   .search-form-interaction {
     white-space: nowrap;
-    padding-right: @minimumSpacing;
+    padding: 0px @minimumSpacing 0px 10px;
     cursor: pointer;
     overflow: hidden;
   }
@@ -52,5 +52,11 @@
 
   > .interaction-edit {
       display: none;
+  }
+}
+
+@{customElementNamespace}search-form-interactions.is-non-deletable-template {
+  > .interaction-trash {
+    display: none;
   }
 }

@@ -47,13 +47,13 @@ module.exports =  Marionette.ItemView.extend({
             this.checkIfDefaultSearchForm();
             this.checkIfResultForm();
             this.isSystemTemplate();
+            this.isAbleToDeleteTemplate();
         },
         checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));
         },
         handleTrash: function() {
-            let loginUser = user.get('user');
-            if(loginUser.get('email') === this.model.get('createdBy'))
+            if(this.isTemplateOwner())
             {
                 this.listenTo(ConfirmationView.generateConfirmation({
                     prompt: 'This will permanently delete the template. Are you sure?',
@@ -163,6 +163,12 @@ module.exports =  Marionette.ItemView.extend({
         },
         isSystemTemplate: function() {
             this.$el.toggleClass('is-system-template', this.model.get('createdBy') === 'system');
+        },
+        isTemplateOwner() {
+            return user.get('user') && user.get('user').get('email') === this.model.get('createdBy');
+        },
+        isAbleToDeleteTemplate() {
+            this.options && this.$el.toggleClass('is-non-deletable-template', !this.isTemplateOwner());
         },
         handleEdit: function() {
             if(this.model.get('type') === 'custom')

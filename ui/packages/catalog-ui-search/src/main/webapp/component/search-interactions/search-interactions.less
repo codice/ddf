@@ -7,11 +7,6 @@
     overflow: hidden;
     line-height: @minimumButtonSize;
     height: @minimumButtonSize;
-
-    &:hover,
-    &.is-active {
-      background: fade(contrast(@backgroundDropdown), 10%);
-    }
   }
   
   .interaction-icon,
@@ -34,10 +29,23 @@
   .interaction-revert {
     display: none;
   }
+
+  .interaction-custom {
+    display: none;
+  }
+
   .interaction-form > .interaction-text .fa-level-up {
     transform: rotate(90deg);
     font-size: @mediumFontSize;
     margin-right: @minimumSpacing;
+  }
+}
+
+@{customElementNamespace}search-interactions.is-custom {
+  > .interaction-custom {
+    display: block;
+    height: auto;
+    padding: 0px;
   }
 }
 
