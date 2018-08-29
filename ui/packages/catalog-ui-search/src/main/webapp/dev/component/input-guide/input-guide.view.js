@@ -38,7 +38,8 @@ module.exports = BaseGuideView.extend({
         example22: '.example:nth-of-type(22) .instance',
         example23: '.example:nth-of-type(23) .instance',
         example24: '.example:nth-of-type(24) .instance',
-        example25: '.example:nth-of-type(25) .instance'
+        example25: '.example:nth-of-type(25) .instance',
+        example26: '.example:nth-of-type(26) .instance'
     },
     showComponents() {
         this.showExampleOne();
@@ -66,6 +67,7 @@ module.exports = BaseGuideView.extend({
         this.showExample23();
         this.showExample24();
         this.showExample25();
+        this.showExample26();
     },
     showExampleOne() {
         this.exampleOne.show(new PropertyView({
@@ -592,6 +594,17 @@ module.exports = BaseGuideView.extend({
                 ],
                 showLabel: false,
                 showValidationIssues: false,
+                isEditing: true
+            })
+        }))
+    },
+    showExample26() {
+        this.example26.show(new PropertyView({
+            model: new Property({
+                label: 'Time Input',
+                placeholder: 'This input only likes times, not dates (or any fruit, really)',
+                value: [(new Date()).toISOString()],
+                type: 'TIME',
                 isEditing: true
             })
         }))

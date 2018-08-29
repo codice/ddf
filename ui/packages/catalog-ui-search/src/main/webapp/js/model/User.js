@@ -136,7 +136,7 @@ define([
                 uploads: [],
                 fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
                 resultCount: properties.resultCount,
-                timeFormat: Common.getTimeFormats()['ISO'],
+                dateTimeFormat: Common.getDateTimeFormats()['ISO'],
                 timeZone: Common.getTimeZones()['UTC'],
                 coordinateFormat: 'degrees',
                 goldenLayout: undefined,
@@ -357,8 +357,8 @@ define([
         getSummaryShown: function(){
             return this.get('user').getSummaryShown();
         },
-        getUserReadableDate: function(date){
-            return moment.tz(date, this.get('user').get('preferences').get('timeZone')).format(this.get('user').get('preferences').get('timeFormat'));
+        getUserReadableDateTime: function(date){
+            return moment.tz(date, this.get('user').get('preferences').get('timeZone')).format(this.get('user').get('preferences').get('dateTimeFormat')['datetimefmt']);
         },
         getHoverPreview: function() {
             return this.get('user').getHoverPreview();

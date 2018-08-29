@@ -147,7 +147,7 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(this.propertyTimeZone.currentView.model, 'change:value', this.save);
     },
     setupResultCount: function () {
-        var timeFormat = user.get('user').get('preferences').get('timeFormat');
+        var timeFormat = user.get('user').get('preferences').get('dateTimeFormat');
 
         this.propertyTimeFormat.show(new PropertyView({
             model: new Property({
@@ -155,13 +155,13 @@ module.exports = Marionette.LayoutView.extend({
                 value: [timeFormat],
                 enum: [{
                     label: 'ISO 8601',
-                    value: Common.getTimeFormats()['ISO']
+                    value: Common.getDateTimeFormats()['ISO']
                 }, {
                     label: '24 Hour Standard',
-                    value: Common.getTimeFormats()['24']
+                    value: Common.getDateTimeFormats()['24']
                 }, {
                     label: '12 Hour Standard',
-                    value: Common.getTimeFormats()['12']
+                    value: Common.getDateTimeFormats()['12']
                 }]
             })
         }));
@@ -172,7 +172,7 @@ module.exports = Marionette.LayoutView.extend({
     save: function () {
         var preferences = user.get('user').get('preferences');
         preferences.set({
-            timeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
+            dateTimeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
             timeZone: this.propertyTimeZone.currentView.model.getValue()[0]
         });
         preferences.savePreferences();

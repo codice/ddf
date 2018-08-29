@@ -18,7 +18,7 @@ define([
     'js/requestAnimationFramePolyfill'
 ], function ($, moment, _) {
 
-    var timeZones = {
+    const timeZones = {
         UTC: 'Etc/UTC',
         '-12': 'Etc/GMT+12',
         '-11': 'Etc/GMT+11',
@@ -46,10 +46,10 @@ define([
         '12' : 'Etc/GMT-12'
     };
 
-    var timeFormats = {
-        ISO: 'YYYY-MM-DD[T]HH:mm:ss.SSSZ',
-        24: 'DD MMM YYYY HH:mm:ss.SSS Z',
-        12: 'DD MMM YYYY h:mm:ss.SSS a Z'
+    const dateTimeFormats = {
+        ISO: { datetimefmt: 'YYYY-MM-DD[T]HH:mm:ss.SSSZ', timefmt: 'HH:mm:ssZ' },
+        24: { datetimefmt: 'DD MMM YYYY HH:mm:ss.SSS Z', timefmt: 'HH:mm:ss Z' },
+        12: { datetimefmt: 'DD MMM YYYY h:mm:ss.SSS a Z', timefmt: 'h:mm:ss a Z' }
     };
 
     return {
@@ -190,11 +190,11 @@ define([
             return size + ' ' + type[index];
         },
         //can be deleted once histogram changes are merged
-        getHumanReadableDate: function(date) {
-            return moment(date).format(timeFormats['24']);
+        getHumanReadableDateTime: function(date) {
+            return moment(date).format(dateTimeFormats['24']['datetimefmt']);
         },
-        getTimeFormats(){
-            return timeFormats;
+        getDateTimeFormats(){
+            return dateTimeFormats;
         },
         getTimeZones(){
             return timeZones;

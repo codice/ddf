@@ -22,6 +22,7 @@ define([
     'component/input/input.view',
     'component/input/thumbnail/input-thumbnail.view',
     'component/input/date/input-date.view',
+    'component/input/time/input-time.view',
     'component/input/location/input-location.view',
     'component/input/enum/input-enum.view',
     'component/input/radio/input-radio.view',
@@ -33,7 +34,7 @@ define([
     'component/input/autocomplete/input-autocomplete.view',
     'component/input/color/input-color.view',
     'component/input/with-param/input-with-param.view'
-], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
+], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView, InputTimeView,
              InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView, InputTextareaView,
              InputGeometryView, InputAutocompleteView, InputColorView, InputWithParamView) {
 
@@ -66,6 +67,11 @@ define([
                 switch (this.model.get('property').get('calculatedType')) {
                     case 'date':
                         this.input.show(new InputDateView({
+                            model: this.model
+                        }));
+                        break;
+                    case 'time':
+                        this.input.show(new InputTimeView({
                             model: this.model
                         }));
                         break;

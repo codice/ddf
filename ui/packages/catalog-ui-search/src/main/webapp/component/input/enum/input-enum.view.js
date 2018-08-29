@@ -33,10 +33,10 @@ define([
         if (value !== undefined && model.get('property').get('type') === 'DATE'){
             if (multivalued && value.map){
                 value = value.map(function(subvalue){
-                    return user.getUserReadableDate(subvalue);
+                    return user.getUserReadableDateTime(subvalue);
                 });
             } else {
-                value = user.getUserReadableDate(value);
+                value = user.getUserReadableDateTime(value);
             }
         }
         if (!multivalued){
