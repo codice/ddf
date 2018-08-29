@@ -3,7 +3,6 @@ import 'whatwg-fetch'
 import {combineReducers} from 'redux-immutable'
 import {fromJS, Map} from 'immutable'
 import traverse from 'traverse'
-import GoldenLayout from 'golden-layout'
 import ReactDOM from 'react-dom'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -19,6 +18,10 @@ import FontAwesome from 'react-fontawesome'
 import 'font-awesome/css/font-awesome.css'
 import 'golden-layout/src/css/goldenlayout-base.css'
 import 'golden-layout/src/css/goldenlayout-dark-theme.css'
+
+window.React = React
+window.ReactDOM = ReactDOM
+const GoldenLayout = require('golden-layout')
 
 const themes = {
   admin,
@@ -110,7 +113,7 @@ export const fetch = () => (dispatch, getState) => {
     'exec',
     'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     'getService',
-    '(service.pid=org.codice.ddf.catalog.ui.config)'
+    '(service.pid=org.codice.ddf.catalog.ui)'
   ].join('/')
 
   window.fetch(url, {
@@ -150,7 +153,7 @@ export const save = () => (dispatch, getState) => {
     mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     operation: 'update',
     arguments: [
-      'org.codice.ddf.catalog.ui.config',
+      'org.codice.ddf.catalog.ui',
       config.update('defaultLayout', JSON.stringify).toJS()
     ]
   }
