@@ -41,7 +41,7 @@ export const fetch = () => (dispatch) => {
     'exec',
     'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     'getService',
-    '(service.pid=org.codice.ddf.catalog.ui.config)'
+    '(service.pid=org.codice.ddf.catalog.ui)'
   ].join('/')
 
   window.fetch(url, {
@@ -99,7 +99,7 @@ export const save = () => (dispatch, getState) => {
     mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     operation: 'update',
     arguments: [
-      'org.codice.ddf.catalog.ui.config',
+      'org.codice.ddf.catalog.ui',
       config.update('imageryProviders', JSON.stringify).toJS()
     ]
   }
