@@ -50,6 +50,13 @@ To enable guest authentication for a context, use the <<{managing-prefix}configu
 If a legacy client requires the use of the secured SOAP endpoints, the <<{developing-prefix}configuring_guest_interceptor,guest interceptor>> should be configured.
 Otherwise, the guest interceptor and `public` endpoints should be uninstalled for a hardened system.
 
+To uninstall the guest interceptor and `public` endpoints:
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Open the *Features* section.
+. Search for *security-interceptor-guest*.
+. Click the *Uninstall* button.
+
 ==== Configuring Guest Claim Attributes
 
 A guest user's attributes define the most permissive set of claims for an unauthenticated user.

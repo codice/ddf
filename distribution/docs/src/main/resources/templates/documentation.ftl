@@ -63,15 +63,10 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 == Appendices
 :sectnums:
 
-[appendix]
-== Application References
-
 <#include "build/application-reference.ftl">
 
-[appendix]
 <#include "build/reference.ftl">
 
-[appendix]
 <#include "build/metadata-reference.ftl">
 
 include::${project.build.directory}/doc-contents/content/scripts.html[]

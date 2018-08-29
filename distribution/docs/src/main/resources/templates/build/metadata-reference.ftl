@@ -1,3 +1,4 @@
+[{reference}]
 <#list metadataIntros?sort_by("order") as mi>
 <#if mi.status == "published">
 include::${mi.file}[]

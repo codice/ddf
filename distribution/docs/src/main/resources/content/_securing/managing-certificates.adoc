@@ -1,9 +1,9 @@
 :title: Managing Keystores and Certificates
-:type: configuringIntro
+:type: securing
 :status: published
 :summary: Keystore and certificate instructions.
-:parent: Configuring
-:order: 04
+:parent: Securing
+:order: 00
 
 == {title}
 

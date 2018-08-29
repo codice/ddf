@@ -226,21 +226,21 @@ mkdir new_installation
 +
 .. Use a Non-`root` User on *NIX. (Windows users skip this step)
 +
-It is recommended that the `root` user create a new install directory that can be owned by a non-`root` user (e.g., ${branding}_USER).
+It is recommended that the `root` user create a new install directory that can be owned by a non-`root` user (e.g., ${branding}USER).
 This can be a new or existing user.
-This ${branding}_USER can now be used for the remaining installation instructions.
-.. Create a new group or use an existing group (e.g., ${branding}_GROUP) (Windows users skip this step)
+This ${branding}USER can now be used for the remaining installation instructions.
+.. Create a new group or use an existing group (e.g., ${branding}GROUP) (Windows users skip this step)
 +
 .Example: Add New Group on *NIX
 ----
-groupadd ${branding}_GROUP
+groupadd ${branding}GROUP
 ----
 +
 .Example: Switch User on *NIX
 ----
-chown ${branding}_USER:${branding}_GROUP new_installation
+chown ${branding}USER:${branding}GROUP new_installation
 
-su - ${branding}_USER
+su - ${branding}USER
 ----
 +
 . Change the current directory to the location of the zip file (${branding-lowercase}-${project.version}.zip).

@@ -29,7 +29,6 @@ To import previously exported configuration settings:
 . Or if an administrator wishes to restore the original profile along with the configuration (experimental):
 .. Run the command migration:import with the option `--profile` from the ${command-console}.
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.
-. Finish <<{managing-prefix}hardening_checklist,hardening>> the system (e.g. file and directory permissions).
 
 It is possible to decrypt the previously exported configuration settings but doing so is insecure and appropriate measures should be taken to secure the resulting decrypted file.
 To decrypt the exported file:
@@ -46,6 +45,6 @@ This file represents the decrypted version of the `.dar` file.
 ** importing from a system installed on a different OS
 ** importing from a system installed in a different directory location
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `${home_directory}` directory and not be softlinks. Presence of external files or symbolic links during export will not fail the export; they will yield warnings. It will be up to the administrator to manually copy these files over to the new system before proceeding with the import. The import process will verify their presence and consistency and yield warnings if they don't match the original files.
-* The import process will restore all configurations done on the original system as part of the <<{managing-prefix}hardening_checklist,hardening process>> including changes to starting scripts and certificates.
+* The import process will restore all configurations done on the original system as part of the <<{application-prefix}hardening_checklist,hardening process>> including changes to starting scripts and certificates.
 * The import process can also restore the profile from the original system by restoring all applications, features, and/or bundles to the same state (i.e., installed, uninstalled, started, stopped, ...) they were in originally. Doing so is currently experimental and was tested only with the standard and HA profiles.
 ====
