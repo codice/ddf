@@ -1,0 +1,20 @@
+:title: Managed Services
+:type: startingIntro
+:status: published
+:summary: Install Processes as Services.
+:project: ${branding}
+:order: 03
+
+=== {title}
+
+The lifecycle of ${branding} and Solr processes can be managed by the operating
+system. The ${branding} documentation provides instructions to install
+${branding} as a managed services on supported unix platforms. However, the
+documentation cannot account for all possible configurations. Please consult the
+documentation for the operating system and its init manager if the instructions
+in this document are inadequate.
+
+* <<{managing-prefix}run_solr_as_managed_service,Configure Solr to run as a managed service>>
+
+* <<{managing-prefix}run_${branding-lowercase}_as_a_managed_service,
+Configure ${branding} to run as a managed service>>
