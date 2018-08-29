@@ -102,7 +102,7 @@ import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class FederationAdminServiceImplTest {
 
   private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
