@@ -97,7 +97,7 @@ public class KMLTransformerImplTest {
 
   private static final ImmutableSet<String> METACARD_TAGS = ImmutableSet.of("item1", "item2");
 
-  private static final String METACARD_DATE_STRING = "3900-12-21T14:00:00.000+0000";
+  private static final String METACARD_DATE_STRING = "3900-12-21T00:00:00.000+0000";
 
   private static final String METACARD_ID = "1234567890";
 
@@ -126,7 +126,7 @@ public class KMLTransformerImplTest {
     metacardDate =
         new Date(
             metacardDate.getTime()
-                - Calendar.getInstance().getTimeZone().getOffset(metacardDate.getTime()));
+                + Calendar.getInstance().getTimeZone().getOffset(metacardDate.getTime()));
 
     when(mockContext.getBundle()).thenReturn(mockBundle);
     URL url = KMLTransformerImplTest.class.getResource(DEFAULT_STYLE_LOCATION);
