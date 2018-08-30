@@ -14,8 +14,8 @@
 
 <routes xmlns="http://camel.apache.org/schema/spring">
     <route id="sdk-example-router">
-        <from uri="sjms:sdk.example"/>
-        <to uri="sjms:topic:sdk.example"/>
+        <from uri="sjms2:sdk.example"/>
+        <to uri="sjms2:topic:sdk.example"/>
     </route>
 </routes>
 

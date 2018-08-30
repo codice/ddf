@@ -34,6 +34,7 @@
     </feature>
 
     <feature name="broker-route-manager" version="${project.version}">
+        <feature>camel-sjms2</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-route-manager/${project.version}</bundle>
     </feature>
 
@@ -174,7 +175,7 @@
     <feature name="broker-topic-logger" version="${project.version}"
              description="Common topic sample and throughput logger">
         <feature>broker-connection-factory</feature>
-        <feature>camel-sjms</feature>
+        <feature>camel-sjms2</feature>
         <bundle>mvn:org.codice.ddf.broker/broker-topic-logger/${project.version}</bundle>
     </feature>
 
