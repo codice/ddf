@@ -10,35 +10,34 @@
  *
  **/
 /* global define */
-define(['application',
-        'cometdinit',
-        'js/model/Task',
-        'wreqr'],
-    function(Application, Cometd, Task,  wreqr) {
+define(['application', 'cometdinit', 'js/model/Task', 'wreqr'], function(
+  Application,
+  Cometd,
+  Task,
+  wreqr
+) {
+  Application.App.module('MenuModule.TaskModule', function(TaskModule) {
+    var tasks = new Task.Collection()
 
-        Application.App.module('MenuModule.TaskModule', function(TaskModule) {
+    wreqr.reqres.setHandler('tasks', function() {
+      return tasks
+    })
 
-            var tasks = new Task.Collection();
+    wreqr.vent.trigger('task:update', tasks.at(0))
 
-            wreqr.reqres.setHandler('tasks', function () {
-                return tasks;
-            });
+    TaskModule.addInitializer(function() {
+      this.subscription = Cometd.Comet.subscribe('/ddf/activities/**', function(
+        resp
+      ) {
+        var task = new Task.Model(resp.data, { validate: true })
 
-            wreqr.vent.trigger('task:update', tasks.at(0));
+        if (!task.validationError) {
+          var model = tasks.updateTask(task)
+          wreqr.vent.trigger('task:update', model)
+        }
+      })
 
-            TaskModule.addInitializer(function() {
-
-                this.subscription = Cometd.Comet.subscribe("/ddf/activities/**", function(resp) {
-                    var task = new Task.Model(resp.data, {validate: true});
-
-                    if(!task.validationError){
-                        var model = tasks.updateTask(task);
-                        wreqr.vent.trigger('task:update', model);
-                    }
-                });
-
-                Cometd.Comet.publish("/ddf/activities", {});
-            });
-        });
-
-    });
+      Cometd.Comet.publish('/ddf/activities', {})
+    })
+  })
+})

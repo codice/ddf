@@ -13,24 +13,23 @@
  *
  **/
 /*global require*/
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const SearchFormView = require('./search-form.view');
-const SearchFormCollection = require('./search-form.collection');
-const CustomElements = require('js/CustomElements');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const SearchFormView = require('./search-form.view')
+const SearchFormCollection = require('./search-form.collection')
+const CustomElements = require('js/CustomElements')
 
- module.exports = Marionette.CollectionView.extend({
-    childView: SearchFormView,
-    tagName: CustomElements.register('my-search-forms'),
-    className: 'is-list is-inline has-list-highlighting',
-    initialize: function(options) {
-    },
-    childViewOptions: function() {
-        return {
-            queryModel: this.options.queryModel,
-            sharingLightboxTitle: 'Search Form Sharing',
-            collectionWrapperModel: this.options.collectionWrapperModel
-        };
+module.exports = Marionette.CollectionView.extend({
+  childView: SearchFormView,
+  tagName: CustomElements.register('my-search-forms'),
+  className: 'is-list is-inline has-list-highlighting',
+  initialize: function(options) {},
+  childViewOptions: function() {
+    return {
+      queryModel: this.options.queryModel,
+      sharingLightboxTitle: 'Search Form Sharing',
+      collectionWrapperModel: this.options.collectionWrapperModel,
     }
- });
+  },
+})

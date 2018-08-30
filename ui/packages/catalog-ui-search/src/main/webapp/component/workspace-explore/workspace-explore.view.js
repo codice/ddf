@@ -14,42 +14,48 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './workspace-explore.hbs',
-    'js/CustomElements',
-    'component/query-selector/query-selector.view',
-    'js/store',
-    'component/lightbox/lightbox.view.instance'
-], function (Marionette, _, $, workspaceExploreTemplate, CustomElements, QuerySelectorView,
-             store, lightboxViewInstance) {
+  'marionette',
+  'underscore',
+  'jquery',
+  './workspace-explore.hbs',
+  'js/CustomElements',
+  'component/query-selector/query-selector.view',
+  'js/store',
+  'component/lightbox/lightbox.view.instance',
+], function(
+  Marionette,
+  _,
+  $,
+  workspaceExploreTemplate,
+  CustomElements,
+  QuerySelectorView,
+  store,
+  lightboxViewInstance
+) {
+  var WorkspaceExplore = Marionette.LayoutView.extend({
+    setDefaultModel: function() {
+      this.model = store.getCurrentWorkspace()
+    },
+    template: workspaceExploreTemplate,
+    tagName: CustomElements.register('workspace-explore'),
+    modelEvents: {},
+    events: {
+      'click .querySelector-modal': 'openQueriesModal',
+    },
+    regions: {
+      workspaceExploreQueries: '.workspaceExplore-queries',
+    },
+    initialize: function(options) {
+      if (options.model === undefined) {
+        this.setDefaultModel()
+      }
+    },
+    onBeforeShow: function() {
+      if (this.model) {
+        this.workspaceExploreQueries.show(new QuerySelectorView())
+      }
+    },
+  })
 
-    var WorkspaceExplore = Marionette.LayoutView.extend({
-        setDefaultModel: function(){
-            this.model = store.getCurrentWorkspace()
-        },
-        template: workspaceExploreTemplate,
-        tagName: CustomElements.register('workspace-explore'),
-        modelEvents: {
-        },
-        events: {
-            'click .querySelector-modal': 'openQueriesModal'
-        },
-        regions: {
-            workspaceExploreQueries: '.workspaceExplore-queries'
-        },
-        initialize: function (options) {
-            if (options.model === undefined){
-                this.setDefaultModel();
-            }
-        },
-        onBeforeShow: function(){
-            if (this.model) {
-                this.workspaceExploreQueries.show(new QuerySelectorView());
-            }
-        }
-    });
-
-    return WorkspaceExplore;
-});
+  return WorkspaceExplore
+})

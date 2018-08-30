@@ -13,49 +13,55 @@
  *
  **/
 /*global define*/
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const store = require('js/store');
-const template = require('./ingest-editor.hbs');
-const CustomElements = require('js/CustomElements');
-const PropertyCollectionView = require('component/property/property.collection.view');
-const properties = require('properties');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const store = require('js/store')
+const template = require('./ingest-editor.hbs')
+const CustomElements = require('js/CustomElements')
+const PropertyCollectionView = require('component/property/property.collection.view')
+const properties = require('properties')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('ingest-editor'),
-    events: {
-        'click .ingest-editor-clear': 'clear'
-    },
-    regions: {
-        editorProperties: '.ingest-editor-properties'
-    },
-    onBeforeShow: function() {
-        this.editorProperties.show(PropertyCollectionView.generateFilteredPropertyCollectionView(
-            properties.editorAttributes,
-            [],
-        ));
-        this.editorProperties.currentView.$el.addClass("is-list");
-        this.editorProperties.currentView.turnOnEditing();
-    },
-    clear: function() {
-        this.editorProperties.currentView.revert();
-        this.editorProperties.currentView.hideRequiredWarnings();
-    },
-    getPropertyCollectionView: function() {
-        return this.editorProperties.currentView;
-    },
-    /*
+  template: template,
+  tagName: CustomElements.register('ingest-editor'),
+  events: {
+    'click .ingest-editor-clear': 'clear',
+  },
+  regions: {
+    editorProperties: '.ingest-editor-properties',
+  },
+  onBeforeShow: function() {
+    this.editorProperties.show(
+      PropertyCollectionView.generateFilteredPropertyCollectionView(
+        properties.editorAttributes,
+        []
+      )
+    )
+    this.editorProperties.currentView.$el.addClass('is-list')
+    this.editorProperties.currentView.turnOnEditing()
+  },
+  clear: function() {
+    this.editorProperties.currentView.revert()
+    this.editorProperties.currentView.hideRequiredWarnings()
+  },
+  getPropertyCollectionView: function() {
+    return this.editorProperties.currentView
+  },
+  /*
         Return a map of attributes to their corresponding value arrays. Blank values are
         filtered, and only attributes with at least one non-blank value are returned.
      */
-    getAttributeOverrides: function() {
-        return _.chain(this.editorProperties.currentView.toPropertyJSON().properties)
-                .mapObject(function(values) {
-                    return values.filter((value) => value.trim().length > 0);
-                })
-                .pick(function(values) { return values.length > 0; })
-                .value();
-    },
-});
+  getAttributeOverrides: function() {
+    return _.chain(
+      this.editorProperties.currentView.toPropertyJSON().properties
+    )
+      .mapObject(function(values) {
+        return values.filter(value => value.trim().length > 0)
+      })
+      .pick(function(values) {
+        return values.length > 0
+      })
+      .value()
+  },
+})

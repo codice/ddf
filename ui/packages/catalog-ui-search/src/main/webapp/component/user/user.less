@@ -1,46 +1,46 @@
 @{customElementNamespace}user {
-    .customElement;
+  .customElement;
+  overflow: auto;
+
+  button {
+    width: 100%;
+  }
+
+  .user-info {
+    padding: @mediumSpacing;
     overflow: auto;
+    max-height: ~'calc(100% - @{minimumButtonSize} - @{minimumDividerSize})';
+    text-align: center;
 
-    button {
-        width: 100%;
+    div + div {
+      margin-top: @mediumSpacing;
     }
+  }
 
-    .user-info {
-        padding: @mediumSpacing;
-        overflow: auto;
-        max-height: ~'calc(100% - @{minimumButtonSize} - @{minimumDividerSize})';
-        text-align: center;
+  input + input {
+    margin-top: @mediumSpacing;
+  }
 
-        div + div {
-            margin-top: @mediumSpacing;
-        }
-    }
+  input {
+    width: 100%;
+    text-align: center;
+  }
 
-    input + input {
-        margin-top: @mediumSpacing;
-    }
-
-    input {
-        width: 100%;
-        text-align: center;
-    }
-
-    .is-guest,
-    .is-idp {
-        display: none;
-    }
+  .is-guest,
+  .is-idp {
+    display: none;
+  }
 }
 
 @{customElementNamespace}user.is-guest:not(.is-idp) {
-    .is-guest {
-        display: block;
-    }
+  .is-guest {
+    display: block;
+  }
 }
 
 @{customElementNamespace}user.is-idp,
 @{customElementNamespace}user:not(.is-guest) {
-    .is-idp {
-        display: block;
-    }
+  .is-idp {
+    display: block;
+  }
 }

@@ -11,57 +11,64 @@
  **/
 /*global window*/
 
-var _ = require('underscore');
-var Openlayers = require('openlayers');
-var properties = require('properties');
+var _ = require('underscore')
+var Openlayers = require('openlayers')
+var properties = require('properties')
 
 function convertPointCoordinate(point) {
-    var coords = [point[0], point[1]];
-    return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection);
+  var coords = [point[0], point[1]]
+  return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection)
 }
 
 function unconvertPointCoordinate(point) {
-    return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
+  return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326')
 }
 
 /*
   A variety of helpful functions for dealing with Openlayers
 */
 module.exports = {
-    /*
+  /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateOpenlayersCenterOfGeometry: function(propertyModel) {
-        var lineObject = propertyModel.getPoints().map(function(coordinate) {
-            return convertPointCoordinate(coordinate);
-        });
-        var extent = Openlayers.extent.boundingExtent(lineObject);
-        return Openlayers.extent.getCenter(extent);
-    },
-    /*
+  calculateOpenlayersCenterOfGeometry: function(propertyModel) {
+    var lineObject = propertyModel.getPoints().map(function(coordinate) {
+      return convertPointCoordinate(coordinate)
+    })
+    var extent = Openlayers.extent.boundingExtent(lineObject)
+    return Openlayers.extent.getCenter(extent)
+  },
+  /*
       Calculates the center of given a geometry (WKT)
     */
-    calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
-        var openlayersCenter = this.calculateOpenlayersCenterOfGeometry(propertyModel);
-        return unconvertPointCoordinate(openlayersCenter);
-    },
-    /*
+  calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
+    var openlayersCenter = this.calculateOpenlayersCenterOfGeometry(
+      propertyModel
+    )
+    return unconvertPointCoordinate(openlayersCenter)
+  },
+  /*
       Calculates the center of given geometries (WKT)
     */
-    calculateOpenlayersCenterOfGeometries: function(propertyModels) {
-        var allPoints = _.flatten(propertyModels.map(function(propertyModel) {
-            return propertyModel.getPoints();
-        }), true).map(function(coordinate) {
-            return convertPointCoordinate(coordinate);
-        });
-        var extent = Openlayers.extent.boundingExtent(allPoints);
-        return Openlayers.extent.getCenter(extent);
-    },
-    /*
+  calculateOpenlayersCenterOfGeometries: function(propertyModels) {
+    var allPoints = _.flatten(
+      propertyModels.map(function(propertyModel) {
+        return propertyModel.getPoints()
+      }),
+      true
+    ).map(function(coordinate) {
+      return convertPointCoordinate(coordinate)
+    })
+    var extent = Openlayers.extent.boundingExtent(allPoints)
+    return Openlayers.extent.getCenter(extent)
+  },
+  /*
       Calculates the center of given geometries (WKT)
     */
-    calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
-        var openlayersCenter = this.calculateOpenlayersCenterOfGeometries(propertyModels);
-        return unconvertPointCoordinate(openlayersCenter);
-    },
-};
+  calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
+    var openlayersCenter = this.calculateOpenlayersCenterOfGeometries(
+      propertyModels
+    )
+    return unconvertPointCoordinate(openlayersCenter)
+  },
+}

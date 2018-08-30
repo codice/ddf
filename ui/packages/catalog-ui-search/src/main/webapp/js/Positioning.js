@@ -10,23 +10,27 @@
  *
  **/
 /*global require*/
-var zeroScale = "matrix(0, 0, 0, 0, 0, 0)";
-var zeroOpacity = "0";
-var notDisplayed = 'none';
+var zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
+var zeroOpacity = '0'
+var notDisplayed = 'none'
 
 module.exports = {
-    isEffectivelyHidden: function(element) {
-        if (element === document){
-            return false;
-        } else if (element === null) {
-            return true;
-        } else {
-            var computedStyle = window.getComputedStyle(element);
-            if (computedStyle.transform === zeroScale || computedStyle.opacity === zeroOpacity || computedStyle.display === notDisplayed){
-                return true;
-            } else {
-                return this.isEffectivelyHidden(element.parentNode);
-            }
-        }
+  isEffectivelyHidden: function(element) {
+    if (element === document) {
+      return false
+    } else if (element === null) {
+      return true
+    } else {
+      var computedStyle = window.getComputedStyle(element)
+      if (
+        computedStyle.transform === zeroScale ||
+        computedStyle.opacity === zeroOpacity ||
+        computedStyle.display === notDisplayed
+      ) {
+        return true
+      } else {
+        return this.isEffectivelyHidden(element.parentNode)
+      }
     }
-};
+  },
+}

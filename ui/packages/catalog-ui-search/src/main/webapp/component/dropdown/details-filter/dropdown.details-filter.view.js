@@ -13,23 +13,23 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.details-filter.hbs');
-var ComponentView = require('component/details-filter/details-filter.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.details-filter.hbs')
+var ComponentView = require('component/details-filter/details-filter.view')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-detailsFilter',
-    componentToShow: ComponentView,
-    initialize: function () {
-        DropdownView.prototype.initialize.call(this);
-        this.handleFilter();
-        this.listenTo(this.model, 'change:value', this.handleFilter);
-    },
-    handleFilter: function () {
-        var value = this.model.get('value');
-        this.$el.toggleClass('has-filter', value !== undefined && value !== '');
-    }
-});
+  template: template,
+  className: 'is-detailsFilter',
+  componentToShow: ComponentView,
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+    this.handleFilter()
+    this.listenTo(this.model, 'change:value', this.handleFilter)
+  },
+  handleFilter: function() {
+    var value = this.model.get('value')
+    this.$el.toggleClass('has-filter', value !== undefined && value !== '')
+  },
+})

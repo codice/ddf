@@ -1,1 +1,1 @@
-export {default} from './workspaces-templates-container'
+export { default } from './workspaces-templates-container'

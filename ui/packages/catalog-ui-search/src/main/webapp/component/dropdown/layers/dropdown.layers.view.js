@@ -13,18 +13,18 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.layers.hbs');
-var LayersView = require('component/layers/layers.view');
-var user = require('component/singletons/user-instance');
+var Marionette = require('marionette')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.layers.hbs')
+var LayersView = require('component/layers/layers.view')
+var user = require('component/singletons/user-instance')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-layers',
-    componentToShow: LayersView,
-    initializeComponentModel: function(){
-        //override if you need more functionality
-        this.modelForComponent = user.get('user>preferences');
-    }
-});
+  template: template,
+  className: 'is-layers',
+  componentToShow: LayersView,
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = user.get('user>preferences')
+  },
+})

@@ -4,11 +4,9 @@
   "description": "Configurations and controls for the message broker.",
   "main": "index.js",
   "scripts": {
-    "test": "standard ./src/**/*.js",
     "prebuild": "mkdirp ./target/webapp",
     "build": "browserify ./src/main/webapp/index.js > ./target/webapp/bundle.js && ace package",
     "start": "hotreloadify src/main/webapp/index.js --index=src/main/resources/index.html --proxy=https://localhost:8993 --open",
-    "format": "standard --fix ./src/**/*.js",
     "clean": "ace clean"
   },
   "author": "Codice",
@@ -34,7 +32,6 @@
     "minifyify": "7.3.3",
     "mkdirp": "0.5.1",
     "node-lessify": "0.1.4",
-    "standard": "8.6.0",
     "tap": "5.7.2",
     "tape": "4.5.1",
     "ace": "*"

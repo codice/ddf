@@ -9,118 +9,125 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from "react";
-import styled from "../../styles/styled-components";
-import { Button, buttonTypeEnum } from '../button';
-import { hot } from 'react-hot-loader';
-const lightboxInstance = require('component/lightbox/lightbox.view.instance');
-const SourceAppView = require('component/source-app/source-app.view');
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { Button, buttonTypeEnum } from '../button'
+import { hot } from 'react-hot-loader'
+const lightboxInstance = require('component/lightbox/lightbox.view.instance')
+const SourceAppView = require('component/source-app/source-app.view')
 
 type RootProps = {
-    available: boolean;
+  available: boolean
 }
 
 const Root = styled<RootProps, 'div'>('div')`
+  width: 100%;
+  height: auto;
+  white-space: nowrap;
+  padding: ${props => props.theme.minimumSpacing};
+  overflow: hidden;
+
+  .source-name,
+  .source-available {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    font-size: ${props => props.theme.largeFontSize};
+    line-height: ${props => props.theme.minimumButtonSize};
+  }
+
+  .source-name {
+    padding: 0px ${props => props.theme.minimumSpacing};
+    max-width: calc(100% - ${props => props.theme.minimumButtonSize});
+    word-wrap: break-word;
+  }
+
+  .source-actions {
+    display: block;
+    padding-left: calc(2 * ${props => props.theme.minimumButtonSize});
+  }
+
+  .source-action > button {
     width: 100%;
-    height: auto;
-    white-space: nowrap;
-    padding: ${(props) => props.theme.minimumSpacing};
+    text-align: left;
+    padding: 0px ${props => props.theme.minimumSpacing};
     overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-    .source-name,
-    .source-available {
-        white-space: normal;
-        display: inline-block;
-        vertical-align: top;
-        font-size: ${props => props.theme.largeFontSize};
-        line-height: ${props => props.theme.minimumButtonSize};
-    }
+  .source-app {
+    display: none;
+  }
 
-    .source-name {
-        padding: 0px ${props => props.theme.minimumSpacing};
-        max-width: calc(100% - ${props => props.theme.minimumButtonSize});
-        word-wrap: break-word;
-    }
+  .source-available {
+    width: @minimumButtonSize;
+    text-align: center;
+  }
 
-    .source-actions {
-        display: block;
-        padding-left: calc(2 * ${props => props.theme.minimumButtonSize});
-    }
+  .is-available,
+  .is-not-available {
+    display: none;
+  }
 
-    .source-action > button {
-        width: 100%;
-        text-align: left;
-        padding: 0px ${props => props.theme.minimumSpacing};
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+  .is-available {
+    display: ${props => (props.available ? 'inline' : 'none')};
+    color: ${props => props.theme.positiveColor};
+  }
 
-    .source-app {
-        display: none;
-    }
-
-    .source-available {
-        width: @minimumButtonSize;
-        text-align: center;
-    }
-
-    .is-available,
-    .is-not-available {
-        display: none;
-    }
-
-    .is-available {
-        display: ${props => props.available ? 'inline' : 'none'};
-        color: ${props => props.theme.positiveColor};
-    }
-
-    .is-not-available {
-        display: ${props => props.available ? 'none' : 'inline'};
-        color: ${props => props.theme.warningColor};
-    }
+  .is-not-available {
+    display: ${props => (props.available ? 'none' : 'inline')};
+    color: ${props => props.theme.warningColor};
+  }
 `
 
 type SourceAction = {
-    title: string;
-    description: string;
-    url: string;
+  title: string
+  description: string
+  url: string
 }
 
 type Props = {
-    sourceActions?: SourceAction[],
-    id: string
+  sourceActions?: SourceAction[]
+  id: string
 } & RootProps
 
 export default hot(module)(({ id, sourceActions, available }: Props) => {
-    return (
-        <Root available={available}>
-            <div className="source-available">
-                <span className="is-available fa fa-check"></span>
-                <span className="is-not-available fa fa-bolt"></span>
-            </div><div className="source-name" title={id}>
-                {id}
-            </div>
-            <div className="source-actions">
-                {sourceActions !== undefined ? sourceActions.map((sourceAction) => {
-                    return (
-                    <div className="source-action" key={sourceAction.url}>
-                        <Button 
-                            icon="fa fa-external-link"
-                            text={sourceAction.title}
-                            buttonType={buttonTypeEnum.neutral}
-                            fadeUntilHover
-                            title={`${sourceAction.title}: ${sourceAction.description}`}
-                            data-help={`${sourceAction.title}: ${sourceAction.description}`}
-                            onClick={() => {
-                                lightboxInstance.model.updateTitle(sourceAction.title);
-                                lightboxInstance.model.open();
-                                lightboxInstance.lightboxContent.show(new SourceAppView({ url: sourceAction.url }));
-                            }}
-                        />
-                    </div>
-                )
-                }) : null}
-            </div>
-        </Root>
-    )
+  return (
+    <Root available={available}>
+      <div className="source-available">
+        <span className="is-available fa fa-check" />
+        <span className="is-not-available fa fa-bolt" />
+      </div>
+      <div className="source-name" title={id}>
+        {id}
+      </div>
+      <div className="source-actions">
+        {sourceActions !== undefined
+          ? sourceActions.map(sourceAction => {
+              return (
+                <div className="source-action" key={sourceAction.url}>
+                  <Button
+                    icon="fa fa-external-link"
+                    text={sourceAction.title}
+                    buttonType={buttonTypeEnum.neutral}
+                    fadeUntilHover
+                    title={`${sourceAction.title}: ${sourceAction.description}`}
+                    data-help={`${sourceAction.title}: ${
+                      sourceAction.description
+                    }`}
+                    onClick={() => {
+                      lightboxInstance.model.updateTitle(sourceAction.title)
+                      lightboxInstance.model.open()
+                      lightboxInstance.lightboxContent.show(
+                        new SourceAppView({ url: sourceAction.url })
+                      )
+                    }}
+                  />
+                </div>
+              )
+            })
+          : null}
+      </div>
+    </Root>
+  )
 })

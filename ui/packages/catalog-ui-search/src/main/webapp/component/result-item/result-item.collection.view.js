@@ -14,45 +14,56 @@
  **/
 /*global define, alert*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    'js/CustomElements',
-    './result-item.view',
-    'component/result-group/result-group.view',
-    'js/store',
-    'lodash/debounce'
-], function (Marionette, _, $, CustomElements, childView, groupView, store, _debounce) {
-
-    return Marionette.CollectionView.extend({
-        emptyView: Marionette.ItemView.extend({className: 'result-item-collection-empty', template: 'No results found'}),
-        tagName: CustomElements.register('result-item-collection'),
-        getChildView: function(childModel){
-            if (childModel.duplicates && !this.options.group){
-                return groupView;
-            } else {
-                return childView;
-            }
-        },
-        childViewOptions: function() {
-            return {
-                selectionInterface: this.options.selectionInterface
-            };
-        },
-        className: 'is-list has-list-highlighting',
-        selectionInterface: store,
-        initialize: function(options){
-            this.selectionInterface = options.selectionInterface || store;
-            this.render = _debounce(this.render, 200);
-        },
-        render: function() {
-            if (this.isDestroyed) {
-                return;  // not likely, but possible with the debounce that the view could get destroyed
-            }
-            Marionette.CollectionView.prototype.render.call(this);
-        },
-        onAddChild: function (childView) {
-            childView.$el.attr('data-index', this.children.length - 1);
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  'js/CustomElements',
+  './result-item.view',
+  'component/result-group/result-group.view',
+  'js/store',
+  'lodash/debounce',
+], function(
+  Marionette,
+  _,
+  $,
+  CustomElements,
+  childView,
+  groupView,
+  store,
+  _debounce
+) {
+  return Marionette.CollectionView.extend({
+    emptyView: Marionette.ItemView.extend({
+      className: 'result-item-collection-empty',
+      template: 'No results found',
+    }),
+    tagName: CustomElements.register('result-item-collection'),
+    getChildView: function(childModel) {
+      if (childModel.duplicates && !this.options.group) {
+        return groupView
+      } else {
+        return childView
+      }
+    },
+    childViewOptions: function() {
+      return {
+        selectionInterface: this.options.selectionInterface,
+      }
+    },
+    className: 'is-list has-list-highlighting',
+    selectionInterface: store,
+    initialize: function(options) {
+      this.selectionInterface = options.selectionInterface || store
+      this.render = _debounce(this.render, 200)
+    },
+    render: function() {
+      if (this.isDestroyed) {
+        return // not likely, but possible with the debounce that the view could get destroyed
+      }
+      Marionette.CollectionView.prototype.render.call(this)
+    },
+    onAddChild: function(childView) {
+      childView.$el.attr('data-index', this.children.length - 1)
+    },
+  })
+})

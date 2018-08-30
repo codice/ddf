@@ -13,27 +13,29 @@
  *
  **/
 /*global define, setTimeout*/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var template = require('./workspace-search.hbs');
-var ResultsView = require('component/results/results.view');
-var SearchesView = require('component/workspace-explore/workspace-explore.view');
-var store = require('js/store');
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var template = require('./workspace-search.hbs')
+var ResultsView = require('component/results/results.view')
+var SearchesView = require('component/workspace-explore/workspace-explore.view')
+var store = require('js/store')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('workspace-search'),
-    regions: {
-        searchResults: '> .search-results'
-    },
-    onBeforeShow: function () {
-        if (store.getCurrentWorkspace()) {
-            this.setupSearchResults();
-        }
-    },
-    setupSearchResults: function(){
-        this.searchResults.show(new ResultsView({
-            selectionInterface: store
-        }));
+  template: template,
+  tagName: CustomElements.register('workspace-search'),
+  regions: {
+    searchResults: '> .search-results',
+  },
+  onBeforeShow: function() {
+    if (store.getCurrentWorkspace()) {
+      this.setupSearchResults()
     }
-});
+  },
+  setupSearchResults: function() {
+    this.searchResults.show(
+      new ResultsView({
+        selectionInterface: store,
+      })
+    )
+  },
+})

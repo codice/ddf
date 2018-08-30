@@ -14,53 +14,80 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'backbone',
-    'underscore',
-    'jquery',
-    './result-sort.hbs',
-    'js/CustomElements',
-    'component/singletons/user-instance',
-    'component/sort/sort.view'
-], function (Marionette, Backbone, _, $, template, CustomElements, user, SortItemCollectionView) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('result-sort'),
-        modelEvents: {
-            'change': 'render'
-        },
-        events: {
-            'click > .editor-footer .footer-remove': 'removeSort',
-            'click > .editor-footer .footer-save': 'saveSort'
-        },
-        ui: {},
-        regions: {
-            editorProperties: '.editor-properties'
-        },
-        initialize: function () {
-        },
-        onRender: function () {
-            var resultSort = user.get('user').get('preferences').get('resultSort');
-            this.editorProperties.show(new SortItemCollectionView({
-                collection: new Backbone.Collection(resultSort)
-            }));
-            this.handleSort();
-        },
-        removeSort: function () {
-            user.get('user').get('preferences').set('resultSort', undefined);
-            user.get('user').get('preferences').savePreferences();
-            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        },
-        saveSort: function () {
-            var sorting = this.editorProperties.currentView.collection.toJSON();
-            user.get('user').get('preferences').set('resultSort', sorting.length === 0 ? undefined : sorting);
-            user.get('user').get('preferences').savePreferences();
-            this.$el.trigger('closeDropdown.' + CustomElements.getNamespace());
-        },
-        handleSort: function(){
-            var resultSort = user.get('user').get('preferences').get('resultSort');
-            this.$el.toggleClass('has-sort', Boolean(resultSort));
-        }
-    });
-});
+  'marionette',
+  'backbone',
+  'underscore',
+  'jquery',
+  './result-sort.hbs',
+  'js/CustomElements',
+  'component/singletons/user-instance',
+  'component/sort/sort.view',
+], function(
+  Marionette,
+  Backbone,
+  _,
+  $,
+  template,
+  CustomElements,
+  user,
+  SortItemCollectionView
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('result-sort'),
+    modelEvents: {
+      change: 'render',
+    },
+    events: {
+      'click > .editor-footer .footer-remove': 'removeSort',
+      'click > .editor-footer .footer-save': 'saveSort',
+    },
+    ui: {},
+    regions: {
+      editorProperties: '.editor-properties',
+    },
+    initialize: function() {},
+    onRender: function() {
+      var resultSort = user
+        .get('user')
+        .get('preferences')
+        .get('resultSort')
+      this.editorProperties.show(
+        new SortItemCollectionView({
+          collection: new Backbone.Collection(resultSort),
+        })
+      )
+      this.handleSort()
+    },
+    removeSort: function() {
+      user
+        .get('user')
+        .get('preferences')
+        .set('resultSort', undefined)
+      user
+        .get('user')
+        .get('preferences')
+        .savePreferences()
+      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+    },
+    saveSort: function() {
+      var sorting = this.editorProperties.currentView.collection.toJSON()
+      user
+        .get('user')
+        .get('preferences')
+        .set('resultSort', sorting.length === 0 ? undefined : sorting)
+      user
+        .get('user')
+        .get('preferences')
+        .savePreferences()
+      this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+    },
+    handleSort: function() {
+      var resultSort = user
+        .get('user')
+        .get('preferences')
+        .get('resultSort')
+      this.$el.toggleClass('has-sort', Boolean(resultSort))
+    },
+  })
+})

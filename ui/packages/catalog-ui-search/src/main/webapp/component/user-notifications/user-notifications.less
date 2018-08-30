@@ -1,25 +1,24 @@
 @{customElementNamespace}user-notifications {
-    .customElement;
-    overflow: auto;
-    padding: @mediumSpacing;
+  .customElement;
+  overflow: auto;
+  padding: @mediumSpacing;
 
-    > .notifications-list {
-        > @{customElementNamespace}notification-group {
-            margin-top: 10px;
-        }
+  > .notifications-list {
+    > @{customElementNamespace}notification-group {
+      margin-top: 10px;
     }
+  }
 
-    > .notifications-empty {
-        transform: scale(0);
-        font-size: @largeFontSize;
-        text-align: center;
-    }
+  > .notifications-empty {
+    transform: scale(0);
+    font-size: @largeFontSize;
+    text-align: center;
+  }
 }
 
 @{customElementNamespace}user-notifications.is-empty {
-
-    > .notifications-empty {
-        transition: transform @coreTransitionTime linear;
-        transform: scale(1);
-    }
+  > .notifications-empty {
+    transition: transform @coreTransitionTime linear;
+    transform: scale(1);
+  }
 }

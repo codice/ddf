@@ -13,115 +13,171 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr');
-var _ = require('underscore');
-var template = require('./row.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var $ = require('jquery');
-var metacardDefinitions = require('component/singletons/metacard-definitions');
-var Common = require('js/Common');
-var user = require('component/singletons/user-instance');
-var properties = require('properties');
-var HoverPreviewDropdown = require('component/dropdown/hover-preview/dropdown.hover-preview.view');
-var DropdownModel = require('component/dropdown/dropdown');
+var wreqr = require('wreqr')
+var _ = require('underscore')
+var template = require('./row.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var store = require('js/store')
+var $ = require('jquery')
+var metacardDefinitions = require('component/singletons/metacard-definitions')
+var Common = require('js/Common')
+var user = require('component/singletons/user-instance')
+var properties = require('properties')
+var HoverPreviewDropdown = require('component/dropdown/hover-preview/dropdown.hover-preview.view')
+var DropdownModel = require('component/dropdown/dropdown')
 
 module.exports = Marionette.LayoutView.extend({
-    className: 'is-tr',
-    tagName: CustomElements.register('result-row'),
-    events: {
-        'click .result-download': 'triggerDownload'
-    },
-    regions: {
-        resultThumbnail: '.is-thumbnail'
-    },
-    attributes: function() {
-        return {
-            'data-resultid': this.model.id
-        };
-    },
-    template: template,
-    initialize: function(options) {
-        if (!options.selectionInterface) {
-            throw 'Selection interface has not been provided';
-        }
-        this.listenTo(this.model, 'change:metacard>properties change:metacard', this.render);
-        this.listenTo(user.get('user').get('preferences'), 'change:columnHide', this.render);
-        this.listenTo(user.get('user').get('preferences'), 'change:columnOrder', this.render);
-        this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.handleSelectionChange);
-        this.handleSelectionChange();
-    },
-    handleSelectionChange: function() {
-        var selectedResults = this.options.selectionInterface.getSelectedResults();
-        var isSelected = selectedResults.get(this.model.id);
-        this.$el.toggleClass('is-selected', Boolean(isSelected));
-    },
-    onRender: function() {
-        this.checkIfDownloadable();
-        this.checkIfLinks();
-        this.$el.attr(this.attributes());
-        this.handleResultThumbnail();
-    },
-    handleResultThumbnail: function() {
-        var hiddenColumns = user.get('user').get('preferences').get('columnHide');
-        if (this.model.get('metacard').get('properties').get('thumbnail') &&
-            !_.includes(hiddenColumns, 'thumbnail')) {
-            this.resultThumbnail.show(new HoverPreviewDropdown({
-                model: new DropdownModel(),
-                modelForComponent: this.model
-            }));
-        }
-    },
-    checkIfDownloadable: function(){
-        this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
-    },
-    checkIfLinks: function() {
-        this.$el.toggleClass('is-links', this.model.get('metacard').get('properties').get('associations.external') !== undefined);
-    },
-    triggerDownload: function(){
-        window.open(this.model.get('metacard').get('properties').get('resource-download-url'));
-    },
-    serializeData: function() {
-        var prefs = user.get('user').get('preferences');
-        var preferredHeader = user.get('user').get('preferences').get('columnOrder');
-        var hiddenColumns = user.get('user').get('preferences').get('columnHide');
-        var availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes();
-        var result = this.model.toJSON();
-        return {
-            id: result.id,
-            properties: preferredHeader.filter(function(property) {
-                return availableAttributes.indexOf(property) !== -1;
-            }).map(function(property) {
-                var value = result.metacard.properties[property];
-                if (value === undefined){
-                    value = '';
-                }
-                if (value.constructor !== Array){
-                    value = [value];
-                }
-                var className = 'is-text';
-                if (value && metacardDefinitions.metacardTypes[property]) {
-                    switch (metacardDefinitions.metacardTypes[property].type) {
-                        case 'DATE':
-                            value = value.map(function(val) {
-                                return val !== undefined && val !== '' ? user.getUserReadableDateTime(val) : '';
-                            });
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if (property === 'thumbnail') {
-                    className = "is-thumbnail";
-                }
-                return {
-                    property: property,
-                    value: value,
-                    class: className,
-                    hidden: hiddenColumns.indexOf(property) >= 0 || properties.isHidden(property) || metacardDefinitions.isHiddenTypeExceptThumbnail(property)
-                };
-            })
-        };
+  className: 'is-tr',
+  tagName: CustomElements.register('result-row'),
+  events: {
+    'click .result-download': 'triggerDownload',
+  },
+  regions: {
+    resultThumbnail: '.is-thumbnail',
+  },
+  attributes: function() {
+    return {
+      'data-resultid': this.model.id,
     }
-});
+  },
+  template: template,
+  initialize: function(options) {
+    if (!options.selectionInterface) {
+      throw 'Selection interface has not been provided'
+    }
+    this.listenTo(
+      this.model,
+      'change:metacard>properties change:metacard',
+      this.render
+    )
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:columnHide',
+      this.render
+    )
+    this.listenTo(
+      user.get('user').get('preferences'),
+      'change:columnOrder',
+      this.render
+    )
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.handleSelectionChange
+    )
+    this.handleSelectionChange()
+  },
+  handleSelectionChange: function() {
+    var selectedResults = this.options.selectionInterface.getSelectedResults()
+    var isSelected = selectedResults.get(this.model.id)
+    this.$el.toggleClass('is-selected', Boolean(isSelected))
+  },
+  onRender: function() {
+    this.checkIfDownloadable()
+    this.checkIfLinks()
+    this.$el.attr(this.attributes())
+    this.handleResultThumbnail()
+  },
+  handleResultThumbnail: function() {
+    var hiddenColumns = user
+      .get('user')
+      .get('preferences')
+      .get('columnHide')
+    if (
+      this.model
+        .get('metacard')
+        .get('properties')
+        .get('thumbnail') &&
+      !_.includes(hiddenColumns, 'thumbnail')
+    ) {
+      this.resultThumbnail.show(
+        new HoverPreviewDropdown({
+          model: new DropdownModel(),
+          modelForComponent: this.model,
+        })
+      )
+    }
+  },
+  checkIfDownloadable: function() {
+    this.$el.toggleClass(
+      'is-downloadable',
+      this.model
+        .get('metacard')
+        .get('properties')
+        .get('resource-download-url') !== undefined
+    )
+  },
+  checkIfLinks: function() {
+    this.$el.toggleClass(
+      'is-links',
+      this.model
+        .get('metacard')
+        .get('properties')
+        .get('associations.external') !== undefined
+    )
+  },
+  triggerDownload: function() {
+    window.open(
+      this.model
+        .get('metacard')
+        .get('properties')
+        .get('resource-download-url')
+    )
+  },
+  serializeData: function() {
+    var prefs = user.get('user').get('preferences')
+    var preferredHeader = user
+      .get('user')
+      .get('preferences')
+      .get('columnOrder')
+    var hiddenColumns = user
+      .get('user')
+      .get('preferences')
+      .get('columnHide')
+    var availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+    var result = this.model.toJSON()
+    return {
+      id: result.id,
+      properties: preferredHeader
+        .filter(function(property) {
+          return availableAttributes.indexOf(property) !== -1
+        })
+        .map(function(property) {
+          var value = result.metacard.properties[property]
+          if (value === undefined) {
+            value = ''
+          }
+          if (value.constructor !== Array) {
+            value = [value]
+          }
+          var className = 'is-text'
+          if (value && metacardDefinitions.metacardTypes[property]) {
+            switch (metacardDefinitions.metacardTypes[property].type) {
+              case 'DATE':
+                value = value.map(function(val) {
+                  return val !== undefined && val !== ''
+                    ? user.getUserReadableDateTime(val)
+                    : ''
+                })
+                break
+              default:
+                break
+            }
+          }
+          if (property === 'thumbnail') {
+            className = 'is-thumbnail'
+          }
+          return {
+            property: property,
+            value: value,
+            class: className,
+            hidden:
+              hiddenColumns.indexOf(property) >= 0 ||
+              properties.isHidden(property) ||
+              metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+          }
+        }),
+    }
+  },
+})

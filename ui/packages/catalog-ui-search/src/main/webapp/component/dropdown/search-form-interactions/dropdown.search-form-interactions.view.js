@@ -14,27 +14,25 @@
  **/
 /*global define*/
 
-
-var  Marionette = require('marionette');
-var  DropdownView = require('../dropdown.view');
-var  template = require('./dropdown.search-form-interactions.hbs');
-var  SearchFormInteractionsView = require('component/search-form-interactions/search-form-interactions.view');
+var Marionette = require('marionette')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.search-form-interactions.hbs')
+var SearchFormInteractionsView = require('component/search-form-interactions/search-form-interactions.view')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-search-form-interactions',
-    componentToShow: SearchFormInteractionsView,
-    initializeComponentModel: function(){
-        //override if you need more functionality
-        this.modelForComponent = this.options.modelForComponent;
-    },
-    listenToComponent: function(){
-        //override if you need more functionality
-    },
-    isCentered: true,
-    getCenteringElement: function(){
-        return this.el;
-    },
-    hasTail: true
-});
-
+  template: template,
+  className: 'is-search-form-interactions',
+  componentToShow: SearchFormInteractionsView,
+  initializeComponentModel: function() {
+    //override if you need more functionality
+    this.modelForComponent = this.options.modelForComponent
+  },
+  listenToComponent: function() {
+    //override if you need more functionality
+  },
+  isCentered: true,
+  getCenteringElement: function() {
+    return this.el
+  },
+  hasTail: true,
+})

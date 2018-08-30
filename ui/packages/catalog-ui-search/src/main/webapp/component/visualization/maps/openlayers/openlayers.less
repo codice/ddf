@@ -3,7 +3,7 @@
   font-size: 16px;
 
   position: relative;
-  
+
   canvas {
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: grab;
@@ -23,14 +23,12 @@
 }
 
 @{customElementNamespace}map.is-openlayers.is-hovering {
-
   canvas {
     cursor: pointer;
   }
 }
 
 @{customElementNamespace}map.is-openlayers.is-drawing {
-
   canvas,
   canvas:active {
     cursor: crosshair;

@@ -13,38 +13,30 @@
  *
  **/
 /*global define*/
-define([
-        'jquery',
-        'backbone',
-        'backboneassociations'
-    ],
-    function ($, Backbone) {
-        var Store = {};
+define(['jquery', 'backbone', 'backboneassociations'], function($, Backbone) {
+  var Store = {}
 
-        Store.Response = Backbone.AssociatedModel.extend({
-
-            removeStoreItem: function (url, alias) {
-                var that = this;
-                $.ajax({
-                    url: url + alias,
-                    type: 'GET'
-                }).then(function () {
-                    that.trigger('reload');
-                });
-            },
-            addStoreItem: function (url, alias, data) {
-                var that = this;
-                var jData = JSON.stringify(data);
-                $.ajax({
-                    url: url + alias,
-                    dataType: 'json',
-                    data: jData
-                }).then(function () {
-                    that.trigger('reload');
-                });
-            }
-
-        });
-        return Store;
-
-    });
+  Store.Response = Backbone.AssociatedModel.extend({
+    removeStoreItem: function(url, alias) {
+      var that = this
+      $.ajax({
+        url: url + alias,
+        type: 'GET',
+      }).then(function() {
+        that.trigger('reload')
+      })
+    },
+    addStoreItem: function(url, alias, data) {
+      var that = this
+      var jData = JSON.stringify(data)
+      $.ajax({
+        url: url + alias,
+        dataType: 'json',
+        data: jData,
+      }).then(function() {
+        that.trigger('reload')
+      })
+    },
+  })
+  return Store
+})

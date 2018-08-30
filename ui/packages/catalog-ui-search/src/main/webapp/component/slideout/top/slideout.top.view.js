@@ -13,17 +13,17 @@
  *
  **/
 /*global require*/
-var SlideoutView = require('./../slideout.view');
-var $ = require('jquery');
+var SlideoutView = require('./../slideout.view')
+var $ = require('jquery')
 
 module.exports = SlideoutView.extend({
-    className: 'is-top',
-    open: function() {
-        $('html').toggleClass('has-slideout-top', true);
-        this.$el.toggleClass('is-open', true);
-    },
-    close: function() {
-        this.$el.toggleClass('is-open', false);
-        $('html').toggleClass('has-slideout-top', false);
-    }
-});
+  className: 'is-top',
+  open: function() {
+    $('html').toggleClass('has-slideout-top', true)
+    this.$el.toggleClass('is-open', true)
+  },
+  close: function() {
+    this.$el.toggleClass('is-open', false)
+    $('html').toggleClass('has-slideout-top', false)
+  },
+})

@@ -14,54 +14,52 @@
  **/
 /*global define*/
 define([
-        'wreqr',
-        'js/application',
-        'js/view/Source.view.js',
-        'poller',
-        'js/model/Source.js',
-        'js/model/Status.js',
-        'js/model/Service.js'
-    ],
-    function (wreqr, Application, SourceView, poller, Source, Status, Service) {
+  'wreqr',
+  'js/application',
+  'js/view/Source.view.js',
+  'poller',
+  'js/model/Source.js',
+  'js/model/Status.js',
+  'js/model/Service.js',
+], function(wreqr, Application, SourceView, poller, Source, Status, Service) {
+  Application.App.module('Sources', function(
+    SourceModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var serviceModel = new Service.Response()
+    serviceModel.fetch()
 
-        Application.App.module('Sources', function (SourceModule, App, Backbone, Marionette) {
+    var sourceResponse = new Source.Response({
+      model: serviceModel,
+    })
 
-            var serviceModel = new Service.Response();
-            serviceModel.fetch();
+    var sourcePage = new SourceView.SourcePage({
+      model: sourceResponse,
+    })
 
-            var sourceResponse = new Source.Response({
-                model: serviceModel
-            });
+    // Define a controller to run this module
+    // --------------------------------------
 
-            var sourcePage = new SourceView.SourcePage({
-                model: sourceResponse
-            });
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            // Define a controller to run this module
-            // --------------------------------------
+      show: function() {
+        this.region.show(sourcePage)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-                initialize: function (options) {
-                    this.region = options.region;
-                },
-
-                show: function () {
-                    this.region.show(sourcePage);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
-
-            SourceModule.addInitializer(function () {
-                SourceModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                SourceModule.contentController.show();
-            });
-
-
-        });
-    });
+    SourceModule.addInitializer(function() {
+      SourceModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      SourceModule.contentController.show()
+    })
+  })
+})

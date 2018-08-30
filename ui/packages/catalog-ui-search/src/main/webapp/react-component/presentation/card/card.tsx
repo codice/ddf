@@ -9,62 +9,56 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
 
 const Root = styled.div`
-    width: 100%;
-    height: auto;
-    display: inline-block;
-    cursor: pointer;
-    text-align: left;
+  width: 100%;
+  height: auto;
+  display: inline-block;
+  cursor: pointer;
+  text-align: left;
 `
 
 const Header = styled.div`
-    max-width: 100%;
-    font-weight: bolder;
-    padding: 0px ${props => props.theme.minimumSpacing};
-    height: ${props => props.theme.minimumLineSize};
-    line-height: ${props => props.theme.minimumLineSize};
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  max-width: 100%;
+  font-weight: bolder;
+  padding: 0px ${props => props.theme.minimumSpacing};
+  height: ${props => props.theme.minimumLineSize};
+  line-height: ${props => props.theme.minimumLineSize};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const Details = styled.div`
-    max-width: 100%;
-    opacity: ${props => props.theme.minimumOpacity};
-    padding: 0px ${props => props.theme.minimumSpacing};
-    line-height: ${props => props.theme.minimumLineSize};
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  max-width: 100%;
+  opacity: ${props => props.theme.minimumOpacity};
+  padding: 0px ${props => props.theme.minimumSpacing};
+  line-height: ${props => props.theme.minimumLineSize};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const Footer = styled.div`
-    text-align: right;
+  text-align: right;
 `
 
 interface Props {
-    header: React.ReactNode,
-    details: React.ReactNode,
-    footer: React.ReactNode
+  header: React.ReactNode
+  details: React.ReactNode
+  footer: React.ReactNode
 }
 
-const Card =  (props: Props) => {
-    return (
-        <Root>
-            <Header>
-               { props.header }
-            </Header>
-            <Details>
-               { props.details }
-            </Details>
-            <Footer>
-                { props.footer }
-            </Footer>
-        </Root>
-    )
+const Card = (props: Props) => {
+  return (
+    <Root>
+      <Header>{props.header}</Header>
+      <Details>{props.details}</Details>
+      <Footer>{props.footer}</Footer>
+    </Root>
+  )
 }
 
 export default Card

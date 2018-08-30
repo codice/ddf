@@ -10,31 +10,37 @@
  *
  **/
 /*global require*/
-var user = require('component/singletons/user-instance');
-var Backbone = require('backbone');
+var user = require('component/singletons/user-instance')
+var Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({
-    initialize: function(){
-        var uploads = user.get('user').get('preferences').get('uploads');
-        var alerts = user.get('user').get('preferences').get('alerts');
-        this.add(uploads.models);
-        this.add(alerts.models);
-        this.listenTo(uploads, 'add', this.add);
-        this.listenTo(uploads, 'remove', this.remove);
-        this.listenTo(alerts, 'add', this.add);
-        this.listenTo(alerts, 'remove', this.remove);
-    },
-    comparator: function(model){
-        return -model.getTimeComparator();
-    },
-    hasUnseen: function(){
-        return this.some(function(notification){
-            return notification.get('unseen');
-        });
-    },
-    setSeen: function(){
-        this.forEach(function(notification){
-            notification.set('unseen', false);
-        });
-    }
-}))();
+  initialize: function() {
+    var uploads = user
+      .get('user')
+      .get('preferences')
+      .get('uploads')
+    var alerts = user
+      .get('user')
+      .get('preferences')
+      .get('alerts')
+    this.add(uploads.models)
+    this.add(alerts.models)
+    this.listenTo(uploads, 'add', this.add)
+    this.listenTo(uploads, 'remove', this.remove)
+    this.listenTo(alerts, 'add', this.add)
+    this.listenTo(alerts, 'remove', this.remove)
+  },
+  comparator: function(model) {
+    return -model.getTimeComparator()
+  },
+  hasUnseen: function() {
+    return this.some(function(notification) {
+      return notification.get('unseen')
+    })
+  },
+  setSeen: function() {
+    this.forEach(function(notification) {
+      notification.set('unseen', false)
+    })
+  },
+}))()

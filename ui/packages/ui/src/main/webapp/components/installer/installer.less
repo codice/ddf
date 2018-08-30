@@ -13,23 +13,23 @@
  *
  **/
 @{customElementNamespace}installer {
-    display: block;
+  display: block;
 
-    > .loading {
-        display: none;
-        height: 100%;
-    }
+  > .loading {
+    display: none;
+    height: 100%;
+  }
 
-    > .loading span {
-        margin-bottom: @mediumSpacing;
-    }
+  > .loading span {
+    margin-bottom: @mediumSpacing;
+  }
 }
 
 @{customElementNamespace}installer.is-loading {
-    > *:not(.loading) {
-        display: none;
-    }
-    > .loading {
-        display: block;
-    }
+  > *:not(.loading) {
+    display: none;
+  }
+  > .loading {
+    display: block;
+  }
 }

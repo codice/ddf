@@ -12,24 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const CustomElements = require('js/CustomElements');
-const template = require('./editable-row.hbs');
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const template = require('./editable-row.hbs')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('editable-row'),
-    template: template,
-    events: { 'click .remove': 'removeRow' },
-    regions: { embed: '.embed' },
-    removeRow: function() {
-        this.model.destroy();
-    },
-    onRender: function() {
-        this.embed.show(
-            this.options.embed(this.model, this.options.embedOptions)
-        );
-    },
-});
+  tagName: CustomElements.register('editable-row'),
+  template: template,
+  events: { 'click .remove': 'removeRow' },
+  regions: { embed: '.embed' },
+  removeRow: function() {
+    this.model.destroy()
+  },
+  onRender: function() {
+    this.embed.show(this.options.embed(this.model, this.options.embedOptions))
+  },
+})

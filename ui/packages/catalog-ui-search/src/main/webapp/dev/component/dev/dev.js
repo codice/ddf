@@ -9,14 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react';
-import styled from '../../../react-component/styles/styled-components';
-import { readableColor, darken, lighten } from 'polished';
-import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container';
-const TabsModel = require('component/tabs/tabs');
-const TabsView = require('component/tabs/tabs.view');
-const GuideView = require('dev/component/guide/guide.view');
-const AboutView = require('dev/component/about/about.view');
+import React from 'react'
+import styled from '../../../react-component/styles/styled-components'
+import { readableColor, darken, lighten } from 'polished'
+import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
+const TabsModel = require('component/tabs/tabs')
+const TabsView = require('component/tabs/tabs.view')
+const GuideView = require('dev/component/guide/guide.view')
+const AboutView = require('dev/component/about/about.view')
 const VideosView = require('dev/component/videos/videos.view')
 
 const Root = styled.div`
@@ -73,26 +73,26 @@ const Root = styled.div`
     }
 `
 
-const Dev =  (props) => {
-    return (
-        <Root {...props}>
-            <MarionetteRegionContainer 
-                className="content"
-                view={TabsView}
-                viewOptions={() => {
-                    return {
-                        model: new TabsModel({
-                            tabs: {
-                                'About': AboutView,
-                                'Guide': GuideView,
-                                'Videos': VideosView
-                            }
-                        })
-                    }
-                }}
-            />
-        </Root>
-    )
+const Dev = props => {
+  return (
+    <Root {...props}>
+      <MarionetteRegionContainer
+        className="content"
+        view={TabsView}
+        viewOptions={() => {
+          return {
+            model: new TabsModel({
+              tabs: {
+                About: AboutView,
+                Guide: GuideView,
+                Videos: VideosView,
+              },
+            }),
+          }
+        }}
+      />
+    </Root>
+  )
 }
 
 export default Dev

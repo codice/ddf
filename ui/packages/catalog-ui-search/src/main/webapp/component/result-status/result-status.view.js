@@ -14,26 +14,25 @@
  **/
 /*global define, alert*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './result-status.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, template, CustomElements) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('result-status'),
-        initialize: function(){
-            this.render = _.throttle(this.render, 250);
-        },
-        serializeData: function(){
-            return {
-                amountFiltered: this.model.amountFiltered
-            };
-        },
-        onRender: function(){
-            this.$el.toggleClass('has-filtered', this.model.amountFiltered !== 0);
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  './result-status.hbs',
+  'js/CustomElements',
+], function(Marionette, _, $, template, CustomElements) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('result-status'),
+    initialize: function() {
+      this.render = _.throttle(this.render, 250)
+    },
+    serializeData: function() {
+      return {
+        amountFiltered: this.model.amountFiltered,
+      }
+    },
+    onRender: function() {
+      this.$el.toggleClass('has-filtered', this.model.amountFiltered !== 0)
+    },
+  })
+})

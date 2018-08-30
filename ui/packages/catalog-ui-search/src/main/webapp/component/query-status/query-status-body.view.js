@@ -13,15 +13,15 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var RowView = require('./query-status-row.view');
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var RowView = require('./query-status-row.view')
 
 module.exports = Marionette.CollectionView.extend({
-    tagName: CustomElements.register('query-status-tbody'),
-    className: 'is-tbody is-list has-list-highlighting',
-    childView: RowView,
-    filter: function(childModel){
-        return childModel.get('id') !== 'cache';
-    }
-});
+  tagName: CustomElements.register('query-status-tbody'),
+  className: 'is-tbody is-list has-list-highlighting',
+  childView: RowView,
+  filter: function(childModel) {
+    return childModel.get('id') !== 'cache'
+  },
+})

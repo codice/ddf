@@ -14,26 +14,31 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './upload-batch-item.view',
-    'js/CustomElements',
-    'component/singletons/user-instance'
-], function (Marionette, _, $, childView, CustomElements, user) {
-
-    return Marionette.CollectionView.extend({
-        emptyView: Marionette.ItemView.extend({className: 'alert-empty', template: 'No Recent Uploads'}),
-        className: 'is-list has-list-highlighting',
-        setDefaultCollection: function(){
-            this.collection = user.get('user').get('preferences').get('uploads');
-        },
-        childView: childView,
-        tagName: CustomElements.register('upload-batch-item-collection'),
-        initialize: function(options){
-            if (!options.collection){
-                this.setDefaultCollection();
-            }
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  './upload-batch-item.view',
+  'js/CustomElements',
+  'component/singletons/user-instance',
+], function(Marionette, _, $, childView, CustomElements, user) {
+  return Marionette.CollectionView.extend({
+    emptyView: Marionette.ItemView.extend({
+      className: 'alert-empty',
+      template: 'No Recent Uploads',
+    }),
+    className: 'is-list has-list-highlighting',
+    setDefaultCollection: function() {
+      this.collection = user
+        .get('user')
+        .get('preferences')
+        .get('uploads')
+    },
+    childView: childView,
+    tagName: CustomElements.register('upload-batch-item-collection'),
+    initialize: function(options) {
+      if (!options.collection) {
+        this.setDefaultCollection()
+      }
+    },
+  })
+})

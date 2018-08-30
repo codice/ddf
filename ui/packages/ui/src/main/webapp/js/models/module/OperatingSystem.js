@@ -13,24 +13,19 @@
  *
  **/
 /*global define*/
-define([
-    'backbone'
-],function (Backbone) {
+define(['backbone'], function(Backbone) {
+  var OperatingSystem = {}
 
+  OperatingSystem.Model = Backbone.Model.extend({
+    defaults: {
+      fetched: false,
+    },
+    url: './jolokia/read/java.lang:type=OperatingSystem/',
+    parse: function(resp) {
+      resp.value.fetched = true
+      return resp.value
+    },
+  })
 
-    var OperatingSystem = {};
-
-    OperatingSystem.Model = Backbone.Model.extend({
-        defaults: {
-            fetched: false
-        },
-        url: './jolokia/read/java.lang:type=OperatingSystem/',
-        parse: function(resp){
-            resp.value.fetched = true;
-            return resp.value;
-        }
-    });
-
-    return OperatingSystem;
-
-});
+  return OperatingSystem
+})

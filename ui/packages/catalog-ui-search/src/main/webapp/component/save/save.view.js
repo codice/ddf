@@ -14,36 +14,36 @@
  **/
 /*global require*/
 
-var Marionette = require('marionette');
-var template = require('./save.hbs');
-var CustomElements = require('js/CustomElements');
-require('behaviors/button.behavior');
+var Marionette = require('marionette')
+var template = require('./save.hbs')
+var CustomElements = require('js/CustomElements')
+require('behaviors/button.behavior')
 
 // Base View, meant to be extended for whatever needs a save button
 module.exports = Marionette.ItemView.extend({
-    template: template,
-    tagName: CustomElements.register('save'),
-    className: 'is-button',
-    events: {
-        'click': 'triggerSave'
-    },
-    behaviors: {
-        button: {}
-    },
-    initialize: function() {
-        // overwrite with listeners
-    },
-    onBeforeShow: function() {
-        this.handleSaved();
-    },
-    isSaved: function() {
-        // overwrite with save check
-    },
-    triggerSave: function() {
-        // overwrite with save action
-    },
-    handleSaved: function() {
-        this.$el.toggleClass('is-saved', this.isSaved());
-        this.$el.attr('tabindex', this.isSaved() ? -1 : 0);
-    }
-});
+  template: template,
+  tagName: CustomElements.register('save'),
+  className: 'is-button',
+  events: {
+    click: 'triggerSave',
+  },
+  behaviors: {
+    button: {},
+  },
+  initialize: function() {
+    // overwrite with listeners
+  },
+  onBeforeShow: function() {
+    this.handleSaved()
+  },
+  isSaved: function() {
+    // overwrite with save check
+  },
+  triggerSave: function() {
+    // overwrite with save action
+  },
+  handleSaved: function() {
+    this.$el.toggleClass('is-saved', this.isSaved())
+    this.$el.attr('tabindex', this.isSaved() ? -1 : 0)
+  },
+})

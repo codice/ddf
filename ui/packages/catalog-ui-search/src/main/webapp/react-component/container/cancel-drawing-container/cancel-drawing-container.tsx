@@ -9,32 +9,32 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-const $ = require('jquery');
+import * as React from 'react'
+const $ = require('jquery')
 
 interface Props {
-    turnOffDrawing: Function
+  turnOffDrawing: Function
 }
 
 class CancelDrawingContainer extends React.Component<Props, {}> {
-    constructor(props: Props) {
-        super(props);
-    }
-    ref = React.createRef()
-    componentDidMount() {
-        $(this.ref.current).on('mousedown', (e: Event) => {
-            e.stopPropagation();
-            this.props.turnOffDrawing();
-        })
-    }
-    render() {
-        const children = React.Children.map(this.props.children, (child) => {
-            return React.cloneElement(child as React.ReactElement<any>, {
-                innerRef: this.ref
-            });
-        });
-        return children;
-    }
+  constructor(props: Props) {
+    super(props)
+  }
+  ref = React.createRef()
+  componentDidMount() {
+    $(this.ref.current).on('mousedown', (e: Event) => {
+      e.stopPropagation()
+      this.props.turnOffDrawing()
+    })
+  }
+  render() {
+    const children = React.Children.map(this.props.children, child => {
+      return React.cloneElement(child as React.ReactElement<any>, {
+        innerRef: this.ref,
+      })
+    })
+    return children
+  }
 }
 
 export default CancelDrawingContainer

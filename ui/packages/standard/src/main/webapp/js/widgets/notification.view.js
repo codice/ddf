@@ -9,33 +9,35 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-define([
-        'marionette',
-        'backbone'
-    ],
-    function (Marionette, Backbone) {
-        "use strict";
+define(['marionette', 'backbone'], function(Marionette, Backbone) {
+  'use strict'
 
-        var NotificationView = Backbone.View.extend({
-            render: function () {
-                if (this.rendered) {
-                    this.$el.hide('fast');
-                }
-                this.$el.empty();
-                // if it gets any more complicated than this, then we should move to templates
-                this.$el.append('<span>Please draw area of interest.</span>');
-                this.$el.animate({
-                    height: 'show'
-                }, 425);
-                this.rendered = true;
-                return this;
-            },
-            destroy: function () {
-                this.$el.animate({
-                    height: 'hide'
-                }, 425);
-            }
-        });
+  var NotificationView = Backbone.View.extend({
+    render: function() {
+      if (this.rendered) {
+        this.$el.hide('fast')
+      }
+      this.$el.empty()
+      // if it gets any more complicated than this, then we should move to templates
+      this.$el.append('<span>Please draw area of interest.</span>')
+      this.$el.animate(
+        {
+          height: 'show',
+        },
+        425
+      )
+      this.rendered = true
+      return this
+    },
+    destroy: function() {
+      this.$el.animate(
+        {
+          height: 'hide',
+        },
+        425
+      )
+    },
+  })
 
-        return NotificationView;
-});
+  return NotificationView
+})

@@ -14,21 +14,19 @@
  **/
 /*global define, window*/
 define([
-    'marionette',
-    './service-item.view',
-    'js/CustomElements',
-    'text!./service-item.collection.empty.hbs'
-    ],function (Marionette, ServiceItemView, CustomElements, emptyTemplate) {
-
-    return Marionette.CollectionView.extend({
-        itemView: ServiceItemView,
-        emptyView: Marionette.ItemView.extend({
-            template: emptyTemplate
-        }),
-        tagName: CustomElements.register('service-item-collection'),
-        initialize: function() {
-            this.listenTo(this.collection, 'sort', this.render);
-        }
-    });
-
-});
+  'marionette',
+  './service-item.view',
+  'js/CustomElements',
+  'text!./service-item.collection.empty.hbs',
+], function(Marionette, ServiceItemView, CustomElements, emptyTemplate) {
+  return Marionette.CollectionView.extend({
+    itemView: ServiceItemView,
+    emptyView: Marionette.ItemView.extend({
+      template: emptyTemplate,
+    }),
+    tagName: CustomElements.register('service-item-collection'),
+    initialize: function() {
+      this.listenTo(this.collection, 'sort', this.render)
+    },
+  })
+})

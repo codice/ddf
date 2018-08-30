@@ -13,7 +13,7 @@
  *
  **/
 /*global require*/
-var SlideoutView = require('component/slideout/top/slideout.top.view');
-var slideoutView = new SlideoutView();
-slideoutView.render();
-module.exports = slideoutView;
+var SlideoutView = require('component/slideout/top/slideout.top.view')
+var slideoutView = new SlideoutView()
+slideoutView.render()
+module.exports = slideoutView

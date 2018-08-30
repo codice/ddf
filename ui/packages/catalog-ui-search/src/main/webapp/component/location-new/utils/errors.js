@@ -13,7 +13,7 @@
  *
  **/
 const errorMessages = {
-    malformedWkt: `Malformed WKT. Syntax for supported geometries:
+  malformedWkt: `Malformed WKT. Syntax for supported geometries:
                    POINT (50 40)
                    LINESTRING (30 10, 10 30, 40 40)
                    POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))
@@ -22,25 +22,26 @@ const errorMessages = {
                    MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))
                    GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))
                   `,
-    invalidWktCoordinates: 'Invalid coordinates. Note that WKT coordinates are ordered longitude then latitude.',
-    invalidCoordinates: 'Invalid coordinates',
-    invalidUsngGrid: 'Invalid USNG / MGRS grid',
-    invalidRadius: 'Radius must be greater than 0 and at most 10,000 kilometers',
-    invalidList: 'One or more entries are invalid',
-    invalidBoundingBoxDd: `Invalid bounding box. Coordinates must satisfy the following conditions:
+  invalidWktCoordinates:
+    'Invalid coordinates. Note that WKT coordinates are ordered longitude then latitude.',
+  invalidCoordinates: 'Invalid coordinates',
+  invalidUsngGrid: 'Invalid USNG / MGRS grid',
+  invalidRadius: 'Radius must be greater than 0 and at most 10,000 kilometers',
+  invalidList: 'One or more entries are invalid',
+  invalidBoundingBoxDd: `Invalid bounding box. Coordinates must satisfy the following conditions:
                            North > South
                            East > West
                            North - South >= 0.0001°
                            East - West >= 0.0001°
                           `,
-    invalidBoundingBoxDms: `Invalid bounding box. Coordinates must satisfy the following conditions:
+  invalidBoundingBoxDms: `Invalid bounding box. Coordinates must satisfy the following conditions:
                             North > South
                             East > West
                             North - South >= 0.36" (seconds)
                             East - West >= 0.36" (seconds)
                            `,
-    tooFewPointsLine: 'Lines must contain 2 or more points',
-    tooFewPointsPolygon: 'Polygons must contain 3 or more points',
-};
+  tooFewPointsLine: 'Lines must contain 2 or more points',
+  tooFewPointsPolygon: 'Polygons must contain 3 or more points',
+}
 
-module.exports = errorMessages;
+module.exports = errorMessages

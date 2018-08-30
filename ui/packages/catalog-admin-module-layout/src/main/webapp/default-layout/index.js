@@ -1,13 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {Card, CardMedia, CardTitle, CardText} from 'material-ui/Card'
+import { Card, CardMedia, CardTitle, CardText } from 'material-ui/Card'
 import CircularProgress from 'material-ui/CircularProgress'
 import FlatButton from 'material-ui/FlatButton'
 import Flexbox from 'flexbox-react'
 import RaisedButton from 'material-ui/RaisedButton'
 import Snackbar from 'material-ui/Snackbar'
 import muiThemeable from 'material-ui/styles/muiThemeable'
-import {Toolbar, ToolbarGroup, ToolbarTitle} from 'material-ui/Toolbar'
+import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar'
 import Mount from 'react-mount'
 import AceEditor from 'react-ace'
 import 'brace/mode/json'
@@ -27,7 +27,7 @@ import {
   getBuffer,
   isLoading,
   hasChanges,
-  getMessage
+  getMessage,
 } from './reducer'
 
 const submittingStyle = {
@@ -38,35 +38,45 @@ const submittingStyle = {
   left: 0,
   background: 'rgba(0, 0, 0, 0.1)',
   zIndex: 9001,
-  display: 'flex'
+  display: 'flex',
 }
 
 const Spinner = ({ submitting = false, children }) => (
   <div style={{ position: 'relative' }}>
-    {submitting
-      ? <div style={submittingStyle}>
-        <Flexbox justifyContent='center' alignItems='center' width='100%'>
+    {submitting ? (
+      <div style={submittingStyle}>
+        <Flexbox justifyContent="center" alignItems="center" width="100%">
           <CircularProgress size={60} thickness={7} />
         </Flexbox>
       </div>
-      : null}
+    ) : null}
     {children}
   </div>
 )
 
 const Title = muiThemeable()(({ children, muiTheme }) => (
-  <h1 style={{ color: muiTheme.palette.textColor, textAlign: 'center' }}>{children}</h1>
+  <h1 style={{ color: muiTheme.palette.textColor, textAlign: 'center' }}>
+    {children}
+  </h1>
 ))
 
 let Error = ({ muiTheme: { palette }, errorText, children }) => (
   <div>
-    <div style={{
-      border: ('2px solid ' + (errorText !== undefined ? palette.errorColor : palette.disabledColor)),
-      borderRadius: 2
-    }}>
+    <div
+      style={{
+        border:
+          '2px solid ' +
+          (errorText !== undefined
+            ? palette.errorColor
+            : palette.disabledColor),
+        borderRadius: 2,
+      }}
+    >
       {children}
     </div>
-    <div style={{ color: palette.errorColor, marginTop: 8, fontSize: '0.8em' }}>{errorText}</div>
+    <div style={{ color: palette.errorColor, marginTop: 8, fontSize: '0.8em' }}>
+      {errorText}
+    </div>
   </div>
 )
 
@@ -79,33 +89,55 @@ let Description = ({ muiTheme: { palette }, children }) => (
 Description = muiThemeable()(Description)
 
 let Link = ({ muiTheme: { palette }, children, ...props }) => (
-  <a style={{ color: palette.primary1Color }} {...props}>{children}</a>
+  <a style={{ color: palette.primary1Color }} {...props}>
+    {children}
+  </a>
 )
 
 Link = muiThemeable()(Link)
 
-let FixedHeader = ({ muiTheme: { palette }, disabled = true, onSave, onReset }) => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    right: 0,
-    left: 0,
-    zIndex: 100,
-    background: palette.backdropColor
-  }}>
+let FixedHeader = ({
+  muiTheme: { palette },
+  disabled = true,
+  onSave,
+  onReset,
+}) => (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      left: 0,
+      zIndex: 100,
+      background: palette.backdropColor,
+    }}
+  >
     <Flexbox
-      flex='1'
-      justifyContent='space-between'
-      alignItems='center'
+      flex="1"
+      justifyContent="space-between"
+      alignItems="center"
       style={{
         maxWidth: 960,
         margin: '0 auto',
         padding: '0 20px',
-        borderBottom: `1px solid ${palette.disabledColor}` }}>
+        borderBottom: `1px solid ${palette.disabledColor}`,
+      }}
+    >
       <Title>Default Layout Configuration</Title>
       <div>
-        <RaisedButton disabled={disabled} primary label='save' onClick={onSave} style={{ marginRight: 10 }} />
-        <FlatButton disabled={disabled} secondary label='reset' onClick={onReset} />
+        <RaisedButton
+          disabled={disabled}
+          primary
+          label="save"
+          onClick={onSave}
+          style={{ marginRight: 10 }}
+        />
+        <FlatButton
+          disabled={disabled}
+          secondary
+          label="reset"
+          onClick={onReset}
+        />
       </div>
     </Flexbox>
   </div>
@@ -113,9 +145,9 @@ let FixedHeader = ({ muiTheme: { palette }, disabled = true, onSave, onReset }) 
 
 FixedHeader = muiThemeable()(FixedHeader)
 
-const LayoutEditor = ({onRender}) => (
+const LayoutEditor = ({ onRender }) => (
   <Mount did={onRender}>
-    <div id='layoutContainer' style={{ height: 650 }} />
+    <div id="layoutContainer" style={{ height: 650 }} />
   </Mount>
 )
 
@@ -123,52 +155,74 @@ const LayoutMenu = () => (
   <Toolbar>
     <ToolbarGroup firstChild />
     <ToolbarGroup>
-      <ToolbarTitle text='Visualizations' />
-      <div id='layoutMenu' />
+      <ToolbarTitle text="Visualizations" />
+      <div id="layoutMenu" />
     </ToolbarGroup>
   </Toolbar>
 )
 
-const ConfigEditor = ({buffer, onEdit, error}) => (
+const ConfigEditor = ({ buffer, onEdit, error }) => (
   <div style={{ padding: 16 }}>
-    <div key='docs' style={{ textAlign: 'center', margin: '0 15px', marginBottom: 20 }}>
+    <div
+      key="docs"
+      style={{ textAlign: 'center', margin: '0 15px', marginBottom: 20 }}
+    >
       <FlatButton
         primary
-        target='_blank'
-        label='Window Items'
+        target="_blank"
+        label="Window Items"
         disabled={false}
-        href={'http://golden-layout.com/docs/ItemConfig.html'} />
+        href={'http://golden-layout.com/docs/ItemConfig.html'}
+      />
     </div>
-    <div key='ace' style={{ margin: '0 15px' }}>
+    <div key="ace" style={{ margin: '0 15px' }}>
       <Error errorText={error}>
         <AceEditor
           readOnly
-          mode='json'
-          theme='github'
+          mode="json"
+          theme="github"
           fontSize={15}
           tabSize={2}
-          width='100%'
-          height='400px'
+          width="100%"
+          height="400px"
           editorProps={{
-            $blockScrolling: Infinity
+            $blockScrolling: Infinity,
           }}
           enableBasicAutocompletion
           name={'layoutConfig'}
           value={buffer}
-          onChange={onEdit} />
+          onChange={onEdit}
+        />
       </Error>
     </div>
   </div>
 )
 
-const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMessage, disabled, buffer, error, loading, message }) => (
+const MapLayers = ({
+  onFetch,
+  onRender,
+  onUpdate,
+  onSave,
+  onAdd,
+  onReset,
+  onMessage,
+  disabled,
+  buffer,
+  error,
+  loading,
+  message,
+}) => (
   <Spinner submitting={loading}>
     <Mount on={onFetch} />
     <FixedHeader onReset={onReset} onSave={onSave} disabled={disabled} />
     <div style={{ paddingTop: 96 }}>
       <Description>
-          The following form allows administrators to configure the default layout for visualization
-          windows within <Link target='_blank' href='../../search/catalog'>Intrigue</Link>.
+        The following form allows administrators to configure the default layout
+        for visualization windows within{' '}
+        <Link target="_blank" href="../../search/catalog">
+          Intrigue
+        </Link>
+        .
       </Description>
       <Card>
         <LayoutMenu />
@@ -177,17 +231,23 @@ const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMess
         </CardMedia>
       </Card>
       <Card style={{ position: 'relative', marginTop: 20 }}>
-        <CardTitle title='Advanced Generated Configuration' />
+        <CardTitle title="Advanced Generated Configuration" />
         <CardText>
-          This is the automatically generated configuration based on the layout specified in the layout editor above.
-          The advanced default window layout configuration is specified in
-          the <Link target='_blank' href='http://www.json.org'>JSON</Link> format.
-          A description of the configuration properties for the visualization windows within the default layout can be found at the provided documentation link.
+          This is the automatically generated configuration based on the layout
+          specified in the layout editor above. The advanced default window
+          layout configuration is specified in the{' '}
+          <Link target="_blank" href="http://www.json.org">
+            JSON
+          </Link>{' '}
+          format. A description of the configuration properties for the
+          visualization windows within the default layout can be found at the
+          provided documentation link.
         </CardText>
         <ConfigEditor
           error={error}
           buffer={buffer.get('buffer')}
-          onEdit={(value) => onUpdate(value, 'buffer')} />
+          onEdit={value => onUpdate(value, 'buffer')}
+        />
       </Card>
       <Snackbar
         open={message.text !== undefined}
@@ -195,13 +255,14 @@ const MapLayers = ({ onFetch, onRender, onUpdate, onSave, onAdd, onReset, onMess
         action={message.action}
         autoHideDuration={5000}
         onRequestClose={() => onMessage()}
-        onActionTouchTap={() => window.open('../../search/catalog')} />
+        onActionTouchTap={() => window.open('../../search/catalog')}
+      />
     </div>
   </Spinner>
 )
 
 export default connect(
-  (state) => {
+  state => {
     const buffer = getBuffer(state)
     const error = validate(buffer)
     const loading = isLoading(state)
@@ -209,5 +270,12 @@ export default connect(
     const message = getMessage(state)
     return { buffer, error, loading, disabled, message }
   },
-  { onFetch: fetch, onRender: rendered, onUpdate: update, onSave: save, onReset: reset, onMessage: message }
+  {
+    onFetch: fetch,
+    onRender: rendered,
+    onUpdate: update,
+    onSave: save,
+    onReset: reset,
+    onMessage: message,
+  }
 )(MapLayers)

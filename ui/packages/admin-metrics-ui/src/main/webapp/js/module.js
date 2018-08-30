@@ -15,44 +15,42 @@
 
 /*global define*/
 define([
-        'js/application',
-        'js/view/Metrics.view.js',
-        'poller',
-        'js/model/Metrics.js'
-    ],
-    function (Application, MetricsView, poller, Metrics) {
+  'js/application',
+  'js/view/Metrics.view.js',
+  'poller',
+  'js/model/Metrics.js',
+], function(Application, MetricsView, poller, Metrics) {
+  Application.App.module('Metrics', function(
+    MetricsModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var metrics = new Metrics.MetricsModel()
 
-        Application.App.module('Metrics', function (MetricsModule, App, Backbone, Marionette) {
+    var metricsPage = new MetricsView.MetricsPage({ model: metrics })
 
-            var metrics = new Metrics.MetricsModel();
+    // Define a controller to run this module
+    // --------------------------------------
 
-            var metricsPage = new MetricsView.MetricsPage({model: metrics});
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            // Define a controller to run this module
-            // --------------------------------------
+      show: function() {
+        this.region.show(metricsPage)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-                initialize: function (options) {
-                    this.region = options.region;
-                },
-
-                show: function () {
-                    this.region.show(metricsPage);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
-
-            MetricsModule.addInitializer(function () {
-                MetricsModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                MetricsModule.contentController.show();
-            });
-
-
-        });
-    });
+    MetricsModule.addInitializer(function() {
+      MetricsModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      MetricsModule.contentController.show()
+    })
+  })
+})

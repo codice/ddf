@@ -13,17 +13,17 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.details-interactions.hbs');
-var ComponentView = require('component/details-interactions/details-interactions.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.details-interactions.hbs')
+var ComponentView = require('component/details-interactions/details-interactions.view')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-detailsInteractions',
-    componentToShow: ComponentView,
-    initialize: function () {
-        DropdownView.prototype.initialize.call(this);
-    }
-});
+  template: template,
+  className: 'is-detailsInteractions',
+  componentToShow: ComponentView,
+  initialize: function() {
+    DropdownView.prototype.initialize.call(this)
+  },
+})

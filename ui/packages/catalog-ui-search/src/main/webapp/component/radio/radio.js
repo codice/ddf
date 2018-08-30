@@ -13,22 +13,21 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone'
-], function (_, Backbone) {
-
-    return Backbone.Model.extend({
-        defaults: {
-            options: [{
-                label: 'No',
-                value: 'no'
-            }, {
-                label: 'Yes',
-                value: 'yes'
-            }],
-            value: undefined,
-            isEditing: true
-        }
-    });
-});
+define(['underscore', 'backbone'], function(_, Backbone) {
+  return Backbone.Model.extend({
+    defaults: {
+      options: [
+        {
+          label: 'No',
+          value: 'no',
+        },
+        {
+          label: 'Yes',
+          value: 'yes',
+        },
+      ],
+      value: undefined,
+      isEditing: true,
+    },
+  })
+})

@@ -9,58 +9,61 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
-import { CustomElement } from '../../styles/mixins';
-import { ChangeBackground } from '../../styles/mixins';
-import WorkspacesTemplatesContainer from '../../container/workspaces-templates-container';
-import WorkspacesItemsContainer from '../../container/workspaces-items-container';
-import { Button, buttonTypeEnum } from '../button';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
+import { ChangeBackground } from '../../styles/mixins'
+import WorkspacesTemplatesContainer from '../../container/workspaces-templates-container'
+import WorkspacesItemsContainer from '../../container/workspaces-items-container'
+import { Button, buttonTypeEnum } from '../button'
 
 type Props = {
-    closeTemplates: () => void;
-    toggleExpansion: () => void;
-    saveAllWorkspaces: () => void;
+  closeTemplates: () => void
+  toggleExpansion: () => void
+  saveAllWorkspaces: () => void
 }
 
 type RootProps = {
-    hasTemplatesExpanded: boolean;
-    hasUnsaved: boolean;
+  hasTemplatesExpanded: boolean
+  hasUnsaved: boolean
 }
 
 const Root = styled<RootProps, 'div'>('div')`
-    ${CustomElement}
-    ${props => ChangeBackground(props.theme.backgroundContent)}
+  ${CustomElement} ${props =>
+    ChangeBackground(
+      props.theme.backgroundContent
+    )}
     > .home-content,
     > .home-save {
-        display: inline-block;
-        width: 100%;
-        vertical-align: top;
-    }
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+  }
 
-    .home-content {
-        max-height: 100%;
-        overflow: auto;
-    }
+  .home-content {
+    max-height: 100%;
+    overflow: auto;
+  }
 
-    .home-items {
-        transition: padding ${props => props.theme.coreTransitionTime} ease-out ${props => props.theme.coreTransitionTime};
-        padding-bottom: ${props => props.theme.minimumButtonSize};
-    }
+  .home-items {
+    transition: padding ${props => props.theme.coreTransitionTime} ease-out
+      ${props => props.theme.coreTransitionTime};
+    padding-bottom: ${props => props.theme.minimumButtonSize};
+  }
 
-    .home-save {
-        position: relative;
-        left: 0px;
-        opacity: 1;
-        transform: scale(1) translateY(-100%);
-        transition: transform ${props => props.theme.coreTransitionTime} ease-out, 
-            opacity ${props => props.theme.coreTransitionTime} ease-out,
-            left 0s ease-out ${props => props.theme.coreTransitionTime};
-    }
+  .home-save {
+    position: relative;
+    left: 0px;
+    opacity: 1;
+    transform: scale(1) translateY(-100%);
+    transition: transform ${props => props.theme.coreTransitionTime} ease-out,
+      opacity ${props => props.theme.coreTransitionTime} ease-out,
+      left 0s ease-out ${props => props.theme.coreTransitionTime};
+  }
 
-    ${props => {
-        if (!props.hasUnsaved) {
-            return `
+  ${props => {
+    if (!props.hasUnsaved) {
+      return `
                 .home-items  {
                     padding-bottom: 0px;
                 }
@@ -71,34 +74,38 @@ const Root = styled<RootProps, 'div'>('div')`
                     opacity: 0;
                 }
             `
-        }
-    }}
+    }
+  }};
 `
 
-const Workspaces =  (props: Props & RootProps) => {
-    return (
-        <Root hasUnsaved={props.hasUnsaved} hasTemplatesExpanded={props.hasTemplatesExpanded}>
-            <div className="home-content">
-                <div className="home-templates">
-                    <WorkspacesTemplatesContainer 
-                        closeTemplates={props.closeTemplates}
-                        hasUnsaved={props.hasUnsaved} 
-                        hasTemplatesExpanded={props.hasTemplatesExpanded} 
-                        toggleExpansion={props.toggleExpansion} />
-                </div>
-                <div className="home-items">
-                    <WorkspacesItemsContainer />
-                </div>
-            </div> 
-            <Button
-                buttonType={buttonTypeEnum.positive}
-                icon='fa fa-floppy-o'
-                text='Save all'
-                className="home-save"
-                onClick={props.saveAllWorkspaces}
-            />
-        </Root>
-    )
+const Workspaces = (props: Props & RootProps) => {
+  return (
+    <Root
+      hasUnsaved={props.hasUnsaved}
+      hasTemplatesExpanded={props.hasTemplatesExpanded}
+    >
+      <div className="home-content">
+        <div className="home-templates">
+          <WorkspacesTemplatesContainer
+            closeTemplates={props.closeTemplates}
+            hasUnsaved={props.hasUnsaved}
+            hasTemplatesExpanded={props.hasTemplatesExpanded}
+            toggleExpansion={props.toggleExpansion}
+          />
+        </div>
+        <div className="home-items">
+          <WorkspacesItemsContainer />
+        </div>
+      </div>
+      <Button
+        buttonType={buttonTypeEnum.positive}
+        icon="fa fa-floppy-o"
+        text="Save all"
+        className="home-save"
+        onClick={props.saveAllWorkspaces}
+      />
+    </Root>
+  )
 }
 
 export default Workspaces

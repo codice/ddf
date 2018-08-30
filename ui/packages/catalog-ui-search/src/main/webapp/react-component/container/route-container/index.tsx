@@ -1,1 +1,1 @@
-export {default} from './route-container'
+export { default } from './route-container'

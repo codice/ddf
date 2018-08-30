@@ -10,54 +10,55 @@
  *
  **/
 /*global define*/
-define([
-    'backbone',
-    'underscore',
-    'moment'
-], function(Backbone, _, moment) {
-    var Task = {};
+define(['backbone', 'underscore', 'moment'], function(Backbone, _, moment) {
+  var Task = {}
 
-    Task.Model = Backbone.Model.extend({
-        url: '/service/action',
-        useAjaxSync: false,
-        initialize : function() {
-            this.set("timestamp", moment(this.get("timestamp")));
+  Task.Model = Backbone.Model.extend({
+    url: '/service/action',
+    useAjaxSync: false,
+    initialize: function() {
+      this.set('timestamp', moment(this.get('timestamp')))
 
-            var operations = this.get("operations");
-            // Extract any operations we don't have predefined actions for in the template.
-            var operationsExt = _.omit(operations, 'download', 'retry', 'cancel', 'pause', 'remove', 'resume');
-            this.set("operationsExt", operationsExt);
-        },
-        validate : function(attrs) {
-            if(!attrs.id)
-                return "Task must have id.";
-            if(!attrs.message)
-                return "Task must have message.";
-            if(!attrs.timestamp)
-                return "Task must have timestamp.";
-        }
-    });
+      var operations = this.get('operations')
+      // Extract any operations we don't have predefined actions for in the template.
+      var operationsExt = _.omit(
+        operations,
+        'download',
+        'retry',
+        'cancel',
+        'pause',
+        'remove',
+        'resume'
+      )
+      this.set('operationsExt', operationsExt)
+    },
+    validate: function(attrs) {
+      if (!attrs.id) return 'Task must have id.'
+      if (!attrs.message) return 'Task must have message.'
+      if (!attrs.timestamp) return 'Task must have timestamp.'
+    },
+  })
 
-    Task.Collection = Backbone.Collection.extend({
-        model: Task.Model,
-        comparator: function(a, b) {
-            if(a.get('category') === b.get('category')) {
-                return a.get('timestamp') - b.get('timestamp');
-            } else {
-                return a.get('category').localeCompare(b.get('category'));
-            }
-        },
-        updateTask: function(task) {
-            var model = this.findWhere({id:task.get('id')});
-            if(model) {
-                model.set(task.attributes);
-                return model;
-            } else {
-                this.add(task);
-                return task;
-            }
-        }
-    });
+  Task.Collection = Backbone.Collection.extend({
+    model: Task.Model,
+    comparator: function(a, b) {
+      if (a.get('category') === b.get('category')) {
+        return a.get('timestamp') - b.get('timestamp')
+      } else {
+        return a.get('category').localeCompare(b.get('category'))
+      }
+    },
+    updateTask: function(task) {
+      var model = this.findWhere({ id: task.get('id') })
+      if (model) {
+        model.set(task.attributes)
+        return model
+      } else {
+        this.add(task)
+        return task
+      }
+    },
+  })
 
-    return Task;
-});
+  return Task
+})

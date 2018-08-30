@@ -13,29 +13,28 @@
  *
  **/
 /*global define*/
-define([
-        'backbone',
-        'js/model/Jolokia',
-        'backboneassociations'
+define(['backbone', 'js/model/Jolokia', 'backboneassociations'], function(
+  Backbone,
+  Jolokia
+) {
+  var UrlCertificate = {}
+
+  UrlCertificate.Model = Jolokia.extend({
+    idAttribute: 'subjectDn',
+  })
+
+  UrlCertificate.Response = Backbone.AssociatedModel.extend({
+    url:
+      '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/showCertificateFromUrl',
+    saveUrl:
+      '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificateFromUrl',
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'value',
+        relatedModel: UrlCertificate.Model,
+      },
     ],
-    function (Backbone, Jolokia) {
-        var UrlCertificate = {};
-
-        UrlCertificate.Model = Jolokia.extend({
-            idAttribute: 'subjectDn'
-        });
-
-        UrlCertificate.Response = Backbone.AssociatedModel.extend({
-            url: "../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/showCertificateFromUrl",
-            saveUrl: "../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificateFromUrl",
-            relations: [
-                {
-                    type: Backbone.Many,
-                    key: 'value',
-                    relatedModel: UrlCertificate.Model
-                }
-            ]
-        });
-        return UrlCertificate;
-
-    });
+  })
+  return UrlCertificate
+})

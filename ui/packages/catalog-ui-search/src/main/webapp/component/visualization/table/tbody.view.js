@@ -13,35 +13,35 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr');
-var $ = require('jquery');
-var _ = require('underscore');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var Common = require('js/Common');
-var RowView = require('./row.view');
-require('behaviors/selection.behavior');
+var wreqr = require('wreqr')
+var $ = require('jquery')
+var _ = require('underscore')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var Common = require('js/Common')
+var RowView = require('./row.view')
+require('behaviors/selection.behavior')
 
 module.exports = Marionette.CollectionView.extend({
-    tagName: CustomElements.register('result-tbody'),
-    className: 'is-tbody is-list has-list-highlighting',
-    behaviors: function() {
-        return {
-            selection: {
-                selectionInterface: this.options.selectionInterface,
-                selectionSelector: `> *`
-            }
-        };   
-    },
-    childView: RowView,
-    childViewOptions: function() {
-        return {
-            selectionInterface: this.options.selectionInterface
-        }
-    },
-    initialize: function(options) {
-        if (!options.selectionInterface) {
-            throw 'Selection interface has not been provided';
-        }
+  tagName: CustomElements.register('result-tbody'),
+  className: 'is-tbody is-list has-list-highlighting',
+  behaviors: function() {
+    return {
+      selection: {
+        selectionInterface: this.options.selectionInterface,
+        selectionSelector: `> *`,
+      },
     }
-});
+  },
+  childView: RowView,
+  childViewOptions: function() {
+    return {
+      selectionInterface: this.options.selectionInterface,
+    }
+  },
+  initialize: function(options) {
+    if (!options.selectionInterface) {
+      throw 'Selection interface has not been provided'
+    }
+  },
+})

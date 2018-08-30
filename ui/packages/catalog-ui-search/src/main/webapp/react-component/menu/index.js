@@ -1,1 +1,1 @@
-module.exports = require('./menu');
+module.exports = require('./menu')

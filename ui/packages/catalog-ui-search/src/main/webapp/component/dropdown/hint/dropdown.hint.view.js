@@ -14,25 +14,22 @@
  **/
 /*global define*/
 define([
-    '../dropdown.view',
-    './dropdown.hint.hbs',
-    'component/hint/hint.view',
-    './dropdown.companion.hint.view'
-], function (DropdownView, template, ComponentView, HintDropdownCompanion) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-hint',
-        componentToShow: ComponentView,
-        initializeDropdown: function(){
-            this.dropdownCompanion = HintDropdownCompanion.getNewCompanionView(this);
-        },
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.options.modelForComponent;
-        },
-        listenToComponent: function(){
-
-        }
-    });
-});
+  '../dropdown.view',
+  './dropdown.hint.hbs',
+  'component/hint/hint.view',
+  './dropdown.companion.hint.view',
+], function(DropdownView, template, ComponentView, HintDropdownCompanion) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-hint',
+    componentToShow: ComponentView,
+    initializeDropdown: function() {
+      this.dropdownCompanion = HintDropdownCompanion.getNewCompanionView(this)
+    },
+    initializeComponentModel: function() {
+      //override if you need more functionality
+      this.modelForComponent = this.options.modelForComponent
+    },
+    listenToComponent: function() {},
+  })
+})

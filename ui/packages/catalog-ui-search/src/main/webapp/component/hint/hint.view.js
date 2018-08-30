@@ -12,10 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.ItemView.extend({
-    template: require('./hint.hbs'),
-    tagName: CustomElements.register('hint')
-});
+  template: require('./hint.hbs'),
+  tagName: CustomElements.register('hint'),
+})

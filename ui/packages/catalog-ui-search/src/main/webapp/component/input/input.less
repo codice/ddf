@@ -18,16 +18,16 @@
   }
 
   .for-error {
-        color: contrast(@negative-color);
-        overflow: hidden;
-        display: block;
-        line-height: @minimumLineSize;
-        text-align: left;
-        padding-left: @minimumSpacing;
-        content: 'Your WKT appears to be malformed.';
-        background: @negative-color;
-        height: 0px;
-    }
+    color: contrast(@negative-color);
+    overflow: hidden;
+    display: block;
+    line-height: @minimumLineSize;
+    text-align: left;
+    padding-left: @minimumSpacing;
+    content: 'Your WKT appears to be malformed.';
+    background: @negative-color;
+    height: 0px;
+  }
 }
 
 @{customElementNamespace}input.is-editing {
@@ -52,14 +52,13 @@
     top: 0px;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0);  // needed for IE10
+    background: rgba(0, 0, 0, 0); // needed for IE10
   }
-
 }
 
 @{customElementNamespace}input.is-text,
 @{customElementNamespace}input.is-number,
-@{customElementNamespace}input.is-boolean, 
+@{customElementNamespace}input.is-boolean,
 @{customElementNamespace}input.is-geometry {
   input {
     height: @minimumButtonSize;
@@ -76,7 +75,7 @@
   }
 
   &.is-editing {
-     .if-viewing label[data-value^="http"] {
+    .if-viewing label[data-value^='http'] {
       a {
         display: none;
       }
@@ -87,7 +86,7 @@
     }
   }
 
-  .if-viewing label[data-value^="http"] {
+  .if-viewing label[data-value^='http'] {
     a {
       display: inline;
     }
@@ -97,7 +96,7 @@
     }
   }
 
-  .if-viewing label:not([data-value^="http"]) {
+  .if-viewing label:not([data-value^='http']) {
     a {
       display: none;
     }
@@ -105,16 +104,15 @@
       display: inline;
     }
   }
-
 }
 
 @{customElementNamespace}input.has-validation-issues {
-    input {
-      border-color: @negative-color;
-    }
-    .for-error {
-      display: block;
-      height: auto;
-      white-space: normal;
-    }
+  input {
+    border-color: @negative-color;
   }
+  .for-error {
+    display: block;
+    height: auto;
+    white-space: normal;
+  }
+}

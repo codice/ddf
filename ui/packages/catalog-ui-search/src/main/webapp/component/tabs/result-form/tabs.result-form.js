@@ -9,14 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /* global require */
- const Tabs = require('component/tabs/tabs')
- const ResultFormCollectionView = require('component/result-form/result-form-tab-container.view')
+/* global require */
+const Tabs = require('component/tabs/tabs')
+const ResultFormCollectionView = require('component/result-form/result-form-tab-container.view')
 
- module.exports = Tabs.extend({
-   defaults: {
-     tabs: {
-       'Result Forms': ResultFormCollectionView
-     }
-   }
- })
+module.exports = Tabs.extend({
+  defaults: {
+    tabs: {
+      'Result Forms': ResultFormCollectionView,
+    },
+  },
+})

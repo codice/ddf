@@ -10,39 +10,42 @@
  *
  **/
 /*global define */
-define(['jquery',
-        'underscore',
-        'marionette',
-        'js/wreqr',
-        'js/views/SessionTimeoutModal.view',
-        'js/models/SessionTimeout'
-    ], function ($, _, Marionette, wreqr, SessionTimeoutView, SessionTimeout) {
-        'use strict';
-        var ModalController;
-        var sessionTimeoutView = null;
+define([
+  'jquery',
+  'underscore',
+  'marionette',
+  'js/wreqr',
+  'js/views/SessionTimeoutModal.view',
+  'js/models/SessionTimeout',
+], function($, _, Marionette, wreqr, SessionTimeoutView, SessionTimeout) {
+  'use strict'
+  var ModalController
+  var sessionTimeoutView = null
 
-        ModalController = Marionette.Controller.extend({
-            initialize: function (options) {
-                this.application = options.application;
-                this.listenTo(wreqr.vent, "showModal", this.showModal);
-                this.listenTo(SessionTimeout, 'change:showPrompt', this.showSessionTimeoutModal);
-            },
-            showModal: function (modalView) {
-                this.application.modalRegion.show(modalView);
-                modalView.show();
-            },
-            showSessionTimeoutModal: function () {
-                if (SessionTimeout.get('showPrompt')) {
-                    sessionTimeoutView = new SessionTimeoutView();
-                    this.application.sessionTimeoutModalRegion.show(sessionTimeoutView);
-                    sessionTimeoutView.show();
-                } else {
-                    sessionTimeoutView.destroy();
-                }
-            }
+  ModalController = Marionette.Controller.extend({
+    initialize: function(options) {
+      this.application = options.application
+      this.listenTo(wreqr.vent, 'showModal', this.showModal)
+      this.listenTo(
+        SessionTimeout,
+        'change:showPrompt',
+        this.showSessionTimeoutModal
+      )
+    },
+    showModal: function(modalView) {
+      this.application.modalRegion.show(modalView)
+      modalView.show()
+    },
+    showSessionTimeoutModal: function() {
+      if (SessionTimeout.get('showPrompt')) {
+        sessionTimeoutView = new SessionTimeoutView()
+        this.application.sessionTimeoutModalRegion.show(sessionTimeoutView)
+        sessionTimeoutView.show()
+      } else {
+        sessionTimeoutView.destroy()
+      }
+    },
+  })
 
-        });
-
-        return ModalController;
-    }
-);
+  return ModalController
+})

@@ -12,74 +12,72 @@
 /*global define*/
 
 define([
-        'backbone',
-        'js/model/Metacard',
-        'js/model/Query',
-        'backboneassociations'
+  'backbone',
+  'js/model/Metacard',
+  'js/model/Query',
+  'backboneassociations',
+], function(Backbone, Metacard, Query) {
+  'use strict'
+  var Workspace = {}
+
+  Workspace.MetacardList = Backbone.Collection.extend({
+    model: Metacard.Metacard,
+  })
+
+  Workspace.SearchList = Backbone.Collection.extend({
+    model: Query.Model,
+  })
+
+  Workspace.Model = Backbone.AssociatedModel.extend({
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'searches',
+        relatedModel: Query.Model,
+      },
+      {
+        type: Backbone.Many,
+        key: 'metacards',
+        relatedModel: Metacard.MetacardResult,
+      },
     ],
-    function (Backbone, Metacard, Query) {
-        "use strict";
-        var Workspace = {};
+    initialize: function() {
+      if (!this.get('searches')) {
+        this.set({ searches: new Workspace.SearchList() })
+      }
+      if (!this.get('metacards')) {
+        this.set({ metacards: new Workspace.MetacardList() })
+      }
+    },
+  })
 
-        Workspace.MetacardList = Backbone.Collection.extend({
-            model: Metacard.Metacard
-        });
+  Workspace.WorkspaceList = Backbone.Collection.extend({
+    model: Workspace.Model,
+  })
 
-        Workspace.SearchList = Backbone.Collection.extend({
-            model: Query.Model
-        });
+  Workspace.WorkspaceResult = Backbone.AssociatedModel.extend({
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'workspaces',
+        relatedModel: Workspace.Model,
+        collectionType: Workspace.WorkspaceList,
+      },
+    ],
+    url: '/service/workspaces',
+    useAjaxSync: false,
+    initialize: function() {
+      if (!this.get('workspaces')) {
+        this.set({ workspaces: new Workspace.WorkspaceList() })
+      }
+    },
+    parse: function(resp) {
+      if (resp.data) {
+        return resp.data
+      }
+      return resp
+    },
+  })
 
-        Workspace.Model = Backbone.AssociatedModel.extend({
-            relations: [
-                {
-                    type: Backbone.Many,
-                    key: 'searches',
-                    relatedModel: Query.Model
-                },
-                {
-                    type: Backbone.Many,
-                    key: 'metacards',
-                    relatedModel: Metacard.MetacardResult
-                }
-            ],
-            initialize: function() {
-                if(!this.get('searches')) {
-                    this.set({searches: new Workspace.SearchList()});
-                }
-                if(!this.get('metacards')) {
-                    this.set({metacards: new Workspace.MetacardList()});
-                }
-            }
-        });
-
-        Workspace.WorkspaceList = Backbone.Collection.extend({
-            model: Workspace.Model
-        });
-
-        Workspace.WorkspaceResult = Backbone.AssociatedModel.extend({
-            relations: [
-                {
-                    type: Backbone.Many,
-                    key: 'workspaces',
-                    relatedModel: Workspace.Model,
-                    collectionType: Workspace.WorkspaceList
-                }
-            ],
-            url: '/service/workspaces',
-            useAjaxSync: false,
-            initialize: function() {
-                if(!this.get('workspaces')) {
-                    this.set({workspaces: new Workspace.WorkspaceList()});
-                }
-            },
-            parse: function (resp) {
-                if (resp.data) {
-                    return resp.data;
-                }
-                return resp;
-            }
-        });
-
-        return Workspace;
-
-    });
+  return Workspace
+})

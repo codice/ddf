@@ -13,37 +13,37 @@
  *
  **/
 /*global require*/
-var childView = require('./association.view');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
+var childView = require('./association.view')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
-    childView: childView,
-    childViewOptions: function() {
-        return {
-            selectionInterface: this.options.selectionInterface,
-            knownMetacards: this.options.knownMetacards,
-            currentMetacard: this.options.currentMetacard
-        };
-    },
-    tagName: CustomElements.register('association-collection'),
-    onAddChild: function(childView){
-        if (this.$el.hasClass('is-editing')){
-            childView.turnOnEditing();
-        } else {
-            childView.turnOffEditing();
-        }
-    },
-    turnOnEditing: function() {
-        this.$el.toggleClass('is-editing', true);
-        this.children.forEach(function(childView) {
-            childView.turnOnEditing();
-        });
-    },
-    turnOffEditing: function() {
-        this.$el.toggleClass('is-editing', false);
-        this.children.forEach(function(childView) {
-            childView.turnOffEditing();
-        });
+  childView: childView,
+  childViewOptions: function() {
+    return {
+      selectionInterface: this.options.selectionInterface,
+      knownMetacards: this.options.knownMetacards,
+      currentMetacard: this.options.currentMetacard,
     }
-});
+  },
+  tagName: CustomElements.register('association-collection'),
+  onAddChild: function(childView) {
+    if (this.$el.hasClass('is-editing')) {
+      childView.turnOnEditing()
+    } else {
+      childView.turnOffEditing()
+    }
+  },
+  turnOnEditing: function() {
+    this.$el.toggleClass('is-editing', true)
+    this.children.forEach(function(childView) {
+      childView.turnOnEditing()
+    })
+  },
+  turnOffEditing: function() {
+    this.$el.toggleClass('is-editing', false)
+    this.children.forEach(function(childView) {
+      childView.turnOffEditing()
+    })
+  },
+})

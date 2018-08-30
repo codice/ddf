@@ -14,107 +14,105 @@
  **/
 /*global define*/
 /** Main view page for add. */
-define([
-    'backbone',
-    'jquery',
-    'backboneassociations'
-    ], function (Backbone, $) {
+define(['backbone', 'jquery', 'backboneassociations'], function(Backbone, $) {
+  var Configuration = {}
 
-    var Configuration = {};
-
-/*
+  /*
 * MODEL
 */
-    Configuration.SystemProperty = Backbone.Model.extend({
-        validate: function(attrs) {
-            var validation = [];
-            var errorMessage = '';
-            if (attrs.title.indexOf("Port") > -1) {
-                var value = attrs.value;
-                if (value && ! $.isNumeric(value)) {
-                    errorMessage = "Port must contain only digits.";
-                    validation.push({
-                        message: errorMessage,
-                        id: attrs.key
-                    });
-                }
-            }
-            this.set('errorMessage', errorMessage);
-            // Force setting the invalid value to the model so it can remain
-            // in the input box on render.
-            this.set('value', attrs.value);
-
-            if (validation.length > 0) {
-                return validation;
-            }
+  Configuration.SystemProperty = Backbone.Model.extend({
+    validate: function(attrs) {
+      var validation = []
+      var errorMessage = ''
+      if (attrs.title.indexOf('Port') > -1) {
+        var value = attrs.value
+        if (value && !$.isNumeric(value)) {
+          errorMessage = 'Port must contain only digits.'
+          validation.push({
+            message: errorMessage,
+            id: attrs.key,
+          })
         }
-    });
+      }
+      this.set('errorMessage', errorMessage)
+      // Force setting the invalid value to the model so it can remain
+      // in the input box on render.
+      this.set('value', attrs.value)
 
+      if (validation.length > 0) {
+        return validation
+      }
+    },
+  })
 
-/*
+  /*
 * COLLECTION
 */
-    Configuration.SystemProperties = Backbone.Collection.extend({
-        model: Configuration.SystemProperty,
-        url:'./jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/readSystemProperties',
-        saveUrl:'./jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/writeSystemProperties',
-        parse: function (response){
-            // Return the value which will be the list of system property objects
-            return response.value;
-        },
+  Configuration.SystemProperties = Backbone.Collection.extend({
+    model: Configuration.SystemProperty,
+    url:
+      './jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/readSystemProperties',
+    saveUrl:
+      './jolokia/exec/org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean/writeSystemProperties',
+    parse: function(response) {
+      // Return the value which will be the list of system property objects
+      return response.value
+    },
 
-        save: function() {
+    save: function() {
+      var mbean = 'org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean'
+      var operation = 'writeSystemProperties'
 
-            var mbean = 'org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean';
-            var operation = 'writeSystemProperties';
+      var data = {
+        type: 'EXEC',
+        mbean: mbean,
+        operation: operation,
+      }
 
-            var data = {
-                type: 'EXEC',
-                mbean: mbean,
-                operation: operation
-            };
+      var propertiesMap = {}
+      this.models.forEach(function(model) {
+        propertiesMap[model.get('key')] = model.get('value')
+      })
 
-            var propertiesMap = {};
-            this.models.forEach(function(model){
-                propertiesMap[model.get('key')] = model.get('value');
-            });
+      data.arguments = [propertiesMap]
+      data = JSON.stringify(data)
 
+      return $.ajax({
+        type: 'POST',
+        contentType: 'application/json',
+        data: data,
+        url: this.saveUrl,
+      })
+    },
+  })
 
-            data.arguments = [propertiesMap];
-            data = JSON.stringify(data);
+  Configuration.SystemPropertiesWrapped = Backbone.AssociatedModel.extend({
+    defaults: function() {
+      return {
+        systemProperties: [],
+        fetched: false,
+      }
+    },
+    initialize: function() {
+      this.listenTo(
+        this,
+        'sync:systemProperties',
+        function() {
+          this.set('fetched', true)
+        }.bind(this)
+      )
+    },
+    relations: [
+      {
+        type: Backbone.Many,
+        key: 'systemProperties',
+        collectionType: Configuration.SystemProperties,
+      },
+    ],
+    fetch: function() {
+      this.get('systemProperties').fetch()
+    },
+  })
 
-            return $.ajax({
-                type: 'POST',
-                contentType: 'application/json',
-                data: data,
-                url: this.saveUrl
-            });
-        }
-    });
-
-    Configuration.SystemPropertiesWrapped = Backbone.AssociatedModel.extend({
-        defaults: function() {
-            return {
-                systemProperties: [],
-                fetched: false
-            };
-        },
-        initialize: function() {
-            this.listenTo(this, 'sync:systemProperties', function() {
-                this.set('fetched', true);
-            }.bind(this));
-        },  
-        relations: [
-            {
-                type: Backbone.Many,
-                key: 'systemProperties',
-                collectionType: Configuration.SystemProperties
-            }
-        ],
-        fetch: function() {
-            this.get('systemProperties').fetch();
-        }
-    });
-
-    return Configuration;
-});
+  return Configuration
+})

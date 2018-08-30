@@ -10,21 +10,16 @@
  *
  **/
 /*global define */
-define(['jquery',
-        'underscore',
-        'marionette'
-    ], function ($, _, Marionette) {
-        'use strict';
-        var ApplicationController;
+define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
+  'use strict'
+  var ApplicationController
 
-        ApplicationController = Marionette.Controller.extend({
-            initialize: function (options) {
-                _.bindAll(this);
-                this.Application = options.Application;
-            }
+  ApplicationController = Marionette.Controller.extend({
+    initialize: function(options) {
+      _.bindAll(this)
+      this.Application = options.Application
+    },
+  })
 
-        });
-
-        return ApplicationController;
-    }
-);
+  return ApplicationController
+})

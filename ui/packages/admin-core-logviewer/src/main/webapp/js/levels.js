@@ -22,11 +22,11 @@ const levels = {
   DEBUG: 'debugLevel',
   INFO: 'infoLevel',
   WARN: 'warnLevel',
-  ERROR: 'errorLevel'
+  ERROR: 'errorLevel',
 }
 
 // log level colors
-export default (level) => {
+export default level => {
   if (level !== undefined) {
     return levels[level]
   }

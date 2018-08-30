@@ -10,53 +10,54 @@
  *
  **/
 var URL = require('url'),
-    request = require('request'),
-    fs = require('node-fs'),
-    path = require('path'),
-    _ = require('lodash');
+  request = require('request'),
+  fs = require('node-fs'),
+  path = require('path'),
+  _ = require('lodash')
 
-var server = {};
+var server = {}
 
-server.requestProxy = function (req, res) {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-    req.pipe(request("https://localhost:8993" + req.url)).pipe(res);
-};
+server.requestProxy = function(req, res) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+  req.pipe(request('https://localhost:8993' + req.url)).pipe(res)
+}
 
 function getTestResource(name) {
-    var resourceDir = path.resolve('.', 'src/test/resources');
-    if (fs.existsSync(resourceDir)) {
-        var resourcePath = path.resolve(resourceDir, name);
-        return fs.readFileSync(resourcePath, {'encoding':'utf8'});
-    }
-    return undefined;
+  var resourceDir = path.resolve('.', 'src/test/resources')
+  if (fs.existsSync(resourceDir)) {
+    var resourcePath = path.resolve(resourceDir, name)
+    return fs.readFileSync(resourcePath, { encoding: 'utf8' })
+  }
+  return undefined
 }
 
-function mockTestResource (name, res) {
-    var resource = getTestResource(name);
-    if (resource) {
-        sendJson(resource, res);
-    } else {
-        res.status(404).send('The specified resource does not exist.');
-        res.end();
-    }
+function mockTestResource(name, res) {
+  var resource = getTestResource(name)
+  if (resource) {
+    sendJson(resource, res)
+  } else {
+    res.status(404).send('The specified resource does not exist.')
+    res.end()
+  }
 }
 
-function sendJson (data, res) {
-    res.contentType('application/json');
-    res.status(200).send(data);
+function sendJson(data, res) {
+  res.contentType('application/json')
+  res.status(200).send(data)
 }
 
-server.mockRequest = function (req, res) {
-    var filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json';
-    if (process.env.SAUCE_ACCESS_KEY && filename === 'config.json') {
-        // Disable the large single image map tile due to limited bandwidth over
-        // Sauce Connect tunnel
-        var resource = JSON.parse(getTestResource(filename));
-        resource.imageryProviders[0].url = 'http://localhost:8888/images/noimage.png';
-        sendJson(resource, res);
-    } else {
-        mockTestResource(filename, res);
-    }
-};
+server.mockRequest = function(req, res) {
+  var filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json'
+  if (process.env.SAUCE_ACCESS_KEY && filename === 'config.json') {
+    // Disable the large single image map tile due to limited bandwidth over
+    // Sauce Connect tunnel
+    var resource = JSON.parse(getTestResource(filename))
+    resource.imageryProviders[0].url =
+      'http://localhost:8888/images/noimage.png'
+    sendJson(resource, res)
+  } else {
+    mockTestResource(filename, res)
+  }
+}
 
-module.exports = server;
+module.exports = server

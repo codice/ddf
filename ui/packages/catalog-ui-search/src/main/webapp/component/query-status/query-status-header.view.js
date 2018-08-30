@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-var template = require('./query-status-header.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
+var template = require('./query-status-header.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.ItemView.extend({
-    className: 'is-thead',
-    template: template,
-    tagName: CustomElements.register('query-status-header')
-});
+  className: 'is-thead',
+  template: template,
+  tagName: CustomElements.register('query-status-header'),
+})

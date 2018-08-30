@@ -1,20 +1,20 @@
 @{customElementNamespace}map.show-drawing-tools {
-    .drawing-tools {
-        position: absolute;
-        left: 0px;
-        top: 0px;
-        width: 100%;
-        height: 100%;
+  .drawing-tools {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
 
-        button {
-            height: auto;
-            padding: @largeSpacing;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate3d(-50%, -50%, 0%);
-        }
+    button {
+      height: auto;
+      padding: @largeSpacing;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0%);
     }
+  }
 }
 
 @{customElementNamespace}map {
@@ -37,7 +37,7 @@
   }
 
   .cesium-viewer-toolbar {
-    top: 0px; 
+    top: 0px;
     right: 0px;
     padding-right: @minimumSpacing;
     .is-medium-font;
@@ -66,9 +66,8 @@
         line-height: inherit;
         vertical-align: top;
       }
-      
     }
-    
+
     .is-button {
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;

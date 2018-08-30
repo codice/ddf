@@ -14,24 +14,24 @@
  **/
 /*global require*/
 
-var Marionette = require('marionette');
-var template = require('./unsaved-indicator.hbs');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var template = require('./unsaved-indicator.hbs')
+var CustomElements = require('js/CustomElements')
 
 // Base View, meant to be extended for whatever needs an unsaved indicator
 module.exports = Marionette.ItemView.extend({
-    template: template,
-    tagName: CustomElements.register('unsaved-indicator'),
-    initialize: function() {
-        // overwrite with listeners
-    },
-    onBeforeShow: function() {
-        this.handleSaved();
-    },
-    isSaved: function() {
-        // overwrite with save check
-    },
-    handleSaved: function() {
-        this.$el.toggleClass('is-saved', this.isSaved());
-    }
-});
+  template: template,
+  tagName: CustomElements.register('unsaved-indicator'),
+  initialize: function() {
+    // overwrite with listeners
+  },
+  onBeforeShow: function() {
+    this.handleSaved()
+  },
+  isSaved: function() {
+    // overwrite with save check
+  },
+  handleSaved: function() {
+    this.$el.toggleClass('is-saved', this.isSaved())
+  },
+})

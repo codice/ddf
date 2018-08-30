@@ -11,63 +11,75 @@
  **/
 /*global define*/
 define([
-        'jquery',
-        'backbone',
-        'underscore',
-        'backbone.marionette',
-        'handlebars',
-        'icanhaz',
-        'text!templates/queryMonitorPage.handlebars',
-        'text!templates/queryMonitorTable.handlebars'
-    ],
-    function ($, Backbone, _, Marionette, Handlebars, ich, queryMonitorPage, queryMonitorTable) {
+  'jquery',
+  'backbone',
+  'underscore',
+  'backbone.marionette',
+  'handlebars',
+  'icanhaz',
+  'text!templates/queryMonitorPage.handlebars',
+  'text!templates/queryMonitorTable.handlebars',
+], function(
+  $,
+  Backbone,
+  _,
+  Marionette,
+  Handlebars,
+  ich,
+  queryMonitorPage,
+  queryMonitorTable
+) {
+  var QueryMonitorView = {}
 
-        var QueryMonitorView = {};
+  ich.addTemplate('queryMonitorPage', queryMonitorPage)
+  ich.addTemplate('queryMonitorTable', queryMonitorTable)
 
-        ich.addTemplate('queryMonitorPage', queryMonitorPage);
-        ich.addTemplate('queryMonitorTable', queryMonitorTable);
+  QueryMonitorView.QueryMonitorPage = Marionette.LayoutView.extend({
+    template: 'queryMonitorPage',
+    regions: {
+      usageTable: '.query-data-table',
+    },
+    initialize: function() {
+      _.bindAll.apply(_, [this].concat(_.functions(this)))
+    },
+    onRender: function() {
+      this.usageTable.show(
+        new QueryMonitorView.QueryMonitorTable({ model: this.model })
+      )
+    },
+  })
 
-        QueryMonitorView.QueryMonitorPage = Marionette.LayoutView.extend({
-            template: 'queryMonitorPage',
-            regions: {
-                usageTable: '.query-data-table'
-            },
-            initialize : function () {
-                _.bindAll.apply(_, [this].concat(_.functions(this)));
-            },
-            onRender: function () {
-                this.usageTable.show(new QueryMonitorView.QueryMonitorTable({model : this.model}));
-            }
-        });
+  QueryMonitorView.QueryMonitorTable = Marionette.CompositeView.extend({
+    template: 'queryMonitorTable',
+    tagName: 'table',
+    className: 'table table-striped table-bordered table-hover table-condensed',
+    events: {
+      'click .glyphicon': 'stopSearch',
+    },
+    initialize: function() {
+      _.bindAll.apply(_, [this].concat(_.functions(this)))
+      this.listenTo(this.model, 'change:users', this.render)
+    },
+    onRender: function() {
+      this.setupPopOver(
+        '[data-toggle="stop-popover"]',
+        'Cancels the current search in progress.'
+      )
+    },
+    stopSearch: function(data) {
+      var user = $(data.target)
+      var uuid = user[0].name
+      this.model.stopSearch(uuid)
+    },
+    setupPopOver: function(selector, content) {
+      var options = {
+        trigger: 'hover',
+        content: content,
+        placement: 'left',
+      }
+      this.$el.find(selector).popover(options)
+    },
+  })
 
-        QueryMonitorView.QueryMonitorTable = Marionette.CompositeView.extend({
-            template: 'queryMonitorTable',
-            tagName : 'table',
-            className : 'table table-striped table-bordered table-hover table-condensed',
-            events : {
-                'click .glyphicon' : 'stopSearch',
-            },
-            initialize : function () {
-                _.bindAll.apply(_, [this].concat(_.functions(this)));
-                this.listenTo(this.model, 'change:users', this.render);
-            },
-            onRender : function() {
-                this.setupPopOver('[data-toggle="stop-popover"]', 'Cancels the current search in progress.');
-            },
-            stopSearch: function(data) {
-                var user = $(data.target);
-                var uuid = user[0].name;
-                this.model.stopSearch(uuid);
-            },
-            setupPopOver: function(selector, content) {
-                var options = {
-                    trigger: 'hover',
-                    content: content,
-                    placement: 'left'
-                };
-                this.$el.find(selector).popover(options);
-            }
-        });
-
-        return QueryMonitorView;
-    });
+  return QueryMonitorView
+})

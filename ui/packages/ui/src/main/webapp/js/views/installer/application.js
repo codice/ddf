@@ -12,38 +12,34 @@
 /*global define*/
 
 // #Main Application
-define([
-    'underscore',
-    'backbone',
-    'marionette'
-    ], function (_, Backbone, Marionette) {
-    'use strict';
+define(['underscore', 'backbone', 'marionette'], function(
+  _,
+  Backbone,
+  Marionette
+) {
+  'use strict'
 
-    var Application = {};
+  var Application = {}
 
-    Application.App = new Marionette.Application();
+  Application.App = new Marionette.Application()
 
-    Application.App.addRegions({
-        headerRegion: '#header-region',
-        footerRegion: '#footer-region',
-        installation: '#installation'
-    });
+  Application.App.addRegions({
+    headerRegion: '#header-region',
+    footerRegion: '#footer-region',
+    installation: '#installation',
+  })
 
-    Application.Router = Backbone.Router.extend({
-        routes: {
-            '': 'index'
-        },
+  Application.Router = Backbone.Router.extend({
+    routes: {
+      '': 'index',
+    },
 
-        initialize: function () {
-            _.bindAll.apply(_, [this].concat(_.functions(this)));
-        },
+    initialize: function() {
+      _.bindAll.apply(_, [this].concat(_.functions(this)))
+    },
 
+    index: function() {},
+  })
 
-        index: function () {
-
-        }
-
-    });
-
-    return Application;
-});
+  return Application
+})

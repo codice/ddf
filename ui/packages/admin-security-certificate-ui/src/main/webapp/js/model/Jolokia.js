@@ -13,42 +13,37 @@
  *
  **/
 /*global define*/
-define([
-        'backbone',
-        'backboneassociations'
-    ],
-    function (Backbone) {
-
-        return Backbone.AssociatedModel.extend({
-            sync: function (method, model, options) {
-                if (method === 'delete') {
-                    method = 'read';
-                    options.url = model.deleteUrl + model.get('alias');
-                } else if (method === 'update') {
-                    method = 'create';
-                    options.url = model.postUrl;
-                    options.data = JSON.stringify(model.post());
-                }
-                return Backbone.sync.call(this, method, model, options);
-            },
-            post: function () {
-                var file = this.get('file');
-                if (file !== undefined) {
-                    return {
-                        type: 'EXEC',
-                        mbean: 'org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
-                        operation: this.postOperation,
-                        arguments: [
-                            this.get('alias'),
-                            this.get('keypass'),
-                            this.get('storepass'),
-                            file.data,
-                            file.type,
-                            file.name
-                        ]
-                    };
-                }
-            }
-        });
-
-    });
+define(['backbone', 'backboneassociations'], function(Backbone) {
+  return Backbone.AssociatedModel.extend({
+    sync: function(method, model, options) {
+      if (method === 'delete') {
+        method = 'read'
+        options.url = model.deleteUrl + model.get('alias')
+      } else if (method === 'update') {
+        method = 'create'
+        options.url = model.postUrl
+        options.data = JSON.stringify(model.post())
+      }
+      return Backbone.sync.call(this, method, model, options)
+    },
+    post: function() {
+      var file = this.get('file')
+      if (file !== undefined) {
+        return {
+          type: 'EXEC',
+          mbean:
+            'org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+          operation: this.postOperation,
+          arguments: [
+            this.get('alias'),
+            this.get('keypass'),
+            this.get('storepass'),
+            file.data,
+            file.type,
+            file.name,
+          ],
+        }
+      }
+    },
+  })
+})

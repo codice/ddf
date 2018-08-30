@@ -15,43 +15,41 @@
 
 /*global define*/
 define([
-        'application',
-        'js/view/GwcLayers.view.js',
-        'js/model/GwcLayers.js'
-    ],
-    function(Application, GwcLayersView, GwcLayers) {
+  'application',
+  'js/view/GwcLayers.view.js',
+  'js/model/GwcLayers.js',
+], function(Application, GwcLayersView, GwcLayers) {
+  Application.App.module('GwcLayers', function(
+    SourceModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var gwcLayers = new GwcLayers.LayerModel()
 
-        Application.App.module('GwcLayers', function(SourceModule, App, Backbone, Marionette)  {
+    var gwcLayersView = new GwcLayersView.LayersPage({ model: gwcLayers })
 
-            var gwcLayers = new GwcLayers.LayerModel();
+    // Define a controller to run this module
+    // --------------------------------------
 
-            var gwcLayersView = new GwcLayersView.LayersPage({model: gwcLayers});
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            // Define a controller to run this module
-            // --------------------------------------
+      show: function() {
+        this.region.show(gwcLayersView)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(gwcLayersView);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
-
-            SourceModule.addInitializer(function(){
-                SourceModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                SourceModule.contentController.show();
-            });
-
-
-        });
-    });
+    SourceModule.addInitializer(function() {
+      SourceModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      SourceModule.contentController.show()
+    })
+  })
+})

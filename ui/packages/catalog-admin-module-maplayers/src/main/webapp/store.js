@@ -7,7 +7,7 @@ import reducer from './reducer'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-const exceptionLoggger = (store) => (next) => (action) => {
+const exceptionLoggger = store => next => action => {
   try {
     return next(action)
   } catch (e) {
@@ -16,7 +16,11 @@ const exceptionLoggger = (store) => (next) => (action) => {
   }
 }
 
-const store = createStore(reducer, Map(), composeEnhancers(applyMiddleware(exceptionLoggger, thunk)))
+const store = createStore(
+  reducer,
+  Map(),
+  composeEnhancers(applyMiddleware(exceptionLoggger, thunk))
+)
 
 if (module.hot) {
   module.hot.accept('./reducer', () => {

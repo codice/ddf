@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-(function ($) {
-    function bind(org_cometd, cookie, ReloadExtension, cometd) {
-        // Remap cometd COOKIE functions to jquery cookie functions
-        // Avoid to set to undefined if the jquery cookie plugin is not present
-        if (cookie) {
-            org_cometd.COOKIE.set = cookie;
-            org_cometd.COOKIE.get = cookie;
-        }
-
-        var result = new ReloadExtension();
-        cometd.registerExtension('reload', result);
-        return result;
+;(function($) {
+  function bind(org_cometd, cookie, ReloadExtension, cometd) {
+    // Remap cometd COOKIE functions to jquery cookie functions
+    // Avoid to set to undefined if the jquery cookie plugin is not present
+    if (cookie) {
+      org_cometd.COOKIE.set = cookie
+      org_cometd.COOKIE.get = cookie
     }
 
-    if (typeof define === 'function' && define.amd) {
-        define(['org/cometd', 'jquery.cookie', 'org/cometd/ReloadExtension', 'jquery.cometd'], bind);
-    }
-    else {
-        bind(org.cometd, $.cookie, org.cometd.ReloadExtension, $.cometd);
-    }
-})(jQuery);
+    var result = new ReloadExtension()
+    cometd.registerExtension('reload', result)
+    return result
+  }
+
+  if (typeof define === 'function' && define.amd) {
+    define([
+      'org/cometd',
+      'jquery.cookie',
+      'org/cometd/ReloadExtension',
+      'jquery.cometd',
+    ], bind)
+  } else {
+    bind(org.cometd, $.cookie, org.cometd.ReloadExtension, $.cometd)
+  }
+})(jQuery)

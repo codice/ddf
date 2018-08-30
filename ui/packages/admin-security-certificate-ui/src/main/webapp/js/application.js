@@ -12,23 +12,21 @@
 /*global define,require*/
 
 // #Main Application
-define([
-    'marionette'
-], function (Marionette) {
-    'use strict';
+define(['marionette'], function(Marionette) {
+  'use strict'
 
-    var Application = {};
+  var Application = {}
 
-    Application.App = new Marionette.Application();
+  Application.App = new Marionette.Application()
 
-    //add regions
-    Application.App.addRegions({
-        mainRegion: 'main'
-    });
+  //add regions
+  Application.App.addRegions({
+    mainRegion: 'main',
+  })
 
-    Application.App.addInitializer(function () {
-        require(['js/module']);
-    });
+  Application.App.addInitializer(function() {
+    require(['js/module'])
+  })
 
-    return Application;
-});
+  return Application
+})

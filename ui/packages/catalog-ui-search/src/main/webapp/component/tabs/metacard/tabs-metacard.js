@@ -11,35 +11,45 @@
  **/
 /*global define*/
 define([
-    'underscore',
-    '../tabs',
-    'js/store',
-    'component/editor/metacard-basic/metacard-basic.view',
-    'component/editor/metacard-advanced/metacard-advanced.view',
-    'component/metacard-history/metacard-history.view',
-    'component/metacard-associations/metacard-associations.view',
-    'component/metacard-quality/metacard-quality.view',
-    'component/metacard-actions/metacard-actions.view',
-    'component/metacard-archive/metacard-archive.view',
-    'component/metacard-overwrite/metacard-overwrite.view',
-    'component/metacard-preview/metacard-preview.view'
-], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView, MetacardHistoryView,
-             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView, MetacardOverwriteView,
-                MetacardPreviewView) {
-
-    return Tabs.extend({
-        defaults: {
-            tabs: {
-                'Summary': MetacardBasicView,
-                'Details': MetacardAdvancedView,
-                'Preview': MetacardPreviewView,
-                'History': MetacardHistoryView,
-                'Associations': MetacardAssociationsView,
-                'Quality': MetacardQualityView,
-                'Actions': MetacardActionsView,
-                'Archive': MetacardArchiveView,
-                'Overwrite': MetacardOverwriteView
-            }
-        }
-    });
-});
+  'underscore',
+  '../tabs',
+  'js/store',
+  'component/editor/metacard-basic/metacard-basic.view',
+  'component/editor/metacard-advanced/metacard-advanced.view',
+  'component/metacard-history/metacard-history.view',
+  'component/metacard-associations/metacard-associations.view',
+  'component/metacard-quality/metacard-quality.view',
+  'component/metacard-actions/metacard-actions.view',
+  'component/metacard-archive/metacard-archive.view',
+  'component/metacard-overwrite/metacard-overwrite.view',
+  'component/metacard-preview/metacard-preview.view',
+], function(
+  _,
+  Tabs,
+  store,
+  MetacardBasicView,
+  MetacardAdvancedView,
+  MetacardHistoryView,
+  MetacardAssociationsView,
+  MetacardQualityView,
+  MetacardActionsView,
+  MetacardArchiveView,
+  MetacardOverwriteView,
+  MetacardPreviewView
+) {
+  return Tabs.extend({
+    defaults: {
+      tabs: {
+        Summary: MetacardBasicView,
+        Details: MetacardAdvancedView,
+        Preview: MetacardPreviewView,
+        History: MetacardHistoryView,
+        Associations: MetacardAssociationsView,
+        Quality: MetacardQualityView,
+        Actions: MetacardActionsView,
+        Archive: MetacardArchiveView,
+        Overwrite: MetacardOverwriteView,
+      },
+    },
+  })
+})

@@ -10,146 +10,192 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var store = require('js/store');
-var _ = require('underscore');
-var _debounce = require('lodash/debounce');
-var calculateConvexHull = require('geo-convex-hull');
+var Marionette = require('marionette')
+var store = require('js/store')
+var _ = require('underscore')
+var _debounce = require('lodash/debounce')
+var calculateConvexHull = require('geo-convex-hull')
 
 var ClusterView = Marionette.ItemView.extend({
-    template: false,
-    geometry: undefined,
-    convexHull: undefined,
-    selectionType: undefined,
-    initialize: function(options) {
-        this.geometry = [];
-        this.geoController = options.geoController;
-        this.handleCluster();
-        this.addConvexHull();
-        this.updateSelected();
-        this.updateSelected = _debounce(this.updateSelected, 100, {trailing: true, leading: true});
-        this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
-    },
-    handleCluster: function() {
-        var center = this.options.map.getCartographicCenterOfClusterInDegrees(this.model);
-        this.geometry.push(this.options.map.addPointWithText(center, {
-            id: this.model.get('results').map(function(result) {
-                return result.id;
-            }),
-            color: this.model.get('results').first().get('metacard').get('color'),
-            view: this
-        }));
-    },
-    addConvexHull: function() {
-        var points = this.model.get('results').map(function(result) {
-            return result.get('metacard').get('properties').getPoints();
-        });
-        var data = _.flatten(points, true).map(function(coord) {
-            return {
-                longitude: coord[0],
-                latitude: coord[1]
-            };
-        });
-        var convexHull = calculateConvexHull(data).map(function(coord) {
-            return [coord.longitude, coord.latitude];
-        });
-        convexHull.push(convexHull[0]);
-        var geometry = this.options.map.addLine(convexHull, {
-            id: this.model.get('results').map(function(result) {
-                return result.id;
-            }),
-            color: this.model.get('results').first().get('metacard').get('color'),
-            view: this
-        });
-        this.options.map.hideGeometry(geometry);
-        this.geometry.push(geometry);
-    },
-    handleHover: function(id) {
-        if (id && (this.model.get('results').map(function(result) {
-                return result.id;
-            }).toString() === id.toString())) {
-            this.options.map.showGeometry(this.geometry[1]);
-        } else {
-            this.options.map.hideGeometry(this.geometry[1]);
-        }
-    },
-    updateSelected: function() {
-        var selected = 0;
-        var selectedResults = this.options.selectionInterface.getSelectedResults();
-        var results = this.model.get('results');
-        // if there are less selected results, loop over those instead of this model's results
-        if (selectedResults.length < results.length) {
-            selectedResults.some(function(result) {
-                if (results.get(result.id)) {
-                    selected++;
-                }
-                return selected === results.length;
-            }.bind(this));
-        } else {
-            results.forEach(function(result) {
-                if (selectedResults.get(result.id)) {
-                    selected++;
-                }
-            }.bind(this));
-        }
-        if (selected === results.length) {
-            this.updateDisplay('fullySelected');
-        } else if (selected > 0) {
-            this.updateDisplay('partiallySelected');
-        } else {
-            this.updateDisplay('unselected');
-        }
-    },
-    updateDisplay: function(selectionType){
-        if (this.selectionType !== selectionType) {
-            this.selectionType = selectionType;
-            switch(selectionType){
-                case 'fullySelected':
-                    this.showFullySelected();
-                break;
-                case 'partiallySelected':
-                    this.showPartiallySelected();
-                break;
-                case 'unselected': 
-                    this.showUnselected();
-                break;
-            }
-        }
-    },
-    showFullySelected: function() {
-        this.options.map.updateCluster(this.geometry, {
-            color: this.model.get('results').first().get('metacard').get('color'),
-            isSelected: true,
-            count: this.model.get('results').length,
-            outline: 'black',
-            textFill: 'black'
-        });
-    },
-    showPartiallySelected: function() {
-        this.options.map.updateCluster(this.geometry, {
-            color: this.model.get('results').first().get('metacard').get('color'),
-            isSelected: false,
-            count: this.model.get('results').length,
-            outline: 'black',
-            textFill: 'white'
-        });
-    },
-    showUnselected: function() {
-        this.options.map.updateCluster(this.geometry, {
-            color: this.model.get('results').first().get('metacard').get('color'),
-            isSelected: false,
-            count: this.model.get('results').length,
-            outline: 'white',
-            textFill: 'white'
-        });
-    },
-    onDestroy: function() {
-        if (this.geometry) {
-            this.geometry.forEach(function(geometry) {
-                this.options.map.removeGeometry(geometry);
-            }.bind(this));
-        }
+  template: false,
+  geometry: undefined,
+  convexHull: undefined,
+  selectionType: undefined,
+  initialize: function(options) {
+    this.geometry = []
+    this.geoController = options.geoController
+    this.handleCluster()
+    this.addConvexHull()
+    this.updateSelected()
+    this.updateSelected = _debounce(this.updateSelected, 100, {
+      trailing: true,
+      leading: true,
+    })
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.updateSelected
+    )
+  },
+  handleCluster: function() {
+    var center = this.options.map.getCartographicCenterOfClusterInDegrees(
+      this.model
+    )
+    this.geometry.push(
+      this.options.map.addPointWithText(center, {
+        id: this.model.get('results').map(function(result) {
+          return result.id
+        }),
+        color: this.model
+          .get('results')
+          .first()
+          .get('metacard')
+          .get('color'),
+        view: this,
+      })
+    )
+  },
+  addConvexHull: function() {
+    var points = this.model.get('results').map(function(result) {
+      return result
+        .get('metacard')
+        .get('properties')
+        .getPoints()
+    })
+    var data = _.flatten(points, true).map(function(coord) {
+      return {
+        longitude: coord[0],
+        latitude: coord[1],
+      }
+    })
+    var convexHull = calculateConvexHull(data).map(function(coord) {
+      return [coord.longitude, coord.latitude]
+    })
+    convexHull.push(convexHull[0])
+    var geometry = this.options.map.addLine(convexHull, {
+      id: this.model.get('results').map(function(result) {
+        return result.id
+      }),
+      color: this.model
+        .get('results')
+        .first()
+        .get('metacard')
+        .get('color'),
+      view: this,
+    })
+    this.options.map.hideGeometry(geometry)
+    this.geometry.push(geometry)
+  },
+  handleHover: function(id) {
+    if (
+      id &&
+      this.model
+        .get('results')
+        .map(function(result) {
+          return result.id
+        })
+        .toString() === id.toString()
+    ) {
+      this.options.map.showGeometry(this.geometry[1])
+    } else {
+      this.options.map.hideGeometry(this.geometry[1])
     }
-});
+  },
+  updateSelected: function() {
+    var selected = 0
+    var selectedResults = this.options.selectionInterface.getSelectedResults()
+    var results = this.model.get('results')
+    // if there are less selected results, loop over those instead of this model's results
+    if (selectedResults.length < results.length) {
+      selectedResults.some(
+        function(result) {
+          if (results.get(result.id)) {
+            selected++
+          }
+          return selected === results.length
+        }.bind(this)
+      )
+    } else {
+      results.forEach(
+        function(result) {
+          if (selectedResults.get(result.id)) {
+            selected++
+          }
+        }.bind(this)
+      )
+    }
+    if (selected === results.length) {
+      this.updateDisplay('fullySelected')
+    } else if (selected > 0) {
+      this.updateDisplay('partiallySelected')
+    } else {
+      this.updateDisplay('unselected')
+    }
+  },
+  updateDisplay: function(selectionType) {
+    if (this.selectionType !== selectionType) {
+      this.selectionType = selectionType
+      switch (selectionType) {
+        case 'fullySelected':
+          this.showFullySelected()
+          break
+        case 'partiallySelected':
+          this.showPartiallySelected()
+          break
+        case 'unselected':
+          this.showUnselected()
+          break
+      }
+    }
+  },
+  showFullySelected: function() {
+    this.options.map.updateCluster(this.geometry, {
+      color: this.model
+        .get('results')
+        .first()
+        .get('metacard')
+        .get('color'),
+      isSelected: true,
+      count: this.model.get('results').length,
+      outline: 'black',
+      textFill: 'black',
+    })
+  },
+  showPartiallySelected: function() {
+    this.options.map.updateCluster(this.geometry, {
+      color: this.model
+        .get('results')
+        .first()
+        .get('metacard')
+        .get('color'),
+      isSelected: false,
+      count: this.model.get('results').length,
+      outline: 'black',
+      textFill: 'white',
+    })
+  },
+  showUnselected: function() {
+    this.options.map.updateCluster(this.geometry, {
+      color: this.model
+        .get('results')
+        .first()
+        .get('metacard')
+        .get('color'),
+      isSelected: false,
+      count: this.model.get('results').length,
+      outline: 'white',
+      textFill: 'white',
+    })
+  },
+  onDestroy: function() {
+    if (this.geometry) {
+      this.geometry.forEach(
+        function(geometry) {
+          this.options.map.removeGeometry(geometry)
+        }.bind(this)
+      )
+    }
+  },
+})
 
-module.exports = ClusterView;
+module.exports = ClusterView

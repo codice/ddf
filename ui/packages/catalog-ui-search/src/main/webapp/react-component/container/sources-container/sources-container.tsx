@@ -9,54 +9,53 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import withListenTo, { WithBackboneProps } from '../backbone-container';
-import Sources from '../../presentation/sources';
-const sources = require('component/singletons/sources-instance');
+import * as React from 'react'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
+import Sources from '../../presentation/sources'
+const sources = require('component/singletons/sources-instance')
 
-type Props = {
-} & WithBackboneProps
+type Props = {} & WithBackboneProps
 
 type Source = {
-    id: string
-    sourceActions: any[]
-    available: boolean
+  id: string
+  sourceActions: any[]
+  available: boolean
 }
 
 interface State {
-    amountDown: number;
-    sources: Source[];
+  amountDown: number
+  sources: Source[]
 }
 
 class SourcesSummaryContainer extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            amountDown: sources.filter(function(source : Backbone.Model){
-                return !source.get('available');
-            }).length,
-            sources: sources.toJSON()
-        }
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      amountDown: sources.filter(function(source: Backbone.Model) {
+        return !source.get('available')
+      }).length,
+      sources: sources.toJSON(),
     }
-    componentDidMount() {
-        this.props.listenTo(sources, 'all', this.handleChange.bind(this));
-    }
-    handleChange() {
-        this.setState({
-            amountDown: sources.filter(function(source : Backbone.Model){
-                return !source.get('available');
-            }).length,
-            sources: sources.toJSON()
-        });
-    }
-    render() {
-        return (
-            <Sources 
-                sources={this.state.sources}
-                amountDown={this.state.amountDown}
-            />
-        )
-    }
+  }
+  componentDidMount() {
+    this.props.listenTo(sources, 'all', this.handleChange.bind(this))
+  }
+  handleChange() {
+    this.setState({
+      amountDown: sources.filter(function(source: Backbone.Model) {
+        return !source.get('available')
+      }).length,
+      sources: sources.toJSON(),
+    })
+  }
+  render() {
+    return (
+      <Sources
+        sources={this.state.sources}
+        amountDown={this.state.amountDown}
+      />
+    )
+  }
 }
 
 export default withListenTo(SourcesSummaryContainer)

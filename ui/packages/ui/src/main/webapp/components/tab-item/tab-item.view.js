@@ -14,23 +14,22 @@
  **/
 /* global define */
 define([
-    'marionette',
-    'text!./tab-item.hbs',
-    'js/CustomElements',
-    'js/wreqr.js'
-    ],function (Marionette, template, CustomElements, wreqr) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('tab-item'),
-        className: 'itemview',
-        triggerShown: function() {
-            wreqr.vent.trigger('application:tabShown', this.model.id);
-            this.$el.toggleClass('is-active', true);
-        },
-        triggerHidden: function() {
-            wreqr.vent.trigger('application:tabHidden', this.model.id);
-            this.$el.toggleClass('is-active', false);
-        }
-    });
-});
+  'marionette',
+  'text!./tab-item.hbs',
+  'js/CustomElements',
+  'js/wreqr.js',
+], function(Marionette, template, CustomElements, wreqr) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('tab-item'),
+    className: 'itemview',
+    triggerShown: function() {
+      wreqr.vent.trigger('application:tabShown', this.model.id)
+      this.$el.toggleClass('is-active', true)
+    },
+    triggerHidden: function() {
+      wreqr.vent.trigger('application:tabHidden', this.model.id)
+      this.$el.toggleClass('is-active', false)
+    },
+  })
+})

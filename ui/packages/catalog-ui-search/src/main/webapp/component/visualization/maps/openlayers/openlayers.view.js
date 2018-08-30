@@ -13,19 +13,17 @@
  *
  **/
 /*global require*/
-var MapView = require('../map.view');
-var wreqr = require('wreqr');
-var $ = require('jquery');
+var MapView = require('../map.view')
+var wreqr = require('wreqr')
+var $ = require('jquery')
 
 module.exports = MapView.extend({
-    className: 'is-openlayers',
-    loadMap: function() {
-        var deferred = new $.Deferred();
-        require([
-            './map.openlayers'
-        ], function(OpenlayersMap) {
-            deferred.resolve(OpenlayersMap);
-        });
-        return deferred;
-    }
-});
+  className: 'is-openlayers',
+  loadMap: function() {
+    var deferred = new $.Deferred()
+    require(['./map.openlayers'], function(OpenlayersMap) {
+      deferred.resolve(OpenlayersMap)
+    })
+    return deferred
+  },
+})

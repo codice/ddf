@@ -9,45 +9,51 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* jshint browser: true */
 /* global define */
 define([
-        'jquery',
-        'icanhaz',
-        'backbone',
-        'js/wreqr',
-        'js/views/Modal',
-        'js/models/SessionTimeout',
-        'properties',
-        'text!templates/sessionTimeoutModal.handlebars'
-    ],
-    function ($, ich, Backbone, wreqr, Modal, sessionTimeoutModel, properties, sessionTimeoutModalTemplate) {
-        ich.addTemplate('sessionTimeoutModalTemplate', sessionTimeoutModalTemplate);
+  'jquery',
+  'icanhaz',
+  'backbone',
+  'js/wreqr',
+  'js/views/Modal',
+  'js/models/SessionTimeout',
+  'properties',
+  'text!templates/sessionTimeoutModal.handlebars',
+], function(
+  $,
+  ich,
+  Backbone,
+  wreqr,
+  Modal,
+  sessionTimeoutModel,
+  properties,
+  sessionTimeoutModalTemplate
+) {
+  ich.addTemplate('sessionTimeoutModalTemplate', sessionTimeoutModalTemplate)
 
-        return Modal.extend({
-            template: 'sessionTimeoutModalTemplate',
-            model: null,
+  return Modal.extend({
+    template: 'sessionTimeoutModalTemplate',
+    model: null,
 
-            events: {
-                'click button': 'renewSession'
-            },
-            initialize: function () {
-            },
-            onRender: function () {
-                setTimeout(this.refreshTimeLeft.bind(this), 1000);
-            },
-            refreshTimeLeft: function () {
-                if (!this.isClosed) {
-                    this.render();
-                }
-            },
-            serializeData: function () {
-                return {
-                    timeLeft: sessionTimeoutModel.getIdleSeconds()
-                };
-            },
-            renewSession: function () {
-                sessionTimeoutModel.renew();
-            }
-        });
-    });
+    events: {
+      'click button': 'renewSession',
+    },
+    initialize: function() {},
+    onRender: function() {
+      setTimeout(this.refreshTimeLeft.bind(this), 1000)
+    },
+    refreshTimeLeft: function() {
+      if (!this.isClosed) {
+        this.render()
+      }
+    },
+    serializeData: function() {
+      return {
+        timeLeft: sessionTimeoutModel.getIdleSeconds(),
+      }
+    },
+    renewSession: function() {
+      sessionTimeoutModel.renew()
+    },
+  })
+})

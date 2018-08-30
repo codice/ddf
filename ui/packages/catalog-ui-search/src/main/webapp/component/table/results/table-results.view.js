@@ -13,37 +13,37 @@
  *
  **/
 /*global require*/
-var TableView = require('../table.view');
-var HeaderView = require('component/visualization/table/thead.view');
-var BodyView = require('component/visualization/table/tbody.view');
-var $ = require('jquery');
+var TableView = require('../table.view')
+var HeaderView = require('component/visualization/table/thead.view')
+var BodyView = require('component/visualization/table/tbody.view')
+var $ = require('jquery')
 
 function getOriginalEvent(e) {
   if (e.constructor === MouseEvent) {
-    return e;
+    return e
   }
-  return getOriginalEvent(e.originalEvent);
+  return getOriginalEvent(e.originalEvent)
 }
 
 module.exports = TableView.extend({
-    className: 'is-results',
-    getHeaderView: function(){
-        return new HeaderView({
-            selectionInterface: this.options.selectionInterface
-        });
-    },
-    getBodyView: function(){
-        return new BodyView({
-            selectionInterface: this.options.selectionInterface,
-            collection: this.options.selectionInterface.getActiveSearchResults()
-        });
-    },
-    events: {
-      'resize': 'resize'
-    },
-    resize: function(e) {
-      e = getOriginalEvent(e);
-      var newWidth = this.$el.find('table').width() + e.movementX;
-      this.$el.find('table').css('width', newWidth);
-    }
-});
+  className: 'is-results',
+  getHeaderView: function() {
+    return new HeaderView({
+      selectionInterface: this.options.selectionInterface,
+    })
+  },
+  getBodyView: function() {
+    return new BodyView({
+      selectionInterface: this.options.selectionInterface,
+      collection: this.options.selectionInterface.getActiveSearchResults(),
+    })
+  },
+  events: {
+    resize: 'resize',
+  },
+  resize: function(e) {
+    e = getOriginalEvent(e)
+    var newWidth = this.$el.find('table').width() + e.movementX
+    this.$el.find('table').css('width', newWidth)
+  },
+})

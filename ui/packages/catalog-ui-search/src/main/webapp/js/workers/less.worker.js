@@ -9,8 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import {LessWorker} from './worker.less';
+import { LessWorker } from './worker.less'
 
-const lessWorker = new LessWorker();
+const lessWorker = new LessWorker()
 
-onmessage = lessWorker.onmessage;
+onmessage = lessWorker.onmessage

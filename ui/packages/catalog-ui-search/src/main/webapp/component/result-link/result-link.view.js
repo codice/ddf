@@ -13,16 +13,18 @@
  *
  **/
 /*global define, require, module*/
-var Marionette = require('marionette');
-var template = require('./result-link.hbs');
-var CustomElements = require('js/CustomElements');
-
+var Marionette = require('marionette')
+var template = require('./result-link.hbs')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-link'),
   template: template,
 
   serializeData: function() {
-    return this.model.get('metacard').get('properties').get('associations.external');
-  }
-});
+    return this.model
+      .get('metacard')
+      .get('properties')
+      .get('associations.external')
+  },
+})

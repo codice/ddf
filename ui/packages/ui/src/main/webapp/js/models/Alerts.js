@@ -9,57 +9,60 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-define([
-    'underscore',
-    'backbone'
-], function (_, Backbone) {
+define(['underscore', 'backbone'], function(_, Backbone) {
+  var AlertsModel = {}
 
-    var AlertsModel = {};
+  AlertsModel.Alert = Backbone.Model.extend({
+    defaults: {
+      'details-button-action': 'Show',
+      collapse: 'out',
+      level: 'danger',
+    },
+  })
 
-    AlertsModel.Alert = Backbone.Model.extend({
-        defaults: {
-            'details-button-action': 'Show',
-            'collapse': 'out',
-            'level': 'danger'
+  AlertsModel.BackendAlerts = Backbone.Collection.extend({
+    model: AlertsModel.Alert,
+    url:
+      './jolokia/read/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/Alerts',
+    parse: function(response) {
+      return response.value
+    },
+  })
+
+  AlertsModel.JolokiaAlerts = AlertsModel.Alert.extend({
+    defaults: _.extend({}, AlertsModel.Alert.prototype.defaults, {
+      title: 'Unable to save your changes.',
+    }),
+    parse: function(response) {
+      if (response.stacktrace) {
+        var json = {}
+
+        var stackLines = response.stacktrace.split(/\n/)
+        json.details = []
+        for (var i = 0; i < stackLines.length; i++) {
+          json.details.push({ message: stackLines[i] })
         }
-    });
 
-    AlertsModel.BackendAlerts = Backbone.Collection.extend({
-        model: AlertsModel.Alert,
-        url: "./jolokia/read/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/Alerts",
-        parse: function(response) {
-            return response.value;
+        if (response.stacktrace === 'Forbidden') {
+          json.details = [
+            {
+              message:
+                'An error was received while trying to contact the server, which indicates that you might no longer be logged in.',
+            },
+          ]
+          json.title =
+            'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.'
         }
-    });
+        return json
+      } else {
+        return response
+      }
+    },
+  })
 
-    AlertsModel.JolokiaAlerts = AlertsModel.Alert.extend({
-        defaults: _.extend({}, AlertsModel.Alert.prototype.defaults, {
-            'title': 'Unable to save your changes.'
-        }),
-        parse: function (response) {
-            if (response.stacktrace) {
-                var json = {};
+  AlertsModel.Jolokia = function(jolokiaResponse) {
+    return new AlertsModel.JolokiaAlerts(jolokiaResponse, { parse: true })
+  }
 
-                var stackLines = response.stacktrace.split(/\n/);
-                json.details = [];
-                for (var i = 0; i < stackLines.length; i++) {
-                    json.details.push({'message': stackLines[i]});
-                }
-
-                if (response.stacktrace === 'Forbidden') {
-                    json.details = [{'message': 'An error was received while trying to contact the server, which indicates that you might no longer be logged in.'}];
-                    json.title = 'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.';
-                }
-                return json;
-            } else {
-                return response;
-            }
-        }
-    });
-
-    AlertsModel.Jolokia = function (jolokiaResponse) {
-        return new AlertsModel.JolokiaAlerts(jolokiaResponse, {'parse': true});
-    };
-
-    return AlertsModel;
-});
+  return AlertsModel
+})

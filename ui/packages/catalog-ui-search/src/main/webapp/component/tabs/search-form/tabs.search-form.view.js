@@ -12,25 +12,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
-const Marionette = require('marionette');
-const TabsView = require('../tabs.view');
-const SearchFormTabsModel = require('./tabs.search-form');
-const store = require('js/store');
+/*global require*/
+const Marionette = require('marionette')
+const TabsView = require('../tabs.view')
+const SearchFormTabsModel = require('./tabs.search-form')
+const store = require('js/store')
 
 module.exports = TabsView.extend({
-     selectionInterface: store,
-     setDefaultModel: function(){
-        this.model = new SearchFormTabsModel();
-     },
-     initialize: function(){
-         this.setDefaultModel();
-         TabsView.prototype.initialize.call(this);
-     },
-     determineContent: function() {
-        var activeTab = this.model.getActiveView();
-        this.tabsContent.show(new activeTab({
-            model: this.options.queryModel
-        }));
-     }
-});
+  selectionInterface: store,
+  setDefaultModel: function() {
+    this.model = new SearchFormTabsModel()
+  },
+  initialize: function() {
+    this.setDefaultModel()
+    TabsView.prototype.initialize.call(this)
+  },
+  determineContent: function() {
+    var activeTab = this.model.getActiveView()
+    this.tabsContent.show(
+      new activeTab({
+        model: this.options.queryModel,
+      })
+    )
+  },
+})

@@ -19,11 +19,11 @@ import { MD5 } from 'object-hash'
 import { fetch } from '../../main/webapp/js/actions'
 import random from './random-entry'
 
-test('append to empty log list', (t) => {
+test('append to empty log list', t => {
   t.plan(1)
 
-  const logs = [random()].map((entry) => ({hash: MD5(entry), ...entry}))
-  const getLogs = (fn) => fn(null, logs)
+  const logs = [random()].map(entry => ({ hash: MD5(entry), ...entry }))
+  const getLogs = fn => fn(null, logs)
 
   const dispatch = ({ type, entries }) => {
     if (type === 'APPEND_LOGS') {
@@ -34,17 +34,17 @@ test('append to empty log list', (t) => {
   const getState = () => ({
     isPolling: true,
     isFetching: false,
-    logs: []
+    logs: [],
   })
 
   fetch(getLogs)(dispatch, getState)
 })
 
-test('append with old logs', (t) => {
+test('append with old logs', t => {
   t.plan(1)
 
   const oldLogs = [random()]
-  const getLogs = (fn) => fn(null, oldLogs)
+  const getLogs = fn => fn(null, oldLogs)
 
   const dispatch = ({ type, entries }) => {
     if (type === 'APPEND_LOGS') {
@@ -55,18 +55,18 @@ test('append with old logs', (t) => {
   const getState = () => ({
     isPolling: true,
     isFetching: false,
-    logs: oldLogs.map((entry) => ({hash: MD5(entry), ...entry}))
+    logs: oldLogs.map(entry => ({ hash: MD5(entry), ...entry })),
   })
 
   fetch(getLogs)(dispatch, getState)
 })
 
-test('append with new logs', (t) => {
+test('append with new logs', t => {
   t.plan(1)
 
-  const oldLogs = [random()].map((entry) => ({hash: 'firsthash', ...entry}))
-  const newLogs = [random()].map((entry) => ({hash: 'secondhash', ...entry}))
-  const getLogs = (fn) => fn(null, newLogs)
+  const oldLogs = [random()].map(entry => ({ hash: 'firsthash', ...entry }))
+  const newLogs = [random()].map(entry => ({ hash: 'secondhash', ...entry }))
+  const getLogs = fn => fn(null, newLogs)
 
   const dispatch = ({ type, entries }) => {
     if (type === 'APPEND_LOGS') {
@@ -77,7 +77,7 @@ test('append with new logs', (t) => {
   const getState = () => ({
     isPolling: true,
     isFetching: false,
-    logs: oldLogs
+    logs: oldLogs,
   })
 
   fetch(getLogs)(dispatch, getState)

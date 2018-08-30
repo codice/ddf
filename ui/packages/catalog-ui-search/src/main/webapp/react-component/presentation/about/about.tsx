@@ -9,43 +9,47 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from "react";
-import styled from "../../styles/styled-components";
-import { CustomElement } from '../../styles/mixins';
-import { ChangeBackground } from '../../styles/mixins';
-import { hot } from 'react-hot-loader';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
+import { ChangeBackground } from '../../styles/mixins'
+import { hot } from 'react-hot-loader'
 
 interface Props {
-  branding: string;
-  product: string;
-  version: string;
-  commitHash: string;
-  commitDate: string;
-  isDirty: boolean;
-  date: string;
+  branding: string
+  product: string
+  version: string
+  commitHash: string
+  commitDate: string
+  isDirty: boolean
+  date: string
 }
 
 const Root = styled.div`
-  ${CustomElement} 
-  ${props =>
-    ChangeBackground(props.theme.backgroundContent)
-  }
+  ${CustomElement} ${props =>
+    ChangeBackground(props.theme.backgroundContent)}
   overflow: auto;
   padding: ${props => props.theme.minimumSpacing} 0px;
 
   .about-content {
     margin: auto;
     max-width: ${props => {
-        return props.theme.screenBelow(props.theme.mediumScreenSize) ? '100%' : '1200px';
+      return props.theme.screenBelow(props.theme.mediumScreenSize)
+        ? '100%'
+        : '1200px'
     }};
-    padding: 0px ${props => props.theme.screenBelow(props.theme.mediumScreenSize) ? '20px' : '100px'};
+    padding: 0px
+      ${props =>
+        props.theme.screenBelow(props.theme.mediumScreenSize)
+          ? '20px'
+          : '100px'};
   }
 
   .content-version,
   .version-message {
     padding: ${props => props.theme.minimumSpacing};
   }
-`;
+`
 
 export default hot(module)((props: Props) => {
   return (
@@ -67,7 +71,7 @@ export default hot(module)((props: Props) => {
           <div>
             <div className="version-title">Unique Identifier</div>
             <div className="version-message is-medium-font">
-              {`${props.commitHash} ${props.isDirty ? "with Changes" : ""}`}
+              {`${props.commitHash} ${props.isDirty ? 'with Changes' : ''}`}
             </div>
           </div>
           <div className="is-divider" />
@@ -78,5 +82,5 @@ export default hot(module)((props: Props) => {
         </div>
       </div>
     </Root>
-  );
-});
+  )
+})

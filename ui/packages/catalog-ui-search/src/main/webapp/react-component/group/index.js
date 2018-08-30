@@ -1,6 +1,9 @@
-const React = require('react');
+const React = require('react')
 
-const Group = (props) =>
-    <div className="input-group" {...props}>{props.children}</div>;
+const Group = props => (
+  <div className="input-group" {...props}>
+    {props.children}
+  </div>
+)
 
-module.exports = Group;
+module.exports = Group

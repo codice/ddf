@@ -14,31 +14,29 @@
  **/
 /*global define, window*/
 define([
-    'marionette',
-    './feature-item.view',
-    'js/CustomElements',
-    'text!./feature-item.collection.empty.hbs'
-    ],function (Marionette, FeatureItemView, CustomElements, emptyTemplate) {
-
-    return Marionette.CollectionView.extend({
-        initialize: function() {
-            this.listenTo(this.collection, 'sort', this.render);
-        },
-        emptyView: Marionette.ItemView.extend({
-            template: emptyTemplate
-        }),
-        itemView: FeatureItemView,
-        itemViewOptions: function() {
-            return {
-                filter: this.options.filter
-            };
-        },
-        tagName: CustomElements.register('feature-item-collection'),
-        updateFilter: function(filter) {
-            this.children.forEach(function(childView) {
-                childView.updateFilter && childView.updateFilter(filter);
-            });
-        }
-    });
-
-});
+  'marionette',
+  './feature-item.view',
+  'js/CustomElements',
+  'text!./feature-item.collection.empty.hbs',
+], function(Marionette, FeatureItemView, CustomElements, emptyTemplate) {
+  return Marionette.CollectionView.extend({
+    initialize: function() {
+      this.listenTo(this.collection, 'sort', this.render)
+    },
+    emptyView: Marionette.ItemView.extend({
+      template: emptyTemplate,
+    }),
+    itemView: FeatureItemView,
+    itemViewOptions: function() {
+      return {
+        filter: this.options.filter,
+      }
+    },
+    tagName: CustomElements.register('feature-item-collection'),
+    updateFilter: function(filter) {
+      this.children.forEach(function(childView) {
+        childView.updateFilter && childView.updateFilter(filter)
+      })
+    },
+  })
+})

@@ -15,14 +15,14 @@
 /*global define*/
 /** Main view page for add. */
 define([
-    'marionette',
-    './configuration-field-multivalue.view',
-    'js/CustomElements'
-], function (Marionette, ConfigurationFieldMultivalueView, CustomElements) {
-
-    return Marionette.CollectionView.extend({
-        itemView: ConfigurationFieldMultivalueView,
-        tagName: CustomElements.register('configuration-field-multivalue-collection')
-    });
-
-});
+  'marionette',
+  './configuration-field-multivalue.view',
+  'js/CustomElements',
+], function(Marionette, ConfigurationFieldMultivalueView, CustomElements) {
+  return Marionette.CollectionView.extend({
+    itemView: ConfigurationFieldMultivalueView,
+    tagName: CustomElements.register(
+      'configuration-field-multivalue-collection'
+    ),
+  })
+})

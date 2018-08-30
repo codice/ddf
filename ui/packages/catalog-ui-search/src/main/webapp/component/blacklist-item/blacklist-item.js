@@ -13,10 +13,10 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
+var Backbone = require('backbone')
 module.exports = Backbone.Model.extend({
-    defaults: {
-        id: '',
-        title: ''
-    }
-});
+  defaults: {
+    id: '',
+    title: '',
+  },
+})

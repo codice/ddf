@@ -11,23 +11,23 @@
  **/
 /*global require,__dirname*/
 var express = require('express'),
-    server = require('./server-impl');
+  server = require('./server-impl')
 
-var app = express();
+var app = express()
 // uncomment to get some debugging
 //app.use(express.logger());
 //enable the live reload
-app.use(require('connect-livereload')());
+app.use(require('connect-livereload')())
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/css', express.static(__dirname + '/target/webapp/css'));
-app.use('/', express.static(__dirname + '/target/META-INF/resources/webjars'));
-app.use(express.static(__dirname + '/src/main/webapp'));
+app.use('/css', express.static(__dirname + '/target/webapp/css'))
+app.use('/', express.static(__dirname + '/target/META-INF/resources/webjars'))
+app.use(express.static(__dirname + '/src/main/webapp'))
 
 //if we're mocking, it is being run by grunt
-console.log('setting up proxy only');
-app.all('/login/*', server.requestProxy);
+console.log('setting up proxy only')
+app.all('/login/*', server.requestProxy)
 
-const launcher = app.listen(process.env.PORT || 8282, function () {
-    console.log('Server listening on port ' + launcher.address().port);
-});
+const launcher = app.listen(process.env.PORT || 8282, function() {
+  console.log('Server listening on port ' + launcher.address().port)
+})

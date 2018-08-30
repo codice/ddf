@@ -1,20 +1,20 @@
 .coordinate {
-    display: flex;
+  display: flex;
+  flex: 1;
+
+  input {
     flex: 1;
+  }
 
-    input {
-        flex: 1;
+  @{reactNamespace}direction > .toggle-input {
+    height: @minimumButtonSize;
+    width: @minimumButtonSize;
+    cursor: pointer;
+    text-align: center;
+    padding: 0;
+
+    &:focus {
+      outline: 0;
     }
-
-    @{reactNamespace}direction > .toggle-input{
-        height: @minimumButtonSize;
-        width: @minimumButtonSize;
-        cursor: pointer;
-        text-align: center;
-        padding: 0;
-
-        &:focus {
-            outline: 0;
-        }
-    }
+  }
 }

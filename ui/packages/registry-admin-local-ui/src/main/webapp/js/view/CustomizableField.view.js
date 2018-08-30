@@ -14,88 +14,97 @@
  **/
 /*global define*/
 define([
-        'icanhaz',
-        'marionette',
-        'backbone',
-        'wreqr',
-        'underscore',
-        'jquery',
-        'js/view/Field.view.js',
-        'text!templates/customFieldList.handlebars'
-    ],
-    function (ich, Marionette, Backbone, wreqr, _, $, Field, customList) {
+  'icanhaz',
+  'marionette',
+  'backbone',
+  'wreqr',
+  'underscore',
+  'jquery',
+  'js/view/Field.view.js',
+  'text!templates/customFieldList.handlebars',
+], function(ich, Marionette, Backbone, wreqr, _, $, Field, customList) {
+  ich.addTemplate('customList', customList)
 
-        ich.addTemplate('customList', customList);
+  var Customizable = {}
 
-        var Customizable = {};
+  Customizable.CustomizableCollectionView = Marionette.Layout.extend({
+    template: 'customList',
+    regions: {
+      customFieldsRegion: '#custom-fields',
+    },
+    events: {
+      'click .add-custom-field': 'addField',
+    },
+    initialize: function(options) {
+      this.readOnly = options.readOnly
+      this.listenTo(
+        wreqr.vent,
+        'removeField:' + this.model.get('segmentId'),
+        this.removeField
+      )
+    },
+    onRender: function() {
+      var customFields = this.model
+        .get('fields')
+        .models.filter(function(field) {
+          return field.get('custom')
+        })
+      this.customFieldsRegion.show(
+        new Field.FieldCollectionView({
+          collection: new Backbone.Collection(customFields),
+          parentId: this.model.get('segmentId'),
+          readOnly: this.readOnly,
+        })
+      )
+    },
+    addField: function(event) {
+      event.stopImmediatePropagation()
+      var fieldName = this.$('.field-name').val()
+      if (!fieldName || fieldName.trim().length === 0) {
+        return
+      }
+      var fieldType = this.$('.field-type-selector').val()
+      var addedField = this.model.addField(fieldName, fieldType)
+      this.$('.field-name').val('')
+      if (addedField) {
+        if (this.customFieldError) {
+          this.clearCustomFieldError()
+        } else {
+          wreqr.vent.trigger(
+            'addedField:' + this.model.get('segmentId'),
+            addedField
+          )
+        }
+      } else {
+        this.showCustomFieldError(fieldName)
+      }
+    },
+    removeField: function(key) {
+      var removedField = this.model.removeField(key)
+      wreqr.vent.trigger(
+        'removedField:' + this.model.get('segmentId'),
+        removedField
+      )
+    },
+    showCustomFieldError: function(fieldName) {
+      this.customFieldError = "Field '" + fieldName + "' already exists."
+      this.render()
+    },
+    clearCustomFieldError: function() {
+      this.customFieldError = undefined
+      this.render()
+    },
+    serializeData: function() {
+      var data = {}
 
-        Customizable.CustomizableCollectionView = Marionette.Layout.extend({
-            template: 'customList',
-            regions: {
-                customFieldsRegion: '#custom-fields'
-            },
-            events: {
-                "click .add-custom-field": 'addField'
-            },
-            initialize: function (options) {
-                this.readOnly = options.readOnly;
-                this.listenTo(wreqr.vent, 'removeField:' + this.model.get('segmentId'), this.removeField);
-            },
-            onRender: function () {
-                var customFields = this.model.get('fields').models
-                    .filter(function (field) {
-                        return field.get('custom');
-                    });
-                this.customFieldsRegion.show(new Field.FieldCollectionView({
-                    collection: new Backbone.Collection(customFields),
-                    parentId: this.model.get("segmentId"),
-                    readOnly: this.readOnly
-                }));
-            },
-            addField: function (event) {
-                event.stopImmediatePropagation();
-                var fieldName = this.$('.field-name').val();
-                if (!fieldName || fieldName.trim().length === 0) {
-                    return;
-                }
-                var fieldType = this.$('.field-type-selector').val();
-                var addedField = this.model.addField(fieldName, fieldType);
-                this.$('.field-name').val('');
-                if (addedField) {
-                    if (this.customFieldError) {
-                        this.clearCustomFieldError();
-                    } else {
-                        wreqr.vent.trigger('addedField:' + this.model.get("segmentId"), addedField);
-                    }
-                } else {
-                    this.showCustomFieldError(fieldName);
-                }
-            },
-            removeField: function (key) {
-                var removedField = this.model.removeField(key);
-                wreqr.vent.trigger('removedField:' + this.model.get("segmentId"), removedField);
-            },
-            showCustomFieldError: function (fieldName) {
-                this.customFieldError = 'Field \'' + fieldName + '\' already exists.';
-                this.render();
-            },
-            clearCustomFieldError: function () {
-                this.customFieldError = undefined;
-                this.render();
-            },
-            serializeData: function () {
-                var data = {};
+      if (this.model) {
+        data = this.model.toJSON()
+      }
+      data.customFieldError = this.customFieldError
+      data.readOnly = this.readOnly
+      return data
+    },
+  })
 
-                if (this.model) {
-                    data = this.model.toJSON();
-                }
-                data.customFieldError = this.customFieldError;
-                data.readOnly = this.readOnly;
-                return data;
-            }
-        });
-
-
-        return Customizable;
-
-    });
+  return Customizable
+})

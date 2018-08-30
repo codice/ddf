@@ -22,11 +22,10 @@
   "scripts": {
     "start": "ace start",
     "start:test": "ace start --env=test",
-    "pretest": "standard ./src/**/*.js && ace bundle --env=test",
+    "pretest": "ace bundle --env=test",
     "test": "ace test target/test/index.html",
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
-    "format": "standard --fix ./src/**/*.js",
     "build": "ace bundle && ace package",
     "clean": "ace clean",
     "m2": "ace clean && ace bundle && ace package && ace install"
@@ -58,7 +57,6 @@
     "istanbul": "0.4.5",
     "opn-cli": "3.1.0",
     "react-addons-test-utils": "15.4.2",
-    "standard": "8.6.0",
     "ace": "*"
   },
   "files": [

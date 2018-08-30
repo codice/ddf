@@ -14,29 +14,28 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.metacard-interactions.hbs',
-    'component/metacard-interactions/metacard-interactions.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-metacardInteractions',
-        componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.options.modelForComponent;
-        },
-        listenToComponent: function(){
-            //override if you need more functionality
-        },
-        isCentered: true,
-        getCenteringElement: function(){
-            return this.el;
-        },
-        hasTail: true
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.metacard-interactions.hbs',
+  'component/metacard-interactions/metacard-interactions.view',
+], function(Marionette, _, $, DropdownView, template, ComponentView) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-metacardInteractions',
+    componentToShow: ComponentView,
+    initializeComponentModel: function() {
+      //override if you need more functionality
+      this.modelForComponent = this.options.modelForComponent
+    },
+    listenToComponent: function() {
+      //override if you need more functionality
+    },
+    isCentered: true,
+    getCenteringElement: function() {
+      return this.el
+    },
+    hasTail: true,
+  })
+})

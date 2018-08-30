@@ -10,5 +10,5 @@
  *
  **/
 /*global require*/
-var User = require('js/model/User');
-module.exports = new User.Response();
+var User = require('js/model/User')
+module.exports = new User.Response()

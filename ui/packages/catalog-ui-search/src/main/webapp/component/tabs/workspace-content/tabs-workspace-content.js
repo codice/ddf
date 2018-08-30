@@ -11,20 +11,19 @@
  **/
 /*global define*/
 define([
-    'underscore',
-    '../tabs',
-    'component/workspace-search/workspace-search.view',
-    'component/workspace-lists/workspace-lists.view'
-], function (_, Tabs, WorkspaceSearchView, WorkspaceListsView) {
-    
-    var WorkspaceContentTabs = Tabs.extend({
-        defaults: {
-            tabs: {
-                'Search': WorkspaceSearchView,
-                'Lists': WorkspaceListsView
-            }
-        }
-    });
+  'underscore',
+  '../tabs',
+  'component/workspace-search/workspace-search.view',
+  'component/workspace-lists/workspace-lists.view',
+], function(_, Tabs, WorkspaceSearchView, WorkspaceListsView) {
+  var WorkspaceContentTabs = Tabs.extend({
+    defaults: {
+      tabs: {
+        Search: WorkspaceSearchView,
+        Lists: WorkspaceListsView,
+      },
+    },
+  })
 
-    return WorkspaceContentTabs;
-});
+  return WorkspaceContentTabs
+})

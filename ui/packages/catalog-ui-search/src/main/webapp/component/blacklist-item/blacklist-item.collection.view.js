@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var childView = require('./blacklist-item.view');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var childView = require('./blacklist-item.view')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
-    childView: childView,
-    tagName: CustomElements.register('blacklist-item-collection'),
-    className: 'is-list has-list-highlighting'
-});
+  childView: childView,
+  tagName: CustomElements.register('blacklist-item-collection'),
+  className: 'is-list has-list-highlighting',
+})

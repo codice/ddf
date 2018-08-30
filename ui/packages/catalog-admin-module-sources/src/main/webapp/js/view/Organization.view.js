@@ -14,20 +14,19 @@
  **/
 /*global define*/
 define([
-    'icanhaz',
-    'marionette',
-    'text!templates/sourceOrganization.hbs'
-], function (ich, Marionette, sourceOrganization) {
+  'icanhaz',
+  'marionette',
+  'text!templates/sourceOrganization.hbs',
+], function(ich, Marionette, sourceOrganization) {
+  if (!ich.sourceOrganization) {
+    ich.addTemplate('sourceOrganization', sourceOrganization)
+  }
 
-    if (!ich.sourceOrganization) {
-        ich.addTemplate('sourceOrganization', sourceOrganization);
-    }
+  var OrganizationView = {}
 
-    var OrganizationView = {};
+  OrganizationView = Marionette.ItemView.extend({
+    template: 'sourceOrganization',
+  })
 
-    OrganizationView = Marionette.ItemView.extend({
-        template: 'sourceOrganization'
-    });
-
-    return OrganizationView;
-});
+  return OrganizationView
+})

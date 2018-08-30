@@ -9,97 +9,105 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import Navigation from '../../presentation/navigation';
-import withListenTo, { WithBackboneProps } from '../backbone-container';
+import * as React from 'react'
+import Navigation from '../../presentation/navigation'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-const store = require('js/store');
-const wreqr = require('wreqr');
-const sources = require('component/singletons/sources-instance');
-const properties = require('properties');
+const store = require('js/store')
+const wreqr = require('wreqr')
+const sources = require('component/singletons/sources-instance')
+const properties = require('properties')
 
 const hasLogo = () => {
-    return properties.showLogo && properties.ui.vendorImage !== ""
+  return properties.showLogo && properties.ui.vendorImage !== ''
 }
 
 const hasUnavailable = () => {
-    return sources.some(function(source: Backbone.Model){
-        return !source.get('available');
-    });
+  return sources.some(function(source: Backbone.Model) {
+    return !source.get('available')
+  })
 }
 
 const hasUnsaved = () => {
-    return store.get('workspaces').some(function(workspace: any){
-        return !workspace.isSaved();
-    });
+  return store.get('workspaces').some(function(workspace: any) {
+    return !workspace.isSaved()
+  })
 }
 
 const isDrawing = () => {
-    return store.get('content').get('drawing');
+  return store.get('content').get('drawing')
 }
 
 const turnOffDrawing = () => {
-    wreqr.vent.trigger('search:drawend', store.get('content').get('drawingModel'));
+  wreqr.vent.trigger('search:drawend', store.get('content').get('drawingModel'))
 }
 
 type Props = {
-    routeDefinitions: object
+  routeDefinitions: object
 } & WithBackboneProps
 
 type State = {
-    hasLogo: boolean;
-    hasUnavailable: boolean;
-    hasUnsaved: boolean;
-    isDrawing: boolean;
-    logo: string;
+  hasLogo: boolean
+  hasUnavailable: boolean
+  hasUnsaved: boolean
+  isDrawing: boolean
+  logo: string
 }
 
 class NavigationContainer extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            hasLogo: hasLogo(),
-            hasUnavailable: hasUnavailable(),
-            hasUnsaved: hasUnsaved(),
-            isDrawing: isDrawing(),
-            logo: properties.ui.vendorImage
-        }
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      hasLogo: hasLogo(),
+      hasUnavailable: hasUnavailable(),
+      hasUnsaved: hasUnsaved(),
+      isDrawing: isDrawing(),
+      logo: properties.ui.vendorImage,
     }
-    componentDidMount() {
-        this.props.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved.bind(this));
-        this.props.listenTo(sources, 'all', this.handleSources.bind(this));
-        this.props.listenTo(store.get('content'), 'change:drawing', this.handleDrawing.bind(this));
-    }
-    handleSaved() {
-        this.setState({
-            hasUnsaved: hasUnsaved()
-        })
-    }
-    handleSources() {
-        this.setState({
-            hasUnavailable: hasUnavailable()
-        })
-    }
-    handleDrawing() {
-        this.setState({
-            isDrawing: isDrawing()
-        })
-    }
-    render() {
-        return (
-            <Navigation 
-                isDrawing={this.state.isDrawing}
-                hasUnavailable={this.state.hasUnavailable} 
-                hasUnsaved={this.state.hasUnsaved} 
-                hasLogo={this.state.hasLogo} 
-                logo={this.state.logo}
-                turnOffDrawing={() => {
-                    turnOffDrawing();
-                }}
-                {...this.props}>
-            </Navigation>
-        )
-    }
+  }
+  componentDidMount() {
+    this.props.listenTo(
+      store.get('workspaces'),
+      'change:saved update add remove',
+      this.handleSaved.bind(this)
+    )
+    this.props.listenTo(sources, 'all', this.handleSources.bind(this))
+    this.props.listenTo(
+      store.get('content'),
+      'change:drawing',
+      this.handleDrawing.bind(this)
+    )
+  }
+  handleSaved() {
+    this.setState({
+      hasUnsaved: hasUnsaved(),
+    })
+  }
+  handleSources() {
+    this.setState({
+      hasUnavailable: hasUnavailable(),
+    })
+  }
+  handleDrawing() {
+    this.setState({
+      isDrawing: isDrawing(),
+    })
+  }
+  render() {
+    return (
+      <Navigation
+        isDrawing={this.state.isDrawing}
+        hasUnavailable={this.state.hasUnavailable}
+        hasUnsaved={this.state.hasUnsaved}
+        hasLogo={this.state.hasLogo}
+        logo={this.state.logo}
+        turnOffDrawing={() => {
+          turnOffDrawing()
+        }}
+        {...this.props}
+      />
+    )
+  }
 }
 
 export default withListenTo(NavigationContainer)

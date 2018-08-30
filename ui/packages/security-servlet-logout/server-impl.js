@@ -9,25 +9,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var httpProxy = require('http-proxy');
-var path = require('path');
+var httpProxy = require('http-proxy')
+var path = require('path')
 
 var proxy = httpProxy.createProxyServer({
-    secure: false,
-    changeOrigin: true,
-    autoRewrite: true,
-    protocolRewrite: 'http'
-});
+  secure: false,
+  changeOrigin: true,
+  autoRewrite: true,
+  protocolRewrite: 'http',
+})
 
 proxy.on('proxyRes', function(proxyRes, req, res, options) {
-    var cookies = proxyRes.headers['set-cookie'];
-    if (cookies !== undefined) {
-        cookies = cookies.map(function (cookie) { return cookie.replace(';Secure', ''); });
-        res.set('set-cookie', cookies);
-        delete proxyRes.headers['set-cookie'];
-    }
-});
+  var cookies = proxyRes.headers['set-cookie']
+  if (cookies !== undefined) {
+    cookies = cookies.map(function(cookie) {
+      return cookie.replace(';Secure', '')
+    })
+    res.set('set-cookie', cookies)
+    delete proxyRes.headers['set-cookie']
+  }
+})
 
-exports.requestProxy = function (req, res) {
-    proxy.web(req, res, { target: 'https://localhost:8993' });
-};
+exports.requestProxy = function(req, res) {
+  proxy.web(req, res, { target: 'https://localhost:8993' })
+}

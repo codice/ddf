@@ -33,7 +33,7 @@ const arrayToObject = (key, array) => {
 export default (filters, logs) => {
   const level = filters.level || 'ALL'
 
-  const fields = Object.keys(filters).filter((field) => {
+  const fields = Object.keys(filters).filter(field => {
     return field !== 'level' && filters[field] !== ''
   })
 
@@ -47,33 +47,42 @@ export default (filters, logs) => {
   // fields that have a valid regex
   const validFields = Object.keys(regexps)
 
-  const hasMarks = (row) => {
+  const hasMarks = row => {
     return Object.keys(row.marks).length === validFields.length
   }
 
-  const getMarks = (entry) => {
-    var marks = validFields.map((field) => {
-      if (entry[field]) {
-        var match = entry[field].match(regexps[field])
-        if (match !== null) {
-          return {
-            field: field,
-            start: match.index,
-            end: match[0].length + match.index
+  const getMarks = entry => {
+    var marks = validFields
+      .map(field => {
+        if (entry[field]) {
+          var match = entry[field].match(regexps[field])
+          if (match !== null) {
+            return {
+              field: field,
+              start: match.index,
+              end: match[0].length + match.index,
+            }
           }
         }
-      }
-    }).filter((m) => { return m !== undefined })
+      })
+      .filter(m => {
+        return m !== undefined
+      })
 
     return {
       entry: entry,
-      marks: arrayToObject('field', marks)
+      marks: arrayToObject('field', marks),
     }
   }
 
-  const levelLogs = logs.filter((entry) => {
-    return level === 'ALL' || includes(levels.slice(levels.indexOf(level)), entry.level)
-  }).map(getMarks)
+  const levelLogs = logs
+    .filter(entry => {
+      return (
+        level === 'ALL' ||
+        includes(levels.slice(levels.indexOf(level)), entry.level)
+      )
+    })
+    .map(getMarks)
 
-  return (fields.length > 0) ? levelLogs.filter(hasMarks) : levelLogs
+  return fields.length > 0 ? levelLogs.filter(hasMarks) : levelLogs
 }

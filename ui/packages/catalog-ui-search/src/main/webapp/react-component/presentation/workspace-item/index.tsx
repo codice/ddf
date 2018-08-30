@@ -1,1 +1,1 @@
-export {default} from './workspace-item'
+export { default } from './workspace-item'

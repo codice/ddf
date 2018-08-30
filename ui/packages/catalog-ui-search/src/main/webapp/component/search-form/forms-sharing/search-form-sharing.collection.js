@@ -22,16 +22,17 @@ const user = require('component/singletons/user-instance')
 
 let sharedTemplates = []
 let promiseIsResolved = false
-const sharedSearchFormPromise = () => $.ajax({
-  type: 'GET',
-  context: this,
-  url: './internal/forms/query',
-  contentType: 'application/json',
-  success: function (data) {
-    sharedTemplates = data
-    promiseIsResolved = true
-  }
-})
+const sharedSearchFormPromise = () =>
+  $.ajax({
+    type: 'GET',
+    context: this,
+    url: './internal/forms/query',
+    contentType: 'application/json',
+    success: function(data) {
+      sharedTemplates = data
+      promiseIsResolved = true
+    },
+  })
 
 let bootstrapPromise = sharedSearchFormPromise()
 
@@ -39,20 +40,22 @@ module.exports = Backbone.AssociatedModel.extend({
   model: SearchForm,
   defaults: {
     doneLoading: false,
-    sharedSearchForms: []
+    sharedSearchForms: [],
   },
-  initialize: function () {
+  initialize: function() {
     this.addMySharedForms()
   },
-  relations: [{
-    type: Backbone.Many,
-    key: 'sharedSearchForms',
-    collectionType: Backbone.Collection.extend({
-      model: SearchForm,
-      initialize: function () {}
-    })
-  }],
-  addMySharedForms: function () {
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'sharedSearchForms',
+      collectionType: Backbone.Collection.extend({
+        model: SearchForm,
+        initialize: function() {},
+      }),
+    },
+  ],
+  addMySharedForms: function() {
     if (!this.isDestroyed) {
       if (promiseIsResolved === true) {
         promiseIsResolved = false
@@ -64,60 +67,65 @@ module.exports = Backbone.AssociatedModel.extend({
             let utcSeconds = value.created / 1000
             let d = new Date(0)
             d.setUTCSeconds(utcSeconds)
-            this.addSearchForm(new SearchForm({
-              createdOn: Common.getHumanReadableDate(d),
-              id: value.id,
-              name: value.title,
-              description: value.description,
-              type: 'custom',
-              filterTemplate: JSON.stringify(value.filterTemplate),
-              accessIndividuals: value.accessIndividuals,
-              accessGroups: value.accessGroups,
-              createdBy: value.creator,
-              owner: value.owner,
-              querySettings: value.querySettings
-            }))
+            this.addSearchForm(
+              new SearchForm({
+                createdOn: Common.getHumanReadableDate(d),
+                id: value.id,
+                name: value.title,
+                description: value.description,
+                type: 'custom',
+                filterTemplate: JSON.stringify(value.filterTemplate),
+                accessIndividuals: value.accessIndividuals,
+                accessGroups: value.accessGroups,
+                createdBy: value.creator,
+                owner: value.owner,
+                querySettings: value.querySettings,
+              })
+            )
           }
         })
         this.doneLoading()
       })
-    };
+    }
   },
-  checkIfShareable: function (template) {
-    if ((this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) && !this.checkIfOwner(template)) {
+  checkIfShareable: function(template) {
+    if (
+      (this.checkIfInGroup(template) || this.checkIfInIndividiuals(template)) &&
+      !this.checkIfOwner(template)
+    ) {
       return true
     }
     return false
   },
-  checkIfOwner: function (template) {
+  checkIfOwner: function(template) {
     return user.get('user').get('userid') === template.owner
   },
-  checkIfInGroup: function (template) {
+  checkIfInGroup: function(template) {
     let myGroups = user.get('user').get('roles')
-    let roleIntersection = myGroups.filter(function (n) {
+    let roleIntersection = myGroups.filter(function(n) {
       return template.accessGroups.indexOf(n) !== -1
     })
 
     return !_.isEmpty(roleIntersection)
   },
-  checkIfInIndividiuals: function (template) {
+  checkIfInIndividiuals: function(template) {
     let myEmail = [user.get('user').get('email')]
-    let accessIndividualIntersection = myEmail.filter(function (n) {
+    let accessIndividualIntersection = myEmail.filter(function(n) {
       return template.accessIndividuals.indexOf(n) !== -1
     })
 
     return !_.isEmpty(accessIndividualIntersection)
   },
-  addSearchForm: function (searchForm) {
+  addSearchForm: function(searchForm) {
     this.get('sharedSearchForms').add(searchForm)
   },
-  getDoneLoading: function () {
+  getDoneLoading: function() {
     return this.get('doneLoading')
   },
-  doneLoading: function () {
+  doneLoading: function() {
     this.set('doneLoading', true)
   },
-  getCollection: function () {
+  getCollection: function() {
     return this.get('sharedSearchForms')
-  }
+  },
 })

@@ -10,27 +10,31 @@
  *
  **/
 /*global define*/
-define([
-], function () {
+define([], function() {
+  var Metatypes = {}
 
-    var Metatypes = {};
-
-    return {
-        add: function(id, metatypeModel) {
-            Metatypes[id] = Metatypes[id] || metatypeModel;
-        },
-        get: function(id) {
-            return Metatypes[id];
-        },
-        getRelevantOptionLabel: function(options) {
-            console.log(Metatypes);
-            if (options.metatypeId === undefined || options.property === undefined || options.value === undefined) {
-                throw "insufficient parameters to determine the relevant label";
-            }
-            if (this.get(options.metatypeId) === undefined) {
-                return '';
-            }
-            return this.get(options.metatypeId).get(options.property).get('options')[options.value].label;
-        }
-    };
-});
+  return {
+    add: function(id, metatypeModel) {
+      Metatypes[id] = Metatypes[id] || metatypeModel
+    },
+    get: function(id) {
+      return Metatypes[id]
+    },
+    getRelevantOptionLabel: function(options) {
+      console.log(Metatypes)
+      if (
+        options.metatypeId === undefined ||
+        options.property === undefined ||
+        options.value === undefined
+      ) {
+        throw 'insufficient parameters to determine the relevant label'
+      }
+      if (this.get(options.metatypeId) === undefined) {
+        return ''
+      }
+      return this.get(options.metatypeId)
+        .get(options.property)
+        .get('options')[options.value].label
+    },
+  }
+})

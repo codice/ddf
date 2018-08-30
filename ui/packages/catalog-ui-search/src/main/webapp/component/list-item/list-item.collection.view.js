@@ -13,19 +13,19 @@
  *
  **/
 /*global define, alert*/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var ListItemView = require('./list-item.view');
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var ListItemView = require('./list-item.view')
 
 module.exports = Marionette.CollectionView.extend({
-    setDefaultCollection: function(){
-        this.collection = this.options.workspaceLists;
-    },
-    tagName: CustomElements.register('list-item-collection'),
-    childView: ListItemView,
-    initialize: function (options) {
-        if (!options.collection) {
-            this.setDefaultCollection();
-        }
+  setDefaultCollection: function() {
+    this.collection = this.options.workspaceLists
+  },
+  tagName: CustomElements.register('list-item-collection'),
+  childView: ListItemView,
+  initialize: function(options) {
+    if (!options.collection) {
+      this.setDefaultCollection()
     }
-});
+  },
+})

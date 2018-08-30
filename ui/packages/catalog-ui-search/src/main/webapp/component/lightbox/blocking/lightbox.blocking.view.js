@@ -13,12 +13,12 @@
  *
  **/
 /*global require*/
-var LightboxView = require('./../Lightbox.view');
-var $ = require('jquery');
+var LightboxView = require('./../Lightbox.view')
+var $ = require('jquery')
 
 module.exports = LightboxView.extend({
-    className: 'is-blocking',
-    handleOutsideClick: $.noop,
-    handleRouteChange: $.noop,
-    handleEscape: $.noop
-});
+  className: 'is-blocking',
+  handleOutsideClick: $.noop,
+  handleRouteChange: $.noop,
+  handleEscape: $.noop,
+})

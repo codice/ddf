@@ -14,77 +14,74 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'icanhaz',
-    'underscore',
-    'js/wreqr.js',
-    'text!./application-item.hbs',
-    'js/CustomElements'
-    ],function (Marionette, ich, _, wreqr, template, CustomElements) {
-    "use strict";
+  'marionette',
+  'icanhaz',
+  'underscore',
+  'js/wreqr.js',
+  'text!./application-item.hbs',
+  'js/CustomElements',
+], function(Marionette, ich, _, wreqr, template, CustomElements) {
+  'use strict'
 
-    // List of apps that cannot have any actions performed on them through
-    // the applications module
-    var disableList = [
-        'platform-app',
-        'admin-app'
-    ];
+  // List of apps that cannot have any actions performed on them through
+  // the applications module
+  var disableList = ['platform-app', 'admin-app']
 
-    // Itemview for each individual application
-    var AppInfoView = Marionette.Layout.extend({
-        template: template,
-        tagName: CustomElements.register('application-item'),
-        regions: {
-            modalRegion: '.modal-region'
-        },
-        events: {
-            'click': 'selectApplication',
-            'keyup': 'emulateClick'
-        },
-        emulateClick: function(e) {
-            if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.$el.mousedown().click();
-            } else if (e.keyCode === 27) {
-                this.$el.popover('hide');
-            }
-        },    
-        attributes: function() {
-            return {
-                id: this.model.get('appId')+ '-card',
-                tabindex: 0
-            };
-        },
-        // Will disable functionality for certain applications
-        serializeData: function () {
-            var that = this;
-            var disable = false;
-            disableList.forEach(function(child) {
-                if(that.model.get('appId') === child) {
-                    disable = true;
-                }
-            });
-
-            return _.extend(this.model.toJSON(), {isDisabled: disable});
-        },
-
-        selectApplication: function(){
-            wreqr.vent.trigger('application:reqestSelection',this.model);
-        },
-        onRender: function() {
-            this.$el.popover({
-                title: this.model.get('displayName'),
-                content: this.model.get('description'),
-                trigger: 'hover focus',
-                placement: 'bottom',
-                container: 'body'
-            });
-        },
-        onBeforeClose: function() {
-            this.$el.popover('destroy');
+  // Itemview for each individual application
+  var AppInfoView = Marionette.Layout.extend({
+    template: template,
+    tagName: CustomElements.register('application-item'),
+    regions: {
+      modalRegion: '.modal-region',
+    },
+    events: {
+      click: 'selectApplication',
+      keyup: 'emulateClick',
+    },
+    emulateClick: function(e) {
+      if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
+        e.preventDefault()
+        e.stopPropagation()
+        this.$el.mousedown().click()
+      } else if (e.keyCode === 27) {
+        this.$el.popover('hide')
+      }
+    },
+    attributes: function() {
+      return {
+        id: this.model.get('appId') + '-card',
+        tabindex: 0,
+      }
+    },
+    // Will disable functionality for certain applications
+    serializeData: function() {
+      var that = this
+      var disable = false
+      disableList.forEach(function(child) {
+        if (that.model.get('appId') === child) {
+          disable = true
         }
-    });
+      })
 
-    return AppInfoView;
-});
+      return _.extend(this.model.toJSON(), { isDisabled: disable })
+    },
+
+    selectApplication: function() {
+      wreqr.vent.trigger('application:reqestSelection', this.model)
+    },
+    onRender: function() {
+      this.$el.popover({
+        title: this.model.get('displayName'),
+        content: this.model.get('description'),
+        trigger: 'hover focus',
+        placement: 'bottom',
+        container: 'body',
+      })
+    },
+    onBeforeClose: function() {
+      this.$el.popover('destroy')
+    },
+  })
+
+  return AppInfoView
+})

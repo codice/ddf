@@ -25,28 +25,36 @@ module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('search-form-sharing-collection'),
   regions: {
-    collection: '.collection'
+    collection: '.collection',
   },
-  initialize: function () {
+  initialize: function() {
     this.searchFormSharingCollection = new SearchFormSharingCollection()
-    this.listenTo(this.searchFormSharingCollection, 'change:doneLoading', this.handleLoadingSpinner)
+    this.listenTo(
+      this.searchFormSharingCollection,
+      'change:doneLoading',
+      this.handleLoadingSpinner
+    )
   },
-  onRender: function () {
-    this.collection.show(new SearchFormCollectionView({
-      collection: this.searchFormSharingCollection.getCollection(),
-      model: this.model
-    }))
+  onRender: function() {
+    this.collection.show(
+      new SearchFormCollectionView({
+        collection: this.searchFormSharingCollection.getCollection(),
+        model: this.model,
+      })
+    )
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
-  showCollection: function () {
-    if (this.collection.currentView.searchFormSharingCollection.getDoneLoading()) {
+  showCollection: function() {
+    if (
+      this.collection.currentView.searchFormSharingCollection.getDoneLoading()
+    ) {
       this.$el.find('.loading').hide()
     }
   },
-  handleLoadingSpinner: function () {
+  handleLoadingSpinner: function() {
     if (this.searchFormSharingCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }
-  }
+  },
 })

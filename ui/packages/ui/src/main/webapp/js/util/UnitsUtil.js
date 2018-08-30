@@ -10,39 +10,31 @@
  *
  **/
 /*global define*/
-define([
-],function () {
+define([], function() {
+  var Util = {
+    /**
+     * Solution taken from stackoverflow. Link included.
+     * http://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
+     * @param bytes - what to convert
+     * @returns {string}
+     */
+    convertBytesToDisplay: function(bytes) {
+      if (bytes >= 1000000000) {
+        bytes = (bytes / 1000000000).toFixed(2) + ' GB'
+      } else if (bytes >= 1000000) {
+        bytes = (bytes / 1000000).toFixed(2) + ' MB'
+      } else if (bytes >= 1000) {
+        bytes = (bytes / 1000).toFixed(2) + ' KB'
+      } else if (bytes > 1) {
+        bytes = bytes + ' bytes'
+      } else if (bytes === 1) {
+        bytes = bytes + ' byte'
+      } else {
+        bytes = '0 byte'
+      }
+      return bytes
+    },
+  }
 
-    var Util = {
-
-        /**
-         * Solution taken from stackoverflow. Link included.
-         * http://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
-         * @param bytes - what to convert
-         * @returns {string}
-         */
-        convertBytesToDisplay: function(bytes) {
-            if (bytes >= 1000000000) {
-                bytes = (bytes / 1000000000).toFixed(2) + ' GB';
-            }
-            else if (bytes >= 1000000) {
-                bytes = (bytes / 1000000).toFixed(2) + ' MB';
-            }
-            else if (bytes >= 1000) {
-                bytes = (bytes / 1000).toFixed(2) + ' KB';
-            }
-            else if (bytes > 1) {
-                bytes = bytes + ' bytes';
-            }
-            else if (bytes === 1) {
-                bytes = bytes + ' byte';
-            }
-            else {
-                bytes = '0 byte';
-            }
-            return bytes;
-        }
-    };
-
-    return Util;
-});
+  return Util
+})

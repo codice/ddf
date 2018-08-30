@@ -15,13 +15,12 @@
 /*global define*/
 /** Main view page for add. */
 define([
-    'marionette',
-    'text!./configuration-field.hbs',
-    'js/CustomElements'
-], function (Marionette, template, CustomElements) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('configuration-field')
-    });
-});
+  'marionette',
+  'text!./configuration-field.hbs',
+  'js/CustomElements',
+], function(Marionette, template, CustomElements) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('configuration-field'),
+  })
+})

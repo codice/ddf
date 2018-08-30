@@ -13,36 +13,36 @@
 /*global window*/
 /*jslint browser: true*/
 
-define([
-        'underscore'
-    ],
-    function (_) {
-        'use strict';
+define(['underscore'], function(_) {
+  'use strict'
 
-        return {
-            isWebglAvailable: undefined,
-            isAvailable: function () {
-                if (_.isUndefined(this.isWebglAvailable)) {
-                    this.isWebglAvailable = false;
+  return {
+    isWebglAvailable: undefined,
+    isAvailable: function() {
+      if (_.isUndefined(this.isWebglAvailable)) {
+        this.isWebglAvailable = false
 
-                    var context = window.WebGLRenderingContext;
+        var context = window.WebGLRenderingContext
 
-                    var canvas = document.createElement('canvas');
+        var canvas = document.createElement('canvas')
 
-                    var webglOptions = {};
+        var webglOptions = {}
 
-                    // Override select WebGL defaults
-                    webglOptions.alpha = false; // WebGL default is true
-                    webglOptions.failIfMajorPerformanceCaveat = true; // WebGL default is false
+        // Override select WebGL defaults
+        webglOptions.alpha = false // WebGL default is true
+        webglOptions.failIfMajorPerformanceCaveat = true // WebGL default is false
 
-                    try {
-                        var gl = canvas.getContext('webgl', webglOptions) || canvas.getContext('experimental-webgl', webglOptions) || undefined;
-                        if (gl && context) {
-                            this.isWebglAvailable = true;
-                        }
-                    } catch(e) {}
-                }
-                return this.isWebglAvailable;
-            }
-        };
-});
+        try {
+          var gl =
+            canvas.getContext('webgl', webglOptions) ||
+            canvas.getContext('experimental-webgl', webglOptions) ||
+            undefined
+          if (gl && context) {
+            this.isWebglAvailable = true
+          }
+        } catch (e) {}
+      }
+      return this.isWebglAvailable
+    },
+  }
+})

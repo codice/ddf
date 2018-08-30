@@ -1,27 +1,25 @@
 @{customElementNamespace}low-bandwidth-map {
-    background: inherit;    
+  background: inherit;
+  .customElement;
+
+  > .low-bandwidth-confirmation {
+    button {
+      position: relative;
+      width: 100%;
+      height: 5 * @minimumButtonSize;
+      line-height: 5 * @minimumButtonSize;
+    }
     .customElement;
+    overflow: auto;
+    padding: 20px;
 
-    > .low-bandwidth-confirmation {
-        button {
-            position: relative;
-            width: 100%;
-            height: 5*@minimumButtonSize;
-            line-height: 5*@minimumButtonSize;
-        }
-        .customElement;
-        overflow: auto;
-        padding: 20px;
-    
-        * + * {
-            margin-top: 20px;
-        }
+    * + * {
+      margin-top: 20px;
     }
+  }
 
-    > .map-container {
-        background: inherit;
-        .customElement;
-    }
-
-    
+  > .map-container {
+    background: inherit;
+    .customElement;
+  }
 }

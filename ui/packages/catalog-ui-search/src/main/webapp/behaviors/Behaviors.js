@@ -13,17 +13,17 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var behaviors = {};
-Marionette.Behaviors.behaviorsLookup = function(){
-    return behaviors;
-};
+var Marionette = require('marionette')
+var behaviors = {}
+Marionette.Behaviors.behaviorsLookup = function() {
+  return behaviors
+}
 
 module.exports = {
-    addBehavior: function(name, behavior) {
-        if (behaviors[name]) {
-            throw 'Behavior with name ' + name + ' already exists.';
-        }
-        behaviors[name] = behavior;
+  addBehavior: function(name, behavior) {
+    if (behaviors[name]) {
+      throw 'Behavior with name ' + name + ' already exists.'
     }
-};
+    behaviors[name] = behavior
+  },
+}

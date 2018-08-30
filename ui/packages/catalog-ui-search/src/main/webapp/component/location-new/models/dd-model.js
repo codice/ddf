@@ -11,32 +11,32 @@
  **/
 const ddPoint = {
   latitude: '',
-  longitude: ''
-};
+  longitude: '',
+}
 
 const ddModel = {
   shape: 'point',
-  point: {...ddPoint},
+  point: { ...ddPoint },
   circle: {
-    point: {...ddPoint},
+    point: { ...ddPoint },
     radius: '1',
-    units: 'meters'
+    units: 'meters',
   },
   line: {
-    list: []
+    list: [],
   },
   polygon: {
-    list: []
+    list: [],
   },
   boundingbox: {
     north: '',
     south: '',
     east: '',
-    west: ''
-  }
-};
+    west: '',
+  },
+}
 
 module.exports = {
   ddPoint,
   ddModel,
-};
+}

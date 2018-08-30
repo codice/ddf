@@ -13,38 +13,38 @@
  *
  **/
 /*global define, require, module*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var _merge = require('lodash/merge');
-var $ = require('jquery');
-var template = require('./list-item.hbs');
-var CustomElements = require('js/CustomElements');
-require('behaviors/button.behavior');
-require('behaviors/dropdown.behavior');
-var ListEditorView = require('component/list-editor/list-editor.view');
-var QueryFeedView = require('component/query-feed/query-feed.view');
-var ListInteractionsView = require('component/list-interactions/list-interactions.view');
-var lightboxInstance = require('component/lightbox/lightbox.view.instance');
-var ListAddTabsView = require('component/tabs/list-add/tabs-list-add.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var _merge = require('lodash/merge')
+var $ = require('jquery')
+var template = require('./list-item.hbs')
+var CustomElements = require('js/CustomElements')
+require('behaviors/button.behavior')
+require('behaviors/dropdown.behavior')
+var ListEditorView = require('component/list-editor/list-editor.view')
+var QueryFeedView = require('component/query-feed/query-feed.view')
+var ListInteractionsView = require('component/list-interactions/list-interactions.view')
+var lightboxInstance = require('component/lightbox/lightbox.view.instance')
+var ListAddTabsView = require('component/tabs/list-add/tabs-list-add.view')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
   template: template,
   attributes: function() {
     return {
-      'data-listid': this.model.id
-    };
+      'data-listid': this.model.id,
+    }
   },
   regions: {
     queryFeed: '.details-feed',
-    listAdd: '.list-add'
+    listAdd: '.list-add',
   },
   events: {
     'click .list-run': 'triggerRun',
     'click .list-refresh': 'triggerRun',
     'click .list-stop': 'triggerStop',
     'click .list-delete': 'triggerDelete',
-    'click .list-add': 'triggerAdd'
+    'click .list-add': 'triggerAdd',
   },
   behaviors() {
     return {
@@ -54,115 +54,128 @@ module.exports = Marionette.LayoutView.extend({
           {
             selector: '.list-actions',
             view: ListInteractionsView.extend({
-                behaviors: {
-                  navigation: {}
-                }
+              behaviors: {
+                navigation: {},
+              },
             }),
             viewOptions: {
-              model: this.options.model
-            }
+              model: this.options.model,
+            },
           },
           {
             selector: '.list-edit',
             view: ListEditorView,
             viewOptions: {
-              model: this.options.model
-            }
-          }
-        ]
-      }
-    } 
+              model: this.options.model,
+            },
+          },
+        ],
+      },
+    }
   },
   initialize: function() {
     if (this.model.get('query').has('result')) {
-      this.startListeningToStatus();
+      this.startListeningToStatus()
     } else {
-      this.listenTo(this.model.get('query'), 'change:result', this.resultAdded);
+      this.listenTo(this.model.get('query'), 'change:result', this.resultAdded)
     }
-    this.listenTo(this.model, 'change:query>isOutdated', this.handleOutOfDate);
-    this.listenTo(this.model, 'change:list.bookmarks', this.handleEmptyList);
-    this.handleEmptyList();
-    this.handleOutOfDate();
+    this.listenTo(this.model, 'change:query>isOutdated', this.handleOutOfDate)
+    this.listenTo(this.model, 'change:list.bookmarks', this.handleEmptyList)
+    this.handleEmptyList()
+    this.handleOutOfDate()
   },
   handleOutOfDate: function() {
-    this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'));
-  },  
+    this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'))
+  },
   handleEmptyList: function() {
-    this.$el.toggleClass('is-empty', this.model.isEmpty());
+    this.$el.toggleClass('is-empty', this.model.isEmpty())
   },
   onRender: function() {
-    this.setupFeed();
+    this.setupFeed()
   },
   setupFeed: function() {
-    this.queryFeed.show(new QueryFeedView({
-      model: this.model.get('query')
-    }));
+    this.queryFeed.show(
+      new QueryFeedView({
+        model: this.model.get('query'),
+      })
+    )
   },
   resultAdded: function(model) {
-    if (this.model.get('query').has('result') && _.isUndefined(this.model.get('query').previous('result'))) {
-      this.startListeningToStatus();
+    if (
+      this.model.get('query').has('result') &&
+      _.isUndefined(this.model.get('query').previous('result'))
+    ) {
+      this.startListeningToStatus()
     }
   },
   startListeningToStatus: function() {
-    this.handleStatus();
+    this.handleStatus()
     this.listenTo(
       this.model.get('query').get('result'),
       'sync request error',
       this.handleStatus
-    );
+    )
   },
   handleStatus: function() {
     this.$el.toggleClass(
       'is-searching',
-      this.model.get('query').get('result').isSearching()
-    );
+      this.model
+        .get('query')
+        .get('result')
+        .isSearching()
+    )
   },
   triggerRun: function(e) {
-    this.model.get('query').startSearch();
-    e.stopPropagation();
+    this.model.get('query').startSearch()
+    e.stopPropagation()
   },
   triggerStop: function(e) {
-    this.model.get('query').cancelCurrentSearches();
-    e.stopPropagation();
+    this.model.get('query').cancelCurrentSearches()
+    e.stopPropagation()
   },
   triggerDelete: function(e) {
-    this.model.get('query').cancelCurrentSearches();
-    this.model.collection.remove(this.model);
-    e.stopPropagation();
+    this.model.get('query').cancelCurrentSearches()
+    this.model.collection.remove(this.model)
+    e.stopPropagation()
   },
   triggerAdd(e) {
-    lightboxInstance.model.updateTitle('Add List Items');
-    lightboxInstance.model.open();
-    lightboxInstance.lightboxContent.show(new ListAddTabsView({
+    lightboxInstance.model.updateTitle('Add List Items')
+    lightboxInstance.model.open()
+    lightboxInstance.lightboxContent.show(
+      new ListAddTabsView({
         extraHeaders: {
-            'List-ID': this.model.attributes.id,
-            'List-Type': this.model.get('list.icon')
+          'List-ID': this.model.attributes.id,
+          'List-Type': this.model.get('list.icon'),
         },
         url: './internal/list/import',
-        handleUploadSuccess: (file) => this.handleUploadSuccess(file),
-        handleNewMetacard: (id) => this.handleNewMetacard(id),
-        close: () => lightboxInstance.close()
-    }));
-    e.stopPropagation();
+        handleUploadSuccess: file => this.handleUploadSuccess(file),
+        handleNewMetacard: id => this.handleNewMetacard(id),
+        close: () => lightboxInstance.close(),
+      })
+    )
+    e.stopPropagation()
   },
   handleNewMetacard(id) {
-    if(id) {
-        this.model.addBookmarks([id]);
-        this.model.get('query').startSearchIfOutdated();
+    if (id) {
+      this.model.addBookmarks([id])
+      this.model.get('query').startSearchIfOutdated()
     }
   },
   handleUploadSuccess(file) {
-    var addedIds = file.xhr.getResponseHeader('Added-IDs');
-    if(addedIds) {
-        this.model.addBookmarks(addedIds.split(','));
-        this.model.get('query').startSearchIfOutdated();
+    var addedIds = file.xhr.getResponseHeader('Added-IDs')
+    if (addedIds) {
+      this.model.addBookmarks(addedIds.split(','))
+      this.model.get('query').startSearchIfOutdated()
     }
   },
   serializeData: function() {
-    return _merge(this.model.toJSON({
-      additionalProperties: ['cid', 'color']
-    }), {
-      icon: this.model.getIcon()
-    });
-  }
-});
+    return _merge(
+      this.model.toJSON({
+        additionalProperties: ['cid', 'color'],
+      }),
+      {
+        icon: this.model.getIcon(),
+      }
+    )
+  },
+})

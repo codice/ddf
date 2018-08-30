@@ -6,7 +6,7 @@ module.exports = ({ args, pkg }) => {
   const c = config({
     env: process.env.NODE_ENV || args.env || 'development',
     main: pkg.main,
-    alias: pkg.alias
+    alias: pkg.alias,
   })
 
   webpack(c, (err, stats) => {
@@ -16,4 +16,3 @@ module.exports = ({ args, pkg }) => {
     }
   })
 }
-

@@ -18,14 +18,17 @@
     margin-right: @minimumSpacing;
   }
 
-  > .filter-header > .contents-buttons .add-filterBuilder span:nth-of-type(2)::after {
+  > .filter-header
+    > .contents-buttons
+    .add-filterBuilder
+    span:nth-of-type(2)::after {
     content: '';
     position: absolute;
     right: 0px;
     border-left: 1px solid;
     border-top: 1px solid;
     border-bottom: 1px solid;
-    height:100%;
+    height: 100%;
     width: @minimumSpacing;
   }
 
@@ -60,7 +63,7 @@
       }
     }
 
-    > .contents-buttons > button{
+    > .contents-buttons > button {
       padding: 0px @minimumSpacing;
     }
 
@@ -72,7 +75,6 @@
       width: @minimumButtonSize;
       height: @minimumButtonSize;
     }
-
   }
 
   > .filter-contents {
@@ -104,16 +106,13 @@
   @{customElementNamespace}filter-builder {
     margin: @minimumSpacing;
   }
-
 }
 
 @{customElementNamespace}filter-builder.is-editing {
-
   > .filter-header > .contents-buttons {
     display: inline-block;
     vertical-align: top;
   }
-
 }
 
 @{customElementNamespace}filter-builder.is-sortable {
@@ -126,7 +125,7 @@
     }
 
     > .filter-rearrange:hover {
-      opacity: 0.50;
+      opacity: 0.5;
       transition: opacity 0.5s ease-in-out;
     }
   }

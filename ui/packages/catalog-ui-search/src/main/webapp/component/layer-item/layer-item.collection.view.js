@@ -13,34 +13,34 @@
  *
  **/
 /* global require*/
-const _ = require('underscore');
-const Marionette = require('marionette');
-const Backbone = require('backbone'); 
-const $ = require('jquery');
-const CustomElements = require('js/CustomElements');
-const Sortable = require('sortablejs');
-const LayerItemView = require('./layer-item.view');
+const _ = require('underscore')
+const Marionette = require('marionette')
+const Backbone = require('backbone')
+const $ = require('jquery')
+const CustomElements = require('js/CustomElements')
+const Sortable = require('sortablejs')
+const LayerItemView = require('./layer-item.view')
 
 module.exports = Marionette.CollectionView.extend({
-    childView: LayerItemView,
-    tagName: CustomElements.register('layer-item-collection'),
-    className: 'no-spacing',
-    childViewOptions: function() {
-        return {
-            sortable: this.sortable,
-            updateOrdering: this.options.updateOrdering,
-            focusModel: this.options.focusModel
-        };
-    },
-    onBeforeRenderCollection: function() {
-        this.sortable = Sortable.create(this.el, {
-            handle: 'button.layer-rearrange',
-            animation: 250,
-            draggable: '>*', // TODO: make a PR to sortable so this won't be necessary
-            onEnd: () => {
-                this.options.focusModel.clear();
-                this.options.updateOrdering();
-            }
-        });
+  childView: LayerItemView,
+  tagName: CustomElements.register('layer-item-collection'),
+  className: 'no-spacing',
+  childViewOptions: function() {
+    return {
+      sortable: this.sortable,
+      updateOrdering: this.options.updateOrdering,
+      focusModel: this.options.focusModel,
     }
-});
+  },
+  onBeforeRenderCollection: function() {
+    this.sortable = Sortable.create(this.el, {
+      handle: 'button.layer-rearrange',
+      animation: 250,
+      draggable: '>*', // TODO: make a PR to sortable so this won't be necessary
+      onEnd: () => {
+        this.options.focusModel.clear()
+        this.options.updateOrdering()
+      },
+    })
+  },
+})

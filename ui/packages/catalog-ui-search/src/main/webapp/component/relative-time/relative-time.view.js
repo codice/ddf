@@ -13,14 +13,13 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./relative-time.hbs');
-var CustomElements = require('js/CustomElements');
-var PropertyView = require('component/property/property.view');
-var Property = require('component/property/property');
-var CQLUtils = require('js/CQLUtils');
-var Common = require('js/Common');
-
+var Marionette = require('marionette')
+var template = require('./relative-time.hbs')
+var CustomElements = require('js/CustomElements')
+var PropertyView = require('component/property/property.view')
+var Property = require('component/property/property')
+var CQLUtils = require('js/CQLUtils')
+var Common = require('js/Common')
 
 /*
     For specifying a relative time.  It shows a number field and a units field.
@@ -32,110 +31,134 @@ var Common = require('js/Common');
     "RELATIVE(PT1.5H)"
 */
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('relative-time'),
-    regions: {
-        basicTimeRelativeValue: '.relative-value',
-        basicTimeRelativeUnit: '.relative-unit'
-    },
-    onBeforeShow: function () {
-        this.setupTimeRelative();
-        this.turnOnEditing();
-        this.listenTo(this.basicTimeRelativeUnit.currentView.model, 'change:value', this.updateModelValue);
-        this.listenTo(this.basicTimeRelativeValue.currentView.model, 'change:value', this.updateModelValue);
-        this.updateModelValue();
-    },
-    turnOnEditing: function () {
-        this.$el.addClass('is-editing');
-        this.regionManager.forEach(function (region) {
-            if (region.currentView && region.currentView.turnOnEditing) {
-                region.currentView.turnOnEditing();
-            }
-        });
-    },
-    getViewValue: function () {
-        let timeLast = this.basicTimeRelativeValue.currentView.model.getValue()[0];
-        if (timeLast === "") {
-            timeLast = 0;
-        }
-        const timeUnit = this.basicTimeRelativeUnit.currentView.model.getValue()[0];
-        let duration;
-        if (timeUnit === 'm' || timeUnit === 'h') {
-            duration = "PT" + timeLast + timeUnit.toUpperCase();
-        } else {
-            duration = "P" + timeLast + timeUnit.toUpperCase();
-        }
-        return `RELATIVE(${duration})`;
-    },
-    parseValue(value) {
-        if (value === null || value === undefined || value.indexOf('RELATIVE') !== 0) {
-            return;
-        }
-        const duration = value.substring(9, value.length - 1).match(/(Z?\d+\.*\d*)./)[0];
-        let unit = duration.substring(duration.length - 1, duration.length);
-        let last = parseFloat(duration.match(/\d+\.*\d*/));
-
-        unit = unit.toLowerCase();
-        if (duration.indexOf('T') === -1 && unit === 'm') {
-            //must capitalize months
-            unit = unit.toUpperCase();
-        }
-        return {
-            last,
-            unit
-        }
-    },
-    getModelValue() {
-        const currentValue = this.model.toJSON().value[0];
-        return this.parseValue(currentValue);
-    },  
-    updateModelValue() {
-        if (this.model === undefined) {
-            return;
-        }
-        this.model.setValue([this.getViewValue()]);
-    },
-    getOptionsValue() {
-        return this.parseValue(this.options.value);
-    },
-    getStartingValue() {
-        if (this.model !== undefined) {
-            return this.getModelValue();
-        } else if (this.options !== undefined) {
-            return this.getOptionsValue();
-        } 
-    },
-    setupTimeRelative: function () {
-        const {last = 1 , unit = 'h'} = this.getStartingValue() || {};
-        this.basicTimeRelativeValue.show(new PropertyView({
-            model: new Property({
-                value: [last],
-                id: 'Last',
-                placeholder: 'Limit searches to between the present and this time.',
-                type: 'INTEGER'
-            })
-        }));
-        this.basicTimeRelativeUnit.show(new PropertyView({
-            model: new Property({
-                value: [unit],
-                enum: [{
-                    label: 'Minutes',
-                    value: 'm'
-                }, {
-                    label: 'Hours',
-                    value: 'h'
-                }, {
-                    label: 'Days',
-                    value: 'd'
-                }, {
-                    label: 'Months',
-                    value: 'M'
-                }, {
-                    label: 'Years',
-                    value: 'y'
-                }],
-                id: 'Unit'
-            })
-        }))
+  template: template,
+  tagName: CustomElements.register('relative-time'),
+  regions: {
+    basicTimeRelativeValue: '.relative-value',
+    basicTimeRelativeUnit: '.relative-unit',
+  },
+  onBeforeShow: function() {
+    this.setupTimeRelative()
+    this.turnOnEditing()
+    this.listenTo(
+      this.basicTimeRelativeUnit.currentView.model,
+      'change:value',
+      this.updateModelValue
+    )
+    this.listenTo(
+      this.basicTimeRelativeValue.currentView.model,
+      'change:value',
+      this.updateModelValue
+    )
+    this.updateModelValue()
+  },
+  turnOnEditing: function() {
+    this.$el.addClass('is-editing')
+    this.regionManager.forEach(function(region) {
+      if (region.currentView && region.currentView.turnOnEditing) {
+        region.currentView.turnOnEditing()
+      }
+    })
+  },
+  getViewValue: function() {
+    let timeLast = this.basicTimeRelativeValue.currentView.model.getValue()[0]
+    if (timeLast === '') {
+      timeLast = 0
     }
-});
+    const timeUnit = this.basicTimeRelativeUnit.currentView.model.getValue()[0]
+    let duration
+    if (timeUnit === 'm' || timeUnit === 'h') {
+      duration = 'PT' + timeLast + timeUnit.toUpperCase()
+    } else {
+      duration = 'P' + timeLast + timeUnit.toUpperCase()
+    }
+    return `RELATIVE(${duration})`
+  },
+  parseValue(value) {
+    if (
+      value === null ||
+      value === undefined ||
+      value.indexOf('RELATIVE') !== 0
+    ) {
+      return
+    }
+    const duration = value
+      .substring(9, value.length - 1)
+      .match(/(Z?\d+\.*\d*)./)[0]
+    let unit = duration.substring(duration.length - 1, duration.length)
+    let last = parseFloat(duration.match(/\d+\.*\d*/))
+
+    unit = unit.toLowerCase()
+    if (duration.indexOf('T') === -1 && unit === 'm') {
+      //must capitalize months
+      unit = unit.toUpperCase()
+    }
+    return {
+      last,
+      unit,
+    }
+  },
+  getModelValue() {
+    const currentValue = this.model.toJSON().value[0]
+    return this.parseValue(currentValue)
+  },
+  updateModelValue() {
+    if (this.model === undefined) {
+      return
+    }
+    this.model.setValue([this.getViewValue()])
+  },
+  getOptionsValue() {
+    return this.parseValue(this.options.value)
+  },
+  getStartingValue() {
+    if (this.model !== undefined) {
+      return this.getModelValue()
+    } else if (this.options !== undefined) {
+      return this.getOptionsValue()
+    }
+  },
+  setupTimeRelative: function() {
+    const { last = 1, unit = 'h' } = this.getStartingValue() || {}
+    this.basicTimeRelativeValue.show(
+      new PropertyView({
+        model: new Property({
+          value: [last],
+          id: 'Last',
+          placeholder: 'Limit searches to between the present and this time.',
+          type: 'INTEGER',
+        }),
+      })
+    )
+    this.basicTimeRelativeUnit.show(
+      new PropertyView({
+        model: new Property({
+          value: [unit],
+          enum: [
+            {
+              label: 'Minutes',
+              value: 'm',
+            },
+            {
+              label: 'Hours',
+              value: 'h',
+            },
+            {
+              label: 'Days',
+              value: 'd',
+            },
+            {
+              label: 'Months',
+              value: 'M',
+            },
+            {
+              label: 'Years',
+              value: 'y',
+            },
+          ],
+          id: 'Unit',
+        }),
+      })
+    )
+  },
+})

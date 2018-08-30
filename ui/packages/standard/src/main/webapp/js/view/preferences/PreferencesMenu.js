@@ -14,31 +14,29 @@
  **/
 /* global define */
 define([
-        'marionette',
-        'icanhaz',
-        'text!templates/preferences/preferences.menu.handlebars',
-        'js/view/preferences/PreferencesModal.view',
-        'wreqr'
-    ],
-    function (Marionette, ich, preferencesMenuItem, Modal, wreqr) {
+  'marionette',
+  'icanhaz',
+  'text!templates/preferences/preferences.menu.handlebars',
+  'js/view/preferences/PreferencesModal.view',
+  'wreqr',
+], function(Marionette, ich, preferencesMenuItem, Modal, wreqr) {
+  if (!ich.preferencesMenuItem) {
+    ich.addTemplate('preferencesMenuItem', preferencesMenuItem)
+  }
 
-        if (!ich.preferencesMenuItem) {
-            ich.addTemplate('preferencesMenuItem', preferencesMenuItem);
-        }
-
-        return Marionette.LayoutView.extend({
-            tagName: 'li',
-            className: 'dropdown',
-            template: 'preferencesMenuItem',
-            regions: {
-                modalRegion: '.modal-region'
-            },
-            events: {
-                'click .showModal': 'showModal'
-            },
-            showModal: function () {
-                var modal = new Modal({model: this.model});
-                wreqr.vent.trigger('showModal', modal);
-            }
-        });
-    });
+  return Marionette.LayoutView.extend({
+    tagName: 'li',
+    className: 'dropdown',
+    template: 'preferencesMenuItem',
+    regions: {
+      modalRegion: '.modal-region',
+    },
+    events: {
+      'click .showModal': 'showModal',
+    },
+    showModal: function() {
+      var modal = new Modal({ model: this.model })
+      wreqr.vent.trigger('showModal', modal)
+    },
+  })
+})
