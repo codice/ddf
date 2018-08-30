@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.security.filter.csrf
 
+import com.google.common.collect.ImmutableList
+import com.google.common.net.HttpHeaders
+import org.eclipse.jetty.http.HttpMethod
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.environment.RestoreSystemProperties
@@ -46,6 +49,11 @@ class CsrfFilterSpec extends Specification {
     static final String DDF_BADPORT = "https://" + DDF_HOST + ":9999"
     static final String PROXY_BADPORT = "https://" + PROXY_HOST + ":" + "9999"
 
+    static
+    final String CHROME_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"
+    static final String APACHE_USER_AGENT = "Apache-CXF/3.2.5"
+    static final String JAVA_CLIENT_USER_AGENT = "Google-HTTP-Java-Client/1.22.0 (gzip)"
+    static final String JAVA_USER_AGENT = "Java/1.8.0_131"
 
     def setupSpec() {
         System.properties['org.codice.ddf.system.hostname'] = DDF_HOST
@@ -58,8 +66,8 @@ class CsrfFilterSpec extends Specification {
     }
 
     @Unroll
-    def 'CSRF Allowed: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader'(
-            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
+    def "CSRF Browser Protection Allowed: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
+            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -71,6 +79,7 @@ class CsrfFilterSpec extends Specification {
         request.getRequestURI() >> requestContext
         request.getHeader(CsrfFilter.ORIGIN_HEADER) >> originHeader
         request.getHeader(CsrfFilter.REFERER_HEADER) >> refererHeader
+        request.getMethod() >> method
         if (hasCsrfHeader) {
             request.getHeader(CsrfFilter.CSRF_HEADER) >> "XMLHttpRequest"
         } else {
@@ -86,50 +95,57 @@ class CsrfFilterSpec extends Specification {
         1 * chain.doFilter(_, _)
 
         where:
-        [requestContext, originHeader, refererHeader, hasCsrfHeader] << [
+        [requestContext, originHeader, refererHeader, hasCsrfHeader, method] << [
                 // Non-protected contexts
                 ["/", "/subdirectory"],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
                 // Websockets - same origin OR same referer, with/without CSRF header
                 ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
                 [null, ""],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
-                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory", "/search/catalog/internal/catalog/", "/search/catalog/internal/catalog/sources"],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
                 [null, ""],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
                 //  Protected Contexts - same origin OR referer, with CSRF header
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [true]
+                [true],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
                 [null, ""],
-                [true]
+                [true],
+                [HttpMethod.GET.asString()]
         ].combinations() + [
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [null, ""],
                 [DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT],
-                [true]
+                [true],
+                [HttpMethod.GET.asString()]
         ].combinations()
     }
 
     @Unroll
-    def 'CSRF Fobidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader'(
-            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader) {
+    def "CSRF Browser Protection Fobidden: context: #requestContext, origin: #originHeader, referer: #refererHeader, csrfHeader: #hasCsrfHeader, httpVerb: #method"(
+            String requestContext, String originHeader, String refererHeader, boolean hasCsrfHeader, String method) {
         given:
         CsrfFilter csrfFilter = new CsrfFilter()
         csrfFilter.init()
@@ -143,6 +159,7 @@ class CsrfFilterSpec extends Specification {
         request.getRequestURI() >> requestContext
         request.getHeader(CsrfFilter.ORIGIN_HEADER) >> originHeader
         request.getHeader(CsrfFilter.REFERER_HEADER) >> refererHeader
+        request.getMethod() >> method
         if (hasCsrfHeader) {
             request.getHeader(CsrfFilter.CSRF_HEADER) >> "XMLHttpRequest"
         } else {
@@ -158,30 +175,137 @@ class CsrfFilterSpec extends Specification {
         0 * chain.doFilter(_, _)
 
         where:
-        [requestContext, originHeader, refererHeader, hasCsrfHeader] << [
+        [requestContext, originHeader, refererHeader, hasCsrfHeader, method] << [
                 // Protected Contexts - no CSRF Header
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_HTTP, DDF_HTTPS, DDF_UPPER, PROXY_HTTP, PROXY_HTTPS, PROXY_UPPER, PROXY_HTTP_NOPORT, PROXY_HTTPS_NOPORT, DDF_BADPORT, PROXY_BADPORT],
-                [false]
+                [false],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
         ].combinations() + [
                 // Protected Contexts - different or no origin/referer, with CSRF header
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_BADPORT, PROXY_BADPORT],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_BADPORT, PROXY_BADPORT],
-                [true]
+                [true],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
         ].combinations() + [
-                // Websockets - different or no origin/referer, with/without CSRF header
-                ["/search/catalog/ws", "/search/catalog/ws/subdirectory"],
+                // Websockets and Catalog context- different or no origin/referer, with/without CSRF header
+                ["/search/catalog/ws", "/search/catalog/ws/subdirectory", "/search/catalog/internal/catalog/", "/search/catalog/internal/catalog/sources"],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_BADPORT, PROXY_BADPORT],
                 [null, "", EXTERNAL_SITE, EXTERNAL_UPPER, DDF_BADPORT, PROXY_BADPORT],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
         ].combinations() + [
                 // Corrupted origin/referer headers
                 ["/admin/jolokia", "/admin/jolokia/subdirectory", "/search/catalog/internal", "/search/catalog/internal/subdirectory"],
                 [null, "", "com?ht.p://*example", "!@#\$%^&*(){}:<>?", "undefined", "0", "true", "\r\n", "\\r\\n"],
                 [null, "", "com?ht.p://*example", "!@#\$%^&*(){}:<>?", "undefined", "0", "true", "\r\n", "\\r\\n"],
-                [true, false]
+                [true, false],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+        ].combinations()
+    }
+
+    @Unroll
+    def "CSRF System Protection Allowed: context: #requestContext, agent: #userAgent, httpVerb: #method"(
+            String requestContext, String userAgent, String method) {
+        given:
+        CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.init()
+        HttpServletResponse response = Mock(HttpServletResponse)
+        FilterChain chain = Mock(FilterChain)
+
+        when:
+        HttpServletRequest request = Mock(HttpServletRequest)
+        request.getRequestURI() >> requestContext
+        request.getHeader(HttpHeaders.USER_AGENT) >> userAgent
+        request.getMethod() >> method
+
+        csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
+                '/services/content[/]?$=GET',
+                '/services/catalog/query[/]?$=GET',
+                '/services/catalog/sources.*=GET',
+                '/services/idp/login[/]?$=POST',
+                '/services/saml/sso[/]?$=POST'))
+
+        csrfFilter.doFilter(request, response, chain)
+
+        then:
+        0 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+        0 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
+        0 * response.flushBuffer()
+        1 * chain.doFilter(_, _)
+
+        where:
+        [requestContext, userAgent, method] << [
+                // Non-protected contexts
+                ["/", "/subdirectory"],
+                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+        ].combinations() + [
+                // Whitelisted paths with GET
+                ["/services/admin/config", "/services/admin/config/", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
+                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [HttpMethod.GET.asString()]
+        ].combinations() + [
+                // Whitelisted paths with POST
+                ["/services/idp/login", "/services/idp/login/", "/services/saml/sso"],
+                [null, "", CHROME_USER_AGENT, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [HttpMethod.POST.asString()]
+        ].combinations() + [
+                // Not whitelisted path with whitelisted user-agents or no user agent
+                ["/services/catalog/", "/services/catalog/subdirectory"],
+                [null, APACHE_USER_AGENT, JAVA_CLIENT_USER_AGENT, JAVA_USER_AGENT],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
+        ].combinations()
+    }
+
+    @Unroll
+    def "CSRF System Protection Forbidden: context: #requestContext, agent: #userAgent, httpVerb: #method"(
+            String requestContext, String userAgent, String method) {
+        given:
+        CsrfFilter csrfFilter = new CsrfFilter()
+        csrfFilter.init()
+        HttpServletResponse response = Mock(HttpServletResponse)
+        FilterChain chain = Mock(FilterChain)
+
+        when:
+        HttpServletRequest request = Mock(HttpServletRequest)
+        request.getRequestURI() >> requestContext
+        request.getHeader(HttpHeaders.USER_AGENT) >> userAgent
+        request.getMethod() >> method
+
+        csrfFilter.setWhiteListContexts(ImmutableList.of('/services/admin/config[/]?$=GET',
+                '/services/content[/]?$=GET',
+                '/services/catalog/query[/]?$=GET',
+                '/services/catalog/sources.*=GET',
+                '/services/idp/login[/]?$=POST',
+                '/services/saml/sso[/]?$=POST'))
+
+        csrfFilter.doFilter(request, response, chain)
+
+        then:
+        1 * response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+        1 * response.sendError(HttpServletResponse.SC_FORBIDDEN)
+        1 * response.flushBuffer()
+        0 * chain.doFilter(_, _)
+
+        where:
+        [requestContext, userAgent, method] << [
+                // Whitelisted paths with incorrect method
+                ["/services/admin/config", "/services/content", "/services/catalog/query", "/services/catalog/sources", "/services/catalog/sources/ddf.distribution"],
+                ["", CHROME_USER_AGENT],
+                [HttpMethod.POST.asString()]
+        ].combinations() + [
+                // Whitelisted paths with incorrect method
+                ["/services/idp/login", "/services/saml/sso"],
+                ["", CHROME_USER_AGENT],
+                [HttpMethod.GET.asString()]
+        ].combinations() + [
+                // Not whitelisted path with not whitelisted user-agents
+                ["/services/catalog/", "/services/catalog/subdirectory"],
+                ["", CHROME_USER_AGENT],
+                [HttpMethod.GET.asString(), HttpMethod.POST.asString()]
         ].combinations()
     }
 }

@@ -51,6 +51,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
       return null;
     }
 
+    String logoutUrlString = "";
     URL logoutUrl = null;
     if (realmSubjectMap instanceof Map) {
       try {
@@ -61,14 +62,13 @@ public class IdpLogoutActionProvider implements ActionProvider {
 
         String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
         nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
-        logoutUrl =
-            new URL(
-                SystemBaseUrl.INTERNAL.constructUrl(
-                    "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true));
+        logoutUrlString =
+            SystemBaseUrl.INTERNAL.constructUrl(
+                "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true);
+        logoutUrl = new URL(logoutUrlString);
 
       } catch (MalformedURLException e) {
-        LOGGER.info(
-            "Unable to resolve URL: {}", SystemBaseUrl.INTERNAL.constructUrl("/logout/local"));
+        LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
       } catch (ClassCastException e) {
         LOGGER.debug("Unable to cast parameter to Map<String, Subject>, {}", realmSubjectMap, e);
       }
