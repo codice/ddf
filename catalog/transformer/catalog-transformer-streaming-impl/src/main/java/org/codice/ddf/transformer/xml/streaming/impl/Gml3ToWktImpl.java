@@ -39,17 +39,23 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public class Gml3ToWktImpl implements Gml3ToWkt {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  private final Parser parser;
+  private final ThreadLocal<Parser> parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
-    parser = new Parser(gmlConfiguration);
-    parser.setStrict(false);
+    parser =
+        ThreadLocal.withInitial(
+            () -> {
+              Parser gmlParser = new Parser(gmlConfiguration);
+              gmlParser.setStrict(false);
+              return gmlParser;
+            });
   }
 
   public String convert(String xml) throws ValidationException {
@@ -88,7 +94,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
   public Object parseXml(InputStream xml) throws ValidationException {
     try {
-      return parser.parse(xml);
+      return parser.get().parse(xml);
     } catch (ParserConfigurationException | IOException e) {
       LOGGER.debug("Failed to read gml InputStream", e);
       throw new ValidationExceptionImpl(
