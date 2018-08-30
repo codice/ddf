@@ -456,7 +456,7 @@
     </bean>
 
     <bean id="filterWriter"
-          class="org.codice.ddf.catalog.ui.forms.filter.FilterWriter">
+          class="org.codice.ddf.catalog.ui.filter.impl.FilterWriter">
         <argument value="true"/>
     </bean>
 

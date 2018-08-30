@@ -34,6 +34,7 @@
         <module>search-ui-app</module>
         <module>zip-splitter</module>
         <module>catalog-ui-metacard-sharing-impl</module>
+        <module>catalog-ui-filter</module>
     </modules>
     <properties>
         <cometd.version>3.0.9</cometd.version>
