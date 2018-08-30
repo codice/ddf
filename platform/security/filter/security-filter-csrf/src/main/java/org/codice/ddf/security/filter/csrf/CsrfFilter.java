@@ -69,14 +69,19 @@ public class CsrfFilter implements SecurityFilter {
   // List of authorities that are treated as same-origin as the system
   private List<String> trustedAuthorities;
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    LOGGER.debug("Starting CSRF filter.");
-
+  public CsrfFilter() {
+    super();
+    trustedAuthorities = new ArrayList<>();
     protectedContexts = new ArrayList<>();
+
     protectedContexts.add(JOLOKIA_CONTEXT);
     protectedContexts.add(INTRIGUE_CONTEXT);
     protectedContexts.add(WEBSOCKET_CONTEXT);
+  }
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    LOGGER.debug("Starting CSRF filter.");
 
     // internal authority system properties
     String internalHostname = SystemBaseUrl.INTERNAL.getHost();
@@ -88,7 +93,6 @@ public class CsrfFilter implements SecurityFilter {
     String externalHttpPort = SystemBaseUrl.EXTERNAL.getHttpPort();
     String externalHttpsPort = SystemBaseUrl.EXTERNAL.getHttpsPort();
 
-    trustedAuthorities = new ArrayList<>();
     // internal http & https authorities
     trustedAuthorities.add(internalHostname + ":" + internalHttpPort);
     trustedAuthorities.add(internalHostname + ":" + internalHttpsPort);
