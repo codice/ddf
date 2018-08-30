@@ -59,7 +59,10 @@ const adaptFetchData = async (response) => ({
     status: response.status,
     getResponseHeader: (requestedHeader) => {
         for(const header of response.headers.entries()) {
-            if (header === requestedHeader)
+            if (!Array.isArray(header)) {
+              continue
+            }
+            if ((header[0] || '').toLowerCase() === (requestedHeader || '').toLowerCase())
                 return header[1];
         }
     }
@@ -121,6 +124,7 @@ module.exports = Marionette.LayoutView.extend({
         });
     },
     saveExport: (data, status, xhr) => {
+        // TODO: if status not 200 then display error instead
         var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'));
         if (filename === null) {
             filename = 'export' + Date.now() + '.csv';
@@ -128,11 +132,18 @@ module.exports = Marionette.LayoutView.extend({
         saveFile(filename, 'data:attachment/csv', data);
     },
     setupExportResults() {
+
+        const hiddenFieldsValue = user.get('user').get('preferences').get('columnHide')
+        const hasHiddenFields = Object.keys(hiddenFieldsValue).length !== 0
+
+        const columnOrderValue = user.get('user').get('preferences').get('columnOrder')
+        const hasColumnOrder = Object.keys(columnOrderValue).length !== 0
+
         const visibleData = () => ({
             // applyGlobalHidden: true,
             arguments: {
-              hiddenFields: user.get('user').get('preferences').get('columnHide'),
-              columnOrder: user.get('user').get('preferences').get('columnOrder'),
+              hiddenFields: hasHiddenFields ? hiddenFieldsValue : {},
+              columnOrder: hasColumnOrder ? columnOrderValue : {},
               columnAliasMap: properties.attributeAliases
             },
             cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
