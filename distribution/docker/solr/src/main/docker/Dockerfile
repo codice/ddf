@@ -26,4 +26,8 @@ USER solr
 ENV CONFIG_SRC=/seed
 ENV CORE_DEST=/opt/solr/server/solr/cores
 RUN mkdir -p $CORE_DEST
-RUN /usr/local/bin/create-ddf-core catalog metacard_cache alerts preferences subscriptions
+
+# Add ddf-solr entrypoint
+COPY maven/docker-ddf-solr-entrypoint.sh /usr/local/bin/docker-ddf-solr-entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-ddf-solr-entrypoint"]
+CMD ["solr-foreground"]

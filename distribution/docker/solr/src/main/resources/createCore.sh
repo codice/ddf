@@ -2,9 +2,8 @@
 
 SRC=${CONFIG_SRC:=configs}
 DEST=${CORE_DEST:=cores/}
-CORES="$@"
 
-if [ -z "${CORES}" ]; then
+if [ $# -eq 0 ]; then
   printf "\nNo core arguent given\n"
   exit 1
 fi
