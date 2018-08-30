@@ -129,11 +129,14 @@ module.exports = Marionette.LayoutView.extend({
     },
     setupExportResults() {
         const visibleData = () => ({
-            applyGlobalHidden: true,
-            hiddenFields: user.get('user').get('preferences').get('columnHide'),
-            columnOrder: user.get('user').get('preferences').get('columnOrder'),
-            columnAliasMap: properties.attributeAliases,
-            metacards: this.options.selectionInterface.getActiveSearchResults().toJSON()
+            // applyGlobalHidden: true,
+            arguments: {
+              hiddenFields: user.get('user').get('preferences').get('columnHide'),
+              columnOrder: user.get('user').get('preferences').get('columnOrder'),
+              columnAliasMap: properties.attributeAliases
+            },
+            cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
+            src: "cache"
         });
 
         const allData = () => ({
@@ -148,11 +151,11 @@ module.exports = Marionette.LayoutView.extend({
             props: {
                 export: {
                     visible: {
-                        url: `./internal/transform/csv?_=${Date.now()}`,
+                        url: `./internal/cql/transform/`,
                         data: visibleData
                     },
                     all: {
-                        url: `./internal/transform/csv?_=${Date.now()}`,
+                        url: `./internal/cql/transform/`,
                         data: allData
                     }
                 },
