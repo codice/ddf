@@ -24,6 +24,9 @@ import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -31,7 +34,9 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
+import de.micromata.opengis.kml.v_2_2_0.Data;
 import de.micromata.opengis.kml.v_2_2_0.Document;
+import de.micromata.opengis.kml.v_2_2_0.ExtendedData;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
@@ -47,14 +52,21 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.security.auth.Subject;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.codice.ddf.spatial.kml.util.KmlMarshaller;
@@ -84,6 +96,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
 
+  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
   @VisibleForTesting static final MimeType KML_MIMETYPE = new MimeType();
 
   private List<StyleSelector> defaultStyle;
@@ -107,6 +121,8 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private KmlMarshaller kmlMarshaller;
 
+  private DateTimeFormatter formatter;
+
   public KMLTransformerImpl(
       BundleContext bundleContext,
       String defaultStylingName,
@@ -118,6 +134,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     this.styleMapper = Validate.notNull(mapper, "KmlStyleMap must not be null.");
     this.templateHelper = new DescriptionTemplateHelper(actionProvider);
     this.kmlMarshaller = Validate.notNull(kmlMarshaller, "KmlMarshaller must not be null.");
+    this.formatter = DateTimeFormatter.ofPattern(ISO_8601_DATE_FORMAT);
 
     final URL stylingUrl = context.getBundle().getResource(defaultStylingName);
 
@@ -198,7 +215,10 @@ public class KMLTransformerImpl implements KMLTransformer {
     } catch (IOException e) {
       LOGGER.debug("Failed to apply description Template", e);
     }
+
     kmlPlacemark.setDescription(description);
+
+    setExtendedData(kmlPlacemark, entry);
 
     String styleUrl = styleMapper.getStyleForMetacard(entry);
     if (StringUtils.isNotBlank(styleUrl)) {
@@ -206,6 +226,90 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
 
     return kmlPlacemark;
+  }
+
+  private void setExtendedData(Placemark placemark, Metacard metacard) {
+    final ExtendedData extendedData = new ExtendedData();
+
+    final Set<AttributeDescriptor> attributeDescriptors =
+        metacard.getMetacardType().getAttributeDescriptors();
+
+    for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+      final String attributeName = attributeDescriptor.getName();
+      final Attribute attribute = metacard.getAttribute(attributeName);
+      if (attribute != null) {
+        Serializable attributeValue = convertAttribute(attribute, attributeDescriptor);
+        if (attributeValue == null) {
+          LOGGER.debug("Attribute {} converted to null value.", attributeName);
+        } else {
+          final Data data = getData(attributeName, attributeValue.toString());
+          extendedData.addToData(data);
+        }
+      }
+    }
+    placemark.setExtendedData(extendedData);
+  }
+
+  private Data getData(String attributeAlias, String attributeValue) {
+    final Data data = new Data(attributeValue);
+    data.setName(attributeAlias);
+    return data;
+  }
+
+  private Serializable convertAttribute(Attribute attribute, AttributeDescriptor descriptor) {
+
+    if (descriptor.isMultiValued()) {
+      List<Serializable> values = new ArrayList<>();
+      for (Serializable value : attribute.getValues()) {
+        Serializable convertedValue =
+            convertValue(attribute.getName(), value, descriptor.getType().getAttributeFormat());
+        if (convertedValue != null) {
+          values.add(convertedValue);
+        }
+      }
+      return StringUtils.join(values, ",");
+    } else {
+      return convertValue(
+          attribute.getName(), attribute.getValue(), descriptor.getType().getAttributeFormat());
+    }
+  }
+
+  private Serializable convertValue(
+      String name, Serializable value, AttributeType.AttributeFormat format) {
+    if (value == null) {
+      return null;
+    }
+
+    switch (format) {
+      case DATE:
+        if (!(value instanceof Date)) {
+          LOGGER.debug(
+              "Dropping attribute date value {} for {} because it isn't a Date object.",
+              value,
+              name);
+          return null;
+        }
+        Instant instant = ((Date) value).toInstant();
+        ZoneId zoneId = ZoneId.of("UTC");
+        ZonedDateTime zonedDateTime = instant.atZone(zoneId);
+        return zonedDateTime.format(formatter);
+      case BINARY:
+        byte[] bytes = (byte[]) value;
+        return DatatypeConverter.printBase64Binary(bytes);
+      case BOOLEAN:
+      case DOUBLE:
+      case LONG:
+      case INTEGER:
+      case SHORT:
+      case STRING:
+      case XML:
+      case FLOAT:
+      case GEOMETRY:
+        return value;
+      case OBJECT:
+      default:
+        return null;
+    }
   }
 
   @Override
