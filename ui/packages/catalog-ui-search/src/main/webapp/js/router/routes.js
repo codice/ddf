@@ -44,7 +44,7 @@
     },
     openSources: {
         patterns: ['sources(/)'],
-        component: 'react-component/presentation/sources/sources',
+        component: 'react-component/container/sources-container/sources-container',
         menu: {
             text: 'Sources',
             classes: 'is-bold'
