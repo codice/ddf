@@ -288,7 +288,7 @@
                                     <port>${solr.port}:8983</port>
                                 </ports>
                                 <env>
-                                    <CORES>catalog metacard_cache alerts preferences subscriptions notification activity</CORES>
+                                    <CORES>catalog metacard_cache alerts preferences subscriptions notification activity workspace</CORES>
                                 </env>
                                 <log>
                                     <enabled>true</enabled>
