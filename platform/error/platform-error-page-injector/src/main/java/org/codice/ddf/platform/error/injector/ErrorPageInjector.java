@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 public class ErrorPageInjector implements EventListenerHook {
 
-  private final String errorPagePath = "/ErrorServlet";
+  private static final String ERROR_PAGE_PATH = "/ErrorServlet";
   private final Map<String, String> errorCodesMap;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ErrorPageInjector.class);
@@ -52,7 +52,7 @@ public class ErrorPageInjector implements EventListenerHook {
         Stream.of("400", "401", "403", "404", "405", "406", "500", "501", "502", "503", "504")
             .collect(
                 Collectors.collectingAndThen(
-                    Collectors.toMap(Function.identity(), x -> errorPagePath),
+                    Collectors.toMap(Function.identity(), x -> ERROR_PAGE_PATH),
                     Collections::unmodifiableMap));
   }
 
@@ -102,7 +102,7 @@ public class ErrorPageInjector implements EventListenerHook {
 
     } catch (InvalidSyntaxException | ClassCastException e) {
       LOGGER.error(
-          "Problem getting ServletContexts from OSGI, One of the servlets running might print stack traces to the browser. A system restart is recommended. See debug logs for additional details.");
+          "Problem getting ServletContexts from OSGI. One of the servlets running might print stack traces to the browser. A system restart is recommended. See debug logs for additional details.");
       LOGGER.debug("Problems getting ServletContexts from OSGI Details:", e);
       return Optional.empty();
     }
@@ -197,11 +197,11 @@ public class ErrorPageInjector implements EventListenerHook {
     }
 
     LOGGER.info(
-        "Injecting an error page into into {} ID: {}",
+        "Injecting an error page into {} ID: {}",
         refBundle.getSymbolicName(),
         refBundle.getBundleId());
 
-    handler.addServletWithMapping(errorServletHolder, errorPagePath);
+    handler.addServletWithMapping(errorServletHolder, ERROR_PAGE_PATH);
 
     ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
     errorPageErrorHandler.setErrorPages(errorCodesMap);
