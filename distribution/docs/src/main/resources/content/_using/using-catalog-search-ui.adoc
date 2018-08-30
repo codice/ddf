@@ -111,6 +111,11 @@ Workspaces can be shared between users at different levels of access as needed.
 
 Data can be ingested via ${catalog-ui}.
 
+[WARNING]
+====
+The ${catalog-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
+====
+
 . Select the Menu icon (image:navigator-icon.png[]) in the upper left corner.
 . Select *Upload*.
 . Drag and drop file(s) or click to open a navigation window.
@@ -196,7 +201,7 @@ An existing search can be updated by selecting the search in the *Search* tab of
 +
 ** [[_spatial_search_details]]*Spatial Search Details*
 [no-bullet]
-*** Search by latitude/longitude, USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
+*** Search by latitude/longitude (decimal degrees or degrees minutes seconds), USNG/MGRS, or UTM using a line, polygon, point-radius, or bounding box. Spatial criteria can also be defined by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
 +
 ** [[_type_search_details]]*Type Search Details*
 [no-bullet]

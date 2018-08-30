@@ -9,7 +9,7 @@ Enzyme.configure({ adapter: new Adapter() });
 
 const { Radio, RadioItem } = require('./radio');
 
-const { shallow } = Enzyme;
+const { shallow, mount } = Enzyme;
 
 describe('<Radio />', () => {
     it('should render without children', () => {
@@ -17,7 +17,7 @@ describe('<Radio />', () => {
     });
 
     it('should select the right child', () => {
-        const wrapper = shallow(
+        const wrapper = mount(
             <Radio value="two">
                 <RadioItem value="one" />
                 <RadioItem value="two" />
@@ -33,7 +33,7 @@ describe('<Radio />', () => {
             done();
         };
 
-        const wrapper = shallow(
+        const wrapper = mount(
             <Radio onChange={onChange}>
                 <RadioItem value="one" />
                 <RadioItem value="two" />

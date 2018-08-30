@@ -1,0 +1,32 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="metacard">
+
+  <div class="metacard-controls">
+    <span class="expand-card" onclick="expandCard(this.parentElement.parentElement)">Expand Card</span>
+    <span> | </span>
+    <span class="collapse-card" onclick="collapseCard(this.parentElement.parentElement)">Collapse Card</span>
+  </div>
+
+  <div class="metacard-panel">
+    <h1 class="metacard-title" onclick="toggleMetacardVisibility(this.parentElement)">{{ title }}</h1>
+
+    <div class="metacard-categories">
+      {{#each categories}}
+        {{> category}}
+      {{/each}}
+    </div>
+  </div>
+
+</div>

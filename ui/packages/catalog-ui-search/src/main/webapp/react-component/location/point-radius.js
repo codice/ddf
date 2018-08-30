@@ -5,6 +5,10 @@ const TextField = require('../text-field');
 
 const { Units, Zone, Hemisphere } = require('./common');
 
+const { DmsLatitude, DmsLongitude } = require('component/location-new/geo-components/coordinates');
+const DirectionInput = require('component/location-new/geo-components/direction');
+const { Direction } = require('component/location-new/utils/dms-utils');
+
 const PointRadiusLatLon = (props) => {
     const { lat, lon, radius, radiusUnits, cursor } = props;
     return (
@@ -55,11 +59,56 @@ const PointRadiusUtm = (props) => {
     );
 };
 
+const PointRadiusDms = (props) => {
+    const { dmsLat, dmsLon, dmsLatDirection, dmsLonDirection, radius, radiusUnits, cursor } = props;
+    const latitudeDirections = [Direction.North, Direction.South];
+    const longitudeDirections = [Direction.East, Direction.West];
+
+    return (
+        <div>
+            <DmsLatitude
+                label="Latitude"
+                value={dmsLat}
+                onChange={cursor('dmsLat')}
+                >
+                <DirectionInput
+                    options={latitudeDirections}
+                    value={dmsLatDirection}
+                    onChange={cursor('dmsLatDirection')}
+                />
+            </DmsLatitude>
+            <DmsLongitude
+                label="Longitude"
+                value={dmsLon}
+                onChange={cursor('dmsLon')}
+                >
+                <DirectionInput
+                    options={longitudeDirections}
+                    value={dmsLonDirection}
+                    onChange={cursor('dmsLonDirection')}
+                />
+            </DmsLongitude>
+            <Units
+                value={radiusUnits}
+                onChange={cursor('radiusUnits')}
+                >
+                <TextField
+                    label="Radius"
+                    type="number"
+                    value={radius}
+                    onChange={cursor('radius')}
+                />
+            </Units>
+        </div>
+    );
+};
+
 const PointRadius = (props) => {
     const { cursor, locationType } = props;
 
     const inputs = {
         latlon: PointRadiusLatLon,
+        dms: PointRadiusDms,
         usng: PointRadiusUsngMgrs,
         utm: PointRadiusUtm
     };
@@ -69,7 +118,8 @@ const PointRadius = (props) => {
     return (
         <div>
             <Radio value={locationType} onChange={cursor('locationType')}>
-                <RadioItem value="latlon">Lat / Lon</RadioItem>
+                <RadioItem value="latlon">Lat / Lon (DD)</RadioItem>
+                <RadioItem value="dms">Lat / Lon (DMS)</RadioItem>
                 <RadioItem value="usng">USNG / MGRS</RadioItem>
                 <RadioItem value="utm">UTM</RadioItem>
             </Radio>

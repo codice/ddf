@@ -1,7 +1,6 @@
 :title: ${ddf-security} Whitelist
-:type: appendix
+:type: reference
 :parent: Application Whitelists
-:children: none
 :status: published
 :order: 04
 :summary: ${ddf-security} whitelist.

@@ -34,7 +34,7 @@ describe('<Keyword />', () => {
             done();
         };
         const wrapper = shallow(<Keyword fetch={fetch} setState={setState} />);
-        wrapper.find(AutoComplete).prop('onChange')({
+        wrapper.find('AutoComplete').prop('onChange')({
             id: '0',
             name: 'test'
         });
@@ -50,7 +50,7 @@ describe('<Keyword />', () => {
             throw new Error('unavailable');;
         };
         const wrapper = shallow(<Keyword fetch={fetch} onError={onError} />);
-        wrapper.find(AutoComplete).prop('onChange')({
+        wrapper.find('AutoComplete').prop('onChange')({
             id: '0',
             name: 'test'
         });

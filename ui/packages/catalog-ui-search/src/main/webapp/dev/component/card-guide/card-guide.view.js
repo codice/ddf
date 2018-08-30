@@ -2,9 +2,6 @@ const template = require('./card-guide.hbs');
 const CustomElements = require('js/CustomElements');
 const BaseGuideView = require('dev/component/base-guide/base-guide.view');
 
-const WorkspaceItemView = require('component/workspace-item/workspace-item.view');
-const WorkspaceModel = require('js/model/Workspace');
-
 const ResultItemView = require('component/result-item/result-item.view');
 const SelectionInterfaceModel = require('component/selection-interface/selection-interface.model.js');
 const QueryResultModel = require('js/model/QueryResult');
@@ -16,13 +13,11 @@ module.exports = BaseGuideView.extend({
     template: template,
     tagName: CustomElements.register('dev-card-guide'),
     regions: {
-        workspaceExample: '.example > .workspace',
         resultExample: '.example > .result',
         result2Example: '.example > .result2',
         queryExample: '.example > .query'
     },
     showComponents() {
-        this.showWorkspaceExample();
         this.showResultExample();
         this.showResult2Example();
         this.showQueryExample();
@@ -31,15 +26,6 @@ module.exports = BaseGuideView.extend({
         this.queryExample.show(new QueryItemView({
             model: new QueryModel.Model()
         }));
-    },
-    showWorkspaceExample() {
-        this.workspaceExample.show(new WorkspaceItemView({
-            model: new WorkspaceModel({
-                title: 'My Cool Workspace',
-                owner: 'Cool new developer'
-            })
-        }));
-        this.workspaceExample.currentView.activateGridDisplay();
     },
     showResult2Example() {
         this.result2Example.show(new ResultItemView({

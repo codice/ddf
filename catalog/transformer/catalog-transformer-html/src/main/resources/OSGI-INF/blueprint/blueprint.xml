@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+
+  <bean id="HtmlMetacardTransformer"
+    class="ddf.catalog.transformer.html.HtmlMetacardTransformer">
+    <argument ref="htmlCategoriesBean"/>
+  </bean>
+
+  <service ref="HtmlMetacardTransformer"
+    interface="ddf.catalog.transform.MetacardTransformer">
+    <service-properties>
+      <entry key="id" value="html"/>
+      <entry key="shortname" value="html"/>
+      <entry key="mime-type" value="text/html"/>
+    </service-properties>
+  </service>
+
+  <bean id="HtmlQueryResponseTransformer"
+    class="ddf.catalog.transformer.html.HtmlQueryResponseTransformer">
+    <argument ref="htmlCategoriesBean"/>
+  </bean>
+
+  <service ref="HtmlQueryResponseTransformer"
+    interface="ddf.catalog.transform.QueryResponseTransformer">
+    <service-properties>
+      <entry key="id" value="html"/>
+      <entry key="shortname" value="html"/>
+      <entry key="mime-type" value="text/html"/>
+    </service-properties>
+  </service>
+
+  <bean id="htmlCategoriesBean" class="org.codice.ddf.platform.util.SortedServiceList"/>
+  <reference-list id="htmlCategories" interface="ddf.catalog.transformer.html.models.HtmlExportCategory"
+    availability="optional">
+    <reference-listener ref="htmlCategoriesBean" bind-method="bindPlugin"
+      unbind-method="unbindPlugin"/>
+  </reference-list>
+
+  <cm:managed-service-factory
+    id="ddf.catalog.transformer.html.HtmlCategories"
+    factory-pid="ddf.catalog.transformer.html.categories"
+    interface="ddf.catalog.transformer.html.models.HtmlExportCategory">
+
+    <cm:managed-component class="ddf.catalog.transformer.html.models.HtmlCategoryModel"
+      init-method="init" destroy-method="destroy">
+
+      <property name="title" value=""/>
+      <property name="attributes"><list/></property>
+
+      <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
+    </cm:managed-component>
+  </cm:managed-service-factory>
+
+</blueprint>

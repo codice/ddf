@@ -20,10 +20,9 @@ define([
     './property.hbs',
     'js/CustomElements',
     'component/input/bulk/input-bulk.view',
-    'component/multivalue/multivalue.view',
     'js/Common',
     './property'
-], function (Marionette, _, $, template, CustomElements, BulkInputView, MultivalueView, Common, Property) {
+], function (Marionette, _, $, template, CustomElements, BulkInputView, Common, Property) {
 
     return Marionette.LayoutView.extend({
         template: template,

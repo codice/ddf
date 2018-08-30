@@ -53,7 +53,7 @@ managing_solr() {
 
 attempt_startup() {
     if managing_solr; then
-        $SOLR_EXEC start
+        $SOLR_EXEC restart
     fi
 
     if [ "$START_KARAF" = "true" ]; then

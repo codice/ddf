@@ -42,10 +42,8 @@
                         <Web-ContextPath>/ogc</Web-ContextPath>
                         <_wab>src/main/resources</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            jetty-servlets
-                        </Embed-Dependency>
                         <Import-Package>
+                            org.eclipse.jetty.servlets;version="[9.2.19, 9.2.19]",
                             javax.xml.bind,
                             javax.xml.bind.annotation,
                             javax.xml.bind.annotation.adapters,

@@ -31,6 +31,10 @@ public class GeoEntry {
 
   private final String importLocation;
 
+  private final int gazetteerSort;
+
+  private final String featureClass;
+
   private GeoEntry(final Builder builder) {
     name = builder.name;
     latitude = builder.latitude;
@@ -40,6 +44,8 @@ public class GeoEntry {
     alternateNames = builder.alternateNames;
     countryCode = builder.countryCode;
     importLocation = builder.importLocation;
+    gazetteerSort = builder.gazetteerSort;
+    featureClass = builder.featureClass;
   }
 
   public static class Builder {
@@ -58,6 +64,10 @@ public class GeoEntry {
     private String countryCode;
 
     private String importLocation;
+
+    private int gazetteerSort;
+
+    private String featureClass;
 
     public Builder name(final String name) {
       this.name = name;
@@ -79,8 +89,18 @@ public class GeoEntry {
       return this;
     }
 
+    public Builder featureClass(final String featureClass) {
+      this.featureClass = featureClass;
+      return this;
+    }
+
     public Builder population(final long population) {
       this.population = population;
+      return this;
+    }
+
+    public Builder gazetteerSort(final Integer gazetteerSort) {
+      this.gazetteerSort = gazetteerSort.intValue();
       return this;
     }
 
@@ -134,5 +154,9 @@ public class GeoEntry {
 
   public String getImportLocation() {
     return importLocation;
+  }
+
+  public String getFeatureClass() {
+    return featureClass;
   }
 }

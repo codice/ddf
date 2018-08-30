@@ -20,29 +20,11 @@ import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import ddf.action.ActionRegistry;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.QueryFunction;
-import ddf.catalog.util.impl.ResultIterable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
@@ -51,6 +33,7 @@ import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
+import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -66,15 +49,9 @@ public class QueryApplication implements SparkApplication, Function {
 
   private static final String APPLICATION_JSON = "application/json";
 
-  private CatalogFramework catalogFramework;
-
-  private FilterBuilder filterBuilder;
-
-  private FilterAdapter filterAdapter;
-
-  private ActionRegistry actionRegistry;
-
   private FeatureService featureService;
+
+  private CqlTransformHandler cqlTransformHandler;
 
   private ObjectMapper mapper =
       new ObjectMapperImpl(
@@ -83,9 +60,14 @@ public class QueryApplication implements SparkApplication, Function {
               .includeEmpty()
               .includeNulls()
               .includeDefaultValues()
-              .setJsonFormatForDates(false));
+              .setJsonFormatForDates(false)
+              .useAnnotations());
 
   private EndpointUtil util;
+
+  public QueryApplication(CqlTransformHandler cqlTransformHandler) {
+    this.cqlTransformHandler = cqlTransformHandler;
+  }
 
   @Override
   public void init() {
@@ -99,7 +81,7 @@ public class QueryApplication implements SparkApplication, Function {
         APPLICATION_JSON,
         (req, res) -> {
           CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
+          CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
           return mapper.toJson(cqlQueryResponse);
         });
 
@@ -108,6 +90,8 @@ public class QueryApplication implements SparkApplication, Function {
         (req, res) -> {
           res.header("Content-Encoding", "gzip");
         });
+
+    post("/cql/transform/:transformerId", cqlTransformHandler, mapper::toJson);
 
     get(
         "/geofeature/suggestions",
@@ -182,7 +166,7 @@ public class QueryApplication implements SparkApplication, Function {
     }
 
     try {
-      return executeCqlQuery(cqlRequest);
+      return util.executeCqlQuery(cqlRequest);
     } catch (UnsupportedQueryException e) {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(400, "Unsupported query request.");
@@ -193,71 +177,6 @@ public class QueryApplication implements SparkApplication, Function {
       LOGGER.error("Query endpoint failed", e);
       return JsonRpc.error(500, "Error while processing query request.");
     }
-  }
-
-  private CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    List<QueryResponse> responses = Collections.synchronizedList(new ArrayList<>());
-    QueryFunction queryFunction =
-        (queryRequest) -> {
-          QueryResponse queryResponse = catalogFramework.query(queryRequest);
-          responses.add(queryResponse);
-          return queryResponse;
-        };
-
-    List<Result> results =
-        ResultIterable.resultIterable(queryFunction, request, cqlRequest.getCount())
-            .stream()
-            .collect(Collectors.toList());
-
-    QueryResponse response =
-        new QueryResponseImpl(
-            request,
-            results,
-            true,
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getHits)
-                .findFirst()
-                .orElse(-1l),
-            responses
-                .stream()
-                .filter(Objects::nonNull)
-                .map(QueryResponse::getProperties)
-                .findFirst()
-                .orElse(Collections.emptyMap()));
-
-    stopwatch.stop();
-
-    return new CqlQueryResponse(
-        cqlRequest.getId(),
-        request,
-        response,
-        cqlRequest.getSource(),
-        stopwatch.elapsed(TimeUnit.MILLISECONDS),
-        cqlRequest.isNormalize(),
-        filterAdapter,
-        actionRegistry);
-  }
-
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
-    this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
-  }
-
-  public void setFilterAdapter(FilterAdapter filterAdapter) {
-    this.filterAdapter = filterAdapter;
-  }
-
-  public void setActionRegistry(ActionRegistry actionRegistry) {
-    this.actionRegistry = actionRegistry;
   }
 
   public void setFeatureService(FeatureService featureService) {

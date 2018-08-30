@@ -157,7 +157,19 @@ const base = ({ alias = {}, env }) => ({
       },
       {
         test: /\.tsx?$/,
-        use: nodeResolve('ts-loader')
+        use: [{
+          loader: nodeResolve('ts-loader'),
+          options: {
+            compilerOptions: {
+              jsx: 'react',
+              allowJs: true,
+              sourceMap: true
+            }
+          }
+        }, {
+          loader: nodeResolve('stylelint-custom-processor-loader')
+        }],
+        exclude: /node_modules/
       }
     ]
   },
@@ -178,7 +190,6 @@ const dev = (base, { main }) => merge.smart(base, {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
   entry: [
-    nodeResolve('react-hot-loader/patch'),
     nodeResolve('console-polyfill'),
     resolve(main)
   ],

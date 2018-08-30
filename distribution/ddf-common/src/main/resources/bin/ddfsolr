@@ -32,6 +32,7 @@ SOLR_EXEC=${HOME_DIR}/solr/bin/solr
 
 # Read port from system.properties file
 SOLR_PORT=$($GET "solr.http.port")
+SOLR_MEM=$($GET "solr.mem")
 
 # Do not proceed if required properties are missing
 if [ -z "$SOLR_PORT" ]; then
@@ -59,13 +60,12 @@ set_security_properties() {
       export SOLR_SSL_WANT_CLIENT_AUTH=false
 }
 
-
 start_solr() {
     if [ "$SOLR_UNSECURE" != "true" ]; then
         set_security_properties
     fi
 
-    $SOLR_EXEC $1 -force -p $SOLR_PORT
+    $SOLR_EXEC $1 -force -p $SOLR_PORT -m $SOLR_MEM
     local rc=$?
     print_messages $rc
     return $rc

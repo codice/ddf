@@ -65,7 +65,7 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     for (String xacmlPolicyDirectory : xacmlPolicyDirectories) {
       File directoryToMonitor = new File(xacmlPolicyDirectory);
       FileAlterationObserver observer =
-          new FileAlterationObserver(directoryToMonitor, getXmlFileFilter());
+          new PrivilegedFileAlterationObserver(directoryToMonitor, getXmlFileFilter());
       observer.addListener(this);
       monitor.addObserver(observer);
       LOGGER.debug("Monitoring directory: {}", directoryToMonitor);
@@ -204,5 +204,21 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
   public void reloadPolicies() {
     LOGGER.debug("Reloading XACML policies");
     this.loadPolicies();
+  }
+
+  private static class PrivilegedFileAlterationObserver extends FileAlterationObserver {
+    public PrivilegedFileAlterationObserver(final File directory, final FileFilter fileFilter) {
+      super(directory, fileFilter, null);
+    }
+
+    @Override
+    public void checkAndNotify() {
+      AccessController.doPrivileged(
+          (PrivilegedAction)
+              () -> {
+                super.checkAndNotify();
+                return null;
+              });
+    }
   }
 }

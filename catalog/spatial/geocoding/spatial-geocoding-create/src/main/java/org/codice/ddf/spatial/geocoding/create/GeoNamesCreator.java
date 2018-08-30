@@ -50,6 +50,7 @@ public class GeoNamesCreator implements GeoEntryCreator {
         .name(fields[1])
         .latitude(Double.parseDouble(fields[4]))
         .longitude(Double.parseDouble(fields[5]))
+        .featureClass(fields[6])
         .featureCode(fields[7])
         .population(Long.parseLong(fields[14]))
         .alternateNames(fields[3])

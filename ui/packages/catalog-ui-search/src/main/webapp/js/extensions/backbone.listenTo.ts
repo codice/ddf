@@ -17,28 +17,29 @@ const listenTo = Backbone.View.prototype.listenTo;
  * Call is preferred since it's performance is much faster than apply.
  */
 Backbone.View.prototype.listenTo = function(obj: any, name: string, callback: Function) {
-    return listenTo.call(this, obj, name, function() {
+    const view = this as any;
+    return listenTo.call(view, obj, name, function() {
         if (callback === undefined) {
-            console.warn(`Found no callback for listener in ${this.tagName}`);
+            console.warn(`Found no callback for listener in ${view.tagName}`);
             return;
         }
-        if (this.isDestroyed !== true) {
+        if (view.isDestroyed !== true) {
             const a1 = arguments[0], a2 = arguments[1], a3 = arguments[2];
             switch (arguments.length) {
                 case 0:
-                    callback.call(this);
+                    callback.call(view);
                     return;
                 case 1:
-                    callback.call(this, a1);
+                    callback.call(view, a1);
                     return;
                 case 2:
-                    callback.call(this, a1, a2);
+                    callback.call(view, a1, a2);
                     return;
                 case 3:
-                    callback.call(this, a1, a2, a3);
+                    callback.call(view, a1, a2, a3);
                     return;
                 default:
-                    callback.apply(this, arguments);
+                    callback.apply(view, arguments);
                     return;
             }
         }

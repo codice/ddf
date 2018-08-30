@@ -8,7 +8,7 @@
     },
     home: {
         patterns: ['(?*)', 'workspaces(/)'],
-        component: 'component/workspaces/workspaces.view',
+        component: 'react-component/container/workspaces-container/workspaces-container',
         menu: {
             component: 'component/workspaces-menu/workspaces-menu.view'
         }
@@ -44,7 +44,7 @@
     },
     openSources: {
         patterns: ['sources(/)'],
-        component: 'component/sources/sources.view',
+        component: 'react-component/presentation/sources/sources',
         menu: {
             text: 'Sources',
             classes: 'is-bold'
@@ -52,7 +52,7 @@
     },
     openAbout: {
         patterns: ['about(/)'],
-        component: 'component/about/about.view',
+        component: 'react-component/container/about-container/about-container',
         menu: {
             text: 'About',
             classes: 'is-bold'

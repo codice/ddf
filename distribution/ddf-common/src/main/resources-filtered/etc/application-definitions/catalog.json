@@ -18,6 +18,7 @@
     "mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}",
     "mvn:ddf.catalog.security/catalog-security-resourceplugin/${project.version}",
     "mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}",
+    "mvn:ddf.catalog.transformer/catalog-transformer-html/${project.version}",
     "mvn:ddf.catalog.transformer/catalog-transformer-pdf/${project.version}",
     "mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}",
     "mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}",

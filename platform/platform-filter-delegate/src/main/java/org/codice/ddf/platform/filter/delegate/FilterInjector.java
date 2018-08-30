@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
@@ -31,6 +33,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.hooks.service.EventListenerHook;
@@ -57,13 +61,24 @@ public class FilterInjector implements EventListenerHook {
 
   private final List<HttpSessionListener> sessionListeners = new ArrayList<>();
 
+  private final ScheduledExecutorService executorService;
+
   /**
    * Creates a new filter injector with the specified filter.
    *
    * @param filter filter that should be injected.
    */
-  public FilterInjector(Filter filter) {
+  public FilterInjector(Filter filter, ScheduledExecutorService executorService) {
     this.delegateServletFilter = filter;
+    this.executorService = executorService;
+  }
+
+  BundleContext getContext() {
+    final Bundle cxfBundle = FrameworkUtil.getBundle(DelegateServletFilter.class);
+    if (cxfBundle != null) {
+      return cxfBundle.getBundleContext();
+    }
+    return null;
   }
 
   @Override
@@ -78,6 +93,43 @@ public class FilterInjector implements EventListenerHook {
     }
   }
 
+  public void init() {
+    executorService.schedule(this::checkForMissedServletContexts, 1, TimeUnit.SECONDS);
+  }
+
+  public void destroy() {
+    executorService.shutdownNow();
+  }
+
+  private void checkForMissedServletContexts() {
+    try {
+      BundleContext context = getContext();
+      if (context == null) {
+        return; // bundle is probably refreshing
+      }
+      Collection<ServiceReference<ServletContext>> references =
+          context.getServiceReferences(ServletContext.class, null);
+      for (ServiceReference<ServletContext> reference : references) {
+        Bundle refBundle = reference.getBundle();
+        BundleContext bundlectx = refBundle.getBundleContext();
+        ServletContext service = bundlectx.getService(reference);
+
+        if (service.getFilterRegistration(DELEGATING_FILTER) == null) {
+          LOGGER.error(
+              "Platform filter delegate failed to start in time to inject itself into {} {}. This means the {} servlet will not properly attach the user subject to requests. A system restart is recommended.",
+              refBundle.getSymbolicName(),
+              refBundle.getBundleId(),
+              refBundle.getSymbolicName());
+        }
+      }
+
+    } catch (InvalidSyntaxException e) {
+      LOGGER.error(
+          "Problem checking ServletContexts for DelegateServletFilter injections. One of the servlets running might not have all of the needed filters injected. A system restart is recommended. See debug logs for additional details.");
+      LOGGER.debug("Additional Details:", e);
+    }
+  }
+
   /**
    * Injects the filter into the passed-in servlet context.
    *
@@ -85,6 +137,11 @@ public class FilterInjector implements EventListenerHook {
    * @param refBundle The bundle of the ServletContext
    */
   private void injectFilter(ServletContext context, Bundle refBundle) {
+
+    LOGGER.info(
+        "Injecting DelegateServletFilter into {} ID: {}",
+        refBundle.getSymbolicName(),
+        refBundle.getBundleId());
     try {
       SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
       sessionCookieConfig.setPath("/");

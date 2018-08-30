@@ -11,7 +11,7 @@
 * *{hardening-step}*
 
 Audit logging captures security-specific system events for monitoring and review.
-${ddf-branding} provides a <<{developing-prefix}security_logging_plugin,Audit Plugin>> that logs all catalog transactions to the `security.log`.
+${branding} provides an <<{developing-prefix}security_logging_plugin,Audit Plugin>> that logs all catalog transactions to the `security.log`.
 Information captured includes user identity, query information, and resources retrieved.
 
 Follow all operational requirements for the retention of the log files.
@@ -45,7 +45,7 @@ The logs themselves could be used to generate such reports outside the scope of 
 In the event the system is unable to write to the `security.log` file, ${branding} must be configured to fall back to report the error in the application log:
 
 * edit `${home_directory}/etc/org.ops4j.pax.logging.cfg`
-** uncomment the line (remove the `#` from the beginning of the line) for `log4j2` (`org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.config.xml`)
+** uncomment the line (remove the `#` from the beginning of the line) for `log4j2` (`org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.xml`)
 ** delete all subsequent lines
 
 If you want to change the location of your systems security backup log from the default location: `${home_directory}/data/log/securityBackup.log`, follow the next two steps:
@@ -53,7 +53,7 @@ If you want to change the location of your systems security backup log from the 
 * edit `${home_directory}/security/configurations.policy`
 ** find "Security-Hardening: Backup Log File Permissions"
 ** below `grant codeBase "file:/pax-logging-log4j2"` add the path to the directory containing the new log file you will create in the next step.
-* edit `${home_directory}/etc/log4j2.config.xml`
+* edit `${home_directory}/etc/log4j2.xml`
 ** find the entry for the `securityBackup` appender. (see example)
 ** change value of `filename` and prefix of `filePattern` to the name/path of the desired failover security logs
 

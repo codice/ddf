@@ -23,7 +23,6 @@
     <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/notifications/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
@@ -41,10 +40,11 @@
              description="Features that will be started on container startup.">
         <!--Added prerequisite to kernel since it starts up features that must be started before others such as wrap and blueprint -->
         <feature prerequisite="true">kernel</feature>
-        <feature>secure-boot</feature>
+        <feature prerequisite="true">platform-filter-delegate</feature>
+        <!--Added prerequisite to make sure the security filter injector is running before any other contexts get registered-->
+        <feature prerequisite="true">security-services-app</feature>
         <feature>ddf-branding</feature>
         <feature>platform-app</feature>
-        <feature>security-services-app</feature>
         <feature>admin-app</feature>
     </feature>
 
@@ -58,7 +58,6 @@
         <feature>platform-configuration</feature>
         <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
-        <feature>notifications-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
         <feature>security-encryption</feature>

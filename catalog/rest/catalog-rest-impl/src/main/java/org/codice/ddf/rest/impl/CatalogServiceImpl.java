@@ -548,6 +548,14 @@ public class CatalogServiceImpl implements CatalogService {
 
     } catch (MetacardCreationException | CatalogTransformerException e) {
       throw new CatalogServiceException("Unable to create metacard");
+    } finally {
+      try {
+        if (stream != null) {
+          stream.close();
+        }
+      } catch (IOException e) {
+        LOGGER.debug("Unexpected error closing stream", e);
+      }
     }
   }
 

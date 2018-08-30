@@ -232,6 +232,13 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       LOGGER.debug("GeoEntry metacard does not contain population attribute.");
     }
 
+    attribute = metacard.getAttribute(GeoEntryAttributes.GAZETTEER_SORT_VALUE);
+    if (attribute != null) {
+      geoEntryBuilder.gazetteerSort((Integer) attribute.getValue());
+    } else {
+      LOGGER.debug("GeoEntry does not contain Gazetteer Sort Value");
+    }
+
     String location = getStringAttributeFromMetacard(metacard, Core.LOCATION);
     if (StringUtils.isNotBlank(location)) {
       try {

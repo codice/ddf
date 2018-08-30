@@ -28,7 +28,8 @@
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "format": "standard --fix ./src/**/*.js",
     "build": "ace bundle && ace package",
-    "clean": "ace clean"
+    "clean": "ace clean",
+    "m2": "ace clean && ace bundle && ace package && ace install"
   },
   "peerDependencies": {
     "react": "^15.1.0",

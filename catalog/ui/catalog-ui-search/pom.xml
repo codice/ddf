@@ -252,6 +252,12 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-junit</artifactId>
+            <version>${hamcrest-junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.ui</groupId>
             <artifactId>catalog-ui-enumeration</artifactId>
             <version>${project.version}</version>
