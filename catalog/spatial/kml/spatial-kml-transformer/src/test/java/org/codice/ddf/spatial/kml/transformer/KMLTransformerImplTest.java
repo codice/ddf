@@ -315,6 +315,9 @@ public class KMLTransformerImplTest {
         case Core.CREATED:
           assertThat(data.getValue(), is(METACARD_DATE_STRING));
           break;
+        default:
+          throw new IllegalArgumentException(
+              String.format("Data %s was not expected", data.getName()));
       }
     }
   }
