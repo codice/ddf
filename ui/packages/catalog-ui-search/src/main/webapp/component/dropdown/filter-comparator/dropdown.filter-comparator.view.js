@@ -14,32 +14,35 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.filter-comparator.hbs',
-    'component/filter-comparator/filter-comparator.view'
-], function (Marionette, _, $, DropdownView, template, ComponentView) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-filterComparator',
-        componentToShow: ComponentView,
-        initializeComponentModel: function(){
-            //override if you need more functionality
-            this.modelForComponent = this.options.modelForComponent;
-        },
-        listenToComponent: function(){
-            //override if you need more functionality
-            this.listenTo(this.modelForComponent, 'change:comparator', function(){
-                this.model.set('value', this.modelForComponent.get('comparator'));
-            }.bind(this));
-        },
-        isCentered: true,
-        getCenteringElement: function(){
-            return this.el;
-        },
-        hasTail: true
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.filter-comparator.hbs',
+  'component/filter-comparator/filter-comparator.view',
+], function(Marionette, _, $, DropdownView, template, ComponentView) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-filterComparator',
+    componentToShow: ComponentView,
+    initializeComponentModel: function() {
+      //override if you need more functionality
+      this.modelForComponent = this.options.modelForComponent
+    },
+    listenToComponent: function() {
+      //override if you need more functionality
+      this.listenTo(
+        this.modelForComponent,
+        'change:comparator',
+        function() {
+          this.model.set('value', this.modelForComponent.get('comparator'))
+        }.bind(this)
+      )
+    },
+    isCentered: true,
+    getCenteringElement: function() {
+      return this.el
+    },
+    hasTail: true,
+  })
+})

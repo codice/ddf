@@ -13,35 +13,34 @@
  *
  **/
 /*global require*/
-var childView = require('./annotation.view');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
+var childView = require('./annotation.view')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
 
 module.exports = Marionette.CollectionView.extend({
-    childView: childView,
-    _options: undefined,
-    initialize: function(options) {
-        this._options = options;
-    },
-    childViewOptions: function() {
-        return {
-            selectionInterface: this._options.selectionInterface,
-            parent: this._options.parent
-        };
-    },
-    tagName: CustomElements.register('annotation-collection'),
-    onAddChild: function(childView){
-    },
-    turnOnEditing: function() {
-        this.$el.toggleClass('is-editing', true);
-        this.children.forEach(function(childView) {
-            childView.turnOnEditing();
-        });
-    },
-    turnOffEditing: function() {
-        this.$el.toggleClass('is-editing', false);
-        this.children.forEach(function(childView) {
-            childView.turnOffEditing();
-        });
+  childView: childView,
+  _options: undefined,
+  initialize: function(options) {
+    this._options = options
+  },
+  childViewOptions: function() {
+    return {
+      selectionInterface: this._options.selectionInterface,
+      parent: this._options.parent,
     }
-});
+  },
+  tagName: CustomElements.register('annotation-collection'),
+  onAddChild: function(childView) {},
+  turnOnEditing: function() {
+    this.$el.toggleClass('is-editing', true)
+    this.children.forEach(function(childView) {
+      childView.turnOnEditing()
+    })
+  },
+  turnOffEditing: function() {
+    this.$el.toggleClass('is-editing', false)
+    this.children.forEach(function(childView) {
+      childView.turnOffEditing()
+    })
+  },
+})

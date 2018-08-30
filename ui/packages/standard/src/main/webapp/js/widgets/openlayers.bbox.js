@@ -12,238 +12,269 @@
 /*global define*/
 
 define([
-        'marionette',
-        'backbone',
-        'openlayers',
-        'underscore',
-        'properties',
-        'wreqr',
-        'maptype',
-        './notification.view'
-    ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
-        "use strict";
+  'marionette',
+  'backbone',
+  'openlayers',
+  'underscore',
+  'properties',
+  'wreqr',
+  'maptype',
+  './notification.view',
+], function(
+  Marionette,
+  Backbone,
+  ol,
+  _,
+  properties,
+  wreqr,
+  maptype,
+  NotificationView
+) {
+  'use strict'
 
-        var Draw = {};
+  var Draw = {}
 
-        Draw.BboxModel = Backbone.Model.extend({
-            defaults: {
-                north: undefined,
-                east: undefined,
-                west: undefined,
-                south: undefined
-            }
-        });
-        Draw.BboxView = Backbone.View.extend({
-            initialize: function (options) {
-                this.map = options.map;
-            },
-            setModelFromGeometry: function (geometry) {
+  Draw.BboxModel = Backbone.Model.extend({
+    defaults: {
+      north: undefined,
+      east: undefined,
+      west: undefined,
+      south: undefined,
+    },
+  })
+  Draw.BboxView = Backbone.View.extend({
+    initialize: function(options) {
+      this.map = options.map
+    },
+    setModelFromGeometry: function(geometry) {
+      var extent = geometry.getExtent()
 
-                var extent = geometry.getExtent();
+      var northWest = ol.proj.transform(
+        [extent[0], extent[3]],
+        properties.projection,
+        'EPSG:4326'
+      )
+      var southEast = ol.proj.transform(
+        [extent[2], extent[1]],
+        properties.projection,
+        'EPSG:4326'
+      )
 
-                var northWest = ol.proj.transform([extent[0], extent[3]], properties.projection, 'EPSG:4326');
-                var southEast = ol.proj.transform([extent[2], extent[1]], properties.projection, 'EPSG:4326');
+      this.model.set({
+        north: northWest[1],
+        south: southEast[1],
+        west: northWest[0],
+        east: southEast[0],
+      })
+    },
 
-                this.model.set({
-                    north: northWest[1],
-                    south: southEast[1],
-                    west: northWest[0],
-                    east: southEast[0]
-                });
-            },
+    modelToRectangle: function(model) {
+      //ensure that the values are numeric
+      //so that the openlayer projections
+      //do not fail
+      var north = parseFloat(model.get('mapNorth'))
+      var south = parseFloat(model.get('mapSouth'))
+      var east = parseFloat(model.get('mapEast'))
+      var west = parseFloat(model.get('mapWest'))
 
-            modelToRectangle: function (model) {
+      var northWest = ol.proj.transform(
+        [west, north],
+        'EPSG:4326',
+        properties.projection
+      )
+      var northEast = ol.proj.transform(
+        [east, north],
+        'EPSG:4326',
+        properties.projection
+      )
+      var southWest = ol.proj.transform(
+        [west, south],
+        'EPSG:4326',
+        properties.projection
+      )
+      var southEast = ol.proj.transform(
+        [east, south],
+        'EPSG:4326',
+        properties.projection
+      )
 
-                //ensure that the values are numeric
-                //so that the openlayer projections
-                //do not fail
-                var north  = parseFloat(model.get('mapNorth'));
-                var south = parseFloat(model.get('mapSouth'));
-                var east = parseFloat(model.get('mapEast'));
-                var west = parseFloat(model.get('mapWest'));
+      var coords = []
+      coords.push(northWest)
+      coords.push(northEast)
+      coords.push(southEast)
+      coords.push(southWest)
+      coords.push(northWest)
+      var rectangle = new ol.geom.LineString(coords)
+      return rectangle
+    },
 
-                var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
-                var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
-                var southWest = ol.proj.transform([west,south], 'EPSG:4326', properties.projection);
-                var southEast = ol.proj.transform([east,south], 'EPSG:4326', properties.projection);
+    updatePrimitive: function(model) {
+      var rectangle = this.modelToRectangle(model)
+      // make sure the current model has width and height before drawing
+      if (
+        rectangle &&
+        !_.isUndefined(rectangle) &&
+        (model.get('north') !== model.get('south') &&
+          model.get('east') !== model.get('west'))
+      ) {
+        this.drawBorderedRectangle(rectangle)
+        //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
+        //the filled in shape won't show up
+        if (!this.buttonPressed) {
+          this.drawBorderedRectangle(rectangle)
+        }
+      }
+    },
 
-                var coords = [];
-                coords.push(northWest);
-                coords.push(northEast);
-                coords.push(southEast);
-                coords.push(southWest);
-                coords.push(northWest);
-                var rectangle = new ol.geom.LineString(coords);
-                return rectangle;
-            },
+    updateGeometry: function(model) {
+      var rectangle = this.modelToRectangle(model)
+      if (rectangle) {
+        this.drawBorderedRectangle(rectangle)
+      }
+    },
 
-            updatePrimitive: function (model) {
-                var rectangle = this.modelToRectangle(model);
-                // make sure the current model has width and height before drawing
-                if (rectangle && !_.isUndefined(rectangle) && (model.get('north') !== model.get('south') && model.get('east') !== model.get('west'))) {
-                    this.drawBorderedRectangle(rectangle);
-                    //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
-                    //the filled in shape won't show up
-                    if (!this.buttonPressed) {
-                        this.drawBorderedRectangle(rectangle);
-                    }
-                }
-            },
+    drawBorderedRectangle: function(rectangle) {
+      if (!rectangle) {
+        // handles case where model changes to empty vars and we don't want to draw anymore
+        return
+      }
 
-            updateGeometry: function (model) {
-                var rectangle = this.modelToRectangle(model);
-                if (rectangle) {
-                    this.drawBorderedRectangle(rectangle);
-                }
-            },
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
 
-            drawBorderedRectangle: function (rectangle) {
+      this.billboard = new ol.Feature({
+        geometry: rectangle,
+      })
 
-                if (!rectangle) {
-                    // handles case where model changes to empty vars and we don't want to draw anymore
-                    return;
-                }
+      var iconStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({ color: '#914500', width: 3 }),
+      })
+      this.billboard.setStyle(iconStyle)
 
-                if(this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
+      var vectorSource = new ol.source.Vector({
+        features: [this.billboard],
+      })
 
-                this.billboard = new ol.Feature({
-                    geometry: rectangle
-                });
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+      })
 
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 3})
-                });
-                this.billboard.setStyle(iconStyle);
+      this.vectorLayer = vectorLayer
+      this.map.addLayer(vectorLayer)
+    },
 
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
+    handleRegionStop: function() {
+      this.setModelFromGeometry(this.primitive.getGeometry())
+      this.updateGeometry(this.model)
+      this.listenTo(
+        this.model,
+        'change:mapNorth change:mapSouth change:mapEast change:mapWest',
+        this.updateGeometry
+      )
 
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
+      this.model.trigger('EndExtent', this.model)
+    },
+    start: function() {
+      var that = this
+      this.primitive = new ol.interaction.DragBox({
+        condition: ol.events.condition.always,
+      })
 
-                this.vectorLayer = vectorLayer;
-                this.map.addLayer(vectorLayer);
-            },
+      this.map.addInteraction(this.primitive)
+      this.primitive.on('boxend', function() {
+        that.handleRegionStop()
+        that.map.removeInteraction(that.primitive)
+      })
+    },
 
-            handleRegionStop: function () {
-                this.setModelFromGeometry(this.primitive.getGeometry());
-                this.updateGeometry(this.model);
-                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
+    stop: function() {
+      this.stopListening()
+    },
 
-                this.model.trigger("EndExtent", this.model);
-            },
-            start: function () {
-                var that = this;
-                this.primitive = new ol.interaction.DragBox({
-                    condition: ol.events.condition.always
-                });
+    destroyPrimitive: function() {
+      if (this.primitive) {
+        this.map.removeInteraction(this.primitive)
+      }
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
+    },
+  })
 
-                this.map.addInteraction(this.primitive);
-                this.primitive.on('boxend', function(){
-                    that.handleRegionStop();
-                    that.map.removeInteraction(that.primitive);
-                });
-            },
+  Draw.Controller = Marionette.Controller.extend({
+    enabled: maptype.is2d(),
+    initialize: function(options) {
+      this.map = options.map
+      this.notificationEl = options.notificationEl
 
+      this.listenTo(wreqr.vent, 'search:bboxdisplay', this.showBox)
+      this.listenTo(wreqr.vent, 'search:drawbbox', this.draw)
+      this.listenTo(wreqr.vent, 'search:drawstop', this.stop)
+      this.listenTo(wreqr.vent, 'search:drawend', this.destroy)
+    },
+    showBox: function(model) {
+      if (this.enabled) {
+        var bboxModel = model || new Draw.BboxModel(),
+          view = new Draw.BboxView({
+            map: this.map,
+            model: bboxModel,
+          })
 
-            stop: function () {
-                this.stopListening();
-            },
+        if (this.view) {
+          this.view.destroyPrimitive()
+          this.view.stop()
+        }
+        view.updatePrimitive(model)
+        this.view = view
 
+        return bboxModel
+      }
+    },
+    draw: function(model) {
+      if (this.enabled) {
+        var bboxModel = model || new Draw.BboxModel(),
+          view = new Draw.BboxView({
+            map: this.map,
+            model: bboxModel,
+          })
 
-            destroyPrimitive: function () {
-                if (this.primitive) {
-                    this.map.removeInteraction(this.primitive);
-                }
-                if (this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
-            }
+        if (this.view) {
+          this.view.destroyPrimitive()
+          this.view.stop()
+        }
+        view.start()
+        this.view = view
+        this.notificationView = new NotificationView({
+          el: this.notificationEl,
+        }).render()
+        bboxModel.trigger('BeginExtent')
+        this.listenToOnce(bboxModel, 'EndExtent', function() {
+          this.notificationView.destroy()
+        })
 
-        });
+        return bboxModel
+      }
+    },
+    stop: function() {
+      if (this.enabled && this.view) {
+        this.view.stop()
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+      }
+    },
+    destroy: function() {
+      if (this.enabled && this.view) {
+        this.view.stop()
+        this.view.destroyPrimitive()
+        this.view = undefined
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+      }
+    },
+  })
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: maptype.is2d(),
-            initialize: function (options) {
-                this.map = options.map;
-                this.notificationEl = options.notificationEl;
-
-                this.listenTo(wreqr.vent, 'search:bboxdisplay', this.showBox);
-                this.listenTo(wreqr.vent, 'search:drawbbox', this.draw);
-                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
-                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-            },
-            showBox: function(model) {
-                if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel(),
-                        view = new Draw.BboxView(
-                            {
-                                map: this.map,
-                                model: bboxModel
-                            });
-
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
-                    }
-                    view.updatePrimitive(model);
-                    this.view = view;
-
-                    return bboxModel;
-                }
-            },
-            draw: function (model) {
-                if (this.enabled) {
-                    var bboxModel = model || new Draw.BboxModel(),
-                        view = new Draw.BboxView(
-                            {
-                                map: this.map,
-                                model: bboxModel
-                            });
-
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
-                    }
-                    view.start();
-                    this.view = view;
-                    this.notificationView = new NotificationView({
-                        el: this.notificationEl
-                    }).render();
-                    bboxModel.trigger('BeginExtent');
-                    this.listenToOnce(bboxModel, 'EndExtent', function () {
-                        this.notificationView.destroy();
-                    });
-
-                    return bboxModel;
-                }
-            },
-            stop: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
-            },
-            destroy: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    this.view.destroyPrimitive();
-                    this.view = undefined;
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
-            }
-        });
-
-        return Draw;
-    });
+  return Draw
+})

@@ -3,7 +3,8 @@
   .customElement;
   padding: 0px @minimumSpacing;
 
-  .resultSelector-status, .paging .status {
+  .resultSelector-status,
+  .paging .status {
     text-align: center;
     opacity: @minimumOpacity;
   }
@@ -64,7 +65,7 @@
     left: ~'calc(100% - .5*@{minimumSpacing})';
 
     opacity: 0;
-    transition: opacity 10*@coreTransitionTime ease-out;
+    transition: opacity 10 * @coreTransitionTime ease-out;
   }
 
   > .resultSelector-searching .searching-bit {
@@ -75,27 +76,27 @@
     border-top: @largeSpacing solid;
     top: -@largeSpacing;
     height: 100%;
-    animation: result-selector-is-searching 10*@coreTransitionTime infinite ease-in-out;
-  } 
+    animation: result-selector-is-searching 10 * @coreTransitionTime infinite
+      ease-in-out;
+  }
 
   > .resultSelector-searching {
     .searching-bit:nth-child(1) {
       animation-delay: @coreTransitionTime;
     }
     .searching-bit:nth-child(2) {
-      animation-delay: 2*@coreTransitionTime;
+      animation-delay: 2 * @coreTransitionTime;
     }
     .searching-bit:nth-child(3) {
-      animation-delay: 3*@coreTransitionTime;
+      animation-delay: 3 * @coreTransitionTime;
     }
     .searching-bit:nth-child(4) {
-      animation-delay: 4*@coreTransitionTime;
+      animation-delay: 4 * @coreTransitionTime;
     }
     .searching-bit:nth-child(5) {
-      animation-delay: 5*@coreTransitionTime;
+      animation-delay: 5 * @coreTransitionTime;
     }
   }
-
 }
 
 @{customElementNamespace}result-selector.has-filter {
@@ -111,7 +112,6 @@
 }
 
 @{customElementNamespace}result-selector.has-unmerged {
-
   > .resultSelector-new {
     transform: scale(1);
   }
@@ -131,14 +131,13 @@
   .result-item-collection-empty:after {
     content: ' yet';
   }
-
 }
 
-@keyframes result-selector-is-searching{
-    0% {
-      transform: translate3d(0, -@largeSpacing, 0);
-    }
-    100% {
-      transform: translate3d(0, 100%, 0);
-    } 
+@keyframes result-selector-is-searching {
+  0% {
+    transform: translate3d(0, -@largeSpacing, 0);
+  }
+  100% {
+    transform: translate3d(0, 100%, 0);
+  }
 }

@@ -13,72 +13,77 @@
  *
  **/
 /*global define, alert*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var CustomElements = require('js/CustomElements');
-var ListItemCollectionView = require('component/list-item/list-item.collection.view');
-var template = require('./list-select.hbs');
-var ListCreateView = require('component/list-create/list-create.view');
-var PopoutView = require('component/dropdown/popout/dropdown.popout.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var $ = require('jquery')
+var CustomElements = require('js/CustomElements')
+var ListItemCollectionView = require('component/list-item/list-item.collection.view')
+var template = require('./list-select.hbs')
+var ListCreateView = require('component/list-create/list-create.view')
+var PopoutView = require('component/dropdown/popout/dropdown.popout.view')
 
 var eventsHash = {
-    'click': 'handleClick'
-};
+  click: 'handleClick',
+}
 
-var namespace = CustomElements.getNamespace();
-var listItemClickEvent = 'click '+namespace+'list-item';
-eventsHash[listItemClickEvent] = 'handleListItemClick';
+var namespace = CustomElements.getNamespace()
+var listItemClickEvent = 'click ' + namespace + 'list-item'
+eventsHash[listItemClickEvent] = 'handleListItemClick'
 
 let ListSelectingView = ListItemCollectionView.extend({
-    className: 'is-list-select composed-menu',
-    events: eventsHash,
-    onBeforeShow: function(){
-        this.handleValue();
-    },
-    handleListItemClick: function(event){
-        this.model.set('value', $(event.currentTarget).attr('data-listid'));
-        this.handleValue();
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-    },
-    handleValue: function(){
-        var listId = this.model.get('value');
-        this.$el.find(namespace+'list-item').removeClass('is-selected');
-        if (listId){
-            this.$el.find(namespace+'list-item[data-listid="'+listId+'"]').addClass('is-selected');
-        }
+  className: 'is-list-select composed-menu',
+  events: eventsHash,
+  onBeforeShow: function() {
+    this.handleValue()
+  },
+  handleListItemClick: function(event) {
+    this.model.set('value', $(event.currentTarget).attr('data-listid'))
+    this.handleValue()
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  handleValue: function() {
+    var listId = this.model.get('value')
+    this.$el.find(namespace + 'list-item').removeClass('is-selected')
+    if (listId) {
+      this.$el
+        .find(namespace + 'list-item[data-listid="' + listId + '"]')
+        .addClass('is-selected')
     }
-});
+  },
+})
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('list-select'),
-    template: template,
-    className: 'composed-menu',
-    regions: {
-      listCollection: '> .list-collection',
-      listCreate: '> .list-create'
-    },
-    initialize: function() {
-    },
-    onBeforeShow: function() {
-      this.showListCollection();
-      this.setupCreateList();
-    },
-    setupCreateList: function() {
-        this.listCreate.show(PopoutView.createSimpleDropdown({
-            componentToShow: ListCreateView,
-            modelForComponent: this.model,
-            leftIcon: 'fa fa-plus',
-            label: 'Create New List',
-            options: {
-                withBookmarks: false
-            }
-        }));
-    },
-    showListCollection: function() {
-        this.listCollection.show(new ListSelectingView({
-            model: this.model,
-            workspaceLists: this.options.workspaceLists
-        }));
-    }
-  });
+  tagName: CustomElements.register('list-select'),
+  template: template,
+  className: 'composed-menu',
+  regions: {
+    listCollection: '> .list-collection',
+    listCreate: '> .list-create',
+  },
+  initialize: function() {},
+  onBeforeShow: function() {
+    this.showListCollection()
+    this.setupCreateList()
+  },
+  setupCreateList: function() {
+    this.listCreate.show(
+      PopoutView.createSimpleDropdown({
+        componentToShow: ListCreateView,
+        modelForComponent: this.model,
+        leftIcon: 'fa fa-plus',
+        label: 'Create New List',
+        options: {
+          withBookmarks: false,
+        },
+      })
+    )
+  },
+  showListCollection: function() {
+    this.listCollection.show(
+      new ListSelectingView({
+        model: this.model,
+        workspaceLists: this.options.workspaceLists,
+      })
+    )
+  },
+})

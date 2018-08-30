@@ -11,32 +11,28 @@
  **/
 /*global define*/
 
-define([
-        'backbone',
-        'backbone-associations'
-  ],
-  function (Backbone) {
-    "use strict";
+define(['backbone', 'backbone-associations'], function(Backbone) {
+  'use strict'
 
-    return Backbone.AssociatedModel.extend({
-     defaults: {
-        selectedTab: "sources",
-        url: "../sources",
-        tabs: {
-          sources: {
-            title: "Sources",
-            url: "../sources"
-          },
-          local: {
-            title: "Local Registry",
-            url: "../registry/local"
-          },
-          remote: {
-            title: "Remote Registry",
-            url: "../registry/remote"
-          }
-        }
+  return Backbone.AssociatedModel.extend({
+    defaults: {
+      selectedTab: 'sources',
+      url: '../sources',
+      tabs: {
+        sources: {
+          title: 'Sources',
+          url: '../sources',
+        },
+        local: {
+          title: 'Local Registry',
+          url: '../registry/local',
+        },
+        remote: {
+          title: 'Remote Registry',
+          url: '../registry/remote',
+        },
       },
-      initialize: function () {}
-    });
- });
+    },
+    initialize: function() {},
+  })
+})

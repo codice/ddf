@@ -9,5 +9,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { CustomElement } from "./custom-element";
-export { ChangeBackground } from "./change-background";
+export { CustomElement } from './custom-element'
+export { ChangeBackground } from './change-background'

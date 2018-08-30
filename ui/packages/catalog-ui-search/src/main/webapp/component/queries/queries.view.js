@@ -14,61 +14,67 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './queries.hbs',
-    'js/CustomElements',
-    'component/tabs/query/tabs-query.view',
-    'component/query-selector/query-selector.view',
-    'js/store'
-], function (Marionette, _, $, queriesTemplate, CustomElements, QueryTabsView,
-             QuerySelectorView, store) {
+  'marionette',
+  'underscore',
+  'jquery',
+  './queries.hbs',
+  'js/CustomElements',
+  'component/tabs/query/tabs-query.view',
+  'component/query-selector/query-selector.view',
+  'js/store',
+], function(
+  Marionette,
+  _,
+  $,
+  queriesTemplate,
+  CustomElements,
+  QueryTabsView,
+  QuerySelectorView,
+  store
+) {
+  var Queries = Marionette.LayoutView.extend({
+    setDefaultModel: function() {
+      this.model = store.getCurrentWorkspace()
+    },
+    template: queriesTemplate,
+    tagName: CustomElements.register('queries'),
+    events: {
+      'click .workspaces-details': 'shiftRight',
+      'click .workspaces-selector': 'shiftLeft',
+    },
+    ui: {},
+    regions: {
+      queriesDetails: '.queries-details',
+      queriesSelector: '.queries-selector',
+    },
+    initialize: function(options) {
+      if (options.model === undefined) {
+        this.setDefaultModel()
+      }
+      this.listenTo(store.get('content'), 'change:query', this.changeQuery)
+    },
+    onRender: function() {
+      this.queriesSelector.show(new QuerySelectorView())
+      this.changeQuery()
+    },
+    changeQuery: function() {
+      var queryRef = store.getQuery()
+      if (queryRef === undefined) {
+        this.queriesDetails.empty()
+      } else {
+        this.shiftRight()
+        this.queriesDetails.show(new QueryTabsView())
+      }
+    },
+    shiftLeft: function(event) {
+      this.$el.addClass('shifted-left')
+      this.$el.removeClass('shifted-right')
+    },
+    shiftRight: function() {
+      this.$el.addClass('shifted-right')
+      this.$el.removeClass('shifted-left')
+    },
+  })
 
-    var Queries = Marionette.LayoutView.extend({
-        setDefaultModel: function(){
-            this.model = store.getCurrentWorkspace();
-        },
-        template: queriesTemplate,
-        tagName: CustomElements.register('queries'),
-        events: {
-            'click .workspaces-details': 'shiftRight',
-            'click .workspaces-selector': 'shiftLeft'
-        },
-        ui: {
-        },
-        regions: {
-            'queriesDetails': '.queries-details',
-            'queriesSelector': '.queries-selector'
-        },
-        initialize: function(options){
-            if (options.model === undefined) {
-                this.setDefaultModel();
-            }
-            this.listenTo(store.get('content'), 'change:query', this.changeQuery);
-        },
-        onRender: function(){
-            this.queriesSelector.show(new QuerySelectorView());
-            this.changeQuery();
-        },
-        changeQuery: function(){
-            var queryRef = store.getQuery();
-            if (queryRef === undefined){
-                this.queriesDetails.empty();
-            } else {
-                this.shiftRight();
-                this.queriesDetails.show(new QueryTabsView());
-            }
-        },
-        shiftLeft: function(event){
-            this.$el.addClass('shifted-left');
-            this.$el.removeClass('shifted-right');
-        },
-        shiftRight: function(){
-            this.$el.addClass('shifted-right');
-            this.$el.removeClass('shifted-left');
-        }
-    });
-
-    return Queries;
-});
+  return Queries
+})

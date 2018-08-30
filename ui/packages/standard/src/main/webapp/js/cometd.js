@@ -10,28 +10,39 @@
  *
  **/
 /*global define*/
-define(['jquery', 'jquerycometd'], function ($) {
-    'use strict';
+define(['jquery', 'jquerycometd'], function($) {
+  'use strict'
 
-    var Cometd = {};
+  var Cometd = {}
 
-    Cometd.Comet = $.cometd;
-    Cometd.Comet.websocketEnabled = false;
-    var path = '../cometd';
-    Cometd.Comet.configure({
-        url: path,
-        maxNetworkDelay: 30000
-//        logLevel: 'debug'
-    });
+  Cometd.Comet = $.cometd
+  Cometd.Comet.websocketEnabled = false
+  var path = '../cometd'
+  Cometd.Comet.configure({
+    url: path,
+    maxNetworkDelay: 30000,
+    //        logLevel: 'debug'
+  })
 
-    Cometd.Comet.onListenerException = function(exception, subscriptionHandle, isListener, message) {
-        if (typeof console !== 'undefined') {
-            console.error("Cometd listener threw an exception", exception, message, subscriptionHandle, isListener);
-        }
-    };
+  Cometd.Comet.onListenerException = function(
+    exception,
+    subscriptionHandle,
+    isListener,
+    message
+  ) {
+    if (typeof console !== 'undefined') {
+      console.error(
+        'Cometd listener threw an exception',
+        exception,
+        message,
+        subscriptionHandle,
+        isListener
+      )
+    }
+  }
 
-    //TODO: we need some way to unsub/disconnect when we know it is finished
-    Cometd.Comet.handshake({});
+  //TODO: we need some way to unsub/disconnect when we know it is finished
+  Cometd.Comet.handshake({})
 
-    return Cometd;
-});
+  return Cometd
+})

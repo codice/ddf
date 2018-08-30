@@ -14,22 +14,21 @@
  **/
 /* global define */
 define([
-        'icanhaz',
-        'backbone',
-        'js/view/Modal',
-        'properties',
-        'text!templates/systemUsage.layout.handlebars'
-    ],
-    function (ich, Backbone, Modal, properties, systemUsageTemplate) {
-        ich.addTemplate('systemUsageTemplate', systemUsageTemplate);
+  'icanhaz',
+  'backbone',
+  'js/view/Modal',
+  'properties',
+  'text!templates/systemUsage.layout.handlebars',
+], function(ich, Backbone, Modal, properties, systemUsageTemplate) {
+  ich.addTemplate('systemUsageTemplate', systemUsageTemplate)
 
-        var SystemUsageModal = Modal.extend({
-            template: 'systemUsageTemplate',
-            model: new Backbone.Model(properties),
-            initialize: function () {
-                // there is no automatic chaining of initialize.
-                Modal.prototype.initialize.apply(this, arguments);
-            }
-        });
-        return SystemUsageModal;
-    });
+  var SystemUsageModal = Modal.extend({
+    template: 'systemUsageTemplate',
+    model: new Backbone.Model(properties),
+    initialize: function() {
+      // there is no automatic chaining of initialize.
+      Modal.prototype.initialize.apply(this, arguments)
+    },
+  })
+  return SystemUsageModal
+})

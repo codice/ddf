@@ -13,29 +13,26 @@
  *
  **/
 /*global define*/
-define(['backbone'],
-    function (Backbone) {
+define(['backbone'], function(Backbone) {
+  var Organization = {}
 
-        var Organization = {};
+  Organization = Backbone.Model.extend({
+    // Defaults set to 'Not Provided' to indicate the software correctly pulled the Organizational Info
+    // but the user did not enter any. N/A was determined to be too vague
+    defaults: {
+      name: 'Not Provided',
+      address: 'Not Provided',
+      phoneNumber: 'Not Provided',
+      emailAddress: 'Not Provided',
+    },
 
-        Organization = Backbone.Model.extend({
+    initializeFromOrganization: function(org) {
+      this.name = org.name
+      this.address = org.address
+      this.phoneNumber = org.phoneNumber
+      this.emailAddress = org.emailAddress
+    },
+  })
 
-            // Defaults set to 'Not Provided' to indicate the software correctly pulled the Organizational Info
-            // but the user did not enter any. N/A was determined to be too vague
-            defaults: {
-                name: 'Not Provided',
-                address: 'Not Provided',
-                phoneNumber: 'Not Provided',
-                emailAddress: 'Not Provided'
-            },
-
-            initializeFromOrganization: function (org) {
-                this.name = org.name;
-                this.address = org.address;
-                this.phoneNumber = org.phoneNumber;
-                this.emailAddress = org.emailAddress;
-            }
-        });
-
-        return Organization;
-    });
+  return Organization
+})

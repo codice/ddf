@@ -9,34 +9,33 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
-import { CustomElement } from '../../styles/mixins';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
 import Routes from '../../container/routes-container'
 
 const Router = styled.div`
-    ${CustomElement}
-    overflow: hidden;
+  ${CustomElement} overflow: hidden;
 
-    > *:first-child {
-        height: calc(2 * ${props => props.theme.minimumLineSize});
-    }
+  > *:first-child {
+    height: calc(2 * ${props => props.theme.minimumLineSize});
+  }
 
-    > *:not(:first-child) {
-        height: calc(100% - 2 * ${props => props.theme.minimumLineSize});
-    }
+  > *:not(:first-child) {
+    height: calc(100% - 2 * ${props => props.theme.minimumLineSize});
+  }
 `
 
 interface Props {
-    nav: React.ReactNode;
-    routeDefinitions: any;
+  nav: React.ReactNode
+  routeDefinitions: any
 }
 
 export default function(props: Props) {
-    return (
-        <Router>
-            {props.nav}
-            <Routes isMenu={false} routeDefinitions={props.routeDefinitions} />
-        </Router>
-    )
+  return (
+    <Router>
+      {props.nav}
+      <Routes isMenu={false} routeDefinitions={props.routeDefinitions} />
+    </Router>
+  )
 }

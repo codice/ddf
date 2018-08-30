@@ -13,34 +13,34 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var userNotifications = require('component/singletons/user-notifications');
-var AlertItemView = require('component/alert-item/alert-item.view');
-var UploadItemView = require('component/upload-batch-item/upload-batch-item.view');
-var UploadItemModel = require('js/model/UploadBatch');
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var userNotifications = require('component/singletons/user-notifications')
+var AlertItemView = require('component/alert-item/alert-item.view')
+var UploadItemView = require('component/upload-batch-item/upload-batch-item.view')
+var UploadItemModel = require('js/model/UploadBatch')
 
-function matchesFilter(filter, model){
-    if (!filter){
-        return true;
-    } else {
-        return true;
-    }
+function matchesFilter(filter, model) {
+  if (!filter) {
+    return true
+  } else {
+    return true
+  }
 }
 
 // polymorphic collection of notifications
 module.exports = Marionette.CollectionView.extend({
-    collection: userNotifications,
-    className: 'is-list has-list-highlighting',
-    tagName: CustomElements.register('notification-list'),
-    getChildView: function(model){
-        if (model.constructor === UploadItemModel){
-            return UploadItemView;
-        } else {
-            return AlertItemView;
-        }
-    },
-    filter: function(model){
-        return matchesFilter(this.options.filter, model);
+  collection: userNotifications,
+  className: 'is-list has-list-highlighting',
+  tagName: CustomElements.register('notification-list'),
+  getChildView: function(model) {
+    if (model.constructor === UploadItemModel) {
+      return UploadItemView
+    } else {
+      return AlertItemView
     }
-});
+  },
+  filter: function(model) {
+    return matchesFilter(this.options.filter, model)
+  },
+})

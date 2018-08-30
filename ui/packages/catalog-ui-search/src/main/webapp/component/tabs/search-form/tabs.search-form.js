@@ -9,19 +9,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- const Tabs = require('component/tabs/tabs');
- const MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view');
- const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view');
- const properties = require('properties');
+/*global require*/
+const Tabs = require('component/tabs/tabs')
+const MySearchFormCollectionView = require('component/search-form/search-form-tab-container.view')
+const MySearchSharingFormCollectionView = require('component/search-form/forms-sharing/search-form-sharing-tab-container.view')
+const properties = require('properties')
 
 module.exports = Tabs.extend({
-    defaults: {
-        tabs: properties.hasExperimentalEnabled() ? {
-            'My Search Forms': MySearchFormCollectionView,
-            'Shared Templates': MySearchSharingFormCollectionView
-         } : {
-            'My Search Forms': MySearchFormCollectionView
-         }
-    }
- });
+  defaults: {
+    tabs: properties.hasExperimentalEnabled()
+      ? {
+          'My Search Forms': MySearchFormCollectionView,
+          'Shared Templates': MySearchSharingFormCollectionView,
+        }
+      : {
+          'My Search Forms': MySearchFormCollectionView,
+        },
+  },
+})

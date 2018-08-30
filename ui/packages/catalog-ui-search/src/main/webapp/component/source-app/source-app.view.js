@@ -13,30 +13,33 @@
  *
  **/
 /*global require, document*/
-const Marionette = require('marionette');
-const template = require('./source-app.hbs');
-const CustomElements = require('js/CustomElements');
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view');
+const Marionette = require('marionette')
+const template = require('./source-app.hbs')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
 
 module.exports = Marionette.LayoutView.extend({
-    template,
-    tagName: CustomElements.register('source-app'),
-    events: {
-        'click button': 'handleClick'
-    },
-    serializeData() {
-        return {
-            url: this.options['url']
-        };
-    },
-    handleClick(){
-         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
-    },
-    onRender(){
-        LoadingCompanionView.beginLoading(this);
-
-        this.$el.find('iframe').on('load', function(){
-            LoadingCompanionView.endLoading(this);
-        }.bind(this));
+  template,
+  tagName: CustomElements.register('source-app'),
+  events: {
+    'click button': 'handleClick',
+  },
+  serializeData() {
+    return {
+      url: this.options['url'],
     }
-});
+  },
+  handleClick() {
+    this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
+  },
+  onRender() {
+    LoadingCompanionView.beginLoading(this)
+
+    this.$el.find('iframe').on(
+      'load',
+      function() {
+        LoadingCompanionView.endLoading(this)
+      }.bind(this)
+    )
+  },
+})

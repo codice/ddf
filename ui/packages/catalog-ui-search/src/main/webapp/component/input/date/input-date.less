@@ -1,33 +1,32 @@
 @{customElementNamespace}input.is-date {
+  .input-group {
+    margin: 0px;
+    padding: 0px;
+  }
 
-    .input-group {
-      margin: 0px;
-      padding: 0px;
-    }
+  input {
+    height: @minimumButtonSize;
+    width: 100%;
+  }
 
-    input {
-      height: @minimumButtonSize;
-      width: 100%;
-    }
+  label {
+    padding-left: ~'calc(2px + .5*@{minimumFontSize})';
+    line-height: @minimumButtonSize;
+    margin: 0px;
+    white-space: normal;
+    word-break: break-all;
+    min-height: @minimumButtonSize;
+  }
 
-    label {
-      padding-left: ~'calc(2px + .5*@{minimumFontSize})';
-      line-height: @minimumButtonSize;
-      margin: 0px;
-      white-space: normal;
-      word-break: break-all;
-      min-height: @minimumButtonSize;
-    }
-
-    .input-group > span.input-group-addon {
-      border-radius: @border-radius;
-      background: @primary-color !important;
-      color: contrast(@primary-color) !important;
-      border: none;
-      font-size: @largeFontSize;
-      width: @minimumButtonSize;
-      height: @minimumButtonSize;
-      padding: 0px;
-      text-align: center;
-    }
+  .input-group > span.input-group-addon {
+    border-radius: @border-radius;
+    background: @primary-color !important;
+    color: contrast(@primary-color) !important;
+    border: none;
+    font-size: @largeFontSize;
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    padding: 0px;
+    text-align: center;
+  }
 }

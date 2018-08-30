@@ -9,12 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { readableColor } from 'polished';
+import { readableColor } from 'polished'
 import { css } from '../styled-components'
 
-export const ChangeBackground = (newBackground) => {
-    return css`
-        background: ${newBackground};
-        color: ${readableColor(newBackground)};
-    `
+export const ChangeBackground = newBackground => {
+  return css`
+    background: ${newBackground};
+    color: ${readableColor(newBackground)};
+  `
 }

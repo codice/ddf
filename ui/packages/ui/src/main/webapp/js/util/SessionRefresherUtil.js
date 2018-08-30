@@ -9,47 +9,51 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*jshint browser: true */
 
-define([
-        'backbone',
-        'jquery'
-    ],
-    function (Backbone, $) {
+define(['backbone', 'jquery'], function(Backbone, $) {
+  var sessionRenewUrl = '../services/internal/session/renew'
+  var sessionExpiryUrl = '../services/internal/session/expiry'
 
-        var sessionRenewUrl = '../services/internal/session/renew';
-        var sessionExpiryUrl = '../services/internal/session/expiry';
+  var sessionAutoRenewModel = new (Backbone.Model.extend({
+    defaults: {
+      sessionRenewDate: undefined,
+    },
+    initialize: function() {
+      this.initializeSessionRenewDate()
+      this.listenTo(
+        this,
+        'change:sessionRenewDate',
+        this.handleSessionRenewDate
+      )
+    },
+    initializeSessionRenewDate: function() {
+      $.get(sessionExpiryUrl).done(this.handleExpiryTimeResponse.bind(this))
+    },
+    handleExpiryTimeResponse: function(response) {
+      var msUntilTimeout = parseInt(response)
+      var msUntilAutoRenew = Math.max(
+        msUntilTimeout * 0.7,
+        msUntilTimeout - 60000
+      ) // 70% or at least one minute before
+      this.set('sessionRenewDate', Date.now() + msUntilAutoRenew)
+    },
+    handleSessionRenewDate: function() {
+      this.clearSessionRenewTimer()
+      this.setSessionRenewTimer()
+    },
+    setSessionRenewTimer: function() {
+      this.sessionRenewTimer = setTimeout(
+        this.renewSession.bind(this),
+        this.get('sessionRenewDate') - Date.now()
+      )
+    },
+    clearSessionRenewTimer: function() {
+      clearTimeout(this.sessionRenewTimer)
+    },
+    renewSession: function() {
+      $.get(sessionRenewUrl).done(this.handleExpiryTimeResponse.bind(this))
+    },
+  }))()
 
-        var sessionAutoRenewModel = new (Backbone.Model.extend({
-            defaults: {
-                sessionRenewDate: undefined
-            },
-            initialize: function () {
-                this.initializeSessionRenewDate();
-                this.listenTo(this, 'change:sessionRenewDate', this.handleSessionRenewDate);
-            },
-            initializeSessionRenewDate: function () {
-                $.get(sessionExpiryUrl).done(this.handleExpiryTimeResponse.bind(this));
-            },
-            handleExpiryTimeResponse: function (response) {
-                var msUntilTimeout = parseInt(response);
-                var msUntilAutoRenew = Math.max(msUntilTimeout * 0.7, msUntilTimeout - 60000);  // 70% or at least one minute before
-                this.set('sessionRenewDate', Date.now() + msUntilAutoRenew);
-            },
-            handleSessionRenewDate: function () {
-                this.clearSessionRenewTimer();
-                this.setSessionRenewTimer();
-            },
-            setSessionRenewTimer: function () {
-                this.sessionRenewTimer = setTimeout(this.renewSession.bind(this), this.get('sessionRenewDate') - Date.now());
-            },
-            clearSessionRenewTimer: function () {
-                clearTimeout(this.sessionRenewTimer);
-            },
-            renewSession: function () {
-                $.get(sessionRenewUrl).done(this.handleExpiryTimeResponse.bind(this));
-            }
-        }))();
-
-        return sessionAutoRenewModel;
-    });
+  return sessionAutoRenewModel
+})

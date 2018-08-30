@@ -2,7 +2,7 @@
   .customElement;
 
   position: relative;
-  
+
   canvas {
     cursor: move; /* fallback if grab cursor is unsupported */
     cursor: grab;
@@ -40,14 +40,12 @@
 }
 
 @{customElementNamespace}map.is-cesium.is-hovering {
-
   canvas {
     cursor: pointer;
   }
 }
 
 @{customElementNamespace}map.is-cesium.is-drawing {
-
   canvas,
   canvas:active {
     cursor: crosshair;
@@ -68,8 +66,8 @@
 
     button {
       width: 100%;
-      height: 5*@minimumButtonSize;
-      line-height: 5*@minimumButtonSize;
+      height: 5 * @minimumButtonSize;
+      line-height: 5 * @minimumButtonSize;
     }
 
     * + * {

@@ -10,148 +10,169 @@
  *
  **/
 /*global require,define,setTimeout*/
-define([
-        'marionette',
-        'jquery',
-        'js/application',
-        'iframeresizer'
-    ],function(Marionette, $, Application) {
+define(['marionette', 'jquery', 'js/application', 'iframeresizer'], function(
+  Marionette,
+  $,
+  Application
+) {
+  //    $(window).resize(function() {
+  //        var width = $('body').width();
+  //        var containerWidth = $('.container').css('width');
+  //        containerWidth.replace('px', '');
+  //
+  //
+  //        $('#content').height(height);
+  //    });
 
-//    $(window).resize(function() {
-//        var width = $('body').width();
-//        var containerWidth = $('.container').css('width');
-//        containerWidth.replace('px', '');
-//
-//
-//        $('#content').height(height);
-//    });
-
-    var ModuleView = Marionette.Layout.extend({
-        template: 'tabs',
-        className: 'relative full-height',
-        regions: {
-            tabs: '#tabs',
-            tabContent: '#tabContent'
-        },
-        events: {
-            'shown.bs.tab': 'tabShown'
-        },
-        tabShown: function(event){
-            if (this.$el.find('#tabs').find(event.target).length === 0) {
-                return;
-            }
-            var id = event.target.getAttribute('data-id');
-            this.tabs.currentView.children.each(function(childView) {
-                childView.$el.toggleClass('active', childView.model.id === id);
-            });
-            this.tabContent.currentView.children.each(function(childView) {
-                childView.$el.toggleClass('active in', childView.model.id === id);
-            });
-        },
-        onRender: function() {
-            this.tabs.show(new Marionette.CollectionView({
-                tagName: 'ul',
-                className: 'nav nav-pills nav-stacked',
-                collection: this.model.get('value'),
-                itemView: Marionette.ItemView.extend({
-                    tagName: 'li',
-                    template: 'moduleTab',
-                    events: {
-                        'click' : 'setHeader'
-                    },
-                    setHeader: function() {
-                        $('#pageHeader').html(this.model.get('name'));
-                        this.model.set('active', true);
-                    },
-                    onRender: function() {
-                        if(this.model.get('active')) {
-                            this.$el.addClass('active');
-                            $('#pageHeader').html(this.model.get('name'));
-                        }
+  var ModuleView = Marionette.Layout.extend({
+    template: 'tabs',
+    className: 'relative full-height',
+    regions: {
+      tabs: '#tabs',
+      tabContent: '#tabContent',
+    },
+    events: {
+      'shown.bs.tab': 'tabShown',
+    },
+    tabShown: function(event) {
+      if (this.$el.find('#tabs').find(event.target).length === 0) {
+        return
+      }
+      var id = event.target.getAttribute('data-id')
+      this.tabs.currentView.children.each(function(childView) {
+        childView.$el.toggleClass('active', childView.model.id === id)
+      })
+      this.tabContent.currentView.children.each(function(childView) {
+        childView.$el.toggleClass('active in', childView.model.id === id)
+      })
+    },
+    onRender: function() {
+      this.tabs.show(
+        new Marionette.CollectionView({
+          tagName: 'ul',
+          className: 'nav nav-pills nav-stacked',
+          collection: this.model.get('value'),
+          itemView: Marionette.ItemView.extend({
+            tagName: 'li',
+            template: 'moduleTab',
+            events: {
+              click: 'setHeader',
+            },
+            setHeader: function() {
+              $('#pageHeader').html(this.model.get('name'))
+              this.model.set('active', true)
+            },
+            onRender: function() {
+              if (this.model.get('active')) {
+                this.$el.addClass('active')
+                $('#pageHeader').html(this.model.get('name'))
+              }
+            },
+          }),
+        })
+      )
+      this.tabContent.show(
+        new Marionette.CollectionView({
+          tagName: 'div',
+          className: 'tab-content full-height',
+          collection: this.model.get('value'),
+          itemView: Marionette.ItemView.extend({
+            tagName: 'div',
+            className: 'tab-pane',
+            initialize: function() {
+              this.listenTo(this.model, 'change:active', this.render)
+            },
+            attachIframeResizer: function() {
+              setTimeout(
+                function() {
+                  this.$('iframe').ready(
+                    function() {
+                      this.$('iframe').iFrameResize()
+                    }.bind(this)
+                  )
+                }.bind(this),
+                0
+              )
+            },
+            loadContent: function() {
+              if (this.model.get('loaded')) {
+                return
+              }
+              this.model.set('loaded', true)
+              var view = this
+              //this dynamically requires in our modules based on wherever the model says they could be found
+              //check if we already have the module
+              if (
+                this.model.get('iframeLocation') &&
+                this.model.get('iframeLocation') !== ''
+              ) {
+                this.$el.html(
+                  '<iframe src="' +
+                    this.model.get('iframeLocation') +
+                    '"></iframe>'
+                )
+              } else {
+                if (Application.App[this.model.get('name')]) {
+                  //the require([]) function uses setTimeout internally to make this call asynchronously
+                  //we need to do the same thing here so that everything is in place when the module starts
+                  setTimeout(function() {
+                    Application.App[view.model.get('name')].start()
+                  }, 0)
+                } else if (this.module && this.module.start) {
+                  setTimeout(function() {
+                    view.module.start()
+                  }, 0)
+                } else {
+                  //if it isn't here, we haven't required it in yet, this should automatically start the module
+                  require([this.model.get('jsLocation')], function(module) {
+                    //if a marionette module is being called, it will start up automatically
+                    //however if someone has built something else, we are just checking for start and stop
+                    //functions so we can control the module
+                    //it isn't required that a module have a start and stop function, we just wouldn't be able
+                    //to dynamically add and remove that module without refreshing the ui
+                    if (module && module.start) {
+                      module.start()
+                      view.module = module
                     }
-                })
-            }));
-            this.tabContent.show(new Marionette.CollectionView({
-                tagName: 'div',
-                className: 'tab-content full-height',
-                collection: this.model.get('value'),
-                itemView: Marionette.ItemView.extend({
-                    tagName: 'div',
-                    className: 'tab-pane',
-                    initialize: function(){
-                        this.listenTo(this.model, 'change:active', this.render);
-                    },
-                    attachIframeResizer: function () {
-                        setTimeout(function(){
-                             this.$('iframe').ready(function() {
-                                this.$('iframe').iFrameResize();
-                            }.bind(this));
-                        }.bind(this), 0);
-                    },
-                    loadContent: function(){
-                        if (this.model.get('loaded')){
-                            return;
-                        }
-                        this.model.set('loaded', true);
-                        var view = this;
-                        //this dynamically requires in our modules based on wherever the model says they could be found
-                        //check if we already have the module
-                        if(this.model.get('iframeLocation') && this.model.get('iframeLocation') !== "") {
-                            this.$el.html('<iframe src="' + this.model.get('iframeLocation') + '"></iframe>');
-                        } else {
-                            if(Application.App[this.model.get('name')]) {
-                                //the require([]) function uses setTimeout internally to make this call asynchronously
-                                //we need to do the same thing here so that everything is in place when the module starts
-                                setTimeout(function() {
-                                    Application.App[view.model.get('name')].start();
-                                }, 0);
-                            } else if(this.module && this.module.start) {
-                                setTimeout(function() {
-                                    view.module.start();
-                                }, 0);
-                            } else {
-                                //if it isn't here, we haven't required it in yet, this should automatically start the module
-                                require([this.model.get('jsLocation')], function(module) {
-                                    //if a marionette module is being called, it will start up automatically
-                                    //however if someone has built something else, we are just checking for start and stop
-                                    //functions so we can control the module
-                                    //it isn't required that a module have a start and stop function, we just wouldn't be able
-                                    //to dynamically add and remove that module without refreshing the ui
-                                    if(module && module.start) {
-                                        module.start();
-                                        view.module = module;
-                                    }
-                                });
-                                if(this.model.get('cssLocation') && this.model.get('cssLocation') !== "") {
-                                    require(['text!' + this.model.get('cssLocation')], function(css) {
-                                        $("<style type='text/css'> " + css + " </style>").appendTo("head");
-                                    });
-                                }
-                            }
-                        }
-                        this.attachIframeResizer();
-                    },
-                    onRender: function() {
-                        this.$el.attr('id', this.model.get('id'));
-                        if(this.model.get('active')) {
-                            this.$el.addClass('active');
-                            this.loadContent();
-                        }
-                    },
-                    onClose: function() {
-                        //stop the module
-                        if(Application.App[this.model.get('name')]) {
-                            Application.App[this.model.get('name')].stop();
-                        } else if(this.module && this.module.stop) {
-                            this.module.stop();
-                        }
-                        //remove the region where the module is rendered
-                        Application.App.removeRegion(this.model.get('id'));
-                    }
-                })
-            }));
-        }
-    });
+                  })
+                  if (
+                    this.model.get('cssLocation') &&
+                    this.model.get('cssLocation') !== ''
+                  ) {
+                    require(['text!' + this.model.get('cssLocation')], function(
+                      css
+                    ) {
+                      $(
+                        "<style type='text/css'> " + css + ' </style>'
+                      ).appendTo('head')
+                    })
+                  }
+                }
+              }
+              this.attachIframeResizer()
+            },
+            onRender: function() {
+              this.$el.attr('id', this.model.get('id'))
+              if (this.model.get('active')) {
+                this.$el.addClass('active')
+                this.loadContent()
+              }
+            },
+            onClose: function() {
+              //stop the module
+              if (Application.App[this.model.get('name')]) {
+                Application.App[this.model.get('name')].stop()
+              } else if (this.module && this.module.stop) {
+                this.module.stop()
+              }
+              //remove the region where the module is rendered
+              Application.App.removeRegion(this.model.get('id'))
+            },
+          }),
+        })
+      )
+    },
+  })
 
-    return ModuleView;
-});
+  return ModuleView
+})

@@ -9,40 +9,43 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
-import { CustomElement } from '../../styles/mixins';
-const LoadingCompanionView = require('component/loading-companion/loading-companion.view');
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
 
 const Root = styled.div`
-    ${CustomElement}
+  ${CustomElement};
 `
 
 export interface Props {
-    loading: boolean
+  loading: boolean
 }
 
-export default class LoadingCompanionContainer extends React.Component<Props, {}> {
-    constructor(props: Props) {
-        super(props);
+export default class LoadingCompanionContainer extends React.Component<
+  Props,
+  {}
+> {
+  constructor(props: Props) {
+    super(props)
+  }
+  ref = React.createRef()
+  componentDidUpdate() {
+    if (this.props.loading === false) {
+      LoadingCompanionView.stopLoadingElement(this.ref.current)
     }
-    ref = React.createRef();
-    componentDidUpdate() {
-        if (this.props.loading === false) {
-            LoadingCompanionView.stopLoadingElement(this.ref.current);
-        }
-    }
-    componentDidMount() {
-        LoadingCompanionView.loadElement(this.ref.current);
-    }
-    componentWillUnmount() {
-        LoadingCompanionView.stopLoadingElement(this.ref.current);
-    }
-    render() {
-        return (
-            <Root innerRef={this.ref as React.RefObject<HTMLDivElement>}>
-                {this.props.children} 
-            </Root>
-        )
-    }
+  }
+  componentDidMount() {
+    LoadingCompanionView.loadElement(this.ref.current)
+  }
+  componentWillUnmount() {
+    LoadingCompanionView.stopLoadingElement(this.ref.current)
+  }
+  render() {
+    return (
+      <Root innerRef={this.ref as React.RefObject<HTMLDivElement>}>
+        {this.props.children}
+      </Root>
+    )
+  }
 }

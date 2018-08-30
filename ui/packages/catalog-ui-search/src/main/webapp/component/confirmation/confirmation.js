@@ -10,20 +10,16 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone'
-], function (_, Backbone) {
-
-    return Backbone.Model.extend({
-        defaults: {
-            prompt: 'Default prompt.',
-            no: undefined,
-            yes: 'Default yes',
-            choice: undefined
-        },
-        makeChoice: function(choice){
-            this.set('choice', choice);
-        }
-    });
-});
+define(['underscore', 'backbone'], function(_, Backbone) {
+  return Backbone.Model.extend({
+    defaults: {
+      prompt: 'Default prompt.',
+      no: undefined,
+      yes: 'Default yes',
+      choice: undefined,
+    },
+    makeChoice: function(choice) {
+      this.set('choice', choice)
+    },
+  })
+})

@@ -10,165 +10,175 @@
  *
  **/
 define([
-        'marionette',
-        'backbone',
-        'cesium',
-        'underscore',
-        'wreqr',
-        'maptype',
-        './notification.view'
-    ],
-    function (Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
-        "use strict";
-        var Draw = {};
+  'marionette',
+  'backbone',
+  'cesium',
+  'underscore',
+  'wreqr',
+  'maptype',
+  './notification.view',
+], function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
+  var Draw = {}
 
-        Draw.PolygonRenderView = Backbone.View.extend({
-            initialize: function(options){
-                this.scene = options.scene;
-                this.updatePrimitive(this.model);
-            },
-            modelEvents: {
-                'changed': 'updatePrimitive'
-            },
-            updatePrimitive: function(){
-                this.drawPolygon(this.model);
-            },
-            drawPolygon: function (model) {
-                var polygonPoints = model.toJSON().polygon;
-                if(!polygonPoints) {
-                    return;
-                }
-                var setArr = _.uniq(polygonPoints);
-                if(setArr.length < 3){
-                    return;
-                }
+  Draw.PolygonRenderView = Backbone.View.extend({
+    initialize: function(options) {
+      this.scene = options.scene
+      this.updatePrimitive(this.model)
+    },
+    modelEvents: {
+      changed: 'updatePrimitive',
+    },
+    updatePrimitive: function() {
+      this.drawPolygon(this.model)
+    },
+    drawPolygon: function(model) {
+      var polygonPoints = model.toJSON().polygon
+      if (!polygonPoints) {
+        return
+      }
+      var setArr = _.uniq(polygonPoints)
+      if (setArr.length < 3) {
+        return
+      }
 
-                // first destroy old one
-                if (this.primitive && !this.primitive.isDestroyed()) {
-                    this.scene.primitives.remove(this.primitive);
-                }
+      // first destroy old one
+      if (this.primitive && !this.primitive.isDestroyed()) {
+        this.scene.primitives.remove(this.primitive)
+      }
 
-                this.primitive = new Cesium.Primitive({
-                    asynchronous: false,
-                    geometryInstances: [
-                        new Cesium.GeometryInstance({
-                            geometry: new Cesium.PolygonOutlineGeometry({
-                                polygonHierarchy: {
-                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(setArr))
-                                }
-                            }),
-                            attributes: {
-                                color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.KHAKI)
-                            }
-                        })
-                    ],
-                    appearance: new Cesium.PerInstanceColorAppearance({
-                        flat: true,
-                        renderState: {
-                            depthTest: {
-                                enabled: true
-                            },
-                            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth)
-                        }
-                    })
-                });
-
-                this.scene.primitives.add(this.primitive);
+      this.primitive = new Cesium.Primitive({
+        asynchronous: false,
+        geometryInstances: [
+          new Cesium.GeometryInstance({
+            geometry: new Cesium.PolygonOutlineGeometry({
+              polygonHierarchy: {
+                positions: Cesium.Cartesian3.fromDegreesArray(
+                  _.flatten(setArr)
+                ),
+              },
+            }),
+            attributes: {
+              color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+                Cesium.Color.KHAKI
+              ),
             },
-            destroy: function(){
-                if(this.primitive){
-                    this.scene.primitives.remove(this.primitive);
-                }
-                this.remove();  // backbone cleanup.
+          }),
+        ],
+        appearance: new Cesium.PerInstanceColorAppearance({
+          flat: true,
+          renderState: {
+            depthTest: {
+              enabled: true,
+            },
+            lineWidth: Math.min(4.0, this.scene.maximumAliasedLineWidth),
+          },
+        }),
+      })
+
+      this.scene.primitives.add(this.primitive)
+    },
+    destroy: function() {
+      if (this.primitive) {
+        this.scene.primitives.remove(this.primitive)
+      }
+      this.remove() // backbone cleanup.
+    },
+  })
+
+  Draw.Controller = Marionette.Controller.extend({
+    enabled: maptype.is3d(),
+    initialize: function(options) {
+      this.scene = options.scene
+      this.notificationEl = options.notificationEl
+      this.drawHelper = options.drawHelper
+      this.geoController = options.geoController
+
+      this.listenTo(wreqr.vent, 'search:polydisplay', this.showPolygon)
+      this.listenTo(wreqr.vent, 'search:drawpoly', this.draw)
+      this.listenTo(wreqr.vent, 'search:drawstop', this.stop)
+      this.listenTo(wreqr.vent, 'search:drawend', this.destroy)
+    },
+    showPolygon: function(model) {
+      if (this.enabled) {
+        this.drawHelper.stopDrawing()
+        // remove old polygon
+        if (this.view) {
+          this.view.destroy()
+        }
+        this.view = new Draw.PolygonRenderView({
+          model: model,
+          scene: this.scene,
+        })
+      }
+    },
+    draw: function(model) {
+      var controller = this
+      var toDeg = Cesium.Math.toDegrees
+      if (this.enabled) {
+        // start polygon draw.
+        this.notificationView = new NotificationView({
+          el: this.notificationEl,
+        }).render()
+        this.drawHelper.startDrawingPolygon({
+          callback: function(positions) {
+            if (controller.notificationView) {
+              controller.notificationView.destroy()
             }
-        });
+            var latLonRadPoints = _.map(positions, function(cartPos) {
+              var latLon = controller.geoController.ellipsoid.cartesianToCartographic(
+                cartPos
+              )
+              return [toDeg(latLon.longitude), toDeg(latLon.latitude)]
+            })
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: maptype.is3d(),
-            initialize: function (options) {
-                this.scene = options.scene;
-                this.notificationEl = options.notificationEl;
-                this.drawHelper = options.drawHelper;
-                this.geoController = options.geoController;
-
-                this.listenTo(wreqr.vent, 'search:polydisplay', this.showPolygon);
-                this.listenTo(wreqr.vent, 'search:drawpoly', this.draw);
-                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
-                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-
-            },
-            showPolygon: function(model) {
-                if (this.enabled) {
-                    this.drawHelper.stopDrawing();
-                    // remove old polygon
-                    if(this.view){
-                        this.view.destroy();
-                    }
-                    this.view = new Draw.PolygonRenderView({model: model, scene: this.scene});
-                }
-            },
-            draw: function (model) {
-                var controller = this;
-                var toDeg = Cesium.Math.toDegrees;
-                if (this.enabled) {
-                    // start polygon draw.
-                    this.notificationView = new NotificationView({
-                        el: this.notificationEl
-                    }).render();
-                    this.drawHelper.startDrawingPolygon({
-                        callback: function(positions) {
-
-                            if(controller.notificationView) {
-                                controller.notificationView.destroy();
-                            }
-                            var latLonRadPoints =_.map(positions, function(cartPos){
-                                var latLon = controller.geoController.ellipsoid.cartesianToCartographic(cartPos);
-                                return [ toDeg(latLon.longitude),toDeg(latLon.latitude)];
-                            });
-
-                            // get rid of the points drawhelper added when the user double clicks.
-                            // this addresses the known issue of https://github.com/leforthomas/cesium-drawhelper/issues/7
-                            if (latLonRadPoints.length > 0) {
-                                latLonRadPoints.pop();
-                            }
-                            //this shouldn't ever get hit because the draw library should protect against it, but just in case it does, remove the point
-                            if (latLonRadPoints.length > 3 && latLonRadPoints[latLonRadPoints.length - 1][0] === latLonRadPoints[latLonRadPoints.length - 2][0] &&
-                                latLonRadPoints[latLonRadPoints.length - 1][1] === latLonRadPoints[latLonRadPoints.length - 2][1]) {
-                                latLonRadPoints.pop();
-                            }
-
-                            model.set('polygon', latLonRadPoints);
-
-                            // doing this out of formality since bbox/circle call this after drawing has ended.
-                            model.trigger('EndExtent', model);
-
-                            // lets go ahead and show our new shiny polygon.
-                            wreqr.vent.trigger('search:polydisplay', model);
-                        }
-                    });
-                }
-            },
-            stop: function () {
-                if (this.enabled) {
-                    // stop drawing
-                    this.drawHelper.stopDrawing();
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
-            },
-            destroy: function () {
-                if (this.enabled) {
-                    // I don't think we need this method.
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                    if(this.view){
-                        this.view.destroy();
-                    }
-                }
+            // get rid of the points drawhelper added when the user double clicks.
+            // this addresses the known issue of https://github.com/leforthomas/cesium-drawhelper/issues/7
+            if (latLonRadPoints.length > 0) {
+              latLonRadPoints.pop()
             }
-        });
+            //this shouldn't ever get hit because the draw library should protect against it, but just in case it does, remove the point
+            if (
+              latLonRadPoints.length > 3 &&
+              latLonRadPoints[latLonRadPoints.length - 1][0] ===
+                latLonRadPoints[latLonRadPoints.length - 2][0] &&
+              latLonRadPoints[latLonRadPoints.length - 1][1] ===
+                latLonRadPoints[latLonRadPoints.length - 2][1]
+            ) {
+              latLonRadPoints.pop()
+            }
 
-        return Draw;
-    });
+            model.set('polygon', latLonRadPoints)
+
+            // doing this out of formality since bbox/circle call this after drawing has ended.
+            model.trigger('EndExtent', model)
+
+            // lets go ahead and show our new shiny polygon.
+            wreqr.vent.trigger('search:polydisplay', model)
+          },
+        })
+      }
+    },
+    stop: function() {
+      if (this.enabled) {
+        // stop drawing
+        this.drawHelper.stopDrawing()
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+      }
+    },
+    destroy: function() {
+      if (this.enabled) {
+        // I don't think we need this method.
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+        if (this.view) {
+          this.view.destroy()
+        }
+      }
+    },
+  })
+
+  return Draw
+})

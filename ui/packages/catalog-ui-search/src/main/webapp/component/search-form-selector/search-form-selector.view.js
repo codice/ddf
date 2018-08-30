@@ -14,22 +14,24 @@
  **/
 /*global require*/
 
-var template = require('./search-form-selector.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var SearchFormsView = require('component/tabs/search-form/tabs.search-form.view');
+var template = require('./search-form-selector.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var SearchFormsView = require('component/tabs/search-form/tabs.search-form.view')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('search-form-selector'),
-    template: template,
-    regions: {
-        tabsContent: {
-            selector: '.content'
-        }
+  tagName: CustomElements.register('search-form-selector'),
+  template: template,
+  regions: {
+    tabsContent: {
+      selector: '.content',
     },
-    onRender: function () {
-        this.tabsContent.show(new SearchFormsView({
-            queryModel: this.model
-        }));
-    }
-});
+  },
+  onRender: function() {
+    this.tabsContent.show(
+      new SearchFormsView({
+        queryModel: this.model,
+      })
+    )
+  },
+})

@@ -9,63 +9,67 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 import Workspaces from '../../presentation/workspaces'
 
-import withListenTo, { WithBackboneProps } from '../backbone-container';
-const store = require('js/store');
+import withListenTo, { WithBackboneProps } from '../backbone-container'
+const store = require('js/store')
 
 function hasUnsaved() {
-    return store.get('workspaces').find(function(workspace: any){
-        return !workspace.isSaved();
-    })
+  return store.get('workspaces').find(function(workspace: any) {
+    return !workspace.isSaved()
+  })
 }
 
 type State = {
-    hasUnsaved: boolean;
-    hasTemplatesExpanded: boolean;
+  hasUnsaved: boolean
+  hasTemplatesExpanded: boolean
 }
 
 class WorkspacesContainer extends React.Component<WithBackboneProps, State> {
-    constructor(props: WithBackboneProps) {
-        super(props);
-        this.state = {
-            hasUnsaved: hasUnsaved(),
-            hasTemplatesExpanded: false
-        }
+  constructor(props: WithBackboneProps) {
+    super(props)
+    this.state = {
+      hasUnsaved: hasUnsaved(),
+      hasTemplatesExpanded: false,
     }
-    closeTemplates() {
-        this.setState({
-            hasTemplatesExpanded: false
-        })
-    }
-    toggleExpansion() {
-        this.setState({
-            hasTemplatesExpanded: !this.state.hasTemplatesExpanded
-        })
-    }
-    componentDidMount() {
-        this.props.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved.bind(this));
-    }
-    handleSaved() {
-        this.setState({
-            hasUnsaved: hasUnsaved()
-        });
-    }
-    saveAllWorkspaces() {
-        store.get('workspaces').saveAll();
-    }
-    render() {
-        return (
-            <Workspaces 
-                closeTemplates={this.closeTemplates.bind(this)}
-                hasUnsaved={this.state.hasUnsaved} 
-                hasTemplatesExpanded={this.state.hasTemplatesExpanded}
-                toggleExpansion={this.toggleExpansion.bind(this)}
-                saveAllWorkspaces={this.saveAllWorkspaces.bind(this)}
-            />
-        )
-    }
+  }
+  closeTemplates() {
+    this.setState({
+      hasTemplatesExpanded: false,
+    })
+  }
+  toggleExpansion() {
+    this.setState({
+      hasTemplatesExpanded: !this.state.hasTemplatesExpanded,
+    })
+  }
+  componentDidMount() {
+    this.props.listenTo(
+      store.get('workspaces'),
+      'change:saved update add remove',
+      this.handleSaved.bind(this)
+    )
+  }
+  handleSaved() {
+    this.setState({
+      hasUnsaved: hasUnsaved(),
+    })
+  }
+  saveAllWorkspaces() {
+    store.get('workspaces').saveAll()
+  }
+  render() {
+    return (
+      <Workspaces
+        closeTemplates={this.closeTemplates.bind(this)}
+        hasUnsaved={this.state.hasUnsaved}
+        hasTemplatesExpanded={this.state.hasTemplatesExpanded}
+        toggleExpansion={this.toggleExpansion.bind(this)}
+        saveAllWorkspaces={this.saveAllWorkspaces.bind(this)}
+      />
+    )
+  }
 }
 
 export default withListenTo(WorkspacesContainer)

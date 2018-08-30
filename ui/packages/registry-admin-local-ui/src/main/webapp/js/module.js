@@ -15,39 +15,37 @@
 
 /*global define*/
 define([
-        'wreqr',
-        'js/application',
-        'js/view/Registry.view.js',
-        'js/model/Node.js'
-    ],
-    function (wreqr, Application, RegistryView, Node) {
+  'wreqr',
+  'js/application',
+  'js/view/Registry.view.js',
+  'js/model/Node.js',
+], function(wreqr, Application, RegistryView, Node) {
+  Application.App.module('Registry', function(
+    RegistryModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var nodeModels = new Node.Models()
+    nodeModels.fetch()
 
-        Application.App.module('Registry', function (RegistryModule, App, Backbone, Marionette) {
+    var registryPage = new RegistryView.RegistryPage({ model: nodeModels })
 
-            var nodeModels = new Node.Models();
-            nodeModels.fetch();
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            var registryPage = new RegistryView.RegistryPage({model: nodeModels});
+      show: function() {
+        this.region.show(registryPage)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
-
-                initialize: function (options) {
-                    this.region = options.region;
-                },
-
-                show: function () {
-                    this.region.show(registryPage);
-                }
-
-            });
-
-            RegistryModule.addInitializer(function () {
-                RegistryModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                RegistryModule.contentController.show();
-            });
-
-
-        });
-    });
+    RegistryModule.addInitializer(function() {
+      RegistryModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      RegistryModule.contentController.show()
+    })
+  })
+})

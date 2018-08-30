@@ -1,1 +1,1 @@
-export { default } from './sources-container';
+export { default } from './sources-container'

@@ -14,10 +14,10 @@ export {
   css,
   injectGlobal,
   keyframes,
-  ThemeProvider
-} from "./styled-components";
+  ThemeProvider,
+} from './styled-components'
 export {
   ThemeInterface,
   SpecificSizingInterface,
-  ThemeColorInterface
-} from "./theme";
+  ThemeColorInterface,
+} from './theme'

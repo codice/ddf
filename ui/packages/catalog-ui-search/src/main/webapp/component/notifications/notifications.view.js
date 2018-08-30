@@ -13,44 +13,42 @@
  *
  **/
 /*global define*/
-define([
-    'marionette',
-    './notification.hbs',
-    'js/CustomElements',
-], function (Marionette, template, CustomElements) {
+define(['marionette', './notification.hbs', 'js/CustomElements'], function(
+  Marionette,
+  template,
+  CustomElements
+) {
+  var NotificationEmpty = Marionette.ItemView.extend({
+    className: 'notification-empty',
+    template: 'No recent notifications.',
+  })
 
-    var NotificationEmpty = Marionette.ItemView.extend({
-        className: 'notification-empty',
-        template: 'No recent notifications.'
-    });
+  var NotificationItem = Marionette.ItemView.extend({
+    template: template,
+    className: 'notification',
+    events: {
+      'click .remove-notification': 'removeNotification',
+    },
+    initialize: function() {
+      this.interval = setInterval(this.render.bind(this), 60000)
+    },
+    onDestroy: function() {
+      clearInterval(this.interval)
+    },
+    modelEvents: {
+      change: 'render',
+    },
+    removeNotification: function() {
+      this.model.destroy()
+    },
+  })
 
-    var NotificationItem = Marionette.ItemView.extend({
-        template: template,
-        className: 'notification',
-        events: {
-            'click .remove-notification': 'removeNotification',
-        },
-        initialize: function () {
-            this.interval = setInterval(this.render.bind(this), 60000);
-        },
-        onDestroy: function () {
-            clearInterval(this.interval);
-        },
-        modelEvents: {
-            'change': 'render'
-        },
-        removeNotification: function () {
-            this.model.destroy();
-        }
-    });
-
-    return Marionette.CollectionView.extend({
-        tagName: CustomElements.register('notifications-list'),
-        childView: NotificationItem,
-        emptyView: NotificationEmpty,
-        initialize: function () {
-            this.collection = this.model;
-        }
-    });
-
-});
+  return Marionette.CollectionView.extend({
+    tagName: CustomElements.register('notifications-list'),
+    childView: NotificationItem,
+    emptyView: NotificationEmpty,
+    initialize: function() {
+      this.collection = this.model
+    },
+  })
+})

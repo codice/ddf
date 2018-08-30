@@ -13,40 +13,48 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./user-blacklist.hbs');
-var CustomElements = require('js/CustomElements');
-var BlacklistItemCollection = require('component/blacklist-item/blacklist-item.collection.view');
-var user = require('component/singletons/user-instance');
+var Marionette = require('marionette')
+var template = require('./user-blacklist.hbs')
+var CustomElements = require('js/CustomElements')
+var BlacklistItemCollection = require('component/blacklist-item/blacklist-item.collection.view')
+var user = require('component/singletons/user-instance')
 
-function getBlacklist(){
-    return user.get('user').get('preferences').get('resultBlacklist');
+function getBlacklist() {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('resultBlacklist')
 }
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('user-blacklist'),
-    regions: {
-        blacklistResults: '.blacklist-results'
-    },
-    events: {
-        'click > .blacklist-clear': 'clearBlacklist'
-    },
-    initialize: function(){
-        this.listenTo(getBlacklist(), 'add remove reset update', this.handleEmpty);
-        this.handleEmpty();
-    },
-    onBeforeShow: function(){
-        this.blacklistResults.show(new BlacklistItemCollection({
-            collection: user.get('user').get('preferences').get('resultBlacklist')
-        }));
-    },
-    clearBlacklist: function(){
-        this.blacklistResults.currentView.children.forEach(function(view){
-            view.removeFromBlacklist();
-        });
-    },
-    handleEmpty: function(){
-        this.$el.toggleClass('is-empty', getBlacklist().length === 0);
-    }
-});
+  template: template,
+  tagName: CustomElements.register('user-blacklist'),
+  regions: {
+    blacklistResults: '.blacklist-results',
+  },
+  events: {
+    'click > .blacklist-clear': 'clearBlacklist',
+  },
+  initialize: function() {
+    this.listenTo(getBlacklist(), 'add remove reset update', this.handleEmpty)
+    this.handleEmpty()
+  },
+  onBeforeShow: function() {
+    this.blacklistResults.show(
+      new BlacklistItemCollection({
+        collection: user
+          .get('user')
+          .get('preferences')
+          .get('resultBlacklist'),
+      })
+    )
+  },
+  clearBlacklist: function() {
+    this.blacklistResults.currentView.children.forEach(function(view) {
+      view.removeFromBlacklist()
+    })
+  },
+  handleEmpty: function() {
+    this.$el.toggleClass('is-empty', getBlacklist().length === 0)
+  },
+})

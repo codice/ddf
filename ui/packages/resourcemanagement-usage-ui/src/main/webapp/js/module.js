@@ -15,43 +15,41 @@
 
 /*global define*/
 define([
-        'application',
-        'js/view/DataUsage.view.js',
-        'js/model/DataUsage.js'
-    ],
-    function(Application, DataUsageView, DataUsage) {
+  'application',
+  'js/view/DataUsage.view.js',
+  'js/model/DataUsage.js',
+], function(Application, DataUsageView, DataUsage) {
+  Application.App.module('DataUsage', function(
+    SourceModule,
+    App,
+    Backbone,
+    Marionette
+  ) {
+    var dataUsage = new DataUsage.UsageModel()
 
-        Application.App.module('DataUsage', function(SourceModule, App, Backbone, Marionette)  {
+    var dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage })
 
-            var dataUsage = new DataUsage.UsageModel();
+    // Define a controller to run this module
+    // --------------------------------------
 
-            var dataUsagePage = new DataUsageView.UsagePage({model: dataUsage});
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-            // Define a controller to run this module
-            // --------------------------------------
+      show: function() {
+        this.region.show(dataUsagePage)
+      },
+    })
 
-            var Controller = Marionette.Controller.extend({
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(dataUsagePage);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
-
-            SourceModule.addInitializer(function(){
-                SourceModule.contentController = new Controller({
-                    region: App.mainRegion
-                });
-                SourceModule.contentController.show();
-            });
-
-
-        });
-    });
+    SourceModule.addInitializer(function() {
+      SourceModule.contentController = new Controller({
+        region: App.mainRegion,
+      })
+      SourceModule.contentController.show()
+    })
+  })
+})

@@ -14,58 +14,60 @@
  **/
 /*global define*/
 define([
-    'backbone',
-    'marionette',
-    'underscore',
-    'jquery',
-    './result-indicator.hbs',
-    'js/CustomElements',
-    'js/store'
-], function (Backbone, Marionette, _, $, template, CustomElements, store) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('result-indicator'),
-        initialize: function () {
-            this.debouncedRender = _.debounce(function () {
-                if (!this.isDestroyed) {
-                    this.render();
-                }
-            }, 200);
-            this.calculateColors();
-        },
-        serializeData: function () {
-            return {
-                colors: this.colors
-            };
-        },
-        checkCollection: function(){
-
-        },
-        checkResult: function(){
-
-        },
-        checkQueries: function(){
-
-        },
-        calculateColors: function () {
-            var self = this;
-            self.colors = [];
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                currentWorkspace.get('queries').forEach(function (query) {
-                    if (!self.isDestroyed && query.get('result')) {
-                        var results = query.get('result').get('results').fullCollection;
-                        for (var i = 0; i<= results.length - 1; i++){
-                            if (results.models[i].get('metacard').get('properties').get('id') === self.model.get('metacard').get('properties').get('id')) {
-                                self.colors.push(query.color);
-                                self.debouncedRender();
-                                break;
-                            }
-                        }
-                    }
-                });
-            }
+  'backbone',
+  'marionette',
+  'underscore',
+  'jquery',
+  './result-indicator.hbs',
+  'js/CustomElements',
+  'js/store',
+], function(Backbone, Marionette, _, $, template, CustomElements, store) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('result-indicator'),
+    initialize: function() {
+      this.debouncedRender = _.debounce(function() {
+        if (!this.isDestroyed) {
+          this.render()
         }
-    });
-});
+      }, 200)
+      this.calculateColors()
+    },
+    serializeData: function() {
+      return {
+        colors: this.colors,
+      }
+    },
+    checkCollection: function() {},
+    checkResult: function() {},
+    checkQueries: function() {},
+    calculateColors: function() {
+      var self = this
+      self.colors = []
+      var currentWorkspace = store.getCurrentWorkspace()
+      if (currentWorkspace) {
+        currentWorkspace.get('queries').forEach(function(query) {
+          if (!self.isDestroyed && query.get('result')) {
+            var results = query.get('result').get('results').fullCollection
+            for (var i = 0; i <= results.length - 1; i++) {
+              if (
+                results.models[i]
+                  .get('metacard')
+                  .get('properties')
+                  .get('id') ===
+                self.model
+                  .get('metacard')
+                  .get('properties')
+                  .get('id')
+              ) {
+                self.colors.push(query.color)
+                self.debouncedRender()
+                break
+              }
+            }
+          }
+        })
+      }
+    },
+  })
+})

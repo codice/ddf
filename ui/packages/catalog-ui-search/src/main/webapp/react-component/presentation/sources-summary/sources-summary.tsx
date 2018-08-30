@@ -9,38 +9,34 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from "react";
-import styled from "../../styles/styled-components";
-import { hot } from 'react-hot-loader';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
+import { hot } from 'react-hot-loader'
 
 const Root = styled<{}, 'div'>('div')`
-    display: block;
-    width: 100%;
-    height: auto;
-    font-size: ${props => props.theme.largeFontSize};
-    text-align: center;
-    padding: ${props => props.theme.largeSpacing} 0px;
+  display: block;
+  width: 100%;
+  height: auto;
+  font-size: ${props => props.theme.largeFontSize};
+  text-align: center;
+  padding: ${props => props.theme.largeSpacing} 0px;
 `
 
 type Props = {
-    amountDown: number;
+  amountDown: number
 }
 
 function getMessage(amountDown: number) {
-    switch(amountDown) {
-        case 0:
-        return 'All sources are currently up'
-        case 1:
-        return `${amountDown} source is currently down`
-        default:
-        return `${amountDown} sources are currently down`
-    }
+  switch (amountDown) {
+    case 0:
+      return 'All sources are currently up'
+    case 1:
+      return `${amountDown} source is currently down`
+    default:
+      return `${amountDown} sources are currently down`
+  }
 }
 
-export default hot(module)(({ amountDown } : Props) => {
-    return (
-        <Root>
-            {getMessage(amountDown)}
-        </Root>
-    )
+export default hot(module)(({ amountDown }: Props) => {
+  return <Root>{getMessage(amountDown)}</Root>
 })

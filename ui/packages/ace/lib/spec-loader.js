@@ -1,8 +1,8 @@
-module.exports = function (source, map) {
+module.exports = function(source, map) {
   this.cacheable()
-  this.callback(null, [
-    'describe(__filename, function () {',
-    source,
-    '});'
-  ].join(''), map)
+  this.callback(
+    null,
+    ['describe(__filename, function () {', source, '});'].join(''),
+    map
+  )
 }

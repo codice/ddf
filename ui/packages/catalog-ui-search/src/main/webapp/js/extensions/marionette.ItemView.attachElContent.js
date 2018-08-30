@@ -9,22 +9,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
-import { render } from 'react-dom';
-import React from 'react';
-const Parser = require('html-react-parser');
-import ThemeContainer from '../../react-component/container/theme-container';
+const Marionette = require('marionette')
+import { render } from 'react-dom'
+import React from 'react'
+const Parser = require('html-react-parser')
+import ThemeContainer from '../../react-component/container/theme-container'
 
 Marionette.ItemView.prototype.attachElContent = function(rendering) {
-    this.triggerMethod('before:react:attach', rendering); 
-    render(
-        <ThemeContainer>
-            <React.Fragment>
-            { React.isValidElement(rendering) ? rendering : Parser(rendering) }
-            </React.Fragment>
-        </ThemeContainer>,
-        this.el
-    );
-    this.triggerMethod('after:react:attach', rendering);
-    return this;
+  this.triggerMethod('before:react:attach', rendering)
+  render(
+    <ThemeContainer>
+      <React.Fragment>
+        {React.isValidElement(rendering) ? rendering : Parser(rendering)}
+      </React.Fragment>
+    </ThemeContainer>,
+    this.el
+  )
+  this.triggerMethod('after:react:attach', rendering)
+  return this
 }

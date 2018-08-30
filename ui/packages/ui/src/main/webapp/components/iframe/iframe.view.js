@@ -13,15 +13,14 @@
  *
  **/
 /* global define */
-define([
-    'marionette',
-    'text!./iframe.hbs',
-    'js/CustomElements'
-    ],function (Marionette, template, CustomElements) {
-
-    return Marionette.ItemView.extend({
-        template: template,
-        tagName: CustomElements.register('iframe'),
-        className: 'iframe-view'
-    });
-});
+define(['marionette', 'text!./iframe.hbs', 'js/CustomElements'], function(
+  Marionette,
+  template,
+  CustomElements
+) {
+  return Marionette.ItemView.extend({
+    template: template,
+    tagName: CustomElements.register('iframe'),
+    className: 'iframe-view',
+  })
+})

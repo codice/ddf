@@ -10,29 +10,31 @@
  *
  **/
 /*global define */
-define(['jquery',
-        'underscore',
-        'marionette',
-        'js/wreqr',
-        'properties',
-        'js/views/SystemUsageModal.view',
-        'jsCookie'
-    ], function ($, _, Marionette, wreqr, properties, SystemUsageModal, Cookies) {
-               'use strict';
-               var SystemUsageController;
+define([
+  'jquery',
+  'underscore',
+  'marionette',
+  'js/wreqr',
+  'properties',
+  'js/views/SystemUsageModal.view',
+  'jsCookie',
+], function($, _, Marionette, wreqr, properties, SystemUsageModal, Cookies) {
+  'use strict'
+  var SystemUsageController
 
-               SystemUsageController = Marionette.Controller.extend({
-                   initialize: function () {
-                       if(properties.admin.systemUsageTitle && (_.isUndefined(Cookies.get("admin.systemUsage")) ||
-                               !properties.admin.systemUsageOncePerSession)) {
-                           Cookies.set("admin.systemUsage", true);
-                           var modal = new SystemUsageModal();
-                           wreqr.vent.trigger('showModal', modal);
-                       }
-                   }
+  SystemUsageController = Marionette.Controller.extend({
+    initialize: function() {
+      if (
+        properties.admin.systemUsageTitle &&
+        (_.isUndefined(Cookies.get('admin.systemUsage')) ||
+          !properties.admin.systemUsageOncePerSession)
+      ) {
+        Cookies.set('admin.systemUsage', true)
+        var modal = new SystemUsageModal()
+        wreqr.vent.trigger('showModal', modal)
+      }
+    },
+  })
 
-               });
-
-               return SystemUsageController;
-           }
-);
+  return SystemUsageController
+})

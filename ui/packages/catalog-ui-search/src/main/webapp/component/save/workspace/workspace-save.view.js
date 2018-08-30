@@ -14,21 +14,21 @@
  **/
 /*global require*/
 
-var SaveView = require('../save.view');
+var SaveView = require('../save.view')
 
 module.exports = SaveView.extend({
-    attributes: {
-        'data-help': 'Saves the workspace.',
-        title: 'Saves the workspace.'
-    },
-    initialize: function() {
-        this.listenTo(this.model, 'change', this.handleSaved);
-    },
-    isSaved: function() {
-        return this.model.isSaved();
-    },
-    triggerSave: function(e) {
-        e.stopPropagation();
-        this.model.save();
-    }
-});
+  attributes: {
+    'data-help': 'Saves the workspace.',
+    title: 'Saves the workspace.',
+  },
+  initialize: function() {
+    this.listenTo(this.model, 'change', this.handleSaved)
+  },
+  isSaved: function() {
+    return this.model.isSaved()
+  },
+  triggerSave: function(e) {
+    e.stopPropagation()
+    this.model.save()
+  },
+})

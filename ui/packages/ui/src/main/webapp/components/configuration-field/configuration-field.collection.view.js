@@ -15,47 +15,57 @@
 /*global define*/
 /** Main view page for add. */
 define([
-    'marionette',
-    'underscore',
-    'backbone',
-    'js/wreqr.js',
-    'jquery',
-    'components/configuration-field-multivalue-header/configuration-field-multivalue-header.view',
-    'components/configuration-field/configuration-field.view',
-    'js/CustomElements'
-], function (Marionette, _, Backbone, wreqr, $, ConfigurationFieldMultivalueHeaderView, ConfigurationFieldView, CustomElements) {
+  'marionette',
+  'underscore',
+  'backbone',
+  'js/wreqr.js',
+  'jquery',
+  'components/configuration-field-multivalue-header/configuration-field-multivalue-header.view',
+  'components/configuration-field/configuration-field.view',
+  'js/CustomElements',
+], function(
+  Marionette,
+  _,
+  Backbone,
+  wreqr,
+  $,
+  ConfigurationFieldMultivalueHeaderView,
+  ConfigurationFieldView,
+  CustomElements
+) {
+  return Marionette.CollectionView.extend({
+    tagName: CustomElements.register('configuration-field-collection'),
+    itemView: ConfigurationFieldView,
+    buildItemView: function(item, ItemViewType, itemViewOptions) {
+      var view
+      var configuration = this.options.configuration
+      this.collection.forEach(function(property) {
+        if (item.get('id') === property.id) {
+          if (property.description) {
+            item.set({ description: property.description })
+          }
+          if (property.note) {
+            item.set({ note: property.note })
+          }
+          var options = _.extend(
+            { model: item, configuration: configuration },
+            itemViewOptions
+          )
 
-    return Marionette.CollectionView.extend({
-        tagName: CustomElements.register('configuration-field-collection'),
-        itemView: ConfigurationFieldView,
-        buildItemView: function(item, ItemViewType, itemViewOptions){
-            var view;
-            var configuration = this.options.configuration;
-            this.collection.forEach(function(property) {
-                if(item.get('id') === property.id) {
-                    if(property.description) {
-                        item.set({ 'description': property.description });
-                    }
-                    if(property.note) {
-                        item.set({ 'note': property.note});
-                    }
-                    var options = _.extend({model: item, configuration: configuration}, itemViewOptions);
-
-                    view = new ItemViewType(options);
-                }
-            });
-            if(view) {
-                return view;
-            }
-            return new Marionette.ItemView();
-        },
-        getItemView: function( item ) {
-            if(item.get('cardinality') > 0 || item.get('cardinality') < 0) {
-                return ConfigurationFieldMultivalueHeaderView;
-            } else {
-                return ConfigurationFieldView;
-            }
+          view = new ItemViewType(options)
         }
-    });
-
-});
+      })
+      if (view) {
+        return view
+      }
+      return new Marionette.ItemView()
+    },
+    getItemView: function(item) {
+      if (item.get('cardinality') > 0 || item.get('cardinality') < 0) {
+        return ConfigurationFieldMultivalueHeaderView
+      } else {
+        return ConfigurationFieldView
+      }
+    },
+  })
+})

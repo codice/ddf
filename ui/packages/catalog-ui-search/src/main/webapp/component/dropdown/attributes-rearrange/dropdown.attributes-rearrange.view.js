@@ -13,14 +13,14 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.attributes-rearrange.hbs');
-var ComponentView = require('component/attributes-rearrange/attributes-rearrange.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.attributes-rearrange.hbs')
+var ComponentView = require('component/attributes-rearrange/attributes-rearrange.view')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-attributesRearrange',
-    componentToShow: ComponentView
-});
+  template: template,
+  className: 'is-attributesRearrange',
+  componentToShow: ComponentView,
+})

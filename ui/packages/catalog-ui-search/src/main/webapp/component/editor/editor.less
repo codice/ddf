@@ -4,11 +4,11 @@
   overflow: hidden;
 
   .editor-properties {
-    display: inline-block;  // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
+    display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
     width: 100%;
     overflow: auto;
     padding: 10px 10px;
-    max-height: ~"calc(100% - 3*@{minimumButtonSize})";
+    max-height: ~'calc(100% - 3*@{minimumButtonSize})';
   }
 
   > .editor-header {
@@ -43,7 +43,6 @@
 
   &.is-editing {
     .editor-footer {
-
       > .editor-edit {
         display: none;
       }
@@ -98,5 +97,7 @@
   }
 }
 
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
+.is-medium-screen,
+.is-small-screen,
+.is-mobile-screen {
 }

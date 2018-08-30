@@ -9,68 +9,76 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* jshint unused: false */
 /*global define, console */
 define([
-    'js/application',
-    'components/installer/installer.view',
-    'js/models/Installer',
-    'js/controllers/InstallerMain.controller'
-    ], function(Application, InstallerView, InstallerModel, InstallerMainController) {
+  'js/application',
+  'components/installer/installer.view',
+  'js/models/Installer',
+  'js/controllers/InstallerMain.controller',
+], function(
+  Application,
+  InstallerView,
+  InstallerModel,
+  InstallerMainController
+) {
+  Application.App.module('Installation', function(
+    AppModule,
+    App,
+    Backbone,
+    Marionette,
+    $,
+    _
+  ) {
+    var installerModel = new InstallerModel.Model()
 
-    Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
+    // Define a view to show
+    // ---------------------
 
-        var installerModel = new InstallerModel.Model();
+    var installerPage = new InstallerView({ model: installerModel })
 
+    // Define a controller to run this module
+    // --------------------------------------
 
+    var Controller = Marionette.Controller.extend({
+      initialize: function(options) {
+        this.region = options.region
+      },
 
-        // Define a view to show
-        // ---------------------
+      show: function() {
+        this.region.show(installerPage)
+      },
+    })
 
-        var installerPage = new InstallerView({model: installerModel});
+    //            contentRegion: '#content-region'
+    // Initialize this module when the app starts
+    // ------------------------------------------
 
-        // Define a controller to run this module
-        // --------------------------------------
+    AppModule.addInitializer(function() {
+      AppModule.installerMainController = new InstallerMainController()
 
-        var Controller = Marionette.Controller.extend({
+      AppModule.contentController = new Controller({
+        region: App.installation,
+      })
 
-            initialize: function(options){
-                this.region = options.region;
-            },
-
-            show: function(){
-                this.region.show(installerPage);
-            }
-
-        });
-
-        //            contentRegion: '#content-region'
-        // Initialize this module when the app starts
-        // ------------------------------------------
-
-        AppModule.addInitializer(function(){
-
-            AppModule.installerMainController = new InstallerMainController();
-
-            AppModule.contentController = new Controller({
-                region: App.installation
-            });
-
-            // We determine how many steps we need based on if there are any profiles in the stystem.
-            AppModule.installerMainController.fetchInstallProfiles().then(function(profiles){
-                installerModel.set('showInstallProfileStep', true);
-                installerModel.setTotalSteps(4);
-            }).fail(function(error){
-                // fallback: just don't show the install profile steps.
-                installerModel.set('showInstallProfileStep', false);
-                installerModel.setTotalSteps(4);
-                if(console){
-                    console.log(error);
-                }
-            }).done(function(){
-                // regardless of success, lets display the page.
-                AppModule.contentController.show();
-            });
-        });
-    });
-});
+      // We determine how many steps we need based on if there are any profiles in the stystem.
+      AppModule.installerMainController
+        .fetchInstallProfiles()
+        .then(function(profiles) {
+          installerModel.set('showInstallProfileStep', true)
+          installerModel.setTotalSteps(4)
+        })
+        .fail(function(error) {
+          // fallback: just don't show the install profile steps.
+          installerModel.set('showInstallProfileStep', false)
+          installerModel.setTotalSteps(4)
+          if (console) {
+            console.log(error)
+          }
+        })
+        .done(function() {
+          // regardless of success, lets display the page.
+          AppModule.contentController.show()
+        })
+    })
+  })
+})

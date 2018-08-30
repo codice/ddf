@@ -12,231 +12,242 @@
 /*global define*/
 
 define([
-        'marionette',
-        'backbone',
-        'openlayers',
-        'underscore',
-        'properties',
-        'wreqr',
-        'maptype',
-        './notification.view'
-    ],
-    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
-        "use strict";
+  'marionette',
+  'backbone',
+  'openlayers',
+  'underscore',
+  'properties',
+  'wreqr',
+  'maptype',
+  './notification.view',
+], function(
+  Marionette,
+  Backbone,
+  ol,
+  _,
+  properties,
+  wreqr,
+  maptype,
+  NotificationView
+) {
+  'use strict'
 
-        var Draw = {};
+  var Draw = {}
 
-        Draw.PolygonModel = Backbone.Model.extend({
-            defaults: {
-                north: undefined,
-                east: undefined,
-                west: undefined,
-                south: undefined
-            }
-        });
-        Draw.PolygonView = Backbone.View.extend({
-            initialize: function (options) {
-                this.map = options.map;
-            },
-            setModelFromGeometry: function (geometry) {
+  Draw.PolygonModel = Backbone.Model.extend({
+    defaults: {
+      north: undefined,
+      east: undefined,
+      west: undefined,
+      south: undefined,
+    },
+  })
+  Draw.PolygonView = Backbone.View.extend({
+    initialize: function(options) {
+      this.map = options.map
+    },
+    setModelFromGeometry: function(geometry) {
+      var coords = geometry.getCoordinates()
 
-                var coords = geometry.getCoordinates();
+      var coordinates = []
 
-                var coordinates = [];
+      _.each(coords, function(item) {
+        _.each(item, function(point) {
+          coordinates.push(
+            ol.proj.transform(
+              [point[0], point[1]],
+              properties.projection,
+              'EPSG:4326'
+            )
+          )
+        })
+      })
 
-                _.each(coords, function (item) {
-                    _.each(item, function (point) {
-                        coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
-                    });
-                });
+      this.model.set({
+        polygon: coordinates,
+      })
+    },
 
-                this.model.set({
-                    polygon: coordinates
-                });
-            },
+    modelToPolygon: function(model) {
+      var polygon = model.get('polygon')
+      var coords = []
+      var setArr = _.uniq(polygon)
+      if (setArr.length < 3) {
+        return
+      }
+      _.each(setArr, function(item) {
+        coords.push(
+          ol.proj.transform(
+            [item[0], item[1]],
+            'EPSG:4326',
+            properties.projection
+          )
+        )
+      })
 
-            modelToPolygon: function (model) {
-                var polygon = model.get('polygon');
-                var coords = [];
-                var setArr = _.uniq(polygon);
-                if(setArr.length < 3){
-                    return;
-                }
-                _.each(setArr, function (item) {
-                    coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
-                });
+      var rectangle = new ol.geom.LineString(coords)
+      return rectangle
+    },
 
-                var rectangle = new ol.geom.LineString(coords);
-                return rectangle;
-            },
+    updatePrimitive: function(model) {
+      var polygon = this.modelToPolygon(model)
+      // make sure the current model has width and height before drawing
+      if (polygon && !_.isUndefined(polygon)) {
+        this.drawBorderedPolygon(polygon)
+      }
+    },
 
-            updatePrimitive: function (model) {
-                var polygon = this.modelToPolygon(model);
-                // make sure the current model has width and height before drawing
-                if (polygon && !_.isUndefined(polygon)) {
-                    this.drawBorderedPolygon(polygon);
-                }
-            },
+    updateGeometry: function(model) {
+      var rectangle = this.modelToPolygon(model)
+      if (rectangle) {
+        this.drawBorderedPolygon(rectangle)
+      }
+    },
 
-            updateGeometry: function (model) {
-                var rectangle = this.modelToPolygon(model);
-                if (rectangle) {
-                    this.drawBorderedPolygon(rectangle);
-                }
-            },
+    drawBorderedPolygon: function(rectangle) {
+      if (!rectangle) {
+        // handles case where model changes to empty vars and we don't want to draw anymore
+        return
+      }
 
-            drawBorderedPolygon: function (rectangle) {
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
 
-                if (!rectangle) {
-                    // handles case where model changes to empty vars and we don't want to draw anymore
-                    return;
-                }
+      this.billboard = new ol.Feature({
+        geometry: rectangle,
+      })
 
-                if(this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
+      var iconStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({ color: '#914500', width: 3 }),
+      })
+      this.billboard.setStyle(iconStyle)
 
-                this.billboard = new ol.Feature({
-                    geometry: rectangle
-                });
+      var vectorSource = new ol.source.Vector({
+        features: [this.billboard],
+      })
 
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 3})
-                });
-                this.billboard.setStyle(iconStyle);
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource,
+      })
 
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
+      this.vectorLayer = vectorLayer
+      this.map.addLayer(vectorLayer)
+    },
 
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
+    handleRegionStop: function(sketchFeature) {
+      this.setModelFromGeometry(sketchFeature.feature.getGeometry())
+      this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
+      this.listenTo(this.model, 'change:polygon', this.updateGeometry)
 
-                this.vectorLayer = vectorLayer;
-                this.map.addLayer(vectorLayer);
-            },
+      this.model.trigger('EndExtent', this.model)
+    },
+    start: function() {
+      var that = this
 
-            handleRegionStop: function (sketchFeature) {
-                this.setModelFromGeometry(sketchFeature.feature.getGeometry());
-                this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
-                this.listenTo(this.model, 'change:polygon', this.updateGeometry);
+      this.primitive = new ol.interaction.Draw({
+        type: 'Polygon',
+        style: new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: [0, 0, 255, 1],
+          }),
+        }),
+      })
 
-                this.model.trigger("EndExtent", this.model);
-            },
-            start: function () {
-                var that = this;
+      this.map.addInteraction(this.primitive)
+      this.primitive.on('drawend', function(sketchFeature) {
+        that.handleRegionStop(sketchFeature)
+        that.map.removeInteraction(that.primitive)
+      })
+    },
 
-                this.primitive = new ol.interaction.Draw({
-                    type: 'Polygon',
-                    style: new ol.style.Style({
-                        stroke: new ol.style.Stroke({
-                            color: [0,0,255,1]
-                        })
-                    })
-                });
+    stop: function() {
+      this.stopListening()
+    },
 
-                this.map.addInteraction(this.primitive);
-                this.primitive.on('drawend', function(sketchFeature){
-                    that.handleRegionStop(sketchFeature);
-                    that.map.removeInteraction(that.primitive);
-                });
-            },
+    destroyPrimitive: function() {
+      if (this.primitive) {
+        this.map.removeInteraction(this.primitive)
+      }
+      if (this.vectorLayer) {
+        this.map.removeLayer(this.vectorLayer)
+      }
+    },
+  })
 
+  Draw.Controller = Marionette.Controller.extend({
+    enabled: maptype.is2d(),
+    initialize: function(options) {
+      this.map = options.map
+      this.notificationEl = options.notificationEl
 
-            stop: function () {
-                this.stopListening();
-            },
+      this.listenTo(wreqr.vent, 'search:polydisplay', this.showBox)
+      this.listenTo(wreqr.vent, 'search:drawpoly', this.draw)
+      this.listenTo(wreqr.vent, 'search:drawstop', this.stop)
+      this.listenTo(wreqr.vent, 'search:drawend', this.destroy)
+    },
+    showBox: function(model) {
+      if (this.enabled) {
+        var polygonModel = model || new Draw.PolygonModel(),
+          view = new Draw.PolygonView({
+            map: this.map,
+            model: polygonModel,
+          })
 
+        if (this.view) {
+          this.view.destroyPrimitive()
+          this.view.stop()
+        }
+        view.updatePrimitive(model)
+        this.view = view
 
-            destroyPrimitive: function () {
-                if (this.primitive) {
-                    this.map.removeInteraction(this.primitive);
-                }
-                if (this.vectorLayer) {
-                    this.map.removeLayer(this.vectorLayer);
-                }
-            }
+        return polygonModel
+      }
+    },
+    draw: function(model) {
+      if (this.enabled) {
+        var polygonModel = model || new Draw.PolygonModel(),
+          view = new Draw.PolygonView({
+            map: this.map,
+            model: polygonModel,
+          })
 
-        });
+        if (this.view) {
+          this.view.destroyPrimitive()
+          this.view.stop()
+        }
+        view.start()
+        this.view = view
+        this.notificationView = new NotificationView({
+          el: this.notificationEl,
+        }).render()
+        polygonModel.trigger('BeginExtent')
+        this.listenToOnce(polygonModel, 'EndExtent', function() {
+          this.notificationView.destroy()
+        })
 
-        Draw.Controller = Marionette.Controller.extend({
-            enabled: maptype.is2d(),
-            initialize: function (options) {
-                this.map = options.map;
-                this.notificationEl = options.notificationEl;
+        return polygonModel
+      }
+    },
+    stop: function() {
+      if (this.enabled && this.view) {
+        this.view.stop()
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+      }
+    },
+    destroy: function() {
+      if (this.enabled && this.view) {
+        this.view.stop()
+        this.view.destroyPrimitive()
+        this.view = undefined
+        if (this.notificationView) {
+          this.notificationView.destroy()
+        }
+      }
+    },
+  })
 
-                this.listenTo(wreqr.vent, 'search:polydisplay', this.showBox);
-                this.listenTo(wreqr.vent, 'search:drawpoly', this.draw);
-                this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
-                this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
-            },
-            showBox: function(model) {
-                if (this.enabled) {
-                    var polygonModel = model || new Draw.PolygonModel(),
-                        view = new Draw.PolygonView(
-                            {
-                                map: this.map,
-                                model: polygonModel
-                            });
-
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
-                    }
-                    view.updatePrimitive(model);
-                    this.view = view;
-
-                    return polygonModel;
-                }
-            },
-            draw: function (model) {
-                if (this.enabled) {
-                    var polygonModel = model || new Draw.PolygonModel(),
-                        view = new Draw.PolygonView(
-                            {
-                                map: this.map,
-                                model: polygonModel
-                            });
-
-                    if (this.view) {
-                        this.view.destroyPrimitive();
-                        this.view.stop();
-
-                    }
-                    view.start();
-                    this.view = view;
-                    this.notificationView = new NotificationView({
-                        el: this.notificationEl
-                    }).render();
-                    polygonModel.trigger('BeginExtent');
-                    this.listenToOnce(polygonModel, 'EndExtent', function () {
-                        this.notificationView.destroy();
-                    });
-
-                    return polygonModel;
-                }
-            },
-            stop: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
-            },
-            destroy: function () {
-                if (this.enabled && this.view) {
-                    this.view.stop();
-                    this.view.destroyPrimitive();
-                    this.view = undefined;
-                    if(this.notificationView) {
-                        this.notificationView.destroy();
-                    }
-                }
-            }
-        });
-
-        return Draw;
-    });
+  return Draw
+})

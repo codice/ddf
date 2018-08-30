@@ -9,39 +9,39 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const { reactToMarionette } = require('component/transmute');
-const LocationInput = reactToMarionette(require('./location'));
+const { reactToMarionette } = require('component/transmute')
+const LocationInput = reactToMarionette(require('./location'))
 
 if (process.env.NODE_ENV !== 'production') {
-    module.hot.accept('./location', () => {
-        LocationInput.reload(require('./location'));
-    });
+  module.hot.accept('./location', () => {
+    LocationInput.reload(require('./location'))
+  })
 }
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const CustomElements = require('js/CustomElements');
-const LocationNewModel = require('./location-new');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const CustomElements = require('js/CustomElements')
+const LocationNewModel = require('./location-new')
 
 module.exports = Marionette.LayoutView.extend({
-    template: () => `<div class="location-input"></div>`,
-    tagName: CustomElements.register('location-new'),
-    regions: {
-        location: '.location-input'
-    },
-    initialize(options) {
-        this.propertyModel = this.model;
-        this.model = new LocationNewModel();
-        _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
-    },
-    onRender() {
-        this.location.show(
-            new LocationInput({
-                model: this.model,
-            })
-        );
-    },
-    getCurrentValue() {
-        return this.model.getValue();
-    },
-});
+  template: () => `<div class="location-input"></div>`,
+  tagName: CustomElements.register('location-new'),
+  regions: {
+    location: '.location-input',
+  },
+  initialize(options) {
+    this.propertyModel = this.model
+    this.model = new LocationNewModel()
+    _.bindAll.apply(_, [this].concat(_.functions(this))) // underscore bindAll does not take array arg
+  },
+  onRender() {
+    this.location.show(
+      new LocationInput({
+        model: this.model,
+      })
+    )
+  },
+  getCurrentValue() {
+    return this.model.getValue()
+  },
+})

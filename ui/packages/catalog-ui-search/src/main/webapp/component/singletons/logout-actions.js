@@ -11,47 +11,47 @@
  **/
 /*global require*/
 //meant to be used for just in time feature detection
-var Backbone = require('backbone');
-require('backbone-associations');
+var Backbone = require('backbone')
+require('backbone-associations')
 
 var LogoutAction = Backbone.AssociatedModel.extend({
-    defaults: {
-        auth: '',
-        description: '',
-        realm: '',
-        title: '',
-        url: ''
-    }
-});
+  defaults: {
+    auth: '',
+    description: '',
+    realm: '',
+    title: '',
+    url: '',
+  },
+})
 
 var LogoutActions = Backbone.Collection.extend({
-    model: LogoutAction,
-    url: './internal/logout/actions'
-});
+  model: LogoutAction,
+  url: './internal/logout/actions',
+})
 
 var logoutModel = new (Backbone.AssociatedModel.extend({
-    defaults: {
-        actions: [],
-        fetched: false
+  defaults: {
+    actions: [],
+    fetched: false,
+  },
+  relations: [
+    {
+      type: Backbone.Many,
+      key: 'actions',
+      collectionType: LogoutActions,
     },
-    relations: [
-        {
-            type: Backbone.Many,
-            key: 'actions',
-            collectionType: LogoutActions
-        }
-    ],
-    url: './internal/logout/actions',
-    initialize: function() {
-        this.listenTo(this, 'sync:actions', this.setFetched);
-        this.get('actions').fetch();
-    },
-    setFetched: function() {
-        this.set('fetched', true);
-    },
-    isIdp: function() {
-        return this.get('actions').where({realm: 'idp'}).length > 0;
-    }
-}))();
+  ],
+  url: './internal/logout/actions',
+  initialize: function() {
+    this.listenTo(this, 'sync:actions', this.setFetched)
+    this.get('actions').fetch()
+  },
+  setFetched: function() {
+    this.set('fetched', true)
+  },
+  isIdp: function() {
+    return this.get('actions').where({ realm: 'idp' }).length > 0
+  },
+}))()
 
-module.exports = logoutModel;
+module.exports = logoutModel

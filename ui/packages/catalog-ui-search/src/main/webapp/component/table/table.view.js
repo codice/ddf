@@ -13,52 +13,60 @@
  *
  **/
 /*global require, window*/
-var template = require('./table.hbs');
-var Marionette = require('marionette');
-var MarionetteRegion = require('js/Marionette.Region');
-var CustomElements = require('js/CustomElements');
+var template = require('./table.hbs')
+var Marionette = require('marionette')
+var MarionetteRegion = require('js/Marionette.Region')
+var CustomElements = require('js/CustomElements')
 
 function moveHeaders(elementToUpdate, elementToMatch) {
-    this.$el.find('th').css('transform', 'translate3d(0, '+ this.el.scrollTop+'px, 0)');
+  this.$el
+    .find('th')
+    .css('transform', 'translate3d(0, ' + this.el.scrollTop + 'px, 0)')
 }
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('table'),
-    template: template,
-    regions: {
-        bodyThead: {
-            selector: 'thead',
-            replaceElement: true
-        },
-        bodyTbody: {
-            selector: 'tbody',
-            replaceElement: true
-        }
+  tagName: CustomElements.register('table'),
+  template: template,
+  regions: {
+    bodyThead: {
+      selector: 'thead',
+      replaceElement: true,
     },
-    headerAnimationFrameId: undefined,
-    getHeaderView: function(){
-        console.log('You need to overwrite this function and provide the constructed HeaderView');
+    bodyTbody: {
+      selector: 'tbody',
+      replaceElement: true,
     },
-    getBodyView: function(){
-        console.log('You need to overwrite this function and provide the constructed BodyView');
-    },
-    onRender: function() {
-        this.bodyTbody.show(this.getBodyView(), {
-            replaceElement: true
-        });
-        this.bodyThead.show(this.getHeaderView(), {
-            replaceElement: true
-        });
-        this.onDestroy();
-        this.startUpdatingHeaders();
-    },
-    startUpdatingHeaders: function(){
-        window.requestAnimationFrame(function(){
-            moveHeaders.call(this);
-            this.startUpdatingHeaders();
-        }.bind(this));
-    },
-    onDestroy: function(){
-        window.cancelAnimationFrame(this.headerAnimationFrameId);
-    }
-});
+  },
+  headerAnimationFrameId: undefined,
+  getHeaderView: function() {
+    console.log(
+      'You need to overwrite this function and provide the constructed HeaderView'
+    )
+  },
+  getBodyView: function() {
+    console.log(
+      'You need to overwrite this function and provide the constructed BodyView'
+    )
+  },
+  onRender: function() {
+    this.bodyTbody.show(this.getBodyView(), {
+      replaceElement: true,
+    })
+    this.bodyThead.show(this.getHeaderView(), {
+      replaceElement: true,
+    })
+    this.onDestroy()
+    this.startUpdatingHeaders()
+  },
+  startUpdatingHeaders: function() {
+    window.requestAnimationFrame(
+      function() {
+        moveHeaders.call(this)
+        this.startUpdatingHeaders()
+      }.bind(this)
+    )
+  },
+  onDestroy: function() {
+    window.cancelAnimationFrame(this.headerAnimationFrameId)
+  },
+})

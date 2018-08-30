@@ -10,13 +10,8 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone',
-    './value'
-], function (_, Backbone, Value) {
-
-    return Backbone.Collection.extend({
-        model: Value
-    });
-});
+define(['underscore', 'backbone', './value'], function(_, Backbone, Value) {
+  return Backbone.Collection.extend({
+    model: Value,
+  })
+})

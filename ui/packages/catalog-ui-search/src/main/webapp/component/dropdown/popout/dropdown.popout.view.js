@@ -13,13 +13,13 @@
  *
  **/
 /*global define*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var DropdownView = require('../dropdown.view');
-var template = require('./dropdown.popout.hbs');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var $ = require('jquery')
+var DropdownView = require('../dropdown.view')
+var template = require('./dropdown.popout.hbs')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-popout'
-});
+  template: template,
+  className: 'is-popout',
+})

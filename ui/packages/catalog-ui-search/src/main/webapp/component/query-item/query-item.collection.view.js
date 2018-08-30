@@ -14,24 +14,23 @@
  **/
 /*global define, alert*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    'js/CustomElements',
-    './query-item.view',
-    'js/store'
-], function (Marionette, _, $, CustomElements, queryItemView, store) {
-
-    return Marionette.CollectionView.extend({
-        setDefaultCollection: function(){
-            this.collection = store.getCurrentQueries();
-        },
-        tagName: CustomElements.register('query-item-collection'),
-        childView: queryItemView,
-        initialize: function (options) {
-            if (!options.collection) {
-                this.setDefaultCollection();
-            }
-        }
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  'js/CustomElements',
+  './query-item.view',
+  'js/store',
+], function(Marionette, _, $, CustomElements, queryItemView, store) {
+  return Marionette.CollectionView.extend({
+    setDefaultCollection: function() {
+      this.collection = store.getCurrentQueries()
+    },
+    tagName: CustomElements.register('query-item-collection'),
+    childView: queryItemView,
+    initialize: function(options) {
+      if (!options.collection) {
+        this.setDefaultCollection()
+      }
+    },
+  })
+})

@@ -13,50 +13,49 @@
  *
  **/
 /* global define */
-define([
-        'marionette',
-        './IngestUploadListItem.view.js'
-    ],
-    function (Marionette, UploadListItem) {
-        // The order in which the files will appear in the list (higher number = closer to
-        // the top of the list)
-        var order = {
-            uploading: 5,
-            start: 4,
-            cancelled: 3,
-            failed: 2,
-            done: 1
-        };
+define(['marionette', './IngestUploadListItem.view.js'], function(
+  Marionette,
+  UploadListItem
+) {
+  // The order in which the files will appear in the list (higher number = closer to
+  // the top of the list)
+  var order = {
+    uploading: 5,
+    start: 4,
+    cancelled: 3,
+    failed: 2,
+    done: 1,
+  }
 
-        var UploadList = Marionette.CollectionView.extend({
-            tagName: 'ul',
-            className: 'file-list',
-            childView: UploadListItem,
-            childEvents: {
-                'stateChanged': function() {
-                    // Re-sort the views when a child changes state so the files are reordered in
-                    // the list based on their upload state.
-                    this.reorder();
-                }
-            },
-            viewComparator: function(item1, item2) {
-                var state1 = item1.get('state');
-                var state2 = item2.get('state');
+  var UploadList = Marionette.CollectionView.extend({
+    tagName: 'ul',
+    className: 'file-list',
+    childView: UploadListItem,
+    childEvents: {
+      stateChanged: function() {
+        // Re-sort the views when a child changes state so the files are reordered in
+        // the list based on their upload state.
+        this.reorder()
+      },
+    },
+    viewComparator: function(item1, item2) {
+      var state1 = item1.get('state')
+      var state2 = item2.get('state')
 
-                return order[state2] - order[state1];
-            },
-            initialize: function() {
-                this.listenTo(this.collection, "startUpload", this.startUpload);
-                this.listenTo(this.collection, "removeUpload", this.handleRemove);
-            },
-            startUpload: function() {
-                this.collection.each(function(item) {
-                    item.trigger('startItemUpload');
-                });
-            },
-            handleRemove: function(model) {
-                this.collection.remove(model.model);
-            }
-        });
-        return UploadList;
-    });
+      return order[state2] - order[state1]
+    },
+    initialize: function() {
+      this.listenTo(this.collection, 'startUpload', this.startUpload)
+      this.listenTo(this.collection, 'removeUpload', this.handleRemove)
+    },
+    startUpload: function() {
+      this.collection.each(function(item) {
+        item.trigger('startItemUpload')
+      })
+    },
+    handleRemove: function(model) {
+      this.collection.remove(model.model)
+    },
+  })
+  return UploadList
+})

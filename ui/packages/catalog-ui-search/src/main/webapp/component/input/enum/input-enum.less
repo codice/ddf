@@ -1,6 +1,4 @@
 @{customElementNamespace}input.is-enum {
-
-
   .is-simpleDropdown .dropdown-text {
     padding-left: 0px;
   }
@@ -14,16 +12,16 @@
     min-height: @minimumButtonSize;
   }
 
-    > .if-viewing {
-         span + span::before {
-            content: '| ';
-            opacity: @minimumOpacity;
-        }
+  > .if-viewing {
+    span + span::before {
+      content: '| ';
+      opacity: @minimumOpacity;
     }
+  }
 }
 
 @{customElementNamespace}input.is-enum.has-validation-issues {
-    .enum-region {
-        border: 1px solid @negative-color;
-    }
+  .enum-region {
+    border: 1px solid @negative-color;
+  }
 }

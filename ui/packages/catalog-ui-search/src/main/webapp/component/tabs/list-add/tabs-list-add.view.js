@@ -12,40 +12,44 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const TabsView = require('../tabs.view');
-const store = require('js/store');
-const properties = require('properties');
-const ListAddTabsModel = require('./tabs-list-add');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const TabsView = require('../tabs.view')
+const store = require('js/store')
+const properties = require('properties')
+const ListAddTabsModel = require('./tabs-list-add')
 
 module.exports = TabsView.extend({
-    className: 'is-list-add',
-    setDefaultModel(options){
-        this.model = new ListAddTabsModel();
-    },
-    initialize(options){
-        this.setDefaultModel(options);
+  className: 'is-list-add',
+  setDefaultModel(options) {
+    this.model = new ListAddTabsModel()
+  },
+  initialize(options) {
+    this.setDefaultModel(options)
 
-        TabsView.prototype.initialize.call(this);
-        this.model.set('activeTab', 'Import');
-    },
-    determineContent() {
-        var ActiveTab = this.model.getActiveView();
-        if (this.model.attributes.activeTab === 'Import') {
-            this.tabsContent.show(new ActiveTab({
-                isList: true,
-                extraHeaders: this.options.extraHeaders,
-                url: this.options.url,
-                handleUploadSuccess: this.options.handleUploadSuccess
-            }));
-        } else {
-            this.tabsContent.show(new ActiveTab({
-                handleNewMetacard: this.options.handleNewMetacard,
-                close: this.options.close,
-                model: this.model
-            }));
-        }
+    TabsView.prototype.initialize.call(this)
+    this.model.set('activeTab', 'Import')
+  },
+  determineContent() {
+    var ActiveTab = this.model.getActiveView()
+    if (this.model.attributes.activeTab === 'Import') {
+      this.tabsContent.show(
+        new ActiveTab({
+          isList: true,
+          extraHeaders: this.options.extraHeaders,
+          url: this.options.url,
+          handleUploadSuccess: this.options.handleUploadSuccess,
+        })
+      )
+    } else {
+      this.tabsContent.show(
+        new ActiveTab({
+          handleNewMetacard: this.options.handleNewMetacard,
+          close: this.options.close,
+          model: this.model,
+        })
+      )
     }
-});
+  },
+})

@@ -9,11 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
-import { unmountComponentAtNode } from 'react-dom';
+const Marionette = require('marionette')
+import { unmountComponentAtNode } from 'react-dom'
 
-const oldRemove = Marionette.View.prototype.remove;
+const oldRemove = Marionette.View.prototype.remove
 Marionette.View.prototype.remove = function() {
-    unmountComponentAtNode(this.el);
-    return oldRemove.apply(this, arguments);
+  unmountComponentAtNode(this.el)
+  return oldRemove.apply(this, arguments)
 }

@@ -21,14 +21,14 @@ import './log-entry.less'
 import levels from '../../levels'
 import * as actions from '../../actions'
 
-const format = (time) => {
+const format = time => {
   return moment(time).format('D MMM YYYY, HH:mm:ss')
 }
 
 // log entry to display
 export default ({ entry, marks, expandedHash, dispatch }) => {
   // check if marks exist for filter highlighting
-  const tryMark = (key) => {
+  const tryMark = key => {
     const mark = marks[key]
     const displayString = entry[key]
     if (mark) {
@@ -37,15 +37,13 @@ export default ({ entry, marks, expandedHash, dispatch }) => {
       const third = displayString.slice(mark.end)
       return (
         <span>
-          <span className='dim'>{first}</span>
+          <span className="dim">{first}</span>
           <mark>{second}</mark>
-          <span className='dim'>{third}</span>
+          <span className="dim">{third}</span>
         </span>
       )
     } else {
-      return (
-        <span>{displayString}</span>
-      )
+      return <span>{displayString}</span>
     }
   }
 
@@ -54,7 +52,9 @@ export default ({ entry, marks, expandedHash, dispatch }) => {
   }
 
   const getMessageClasses = () => {
-    return (entry.hash === expandedHash) ? 'rowData messageExpanded' : 'rowData message'
+    return entry.hash === expandedHash
+      ? 'rowData messageExpanded'
+      : 'rowData message'
   }
 
   const getRowClasses = () => {
@@ -67,18 +67,10 @@ export default ({ entry, marks, expandedHash, dispatch }) => {
 
   return (
     <tr onClick={expandEntry} className={getRowClasses()}>
-      <td className='rowData timestampColumn'>
-        {format(entry.timestamp)}
-      </td>
-      <td className='rowData levelColumn'>
-        {entry.level}
-      </td>
-      <td className={getMessageClasses()}>
-        {tryMark('message')}
-      </td>
-      <td className='rowData bundleColumn'>
-        {tryMark('bundleName')}
-      </td>
+      <td className="rowData timestampColumn">{format(entry.timestamp)}</td>
+      <td className="rowData levelColumn">{entry.level}</td>
+      <td className={getMessageClasses()}>{tryMark('message')}</td>
+      <td className="rowData bundleColumn">{tryMark('bundleName')}</td>
     </tr>
   )
 }

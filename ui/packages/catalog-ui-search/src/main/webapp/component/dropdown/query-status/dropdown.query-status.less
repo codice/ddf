@@ -1,24 +1,24 @@
 @{customElementNamespace}dropdown.is-query-status {
-    display: block;
+  display: block;
+  position: relative;
+  font-size: inherit;
+
+  .notification-icon {
     position: relative;
+    cursor: pointer;
     font-size: inherit;
+  }
 
-    .notification-icon {
-        position: relative;
-        cursor: pointer;
-        font-size: inherit;
-    }
-
-    .fa-bell {
-        display: none;
-    }
+  .fa-bell {
+    display: none;
+  }
 }
 
 @{customElementNamespace}dropdown.is-query-status.is-polling {
   .fa-bell-slash {
-      display: none;
+    display: none;
   }
   .fa-bell {
-      display: inline;
+    display: inline;
   }
 }

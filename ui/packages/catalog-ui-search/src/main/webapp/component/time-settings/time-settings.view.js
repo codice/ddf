@@ -13,171 +13,221 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./time-settings.hbs');
-var user = require('component/singletons/user-instance');
-var CustomElements = require('js/CustomElements');
-var PropertyView = require('component/property/property.view');
-var Property = require('component/property/property');
-var Common = require('js/Common');
-var moment = require('moment');
+var Marionette = require('marionette')
+var template = require('./time-settings.hbs')
+var user = require('component/singletons/user-instance')
+var CustomElements = require('js/CustomElements')
+var PropertyView = require('component/property/property.view')
+var Property = require('component/property/property')
+var Common = require('js/Common')
+var moment = require('moment')
 
-var counter = 0;
+var counter = 0
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('time-settings'),
-    regions: {
-        propertyTimeZone: '.property-time-zone',
-        propertyTimeFormat: '.property-time-format',
-        propertyTimeCurrent: '.property-time-current'
-    },
-    animationFrameId: undefined,
-    onBeforeShow: function () {
-        this.setupTimeZone();
-        this.setupResultCount();
-        this.setupCurrentTime();
-        this.repaintCurrentTime();
-    },
-    repaintCurrentTime: function(){
-        this.animationFrameId = window.requestAnimationFrame(() => {
-            if (counter % 5 === 0){
-                this.setupCurrentTime();
-            }
-            counter++;
-            this.repaintCurrentTime();
-        });
-    },
-    setupCurrentTime: function(){
-        this.propertyTimeCurrent.show(new PropertyView({
-            model: new Property({
-                label: 'Current Time (example)',
-                value: [moment()],
-                type: 'DATE'
-            })
-        }));
-    },
-    setupTimeZone() {
-        var timeZone = user.get('user').get('preferences').get('timeZone');
+  template: template,
+  tagName: CustomElements.register('time-settings'),
+  regions: {
+    propertyTimeZone: '.property-time-zone',
+    propertyTimeFormat: '.property-time-format',
+    propertyTimeCurrent: '.property-time-current',
+  },
+  animationFrameId: undefined,
+  onBeforeShow: function() {
+    this.setupTimeZone()
+    this.setupResultCount()
+    this.setupCurrentTime()
+    this.repaintCurrentTime()
+  },
+  repaintCurrentTime: function() {
+    this.animationFrameId = window.requestAnimationFrame(() => {
+      if (counter % 5 === 0) {
+        this.setupCurrentTime()
+      }
+      counter++
+      this.repaintCurrentTime()
+    })
+  },
+  setupCurrentTime: function() {
+    this.propertyTimeCurrent.show(
+      new PropertyView({
+        model: new Property({
+          label: 'Current Time (example)',
+          value: [moment()],
+          type: 'DATE',
+        }),
+      })
+    )
+  },
+  setupTimeZone() {
+    var timeZone = user
+      .get('user')
+      .get('preferences')
+      .get('timeZone')
 
-        this.propertyTimeZone.show(new PropertyView({
-            model: new Property({
-                label: 'Time Zone',
-                value: [timeZone],
-                enum: [{
-                    label: '-12:00',
-                    value: Common.getTimeZones()['-12']
-                }, {
-                    label: '-11:00',
-                    value: Common.getTimeZones()['-11']
-                }, {
-                    label: '-10:00',
-                    value: Common.getTimeZones()['-10']
-                }, {
-                    label: '-09:00',
-                    value: Common.getTimeZones()['-9']
-                }, {
-                    label: '-08:00',
-                    value: Common.getTimeZones()['-8']
-                }, {
-                    label: '-07:00',
-                    value: Common.getTimeZones()['-7']
-                }, {
-                    label: '-06:00',
-                    value: Common.getTimeZones()['-6']
-                }, {
-                    label: '-05:00',
-                    value: Common.getTimeZones()['-5']
-                }, {
-                    label: '-04:00',
-                    value: Common.getTimeZones()['-4']
-                }, {
-                    label: '-03:00',
-                    value: Common.getTimeZones()['-3']
-                }, {
-                    label: '-02:00',
-                    value: Common.getTimeZones()['-2']
-                }, {
-                    label: '-01:00',
-                    value: Common.getTimeZones()['-1']
-                }, {
-                    label: 'UTC, +00:00',
-                    value: Common.getTimeZones()['UTC']
-                }, {
-                    label: '+01:00',
-                    value: Common.getTimeZones()['1']
-                }, {
-                    label: '+02:00',
-                    value: Common.getTimeZones()['2']
-                }, {
-                    label: '+03:00',
-                    value: Common.getTimeZones()['3']
-                }, {
-                    label: '+04:00',
-                    value: Common.getTimeZones()['4']
-                }, {
-                    label: '+05:00',
-                    value: Common.getTimeZones()['5']
-                }, {
-                    label: '+06:00',
-                    value: Common.getTimeZones()['6']
-                }, {
-                    label: '+07:00',
-                    value: Common.getTimeZones()['7']
-                }, {
-                    label: '+08:00',
-                    value: Common.getTimeZones()['8']
-                }, {
-                    label: '+09:00',
-                    value: Common.getTimeZones()['9']
-                }, {
-                    label: '+10:00',
-                    value: Common.getTimeZones()['10']
-                }, {
-                    label: '+11:00',
-                    value: Common.getTimeZones()['11']
-                }, {
-                    label: '+12:00',
-                    value: Common.getTimeZones()['12']
-                }]
-            })
-        }));
+    this.propertyTimeZone.show(
+      new PropertyView({
+        model: new Property({
+          label: 'Time Zone',
+          value: [timeZone],
+          enum: [
+            {
+              label: '-12:00',
+              value: Common.getTimeZones()['-12'],
+            },
+            {
+              label: '-11:00',
+              value: Common.getTimeZones()['-11'],
+            },
+            {
+              label: '-10:00',
+              value: Common.getTimeZones()['-10'],
+            },
+            {
+              label: '-09:00',
+              value: Common.getTimeZones()['-9'],
+            },
+            {
+              label: '-08:00',
+              value: Common.getTimeZones()['-8'],
+            },
+            {
+              label: '-07:00',
+              value: Common.getTimeZones()['-7'],
+            },
+            {
+              label: '-06:00',
+              value: Common.getTimeZones()['-6'],
+            },
+            {
+              label: '-05:00',
+              value: Common.getTimeZones()['-5'],
+            },
+            {
+              label: '-04:00',
+              value: Common.getTimeZones()['-4'],
+            },
+            {
+              label: '-03:00',
+              value: Common.getTimeZones()['-3'],
+            },
+            {
+              label: '-02:00',
+              value: Common.getTimeZones()['-2'],
+            },
+            {
+              label: '-01:00',
+              value: Common.getTimeZones()['-1'],
+            },
+            {
+              label: 'UTC, +00:00',
+              value: Common.getTimeZones()['UTC'],
+            },
+            {
+              label: '+01:00',
+              value: Common.getTimeZones()['1'],
+            },
+            {
+              label: '+02:00',
+              value: Common.getTimeZones()['2'],
+            },
+            {
+              label: '+03:00',
+              value: Common.getTimeZones()['3'],
+            },
+            {
+              label: '+04:00',
+              value: Common.getTimeZones()['4'],
+            },
+            {
+              label: '+05:00',
+              value: Common.getTimeZones()['5'],
+            },
+            {
+              label: '+06:00',
+              value: Common.getTimeZones()['6'],
+            },
+            {
+              label: '+07:00',
+              value: Common.getTimeZones()['7'],
+            },
+            {
+              label: '+08:00',
+              value: Common.getTimeZones()['8'],
+            },
+            {
+              label: '+09:00',
+              value: Common.getTimeZones()['9'],
+            },
+            {
+              label: '+10:00',
+              value: Common.getTimeZones()['10'],
+            },
+            {
+              label: '+11:00',
+              value: Common.getTimeZones()['11'],
+            },
+            {
+              label: '+12:00',
+              value: Common.getTimeZones()['12'],
+            },
+          ],
+        }),
+      })
+    )
 
-        this.propertyTimeZone.currentView.turnOnEditing();
-        this.listenTo(this.propertyTimeZone.currentView.model, 'change:value', this.save);
-    },
-    setupResultCount: function () {
-        var timeFormat = user.get('user').get('preferences').get('dateTimeFormat');
+    this.propertyTimeZone.currentView.turnOnEditing()
+    this.listenTo(
+      this.propertyTimeZone.currentView.model,
+      'change:value',
+      this.save
+    )
+  },
+  setupResultCount: function() {
+    var timeFormat = user
+      .get('user')
+      .get('preferences')
+      .get('dateTimeFormat')
 
-        this.propertyTimeFormat.show(new PropertyView({
-            model: new Property({
-                label: 'Time Format',
-                value: [timeFormat],
-                enum: [{
-                    label: 'ISO 8601',
-                    value: Common.getDateTimeFormats()['ISO']
-                }, {
-                    label: '24 Hour Standard',
-                    value: Common.getDateTimeFormats()['24']
-                }, {
-                    label: '12 Hour Standard',
-                    value: Common.getDateTimeFormats()['12']
-                }]
-            })
-        }));
+    this.propertyTimeFormat.show(
+      new PropertyView({
+        model: new Property({
+          label: 'Time Format',
+          value: [timeFormat],
+          enum: [
+            {
+              label: 'ISO 8601',
+              value: Common.getDateTimeFormats()['ISO'],
+            },
+            {
+              label: '24 Hour Standard',
+              value: Common.getDateTimeFormats()['24'],
+            },
+            {
+              label: '12 Hour Standard',
+              value: Common.getDateTimeFormats()['12'],
+            },
+          ],
+        }),
+      })
+    )
 
-        this.propertyTimeFormat.currentView.turnOnEditing();
-        this.listenTo(this.propertyTimeFormat.currentView.model, 'change:value', this.save);
-    },
-    save: function () {
-        var preferences = user.get('user').get('preferences');
-        preferences.set({
-            dateTimeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
-            timeZone: this.propertyTimeZone.currentView.model.getValue()[0]
-        });
-        preferences.savePreferences();
-    },
-    onDestroy: function(){
-        window.cancelAnimationFrame(this.animationFrameId);
-    }
-});
+    this.propertyTimeFormat.currentView.turnOnEditing()
+    this.listenTo(
+      this.propertyTimeFormat.currentView.model,
+      'change:value',
+      this.save
+    )
+  },
+  save: function() {
+    var preferences = user.get('user').get('preferences')
+    preferences.set({
+      dateTimeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
+      timeZone: this.propertyTimeZone.currentView.model.getValue()[0],
+    })
+    preferences.savePreferences()
+  },
+  onDestroy: function() {
+    window.cancelAnimationFrame(this.animationFrameId)
+  },
+})

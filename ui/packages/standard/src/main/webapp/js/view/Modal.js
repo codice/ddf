@@ -13,41 +13,41 @@
  *
  **/
 /* global define */
-define([
-        'marionette'
-    ],
-    function (Marionette) {
-        'use strict';
-        /**
-         * This provides us with a base view for modals. It contains the base close/hide and destroy functionality.
-         */
-        var BaseModal = Marionette.LayoutView.extend({
-// use the Backbone constructor paradigm to allow extending of classNames
-            constructor: function () {
-                this.className = 'modal fade ' + this.className; // add on modal specific classes.
-                Marionette.LayoutView.prototype.constructor.apply(this, arguments);
-            },
-            initialize: function () {
-                // destroy view after animation completes.
-                // extending views must call: Modal.prototype.initialize.apply(this, arguments);
-                this.$el.one('hidden.bs.modal', function () {
-                    if (this.shouldDestroy()) {
-                        this.destroy();
-                    }
-                }.bind(this));
-            },
-            show: function () {
-                this.$el.modal({
-                    backdrop: 'static',
-                    keyboard: false
-                });
-            },
-            hide: function () {
-                this.$el.modal('hide');
-            },
-            shouldDestroy: function () {
-                return true;
-            }
-        });
-        return BaseModal;
-    });
+define(['marionette'], function(Marionette) {
+  'use strict'
+  /**
+   * This provides us with a base view for modals. It contains the base close/hide and destroy functionality.
+   */
+  var BaseModal = Marionette.LayoutView.extend({
+    // use the Backbone constructor paradigm to allow extending of classNames
+    constructor: function() {
+      this.className = 'modal fade ' + this.className // add on modal specific classes.
+      Marionette.LayoutView.prototype.constructor.apply(this, arguments)
+    },
+    initialize: function() {
+      // destroy view after animation completes.
+      // extending views must call: Modal.prototype.initialize.apply(this, arguments);
+      this.$el.one(
+        'hidden.bs.modal',
+        function() {
+          if (this.shouldDestroy()) {
+            this.destroy()
+          }
+        }.bind(this)
+      )
+    },
+    show: function() {
+      this.$el.modal({
+        backdrop: 'static',
+        keyboard: false,
+      })
+    },
+    hide: function() {
+      this.$el.modal('hide')
+    },
+    shouldDestroy: function() {
+      return true
+    },
+  })
+  return BaseModal
+})

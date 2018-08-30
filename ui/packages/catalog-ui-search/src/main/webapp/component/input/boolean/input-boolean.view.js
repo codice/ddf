@@ -13,22 +13,22 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var template = require('./input-boolean.hbs');
-var InputView = require('../input.view');
+var Marionette = require('marionette')
+var template = require('./input-boolean.hbs')
+var InputView = require('../input.view')
 
 module.exports = InputView.extend({
-        template: template,
-        getCurrentValue: function(){
-            return this.$el.find('input').is(':checked');
-        },
-        handleValue: function(){
-            this.$el.find('input').attr('checked', Boolean(this.model.getValue()));
-        },
-        events: {
-            'click label': 'triggerCheckboxClick'
-        },
-        triggerCheckboxClick: function(){
-            this.$el.find('input').click();
-        }
-});
+  template: template,
+  getCurrentValue: function() {
+    return this.$el.find('input').is(':checked')
+  },
+  handleValue: function() {
+    this.$el.find('input').attr('checked', Boolean(this.model.getValue()))
+  },
+  events: {
+    'click label': 'triggerCheckboxClick',
+  },
+  triggerCheckboxClick: function() {
+    this.$el.find('input').click()
+  },
+})

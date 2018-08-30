@@ -1,1 +1,1 @@
-export {default} from './navigation-right'
+export { default } from './navigation-right'

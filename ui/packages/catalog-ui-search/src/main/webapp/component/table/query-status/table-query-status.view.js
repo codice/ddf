@@ -13,32 +13,32 @@
  *
  **/
 /*global require*/
-var TableView = require('../table.view');
-var HeaderView = require('component/query-status/query-status-header.view');
-var BodyView = require('component/query-status/query-status-body.view');
+var TableView = require('../table.view')
+var HeaderView = require('component/query-status/query-status-header.view')
+var BodyView = require('component/query-status/query-status-body.view')
 
 module.exports = TableView.extend({
-    className: 'is-query-status',
-    initialize: function(){
-         var result = this.model.get('result');
-         if (!result){
-            this.startListeningToSearch();
-         }
-    },
-    startListeningToSearch: function(){
-        this.listenToOnce(this.model, 'change:result', this.render);
-    }, 
-    getHeaderView: function(){
-        return new HeaderView({
-            model: this.model
-        });
-    },
-    getBodyView: function(){
-        var result = this.model.get('result');
-        var bodyView = new BodyView();
-        if (result){
-           bodyView.collection = result.get('status');
-        } 
-        return bodyView;
+  className: 'is-query-status',
+  initialize: function() {
+    var result = this.model.get('result')
+    if (!result) {
+      this.startListeningToSearch()
     }
-});
+  },
+  startListeningToSearch: function() {
+    this.listenToOnce(this.model, 'change:result', this.render)
+  },
+  getHeaderView: function() {
+    return new HeaderView({
+      model: this.model,
+    })
+  },
+  getBodyView: function() {
+    var result = this.model.get('result')
+    var bodyView = new BodyView()
+    if (result) {
+      bodyView.collection = result.get('status')
+    }
+    return bodyView
+  },
+})

@@ -9,93 +9,95 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 import WorkspacesTemplates from '../../presentation/workspaces-templates'
 
-const store = require('js/store');
-const LoadingView = require('component/loading/loading.view');
+const store = require('js/store')
+const LoadingView = require('component/loading/loading.view')
 const wreqr = require('wreqr')
-const Property = require('component/property/property');
-const properties = require('properties');
+const Property = require('component/property/property')
+const properties = require('properties')
 
 interface Props {
-    closeTemplates: () => void;
-    hasUnsaved: boolean;
-    hasTemplatesExpanded: boolean;
-    toggleExpansion: () => void;
+  closeTemplates: () => void
+  hasUnsaved: boolean
+  hasTemplatesExpanded: boolean
+  toggleExpansion: () => void
 }
 
 interface State {
-    adhocModel: any
+  adhocModel: any
 }
 
 class WorkspacesTemplatesContainer extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            adhocModel: new Property({
-                value: [''],
-                label: '',
-                type: 'STRING',
-                showValidationIssues: false,
-                showLabel: false,
-                placeholder: 'Search ' + properties.branding + ' ' + properties.product,
-                isEditing: true
-            })
-        }
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      adhocModel: new Property({
+        value: [''],
+        label: '',
+        type: 'STRING',
+        showValidationIssues: false,
+        showLabel: false,
+        placeholder: 'Search ' + properties.branding + ' ' + properties.product,
+        isEditing: true,
+      }),
     }
-    startAdhocSearch() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createAdhocWorkspace(this.state.adhocModel.getValue()[0]);
-    }
-    prepForCreateNewWorkspace() {
-        var loadingview = new LoadingView();
-        store.get('workspaces').once('sync', function(workspace: any){
-            loadingview.remove();
-            wreqr.vent.trigger('router:navigate', {
-                fragment: 'workspaces/'+workspace.id,
-                options: {
-                    trigger: true
-                }
-            });
-        });
-        this.props.closeTemplates();
-    }
-    createWorkspace() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createWorkspace();
-    }
-    createLocalWorkspace() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createLocalWorkspace();
-    }
-    createAllWorkspace() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createAllWorkspace();
-    }
-    createGeoWorkspace() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createGeoWorkspace();
-    }
-    createLatestWorkspace() {
-        this.prepForCreateNewWorkspace();
-        store.get('workspaces').createLatestWorkspace();
-    }
-    render() {
-        return (
-            <WorkspacesTemplates 
-                createWorkspace={this.createWorkspace.bind(this)}
-                createLocalWorkspace={this.createLocalWorkspace.bind(this)}
-                createAllWorkspace={this.createAllWorkspace.bind(this)}
-                createGeoWorkspace={this.createGeoWorkspace.bind(this)}
-                createLatestWorkspace={this.createLatestWorkspace.bind(this)}
-                hasTemplatesExpanded={this.props.hasTemplatesExpanded}
-                toggleExpansion={this.props.toggleExpansion}
-                startAdhocSearch={this.startAdhocSearch.bind(this)}
-                adhocModel={this.state.adhocModel}
-            />
-        )
-    }
+  }
+  startAdhocSearch() {
+    this.prepForCreateNewWorkspace()
+    store
+      .get('workspaces')
+      .createAdhocWorkspace(this.state.adhocModel.getValue()[0])
+  }
+  prepForCreateNewWorkspace() {
+    var loadingview = new LoadingView()
+    store.get('workspaces').once('sync', function(workspace: any) {
+      loadingview.remove()
+      wreqr.vent.trigger('router:navigate', {
+        fragment: 'workspaces/' + workspace.id,
+        options: {
+          trigger: true,
+        },
+      })
+    })
+    this.props.closeTemplates()
+  }
+  createWorkspace() {
+    this.prepForCreateNewWorkspace()
+    store.get('workspaces').createWorkspace()
+  }
+  createLocalWorkspace() {
+    this.prepForCreateNewWorkspace()
+    store.get('workspaces').createLocalWorkspace()
+  }
+  createAllWorkspace() {
+    this.prepForCreateNewWorkspace()
+    store.get('workspaces').createAllWorkspace()
+  }
+  createGeoWorkspace() {
+    this.prepForCreateNewWorkspace()
+    store.get('workspaces').createGeoWorkspace()
+  }
+  createLatestWorkspace() {
+    this.prepForCreateNewWorkspace()
+    store.get('workspaces').createLatestWorkspace()
+  }
+  render() {
+    return (
+      <WorkspacesTemplates
+        createWorkspace={this.createWorkspace.bind(this)}
+        createLocalWorkspace={this.createLocalWorkspace.bind(this)}
+        createAllWorkspace={this.createAllWorkspace.bind(this)}
+        createGeoWorkspace={this.createGeoWorkspace.bind(this)}
+        createLatestWorkspace={this.createLatestWorkspace.bind(this)}
+        hasTemplatesExpanded={this.props.hasTemplatesExpanded}
+        toggleExpansion={this.props.toggleExpansion}
+        startAdhocSearch={this.startAdhocSearch.bind(this)}
+        adhocModel={this.state.adhocModel}
+      />
+    )
+  }
 }
 
 export default WorkspacesTemplatesContainer

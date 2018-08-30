@@ -13,23 +13,23 @@
  *
  **/
 /*global define*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var ResultFilter = require('../result-filter.view');
-var CustomElements = require('js/CustomElements');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var $ = require('jquery')
+var ResultFilter = require('../result-filter.view')
+var CustomElements = require('js/CustomElements')
 
 module.exports = ResultFilter.extend({
-    className: 'is-list',
-    getResultFilter: function() {
-        return this.model.get('value');
-    },
-    removeFilter: function() {
-        this.model.set('value', '');
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-    },
-    saveFilter: function() {
-        this.model.set('value', this.getFilter());
-        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-    }
-});
+  className: 'is-list',
+  getResultFilter: function() {
+    return this.model.get('value')
+  },
+  removeFilter: function() {
+    this.model.set('value', '')
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+  saveFilter: function() {
+    this.model.set('value', this.getFilter())
+    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
+  },
+})

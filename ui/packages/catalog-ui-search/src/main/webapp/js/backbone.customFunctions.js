@@ -10,15 +10,15 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
+var Backbone = require('backbone')
 
 /*
     Adds some shorthand functions to Backbone that help other code become more succinct.
 */
-Backbone.Collection.prototype.indexOfId = function (id) {
-    var model = this.get(id);
-    if (!model) {
-        return -1;
-    }
-    return this.indexOf(model);
-};
+Backbone.Collection.prototype.indexOfId = function(id) {
+  var model = this.get(id)
+  if (!model) {
+    return -1
+  }
+  return this.indexOf(model)
+}

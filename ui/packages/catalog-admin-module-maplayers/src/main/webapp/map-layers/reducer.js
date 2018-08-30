@@ -4,35 +4,47 @@ import { fromJS, List, Map } from 'immutable'
 import isURL from 'validator/lib/isURL'
 import matches from 'validator/lib/matches'
 
-const select = (state) => state.get('layers')
+const select = state => state.get('layers')
 
 import options from './options'
 
-const getConfig = (state) => select(state).get('config')
-export const getProviders = (state) => select(state).get('providers')
-export const isLoading = (state) => select(state).get('loading')
-export const hasChanges = (state) => {
-  const providers = getProviders(state).map((layer) => layer.get('layer'))
+const getConfig = state => select(state).get('config')
+export const getProviders = state => select(state).get('providers')
+export const isLoading = state => select(state).get('loading')
+export const hasChanges = state => {
+  const providers = getProviders(state).map(layer => layer.get('layer'))
   const config = getConfig(state)
   return !providers.equals(config.get('imageryProviders'))
 }
-export const getMessage = (state) => select(state).get('msg')
-export const getInvalid = (state) => select(state).get('invalid')
+export const getMessage = state => select(state).get('msg')
+export const getInvalid = state => select(state).get('invalid')
 
-export const set = (value) => ({ type: 'map-layers/SET', value })
+export const set = value => ({ type: 'map-layers/SET', value })
 const start = () => ({ type: 'map-layers/START_SUBMIT' })
 const end = () => ({ type: 'map-layers/END_SUBMIT' })
-export const setInvalid = (buffer) => ({ type: 'map-layers/SET_INVALID', buffer })
-export const message = (text, action) => ({ type: 'map-layers/MESSAGE', text, action })
-export const update = (value, path) => ({ type: 'map-layers/UPDATE', value, path })
-export const reset = () => (dispatch, getState) => dispatch({
-  type: 'map-layers/SET',
-  value: getConfig(getState())
+export const setInvalid = buffer => ({
+  type: 'map-layers/SET_INVALID',
+  buffer,
 })
+export const message = (text, action) => ({
+  type: 'map-layers/MESSAGE',
+  text,
+  action,
+})
+export const update = (value, path) => ({
+  type: 'map-layers/UPDATE',
+  value,
+  path,
+})
+export const reset = () => (dispatch, getState) =>
+  dispatch({
+    type: 'map-layers/SET',
+    value: getConfig(getState()),
+  })
 
-const configPath = [ 'value', 'configurations', 0, 'properties' ]
+const configPath = ['value', 'configurations', 0, 'properties']
 
-export const fetch = () => (dispatch) => {
+export const fetch = () => dispatch => {
   dispatch(start())
 
   const url = [
@@ -41,19 +53,21 @@ export const fetch = () => (dispatch) => {
     'exec',
     'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     'getService',
-    '(service.pid=org.codice.ddf.catalog.ui)'
+    '(service.pid=org.codice.ddf.catalog.ui)',
   ].join('/')
 
-  window.fetch(url, {
-    credentials: 'same-origin',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-    .then((res) => res.json())
-    .then((json) => {
-      const config = fromJS(json).getIn(configPath)
-        .update('imageryProviders', (providers) => {
+  window
+    .fetch(url, {
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+    .then(res => res.json())
+    .then(json => {
+      const config = fromJS(json)
+        .getIn(configPath)
+        .update('imageryProviders', providers => {
           if (providers === undefined || providers === '') {
             return fromJS([])
           }
@@ -73,7 +87,7 @@ export const fetch = () => (dispatch) => {
       dispatch(set(config))
       dispatch(end())
     })
-    .catch((e) => {
+    .catch(e => {
       dispatch(end())
       dispatch(message(`Unable to retrieve map layers: ${e.message}`))
     })
@@ -81,7 +95,8 @@ export const fetch = () => (dispatch) => {
 
 export const save = () => (dispatch, getState) => {
   const state = getState()
-  const url = '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+  const url =
+    '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
 
   const providers = getProviders(state)
 
@@ -91,17 +106,20 @@ export const save = () => (dispatch, getState) => {
 
   dispatch(start())
 
-  const config = getConfig(state)
-    .set('imageryProviders', providers.map((provider) => provider.get('layer')))
+  const config = getConfig(state).set(
+    'imageryProviders',
+    providers.map(provider => provider.get('layer'))
+  )
 
   const body = {
     type: 'EXEC',
-    mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
+    mbean:
+      'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     operation: 'update',
     arguments: [
       'org.codice.ddf.catalog.ui',
-      config.update('imageryProviders', JSON.stringify).toJS()
-    ]
+      config.update('imageryProviders', JSON.stringify).toJS(),
+    ],
   }
 
   const opts = {
@@ -109,16 +127,22 @@ export const save = () => (dispatch, getState) => {
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   }
 
-  window.fetch(url, opts)
-    .then((res) => res.text())
-    .then((body) => {
-      const res = JSON.parse(body.replace(/(\[Ljava\.lang\.(Long|String);@[^,]+)/g, (_, str) => `"${str}"`))
+  window
+    .fetch(url, opts)
+    .then(res => res.text())
+    .then(body => {
+      const res = JSON.parse(
+        body.replace(
+          /(\[Ljava\.lang\.(Long|String);@[^,]+)/g,
+          (_, str) => `"${str}"`
+        )
+      )
       if (res.status !== 200) {
         throw new Error(res.error)
       }
@@ -126,13 +150,13 @@ export const save = () => (dispatch, getState) => {
       dispatch(end())
       dispatch(message('Successfully saved map layers', 'open intrigue'))
     })
-    .catch((e) => {
+    .catch(e => {
       dispatch(end())
       dispatch(message(`Unable to save map layers: ${e.message}`))
     })
 }
 
-export const validateJson = (json) => {
+export const validateJson = json => {
   try {
     JSON.parse(json)
     return undefined
@@ -141,24 +165,24 @@ export const validateJson = (json) => {
   }
 }
 
-export const validateStructure = (providers) => {
+export const validateStructure = providers => {
   if (!Array.isArray(providers)) {
     return 'Providers should be an array'
   }
 
-  if (providers.some((obj) => Array.isArray(obj) || typeof obj !== 'object')) {
+  if (providers.some(obj => Array.isArray(obj) || typeof obj !== 'object')) {
     return 'All provider entries must be objects'
   }
 }
 
-export const validate = (providers) => {
+export const validate = providers => {
   let errors = List()
 
   providers.forEach((provider, i) => {
     const layer = provider.get('layer')
 
     const name = layer.get('name')
-    const existing = providers.findIndex(function (o, q) {
+    const existing = providers.findIndex(function(o, q) {
       return o.get('layer').get('name') === name && q !== i
     })
 
@@ -167,7 +191,10 @@ export const validate = (providers) => {
     } else if (!matches(name, '^[\\w\\-\\s]+$')) {
       errors = errors.setIn([i, 'name'], 'Name must be alphanumeric')
     } else if (existing < i && existing !== -1) {
-      errors = errors.setIn([i, 'name'], 'Name is already in use and must be unique')
+      errors = errors.setIn(
+        [i, 'name'],
+        'Name is already in use and must be unique'
+      )
     }
 
     const alpha = layer.get('alpha')
@@ -185,7 +212,10 @@ export const validate = (providers) => {
     const proxyEnabled = layer.get('proxyEnabled')
 
     if (typeof proxyEnabled !== 'boolean') {
-      errors = errors.setIn([i, 'proxyEnabled'], 'Proxy enabled must be true or false')
+      errors = errors.setIn(
+        [i, 'proxyEnabled'],
+        'Proxy enabled must be true or false'
+      )
     }
 
     const show = layer.get('show')
@@ -205,8 +235,8 @@ export const validate = (providers) => {
     const url = layer.get('url')
 
     const opts = {
-      protocols: [ 'http', 'https' ],
-      require_protocol: true
+      protocols: ['http', 'https'],
+      require_protocol: true,
     }
 
     if (url === '') {
@@ -230,27 +260,39 @@ export const validate = (providers) => {
     } else if (typeof order !== 'number') {
       errors = errors.setIn([i, 'order'], 'Order must be a number')
     } else if (order < 0 || order > providers.size - 1) {
-      errors = errors.setIn([i, 'order'], `Order should be between 0 and ${providers.size - 1}`)
+      errors = errors.setIn(
+        [i, 'order'],
+        `Order should be between 0 and ${providers.size - 1}`
+      )
     } else {
-      const previous = providers.slice(0, i)
-        .find((provider) => order === provider.getIn(['layer', 'order']))
+      const previous = providers
+        .slice(0, i)
+        .find(provider => order === provider.getIn(['layer', 'order']))
       if (previous !== undefined) {
-        errors = errors.setIn([i, 'order'],
-          `Order ${order} previously used for ${previous.getIn(['layer', 'name'])}`)
+        errors = errors.setIn(
+          [i, 'order'],
+          `Order ${order} previously used for ${previous.getIn([
+            'layer',
+            'name',
+          ])}`
+        )
       }
     }
 
     const redirects = layer.get('withCredentials')
 
     if (typeof redirects !== 'boolean') {
-      errors = errors.setIn([i, 'withCredentials'], 'With credentials must be true or false')
+      errors = errors.setIn(
+        [i, 'withCredentials'],
+        'With credentials must be true or false'
+      )
     }
   })
 
   return errors
 }
 
-const emptyProvider = (index) => {
+const emptyProvider = index => {
   const layer = {
     name: '',
     url: '',
@@ -261,15 +303,15 @@ const emptyProvider = (index) => {
     show: true,
     parameters: {
       transparent: false,
-      format: ''
+      format: '',
     },
-    order: index
+    order: index,
   }
   const buffer = JSON.stringify(layer, null, 2)
   return fromJS({ buffer, layer })
 }
 
-const applyDefaults = (previousType = '') => (provider) => {
+const applyDefaults = (previousType = '') => provider => {
   const layer = provider.get('layer')
 
   if (previousType === '' && previousType !== layer.get('type')) {
@@ -281,7 +323,7 @@ const applyDefaults = (previousType = '') => (provider) => {
   return provider
 }
 
-const updateLayerFromBuffer = (provider) => {
+const updateLayerFromBuffer = provider => {
   try {
     const layer = fromJS(JSON.parse(provider.get('buffer')))
     return provider.set('layer', layer)
@@ -290,36 +332,43 @@ const updateLayerFromBuffer = (provider) => {
   }
 }
 
-const updateBufferFromLayer = (provider) => {
+const updateBufferFromLayer = provider => {
   const layer = provider.get('layer')
   const buffer = JSON.stringify(layer, null, 2)
   return provider.set('buffer', buffer)
 }
 
-const providers = (state = List(), { type, path, value = emptyProvider(state.size) }) => {
+const providers = (
+  state = List(),
+  { type, path, value = emptyProvider(state.size) }
+) => {
   switch (type) {
     case 'map-layers/SET':
-      return value.get('imageryProviders')
-        .map((layer) => fromJS({ layer, buffer: JSON.stringify(layer, null, 2) }))
+      return value
+        .get('imageryProviders')
+        .map(layer => fromJS({ layer, buffer: JSON.stringify(layer, null, 2) }))
     case 'map-layers/UPDATE':
-      const [ index ] = path
+      const [index] = path
 
       if (value === null) {
-        return state.remove(index)
+        return state
+          .remove(index)
           .map((layer, i) =>
-            layer.setIn(['layer', 'order'], i)
-              .update(updateBufferFromLayer))
+            layer.setIn(['layer', 'order'], i).update(updateBufferFromLayer)
+          )
       }
 
       const previousType = state.getIn([index, 'layer', 'type'])
 
       const updater = path.includes('buffer')
-        ? updateLayerFromBuffer : updateBufferFromLayer
+        ? updateLayerFromBuffer
+        : updateBufferFromLayer
 
-      return state.setIn(path, fromJS(value))
+      return state
+        .setIn(path, fromJS(value))
         .update(index, applyDefaults(previousType))
         .update(index, updater)
-        .sortBy((provider) => provider.getIn(['layer', 'order']))
+        .sortBy(provider => provider.getIn(['layer', 'order']))
     default:
       return state
   }

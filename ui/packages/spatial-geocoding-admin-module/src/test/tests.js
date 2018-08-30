@@ -13,62 +13,63 @@
  *
  **/
 
-var chai = require('chai');
-require('underscore');
-var Backbone = require('backbone');
-Backbone.$ = require('jquery');
-require('backbone.marionette');
-var ingestModel = require('../main/webapp/js/model/Ingest');
+var chai = require('chai')
+require('underscore')
+var Backbone = require('backbone')
+Backbone.$ = require('jquery')
+require('backbone.marionette')
+var ingestModel = require('../main/webapp/js/model/Ingest')
 
-describe('GeoNames Ingest Model', function(){
-    var mockFile = {
-        files : [
-            { name: "file.zip",
-                size : 1024,
-                type : "zip"
-            }
-        ],
-        state: "start",
-        loaded: 0,
-        errorThrown: "",
-        total: 1024
-    };
-    var model = ingestModel.DetailModel.extend().__super__;
-    var modelDataFile = model.buildModelFromFileData(mockFile).attributes;
+describe('GeoNames Ingest Model', function() {
+  var mockFile = {
+    files: [
+      {
+        name: 'file.zip',
+        size: 1024,
+        type: 'zip',
+      },
+    ],
+    state: 'start',
+    loaded: 0,
+    errorThrown: '',
+    total: 1024,
+  }
+  var model = ingestModel.DetailModel.extend().__super__
+  var modelDataFile = model.buildModelFromFileData(mockFile).attributes
 
-    describe('Defaults', function() {
-        var defaults = model.defaults;
-        it('should have http://download.geonames.org/export/dump/allCountries.zip as a default url', function(){
-            chai.assert.equal(defaults.url,"http://download.geonames.org/export/dump/allCountries.zip");
-        });
+  describe('Defaults', function() {
+    var defaults = model.defaults
+    it('should have http://download.geonames.org/export/dump/allCountries.zip as a default url', function() {
+      chai.assert.equal(
+        defaults.url,
+        'http://download.geonames.org/export/dump/allCountries.zip'
+      )
+    })
 
-        it('should have a start state', function(){
-            chai.assert.equal(defaults.state,"start");
-        });
+    it('should have a start state', function() {
+      chai.assert.equal(defaults.state, 'start')
+    })
 
-        it('should have 0 progress', function(){
-            chai.assert.equal(defaults.progress,0);
-        });
-    });
+    it('should have 0 progress', function() {
+      chai.assert.equal(defaults.progress, 0)
+    })
+  })
 
-    describe('Build Data from Mock File Object', function() {
+  describe('Build Data from Mock File Object', function() {
+    it('should have the same filename ', function() {
+      chai.assert.equal(modelDataFile.name, 'file.zip')
+    })
 
-        it('should have the same filename ', function(){
-            chai.assert.equal(modelDataFile.name,"file.zip");
-        });
+    it('should have a start state', function() {
+      chai.assert.equal(modelDataFile.state, 'start')
+    })
 
-        it('should have a start state', function(){
-            chai.assert.equal(modelDataFile.state,"start");
-        });
+    it('should have a zip file type', function() {
+      chai.assert.equal(modelDataFile.type, 'zip')
+    })
 
-        it('should have a zip file type', function(){
-            chai.assert.equal(modelDataFile.type,"zip");
-        });
-
-        it('should be 1024 in size', function(){
-            chai.assert.equal(modelDataFile.size,1024);
-        });
-
-    });
-
-});
+    it('should be 1024 in size', function() {
+      chai.assert.equal(modelDataFile.size, 1024)
+    })
+  })
+})

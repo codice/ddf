@@ -1,23 +1,23 @@
 @{customElementNamespace}dropdown.is-search-interactions {
-    display: block;
+  display: block;
+  position: relative;
+  text-align: center;
+
+  .notification-icon {
     position: relative;
-    text-align: center;
+    cursor: pointer;
+  }
 
-    .notification-icon {
-        position: relative;
-        cursor: pointer;
-    }
-
-    .fa-bell {
-        display: none;
-    }
+  .fa-bell {
+    display: none;
+  }
 }
 
 @{customElementNamespace}dropdown.is-search-interactions.is-polling {
   .fa-bell-slash {
-      display: none;
+    display: none;
   }
   .fa-bell {
-      display: inline;
+    display: inline;
   }
 }

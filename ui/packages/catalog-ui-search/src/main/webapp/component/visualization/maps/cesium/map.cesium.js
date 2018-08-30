@@ -11,681 +11,778 @@
  **/
 /*global require, window*/
 
-var $ = require('jquery');
-var _ = require('underscore');
-var Map = require('../map');
-var utility = require('./utility');
-var DrawingUtility = require('../DrawingUtility');
-var store = require('js/store');
+var $ = require('jquery')
+var _ = require('underscore')
+var Map = require('../map')
+var utility = require('./utility')
+var DrawingUtility = require('../DrawingUtility')
+var store = require('js/store')
 
-var DrawBBox = require('js/widgets/cesium.bbox');
-var DrawCircle = require('js/widgets/cesium.circle');
-var DrawPolygon = require('js/widgets/cesium.polygon');
-var DrawLine = require('js/widgets/cesium.line');
+var DrawBBox = require('js/widgets/cesium.bbox')
+var DrawCircle = require('js/widgets/cesium.circle')
+var DrawPolygon = require('js/widgets/cesium.polygon')
+var DrawLine = require('js/widgets/cesium.line')
 
-var properties = require('properties');
-var Cesium = require('cesium');
-var DrawHelper = require('cesium-drawhelper/DrawHelper');
-var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
-var user = require('component/singletons/user-instance');
-var User = require('js/model/User');
-var wreqr = require('wreqr');
-var gazetteer = require('./geocoder');
-var mtgeo = require('mt-geo');
+var properties = require('properties')
+var Cesium = require('cesium')
+var DrawHelper = require('cesium-drawhelper/DrawHelper')
+var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller')
+var user = require('component/singletons/user-instance')
+var User = require('js/model/User')
+var wreqr = require('wreqr')
+var gazetteer = require('./geocoder')
+var mtgeo = require('mt-geo')
 
-var defaultColor = '#3c6dd5';
-var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
-var pixelOffset = new Cesium.Cartesian2(0.0, 0);
+var defaultColor = '#3c6dd5'
+var eyeOffset = new Cesium.Cartesian3(0, 0, 0)
+var pixelOffset = new Cesium.Cartesian2(0.0, 0)
 
-Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
+Cesium.BingMapsApi.defaultKey = properties.bingKey || 0
+var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes
 
 function setupTerrainProvider(viewer, { type, ...terrainConfig } = {}) {
-    const TerrainProvider = imageryProviderTypes[type];
-    if (TerrainProvider === undefined) {
-        console.warn(`
+  const TerrainProvider = imageryProviderTypes[type]
+  if (TerrainProvider === undefined) {
+    console.warn(`
             Unknown terrain provider type: ${type}.
             Default Cesium terrain provider will be used.
-        `);
-        return;
-    }
-    const defaultCesiumTerrainProvider = viewer.scene.terrainProvider;
-    const customTerrainProvider = new TerrainProvider(terrainConfig);
-    customTerrainProvider.errorEvent.addEventListener((e) => {
-        console.warn(`
-            Issue using terrain provider: ${JSON.stringify({type, ...terrainConfig})}
+        `)
+    return
+  }
+  const defaultCesiumTerrainProvider = viewer.scene.terrainProvider
+  const customTerrainProvider = new TerrainProvider(terrainConfig)
+  customTerrainProvider.errorEvent.addEventListener(e => {
+    console.warn(`
+            Issue using terrain provider: ${JSON.stringify({
+              type,
+              ...terrainConfig,
+            })}
             Falling back to default Cesium terrain provider.
-        `);
-        viewer.scene.terrainProvider = defaultCesiumTerrainProvider;
-    });
-    viewer.scene.terrainProvider = customTerrainProvider;
+        `)
+    viewer.scene.terrainProvider = defaultCesiumTerrainProvider
+  })
+  viewer.scene.terrainProvider = customTerrainProvider
 }
 
 function createMap(insertionElement) {
-    var layerPrefs = user.get('user>preferences>mapLayers');
-    User.updateMapLayers(layerPrefs);
-    var layerCollectionController = new CesiumLayerCollectionController({
-        collection: layerPrefs
-    });
+  var layerPrefs = user.get('user>preferences>mapLayers')
+  User.updateMapLayers(layerPrefs)
+  var layerCollectionController = new CesiumLayerCollectionController({
+    collection: layerPrefs,
+  })
 
-    var viewer = layerCollectionController.makeMap({
-        element: insertionElement,
-        cesiumOptions: {
-            sceneMode: Cesium.SceneMode.SCENE3D,
-            animation: false,
-            fullscreenButton: false,
-            timeline: false,
-            geocoder: new gazetteer(),
-            homeButton: false,
-            navigationHelpButton: false,
-            sceneModePicker: false,
-            selectionIndicator: false,
-            infoBox: false,
-            //skyBox: false,
-            //skyAtmosphere: false,
-            baseLayerPicker: false, // Hide the base layer picker,
-            imageryProvider: false, // prevent default imagery provider
-            mapMode2D: 0
-        }
-    });
+  var viewer = layerCollectionController.makeMap({
+    element: insertionElement,
+    cesiumOptions: {
+      sceneMode: Cesium.SceneMode.SCENE3D,
+      animation: false,
+      fullscreenButton: false,
+      timeline: false,
+      geocoder: new gazetteer(),
+      homeButton: false,
+      navigationHelpButton: false,
+      sceneModePicker: false,
+      selectionIndicator: false,
+      infoBox: false,
+      //skyBox: false,
+      //skyAtmosphere: false,
+      baseLayerPicker: false, // Hide the base layer picker,
+      imageryProvider: false, // prevent default imagery provider
+      mapMode2D: 0,
+    },
+  })
 
-    // disable right click drag to zoom (context menu instead);
-    viewer.scene.screenSpaceCameraController.zoomEventTypes = [Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+  // disable right click drag to zoom (context menu instead);
+  viewer.scene.screenSpaceCameraController.zoomEventTypes = [
+    Cesium.CameraEventType.WHEEL,
+    Cesium.CameraEventType.PINCH,
+  ]
 
-    viewer.screenSpaceEventHandler.setInputAction(function() {
-        if (!store.get('content').get('drawing')){
-             $('body').mousedown();
-        }
-    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+  viewer.screenSpaceEventHandler.setInputAction(function() {
+    if (!store.get('content').get('drawing')) {
+      $('body').mousedown()
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
-    viewer.screenSpaceEventHandler.setInputAction(function() {
-        if (!store.get('content').get('drawing')){
-             $('body').mousedown();
-        }
-    }, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
+  viewer.screenSpaceEventHandler.setInputAction(function() {
+    if (!store.get('content').get('drawing')) {
+      $('body').mousedown()
+    }
+  }, Cesium.ScreenSpaceEventType.RIGHT_DOWN)
 
-    setupTerrainProvider(viewer, properties.terrainProvider);
+  setupTerrainProvider(viewer, properties.terrainProvider)
 
-    return viewer;
+  return viewer
 }
 
 function determineIdFromPosition(position, map) {
-    var id;
-    var pickedObject = map.scene.pick(position);
-    if (pickedObject) {
-        id = pickedObject.id;
-        if (id && id.constructor === Cesium.Entity) {
-            id = id.resultId;
-        }
+  var id
+  var pickedObject = map.scene.pick(position)
+  if (pickedObject) {
+    id = pickedObject.id
+    if (id && id.constructor === Cesium.Entity) {
+      id = id.resultId
     }
-    return id;
+  }
+  return id
 }
 
 function expandRectangle(rectangle) {
-    var scalingFactor = 0.25;
+  var scalingFactor = 0.25
 
-    var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west);
-    var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
+  var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west)
+  var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south)
 
-    //ensure rectangle has some size
-    if (widthGap === 0) {
-        widthGap = 1;
-    }
-    if (heightGap === 0) {
-        heightGap = 1;
-    }
+  //ensure rectangle has some size
+  if (widthGap === 0) {
+    widthGap = 1
+  }
+  if (heightGap === 0) {
+    heightGap = 1
+  }
 
-    rectangle.east = rectangle.east + Math.abs(scalingFactor * widthGap);
-    rectangle.north = rectangle.north + Math.abs(scalingFactor * heightGap);
-    rectangle.south = rectangle.south - Math.abs(scalingFactor * heightGap);
-    rectangle.west = rectangle.west - Math.abs(scalingFactor * widthGap);
+  rectangle.east = rectangle.east + Math.abs(scalingFactor * widthGap)
+  rectangle.north = rectangle.north + Math.abs(scalingFactor * heightGap)
+  rectangle.south = rectangle.south - Math.abs(scalingFactor * heightGap)
+  rectangle.west = rectangle.west - Math.abs(scalingFactor * widthGap)
 
-    return rectangle;
+  return rectangle
 }
 
 function getDestinationForVisiblePan(rectangle, map) {
-    var destinationForZoom = expandRectangle(rectangle);
-    if (map.scene.mode === Cesium.SceneMode.SCENE3D){
-        destinationForZoom = map.camera.getRectangleCameraCoordinates(destinationForZoom);
-    }
-    return destinationForZoom;
+  var destinationForZoom = expandRectangle(rectangle)
+  if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
+    destinationForZoom = map.camera.getRectangleCameraCoordinates(
+      destinationForZoom
+    )
+  }
+  return destinationForZoom
 }
 
 function determineCesiumColor(color) {
-    return !_.isUndefined(color) ?
-        Cesium.Color.fromCssColorString(color) : Cesium.Color.fromCssColorString(defaultColor);
+  return !_.isUndefined(color)
+    ? Cesium.Color.fromCssColorString(color)
+    : Cesium.Color.fromCssColorString(defaultColor)
 }
 
 function convertPointCoordinate(coordinate) {
-    return {
-        latitude: coordinate[1],
-        longitude: coordinate[0],
-        altitude: coordinate[2]
-    };
+  return {
+    latitude: coordinate[1],
+    longitude: coordinate[0],
+    altitude: coordinate[2],
+  }
 }
 
 function isNotVisible(cartesian3CenterOfGeometry, occluder) {
-    return !occluder.isPointVisible(cartesian3CenterOfGeometry);
+  return !occluder.isPointVisible(cartesian3CenterOfGeometry)
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, mapModel) {
-    var overlays = {};
-    var shapes = [];
-    var map = createMap(insertionElement);
-    var drawHelper = new DrawHelper(map);
-    var billboardCollection = setupBillboard();
-    var drawingTools = setupDrawingTools(map);
-    setupTooltip(map, selectionInterface);
+module.exports = function CesiumMap(
+  insertionElement,
+  selectionInterface,
+  notificationEl,
+  componentElement,
+  mapModel
+) {
+  var overlays = {}
+  var shapes = []
+  var map = createMap(insertionElement)
+  var drawHelper = new DrawHelper(map)
+  var billboardCollection = setupBillboard()
+  var drawingTools = setupDrawingTools(map)
+  setupTooltip(map, selectionInterface)
 
-    function updateCoordinatesTooltip(position) {
-        var cartesian = map.camera.pickEllipsoid(position, map.scene.globe.ellipsoid);
-        if (Cesium.defined(cartesian)){
-            let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-            mapModel.updateMouseCoordinates({
-                lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
-                lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
-            });
-        } else {
-            mapModel.clearMouseCoordinates();
-        }
+  function updateCoordinatesTooltip(position) {
+    var cartesian = map.camera.pickEllipsoid(
+      position,
+      map.scene.globe.ellipsoid
+    )
+    if (Cesium.defined(cartesian)) {
+      let cartographic = Cesium.Cartographic.fromCartesian(cartesian)
+      mapModel.updateMouseCoordinates({
+        lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+        lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN,
+      })
+    } else {
+      mapModel.clearMouseCoordinates()
     }
+  }
 
-    function setupTooltip(map, selectionInterface) {
-        var handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas);
-        handler.setInputAction(function(movement) {
-            $(componentElement).removeClass('has-feature');
-            if (map.scene.mode === Cesium.SceneMode.MORPHING) {
-                return;
-            }
-            updateCoordinatesTooltip(movement.endPosition);
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  function setupTooltip(map, selectionInterface) {
+    var handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas)
+    handler.setInputAction(function(movement) {
+      $(componentElement).removeClass('has-feature')
+      if (map.scene.mode === Cesium.SceneMode.MORPHING) {
+        return
+      }
+      updateCoordinatesTooltip(movement.endPosition)
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+  }
+
+  function setupDrawingTools(map) {
+    return {
+      bbox: new DrawBBox.Controller({
+        map: map,
+        notificationEl: notificationEl,
+      }),
+      circle: new DrawCircle.Controller({
+        map: map,
+        notificationEl: notificationEl,
+      }),
+      polygon: new DrawPolygon.Controller({
+        map: map,
+        notificationEl: notificationEl,
+        drawHelper: drawHelper,
+      }),
+      line: new DrawLine.Controller({
+        map: map,
+        notificationEl: notificationEl,
+        drawHelper: drawHelper,
+      }),
     }
+  }
 
-    function setupDrawingTools(map) {
-        return {
-            bbox: new DrawBBox.Controller({
-                map: map,
-                notificationEl: notificationEl
-            }),
-            circle: new DrawCircle.Controller({
-                map: map,
-                notificationEl: notificationEl
-            }),
-            polygon: new DrawPolygon.Controller({
-                map: map,
-                notificationEl: notificationEl,
-                drawHelper: drawHelper,
-            }),
-            line: new DrawLine.Controller({
-                map: map,
-                notificationEl: notificationEl,
-                drawHelper: drawHelper,
+  function setupBillboard() {
+    var billboardCollection = new Cesium.BillboardCollection()
+    map.scene.primitives.add(billboardCollection)
+    return billboardCollection
+  }
+
+  var exposedMethods = _.extend({}, Map, {
+    drawLine: function(model) {
+      drawingTools.line.draw(model)
+    },
+    drawBbox: function(model) {
+      drawingTools.bbox.draw(model)
+    },
+    drawCircle: function(model) {
+      drawingTools.circle.draw(model)
+    },
+    drawPolygon: function(model) {
+      drawingTools.polygon.draw(model)
+    },
+    destroyDrawingTools: function() {
+      drawingTools.line.destroy()
+      drawingTools.polygon.destroy()
+      drawingTools.circle.destroy()
+      drawingTools.bbox.destroy()
+    },
+    onLeftClick: function(callback) {
+      $(map.scene.canvas).on('click', function(e) {
+        var boundingRect = map.scene.canvas.getBoundingClientRect()
+        callback(e, {
+          mapTarget: determineIdFromPosition(
+            {
+              x: e.clientX - boundingRect.left,
+              y: e.clientY - boundingRect.top,
+            },
+            map
+          ),
+        })
+      })
+    },
+    onRightClick: function(callback) {
+      $(map.scene.canvas).on('contextmenu', function(e) {
+        var boundingRect = map.scene.canvas.getBoundingClientRect()
+        callback(e)
+      })
+    },
+    onMouseMove: function(callback) {
+      $(map.scene.canvas).on('mousemove', function(e) {
+        var boundingRect = map.scene.canvas.getBoundingClientRect()
+        callback(e, {
+          mapTarget: determineIdFromPosition(
+            {
+              x: e.clientX - boundingRect.left,
+              y: e.clientY - boundingRect.top,
+            },
+            map
+          ),
+        })
+      })
+    },
+    onCameraMoveStart: function(callback) {
+      map.scene.camera.moveStart.addEventListener(callback)
+    },
+    onCameraMoveEnd: function(callback) {
+      map.scene.camera.moveEnd.addEventListener(callback)
+    },
+    zoomToSelected: function() {
+      if (selectionInterface.getSelectedResults().length === 1) {
+        this.panToResults(selectionInterface.getSelectedResults())
+      }
+    },
+    panToResults: function(results) {
+      var rectangle, cartArray, point
+
+      cartArray = _.flatten(
+        results
+          .filter(function(result) {
+            return result.hasGeometry()
+          })
+          .map(function(result) {
+            return _.map(result.getPoints(), function(coordinate) {
+              return Cesium.Cartographic.fromDegrees(
+                coordinate[0],
+                coordinate[1],
+                map.camera._positionCartographic.height
+              )
             })
-        };
-    }
+          }, true)
+      )
 
-    function setupBillboard() {
-        var billboardCollection = new Cesium.BillboardCollection();
-        map.scene.primitives.add(billboardCollection);
-        return billboardCollection;
-    }
+      if (cartArray.length > 0) {
+        if (cartArray.length === 1) {
+          point = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartArray[0])
+          this.panToCoordinate(point)
+        } else {
+          rectangle = Cesium.Rectangle.fromCartographicArray(cartArray)
+          this.panToRectangle(rectangle)
+        }
+      }
+    },
+    panToCoordinate: function(coords) {
+      map.scene.camera.flyTo({
+        duration: 0.5,
+        destination: coords,
+      })
+    },
+    panToExtent: function(coords) {},
+    panToRectangle: function(rectangle) {
+      map.scene.camera.flyTo({
+        duration: 0.5,
+        destination: getDestinationForVisiblePan(rectangle, map),
+        complete: function() {
+          map.scene.camera.flyTo({
+            duration: 0.25,
+            destination: getDestinationForVisiblePan(rectangle, map),
+          })
+        },
+      })
+    },
+    zoomToExtent: function(coords) {},
+    zoomToBoundingBox: function({ north, south, east, west }) {
+      map.scene.camera.flyTo({
+        duration: 0.5,
+        destination: Cesium.Rectangle.fromDegrees(west, south, east, north),
+      })
+    },
+    overlayImage: function(model) {
+      var metacardId = model.get('properties').get('id')
+      this.removeOverlay(metacardId)
 
-    var exposedMethods = _.extend({}, Map, {
-        drawLine: function(model){
-            drawingTools.line.draw(model);
-        },
-        drawBbox: function(model){
-            drawingTools.bbox.draw(model);
-        },
-        drawCircle: function(model){
-            drawingTools.circle.draw(model);
-        },
-        drawPolygon: function(model){
-            drawingTools.polygon.draw(model);
-        },
-        destroyDrawingTools: function() {
-            drawingTools.line.destroy();
-            drawingTools.polygon.destroy();
-            drawingTools.circle.destroy();
-            drawingTools.bbox.destroy();
-        },
-        onLeftClick: function(callback) {
-            $(map.scene.canvas).on('click', function(e) {
-                var boundingRect = map.scene.canvas.getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition({
-                        x: e.clientX - boundingRect.left,
-                        y: e.clientY - boundingRect.top
-                    }, map)
-                });
-            });
-        },
-        onRightClick: function(callback) {
-            $(map.scene.canvas).on('contextmenu', function(e) {
-                var boundingRect = map.scene.canvas.getBoundingClientRect();
-                callback(e);
-            });
-        },
-        onMouseMove: function(callback) {
-            $(map.scene.canvas).on('mousemove', function(e) {
-                var boundingRect = map.scene.canvas.getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition({
-                        x: e.clientX - boundingRect.left,
-                        y: e.clientY - boundingRect.top
-                    }, map)
-                });
-            });
-        },
-        onCameraMoveStart: function(callback) {
-            map.scene.camera.moveStart.addEventListener(callback);
-        },
-        onCameraMoveEnd: function(callback) {
-            map.scene.camera.moveEnd.addEventListener(callback);
-        },
-        zoomToSelected: function() {
-            if (selectionInterface.getSelectedResults().length === 1) {
-                this.panToResults(selectionInterface.getSelectedResults());
-            }
-        },
-        panToResults: function(results) {
-            var rectangle, cartArray, point;
+      var coords = model.getPoints('location')
+      var cartographics = _.map(coords, function(coord) {
+        coord = convertPointCoordinate(coord)
+        return Cesium.Cartographic.fromDegrees(
+          coord.longitude,
+          coord.latitude,
+          coord.altitude
+        )
+      })
 
-            cartArray = _.flatten(results.filter(function(result) {
-                return result.hasGeometry();
-            }).map(function(result) {
-                return _.map(result.getPoints(), function(coordinate) {
-                    return Cesium.Cartographic.fromDegrees(coordinate[0], coordinate[1], map.camera._positionCartographic.height);
-                });
-            }, true));
+      var rectangle = Cesium.Rectangle.fromCartographicArray(cartographics)
 
-            if (cartArray.length > 0) {
-                if (cartArray.length === 1) {
-                    point = Cesium.Ellipsoid.WGS84
-                        .cartographicToCartesian(cartArray[0]);
-                    this.panToCoordinate(point);
-                } else {
-                    rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
-                    this.panToRectangle(rectangle);
-                }
-            }
-        },
-        panToCoordinate: function(coords) {
-            map.scene.camera.flyTo({
-                duration: 0.50,
-                destination: coords
-            });
-        },
-        panToExtent: function(coords) {},
-        panToRectangle: function(rectangle) {
-            map.scene.camera.flyTo({
-                duration: 0.50,
-                destination: getDestinationForVisiblePan(rectangle, map),
-                complete: function() {
-                    map.scene.camera.flyTo({
-                        duration: 0.25,
-                        destination: getDestinationForVisiblePan(rectangle, map)
-                    });
-                }
-            });
-        },
-        zoomToExtent: function(coords) {},
-        zoomToBoundingBox: function({north, south, east, west}) {
-            map.scene.camera.flyTo({
-                duration: 0.50,
-                destination: Cesium.Rectangle.fromDegrees(west, south, east, north)
-            });
-        },
-        overlayImage: function(model) {
-            var metacardId = model.get('properties').get('id');
-            this.removeOverlay(metacardId);
+      var overlayLayer = map.scene.imageryLayers.addImageryProvider(
+        new Cesium.SingleTileImageryProvider({
+          url: model.get('currentOverlayUrl'),
+          rectangle: rectangle,
+        })
+      )
 
-            var coords = model.getPoints('location');
-            var cartographics = _.map(coords, function(coord) {
-                coord = convertPointCoordinate(coord);
-                return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
-            });
-
-            var rectangle = Cesium.Rectangle.fromCartographicArray(cartographics);
-
-            var overlayLayer = map.scene.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
-                url: model.get('currentOverlayUrl'),
-                rectangle: rectangle
-            }));
-
-            overlays[metacardId] = overlayLayer;
-        },
-        removeOverlay: function(metacardId) {
-            if (overlays[metacardId]) {
-                map.scene.imageryLayers.remove(overlays[metacardId]);
-                delete overlays[metacardId];
-            }
-        },
-        removeAllOverlays: function() {
-            for (var overlay in overlays) {
-                if (overlays.hasOwnProperty(overlay)) {
-                    map.scene.imageryLayers.remove(overlays[overlay]);
-                }
-            }
-            overlays = {};
-        },
-        getCartographicCenterOfClusterInDegrees: function(cluster) {
-            return utility.calculateCartographicCenterOfGeometriesInDegrees(cluster.get('results').map(function(result) {
-                return result;
-            }));
-        },
-        getWindowLocationsOfResults: function(results) {
-            var occluder;
-            if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
-                occluder = new Cesium.EllipsoidalOccluder(Cesium.Ellipsoid.WGS84, map.scene.camera.position);
-            }
-            return results.map(function(result) {
-                var cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(result);
-                if (occluder && isNotVisible(cartesian3CenterOfGeometry, occluder)) {
-                    return undefined;
-                }
-                var center = utility.calculateWindowCenterOfGeometry(cartesian3CenterOfGeometry, map);
-                if (center) {
-                    return [center.x, center.y];
-                } else {
-                    return undefined;
-                }
-            });
-        },
-        /*
+      overlays[metacardId] = overlayLayer
+    },
+    removeOverlay: function(metacardId) {
+      if (overlays[metacardId]) {
+        map.scene.imageryLayers.remove(overlays[metacardId])
+        delete overlays[metacardId]
+      }
+    },
+    removeAllOverlays: function() {
+      for (var overlay in overlays) {
+        if (overlays.hasOwnProperty(overlay)) {
+          map.scene.imageryLayers.remove(overlays[overlay])
+        }
+      }
+      overlays = {}
+    },
+    getCartographicCenterOfClusterInDegrees: function(cluster) {
+      return utility.calculateCartographicCenterOfGeometriesInDegrees(
+        cluster.get('results').map(function(result) {
+          return result
+        })
+      )
+    },
+    getWindowLocationsOfResults: function(results) {
+      var occluder
+      if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
+        occluder = new Cesium.EllipsoidalOccluder(
+          Cesium.Ellipsoid.WGS84,
+          map.scene.camera.position
+        )
+      }
+      return results.map(function(result) {
+        var cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(
+          result
+        )
+        if (occluder && isNotVisible(cartesian3CenterOfGeometry, occluder)) {
+          return undefined
+        }
+        var center = utility.calculateWindowCenterOfGeometry(
+          cartesian3CenterOfGeometry,
+          map
+        )
+        if (center) {
+          return [center.x, center.y]
+        } else {
+          return undefined
+        }
+      })
+    },
+    /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
         */
-        addPointWithText: function(point, options) {
-            var pointObject = convertPointCoordinate(point);
-            var cartographicPosition = Cesium.Cartographic.fromDegrees(
-                pointObject.longitude,
-                pointObject.latitude,
-                pointObject.altitude
-            );
-            var cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition);
-            var billboardRef = billboardCollection.add({
-                image: DrawingUtility.getCircleWithText({
-                    fillColor: options.color,
-                    text: options.id.length,
-                }),
-                position: cartesianPosition,
-                id: options.id,
-                eyeOffset: eyeOffset
-            });
-            //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
-            if (!pointObject.altitude && map.scene.terrainProvider) {
-                var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [cartographicPosition]);
-                Cesium.when(promise, function(updatedCartographic) {
-                    if (updatedCartographic[0].height && !options.view.isDestroyed) {
-                        cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(updatedCartographic[0]);
-                        billboardRef.position = cartesianPosition;
-                    }
-                });
-            }
+    addPointWithText: function(point, options) {
+      var pointObject = convertPointCoordinate(point)
+      var cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      var cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
+      var billboardRef = billboardCollection.add({
+        image: DrawingUtility.getCircleWithText({
+          fillColor: options.color,
+          text: options.id.length,
+        }),
+        position: cartesianPosition,
+        id: options.id,
+        eyeOffset: eyeOffset,
+      })
+      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+      if (!pointObject.altitude && map.scene.terrainProvider) {
+        var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
+          cartographicPosition,
+        ])
+        Cesium.when(promise, function(updatedCartographic) {
+          if (updatedCartographic[0].height && !options.view.isDestroyed) {
+            cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+              updatedCartographic[0]
+            )
+            billboardRef.position = cartesianPosition
+          }
+        })
+      }
 
-            return billboardRef;
-        },
-        /*
+      return billboardRef
+    },
+    /*
           Adds a billboard point utilizing the passed in point and options.
           Options are a view to relate to, and an id, and a color.
         */
-        addPoint: function(point, options) {
-            var pointObject = convertPointCoordinate(point);
-            var cartographicPosition = Cesium.Cartographic.fromDegrees(
-                pointObject.longitude,
-                pointObject.latitude,
-                pointObject.altitude
-            );
-            var billboardRef = billboardCollection.add({
-                image: DrawingUtility.getPin({
-                    fillColor: options.color,
-                    icon: options.icon
-                }),
-                position: map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition),
-                id: options.id,
-                eyeOffset: eyeOffset,
-                pixelOffset: pixelOffset,
-                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                horizontalOrigin: Cesium.HorizontalOrigin.CENTER
-            });
-            //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
-            if (!pointObject.altitude && map.scene.terrainProvider) {
-                var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [cartographicPosition]);
-                Cesium.when(promise, function(updatedCartographic) {
-                    if (updatedCartographic[0].height && !options.view.isDestroyed) {
-                        billboardRef.position = map.scene.globe.ellipsoid.cartographicToCartesian(updatedCartographic[0]);
-                    }
-                });
-            }
+    addPoint: function(point, options) {
+      var pointObject = convertPointCoordinate(point)
+      var cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      var billboardRef = billboardCollection.add({
+        image: DrawingUtility.getPin({
+          fillColor: options.color,
+          icon: options.icon,
+        }),
+        position: map.scene.globe.ellipsoid.cartographicToCartesian(
+          cartographicPosition
+        ),
+        id: options.id,
+        eyeOffset: eyeOffset,
+        pixelOffset: pixelOffset,
+        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+      })
+      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+      if (!pointObject.altitude && map.scene.terrainProvider) {
+        var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
+          cartographicPosition,
+        ])
+        Cesium.when(promise, function(updatedCartographic) {
+          if (updatedCartographic[0].height && !options.view.isDestroyed) {
+            billboardRef.position = map.scene.globe.ellipsoid.cartographicToCartesian(
+              updatedCartographic[0]
+            )
+          }
+        })
+      }
 
-            return billboardRef;
-        },
-        /*
+      return billboardRef
+    },
+    /*
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
         */
-        addLine: function(line, options) {
-            var lineObject = line.map(function(coordinate) {
-                return convertPointCoordinate(coordinate);
-            });
-            var cartPoints = _.map(lineObject, function(point) {
-                return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-            });
-            var cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+    addLine: function(line, options) {
+      var lineObject = line.map(function(coordinate) {
+        return convertPointCoordinate(coordinate)
+      })
+      var cartPoints = _.map(lineObject, function(point) {
+        return Cesium.Cartographic.fromDegrees(
+          point.longitude,
+          point.latitude,
+          point.altitude
+        )
+      })
+      var cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
+        cartPoints
+      )
 
-            var polylineCollection = new Cesium.PolylineCollection();
-            var polyline = polylineCollection.add({
-                width: 8,
-                material: Cesium.Material.fromType('PolylineOutline', {
-                    color: determineCesiumColor(options.color),
-                    outlineColor: Cesium.Color.WHITE,
-                    outlineWidth: 4
-                }),
-                id: options.id,
-                positions: cartesian
-            });
+      var polylineCollection = new Cesium.PolylineCollection()
+      var polyline = polylineCollection.add({
+        width: 8,
+        material: Cesium.Material.fromType('PolylineOutline', {
+          color: determineCesiumColor(options.color),
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 4,
+        }),
+        id: options.id,
+        positions: cartesian,
+      })
 
-            if (map.scene.terrainProvider) {
-                var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, cartPoints);
-                Cesium.when(promise, function(updatedCartographic) {
-                    var positions = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(updatedCartographic);
-                    if (updatedCartographic[0].height && !options.view.isDestroyed) {
-                        polyline.positions = positions;
-                    }
-                });
-            }
+      if (map.scene.terrainProvider) {
+        var promise = Cesium.sampleTerrain(
+          map.scene.terrainProvider,
+          5,
+          cartPoints
+        )
+        Cesium.when(promise, function(updatedCartographic) {
+          var positions = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
+            updatedCartographic
+          )
+          if (updatedCartographic[0].height && !options.view.isDestroyed) {
+            polyline.positions = positions
+          }
+        })
+      }
 
-            map.scene.primitives.add(polylineCollection);
-            return polylineCollection;
-        },
-        /*
+      map.scene.primitives.add(polylineCollection)
+      return polylineCollection
+    },
+    /*
           Adds a polygon fill utilizing the passed in polygon and options.
           Options are a view to relate to, and an id.
         */
-        addPolygon: function(polygon, options) {
-            var polygonObject = polygon.map(function(coordinate) {
-                return convertPointCoordinate(coordinate);
-            });
-            var cartPoints = _.map(polygonObject, function(point) {
-                return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-            });
-            var cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+    addPolygon: function(polygon, options) {
+      var polygonObject = polygon.map(function(coordinate) {
+        return convertPointCoordinate(coordinate)
+      })
+      var cartPoints = _.map(polygonObject, function(point) {
+        return Cesium.Cartographic.fromDegrees(
+          point.longitude,
+          point.latitude,
+          point.altitude
+        )
+      })
+      var cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
+        cartPoints
+      )
 
-            var unselectedPolygonRef = map.entities.add({
-                polygon: {
-                    hierarchy: cartesian,
-                    material: new Cesium.GridMaterialProperty({
-                        color: Cesium.Color.WHITE,
-                        cellAlpha: 0.0,
-                        lineCount: new Cesium.Cartesian2(2, 2),
-                        lineThickness: new Cesium.Cartesian2(2.0, 2.0),
-                        lineOffset: new Cesium.Cartesian2(0.0, 0.0)
-                    }),
-                    perPositionHeight: true
-                },
-                show: true,
-                resultId: options.id,
-                showWhenSelected: false
-            });
-
-            var selectedPolygonRef = map.entities.add({
-                polygon: {
-                    hierarchy: cartesian,
-                    material: new Cesium.GridMaterialProperty({
-                        color: Cesium.Color.BLACK,
-                        cellAlpha: 0.0,
-                        lineCount: new Cesium.Cartesian2(2, 2),
-                        lineThickness: new Cesium.Cartesian2(2.0, 2.0),
-                        lineOffset: new Cesium.Cartesian2(0.0, 0.0)
-                    }),
-                    perPositionHeight: true
-                },
-                show: false,
-                resultId: options.id,
-                showWhenSelected: true
-            });
-
-            if (map.scene.terrainProvider) {
-                var promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, cartPoints);
-                Cesium.when(promise, function(updatedCartographic) {
-                    cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(updatedCartographic);
-                    if (updatedCartographic[0].height && !options.view.isDestroyed) {
-                        unselectedPolygonRef.polygon.hierarchy.setValue(cartesian);
-                        selectedPolygonRef.polygon.hierarchy.setValue(cartesian);
-                    }
-                });
-            }
-
-            return [unselectedPolygonRef, selectedPolygonRef];
+      var unselectedPolygonRef = map.entities.add({
+        polygon: {
+          hierarchy: cartesian,
+          material: new Cesium.GridMaterialProperty({
+            color: Cesium.Color.WHITE,
+            cellAlpha: 0.0,
+            lineCount: new Cesium.Cartesian2(2, 2),
+            lineThickness: new Cesium.Cartesian2(2.0, 2.0),
+            lineOffset: new Cesium.Cartesian2(0.0, 0.0),
+          }),
+          perPositionHeight: true,
         },
-        /*
+        show: true,
+        resultId: options.id,
+        showWhenSelected: false,
+      })
+
+      var selectedPolygonRef = map.entities.add({
+        polygon: {
+          hierarchy: cartesian,
+          material: new Cesium.GridMaterialProperty({
+            color: Cesium.Color.BLACK,
+            cellAlpha: 0.0,
+            lineCount: new Cesium.Cartesian2(2, 2),
+            lineThickness: new Cesium.Cartesian2(2.0, 2.0),
+            lineOffset: new Cesium.Cartesian2(0.0, 0.0),
+          }),
+          perPositionHeight: true,
+        },
+        show: false,
+        resultId: options.id,
+        showWhenSelected: true,
+      })
+
+      if (map.scene.terrainProvider) {
+        var promise = Cesium.sampleTerrain(
+          map.scene.terrainProvider,
+          5,
+          cartPoints
+        )
+        Cesium.when(promise, function(updatedCartographic) {
+          cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
+            updatedCartographic
+          )
+          if (updatedCartographic[0].height && !options.view.isDestroyed) {
+            unselectedPolygonRef.polygon.hierarchy.setValue(cartesian)
+            selectedPolygonRef.polygon.hierarchy.setValue(cartesian)
+          }
+        })
+      }
+
+      return [unselectedPolygonRef, selectedPolygonRef]
+    },
+    /*
          Updates a passed in geometry to reflect whether or not it is selected.
          Options passed in are color and isSelected.
          */
-        updateCluster: function(geometry, options) {
-            if (geometry.constructor === Array) {
-                geometry.forEach(function(innerGeometry) {
-                    this.updateCluster(innerGeometry, options);
-                }.bind(this));
-            }
-            if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = DrawingUtility.getCircleWithText({
-                    fillColor: options.color,
-                    strokeColor: options.outline,
-                    text: options.count,
-                    textColor: options.textFill
-                });
-                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
-            } else if (geometry.constructor === Cesium.PolylineCollection) {
-                geometry._polylines.forEach(function(polyline) {
-                    polyline.material = Cesium.Material.fromType('PolylineOutline', {
-                        color: determineCesiumColor('rgba(0,0,0, .1)'),
-                        outlineColor: determineCesiumColor('rgba(255,255,255, .1)'),
-                        outlineWidth: 4
-                    });
-                });
-            } else if (geometry.showWhenSelected) {
-                geometry.show = options.isSelected;
-            } else {
-                geometry.show = !options.isSelected;
-            }
-        },
-        /*
+    updateCluster: function(geometry, options) {
+      if (geometry.constructor === Array) {
+        geometry.forEach(
+          function(innerGeometry) {
+            this.updateCluster(innerGeometry, options)
+          }.bind(this)
+        )
+      }
+      if (geometry.constructor === Cesium.Billboard) {
+        geometry.image = DrawingUtility.getCircleWithText({
+          fillColor: options.color,
+          strokeColor: options.outline,
+          text: options.count,
+          textColor: options.textFill,
+        })
+        geometry.eyeOffset = new Cesium.Cartesian3(
+          0,
+          0,
+          options.isSelected ? -1 : 0
+        )
+      } else if (geometry.constructor === Cesium.PolylineCollection) {
+        geometry._polylines.forEach(function(polyline) {
+          polyline.material = Cesium.Material.fromType('PolylineOutline', {
+            color: determineCesiumColor('rgba(0,0,0, .1)'),
+            outlineColor: determineCesiumColor('rgba(255,255,255, .1)'),
+            outlineWidth: 4,
+          })
+        })
+      } else if (geometry.showWhenSelected) {
+        geometry.show = options.isSelected
+      } else {
+        geometry.show = !options.isSelected
+      }
+    },
+    /*
           Updates a passed in geometry to reflect whether or not it is selected.
           Options passed in are color and isSelected.
         */
-        updateGeometry: function(geometry, options) {
-            if (geometry.constructor === Array) {
-                geometry.forEach(function(innerGeometry) {
-                    this.updateGeometry(innerGeometry, options);
-                }.bind(this));
-            }
-            if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = DrawingUtility.getPin({
-                    fillColor: options.color,
-                    strokeColor: options.isSelected ? 'black' : 'white',
-                    icon: options.icon
-                });
-                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
-            } else if (geometry.constructor === Cesium.PolylineCollection) {
-                geometry._polylines.forEach(function(polyline) {
-                    polyline.material = Cesium.Material.fromType('PolylineOutline', {
-                        color: determineCesiumColor(options.color),
-                        outlineColor: options.isSelected ? Cesium.Color.BLACK : Cesium.Color.WHITE,
-                        outlineWidth: 4
-                    });
-                });
-            } else if (geometry.showWhenSelected) {
-                geometry.show = options.isSelected;
-            } else {
-                geometry.show = !options.isSelected;
-            }
-        },
-        /*
+    updateGeometry: function(geometry, options) {
+      if (geometry.constructor === Array) {
+        geometry.forEach(
+          function(innerGeometry) {
+            this.updateGeometry(innerGeometry, options)
+          }.bind(this)
+        )
+      }
+      if (geometry.constructor === Cesium.Billboard) {
+        geometry.image = DrawingUtility.getPin({
+          fillColor: options.color,
+          strokeColor: options.isSelected ? 'black' : 'white',
+          icon: options.icon,
+        })
+        geometry.eyeOffset = new Cesium.Cartesian3(
+          0,
+          0,
+          options.isSelected ? -1 : 0
+        )
+      } else if (geometry.constructor === Cesium.PolylineCollection) {
+        geometry._polylines.forEach(function(polyline) {
+          polyline.material = Cesium.Material.fromType('PolylineOutline', {
+            color: determineCesiumColor(options.color),
+            outlineColor: options.isSelected
+              ? Cesium.Color.BLACK
+              : Cesium.Color.WHITE,
+            outlineWidth: 4,
+          })
+        })
+      } else if (geometry.showWhenSelected) {
+        geometry.show = options.isSelected
+      } else {
+        geometry.show = !options.isSelected
+      }
+    },
+    /*
          Updates a passed in geometry to be hidden
          */
-        hideGeometry: function(geometry) {
-            if (geometry.constructor === Cesium.Billboard) {
-                geometry.show = false;
-            } else if (geometry.constructor === Cesium.PolylineCollection) {
-                geometry._polylines.forEach(function(polyline) {
-                    polyline.show = false;
-                });
-            }
-        },
-        /*
+    hideGeometry: function(geometry) {
+      if (geometry.constructor === Cesium.Billboard) {
+        geometry.show = false
+      } else if (geometry.constructor === Cesium.PolylineCollection) {
+        geometry._polylines.forEach(function(polyline) {
+          polyline.show = false
+        })
+      }
+    },
+    /*
          Updates a passed in geometry to be shown
          */
-        showGeometry: function(geometry) {
-            if (geometry.constructor === Cesium.Billboard) {
-                geometry.show = true;
-            } else if (geometry.constructor === Cesium.PolylineCollection) {
-                geometry._polylines.forEach(function(polyline) {
-                    polyline.show = true;
-                });
-            }
-        },
-        removeGeometry: function(geometry) {
-            billboardCollection.remove(geometry);
-            map.scene.primitives.remove(geometry);
-            //unminified cesium chokes if you feed a geometry with id as an Array
-            if (geometry.constructor === Cesium.Entity) {
-                map.entities.remove(geometry);
-            }
-        },
-        showPolygonShape: function(locationModel){
-            var polygon = new DrawPolygon.PolygonRenderView({
-                model: locationModel,
-                map: map
-            });
-            shapes.push(polygon);
-        },
-        showCircleShape: function(locationModel){
-            var circle = new DrawCircle.CircleView({
-                model: locationModel,
-                map: map
-            });
-            shapes.push(circle);
-        },
-        showLineShape: function(locationModel){
-            var line = new DrawLine.LineRenderView({
-                model: locationModel,
-                map: map
-            });
-            shapes.push(line);
-        },
-        destroyShapes: function(){
-            shapes.forEach(function(shape){
-                shape.destroy();
-            });
-            shapes = [];
-        },
-        destroy: function() {
-            this.destroyDrawingTools();
-            map.destroy();
-        }
-    });
+    showGeometry: function(geometry) {
+      if (geometry.constructor === Cesium.Billboard) {
+        geometry.show = true
+      } else if (geometry.constructor === Cesium.PolylineCollection) {
+        geometry._polylines.forEach(function(polyline) {
+          polyline.show = true
+        })
+      }
+    },
+    removeGeometry: function(geometry) {
+      billboardCollection.remove(geometry)
+      map.scene.primitives.remove(geometry)
+      //unminified cesium chokes if you feed a geometry with id as an Array
+      if (geometry.constructor === Cesium.Entity) {
+        map.entities.remove(geometry)
+      }
+    },
+    showPolygonShape: function(locationModel) {
+      var polygon = new DrawPolygon.PolygonRenderView({
+        model: locationModel,
+        map: map,
+      })
+      shapes.push(polygon)
+    },
+    showCircleShape: function(locationModel) {
+      var circle = new DrawCircle.CircleView({
+        model: locationModel,
+        map: map,
+      })
+      shapes.push(circle)
+    },
+    showLineShape: function(locationModel) {
+      var line = new DrawLine.LineRenderView({
+        model: locationModel,
+        map: map,
+      })
+      shapes.push(line)
+    },
+    destroyShapes: function() {
+      shapes.forEach(function(shape) {
+        shape.destroy()
+      })
+      shapes = []
+    },
+    destroy: function() {
+      this.destroyDrawingTools()
+      map.destroy()
+    },
+  })
 
-    return exposedMethods;
-};
+  return exposedMethods
+}

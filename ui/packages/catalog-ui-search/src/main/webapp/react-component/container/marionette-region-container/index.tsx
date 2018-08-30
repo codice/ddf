@@ -1,1 +1,1 @@
-export {default} from './marionette-region-container'
+export { default } from './marionette-region-container'

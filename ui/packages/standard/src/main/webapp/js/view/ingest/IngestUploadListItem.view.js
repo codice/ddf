@@ -14,57 +14,62 @@
  **/
 /* global define */
 define([
-        'marionette',
-        'jquery',
-        'icanhaz',
-        'text!templates/ingest/ingestNewFileRow.handlebars',
-        'fileupload'
-    ],
-    function (Marionette,$,ich,ingestNewFileRow) {
-        ich.addTemplate('ingestNewFileRow',ingestNewFileRow);
-        var UploadItem = Marionette.ItemView.extend({
-            template: 'ingestNewFileRow',
-            tagName: 'li',
-            className: 'file-list-item',
-            events: {
-                'click .start-upload': 'startUpload',
-                'click .remove-upload': 'removeUpload'
-            },
-            modelEvents: {
-                'change:progress': 'changeProgress',
-                'change:state': 'handleStateChange', // only re-render on state changes,
-                'startItemUpload': 'startUpload'
-            },
-            handleStateChange: function() {
-                var cancellable = this.model.get('state') === 'start' ||
-                    this.model.get('state') === 'uploading';
-                this.model.set('cancellable', cancellable);
-                this.trigger('stateChanged');
-                this.render();
-            },
-            startUpload: function(){
-                if (this.model.get('state') === 'start') {
-                    this.model.set({'state': 'uploading'});
-                    $.blueimp.fileupload.prototype
-                        .options.add.call(this.model.fileuploadObject.ref, this.model.fileuploadObject.e, this.model.fileuploadObject.data);
-                    this.model.trigger('uploading'); // push up to whoever wants to listen.
-                }
-            },
-            doneUpload: function(){
-                this.model.set({'state':'done'});
-            },
-            changeProgress: function(){
-                var progress = this.model.get('progress');
-                this.$('.progress-percent-text').html(progress + "%");
-                this.$(".progress-bar").attr('aria-valuenow', progress).css({width: progress+'%'});
-            },
-            removeUpload: function() {
-                if (this.model.get('state') === 'uploading') {
-                    this.model.fileuploadObject.data.abort();
-                } else if (this.model.get('state') === 'start') {
-                    this.model.trigger('removeUpload', this);
-                }
-            }
-        });
-        return UploadItem;
-    });
+  'marionette',
+  'jquery',
+  'icanhaz',
+  'text!templates/ingest/ingestNewFileRow.handlebars',
+  'fileupload',
+], function(Marionette, $, ich, ingestNewFileRow) {
+  ich.addTemplate('ingestNewFileRow', ingestNewFileRow)
+  var UploadItem = Marionette.ItemView.extend({
+    template: 'ingestNewFileRow',
+    tagName: 'li',
+    className: 'file-list-item',
+    events: {
+      'click .start-upload': 'startUpload',
+      'click .remove-upload': 'removeUpload',
+    },
+    modelEvents: {
+      'change:progress': 'changeProgress',
+      'change:state': 'handleStateChange', // only re-render on state changes,
+      startItemUpload: 'startUpload',
+    },
+    handleStateChange: function() {
+      var cancellable =
+        this.model.get('state') === 'start' ||
+        this.model.get('state') === 'uploading'
+      this.model.set('cancellable', cancellable)
+      this.trigger('stateChanged')
+      this.render()
+    },
+    startUpload: function() {
+      if (this.model.get('state') === 'start') {
+        this.model.set({ state: 'uploading' })
+        $.blueimp.fileupload.prototype.options.add.call(
+          this.model.fileuploadObject.ref,
+          this.model.fileuploadObject.e,
+          this.model.fileuploadObject.data
+        )
+        this.model.trigger('uploading') // push up to whoever wants to listen.
+      }
+    },
+    doneUpload: function() {
+      this.model.set({ state: 'done' })
+    },
+    changeProgress: function() {
+      var progress = this.model.get('progress')
+      this.$('.progress-percent-text').html(progress + '%')
+      this.$('.progress-bar')
+        .attr('aria-valuenow', progress)
+        .css({ width: progress + '%' })
+    },
+    removeUpload: function() {
+      if (this.model.get('state') === 'uploading') {
+        this.model.fileuploadObject.data.abort()
+      } else if (this.model.get('state') === 'start') {
+        this.model.trigger('removeUpload', this)
+      }
+    },
+  })
+  return UploadItem
+})

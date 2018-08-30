@@ -10,9 +10,9 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
-var AnnotationModel = require('./annotation');
+var Backbone = require('backbone')
+var AnnotationModel = require('./annotation')
 
 module.exports = Backbone.Collection.extend({
-    model: AnnotationModel
-});
+  model: AnnotationModel,
+})

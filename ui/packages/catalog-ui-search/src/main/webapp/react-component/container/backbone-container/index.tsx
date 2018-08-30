@@ -1,1 +1,1 @@
-export {default, WithBackboneProps} from './backbone-container'
+export { default, WithBackboneProps } from './backbone-container'

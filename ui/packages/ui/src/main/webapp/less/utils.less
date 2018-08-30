@@ -34,9 +34,9 @@
   overflow: hidden;
 
   &:before {
-    content:"";
+    content: '';
     float: left;
-    width: 5px;  // magic number #1
+    width: 5px; // magic number #1
     height: 100%;
   }
 
@@ -47,7 +47,7 @@
   }
 
   &:after {
-    content: "\02026\00a0\00a0"; // spaces determine position of the ...
+    content: '\02026\00a0\00a0'; // spaces determine position of the ...
 
     box-sizing: content-box;
     -webkit-box-sizing: content-box;
@@ -56,17 +56,44 @@
     position: relative;
     top: -15%;
     left: 100%;
-    width: 3em; margin-left: -3em;
+    width: 3em;
+    margin-left: -3em;
     padding-right: 5px; // magic number #1
 
     text-align: right;
 
-    background: -webkit-gradient(linear, left top, right top,
-    from(rgba(255, 255, 255, 0)), to(white), color-stop(50%, white));
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: -webkit-gradient(
+      linear,
+      left top,
+      right top,
+      from(rgba(255, 255, 255, 0)),
+      to(white),
+      color-stop(50%, white)
+    );
+    background: -moz-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      white 50%,
+      white
+    );
+    background: -o-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      white 50%,
+      white
+    );
+    background: -ms-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      white 50%,
+      white
+    );
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0),
+      white 50%,
+      white
+    );
   }
 }
 
@@ -87,11 +114,10 @@
     display: inline-block;
     vertical-align: middle;
   }
-
 }
 
-.pointer{
-  cursor:pointer;
+.pointer {
+  cursor: pointer;
 }
 
 .text-decoration-none {
@@ -99,10 +125,10 @@
 }
 
 .text-align-center {
-  text-align: center
+  text-align: center;
 }
 
-.visibility-hidden{
+.visibility-hidden {
   visibility: hidden;
 }
 

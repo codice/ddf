@@ -10,36 +10,35 @@
  *
  **/
 /* global require */
-var $ = require('jquery');
-var Backbone = require('backbone');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var template = require('./session-timeout.hbs');
-var sessionTimeoutModel = require('component/singletons/session-timeout');
+var $ = require('jquery')
+var Backbone = require('backbone')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var template = require('./session-timeout.hbs')
+var sessionTimeoutModel = require('component/singletons/session-timeout')
 
 module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('session-timeout'),
-    model: null,
-    events: {
-        'click button': 'renewSession'
-    },
-    initialize: function (options) {
-    },
-    onRender: function () {
-        setTimeout(this.refreshTimeLeft.bind(this), 1000);
-    },
-    refreshTimeLeft: function () {
-        if (!this.isDestroyed) {
-            this.render();
-        }
-    },
-    serializeData: function () {
-        return {
-            timeLeft: sessionTimeoutModel.getIdleSeconds()
-        };
-    },
-    renewSession: function () {
-        sessionTimeoutModel.renew();
+  template: template,
+  tagName: CustomElements.register('session-timeout'),
+  model: null,
+  events: {
+    'click button': 'renewSession',
+  },
+  initialize: function(options) {},
+  onRender: function() {
+    setTimeout(this.refreshTimeLeft.bind(this), 1000)
+  },
+  refreshTimeLeft: function() {
+    if (!this.isDestroyed) {
+      this.render()
     }
-});
+  },
+  serializeData: function() {
+    return {
+      timeLeft: sessionTimeoutModel.getIdleSeconds(),
+    }
+  },
+  renewSession: function() {
+    sessionTimeoutModel.renew()
+  },
+})

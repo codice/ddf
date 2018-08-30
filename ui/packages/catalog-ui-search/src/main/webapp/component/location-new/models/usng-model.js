@@ -15,15 +15,15 @@ const usngModel = {
   circle: {
     point: '',
     radius: 1,
-    units: 'meters'
+    units: 'meters',
   },
   line: {
-    list: []
+    list: [],
   },
   polygon: {
-    list: []
+    list: [],
   },
-  boundingbox: ''
-};
+  boundingbox: '',
+}
 
-module.exports = usngModel;
+module.exports = usngModel

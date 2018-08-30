@@ -12,33 +12,33 @@
 /*global define*/
 
 // #Main Application
-define([
-    'underscore',
-    'backbone',
-    'marionette',
-    'ace/handlebars'
-    ],function (_, Backbone, Marionette, hbs) {
-    'use strict';
+define(['underscore', 'backbone', 'marionette', 'ace/handlebars'], function(
+  _,
+  Backbone,
+  Marionette,
+  hbs
+) {
+  'use strict'
 
-    var Application = {};
+  var Application = {}
 
-    // This was moved from the main.js file into here.
-    // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
-    Marionette.Renderer.render = function(template, data, view) {
-        data._view = view;
-        if (typeof template === 'function') {
-            return template(data);
-        } else {
-            return hbs.compile(template)(data);
-        }
-    };
+  // This was moved from the main.js file into here.
+  // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.
+  Marionette.Renderer.render = function(template, data, view) {
+    data._view = view
+    if (typeof template === 'function') {
+      return template(data)
+    } else {
+      return hbs.compile(template)(data)
+    }
+  }
 
-    Application.App = new Marionette.Application();
+  Application.App = new Marionette.Application()
 
-    //add regions
-    Application.App.addRegions({
-        mainRegion: 'main'
-    });
+  //add regions
+  Application.App.addRegions({
+    mainRegion: 'main',
+  })
 
-    return Application;
-});
+  return Application
+})

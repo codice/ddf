@@ -10,17 +10,17 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
+var Backbone = require('backbone')
 
 module.exports = Backbone.Model.extend({
-    defaults: function () {
-        return {
-            id: undefined,
-            parent: undefined,
-            created: undefined,
-            modified: undefined,
-            annotation: undefined,
-            owner: undefined
-        };
+  defaults: function() {
+    return {
+      id: undefined,
+      parent: undefined,
+      created: undefined,
+      modified: undefined,
+      annotation: undefined,
+      owner: undefined,
     }
-});
+  },
+})

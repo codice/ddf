@@ -12,19 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /* global require */
- const Marionette = require('marionette')
- const ResultFormView = require('component/result-form/result-forms.view')
- const CustomElements = require('js/CustomElements')
+/* global require */
+const Marionette = require('marionette')
+const ResultFormView = require('component/result-form/result-forms.view')
+const CustomElements = require('js/CustomElements')
 
- module.exports = Marionette.CollectionView.extend({
-   childView: ResultFormView,
-   className: 'is-list is-inline has-list-highlighting',
-   tagName: CustomElements.register('result-forms'),
-   childViewOptions: function () {
-     return {
-       queryModel: this.options.queryModel,
-       collectionWrapperModel: this.options.collectionWrapperModel
-     }
-   }
- })
+module.exports = Marionette.CollectionView.extend({
+  childView: ResultFormView,
+  className: 'is-list is-inline has-list-highlighting',
+  tagName: CustomElements.register('result-forms'),
+  childViewOptions: function() {
+    return {
+      queryModel: this.options.queryModel,
+      collectionWrapperModel: this.options.collectionWrapperModel,
+    }
+  },
+})

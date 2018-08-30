@@ -10,23 +10,23 @@
  *
  **/
 /*global define*/
-define([
-], function () {
+define([], function() {
+  var namespace = 'admin-'
 
-    var namespace = 'admin-';
+  var registry = {}
 
-    var registry = {};
-
-    return {
-        register: function(name){
-            if (registry[name]){
-                throw Error('Multiple custom elements registered under the same name: ' + name);
-            }
-            registry[name] = true;
-            return namespace + name;
-        },
-        getNamespace: function() {
-            return namespace;
-        }
-    };
-});
+  return {
+    register: function(name) {
+      if (registry[name]) {
+        throw Error(
+          'Multiple custom elements registered under the same name: ' + name
+        )
+      }
+      registry[name] = true
+      return namespace + name
+    },
+    getNamespace: function() {
+      return namespace
+    },
+  }
+})

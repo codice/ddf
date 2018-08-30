@@ -22,20 +22,21 @@ import './error-message.less'
 const errorMessage = ({ errorState, onDismissError }) => {
   if (errorState.isInError) {
     return (
-      <div onClick={onDismissError} className='error-message'>
+      <div onClick={onDismissError} className="error-message">
         <span>{errorState.message}</span>
-        <span className='float-right'>&times;</span>
+        <span className="float-right">&times;</span>
       </div>
     )
   } else {
-    return (
-      <span />
-    )
+    return <span />
   }
 }
 
 const mapStateToProps = ({ errorState }) => ({ errorState })
 
-export default connect(mapStateToProps, {
-  onDismissError: dismissError
-})(errorMessage)
+export default connect(
+  mapStateToProps,
+  {
+    onDismissError: dismissError,
+  }
+)(errorMessage)

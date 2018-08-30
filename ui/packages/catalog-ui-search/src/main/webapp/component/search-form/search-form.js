@@ -9,23 +9,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- var _ = require('underscore');
- var Backbone = require('backbone');
+/*global require*/
+var _ = require('underscore')
+var Backbone = require('backbone')
 
- module.exports = Backbone.Model.extend({
-    defaults: {
-        name: "A Search Form",
-        description: "",
-        createdBy: "admin",
-        owner: "admin",
-        createdOn: "",
-        type: "custom",
-        id: undefined,
-        filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
-        descriptors: [],
-        accessIndividuals: [],
-        accessGroups: [],
-        querySettings: {}
-    }
- });
+module.exports = Backbone.Model.extend({
+  defaults: {
+    name: 'A Search Form',
+    description: '',
+    createdBy: 'admin',
+    owner: 'admin',
+    createdOn: '',
+    type: 'custom',
+    id: undefined,
+    filterTemplate: '{"property":"anyText","value":"","type":"ILIKE"}',
+    descriptors: [],
+    accessIndividuals: [],
+    accessGroups: [],
+    querySettings: {},
+  },
+})

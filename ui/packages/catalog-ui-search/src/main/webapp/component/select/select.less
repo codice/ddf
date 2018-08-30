@@ -10,7 +10,6 @@
 
 @{customElementNamespace}select-collection > .choice, // todo: update workspace-sharing view to avoid this
 @{customElementNamespace}select {
-
   padding: 0px @minimumButtonSize 0px 20px;
   height: @minimumButtonSize;
   line-height: @minimumButtonSize;
@@ -26,7 +25,7 @@
 
   &.is-selected::after {
     display: inline-block;
-    content: "\f00c";
+    content: '\f00c';
     font-family: FontAwesome;
     font-style: normal;
     position: absolute;
@@ -37,7 +36,7 @@
     transform: translateY(-50%);
   }
 
-  &.is-selected .choice-text{
+  &.is-selected .choice-text {
     .is-bold();
   }
 
@@ -83,7 +82,6 @@
 }
 
 @{customElementNamespace}select[data-hits] {
-
   .choice-text {
     width: ~'calc(100% - @{minimumButtonSize})';
   }

@@ -14,35 +14,45 @@
  **/
 /*global define*/
 define([
-    'backbone',
-    'marionette',
-    'icanhaz',
-    'js/wreqr',
-    'jquery',
-    'underscore',
-    './application-item.view',
-    'js/CustomElements',
-    'text!./application-item.collection.empty.hbs'
-    ],function (Backbone, Marionette, ich, wreqr, $, _, AppCardItemView, CustomElements, emptyTemplate) {
-    "use strict";
+  'backbone',
+  'marionette',
+  'icanhaz',
+  'js/wreqr',
+  'jquery',
+  'underscore',
+  './application-item.view',
+  'js/CustomElements',
+  'text!./application-item.collection.empty.hbs',
+], function(
+  Backbone,
+  Marionette,
+  ich,
+  wreqr,
+  $,
+  _,
+  AppCardItemView,
+  CustomElements,
+  emptyTemplate
+) {
+  'use strict'
 
-    // Collection of all the applications
-    var AppCardCollectionView = Marionette.CollectionView.extend({
-        itemView: AppCardItemView,
-        tagName: CustomElements.register('application-item-collection'),
-        emptyView: Marionette.ItemView.extend({
-            template: emptyTemplate
-        }),
-        className: 'apps-grid list',
-        itemViewOptions: {},
-        modelEvents: {
-            'change': 'render'
-        },
-        initialize: function(options) {
-            this.AppShowState = options.AppShowState;
-            this.listenTo(wreqr.vent, 'toggle:layout', this.toggleLayout);
-        }
-    });
+  // Collection of all the applications
+  var AppCardCollectionView = Marionette.CollectionView.extend({
+    itemView: AppCardItemView,
+    tagName: CustomElements.register('application-item-collection'),
+    emptyView: Marionette.ItemView.extend({
+      template: emptyTemplate,
+    }),
+    className: 'apps-grid list',
+    itemViewOptions: {},
+    modelEvents: {
+      change: 'render',
+    },
+    initialize: function(options) {
+      this.AppShowState = options.AppShowState
+      this.listenTo(wreqr.vent, 'toggle:layout', this.toggleLayout)
+    },
+  })
 
-    return AppCardCollectionView;
-});
+  return AppCardCollectionView
+})

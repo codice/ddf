@@ -13,15 +13,15 @@
  *
  **/
 /*global require*/
-var Marionette = require('marionette');
-var _ = require('underscore');
-var $ = require('jquery');
-var template = require('./dropdown.visualization-selector.hbs');
-var DropdownView = require('../dropdown.view');
-var ComponentView = require('component/visualization-selector/visualization-selector.view');
+var Marionette = require('marionette')
+var _ = require('underscore')
+var $ = require('jquery')
+var template = require('./dropdown.visualization-selector.hbs')
+var DropdownView = require('../dropdown.view')
+var ComponentView = require('component/visualization-selector/visualization-selector.view')
 
 module.exports = DropdownView.extend({
-    template: template,
-    className: 'is-visualizationSelector is-button',
-    componentToShow: ComponentView
-});
+  template: template,
+  className: 'is-visualizationSelector is-button',
+  componentToShow: ComponentView,
+})

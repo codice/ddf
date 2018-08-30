@@ -15,34 +15,33 @@
 /*global define*/
 /** Main view page for add. */
 define([
-    'marionette',
-    'icanhaz',
-    'text!templates/installer/welcome.handlebars'
-    ], function (Marionette, ich, welcomeTemplate) {
+  'marionette',
+  'icanhaz',
+  'text!templates/installer/welcome.handlebars',
+], function(Marionette, ich, welcomeTemplate) {
+  ich.addTemplate('welcomeTemplate', welcomeTemplate)
 
-    ich.addTemplate('welcomeTemplate', welcomeTemplate);
+  var WelcomeView = Marionette.ItemView.extend({
+    template: 'welcomeTemplate',
+    tagName: 'div',
+    className: 'full-height',
+    initialize: function(options) {
+      this.navigationModel = options.navigationModel
+      this.listenTo(this.navigationModel, 'next', this.next)
+      this.listenTo(this.navigationModel, 'previous', this.previous)
+    },
+    onClose: function() {
+      this.stopListening(this.navigationModel)
+    },
+    next: function() {
+      //this is your hook to perform any validation you need to do before going to the next step
+      this.navigationModel.nextStep()
+    },
+    previous: function() {
+      //this is your hook to perform any teardown that must be done before going to the previous step
+      this.navigationModel.previousStep()
+    },
+  })
 
-    var WelcomeView = Marionette.ItemView.extend({
-        template: 'welcomeTemplate',
-        tagName: 'div',
-        className: 'full-height',
-        initialize: function(options) {
-            this.navigationModel = options.navigationModel;
-            this.listenTo(this.navigationModel,'next', this.next);
-            this.listenTo(this.navigationModel,'previous', this.previous);
-        },
-        onClose: function() {
-            this.stopListening(this.navigationModel);
-        },
-        next: function() {
-            //this is your hook to perform any validation you need to do before going to the next step
-            this.navigationModel.nextStep();
-        },
-        previous: function() {
-            //this is your hook to perform any teardown that must be done before going to the previous step
-            this.navigationModel.previousStep();
-        }
-    });
-
-    return WelcomeView;
-});
+  return WelcomeView
+})

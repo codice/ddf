@@ -12,40 +12,46 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /*global require*/
- const Marionette = require('marionette');
- const $ = require('jquery');
- const template = require('./search-form.collection.hbs');
- const SearchFormCollectionView = require('./search-form.collection.view');
- const SearchFormCollection = require('./search-form.collection.js');
- const CustomElements = require('js/CustomElements');
- const LoadingCompanionView = require("component/loading-companion/loading-companion.view");
- const properties = require('properties');
+/*global require*/
+const Marionette = require('marionette')
+const $ = require('jquery')
+const template = require('./search-form.collection.hbs')
+const SearchFormCollectionView = require('./search-form.collection.view')
+const SearchFormCollection = require('./search-form.collection.js')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
+const properties = require('properties')
 
- module.exports = Marionette.LayoutView.extend({
-    template: template,
-    tagName: CustomElements.register('search-form-collection'),
-    regions: {
-        collectionView: '.collection'
-    },
-    initialize: function() {
-        this.searchFormCollection = new SearchFormCollection();
-        this.listenTo(this.searchFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
-    },
-    onRender: function () {
-        this.collectionView.show(new SearchFormCollectionView({
-            collection: this.searchFormCollection.getCollection(),
-            collectionWrapperModel: this.searchFormCollection,
-            queryModel: this.model
-        }));
-        if (properties.hasExperimentalEnabled()) {
-            LoadingCompanionView.beginLoading(this, this.$el);
-            this.handleLoadingSpinner();
-        }
-    },
-    handleLoadingSpinner: function() {
-        if(this.searchFormCollection.getDoneLoading()) {
-            LoadingCompanionView.endLoading(this);
-        }
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('search-form-collection'),
+  regions: {
+    collectionView: '.collection',
+  },
+  initialize: function() {
+    this.searchFormCollection = new SearchFormCollection()
+    this.listenTo(
+      this.searchFormCollection,
+      'change:doneLoading',
+      this.handleLoadingSpinner
+    )
+  },
+  onRender: function() {
+    this.collectionView.show(
+      new SearchFormCollectionView({
+        collection: this.searchFormCollection.getCollection(),
+        collectionWrapperModel: this.searchFormCollection,
+        queryModel: this.model,
+      })
+    )
+    if (properties.hasExperimentalEnabled()) {
+      LoadingCompanionView.beginLoading(this, this.$el)
+      this.handleLoadingSpinner()
     }
- });
+  },
+  handleLoadingSpinner: function() {
+    if (this.searchFormCollection.getDoneLoading()) {
+      LoadingCompanionView.endLoading(this)
+    }
+  },
+})

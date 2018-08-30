@@ -10,18 +10,14 @@
  *
  **/
 /*global define*/
-define([
-    'underscore',
-    'backbone',
-], function (_, Backbone) {
-
-    return Backbone.Model.extend({
-        defaults: {
-            value: [''],
-            type: 'anyText',
-            comparator: 'CONTAINS',
-            sortableOrder: 0
-        },
-        type: 'filter'
-    });
-});
+define(['underscore', 'backbone'], function(_, Backbone) {
+  return Backbone.Model.extend({
+    defaults: {
+      value: [''],
+      type: 'anyText',
+      comparator: 'CONTAINS',
+      sortableOrder: 0,
+    },
+    type: 'filter',
+  })
+})

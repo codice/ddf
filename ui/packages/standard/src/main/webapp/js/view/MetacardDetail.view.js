@@ -12,173 +12,196 @@
 /*global define*/
 
 define([
-        'jquery',
-        'underscore',
-        'marionette',
-        'icanhaz',
-        'direction',
-        'maptype',
-        'wreqr',
-        'cometdinit',
-        'text!templates/metacard.handlebars',
-        'js/view/Modal',
-        'text!templates/metacardActionModal.handlebars',
-        'js/view/MapActions.view',
-        'js/view/NearbyLocation.view',
-        'js/model/NearbyLocation'
-    ],
-    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate, MapActionsView, NearbyLocationView, NearbyLocation) {
+  'jquery',
+  'underscore',
+  'marionette',
+  'icanhaz',
+  'direction',
+  'maptype',
+  'wreqr',
+  'cometdinit',
+  'text!templates/metacard.handlebars',
+  'js/view/Modal',
+  'text!templates/metacardActionModal.handlebars',
+  'js/view/MapActions.view',
+  'js/view/NearbyLocation.view',
+  'js/model/NearbyLocation',
+], function(
+  $,
+  _,
+  Marionette,
+  ich,
+  dir,
+  maptype,
+  wreqr,
+  Cometd,
+  metacardTemplate,
+  Modal,
+  metacardActionTemplate,
+  MapActionsView,
+  NearbyLocationView,
+  NearbyLocation
+) {
+  'use strict'
 
-        "use strict";
+  var Metacard = {}
 
-        var Metacard = {};
+  var nearbyChecked = false
 
-        var nearbyChecked = false;
+  ich.addTemplate('metacardTemplate', metacardTemplate)
+  ich.addTemplate('metacardActionTemplate', metacardActionTemplate)
 
-        ich.addTemplate('metacardTemplate', metacardTemplate);
-        ich.addTemplate('metacardActionTemplate', metacardActionTemplate);
+  Metacard.ActionModal = Modal.extend({
+    template: 'metacardActionTemplate',
+    initialize: function() {
+      // there is no automatic chaining of initialize.
+      Modal.prototype.initialize.apply(this, arguments)
+    },
+  })
 
-        Metacard.ActionModal = Modal.extend({
-            template: 'metacardActionTemplate',
-            initialize: function () {
-                // there is no automatic chaining of initialize.
-                Modal.prototype.initialize.apply(this, arguments);
-            }
-        });
+  Metacard.MetacardDetailView = Marionette.LayoutView.extend({
+    className: 'slide-animate height-full',
+    template: 'metacardTemplate',
+    regions: {
+      nearby: '#nearby',
+      mapActions: '#map-actions',
+    },
+    events: {
+      'click .location-link': 'viewLocation',
+      'click .nav-tabs': 'onTabClick',
+      'click #prevRecord': 'previousRecord',
+      'click #nextRecord': 'nextRecord',
+      'click .metacard-action-link': 'metacardActionModal',
+    },
+    attributes: {
+      allowScroll: false,
+    },
+    modelEvents: {
+      change: 'render',
+    },
 
-        Metacard.MetacardDetailView = Marionette.LayoutView.extend({
-            className : 'slide-animate height-full',
-            template: 'metacardTemplate',
-            regions: {
-                nearby: '#nearby',
-                mapActions: '#map-actions'
-            },
-            events: {
-                'click .location-link': 'viewLocation',
-                'click .nav-tabs': 'onTabClick',
-                'click #prevRecord': 'previousRecord',
-                'click #nextRecord': 'nextRecord',
-                'click .metacard-action-link': 'metacardActionModal'
-            },
-            attributes: {
-                "allowScroll": false
-            },
-            modelEvents: {
-                'change': 'render'
-            },
+    initialize: function() {
+      if (this.model.get('hash')) {
+        this.hash = this.model.get('hash')
+      }
+      var collection = this.model.collection
+      var index = collection.indexOf(this.model.parents[0])
 
-            initialize: function () {
+      if (index !== 0) {
+        this.prevModel = collection.at(index - 1)
+      }
+      if (index < collection.length - 1) {
+        this.nextModel = collection.at(index + 1)
+      }
 
-                if (this.model.get('hash')) {
-                    this.hash = this.model.get('hash');
-                }
-                var collection = this.model.collection;
-                var index = collection.indexOf(this.model.parents[0]);
+      this.listenTo(wreqr.vent, 'search:beginMerge', this.invalidateList)
 
-                if (index !== 0) {
-                    this.prevModel = collection.at(index - 1);
-                }
-                if (index < collection.length - 1) {
-                    this.nextModel = collection.at(index + 1);
-                }
+      if (wreqr.reqres.hasHandler('workspace:gettypes')) {
+        this.types = wreqr.reqres.request('workspace:gettypes')
+      }
+    },
+    onRender: function() {
+      this.updateIterationControls()
 
-                this.listenTo(wreqr.vent, 'search:beginMerge', this.invalidateList);
+      var view = this
+      _.defer(function() {
+        view.$('.tab-content').perfectScrollbar({
+          suppressScrollX: true,
+        })
+      })
 
-                if (wreqr.reqres.hasHandler('workspace:gettypes')) {
-                    this.types = wreqr.reqres.request('workspace:gettypes');
-                }
-            },
-            onRender: function () {
-                this.updateIterationControls();
+      if (this.model.get('geometry')) {
+        var nearby = new NearbyLocation({ geo: this.model.get('geometry') })
+        this.showChildView('nearby', new NearbyLocationView({ model: nearby }))
+      }
 
-                var view = this;
-                _.defer(function () {
-                    view.$('.tab-content').perfectScrollbar({
-                        suppressScrollX: true
-                    });
-                });
+      this.showChildView(
+        'mapActions',
+        new MapActionsView({ model: this.model })
+      )
+    },
+    serializeData: function() {
+      var type
+      if (this.types) {
+        var typeObj = this.types.findWhere({
+          value: this.model.get('properties').get('metadata-content-type'),
+        })
+        if (typeObj) {
+          type = typeObj.get('name')
+        }
+      }
+      return _.extend(this.model.toJSON(), {
+        mapAvailable: maptype.isMap(),
+        url: this.model.url,
+        clientId: Cometd.Comet.getClientId(),
+        mappedType: type,
+      })
+    },
+    updateIterationControls: function() {
+      if (_.isUndefined(this.prevModel)) {
+        $('#prevRecord', this.$el).addClass('disabled')
+      }
+      if (_.isUndefined(this.nextModel)) {
+        $('#nextRecord', this.$el).addClass('disabled')
+      }
+    },
+    updateScrollbar: function() {
+      this.$('.tab-content').perfectScrollbar({
+        suppressScrollX: true,
+      })
 
-                if (this.model.get('geometry')) {
-                    var nearby = new NearbyLocation({geo: this.model.get('geometry')});
-                    this.showChildView('nearby', new NearbyLocationView({model: nearby}));
-                }
+      var view = this
+      // defer seems to be necessary for this to update correctly
+      _.defer(function() {
+        view.$el.perfectScrollbar('update')
+      })
+    },
+    onTabClick: function(e) {
+      this.updateScrollbar()
+      this.hash = e.target.hash
+    },
+    viewLocation: function() {
+      wreqr.vent.trigger('search:mapshow', this.model)
+    },
+    invalidateList: function() {
+      delete this.prevModel
+      delete this.nextModel
+      this.updateIterationControls()
+    },
+    previousRecord: function() {
+      if (this.prevModel) {
+        this.prevModel.get('metacard').set({
+          hash: this.hash,
+        })
+        wreqr.vent.trigger(
+          'metacard:selected',
+          dir.downward,
+          this.prevModel.get('metacard')
+        )
+        nearbyChecked = false
+      }
+    },
+    nextRecord: function() {
+      if (this.nextModel) {
+        this.nextModel.get('metacard').set({
+          hash: this.hash,
+        })
+        wreqr.vent.trigger(
+          'metacard:selected',
+          dir.upward,
+          this.nextModel.get('metacard')
+        )
+        nearbyChecked = false
+      }
+    },
+    metacardActionModal: function(e) {
+      var index = e.target.hash.replace('#', '')
+      var action = this.model.get('actions').at(index)
+      var modal = new Metacard.ActionModal({ model: action })
 
-                this.showChildView('mapActions', new MapActionsView({model: this.model}));
-            },
-            serializeData: function () {
-                var type;
-                if (this.types) {
-                    var typeObj = this.types.findWhere({value: this.model.get('properties').get('metadata-content-type')});
-                    if (typeObj) {
-                        type = typeObj.get('name');
-                    }
-                }
-                return _.extend(this.model.toJSON(), {
-                    mapAvailable: maptype.isMap(),
-                    url: this.model.url,
-                    clientId: Cometd.Comet.getClientId(),
-                    mappedType: type
-                });
-            },
-            updateIterationControls: function () {
-                if (_.isUndefined(this.prevModel)) {
-                    $('#prevRecord', this.$el).addClass('disabled');
-                }
-                if (_.isUndefined(this.nextModel)) {
-                    $('#nextRecord', this.$el).addClass('disabled');
-                }
-            },
-            updateScrollbar: function () {
+      wreqr.vent.trigger('showModal', modal)
+    },
+  })
 
-                this.$('.tab-content').perfectScrollbar({
-                    suppressScrollX: true
-                });
-
-                var view = this;
-                // defer seems to be necessary for this to update correctly
-                _.defer(function () {
-                    view.$el.perfectScrollbar('update');
-                });
-            },
-            onTabClick: function (e) {
-                this.updateScrollbar();
-                this.hash = e.target.hash;
-            },
-            viewLocation: function () {
-                wreqr.vent.trigger('search:mapshow', this.model);
-            },
-            invalidateList: function () {
-                delete this.prevModel;
-                delete this.nextModel;
-                this.updateIterationControls();
-            },
-            previousRecord: function () {
-                if (this.prevModel) {
-                    this.prevModel.get("metacard").set({
-                        hash: this.hash
-                    });
-                    wreqr.vent.trigger('metacard:selected', dir.downward, this.prevModel.get("metacard"));
-                    nearbyChecked = false;
-                }
-            },
-            nextRecord: function () {
-                if (this.nextModel) {
-                    this.nextModel.get("metacard").set({
-                        hash: this.hash
-                    });
-                    wreqr.vent.trigger('metacard:selected', dir.upward, this.nextModel.get("metacard"));
-                    nearbyChecked = false;
-                }
-            },
-            metacardActionModal: function (e) {
-                var index = e.target.hash.replace('#', '');
-                var action = this.model.get('actions').at(index);
-                var modal = new Metacard.ActionModal({model: action});
-
-                wreqr.vent.trigger('showModal', modal);
-            }
-        });
-
-        return Metacard;
-
-    });
+  return Metacard
+})

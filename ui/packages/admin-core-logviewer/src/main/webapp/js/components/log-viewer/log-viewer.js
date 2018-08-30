@@ -29,13 +29,22 @@ import ErrorMessage from '../error-message/error-message'
 export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   const filteredLogs = filterLogs(filter, logs)
 
-  const displayedLogs = filteredLogs.slice(0, displaySize)
-    .map(function (row, i) {
-      return <LogEntry key={i} entry={row.entry} marks={row.marks} expandedHash={expandedHash} dispatch={dispatch} />
+  const displayedLogs = filteredLogs
+    .slice(0, displaySize)
+    .map(function(row, i) {
+      return (
+        <LogEntry
+          key={i}
+          entry={row.entry}
+          marks={row.marks}
+          expandedHash={expandedHash}
+          dispatch={dispatch}
+        />
+      )
     })
 
   // grow the log display when the bottom is reached
-  const growLogs = (isVisible) => {
+  const growLogs = isVisible => {
     if (isVisible) {
       dispatch(actions.grow())
     }
@@ -45,25 +54,27 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   const loading = () => {
     if (filteredLogs.length > 0 && displayedLogs.length < filteredLogs.length) {
       return (
-        <VisibilitySensor onChange={growLogs} partialVisibility={Boolean(true)} delay={200}>
-          <div className='loading'>Loading...</div>
+        <VisibilitySensor
+          onChange={growLogs}
+          partialVisibility={Boolean(true)}
+          delay={200}
+        >
+          <div className="loading">Loading...</div>
         </VisibilitySensor>
       )
     }
   }
 
-  const select = (level) => {
+  const select = level => {
     dispatch(actions.filter({ level: level }))
   }
 
-  const textFilter = (field) => {
-    const on = (filterObject) => {
+  const textFilter = field => {
+    const on = filterObject => {
       dispatch(actions.filter(filterObject))
     }
 
-    return (
-      <TextFilter field={field} value={filter[field]} onChange={on} />
-    )
+    return <TextFilter field={field} value={filter[field]} onChange={on} />
   }
 
   const getTableClasses = () => {
@@ -79,48 +90,40 @@ export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   }
 
   return (
-    <div className='container'>
-      <div className='filterRow'>
-        <table className='table' onClick={deselect}>
+    <div className="container">
+      <div className="filterRow">
+        <table className="table" onClick={deselect}>
           <thead>
             <tr>
-              <td className='header' width={175}>
+              <td className="header" width={175}>
                 Time
               </td>
-              <td className='header' width={75}>
+              <td className="header" width={75}>
                 Level
               </td>
-              <td className='header'>
-                Message
-              </td>
-              <td className='header' width={200}>
+              <td className="header">Message</td>
+              <td className="header" width={200}>
                 Bundle
               </td>
             </tr>
             <tr>
-              <td className='controls'>
+              <td className="controls">
                 <PollingButton />
               </td>
-              <td className='controls'>
+              <td className="controls">
                 <LevelSelector selected={filter.level} onSelect={select} />
               </td>
-              <td className='controls'>
-                {textFilter('message')}
-              </td>
-              <td className='controls'>
-                {textFilter('bundleName')}
-              </td>
+              <td className="controls">{textFilter('message')}</td>
+              <td className="controls">{textFilter('bundleName')}</td>
             </tr>
           </thead>
         </table>
         <ErrorMessage />
       </div>
 
-      <div className='logRows'>
+      <div className="logRows">
         <table className={getTableClasses()}>
-          <tbody>
-            {displayedLogs}
-          </tbody>
+          <tbody>{displayedLogs}</tbody>
         </table>
         {loading()}
       </div>

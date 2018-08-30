@@ -13,163 +13,163 @@
  *
  **/
 html {
-    height: 100%;
+  height: 100%;
 }
 body {
-    height: 100%;
+  height: 100%;
 }
 .advance-options {
-    padding: 15px 0px 20px;
+  padding: 15px 0px 20px;
 }
 .source-info {
-    display:inline-block;
-    padding-right:5px;
+  display: inline-block;
+  padding-right: 5px;
 }
 .popover {
-    max-width: 320px;
+  max-width: 320px;
 }
 .metatype a {
   padding-left: 8px;
 }
 
 .relative {
-    position:relative;
+  position: relative;
 }
 
 iframe {
-    width:100%;
-    height:100%;
-    min-height: 480px;
-    border: none;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  border: none;
 }
 
 .float-left {
-    float:left;
+  float: left;
 }
 
 .float-right {
-    float:right;
+  float: right;
 }
 
 .app-header {
-    padding: 5px 0px 0px 0px;
-    margin-bottom: 21px;
-    background-color: #ecf0f1;
-    color: #95a5a6;
-    white-space: nowrap;
-    vertical-align: middle;
-    height: 51px;
+  padding: 5px 0px 0px 0px;
+  margin-bottom: 21px;
+  background-color: #ecf0f1;
+  color: #95a5a6;
+  white-space: nowrap;
+  vertical-align: middle;
+  height: 51px;
 }
 
 .app-header > label {
-    width: 33%;
-    overflow: hidden;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    margin: 0px;
-    font-weight: normal;
-    text-align: center;
-    padding: 10px;
-    height: 50px;
+  width: 33%;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  margin: 0px;
+  font-weight: normal;
+  text-align: center;
+  padding: 10px;
+  height: 50px;
 }
 
 .app-header > label:first-of-type {
-    text-align: left;
+  text-align: left;
 }
 
 .app-header > label:last-of-type {
-    text-align: right;
-    padding: 0px;
+  text-align: right;
+  padding: 0px;
 }
 
 .app-header > label:last-of-type > button {
-    border: none;
-    background: none;
-    padding: 10px;
+  border: none;
+  background: none;
+  padding: 10px;
 }
 
 .product-image {
-    height: 30px;
+  height: 30px;
 }
 
 .full-height {
-    height: 100%;
+  height: 100%;
 }
 
 .tab-pane {
-    padding-left: 0px;
-    padding-top: 20px;
-    height: 100%;
+  padding-left: 0px;
+  padding-top: 20px;
+  height: 100%;
 }
 
 #tabs {
-    width: 150px;
+  width: 150px;
 }
 .nav-stacked li {
-    display: table-cell;
+  display: table-cell;
 }
 
 main.container {
-    margin-top: 30px;
+  margin-top: 30px;
 }
 
 .alerts .panel-title {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 .alerts .alert-details-table {
-    color: #2c3e50;
-    margin-right: 30px;
+  color: #2c3e50;
+  margin-right: 30px;
 }
 
 table.alert-details-table td {
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-left: 18px;
-    word-wrap: break-word;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 18px;
+  word-wrap: break-word;
 }
 
 .alerts {
-    text-align: left;
-    max-width: 100%;
+  text-align: left;
+  max-width: 100%;
 }
 
 .alerts > table {
-    table-layout: fixed;
-    width: 100%;
+  table-layout: fixed;
+  width: 100%;
 }
 
 h4.panel-title > button,
 h4.panel-title > button:hover,
 h4.panel-title > button:visited {
-    padding-left: 10px;
-    color: white;
-    padding-top: 0;
-    padding-bottom: 0;
-    font-size: inherit;
-    text-decoration: underline;
-    vertical-align: inherit;
-    float: right;
-    line-height: inherit;
+  padding-left: 10px;
+  color: white;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: inherit;
+  text-decoration: underline;
+  vertical-align: inherit;
+  float: right;
+  line-height: inherit;
 }
 
 h4.panel-title > i {
-    padding-right: 10px;
+  padding-right: 10px;
 }
 
 .well-main {
-    width: inherit;
+  width: inherit;
 }
 
 .collapseAlerts {
-    overflow: auto;
-    max-height: 200px;
+  overflow: auto;
+  max-height: 200px;
 }
 
 .fa-chevron-circle-right {
-    font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 .panel {
-    margin: 0px;
+  margin: 0px;
 }

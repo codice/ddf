@@ -9,88 +9,91 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 import RouteContainer from '../route-container'
 
-const router = require('component/router/router');
+const router = require('component/router/router')
 
-import styled from '../../styles/styled-components';
-import {CustomElement} from '../../styles/mixins'
-import withListenTo, { WithBackboneProps } from '../backbone-container';
+import styled from '../../styles/styled-components'
+import { CustomElement } from '../../styles/mixins'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 type RouteWrapperProps = {
-    isCurrentRoute: boolean;
+  isCurrentRoute: boolean
 }
 
 type Props = {
-    isMenu: boolean
-    routeDefinitions: object
+  isMenu: boolean
+  routeDefinitions: object
 } & WithBackboneProps
 
 const RouteWrapper = styled.div`
-    ${CustomElement}
-
-    ${(props: RouteWrapperProps) => {
-        if (props.isCurrentRoute) {
-            return `display: block;`
-        } else {
-            return `display: none;`
-        }
-    }}
+  ${CustomElement} ${(props: RouteWrapperProps) => {
+    if (props.isCurrentRoute) {
+      return `display: block;`
+    } else {
+      return `display: none;`
+    }
+  }};
 `
 
-class RoutesContainer extends React.Component<Props, { currentRoute: string, routeDefinitions: any, isMenu: boolean }> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            routeDefinitions: props.routeDefinitions,
-            currentRoute: router.toJSON().name,
-            isMenu: props.isMenu
-        }
+class RoutesContainer extends React.Component<
+  Props,
+  { currentRoute: string; routeDefinitions: any; isMenu: boolean }
+> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      routeDefinitions: props.routeDefinitions,
+      currentRoute: router.toJSON().name,
+      isMenu: props.isMenu,
     }
-    componentDidMount() {
-        this.props.listenTo(router, 'change', this.handleRouterChange.bind(this));
-    }
-    handleRouterChange() {
-        this.setState({
-            currentRoute: router.toJSON().name
-        });
-    }
-    /*
+  }
+  componentDidMount() {
+    this.props.listenTo(router, 'change', this.handleRouterChange.bind(this))
+  }
+  handleRouterChange() {
+    this.setState({
+      currentRoute: router.toJSON().name,
+    })
+  }
+  /*
         We want to keep things around to handle reconcilation.
     */
-    shouldShowRouteComponent(routeName: string) {
-        if (this.state.currentRoute === routeName) {
-            return true;
-        }
-        if (this.state.isMenu) {
-            return this.state.routeDefinitions[routeName].menu.component !== undefined;
-        } else {
-            return this.state.routeDefinitions[routeName].component !== undefined;
-        }
+  shouldShowRouteComponent(routeName: string) {
+    if (this.state.currentRoute === routeName) {
+      return true
     }
-    isCurrentRoute(routeName: string) {
-        return this.state.currentRoute === routeName;
+    if (this.state.isMenu) {
+      return this.state.routeDefinitions[routeName].menu.component !== undefined
+    } else {
+      return this.state.routeDefinitions[routeName].component !== undefined
     }
-    render() {
-        return (
-            <React.Fragment>
-                {
-                    Object.keys(this.state.routeDefinitions).filter(this.shouldShowRouteComponent.bind(this))
-                        .map((routeName) => {
-                            return (
-                                <RouteWrapper key={routeName} isCurrentRoute={this.isCurrentRoute(routeName)}>
-                                    <RouteContainer
-                                        routeDefinition={this.state.routeDefinitions[routeName]}
-                                        isMenu={this.state.isMenu}
-                                    />
-                                </RouteWrapper>
-                            )
-                        })
-                }
-            </React.Fragment>
-        )
-    }
+  }
+  isCurrentRoute(routeName: string) {
+    return this.state.currentRoute === routeName
+  }
+  render() {
+    return (
+      <React.Fragment>
+        {Object.keys(this.state.routeDefinitions)
+          .filter(this.shouldShowRouteComponent.bind(this))
+          .map(routeName => {
+            return (
+              <RouteWrapper
+                key={routeName}
+                isCurrentRoute={this.isCurrentRoute(routeName)}
+              >
+                <RouteContainer
+                  routeDefinition={this.state.routeDefinitions[routeName]}
+                  isMenu={this.state.isMenu}
+                />
+              </RouteWrapper>
+            )
+          })}
+      </React.Fragment>
+    )
+  }
 }
 
 export default withListenTo(RoutesContainer)

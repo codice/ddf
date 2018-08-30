@@ -26,6 +26,7 @@ render(
   <Provider store={store}>
     <LogPanel />
   </Provider>,
-  document.getElementById('root'))
+  document.getElementById('root')
+)
 
 store.dispatch(fetchLoop(getLogs))

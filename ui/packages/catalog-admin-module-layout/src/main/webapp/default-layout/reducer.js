@@ -1,7 +1,7 @@
 import React from 'react'
 import 'whatwg-fetch'
-import {combineReducers} from 'redux-immutable'
-import {fromJS, Map} from 'immutable'
+import { combineReducers } from 'redux-immutable'
+import { fromJS, Map } from 'immutable'
 import traverse from 'traverse'
 import ReactDOM from 'react-dom'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -25,28 +25,44 @@ const GoldenLayout = require('golden-layout')
 
 const themes = {
   admin,
-  catalog
+  catalog,
 }
 
-const Visualization = muiThemeable()(({children, muiTheme, icon}) => (
-  <div style={{color: muiTheme.palette.primary1Color, textAlign: 'center'}}>
+const Visualization = muiThemeable()(({ children, muiTheme, icon }) => (
+  <div style={{ color: muiTheme.palette.primary1Color, textAlign: 'center' }}>
     <h1>{children}</h1>
-    <FontAwesome
-      name={icon}
-      size='3x' />
+    <FontAwesome name={icon} size="3x" />
   </div>
 ))
 const configPath = ['value', 'configurations', 0, 'properties']
-const baseDefault = [{type: 'stack', content: [{type: 'component', component: 'cesium', componentName: 'cesium', title: '3D Map'}, {type: 'component', component: 'inspector', componentName: 'inspector', title: 'Inspector'}]}]
+const baseDefault = [
+  {
+    type: 'stack',
+    content: [
+      {
+        type: 'component',
+        component: 'cesium',
+        componentName: 'cesium',
+        title: '3D Map',
+      },
+      {
+        type: 'component',
+        component: 'inspector',
+        componentName: 'inspector',
+        title: 'Inspector',
+      },
+    ],
+  },
+]
 
-const select = (state) => state.get('layout')
-const getConfig = (state) => select(state).get('config')
-const getEditor = (state) => select(state).get('editor')
-export const getBuffer = (state) => select(state).get('buffer')
-export const isLoading = (state) => select(state).get('loading')
-export const getMessage = (state) => select(state).get('msg')
+const select = state => state.get('layout')
+const getConfig = state => select(state).get('config')
+const getEditor = state => select(state).get('editor')
+export const getBuffer = state => select(state).get('buffer')
+export const isLoading = state => select(state).get('loading')
+export const getMessage = state => select(state).get('msg')
 
-export const hasChanges = (state) => {
+export const hasChanges = state => {
   const buffer = getBuffer(state).get('buffer')
   const config = getConfig(state)
   try {
@@ -58,33 +74,33 @@ export const hasChanges = (state) => {
   }
 }
 
-export const setConfig = (value) => ({
+export const setConfig = value => ({
   type: 'default-layout/SET_CONFIG',
-  value
+  value,
 })
-export const setBuffer = (value) => ({
+export const setBuffer = value => ({
   type: 'default-layout/SET_BUFFER',
-  value
+  value,
 })
-export const setEditor = (value) => ({
+export const setEditor = value => ({
   type: 'default-layout/INIT_EDITOR',
-  value
+  value,
 })
 export const start = () => ({
-  type: 'default-layout/START_SUBMIT'
+  type: 'default-layout/START_SUBMIT',
 })
 export const end = () => ({
-  type: 'default-layout/END_SUBMIT'
+  type: 'default-layout/END_SUBMIT',
 })
 export const message = (text, action) => ({
   type: 'default-layout/MESSAGE',
   text,
-  action
+  action,
 })
-export const update = (value) => (dispatch, getState) => {
+export const update = value => (dispatch, getState) => {
   return dispatch({
     type: 'default-layout/UPDATE',
-    value
+    value,
   })
 }
 
@@ -101,7 +117,7 @@ export const reset = () => (dispatch, getState) => {
 
   return dispatch({
     type: 'default-layout/RESET',
-    value: config
+    value: config,
   })
 }
 export const rendered = () => (dispatch, getState) => {}
@@ -113,23 +129,24 @@ export const fetch = () => (dispatch, getState) => {
     'exec',
     'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     'getService',
-    '(service.pid=org.codice.ddf.catalog.ui)'
+    '(service.pid=org.codice.ddf.catalog.ui)',
   ].join('/')
 
-  window.fetch(url, {
-    credentials: 'same-origin',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  }).then((res) => res.json())
-    .then((json) => {
-      const config = fromJS(json)
-        .getIn(configPath)
+  window
+    .fetch(url, {
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+    .then(res => res.json())
+    .then(json => {
+      const config = fromJS(json).getIn(configPath)
       dispatch(setConfig(config))
       setupEditor(dispatch, getState)
       dispatch(end())
     })
-    .catch((e) => {
+    .catch(e => {
       dispatch(end())
       dispatch(message(`Unable to retrieve map layers: ${e.message}`))
     })
@@ -137,7 +154,8 @@ export const fetch = () => (dispatch, getState) => {
 
 export const save = () => (dispatch, getState) => {
   const state = getState()
-  const url = '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
+  const url =
+    '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/add'
   const buffer = getBuffer(state)
 
   if (validate(buffer) !== undefined) {
@@ -150,12 +168,13 @@ export const save = () => (dispatch, getState) => {
 
   const body = {
     type: 'EXEC',
-    mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
+    mbean:
+      'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
     operation: 'update',
     arguments: [
       'org.codice.ddf.catalog.ui',
-      config.update('defaultLayout', JSON.stringify).toJS()
-    ]
+      config.update('defaultLayout', JSON.stringify).toJS(),
+    ],
   }
 
   const opts = {
@@ -163,16 +182,22 @@ export const save = () => (dispatch, getState) => {
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   }
 
-  window.fetch(url, opts)
-    .then((res) => res.text())
-    .then((body) => {
-      const res = JSON.parse(body.replace(/(\[Ljava\.lang\.(Long|String);@[^,]+)/g, (_, str) => `"${str}"`))
+  window
+    .fetch(url, opts)
+    .then(res => res.text())
+    .then(body => {
+      const res = JSON.parse(
+        body.replace(
+          /(\[Ljava\.lang\.(Long|String);@[^,]+)/g,
+          (_, str) => `"${str}"`
+        )
+      )
       if (res.status !== 200) {
         throw new Error(res.error)
       }
@@ -181,13 +206,13 @@ export const save = () => (dispatch, getState) => {
       dispatch(end())
       dispatch(message('Successfully saved default layout', 'open intrigue'))
     })
-    .catch((e) => {
+    .catch(e => {
       dispatch(end())
       dispatch(message(`Unable to save default layout: ${e.message}`))
     })
 }
 
-export const validate = (buffer) => {
+export const validate = buffer => {
   let error
   const conf = buffer.get('buffer')
   try {
@@ -200,15 +225,10 @@ export const validate = (buffer) => {
 
 export const convertLayout = (configStr, toReact) => {
   const config = JSON.parse(configStr)
-  const omit = [
-    'isClosable',
-    'reorderEnabled',
-    'activeItemIndex',
-    'header'
-  ]
-  return traverse(config).map(function (el) {
+  const omit = ['isClosable', 'reorderEnabled', 'activeItemIndex', 'header']
+  return traverse(config).map(function(el) {
     if (this.key === 'componentName') {
-      this.update((toReact) ? 'lm-react-component' : this.parent.node.component)
+      this.update(toReact ? 'lm-react-component' : this.parent.node.component)
     }
     if (omit.includes(this.key)) {
       this.remove()
@@ -222,50 +242,61 @@ const setupEditor = (dispatch, getState) => {
   const baseConf = {
     settings: {
       showPopoutIcon: false,
-      showMaximiseIcon: false
+      showMaximiseIcon: false,
     },
-    content: convertLayout(config, true)
+    content: convertLayout(config, true),
   }
-  const visualizations = [{
-    'name': 'openlayers',
-    'title': '2D Map',
-    'icon': 'map'
-  }, {
-    'name': 'cesium',
-    'title': '3D Map',
-    'icon': 'globe'
-  }, {
-    'name': 'inspector',
-    'title': 'Inspector',
-    'icon': 'info'
-  }, {
-    'name': 'histogram',
-    'title': 'Histogram',
-    'icon': 'bar-chart'
-  }, {
-    'name': 'table',
-    'title': 'Table',
-    'icon': 'table'
-  }]
+  const visualizations = [
+    {
+      name: 'openlayers',
+      title: '2D Map',
+      icon: 'map',
+    },
+    {
+      name: 'cesium',
+      title: '3D Map',
+      icon: 'globe',
+    },
+    {
+      name: 'inspector',
+      title: 'Inspector',
+      icon: 'info',
+    },
+    {
+      name: 'histogram',
+      title: 'Histogram',
+      icon: 'bar-chart',
+    },
+    {
+      name: 'table',
+      title: 'Table',
+      icon: 'table',
+    },
+  ]
 
   let layout = new GoldenLayout(baseConf, '#layoutContainer')
-  visualizations.forEach(function (component) {
-    layout.registerComponent(component.name, React.createClass({
-      render: function () {
-        return (
-          <MuiThemeProvider muiTheme={getMuiTheme(themes['admin'])}>
-            <Visualization icon={component.icon}>{component.title}</Visualization>
-          </MuiThemeProvider>
-        )
-      }
-    }))
+  visualizations.forEach(function(component) {
+    layout.registerComponent(
+      component.name,
+      React.createClass({
+        render: function() {
+          return (
+            <MuiThemeProvider muiTheme={getMuiTheme(themes['admin'])}>
+              <Visualization icon={component.icon}>
+                {component.title}
+              </Visualization>
+            </MuiThemeProvider>
+          )
+        },
+      })
+    )
   })
 
-  layout.on('initialised', function () {
+  layout.on('initialised', function() {
     dispatch(setEditor(layout))
   })
 
-  layout.on('stateChanged', function () {
+  layout.on('stateChanged', function() {
     if (layout.isInitialised) {
       var glConf = layout.toConfig().content
       var content = JSON.stringify(glConf, null, 2)
@@ -276,62 +307,66 @@ const setupEditor = (dispatch, getState) => {
   layout.init()
 
   const LayoutOption = React.createClass({
-    componentWillMount: function () {
+    componentWillMount: function() {
       this.setState({
         component: {
           type: 'react-component',
           component: this.props.item.name,
           componentName: this.props.item.name,
-          title: this.props.item.title
-        }
+          title: this.props.item.title,
+        },
       })
     },
-    componentDidMount: function () {
+    componentDidMount: function() {
       layout.createDragSource(ReactDOM.findDOMNode(this), this.state.component)
     },
-    handleClick: function (e) {
+    handleClick: function(e) {
       if (layout.root.contentItems.length === 0) {
         layout.root.addChild({
           type: 'stack',
-          content: [this.state.component]
+          content: [this.state.component],
         })
       } else {
         layout.root.contentItems[0].addChild(this.state.component)
       }
     },
-    render: function () {
+    render: function() {
       return (
         <MenuItem onClick={this.handleClick}>
-          <FontAwesome name={this.props.item.icon} style={{ marginRight: 10, width: 25, textAlign: 'center' }} />
+          <FontAwesome
+            name={this.props.item.icon}
+            style={{ marginRight: 10, width: 25, textAlign: 'center' }}
+          />
           {this.props.item.title}
         </MenuItem>
       )
-    }
+    },
   })
   const MenuList = React.createClass({
-    render: function () {
+    render: function() {
       return (
         <MuiThemeProvider muiTheme={getMuiTheme(themes['admin'])}>
           <IconMenu
-            iconButtonElement={<IconButton><ContentAddIcon /></IconButton>}
-            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+            iconButtonElement={
+              <IconButton>
+                <ContentAddIcon />
+              </IconButton>
+            }
+            targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
           >
-            {visualizations.map(function (component, i) {
+            {visualizations.map(function(component, i) {
               return <LayoutOption key={i} item={component} />
             })}
           </IconMenu>
         </MuiThemeProvider>
       )
-    }
+    },
   })
-  ReactDOM.render(
-    <MenuList />,
-    document.getElementById('layoutMenu')
-  )
+  ReactDOM.render(<MenuList />, document.getElementById('layoutMenu'))
 }
 
-const loading = (state = false, {type}) => {
+const loading = (state = false, { type }) => {
   switch (type) {
     case 'default-layout/END_SUBMIT':
       return false
@@ -342,7 +377,7 @@ const loading = (state = false, {type}) => {
   }
 }
 
-export const config = (state = Map(), {type, value}) => {
+export const config = (state = Map(), { type, value }) => {
   switch (type) {
     case 'default-layout/SET_CONFIG':
       if (!value.get('defaultLayout')) {
@@ -356,7 +391,7 @@ export const config = (state = Map(), {type, value}) => {
   }
 }
 
-const editor = (state = Map(), {type, value = undefined}) => {
+const editor = (state = Map(), { type, value = undefined }) => {
   switch (type) {
     case 'default-layout/INIT_EDITOR':
       return value
@@ -365,7 +400,7 @@ const editor = (state = Map(), {type, value = undefined}) => {
   }
 }
 
-export const buffer = (state = Map(), {type, value}) => {
+export const buffer = (state = Map(), { type, value }) => {
   switch (type) {
     case 'default-layout/SET_BUFFER':
       const parsed = convertLayout(value, false)
@@ -378,13 +413,13 @@ export const buffer = (state = Map(), {type, value}) => {
   }
 }
 
-const msg = (state = {}, {type, text, action}) => {
+const msg = (state = {}, { type, text, action }) => {
   switch (type) {
     case 'default-layout/MESSAGE':
-      return {text, action}
+      return { text, action }
     default:
       return state
   }
 }
 
-export default combineReducers({config, buffer, editor, loading, msg})
+export default combineReducers({ config, buffer, editor, loading, msg })

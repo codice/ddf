@@ -14,34 +14,32 @@
  **/
 /*global define*/
 define([
-    'backbone',
-    'marionette',
-    'icanhaz',
-    'js/wreqr',
-    'text!moduleDetailLayout'
-], function (Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
-    "use strict";
+  'backbone',
+  'marionette',
+  'icanhaz',
+  'js/wreqr',
+  'text!moduleDetailLayout',
+], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
+  'use strict'
 
-    ich.addTemplate('moduleDetailLayout', moduleDetailLayout);
+  ich.addTemplate('moduleDetailLayout', moduleDetailLayout)
 
+  var ModuleDetailLayout = Marionette.Layout.extend({
+    template: 'moduleDetailLayout',
+    regions: {
+      content: '.content',
+      tabs: '.tab-container',
+      tabContent: '.tab-content-container',
+      modalRegion: '.modal-region',
+    },
+    events: {
+      'click .nav-to-applications': 'navToApplications',
+    },
 
-    var ModuleDetailLayout = Marionette.Layout.extend({
-        template: 'moduleDetailLayout',
-        regions: {
-            content: '.content',
-            tabs: '.tab-container',
-            tabContent: '.tab-content-container',
-            modalRegion: '.modal-region'
-        },
-        events: {
-            'click .nav-to-applications': 'navToApplications'
-        },
+    selectFirstTab: function() {
+      this.$('.tab-container a:first').tab('show')
+    },
+  })
 
-        selectFirstTab: function () {
-            this.$('.tab-container a:first').tab('show');
-        }
-    });
-
-    return ModuleDetailLayout;
-
-});
+  return ModuleDetailLayout
+})

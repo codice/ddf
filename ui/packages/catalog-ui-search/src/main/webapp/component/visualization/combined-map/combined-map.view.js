@@ -13,31 +13,31 @@
  *
  **/
 /*global require, window*/
-var _ = require('underscore');
-var $ = require('jquery');
-var wreqr = require('wreqr');
-var template = require('./combined-map.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var CesiumView = require('component/visualization/maps/cesium/cesium.view');
-var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
-var Common = require('js/Common');
-var store = require('js/store');
-var user = require('component/singletons/user-instance');
-var featureDetection = require('component/singletons/feature-detection');
+var _ = require('underscore')
+var $ = require('jquery')
+var wreqr = require('wreqr')
+var template = require('./combined-map.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var CesiumView = require('component/visualization/maps/cesium/cesium.view')
+var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
+var Common = require('js/Common')
+var store = require('js/store')
+var user = require('component/singletons/user-instance')
+var featureDetection = require('component/singletons/feature-detection')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('combined-map'),
-    template: template,
-    regions: {
-        mapContainer: '> .map-container'
-    },
-    onRender: function(){
-        this.listenToOnce(featureDetection, 'change:cesium', this.render);
-        if (featureDetection.supportsFeature('cesium')){
-            this.mapContainer.show(new CesiumView(this.options));
-        } else {
-            this.mapContainer.show(new OpenlayersView(this.options));
-        }
+  tagName: CustomElements.register('combined-map'),
+  template: template,
+  regions: {
+    mapContainer: '> .map-container',
+  },
+  onRender: function() {
+    this.listenToOnce(featureDetection, 'change:cesium', this.render)
+    if (featureDetection.supportsFeature('cesium')) {
+      this.mapContainer.show(new CesiumView(this.options))
+    } else {
+      this.mapContainer.show(new OpenlayersView(this.options))
     }
-});
+  },
+})

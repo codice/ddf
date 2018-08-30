@@ -13,47 +13,49 @@
  *
  **/
 /*global require, window*/
-var _ = require('underscore');
-var $ = require('jquery');
-var template = require('./low-bandwidth-map.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var CombinedMapView = require('component/visualization/combined-map/combined-map.view');
-var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
-var router = require('component/router/router');
+var _ = require('underscore')
+var $ = require('jquery')
+var template = require('./low-bandwidth-map.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var CombinedMapView = require('component/visualization/combined-map/combined-map.view')
+var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view')
+var router = require('component/router/router')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('low-bandwidth-map'),
-    template: template,
-    regions: {
-        mapContainer: ' .map-container'
-    },
+  tagName: CustomElements.register('low-bandwidth-map'),
+  template: template,
+  regions: {
+    mapContainer: ' .map-container',
+  },
 
-    events: {
-        'click .low-bandwidth-button' : 'continueLoading',
-        'click .low-bandwidth-button-close' : 'closeMap'
-    },
+  events: {
+    'click .low-bandwidth-button': 'continueLoading',
+    'click .low-bandwidth-button-close': 'closeMap',
+  },
 
-    initialize: function(options) {
-        this.options = _.extend({}, options, {lowBandwidth: router.get('lowBandwidth')});
-    },
+  initialize: function(options) {
+    this.options = _.extend({}, options, {
+      lowBandwidth: router.get('lowBandwidth'),
+    })
+  },
 
-    onRender: function() {
-        if (!this.options.lowBandwidth) {
-            this.continueLoading();
-        }
-    },
-
-    continueLoading: function() {
-        this.$el.find('.low-bandwidth-confirmation').addClass('is-hidden');
-        if (this.options.desiredContainer === 'cesium') {
-            this.mapContainer.show(new CombinedMapView(this.options));
-        } else {
-            this.mapContainer.show(new OpenlayersView(this.options));
-        }
-    },
-
-    closeMap: function() {
-        this.options.container.close();
+  onRender: function() {
+    if (!this.options.lowBandwidth) {
+      this.continueLoading()
     }
-});
+  },
+
+  continueLoading: function() {
+    this.$el.find('.low-bandwidth-confirmation').addClass('is-hidden')
+    if (this.options.desiredContainer === 'cesium') {
+      this.mapContainer.show(new CombinedMapView(this.options))
+    } else {
+      this.mapContainer.show(new OpenlayersView(this.options))
+    }
+  },
+
+  closeMap: function() {
+    this.options.container.close()
+  },
+})

@@ -6,13 +6,7 @@
   "moduleType": [],
   "homepage": "",
   "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
+  "ignore": ["**/.*", "node_modules", "bower_components", "test", "tests"],
   "dependencies": {
     "cometd-js-jquery": "~2.6.0"
   }

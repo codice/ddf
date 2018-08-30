@@ -13,74 +13,97 @@
  *
  **/
 /*global require*/
-var wreqr = require('wreqr');
-var _ = require('underscore');
-var template = require('./inspector.hbs');
-var Marionette = require('marionette');
-var CustomElements = require('js/CustomElements');
-var store = require('js/store');
-var $ = require('jquery');
-var metacardDefinitions = require('component/singletons/metacard-definitions');
-var Common = require('js/Common');
-var MetacardView = require('component/tabs/metacard/tabs-metacard.view');
-var MetacardsView = require('component/tabs/metacards/tabs-metacards.view');
-var MetacardTitleView = require('component/metacard-title/metacard-title.view');
+var wreqr = require('wreqr')
+var _ = require('underscore')
+var template = require('./inspector.hbs')
+var Marionette = require('marionette')
+var CustomElements = require('js/CustomElements')
+var store = require('js/store')
+var $ = require('jquery')
+var metacardDefinitions = require('component/singletons/metacard-definitions')
+var Common = require('js/Common')
+var MetacardView = require('component/tabs/metacard/tabs-metacard.view')
+var MetacardsView = require('component/tabs/metacards/tabs-metacards.view')
+var MetacardTitleView = require('component/metacard-title/metacard-title.view')
 
 module.exports = Marionette.LayoutView.extend({
-    tagName: CustomElements.register('inspector'),
-    template: template,
-    events: {},
-    regions: {
-        inspector: {
-            selector: '.inspector-content'
-        },
-        inspectorTitle: {
-            selector: '.inspector-title'
-        }
+  tagName: CustomElements.register('inspector'),
+  template: template,
+  events: {},
+  regions: {
+    inspector: {
+      selector: '.inspector-content',
     },
-    initialize: function (options) {
-        if (!options.selectionInterface) {
-            throw 'Selection interface has not been provided';
-        }
-        this.setupListeners();
+    inspectorTitle: {
+      selector: '.inspector-title',
     },
-    handleEmpty: function () {
-        this.$el.toggleClass('is-empty', this.options.selectionInterface.getSelectedResults().length === 0);
-    },
-    onRender: function () {
-        this.handleEmpty();
-        this.showTitle();
-        this.showContent();
-    },
-    showTitle: function () {
-        this.inspectorTitle.show(new MetacardTitleView({
-            model: this.options.selectionInterface.getSelectedResults()
-        }));
-    },
-    showContent: function () {
-        var selectedResults = this.options.selectionInterface.getSelectedResults();
-        if (selectedResults.length === 1) {
-            this.showMetacard();
-        } else if (selectedResults.length > 1) {
-            this.showMetacards();
-        }
-    },
-    showMetacards: function () {
-        if (!this.inspector.currentView || this.inspector.currentView.constructor !== MetacardsView) {
-            this.inspector.show(new MetacardsView({
-                selectionInterface: this.options.selectionInterface
-            }));
-        }
-    },
-    showMetacard: function () {
-        if (!this.inspector.currentView || this.inspector.currentView.constructor !== MetacardView) {
-            this.inspector.show(new MetacardView({
-                selectionInterface: this.options.selectionInterface
-            }));
-        }
-    },
-    setupListeners: function () {
-        this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults add:activeSearchResults', this.onRender);
-        this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.onRender);
+  },
+  initialize: function(options) {
+    if (!options.selectionInterface) {
+      throw 'Selection interface has not been provided'
     }
-});
+    this.setupListeners()
+  },
+  handleEmpty: function() {
+    this.$el.toggleClass(
+      'is-empty',
+      this.options.selectionInterface.getSelectedResults().length === 0
+    )
+  },
+  onRender: function() {
+    this.handleEmpty()
+    this.showTitle()
+    this.showContent()
+  },
+  showTitle: function() {
+    this.inspectorTitle.show(
+      new MetacardTitleView({
+        model: this.options.selectionInterface.getSelectedResults(),
+      })
+    )
+  },
+  showContent: function() {
+    var selectedResults = this.options.selectionInterface.getSelectedResults()
+    if (selectedResults.length === 1) {
+      this.showMetacard()
+    } else if (selectedResults.length > 1) {
+      this.showMetacards()
+    }
+  },
+  showMetacards: function() {
+    if (
+      !this.inspector.currentView ||
+      this.inspector.currentView.constructor !== MetacardsView
+    ) {
+      this.inspector.show(
+        new MetacardsView({
+          selectionInterface: this.options.selectionInterface,
+        })
+      )
+    }
+  },
+  showMetacard: function() {
+    if (
+      !this.inspector.currentView ||
+      this.inspector.currentView.constructor !== MetacardView
+    ) {
+      this.inspector.show(
+        new MetacardView({
+          selectionInterface: this.options.selectionInterface,
+        })
+      )
+    }
+  },
+  setupListeners: function() {
+    this.listenTo(
+      this.options.selectionInterface,
+      'reset:activeSearchResults add:activeSearchResults',
+      this.onRender
+    )
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.onRender
+    )
+  },
+})

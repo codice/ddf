@@ -12,17 +12,17 @@
 /*global require*/
 //meant to be used for just in time feature detection
 
-var Backbone = require('backbone');
+var Backbone = require('backbone')
 
 module.exports = new (Backbone.Model.extend({
-    defaults: {
-        cesium: true,
-        localStorage: true
-    },
-    supportsFeature(feature) {
-        return this.get(feature);
-    },
-    addFailure(feature) {
-        this.set(feature, false);
-    }
-}))();
+  defaults: {
+    cesium: true,
+    localStorage: true,
+  },
+  supportsFeature(feature) {
+    return this.get(feature)
+  },
+  addFailure(feature) {
+    this.set(feature, false)
+  },
+}))()

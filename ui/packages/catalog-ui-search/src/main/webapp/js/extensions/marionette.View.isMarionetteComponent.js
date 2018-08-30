@@ -9,6 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette');
+const Marionette = require('marionette')
 
-Marionette.View.prototype._isMarionetteView = true;
+Marionette.View.prototype._isMarionetteView = true

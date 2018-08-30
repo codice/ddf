@@ -12,46 +12,42 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
-import styled from '../../styles/styled-components';
+import * as React from 'react'
+import styled from '../../styles/styled-components'
 
 interface Props {
-    shown: boolean; 
+  shown: boolean
 }
 
 const Root = styled<Props, 'span'>('span')`
-    display: inline-block;
-    line-height: inherit;
-    
-    color: ${props => {        
-        return props.theme.warningColor; 
-    }};
+  display: inline-block;
+  line-height: inherit;
 
-    transition: ${props => {
-        return `transform ${props.theme.coreTransitionTime} ease-out, opacity ${props.theme.coreTransitionTime} ease-out;`
-    }};
+  color: ${props => {
+    return props.theme.warningColor
+  }};
 
-    transform: ${props => {
-        return `scale(${props.shown ? 1 : 2});`
-    }};
+  transition: ${props => {
+    return `transform ${props.theme.coreTransitionTime} ease-out, opacity ${
+      props.theme.coreTransitionTime
+    } ease-out;`
+  }};
 
-    opacity: ${props => {
-        return props.shown ? 1 : 0
-    }};
+  transform: ${props => {
+    return `scale(${props.shown ? 1 : 2});`
+  }};
 
-    position: absolute;
-    left: ${props => {
-      return props.theme.minimumButtonSize;  
-    }};
-    top: -.3125rem;
+  opacity: ${props => {
+    return props.shown ? 1 : 0
+  }};
+
+  position: absolute;
+  left: ${props => {
+    return props.theme.minimumButtonSize
+  }};
+  top: -0.3125rem;
 `
 
-
-
 export default function UnsavedIndicator(props: Props) {
-    return (
-        <Root {...props}>
-            *
-        </Root>
-    )
+  return <Root {...props}>*</Root>
 }

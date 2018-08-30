@@ -16,23 +16,23 @@
     Luckily, we can put it on the load event, and keep the logic centralized here.
 */
 
-var $ = require('jquery');
+var $ = require('jquery')
 
-function waitForInitialAttachLoad($iframe){
-    $iframe.on('load', function(){
-        $iframe.off('load');
-        attachSubmitListener($iframe);
-    });
+function waitForInitialAttachLoad($iframe) {
+  $iframe.on('load', function() {
+    $iframe.off('load')
+    attachSubmitListener($iframe)
+  })
 }
 
-function attachSubmitListener($iframe){
-    $iframe.on('load', function(){
-        $iframe.off('load');
-        $iframe.detach();
-        waitForInitialAttachLoad($iframe);
-        $('body').append($iframe);
-    });
+function attachSubmitListener($iframe) {
+  $iframe.on('load', function() {
+    $iframe.off('load')
+    $iframe.detach()
+    waitForInitialAttachLoad($iframe)
+    $('body').append($iframe)
+  })
 }
 
-var $iframe = $('iframe[name=autocomplete]');
-attachSubmitListener($iframe);
+var $iframe = $('iframe[name=autocomplete]')
+attachSubmitListener($iframe)

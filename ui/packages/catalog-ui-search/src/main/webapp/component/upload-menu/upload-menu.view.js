@@ -14,30 +14,41 @@
  **/
 /*global define*/
 define([
-    'wreqr',
-    'marionette',
-    'underscore',
-    'jquery',
-    './upload-menu.hbs',
-    'js/CustomElements',
-    'js/store',
-    'component/upload/upload',
-    'js/Common'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, uploadInstance, Common) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('upload-menu'),
-        onFirstRender: function(){
-            this.listenTo(uploadInstance, 'change:currentUpload', this.render);
-        },
-        serializeData: function(){
-            if (uploadInstance.get('currentUpload') === undefined) {
-                return {};
-            }
-            return {
-                when: Common.getMomentDate(uploadInstance.get('currentUpload').get('sentAt'))
-            };
-        }
-    });
-});
+  'wreqr',
+  'marionette',
+  'underscore',
+  'jquery',
+  './upload-menu.hbs',
+  'js/CustomElements',
+  'js/store',
+  'component/upload/upload',
+  'js/Common',
+], function(
+  wreqr,
+  Marionette,
+  _,
+  $,
+  template,
+  CustomElements,
+  store,
+  uploadInstance,
+  Common
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('upload-menu'),
+    onFirstRender: function() {
+      this.listenTo(uploadInstance, 'change:currentUpload', this.render)
+    },
+    serializeData: function() {
+      if (uploadInstance.get('currentUpload') === undefined) {
+        return {}
+      }
+      return {
+        when: Common.getMomentDate(
+          uploadInstance.get('currentUpload').get('sentAt')
+        ),
+      }
+    },
+  })
+})

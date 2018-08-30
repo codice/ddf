@@ -11,34 +11,35 @@
  **/
 
 .remove-layer {
-    width: 50px;
+  width: 50px;
 }
 
 input {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .input-list {
-    width: 95%;
-    display: inline;
+  width: 95%;
+  display: inline;
 }
 
 .minus-button {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
-table a:not(.btn), .table a:not(.btn) {
-    text-decoration: none;
+table a:not(.btn),
+.table a:not(.btn) {
+  text-decoration: none;
 }
 
 .center-column {
-    text-align: center;
+  text-align: center;
 }
 
 .fa-file-text-o {
-    color: #2c3e50;
+  color: #2c3e50;
 }
 
 .wms-layers-popover {
-    margin: 0px 5px 0px 5px;
+  margin: 0px 5px 0px 5px;
 }

@@ -29,17 +29,15 @@
     text-align: center;
   }
 
-   > .metacard-details > .details-searching:after {
-     position: absolute;
-     content: 'Searching . . .';
-     left: ~'calc(50% - 4.136875rem)';
-     animation: metacard-is-searching 5*@coreTransitionTime infinite linear;
-   }
-
+  > .metacard-details > .details-searching:after {
+    position: absolute;
+    content: 'Searching . . .';
+    left: ~'calc(50% - 4.136875rem)';
+    animation: metacard-is-searching 5 * @coreTransitionTime infinite linear;
+  }
 }
 
 @{customElementNamespace}metacard.is-searching {
-
   > .metacard-details > .details-searching {
     transform: translateY(0%);
   }
@@ -50,7 +48,6 @@
 }
 
 @{customElementNamespace}metacard.not-found:not(.is-searching) {
-
   > .metacard-details > .details-not-found {
     transform: translateY(0%);
   }
@@ -60,26 +57,26 @@
   }
 }
 
-@keyframes metacard-is-searching{
-    0% {
-      content: 'Searching';
-    }
-    16% {
-       content: 'Searching .';
-    } 
-    32% {
-       content: 'Searching . .';
-    } 
-    48% {
-      content: 'Searching . . .';
-    } 
-    64% {
-       content: 'Searching . .';
-    } 
-    80% {
-       content: 'Searching .';
-    } 
-    100% {
-       content: 'Searching';
-    } 
+@keyframes metacard-is-searching {
+  0% {
+    content: 'Searching';
+  }
+  16% {
+    content: 'Searching .';
+  }
+  32% {
+    content: 'Searching . .';
+  }
+  48% {
+    content: 'Searching . . .';
+  }
+  64% {
+    content: 'Searching . .';
+  }
+  80% {
+    content: 'Searching .';
+  }
+  100% {
+    content: 'Searching';
+  }
 }

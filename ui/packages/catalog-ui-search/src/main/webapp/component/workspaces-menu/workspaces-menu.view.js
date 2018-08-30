@@ -14,17 +14,16 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    './workspaces-menu.hbs',
-    'js/CustomElements',
-    'properties'
-], function (Marionette, template, CustomElements, properties) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('workspaces-menu'),
-        serializeData: function(){
-            return properties;
-        }
-    });
-});
+  'marionette',
+  './workspaces-menu.hbs',
+  'js/CustomElements',
+  'properties',
+], function(Marionette, template, CustomElements, properties) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('workspaces-menu'),
+    serializeData: function() {
+      return properties
+    },
+  })
+})

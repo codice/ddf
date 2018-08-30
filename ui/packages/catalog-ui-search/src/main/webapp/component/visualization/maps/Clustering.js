@@ -13,34 +13,33 @@
  *
  **/
 /*global require*/
-var clustering = require('density-clustering');
-var dbscan = new clustering.DBSCAN();
+var clustering = require('density-clustering')
+var dbscan = new clustering.DBSCAN()
 
 function removeInvalidCenters(results, centers) {
-    for (var i = centers.length - 1; i >= 0; i--) {
-        if (!centers[i]) {
-            results.splice(i, 1);
-            centers.splice(i, 1);
-        }
+  for (var i = centers.length - 1; i >= 0; i--) {
+    if (!centers[i]) {
+      results.splice(i, 1)
+      centers.splice(i, 1)
     }
+  }
 }
 
 function convertIndicesToResults(results, cluster) {
-    return cluster.map(function(index) {
-        return results[index];
-    });
+  return cluster.map(function(index) {
+    return results[index]
+  })
 }
 
 module.exports = {
-    /*
+  /*
       Takes in a list of geometries and a view height and returns a list of clusters
     */
-    calculateClusters: function(results, map) {
-        var centers = map.getWindowLocationsOfResults(results);
-        removeInvalidCenters(results, centers);
-        return dbscan.run(centers, 44, 2)
-            .map(function(cluster) {
-                return convertIndicesToResults(results, cluster);
-            });
-    }
-};
+  calculateClusters: function(results, map) {
+    var centers = map.getWindowLocationsOfResults(results)
+    removeInvalidCenters(results, centers)
+    return dbscan.run(centers, 44, 2).map(function(cluster) {
+      return convertIndicesToResults(results, cluster)
+    })
+  },
+}

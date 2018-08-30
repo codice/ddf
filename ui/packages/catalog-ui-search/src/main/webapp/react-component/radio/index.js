@@ -1,1 +1,1 @@
-module.exports = require('./radio');
+module.exports = require('./radio')

@@ -14,17 +14,15 @@
  **/
 /*global define, window*/
 define([
-    'marionette',
-    './configuration-item.view',
-    'js/CustomElements'
-    ],function (Marionette, ConfigurationItemView, CustomElements) {
-
-    return Marionette.CollectionView.extend({
-        itemView: ConfigurationItemView,
-        tagName: CustomElements.register('configuration-item-collection'),
-        initialize: function() {
-            this.listenTo(this.collection, 'sort', this.render);
-        }
-    });
-
-});
+  'marionette',
+  './configuration-item.view',
+  'js/CustomElements',
+], function(Marionette, ConfigurationItemView, CustomElements) {
+  return Marionette.CollectionView.extend({
+    itemView: ConfigurationItemView,
+    tagName: CustomElements.register('configuration-item-collection'),
+    initialize: function() {
+      this.listenTo(this.collection, 'sort', this.render)
+    },
+  })
+})

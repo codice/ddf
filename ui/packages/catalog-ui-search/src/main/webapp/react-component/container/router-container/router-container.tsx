@@ -9,29 +9,33 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react';
+import * as React from 'react'
 import Router from '../../presentation/router'
 
-import Navigation from '../navigation-container';
-import ThemeContainer from '../theme-container';
+import Navigation from '../navigation-container'
+import ThemeContainer from '../theme-container'
 
 type Props = {
-    navigation: React.ReactNode
-    routeDefinitions: object;
+  navigation: React.ReactNode
+  routeDefinitions: object
 }
 
 class RouterContainer extends React.Component<Props, {}> {
-    constructor(props: Props) {
-        super(props);
-    }
-    render() {
-        const navigation = <Navigation {...this.props} />
-        return (
-            <ThemeContainer>
-                <Router nav={navigation} routeDefinitions={this.props.routeDefinitions} {...this.props}></Router>
-            </ThemeContainer>
-        )
-    }
+  constructor(props: Props) {
+    super(props)
+  }
+  render() {
+    const navigation = <Navigation {...this.props} />
+    return (
+      <ThemeContainer>
+        <Router
+          nav={navigation}
+          routeDefinitions={this.props.routeDefinitions}
+          {...this.props}
+        />
+      </ThemeContainer>
+    )
+  }
 }
 
 export default RouterContainer

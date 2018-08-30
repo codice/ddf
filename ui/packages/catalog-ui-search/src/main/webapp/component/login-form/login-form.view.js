@@ -14,63 +14,62 @@
  **/
 /*global define,window,document*/
 define([
-    'marionette',
-    'jquery',
-    './login-form.hbs',
-    'js/CustomElements',
-], function (Marionette, $, template, CustomElements) {
+  'marionette',
+  'jquery',
+  './login-form.hbs',
+  'js/CustomElements',
+], function(Marionette, $, template, CustomElements) {
+  return Marionette.LayoutView.extend({
+    events: {
+      'submit .login-form': 'login',
+      'keyup .login-form': 'checkSubmit',
+      'click #sign-out': 'logout',
+    },
+    template: template,
+    tagName: CustomElements.register('login-form'),
+    checkSubmit: function(e) {
+      // check if the enter key was pressed
+      if (e.which === 13) {
+        this.login(e)
+      }
+    },
+    logout: function() {
+      //this function is only here to handle clearing basic auth credentials
+      //if you aren't using basic auth, this shouldn't do anything
+      $.ajax({
+        type: 'GET',
+        url: './internal/user',
+        async: false,
+        username: '1',
+        password: '1',
+      }).then(function() {
+        window.location =
+          '../../logout/?prevurl=' + encodeURI(window.location.pathname)
+      })
+    },
+    login: function(e) {
+      var view = this
+      e.preventDefault() // prevent form submission
 
-    return Marionette.LayoutView.extend({
-        events: {
-            'submit .login-form': 'login',
-            'keyup .login-form': 'checkSubmit',
-            'click #sign-out': 'logout'
+      $.ajax({
+        type: 'POST',
+        url: './internal/login',
+        data: {
+          username: view.$('#username').val(),
+          password: view.$('#password').val(),
+          prevurl: window.location.href,
         },
-        template: template,
-        tagName: CustomElements.register('login-form'),
-        checkSubmit: function (e) {
-          // check if the enter key was pressed
-          if (e.which === 13) {
-            this.login(e);
-          }
+        async: false,
+        error: function() {
+          view.$('#loginError').show()
+          view.$('#password').focus(function() {
+            view.select()
+          })
         },
-        logout: function () {
-            //this function is only here to handle clearing basic auth credentials
-            //if you aren't using basic auth, this shouldn't do anything
-            $.ajax({
-                type: 'GET',
-                url: './internal/user',
-                async: false,
-                username: '1',
-                password: '1'
-            }).then(function () {
-                window.location = '../../logout/?prevurl=' + encodeURI(window.location.pathname);
-            });
+        success: function() {
+          document.location.reload()
         },
-        login: function (e) {
-            var view = this;
-            e.preventDefault(); // prevent form submission
-
-            $.ajax({
-                type: "POST",
-                url: "./internal/login",
-                data: {
-                    "username": view.$('#username').val(),
-                    "password": view.$('#password').val(),
-                    "prevurl": window.location.href
-                },
-                async: false,
-                error: function () {
-                    view.$('#loginError').show();
-                    view.$('#password').focus(function () {
-                        view.select();
-                    });
-                },
-                success: function () {
-                    document.location.reload();
-                }
-            });
-        }
-    });
-
-});
+      })
+    },
+  })
+})

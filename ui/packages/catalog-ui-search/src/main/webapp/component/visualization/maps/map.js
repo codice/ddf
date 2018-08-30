@@ -10,45 +10,49 @@
  *
  **/
 /*global require*/
-var _ = require('underscore');
+var _ = require('underscore')
 
 function throwUnimplementedException() {
-    throw 'Method has not been implemented.';
+  throw 'Method has not been implemented.'
 }
 
 var exposedMethods = [
-    'onLeftClick',
-    'onRightClick',
-    'onMouseMove',
-    'onCameraMoveStart',
-    'onCameraMoveEnd',
-    'zoomToSelected',
-    'showResults',
-    'panToExtent',
-    'panToResults',
-    'zoomToExtent',
-    'overlayImage',
-    'removeOverlay',
-    'removeAllOverlays',
-    'getCartographicCenterOfClusterInDegrees',
-    'getWindowLocationsOfResults',
-    'addPointWithText',
-    'addPoint',
-    'addLine',
-    'addPolygon',
-    'updateCluster',
-    'updateGeometry',
-    'hideGeometry',
-    'showGeometry',
-    'removeGeometry',
-    'destroy'
-];
+  'onLeftClick',
+  'onRightClick',
+  'onMouseMove',
+  'onCameraMoveStart',
+  'onCameraMoveEnd',
+  'zoomToSelected',
+  'showResults',
+  'panToExtent',
+  'panToResults',
+  'zoomToExtent',
+  'overlayImage',
+  'removeOverlay',
+  'removeAllOverlays',
+  'getCartographicCenterOfClusterInDegrees',
+  'getWindowLocationsOfResults',
+  'addPointWithText',
+  'addPoint',
+  'addLine',
+  'addPolygon',
+  'updateCluster',
+  'updateGeometry',
+  'hideGeometry',
+  'showGeometry',
+  'removeGeometry',
+  'destroy',
+]
 
-var interfaceImplementation = exposedMethods.reduce(function(implementations, methodName) {
-    implementations[methodName] = throwUnimplementedException;
-    return implementations;
-}, {});
+var interfaceImplementation = exposedMethods.reduce(function(
+  implementations,
+  methodName
+) {
+  implementations[methodName] = throwUnimplementedException
+  return implementations
+},
+{})
 
 module.exports = function MapCommunication() {
-    return _.extend({}, interfaceImplementation);
-};
+  return _.extend({}, interfaceImplementation)
+}

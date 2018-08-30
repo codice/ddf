@@ -11,25 +11,25 @@
  **/
 /*global require,__dirname*/
 var express = require('express'),
-    server = require('./server-impl');
+  server = require('./server-impl')
 
 var morgan = require('morgan')
 
-var app = express();
+var app = express()
 // uncomment to get some debugging
 //app.use(express.logger());
 //enable the live reload
-app.use(require('connect-livereload')());
+app.use(require('connect-livereload')())
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/logout', express.static(__dirname + '/target/webapp'));
-app.use('/logout', express.static(__dirname + '/src/main/webapp'));
+app.use('/logout', express.static(__dirname + '/target/webapp'))
+app.use('/logout', express.static(__dirname + '/src/main/webapp'))
 
 //if we're mocking, it is being run by grunt
-console.log('setting up proxy only');
-app.use(morgan('dev'));
-app.all('*', server.requestProxy);
+console.log('setting up proxy only')
+app.use(morgan('dev'))
+app.all('*', server.requestProxy)
 
-const launcher = app.listen(process.env.PORT || 8282, function () {
-    console.log('Server listening on port ' + launcher.address().port);
-});
+const launcher = app.listen(process.env.PORT || 8282, function() {
+  console.log('Server listening on port ' + launcher.address().port)
+})

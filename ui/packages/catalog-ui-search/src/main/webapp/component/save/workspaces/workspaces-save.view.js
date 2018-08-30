@@ -14,29 +14,33 @@
  **/
 /*global require*/
 
-var store = require('js/store');
-var SaveView = require('../save.view');
+var store = require('js/store')
+var SaveView = require('../save.view')
 
 module.exports = SaveView.extend({
-    attributes: {
-        'data-help': 'Saves all workspaces.',
-        title: 'Saves all workspaces.'
-    },
-    setDefaultModel: function() {
-        this.model = store;
-    },
-    initialize: function(options) {
-        if (options.model === undefined) {
-            this.setDefaultModel();
-        }
-        this.listenTo(this.model.get('workspaces'), 'change:saved update add remove', this.handleSaved);
-    },
-    isSaved: function() {
-        return !this.model.get('workspaces').find(function(workspace) {
-            return !workspace.isSaved();
-        });
-    },
-    triggerSave: function() {
-        this.model.get('workspaces').saveAll();
-    },
-});
+  attributes: {
+    'data-help': 'Saves all workspaces.',
+    title: 'Saves all workspaces.',
+  },
+  setDefaultModel: function() {
+    this.model = store
+  },
+  initialize: function(options) {
+    if (options.model === undefined) {
+      this.setDefaultModel()
+    }
+    this.listenTo(
+      this.model.get('workspaces'),
+      'change:saved update add remove',
+      this.handleSaved
+    )
+  },
+  isSaved: function() {
+    return !this.model.get('workspaces').find(function(workspace) {
+      return !workspace.isSaved()
+    })
+  },
+  triggerSave: function() {
+    this.model.get('workspaces').saveAll()
+  },
+})

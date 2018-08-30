@@ -4,7 +4,7 @@
   white-space: nowrap;
   position: relative;
   cursor: pointer;
-  height: 4*@minimumButtonSize;
+  height: 4 * @minimumButtonSize;
   animation: new-alert-item @coreTransitionTime 1 ease-in-out;
 
   .alert-details,
@@ -49,12 +49,12 @@
 @{customElementNamespace}alert-item.is-destroyed {
   height: 0px !important;
   margin: 0px !important;
-  transition: height @coreTransitionTime linear, margin @coreTransitionTime linear;
+  transition: height @coreTransitionTime linear,
+    margin @coreTransitionTime linear;
   overflow: hidden;
 }
 
 @{customElementNamespace}alert-item-collection {
-
   @{customElementNamespace}alert-item + @{customElementNamespace}alert-item {
     margin-top: @minimumSpacing;
   }
@@ -66,11 +66,11 @@
   }
 }
 
-@keyframes new-alert-item{
-        0% {
-            height: 0px;
-        }
-        100% {
-            height: 4*@minimumButtonSize;
-        }
-    }
+@keyframes new-alert-item {
+  0% {
+    height: 0px;
+  }
+  100% {
+    height: 4 * @minimumButtonSize;
+  }
+}

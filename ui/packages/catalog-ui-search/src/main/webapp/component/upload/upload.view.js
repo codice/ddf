@@ -14,30 +14,34 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    './upload.hbs',
-    'js/CustomElements',
-    'component/content/upload/content.upload.view',
-    'component/upload/upload'
-], function (Marionette, template, CustomElements,
-             uploadContentView, uploadInstance) {
-
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('upload'),
-        regions: {
-            uploadDetails: '.upload-details'
-        },
-        onFirstRender: function(){
-            this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow);
-        },
-        onBeforeShow: function(){
-            if (uploadInstance.get('currentUpload')) {
-                this.showSubViews();
-            }
-        },
-        showSubViews: function() {
-            this.uploadDetails.show(new uploadContentView());
-        }
-    });
-});
+  'marionette',
+  './upload.hbs',
+  'js/CustomElements',
+  'component/content/upload/content.upload.view',
+  'component/upload/upload',
+], function(
+  Marionette,
+  template,
+  CustomElements,
+  uploadContentView,
+  uploadInstance
+) {
+  return Marionette.LayoutView.extend({
+    template: template,
+    tagName: CustomElements.register('upload'),
+    regions: {
+      uploadDetails: '.upload-details',
+    },
+    onFirstRender: function() {
+      this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow)
+    },
+    onBeforeShow: function() {
+      if (uploadInstance.get('currentUpload')) {
+        this.showSubViews()
+      }
+    },
+    showSubViews: function() {
+      this.uploadDetails.show(new uploadContentView())
+    },
+  })
+})

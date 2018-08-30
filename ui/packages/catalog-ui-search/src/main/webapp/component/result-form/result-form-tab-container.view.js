@@ -12,38 +12,44 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- /* global require */
- const Marionette = require('marionette')
- const $ = require('jquery')
- const template = require('component/search-form/search-form.collection.hbs')
- const ResultFormCollectionView = require('./result-form.collection.view')
- const ResultForm = require('./result-form')
- const CustomElements = require('js/CustomElements')
- const LoadingCompanionView = require("component/loading-companion/loading-companion.view")
+/* global require */
+const Marionette = require('marionette')
+const $ = require('jquery')
+const template = require('component/search-form/search-form.collection.hbs')
+const ResultFormCollectionView = require('./result-form.collection.view')
+const ResultForm = require('./result-form')
+const CustomElements = require('js/CustomElements')
+const LoadingCompanionView = require('component/loading-companion/loading-companion.view')
 
- module.exports = Marionette.LayoutView.extend({
-   template: template,
-   tagName: CustomElements.register('result-form-collection'),
-   regions: {
-     collectionView: '.collection'
-   },
-   initialize: function() {
-    this.resultFormCollection = ResultForm.getResultCollection();
-    this.listenTo(this.resultFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
+module.exports = Marionette.LayoutView.extend({
+  template: template,
+  tagName: CustomElements.register('result-form-collection'),
+  regions: {
+    collectionView: '.collection',
   },
-   onRender: function () {
-     this.resultFormCollection.addResultForms()
-     this.collectionView.show(new ResultFormCollectionView({
-       collection: this.resultFormCollection.getCollection(),
-       collectionWrapperModel: this.resultFormCollection,
-       queryModel: this.model
-     }))
-     LoadingCompanionView.beginLoading(this, this.$el);
-     this.handleLoadingSpinner();
-   },
-   handleLoadingSpinner: function() {
-    if(this.resultFormCollection.getDoneLoading()) {
-      LoadingCompanionView.endLoading(this);
+  initialize: function() {
+    this.resultFormCollection = ResultForm.getResultCollection()
+    this.listenTo(
+      this.resultFormCollection,
+      'change:doneLoading',
+      this.handleLoadingSpinner
+    )
+  },
+  onRender: function() {
+    this.resultFormCollection.addResultForms()
+    this.collectionView.show(
+      new ResultFormCollectionView({
+        collection: this.resultFormCollection.getCollection(),
+        collectionWrapperModel: this.resultFormCollection,
+        queryModel: this.model,
+      })
+    )
+    LoadingCompanionView.beginLoading(this, this.$el)
+    this.handleLoadingSpinner()
+  },
+  handleLoadingSpinner: function() {
+    if (this.resultFormCollection.getDoneLoading()) {
+      LoadingCompanionView.endLoading(this)
     }
-  }
- })
+  },
+})

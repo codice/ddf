@@ -14,17 +14,16 @@
  **/
 /*global define*/
 define([
-    'marionette',
-    'underscore',
-    'jquery',
-    '../dropdown.view',
-    './dropdown.map-context-menu.hbs',
-    'component/map-context-menu/map-context-menu.view'
-], function (Marionette, _, $, DropdownView, template, MapContextMenuView) {
-
-    return DropdownView.extend({
-        template: template,
-        className: 'is-mapContextMenu',
-        componentToShow: MapContextMenuView
-    });
-});
+  'marionette',
+  'underscore',
+  'jquery',
+  '../dropdown.view',
+  './dropdown.map-context-menu.hbs',
+  'component/map-context-menu/map-context-menu.view',
+], function(Marionette, _, $, DropdownView, template, MapContextMenuView) {
+  return DropdownView.extend({
+    template: template,
+    className: 'is-mapContextMenu',
+    componentToShow: MapContextMenuView,
+  })
+})

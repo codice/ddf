@@ -12,43 +12,53 @@
 /*global define*/
 
 define([
-        'jquery',
-        'underscore',
-        'marionette',
-        'icanhaz',
-        'text!templates/metacardNearbyLocation.handlebars',
-    ],
-    function ($, _, Marionette, ich, metacardNearbyLocationTemplate) {
+  'jquery',
+  'underscore',
+  'marionette',
+  'icanhaz',
+  'text!templates/metacardNearbyLocation.handlebars',
+], function($, _, Marionette, ich, metacardNearbyLocationTemplate) {
+  'use strict'
 
-        "use strict";
+  var NearbyLocationView = {}
 
-        var NearbyLocationView = {};
+  ich.addTemplate(
+    'metacardNearbyLocationTemplate',
+    metacardNearbyLocationTemplate
+  )
 
-        ich.addTemplate('metacardNearbyLocationTemplate', metacardNearbyLocationTemplate);
+  NearbyLocationView = Marionette.ItemView.extend({
+    template: 'metacardNearbyLocationTemplate',
 
-        NearbyLocationView = Marionette.ItemView.extend({
+    modelEvents: {
+      change: 'onRender',
+    },
 
-            template : 'metacardNearbyLocationTemplate',
+    initialize: function() {
+      this.model.fetch()
+    },
 
-            modelEvents: {
-                'change': 'onRender'
-            },
+    onRender: function() {
+      this.$el.html(this.getNearby())
+    },
 
-            initialize: function() {
-                this.model.fetch();
-            },
+    getNearby: function() {
+      if (
+        this.model.get('name') !== '' &&
+        this.model.get('distance') !== '' &&
+        this.model.get('direction') !== ''
+      ) {
+        var float = parseFloat(this.model.get('distance'))
+        return (
+          float.toFixed(3) +
+          ' km ' +
+          this.model.get('direction') +
+          ' of ' +
+          this.model.get('name')
+        )
+      }
+    },
+  })
 
-            onRender: function() {
-                this.$el.html(this.getNearby());
-            },
-
-            getNearby: function() {
-                if (this.model.get('name') !== "" && this.model.get('distance') !== "" && this.model.get('direction') !== "") {
-                    var float = parseFloat(this.model.get('distance'));
-                    return float.toFixed(3) + " km " + this.model.get('direction') + " of " + this.model.get('name');
-                }
-            }
-        });
-
-    return NearbyLocationView;
-});
+  return NearbyLocationView
+})

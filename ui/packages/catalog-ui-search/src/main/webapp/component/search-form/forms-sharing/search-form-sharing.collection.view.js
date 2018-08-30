@@ -23,16 +23,16 @@ const CustomElements = require('js/CustomElements')
 module.exports = Marionette.CollectionView.extend({
   childView: SearchFormView,
   className: 'is-list is-inline has-list-highlighting',
-  initialize: function (options) {
+  initialize: function(options) {
     let searchFormSharingCollection = new SearchFormSharingCollection()
     this.collection = searchFormSharingCollection.getCollection()
     this.searchFormSharingCollection = searchFormSharingCollection
     this.options = options
   },
-  childViewOptions: function () {
+  childViewOptions: function() {
     return {
       queryModel: this.options.model,
-      sharingLightboxTitle: 'Search Form Sharing'
+      sharingLightboxTitle: 'Search Form Sharing',
     }
-  }
+  },
 })

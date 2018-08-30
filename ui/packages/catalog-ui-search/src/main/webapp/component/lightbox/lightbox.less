@@ -15,7 +15,7 @@
   width: 100%;
   height: 100%;
   z-index: @zIndexLightbox;
-  background: rgba(0,0,0,.4);
+  background: rgba(0, 0, 0, 0.4);
 
   &.is-open {
     transform: translateY(0%);
@@ -29,9 +29,8 @@
     height: 60%;
     width: 80%;
     .changeBackground(@backgroundModal);
-    box-shadow: rgba(0,0,0,.03) 0px -1px 0px inset,
-    rgba(0,0,0,.15) 0 15px 10px,
-    rgba(0,0,0,.3) 0 8px 36px
+    box-shadow: rgba(0, 0, 0, 0.03) 0px -1px 0px inset,
+      rgba(0, 0, 0, 0.15) 0 15px 10px, rgba(0, 0, 0, 0.3) 0 8px 36px;
   }
 
   .lightbox-title-bar {
@@ -54,20 +53,21 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: ~"calc(100% - 2*@{paddingHorizontal} - @{largeFontSize} - 2*@{paddingHorizontal} - @{largeFontSize})";
-    margin-left: ~"calc(2*@{paddingHorizontal} + @{largeFontSize})";
+    max-width: ~'calc(100% - 2*@{paddingHorizontal} - @{largeFontSize} - 2*@{paddingHorizontal} - @{largeFontSize})';
+    margin-left: ~'calc(2*@{paddingHorizontal} + @{largeFontSize})';
   }
 
   .lightbox-content {
-    height: ~"calc(100% - @{minimumButtonSize})";
+    height: ~'calc(100% - @{minimumButtonSize})';
     background: inherit;
     overflow: hidden;
   }
 }
 
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
+.is-medium-screen,
+.is-small-screen,
+.is-mobile-screen {
   @{customElementNamespace}lightbox {
-
     .lightbox-container {
       left: 5%;
       top: 5%;
@@ -80,19 +80,16 @@
       float: right;
     }
   }
-
 }
 
- .is-small-screen, .is-mobile-screen {
+.is-small-screen,
+.is-mobile-screen {
   @{customElementNamespace}lightbox {
-
     .lightbox-container {
       left: 0%;
       top: 0%;
       height: 100%;
       width: 100%;
     }
-
   }
-
 }

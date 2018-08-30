@@ -12,25 +12,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const wkx = require('wkx');
+const wkx = require('wkx')
 
 function degreesToRadians(degrees) {
-    return degrees * Math.PI / 180;
+  return (degrees * Math.PI) / 180
 }
 
 function radiansToDegrees(radians) {
-    return radians * 180 / Math.PI;
+  return (radians * 180) / Math.PI
 }
 
 /*
  * Constants used for the calculations below:
  * R is Earth's approximate radius. Assumes a perfect circle, which will produce at most 0.5% error
  */
-const R = 6371.01;
-const MIN_LAT = degreesToRadians(-90);
-const MAX_LAT = degreesToRadians(90);
-const MIN_LON = degreesToRadians(-180);
-const MAX_LON = degreesToRadians(180);
+const R = 6371.01
+const MIN_LAT = degreesToRadians(-90)
+const MAX_LAT = degreesToRadians(90)
+const MIN_LON = degreesToRadians(-180)
+const MAX_LON = degreesToRadians(180)
 
 /*
  * Given a starting point, initial bearing, and distance travelled, returns the destination point
@@ -41,29 +41,35 @@ const MAX_LON = degreesToRadians(180);
  * @param distance: kilometers
  */
 function computeDestination(point, bearing, distance) {
-    if (distance < 0) {
-        return null;
-    }
+  if (distance < 0) {
+    return null
+  }
 
-    const lat1 = degreesToRadians(point.y);
-    const lon1 = degreesToRadians(point.x);
-    const radBearing = degreesToRadians(bearing);
-    const radDistance = distance / R;
+  const lat1 = degreesToRadians(point.y)
+  const lon1 = degreesToRadians(point.x)
+  const radBearing = degreesToRadians(bearing)
+  const radDistance = distance / R
 
-    var lat2 = Math.asin(Math.sin(lat1) * Math.cos(radDistance)
-                       + Math.cos(lat1) * Math.sin(radDistance) * Math.cos(radBearing));
-    var lon2 = lon1 + Math.atan2(Math.sin(radBearing) * Math.sin(radDistance) * Math.cos(lat1),
-                                 Math.cos(radDistance) - Math.sin(lat1) * Math.sin(lat2));
-    if (isNaN(lat2) || isNaN(lon2)) {
-        return null;
-    }
+  var lat2 = Math.asin(
+    Math.sin(lat1) * Math.cos(radDistance) +
+      Math.cos(lat1) * Math.sin(radDistance) * Math.cos(radBearing)
+  )
+  var lon2 =
+    lon1 +
+    Math.atan2(
+      Math.sin(radBearing) * Math.sin(radDistance) * Math.cos(lat1),
+      Math.cos(radDistance) - Math.sin(lat1) * Math.sin(lat2)
+    )
+  if (isNaN(lat2) || isNaN(lon2)) {
+    return null
+  }
 
-    lat2 = radiansToDegrees(lat2);
-    lon2 = radiansToDegrees(lon2);
-    if (lon2 > 180 || lon2 < -180) {
-        lon2 = (lon2 + 540)%360 - 180;
-    }
-    return new wkx.Point(lon2, lat2);
+  lat2 = radiansToDegrees(lat2)
+  lon2 = radiansToDegrees(lon2)
+  if (lon2 > 180 || lon2 < -180) {
+    lon2 = ((lon2 + 540) % 360) - 180
+  }
+  return new wkx.Point(lon2, lat2)
 }
 
 /*
@@ -75,16 +81,16 @@ function computeDestination(point, bearing, distance) {
  * @param n: number of points used to approximate the circle
  */
 function computeCircle(point, distance, n) {
-    if (distance < 0 || n < 0) {
-        return null;
-    }
+  if (distance < 0 || n < 0) {
+    return null
+  }
 
-    var points = [];
-    for (var i = 0; i < n; i++) {
-        points.push(computeDestination(point, 360 * i / n, distance));
-    }
-    points.push(points[0]);
-    return new wkx.Polygon(points);
+  var points = []
+  for (var i = 0; i < n; i++) {
+    points.push(computeDestination(point, (360 * i) / n, distance))
+  }
+  points.push(points[0])
+  return new wkx.Polygon(points)
 }
 
 /*
@@ -93,23 +99,23 @@ function computeCircle(point, distance, n) {
  * Reference: https://www.sfei.org/it/gis/map-interpretation/conversion-constants
  */
 function toKilometers(distance, units) {
-    switch (units) {
-        case 'meters':
-            return distance / 1000;
-        case 'kilometers':
-            return distance;
-        case 'feet':
-            return distance * 0.0003048;
-        case 'yards':
-            return distance * 0.0009144;
-        case 'miles':
-            return distance * 1.609344;
-        case 'nautical miles':
-            return distance * 1.852;
-    }
+  switch (units) {
+    case 'meters':
+      return distance / 1000
+    case 'kilometers':
+      return distance
+    case 'feet':
+      return distance * 0.0003048
+    case 'yards':
+      return distance * 0.0009144
+    case 'miles':
+      return distance * 1.609344
+    case 'nautical miles':
+      return distance * 1.852
+  }
 }
 
 module.exports = {
-    computeCircle,
-    toKilometers
-};
+  computeCircle,
+  toKilometers,
+}

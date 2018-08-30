@@ -1,1 +1,1 @@
-module.exports = require('./auto-complete');
+module.exports = require('./auto-complete')

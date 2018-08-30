@@ -10,59 +10,75 @@
  *
  **/
 /*global require*/
-var Backbone = require('backbone');
-var ResultUtils = require('js/ResultUtils');
+var Backbone = require('backbone')
+var ResultUtils = require('js/ResultUtils')
 
 module.exports = Backbone.Model.extend({
-    defaults: function() {
-        return {
-            id: undefined,
-            result: undefined,
-            file: undefined,
-            percentage: 0,
-            sending: false,
-            success: false,
-            error: false,
-            message: '',
-            dropzone: undefined
-        };
-    },
-    initialize: function() {
-        this.setupDropzoneListeners();
-    },
-    setupDropzoneListeners: function() {
-        this.get('dropzone').on('sending', this.handleSending.bind(this));
-        this.get('dropzone').on('uploadprogress', this.handleUploadProgress.bind(this));
-        this.get('dropzone').on('error', this.handleError.bind(this));
-        this.get('dropzone').on('success', this.handleSuccess.bind(this));
-    },
-    handleSending: function(file) {
-        this.set({
-            file: file,
-            sending: true
-        });
-    },
-    handleUploadProgress: function(file, percentage) {
-        this.set('percentage', percentage);
-    },
-    handleError: function(file, response) {
-        var message = this.get('result').get('metacard').get('properties').get('title') + ' could not be overwritten by ' + file.name + response;
-        this.set({
-            error: true,
-            message: message
-        });
-    },
-    handleSuccess: function(file) {
-        var message = this.get('result').get('metacard').get('properties').get('title') + ' has been overwritten by ' + file.name;
-        this.set({
-            success: true,
-            message: message
-        });
-        ResultUtils.refreshResult(this.get('result'));
-    },
-    removeIfUnused: function() {
-        if (!this.get('sending')) {
-            this.collection.remove(this);
-        }
+  defaults: function() {
+    return {
+      id: undefined,
+      result: undefined,
+      file: undefined,
+      percentage: 0,
+      sending: false,
+      success: false,
+      error: false,
+      message: '',
+      dropzone: undefined,
     }
-});
+  },
+  initialize: function() {
+    this.setupDropzoneListeners()
+  },
+  setupDropzoneListeners: function() {
+    this.get('dropzone').on('sending', this.handleSending.bind(this))
+    this.get('dropzone').on(
+      'uploadprogress',
+      this.handleUploadProgress.bind(this)
+    )
+    this.get('dropzone').on('error', this.handleError.bind(this))
+    this.get('dropzone').on('success', this.handleSuccess.bind(this))
+  },
+  handleSending: function(file) {
+    this.set({
+      file: file,
+      sending: true,
+    })
+  },
+  handleUploadProgress: function(file, percentage) {
+    this.set('percentage', percentage)
+  },
+  handleError: function(file, response) {
+    var message =
+      this.get('result')
+        .get('metacard')
+        .get('properties')
+        .get('title') +
+      ' could not be overwritten by ' +
+      file.name +
+      response
+    this.set({
+      error: true,
+      message: message,
+    })
+  },
+  handleSuccess: function(file) {
+    var message =
+      this.get('result')
+        .get('metacard')
+        .get('properties')
+        .get('title') +
+      ' has been overwritten by ' +
+      file.name
+    this.set({
+      success: true,
+      message: message,
+    })
+    ResultUtils.refreshResult(this.get('result'))
+  },
+  removeIfUnused: function() {
+    if (!this.get('sending')) {
+      this.collection.remove(this)
+    }
+  },
+})

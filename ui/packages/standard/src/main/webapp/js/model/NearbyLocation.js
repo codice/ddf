@@ -11,33 +11,27 @@
  **/
 /*global define*/
 
-define([
-        'backbone',
-        'wellknown'
-       ],
+define(['backbone', 'wellknown'], function(Backbone, wellknown) {
+  'use strict'
 
-       function (Backbone, wellknown) {
-            "use strict";
+  var NearbyLocation = {}
 
-            var NearbyLocation = {};
+  NearbyLocation = Backbone.Model.extend({
+    defaults: {
+      name: '',
+      distance: '',
+      direction: '',
+    },
 
-            NearbyLocation = Backbone.Model.extend({
+    useAjaxSync: true,
 
-                defaults: {
-                    name: "",
-                    distance: "",
-                    direction: ""
-                },
+    urlRoot: '../../services/REST/v1/Locations/nearby/cities/',
 
-                useAjaxSync: true,
+    initialize: function(attributes) {
+      var geoJson = attributes.geo.toJSON()
+      this.set(this.idAttribute, wellknown.stringify(geoJson))
+    },
+  })
 
-                urlRoot: '../../services/REST/v1/Locations/nearby/cities/',
-
-                initialize: function(attributes) {
-                        var geoJson = attributes.geo.toJSON();
-                        this.set(this.idAttribute, wellknown.stringify(geoJson));
-                }
-            });
-
-            return NearbyLocation;
-       });
+  return NearbyLocation
+})

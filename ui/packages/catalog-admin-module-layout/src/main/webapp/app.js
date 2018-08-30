@@ -17,9 +17,13 @@ const themes = { admin, catalog }
 
 const App = ({ children, location }) => (
   <Provider store={store}>
-    <MuiThemeProvider muiTheme={getMuiTheme(themes[location.query.theme || 'admin'])}>
+    <MuiThemeProvider
+      muiTheme={getMuiTheme(themes[location.query.theme || 'admin'])}
+    >
       <Backdrop>
-        <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 20px' }}>{children}</div>
+        <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 20px' }}>
+          {children}
+        </div>
       </Backdrop>
     </MuiThemeProvider>
   </Provider>
@@ -28,9 +32,7 @@ const App = ({ children, location }) => (
 const routes = {
   path: '/',
   component: App,
-  indexRoute: { component: DefaultLayout }
+  indexRoute: { component: DefaultLayout },
 }
 
-export default () => (
-  <Router history={hashHistory} routes={routes} />
-)
+export default () => <Router history={hashHistory} routes={routes} />

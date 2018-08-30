@@ -1,1 +1,1 @@
-module.exports = (v) => v
+module.exports = v => v

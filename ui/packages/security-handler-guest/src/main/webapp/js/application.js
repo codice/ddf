@@ -12,41 +12,46 @@
 /*global define*/
 
 // #Main Application
-define(['marionette',
-        'backbone',
-        'js/view/Login.view',
-        'text!templates/appHeader.handlebars',
-        'icanhaz'
-    ], function (Marionette, Backbone, Login, appHeader, ich) {
-    'use strict';
+define([
+  'marionette',
+  'backbone',
+  'js/view/Login.view',
+  'text!templates/appHeader.handlebars',
+  'icanhaz',
+], function(Marionette, Backbone, Login, appHeader, ich) {
+  'use strict'
 
-    ich.addTemplate('appHeader', appHeader);
+  ich.addTemplate('appHeader', appHeader)
 
-    var Application = {};
+  var Application = {}
 
-    Application.App = new Marionette.Application();
+  Application.App = new Marionette.Application()
 
-    Application.AppModel = new Backbone.Model();
+  Application.AppModel = new Backbone.Model()
 
-    //add regions
-    Application.App.addRegions({
-        mainRegion: 'main',
-        headerRegion: '#appHeader'
-    });
+  //add regions
+  Application.App.addRegions({
+    mainRegion: 'main',
+    headerRegion: '#appHeader',
+  })
 
-    Application.App.addInitializer(function() {
-        Application.App.mainRegion.show(new Login.LoginForm());
-    });
+  Application.App.addInitializer(function() {
+    Application.App.mainRegion.show(new Login.LoginForm())
+  })
 
-    Application.App.addInitializer(function () {
-        Application.AppModel.fetch({url:"../services/platform/config/ui"}).done(function () {
-            Application.App.headerRegion.show(new Marionette.ItemView({
-                template: 'appHeader',
-                model: Application.AppModel,
-                className: 'app-header'
-            }));
-        });
-    });
+  Application.App.addInitializer(function() {
+    Application.AppModel.fetch({ url: '../services/platform/config/ui' }).done(
+      function() {
+        Application.App.headerRegion.show(
+          new Marionette.ItemView({
+            template: 'appHeader',
+            model: Application.AppModel,
+            className: 'app-header',
+          })
+        )
+      }
+    )
+  })
 
-    return Application;
-});
+  return Application
+})

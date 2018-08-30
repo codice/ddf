@@ -10,14 +10,14 @@
  *
  **/
 /*global define*/
- var Backbone = require('backbone');
- var _ = require('underscore');
+var Backbone = require('backbone')
+var _ = require('underscore')
 
- module.exports =  Backbone.Model.extend({
-    defaults: {
-        value: '',
-        operator: 'AND',
-        sortableOrder: 0
-    },
-    type: 'filter-builder'
- });
+module.exports = Backbone.Model.extend({
+  defaults: {
+    value: '',
+    operator: 'AND',
+    sortableOrder: 0,
+  },
+  type: 'filter-builder',
+})

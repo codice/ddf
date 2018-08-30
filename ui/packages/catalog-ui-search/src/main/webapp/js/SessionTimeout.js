@@ -10,21 +10,21 @@
  *
  **/
 /*global require, window*/
-var sessionTimeoutModel = require('component/singletons/session-timeout');
-var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view');
-var SessionTimeoutView = require('component/session-timeout/session-timeout.view');
-var blockingLightbox = BlockingLightbox.generateNewLightbox();
+var sessionTimeoutModel = require('component/singletons/session-timeout')
+var BlockingLightbox = require('component/lightbox/blocking/lightbox.blocking.view')
+var SessionTimeoutView = require('component/session-timeout/session-timeout.view')
+var blockingLightbox = BlockingLightbox.generateNewLightbox()
 
 function showPrompt() {
-    return sessionTimeoutModel.get('showPrompt');
+  return sessionTimeoutModel.get('showPrompt')
 }
 
 sessionTimeoutModel.on('change:showPrompt', () => {
-    if (showPrompt()) {
-        blockingLightbox.model.updateTitle('Session Expiring');
-        blockingLightbox.model.open();
-        blockingLightbox.lightboxContent.show(new SessionTimeoutView());
-    } else {
-        blockingLightbox.model.close();
-    }
-});
+  if (showPrompt()) {
+    blockingLightbox.model.updateTitle('Session Expiring')
+    blockingLightbox.model.open()
+    blockingLightbox.lightboxContent.show(new SessionTimeoutView())
+  } else {
+    blockingLightbox.model.close()
+  }
+})

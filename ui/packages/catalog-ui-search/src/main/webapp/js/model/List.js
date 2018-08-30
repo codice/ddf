@@ -9,112 +9,130 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Backbone = require('backbone');
-var Query = require('./Query');
-var cql = require('js/cql');
-var Common = require('js/Common');
-var _ = require('lodash');
-require('backbone-associations');
+var Backbone = require('backbone')
+var Query = require('./Query')
+var cql = require('js/cql')
+var Common = require('js/Common')
+var _ = require('lodash')
+require('backbone-associations')
 
 var iconMap = {
-    folder: 'fa fa-folder',
-    target: 'fa fa-bullseye',
-    video: 'fa fa-file-video-o',
-    text: 'fa fa-file-text-o',
-    word: 'fa fa-file-word-o',
-    powerpoint: 'fa fa-file-powerpoint-o',
-    excel: 'fa fa-file-excel-o',
-    pdf: 'fa fa-file-pdf-o',
-    image: 'fa fa-file-image-o',
-    audio: 'fa fa-file-audio-o',
-    code: 'fa fa-file-code-o',
-    archive: 'fa fa-file-archive-o',
-    tasks: 'fa fa-tasks'
-};
+  folder: 'fa fa-folder',
+  target: 'fa fa-bullseye',
+  video: 'fa fa-file-video-o',
+  text: 'fa fa-file-text-o',
+  word: 'fa fa-file-word-o',
+  powerpoint: 'fa fa-file-powerpoint-o',
+  excel: 'fa fa-file-excel-o',
+  pdf: 'fa fa-file-pdf-o',
+  image: 'fa fa-file-image-o',
+  audio: 'fa fa-file-audio-o',
+  code: 'fa fa-file-code-o',
+  archive: 'fa fa-file-archive-o',
+  tasks: 'fa fa-tasks',
+}
 
 function getRelevantIcon(iconName) {
-    return iconMap[iconName];
+  return iconMap[iconName]
 }
 
 function generateCql(bookmarks) {
-    if (bookmarks.length === 0) {
-        return '';
-    }
-    return cql.write({
-        type: 'AND',
-        filters: [{
-            type: 'OR',
-            filters: bookmarks.map(function (id) {
-                return {
-                    type: '=',
-                    value: id,
-                    property: '"id"'
-                };
-            })
-        }, {
-            type: 'ILIKE',
-            value: '*',
-            property: '"metacard-tags"'
-        }]
-    });
+  if (bookmarks.length === 0) {
+    return ''
+  }
+  return cql.write({
+    type: 'AND',
+    filters: [
+      {
+        type: 'OR',
+        filters: bookmarks.map(function(id) {
+          return {
+            type: '=',
+            value: id,
+            property: '"id"',
+          }
+        }),
+      },
+      {
+        type: 'ILIKE',
+        value: '*',
+        property: '"metacard-tags"',
+      },
+    ],
+  })
 }
 
-module.exports = Backbone.AssociatedModel.extend({
-    defaults: function () {
-        return {
-            id: Common.generateUUID(),
-            title: 'Untitled List',
-            'list.cql': '',
-            'list.icon': 'folder',
-            'list.bookmarks': [],
-            query: undefined
-        };
+module.exports = Backbone.AssociatedModel.extend(
+  {
+    defaults: function() {
+      return {
+        id: Common.generateUUID(),
+        title: 'Untitled List',
+        'list.cql': '',
+        'list.icon': 'folder',
+        'list.bookmarks': [],
+        query: undefined,
+      }
     },
-    relations: [{
+    relations: [
+      {
         type: Backbone.One,
         key: 'query',
         relatedModel: Query.Model,
-        isTransient: true
-    }],
+        isTransient: true,
+      },
+    ],
     initialize: function() {
-        this.set('query', new Query.Model({
-            cql: generateCql(this.get('list.bookmarks')),
-            federation: 'enterprise'
-        }));
-        this.listenTo(this, 'update:list.bookmarks change:list.bookmarks', this.updateQuery);
+      this.set(
+        'query',
+        new Query.Model({
+          cql: generateCql(this.get('list.bookmarks')),
+          federation: 'enterprise',
+        })
+      )
+      this.listenTo(
+        this,
+        'update:list.bookmarks change:list.bookmarks',
+        this.updateQuery
+      )
     },
     removeBookmarks: function(bookmarks) {
-        if (!Array.isArray(bookmarks)) {
-            bookmarks = [bookmarks];
-        }
-        this.set('list.bookmarks', this.get('list.bookmarks').filter((id) => bookmarks.indexOf(id) === -1));
+      if (!Array.isArray(bookmarks)) {
+        bookmarks = [bookmarks]
+      }
+      this.set(
+        'list.bookmarks',
+        this.get('list.bookmarks').filter(id => bookmarks.indexOf(id) === -1)
+      )
     },
     addBookmarks: function(bookmarks) {
-        if (!Array.isArray(bookmarks)) {
-            bookmarks = [bookmarks];
-        }
-        this.set('list.bookmarks', _.union(this.get('list.bookmarks'), bookmarks));
+      if (!Array.isArray(bookmarks)) {
+        bookmarks = [bookmarks]
+      }
+      this.set('list.bookmarks', _.union(this.get('list.bookmarks'), bookmarks))
     },
     updateQuery: function() {
-        this.get('query').set('cql', generateCql(this.get('list.bookmarks')));
+      this.get('query').set('cql', generateCql(this.get('list.bookmarks')))
     },
     getIcon: function() {
-        return getRelevantIcon(this.get('list.icon'));
+      return getRelevantIcon(this.get('list.icon'))
     },
     isEmpty: function() {
-        return this.get('list.bookmarks').length === 0;
-    }
-}, {
+      return this.get('list.bookmarks').length === 0
+    },
+  },
+  {
     getIconMapping: function() {
-        return iconMap;
+      return iconMap
     },
     getIconMappingForSelect: function() {
-        return _.map(iconMap, (value, key) => {
-            return {
-                label: key,
-                value: key,
-                class: value
-            };
-        });
-    }
-});
+      return _.map(iconMap, (value, key) => {
+        return {
+          label: key,
+          value: key,
+          class: value,
+        }
+      })
+    },
+  }
+)

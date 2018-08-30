@@ -11,75 +11,92 @@
  **/
 /*global window*/
 
-const Cesium = require('cesium');
-const _ = require('underscore');
-const Turf = require('@turf/turf');
-const DistanceUtils = require('js/DistanceUtils');
+const Cesium = require('cesium')
+const _ = require('underscore')
+const Turf = require('@turf/turf')
+const DistanceUtils = require('js/DistanceUtils')
 
-const { GeometryRenderView, GeometryController, CAMERA_MAGNITUDE_THRESHOLD } = require('./cesium.base.line');
-
-"use strict";
+const {
+  GeometryRenderView,
+  GeometryController,
+  CAMERA_MAGNITUDE_THRESHOLD,
+} = require('./cesium.base.line')
 
 class LineRenderView extends GeometryRenderView {
-    constructor(options) {
-        super({...options, modelEvents: {'changed': 'updatePrimitive'}});
+  constructor(options) {
+    super({ ...options, modelEvents: { changed: 'updatePrimitive' } })
 
-        this.cameraMagnitude;
-        this.animationFrameId;
+    this.cameraMagnitude
+    this.animationFrameId
 
-        this.init({...options, events: 'change:line change:lineWidth change:lineUnits'});
+    this.init({
+      ...options,
+      events: 'change:line change:lineWidth change:lineUnits',
+    })
+  }
+
+  init = options => {
+    const { model, events } = { ...options }
+
+    this.updatePrimitive()
+    this.listenTo(model, events, this.updatePrimitive)
+    this.listenForCameraChange()
+  }
+
+  drawGeometry = model => {
+    const json = model.toJSON()
+    const linePoints = json.line
+    const lineWidth =
+      DistanceUtils.getDistanceInMeters(
+        json.lineWidth,
+        model.get('lineUnits')
+      ) || 1
+    if (!linePoints) {
+      return
+    }
+    const setArr = _.uniq(linePoints)
+    if (setArr.length < 2) {
+      return
     }
 
-    init = (options) => {
-        const { model, events } = {...options};
-
-        this.updatePrimitive();
-        this.listenTo(model, events, this.updatePrimitive);
-        this.listenForCameraChange();
+    const turfLine = Turf.lineString(setArr)
+    let bufferedLine = turfLine
+    this.cameraMagnitude = this.map.camera.getMagnitude()
+    if (lineWidth > 100 || this.cameraMagnitude < CAMERA_MAGNITUDE_THRESHOLD) {
+      bufferedLine = Turf.buffer(turfLine, Math.max(lineWidth, 1), 'meters')
     }
 
-    drawGeometry = (model) => {
-        const json = model.toJSON();
-        const linePoints = json.line;
-        const lineWidth = DistanceUtils.getDistanceInMeters(json.lineWidth, model.get('lineUnits')) || 1;
-        if (!linePoints) {
-            return;
-        }
-        const setArr = _.uniq(linePoints);
-        if (setArr.length < 2) {
-            return;
-        }
-
-        const turfLine = Turf.lineString(setArr);
-        let bufferedLine = turfLine;
-        this.cameraMagnitude = this.map.camera.getMagnitude();
-        if (lineWidth > 100 || this.cameraMagnitude < CAMERA_MAGNITUDE_THRESHOLD) {
-            bufferedLine = Turf.buffer(turfLine, Math.max(lineWidth, 1), 'meters');
-        }
-
-        // first destroy old one
-        if (this.primitive && !this.primitive.isDestroyed()) {
-            this.map.scene.primitives.remove(this.primitive);
-        }
-
-        this.primitive = new Cesium.PolylineCollection();
-        this.primitive.add(this.constructLinePrimitive(bufferedLine.geometry.coordinates));
-
-        this.map.scene.primitives.add(this.primitive);
+    // first destroy old one
+    if (this.primitive && !this.primitive.isDestroyed()) {
+      this.map.scene.primitives.remove(this.primitive)
     }
+
+    this.primitive = new Cesium.PolylineCollection()
+    this.primitive.add(
+      this.constructLinePrimitive(bufferedLine.geometry.coordinates)
+    )
+
+    this.map.scene.primitives.add(this.primitive)
+  }
 }
 
 class LineController extends GeometryController {
-    constructor(options) {
-        super({...options, drawingType: 'line', geometry: 'polyline', geometryModel: 'line', geometryDisplay: 'linedisplay'});
-    }
+  constructor(options) {
+    super({
+      ...options,
+      drawingType: 'line',
+      geometry: 'polyline',
+      geometryModel: 'line',
+      geometryDisplay: 'linedisplay',
+    })
+  }
 
-    createRenderView = (model) => {
-        return new LineRenderView({model: model, map: this.map});
-    }
+  createRenderView = model => {
+    return new LineRenderView({ model: model, map: this.map })
+  }
 }
 
 module.exports = {
-    LineRenderView: LineRenderView,
-    Controller: LineController
-};
+  LineRenderView: LineRenderView,
+  Controller: LineController,
+}

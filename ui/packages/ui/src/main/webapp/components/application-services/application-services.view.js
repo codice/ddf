@@ -14,32 +14,48 @@
  **/
 /*global define, window*/
 define([
-    'marionette',
-    'js/models/Service',
-    'text!./application-services.hbs',
-    'components/service-item/service-item.collection.view',
-    'js/CustomElements',
-    'js/wreqr.js'
-    ],function (Marionette, Service, template, ServiceItemCollectionView, CustomElements, wreqr) {
-
-    return Marionette.Layout.extend({
-        tagName: CustomElements.register('application-services'),
-        template: template,
-        regions: {
-            collectionRegion: '.services'
-        },
-        initialize: function(options) {
-            this.options.url = this.model ? 
-            "./jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId') : undefined;
-            this.model = new Service.Response({url: this.options.url});
-            this.model.fetch();
-            this.listenTo(wreqr.vent, 'refreshConfigurations', function() {
-                this.model.fetch();
-            }.bind(this));
-        },
-        onRender: function() {
-            this.collectionRegion.show(new ServiceItemCollectionView({ collection: this.model.get('value'), showWarnings: true }));
-        }
-    });
-
-});
+  'marionette',
+  'js/models/Service',
+  'text!./application-services.hbs',
+  'components/service-item/service-item.collection.view',
+  'js/CustomElements',
+  'js/wreqr.js',
+], function(
+  Marionette,
+  Service,
+  template,
+  ServiceItemCollectionView,
+  CustomElements,
+  wreqr
+) {
+  return Marionette.Layout.extend({
+    tagName: CustomElements.register('application-services'),
+    template: template,
+    regions: {
+      collectionRegion: '.services',
+    },
+    initialize: function(options) {
+      this.options.url = this.model
+        ? './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/' +
+          this.model.get('appId')
+        : undefined
+      this.model = new Service.Response({ url: this.options.url })
+      this.model.fetch()
+      this.listenTo(
+        wreqr.vent,
+        'refreshConfigurations',
+        function() {
+          this.model.fetch()
+        }.bind(this)
+      )
+    },
+    onRender: function() {
+      this.collectionRegion.show(
+        new ServiceItemCollectionView({
+          collection: this.model.get('value'),
+          showWarnings: true,
+        })
+      )
+    },
+  })
+})

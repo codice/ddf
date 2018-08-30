@@ -10,10 +10,8 @@
  *
  **/
 /*global define*/
-define([
-], function () {
-    
-    return {
-        coreTransitionTime: 200
-    };
-});
+define([], function() {
+  return {
+    coreTransitionTime: 200,
+  }
+})
