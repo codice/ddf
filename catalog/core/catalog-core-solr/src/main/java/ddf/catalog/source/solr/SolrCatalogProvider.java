@@ -82,7 +82,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-  public static final int MAX_BOOLEAN_CLAUSES = 1024;
+  static final int MAX_BOOLEAN_CLAUSES = 2048;
 
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
