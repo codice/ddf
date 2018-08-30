@@ -12,10 +12,9 @@
 import * as React from "react";
 import styled from "../../styles/styled-components";
 import { ChangeBackground } from '../../styles/mixins/change-background';
-import MarionetteRegionContainer from '../../container/marionette-region-container';
-const SourceItemCollectionView = require('component/source-item/source-item.collection.view');
-const sources = require('component/singletons/sources-instance');
-const SourcesSummaryView = require('component/sources-summary/sources-summary.view');
+import SourceItem from '../source-item';
+import SourcesSummary from '../sources-summary'
+import { hot } from 'react-hot-loader';
 
 const Root = styled<{}, 'div'>('div')`
     display: block;
@@ -37,28 +36,32 @@ const SourcesCenter = styled<{}, 'div'>('div')`
     height: 100%;
 `
 
-export default ({}: {}) => {
+type Source = {
+    id: string
+    sourceActions: any[]
+    available: boolean
+}
+
+type Props = {
+    sources: Source[],
+    amountDown: number
+}
+
+export default hot(module)(({ sources, amountDown }: Props) => {
     return (
         <Root>
             <SourcesCenter>
-                <div>
-                    <MarionetteRegionContainer 
-                        view={SourcesSummaryView}
-                        replaceElement
-                    />
-                </div>
-                <div>
-                    <MarionetteRegionContainer 
-                        view={SourceItemCollectionView}
-                        viewOptions={() => {
-                            return {
-                                collection: sources
-                            }
-                        }}
-                        replaceElement
-                    />
-                </div>
+                <SourcesSummary amountDown={amountDown} />
+                {sources.map((source) => {
+                    return (
+                        <SourceItem key={source.id} 
+                            sourceActions={source.sourceActions}
+                            id={source.id}
+                            available={source.available}
+                        />
+                    )
+                })}
             </SourcesCenter>
         </Root>
     )
-}
+})
