@@ -532,9 +532,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
 
     String query =
-        ids.stream()
-            .map(id -> mappedNames.get(0) + ":" + QUOTE + id + QUOTE)
-            .collect(Collectors.joining(" OR "));
+        "{!terms cache=false separator=\" OR \" f="
+            + mappedNames.get(0)
+            + "}"
+            + String.join(" OR ", ids);
 
     LOGGER.debug("query = [{}]", query);
 
