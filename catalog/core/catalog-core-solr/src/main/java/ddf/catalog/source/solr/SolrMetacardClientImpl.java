@@ -27,6 +27,7 @@ import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_F
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType;
@@ -103,6 +104,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   public static final String SORT_FIELD_KEY = "sfield";
 
   public static final String POINT_KEY = "pt";
+
+  public static final int GET_BY_ID_LIMIT = 200;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
 
@@ -283,13 +286,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   @Override
   public List<Metacard> getIds(Set<String> ids) throws UnsupportedQueryException {
-    try {
-      SolrDocumentList docs = client.getById(ids);
-
-      return createMetacards(docs);
-    } catch (SolrServerException | SolrException | IOException e) {
-      throw new UnsupportedQueryException("Could not complete solr query.", e);
+    List<Metacard> metacards = new ArrayList<>(ids.size());
+    List<List<String>> partitions = Lists.partition(new ArrayList<>(ids), GET_BY_ID_LIMIT);
+    for (List<String> partition : partitions) {
+      try {
+        SolrDocumentList page = client.getById(partition);
+        metacards.addAll(createMetacards(page));
+      } catch (SolrServerException | SolrException | IOException e) {
+        throw new UnsupportedQueryException("Could not complete solr query.", e);
+      }
     }
+    return metacards;
   }
 
   private List<Metacard> createMetacards(SolrDocumentList docs) throws UnsupportedQueryException {

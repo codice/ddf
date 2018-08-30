@@ -44,9 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,8 +79,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       "Could not complete delete request.";
 
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-  private static final String QUOTE = "\"";
 
   private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
@@ -315,15 +311,15 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     Set<String> identifiers =
         updates.stream().map(Entry::getKey).map(Serializable::toString).collect(Collectors.toSet());
 
-    final Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
+    Map<Serializable, Metacard> idToMetacardMap = new HashMap<>();
     if (Metacard.ID.equals(attributeName)) {
       try {
-        idToMetacardMap.putAll(
+        idToMetacardMap =
             client
-                .getIds(new HashSet<>(identifiers))
+                .getIds(identifiers)
                 .stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Metacard::getId, Function.identity())));
+                .collect(Collectors.toMap(Metacard::getId, Function.identity()));
       } catch (UnsupportedQueryException e) {
         LOGGER.debug("Solr query by list of IDs failed.", e);
         LOGGER.info("Failed to query for metacard(s) by ID before update.");
@@ -372,8 +368,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
   public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
     nonNull(deleteRequest);
 
-    List<Metacard> deletedMetacards = new ArrayList<>();
-
     String attributeName = deleteRequest.getAttributeName();
     if (StringUtils.isBlank(attributeName)) {
       throw new IngestException(
@@ -382,6 +376,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @SuppressWarnings("unchecked")
     List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
+    List<Metacard> deletedMetacards = new ArrayList<>();
 
     if (CollectionUtils.isEmpty(identifiers)) {
       return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
@@ -489,8 +484,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
       String attributeName)
       throws IngestException {
     String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
-    SolrDocumentList docs = getSolrDocumentList(identifiers, fieldName);
-    createListOfDeletedMetacards(deletedMetacards, docs);
+    List<Metacard> metacards = getMetacards(identifiers, fieldName);
+    deletedMetacards.addAll(metacards);
 
     try {
       // the assumption is if something was deleted, it should be gone
@@ -503,52 +498,29 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
   }
 
-  private void createListOfDeletedMetacards(List<Metacard> deletedMetacards, SolrDocumentList docs)
-      throws IngestException {
-
-    for (SolrDocument doc : docs) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-      }
-
-      try {
-        deletedMetacards.add(client.createMetacard(doc));
-      } catch (MetacardCreationException e) {
-        LOGGER.info("Metacard creation exception creating metacards during delete", e);
-        throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
-      }
-    }
-  }
-
-  private Metacard copyMetacard(Metacard original) {
-    MetacardImpl copy = new MetacardImpl(original, original.getMetacardType());
-    copy.setSourceId(original.getSourceId());
-    return copy;
-  }
-
-  private SolrDocumentList getSolrDocumentList(
+  private List<Metacard> getMetacards(
       List<? extends Serializable> identifierPaged, String fieldName) throws IngestException {
-    // checking page size since real time get can only be done as a GET and not a POST
-    if (fieldName.equals(Metacard.ID + SchemaFields.TEXT_SUFFIX) && identifierPaged.size() <= 500) {
+    if (fieldName.equals(Metacard.ID + SchemaFields.TEXT_SUFFIX)) {
+      Set<String> ids =
+          identifierPaged
+              .stream()
+              .filter(Objects::nonNull)
+              .map(Object::toString)
+              .collect(Collectors.toSet());
       try {
-        return solr.getById((Collection<String>) identifierPaged);
-      } catch (IOException | SolrException | SolrServerException e) {
-        LOGGER.info("Failed to get list of Solr documents for delete by ID.", e);
+        return client.getIds(ids);
+      } catch (UnsupportedQueryException e) {
+        LOGGER.info("Failed to get list of Solr documents by ID for delete.", e);
+        throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
+      }
+    } else {
+      try {
+        return client.query(client.getIdentifierQuery(fieldName, identifierPaged));
+      } catch (UnsupportedQueryException e) {
+        LOGGER.info("Failed to get list of Solr documents for delete.", e);
         throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
       }
     }
-
-    SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifierPaged));
-    query.setRows(identifierPaged.size());
-
-    QueryResponse solrResponse;
-    try {
-      solrResponse = solr.query(query, METHOD.POST);
-    } catch (IOException | SolrException | SolrServerException e) {
-      LOGGER.info("Failed to get list of Solr documents for delete.", e);
-      throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
-    }
-    return solrResponse.getResults();
   }
 
   private String getQuery(String attributeName, Set<String> ids) throws IngestException {
