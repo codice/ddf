@@ -66,7 +66,7 @@ const adaptFetchData = async (response) => ({
                 return header[1];
         }
     }
-});
+})
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('table-viz'),
@@ -124,12 +124,17 @@ module.exports = Marionette.LayoutView.extend({
         });
     },
     saveExport: (data, status, xhr) => {
-        // TODO: if status not 200 then display error instead
-        var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'));
-        if (filename === null) {
-            filename = 'export' + Date.now() + '.csv';
+        if(status === 200){
+          var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'))
+          if (filename === null) {
+              filename = 'export' + Date.now()
+          }
+          saveFile(filename, 'data:' + xhr.getResponseHeader('Content-Type'), data)
         }
-        saveFile(filename, 'data:attachment/csv', data);
+        else {
+          alert('Export failed')
+          console.error('Export failed with http status ' + status)
+        }
     },
     setupExportResults() {
 
@@ -140,22 +145,22 @@ module.exports = Marionette.LayoutView.extend({
         const hasColumnOrder = Object.keys(columnOrderValue).length !== 0
 
         const visibleData = () => ({
-            // applyGlobalHidden: true,
             arguments: {
               hiddenFields: hasHiddenFields ? hiddenFieldsValue : {},
               columnOrder: hasColumnOrder ? columnOrderValue : {},
               columnAliasMap: properties.attributeAliases
             },
-            cql: this.options.selectionInterface.getCurrentQuery().get('cql'),
-            src: "cache"
-        });
+            cql: this.options.selectionInterface.getCurrentQuery().get('cql')
+        })
 
         const allData = () => ({
-            hiddenFields: [],
-            columnOrder: user.get('user').get('preferences').get('columnOrder'),
-            columnAliasMap: properties.attributeAliases,
-            metacards: this.options.selectionInterface.getCurrentQuery().get('result').get('results').fullCollection
-        });
+            arguments: {
+              hiddenFields: hasHiddenFields ? hiddenFieldsValue : {},
+              columnOrder: hasColumnOrder ? columnOrderValue : {},
+              columnAliasMap: properties.attributeAliases
+            },
+            cql: this.options.selectionInterface.getCurrentQuery().get('cql')
+        })
 
         const dataModel = {
             model: this.options.selectionInterface,
@@ -181,4 +186,4 @@ module.exports = Marionette.LayoutView.extend({
 
         return new ExportResults({...dataModel});
     }
-});
+})

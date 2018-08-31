@@ -38,15 +38,9 @@ class ExportResults extends React.Component {
   }
 
   onDownloadClick = async () => {
-    const forExport = this.state.export[this.state.exportSizeValue];
-
+    const forExport = this.state.export[this.state.exportSizeValue]
     try {
-      let url = forExport.url;
-      if (this.state.exportFormatValue === undefined) {
-        url += this.state.defaultExportFormat
-      } else {
-        url += this.state.exportFormatValue
-      }
+      const url = forExport.url + ((this.state.exportFormatValue === undefined) ? this.state.defaultExportFormat : this.state.exportFormatValue)
       const response = await exportDataAs(url, forExport.data(), this.state.contentType);
       this.state.onDownloadSuccess && this.state.onDownloadSuccess(response) || console.log(response);
     } catch (error) {
