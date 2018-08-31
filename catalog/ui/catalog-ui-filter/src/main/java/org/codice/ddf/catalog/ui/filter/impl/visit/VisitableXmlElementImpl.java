@@ -25,7 +25,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -333,12 +332,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
         throw new FilterProcessingException(
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
-      this.value =
-          Optional.of(element)
-              .map(JAXBElement::getValue)
-              .map(invocation)
-              .map(SubtypeFactory::createElement)
-              .orElseThrow(NullPointerException::new); // Should never occur - see super ctor
+      this.value = SubtypeFactory.createElement(invocation.apply(element.getValue()));
     }
 
     @Override
@@ -418,11 +412,7 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
         throw new FilterProcessingException(
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
-      this.value =
-          Optional.of(element)
-              .map(JAXBElement::getValue)
-              .map(String.class::cast)
-              .orElseThrow(NullPointerException::new); // Should never occur - see super ctor
+      this.value = (String) element.getValue();
     }
 
     @Override
@@ -465,11 +455,8 @@ public abstract class VisitableXmlElementImpl<T> implements VisitableElement<T> 
             INVALID_INVOCATION + element.getDeclaredType().getName());
       }
       this.value =
-          Optional.of(element)
-              .map(JAXBElement::getValue)
-              .map(LiteralType.class::cast)
-              .map(LiteralType::getContent)
-              .orElseThrow(NullPointerException::new) // Should never occur - see super ctor
+          ((LiteralType) element.getValue())
+              .getContent()
               .stream()
               .map(LiteralElement::parsePrimitive)
               .collect(Collectors.toList());
