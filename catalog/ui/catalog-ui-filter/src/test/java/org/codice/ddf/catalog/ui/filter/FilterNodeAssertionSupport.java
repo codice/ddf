@@ -34,36 +34,25 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.xml.bind.JAXBElement;
 import net.opengis.filter.v_2_0.LiteralType;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 
 /** As more test cases are added, more support functions will be needed. */
 public class FilterNodeAssertionSupport {
-  private static final String TYPE = "type";
-
-  private static final String FILTERS = "filters";
-
-  private static final String PROPERTY = "property";
-
-  private static final String VALUE = "value";
-
-  private static final String NAME = "name";
-
-  private static final String ARGS = "args";
-
   private FilterNodeAssertionSupport() {}
 
   public static void assertParentNode(Object target, String expectedType, int expectedChildCount) {
     Map<String, ?> node = assertObjectIsMap(target);
-    assertThat(node.get(TYPE), is(expectedType));
+    assertThat(node.get(FilterJson.Keys.TYPE), is(expectedType));
 
-    assertThat(node.get(FILTERS), notNullValue());
-    assertThat("Was expecting a list of nodes", node.get(FILTERS) instanceof List);
-    assertThat((List<?>) node.get(FILTERS), hasSize(expectedChildCount));
+    assertThat(node.get(FilterJson.Keys.FILTERS), notNullValue());
+    assertThat("Was expecting a list of nodes", node.get(FilterJson.Keys.FILTERS) instanceof List);
+    assertThat((List<?>) node.get(FilterJson.Keys.FILTERS), hasSize(expectedChildCount));
 
-    assertThat(node.get(PROPERTY), is(nullValue()));
-    assertThat(node.get(VALUE), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.PROPERTY), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.VALUE), is(nullValue()));
 
-    assertThat(node.get(NAME), is(nullValue()));
-    assertThat(node.get(ARGS), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.NAME), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.PARAMS), is(nullValue()));
   }
 
   public static void assertLeafNode(
@@ -81,48 +70,48 @@ public class FilterNodeAssertionSupport {
       Consumer<Object> propertyAssertion,
       Consumer<Object> valueAssertion) {
     Map<String, ?> node = assertObjectIsMap(target);
-    assertThat(node.get(TYPE), is(expectedType));
+    assertThat(node.get(FilterJson.Keys.TYPE), is(expectedType));
 
-    assertThat(node.get(FILTERS), nullValue());
+    assertThat(node.get(FilterJson.Keys.FILTERS), nullValue());
 
-    propertyAssertion.accept(node.get(PROPERTY));
-    valueAssertion.accept(node.get(VALUE));
+    propertyAssertion.accept(node.get(FilterJson.Keys.PROPERTY));
+    valueAssertion.accept(node.get(FilterJson.Keys.VALUE));
 
-    assertThat(node.get(NAME), is(nullValue()));
-    assertThat(node.get(ARGS), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.NAME), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.PARAMS), is(nullValue()));
   }
 
   public static void assertFunctionNode(
       Object target, String expectedName, List<Object> expectedArgs) {
     Map<String, ?> node = assertObjectIsMap(target);
-    assertThat(node.get(TYPE), is("FILTER_FUNCTION"));
+    assertThat(node.get(FilterJson.Keys.TYPE), is(FilterJson.Ops.FUNC));
 
-    assertThat(node.get(FILTERS), nullValue());
+    assertThat(node.get(FilterJson.Keys.FILTERS), nullValue());
 
-    assertThat(node.get(PROPERTY), is(nullValue()));
-    assertThat(node.get(VALUE), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.PROPERTY), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.VALUE), is(nullValue()));
 
-    assertThat(node.get(NAME), is(expectedName));
-    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List);
-    assertThat(node.get(ARGS), is(expectedArgs));
+    assertThat(node.get(FilterJson.Keys.NAME), is(expectedName));
+    assertThat("Was expecting a list of strings", node.get(FilterJson.Keys.PARAMS) instanceof List);
+    assertThat(node.get(FilterJson.Keys.PARAMS), is(expectedArgs));
   }
 
   @SafeVarargs
   public static void assertFunctionNode(
       Object target, String expectedName, Consumer<Object>... argAssertions) {
     Map<String, ?> node = assertObjectIsMap(target);
-    assertThat(node.get(TYPE), is("FILTER_FUNCTION"));
+    assertThat(node.get(FilterJson.Keys.TYPE), is("FILTER_FUNCTION"));
 
-    assertThat(node.get(FILTERS), nullValue());
+    assertThat(node.get(FilterJson.Keys.FILTERS), nullValue());
 
-    assertThat(node.get(PROPERTY), is(nullValue()));
-    assertThat(node.get(VALUE), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.PROPERTY), is(nullValue()));
+    assertThat(node.get(FilterJson.Keys.VALUE), is(nullValue()));
 
-    assertThat(node.get(NAME), is(expectedName));
-    assertThat("Was expecting a list of strings", node.get(ARGS) instanceof List);
+    assertThat(node.get(FilterJson.Keys.NAME), is(expectedName));
+    assertThat("Was expecting a list of strings", node.get(FilterJson.Keys.PARAMS) instanceof List);
 
     List<Consumer<Object>> assertions = Arrays.asList(argAssertions);
-    List<?> args = (List) node.get(ARGS);
+    List<?> args = (List) node.get(FilterJson.Keys.PARAMS);
     assertThat(
         String.format(
             "Expected 1 assertion per function argument "

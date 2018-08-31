@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.ui.filter.impl;
 
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.isBinaryLogic;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.isTerminal;
 
 import java.util.List;
 import java.util.Map;
@@ -22,40 +24,33 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.codice.ddf.catalog.ui.filter.FilterNode;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 
 public class FilterNodeMapImpl implements FilterNode {
-  private static final String CHILDREN = "filters";
-
-  private static final String PROPERTY = "property";
-
-  private static final String VALUE = "value";
-
-  private static final String TEMPLATE_PROPERTIES = "templateProperties";
-
   private final String type;
 
   private final Map<String, Object> json;
 
   public FilterNodeMapImpl(final Map<String, Object> json) {
     notNull(json);
-    this.type = (String) json.get("type");
+    this.type = (String) json.get(FilterJson.Keys.TYPE);
 
     notNull(type);
     this.json = json;
 
-    if (!(isValidLogical(json) || isValidTerminal(json))) {
+    if (!(isBinaryLogic(json) || isTerminal(json))) {
       throw new IllegalArgumentException("Filter node properties are invalid: " + json.toString());
     }
   }
 
   @Override
   public boolean isLeaf() {
-    return json.get(CHILDREN) == null;
+    return json.get(FilterJson.Keys.FILTERS) == null;
   }
 
   @Override
   public boolean isTemplated() {
-    return json.get(TEMPLATE_PROPERTIES) != null;
+    return json.get(FilterJson.Keys.TEMPLATE_PROPS) != null;
   }
 
   @Override
@@ -65,7 +60,7 @@ public class FilterNodeMapImpl implements FilterNode {
 
   @Override
   public List<FilterNode> getChildren() {
-    return Stream.of(json.get(CHILDREN))
+    return Stream.of(json.get(FilterJson.Keys.FILTERS))
         .map(List.class::cast)
         .flatMap(List::stream)
         .map(Map.class::cast)
@@ -79,7 +74,7 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isTemplated()) {
       throw new IllegalStateException("Non-templated nodes do not have template properties");
     }
-    return (Map<String, Object>) json.get(TEMPLATE_PROPERTIES);
+    return (Map<String, Object>) json.get(FilterJson.Keys.TEMPLATE_PROPS);
   }
 
   @Override
@@ -88,7 +83,7 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No property value exists for a logical operator");
     }
-    return (String) json.get(PROPERTY);
+    return (String) json.get(FilterJson.Keys.PROPERTY);
   }
 
   @Override
@@ -97,7 +92,7 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
-    Object obj = json.get(VALUE);
+    Object obj = json.get(FilterJson.Keys.VALUE);
     if (obj == null) {
       return null;
     }
@@ -107,20 +102,12 @@ public class FilterNodeMapImpl implements FilterNode {
   @Override
   public void setProperty(String property) {
     notNull(property);
-    json.put(PROPERTY, property);
+    json.put(FilterJson.Keys.PROPERTY, property);
   }
 
   @Override
   public void setValue(String value) {
     notNull(value);
-    json.put(VALUE, value);
-  }
-
-  private static boolean isValidLogical(Map<String, Object> json) {
-    return json.containsKey(CHILDREN) && !json.containsKey(PROPERTY) && !json.containsKey(VALUE);
-  }
-
-  private static boolean isValidTerminal(Map<String, Object> json) {
-    return !json.containsKey(CHILDREN) && json.containsKey(PROPERTY);
+    json.put(FilterJson.Keys.VALUE, value);
   }
 }

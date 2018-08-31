@@ -15,6 +15,10 @@ package org.codice.ddf.catalog.ui.filter.impl.json;
 
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.getFuncName;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.getParams;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.getTemplateProperties;
+import static org.codice.ddf.catalog.ui.filter.impl.json.FilterJsonUtils.isFunction;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
@@ -23,12 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 import org.codice.ddf.catalog.ui.filter.json.JsonFunctionTransform;
 
 public class JsonFunctionRegistry {
 
   private static final List<JsonFunctionTransform> TRANSFORMS =
       Collections.singletonList(new TemplatePropertiesTransform());
+
+  @Deprecated private static final String TEMPLATE_VALUE_V1 = "template.value.v1";
 
   public List<JsonFunctionTransform> getTransforms() {
     return TRANSFORMS;
@@ -39,16 +46,16 @@ public class JsonFunctionRegistry {
     @Override
     public boolean canApplyToFunction(Map<String, Object> customJson) {
       notNull(customJson);
-      return customJson.containsKey("templateProperties");
+      return customJson.containsKey(FilterJson.Keys.TEMPLATE_PROPS);
     }
 
     @Override
     public boolean canApplyFromFunction(Map<String, Object> filterJson) {
       notNull(filterJson);
-      Object val = filterJson.get("value");
+      Object val = filterJson.get(FilterJson.Keys.VALUE);
       return val instanceof Map
-          && "FILTER_FUNCTION".equals(((Map) val).get("type"))
-          && "template.value.v1".equals(((Map) val).get("name"));
+          && isFunction((Map) val)
+          && TEMPLATE_VALUE_V1.equals(getFuncName((Map) val));
     }
 
     @Override
@@ -56,13 +63,13 @@ public class JsonFunctionRegistry {
       notNull(customJson);
       Map<String, Object> templateProperties = getTemplateProperties(customJson);
       return ImmutableMap.<String, Object>builder()
-          .put("type", customJson.get("type"))
-          .put("property", customJson.get("property"))
+          .put(FilterJson.Keys.TYPE, customJson.get(FilterJson.Keys.TYPE))
+          .put(FilterJson.Keys.PROPERTY, customJson.get(FilterJson.Keys.PROPERTY))
           .put(
-              "value",
+              FilterJson.Keys.VALUE,
               ImmutableMap.<String, Object>builder()
-                  .put("type", "FILTER_FUNCTION")
-                  .put("name", "template.value.v1")
+                  .put(FilterJson.Keys.TYPE, FilterJson.Ops.FUNC)
+                  .put(FilterJson.Keys.NAME, TEMPLATE_VALUE_V1)
                   .put(
                       "args",
                       keyValuesToOrderedList(
@@ -73,23 +80,14 @@ public class JsonFunctionRegistry {
     @Override
     public Map<String, Object> fromFunction(Map<String, Object> filterJson) {
       notNull(filterJson);
-      List<Object> args = getArgs(filterJson);
+      List<Object> params = getParams((Map) filterJson.get(FilterJson.Keys.VALUE));
       return ImmutableMap.<String, Object>builder()
-          .put("type", filterJson.get("type"))
-          .put("property", filterJson.get("property"))
+          .put(FilterJson.Keys.TYPE, filterJson.get(FilterJson.Keys.TYPE))
+          .put(FilterJson.Keys.PROPERTY, filterJson.get(FilterJson.Keys.PROPERTY))
           .put(
-              "templateProperties",
-              orderedListToMap(args, "defaultValue", "nodeId", "isVisible", "isReadOnly"))
+              FilterJson.Keys.TEMPLATE_PROPS,
+              orderedListToMap(params, "defaultValue", "nodeId", "isVisible", "isReadOnly"))
           .build();
-    }
-
-    private Map<String, Object> getTemplateProperties(Map<String, Object> customJson) {
-      return (Map<String, Object>) customJson.get("templateProperties");
-    }
-
-    private List<Object> getArgs(Map<String, Object> filterJson) {
-      Map<String, Object> func = (Map<String, Object>) filterJson.get("value");
-      return (List<Object>) func.get("args");
     }
 
     private List<Object> keyValuesToOrderedList(Map<String, Object> src, String... keys) {

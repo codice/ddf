@@ -23,6 +23,7 @@ import org.codice.ddf.catalog.ui.filter.FilterNode;
 import org.codice.ddf.catalog.ui.filter.FilterVisitor2;
 import org.codice.ddf.catalog.ui.filter.FlatFilterBuilder;
 import org.codice.ddf.catalog.ui.filter.VisitableElement;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,32 +49,33 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("squid:S4144" /* Duplication will be addressed by DDF-3926 */)
 public class TransformVisitor<T> extends AbstractFilterVisitor2 {
+  // This extraneous map is an intermediate step and will go away in DDF-3926
   private static final Map<String, Consumer<FlatFilterBuilder<?>>> OPERATORS =
       ImmutableMap.<String, Consumer<FlatFilterBuilder<?>>>builder()
-          .put("NOT", FlatFilterBuilder::not)
+          .put(FilterJson.Ops.NOT, FlatFilterBuilder::not)
           .put("Not", FlatFilterBuilder::not)
-          .put("AND", FlatFilterBuilder::and)
+          .put(FilterJson.Ops.AND, FlatFilterBuilder::and)
           .put("And", FlatFilterBuilder::and)
-          .put("OR", FlatFilterBuilder::or)
+          .put(FilterJson.Ops.OR, FlatFilterBuilder::or)
           .put("Or", FlatFilterBuilder::or)
-          .put("AFTER", FlatFilterBuilder::after)
+          .put(FilterJson.Ops.AFTER, FlatFilterBuilder::after)
           .put("After", FlatFilterBuilder::after)
-          .put("BEFORE", FlatFilterBuilder::before)
+          .put(FilterJson.Ops.BEFORE, FlatFilterBuilder::before)
           .put("Before", FlatFilterBuilder::before)
-          .put("ILIKE", b -> b.like(false, "%", "_", "\\"))
-          .put("LIKE", b -> b.like(true, "%", "_", "\\"))
+          .put(FilterJson.Ops.ILIKE, b -> b.like(false, "%", "_", "\\"))
+          .put(FilterJson.Ops.LIKE, b -> b.like(true, "%", "_", "\\"))
           .put("PropertyIsLike", b -> b.like(false, "%", "_", "\\"))
-          .put("=", b -> b.isEqualTo(false))
+          .put(FilterJson.Ops.EQ, b -> b.isEqualTo(false))
           .put("PropertyIsEqualTo", b -> b.isEqualTo(false))
-          .put("!=", b -> b.isNotEqualTo(false))
+          .put(FilterJson.Ops.NOT_EQ, b -> b.isNotEqualTo(false))
           .put("PropertyIsNotEqualTo", b -> b.isNotEqualTo(false))
-          .put(">", b -> b.isGreaterThan(false))
+          .put(FilterJson.Ops.GT, b -> b.isGreaterThan(false))
           .put("PropertyIsGreaterThan", b -> b.isGreaterThan(false))
-          .put(">=", b -> b.isGreaterThanOrEqualTo(false))
+          .put(FilterJson.Ops.GT_OR_ET, b -> b.isGreaterThanOrEqualTo(false))
           .put("PropertyIsGreaterThanOrEqualTo", b -> b.isGreaterThanOrEqualTo(false))
-          .put("<", b -> b.isLessThan(false))
+          .put(FilterJson.Ops.LT, b -> b.isLessThan(false))
           .put("PropertyIsLessThan", b -> b.isLessThan(false))
-          .put("<=", b -> b.isLessThanOrEqualTo(false))
+          .put(FilterJson.Ops.LT_OR_ET, b -> b.isLessThanOrEqualTo(false))
           .put("PropertyIsLessThanOrEqualTo", b -> b.isLessThanOrEqualTo(false))
           .build();
 

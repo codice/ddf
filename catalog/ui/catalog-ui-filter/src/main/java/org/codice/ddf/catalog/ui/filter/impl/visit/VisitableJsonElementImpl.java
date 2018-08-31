@@ -30,6 +30,7 @@ import org.codice.ddf.catalog.ui.filter.FilterNode;
 import org.codice.ddf.catalog.ui.filter.FilterVisitor2;
 import org.codice.ddf.catalog.ui.filter.VisitableElement;
 import org.codice.ddf.catalog.ui.filter.impl.FilterProcessingException;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 
 /**
  * Notes on the JSON to XML mapping representation.
@@ -50,10 +51,6 @@ import org.codice.ddf.catalog.ui.filter.impl.FilterProcessingException;
  * @see PropertyIsBetweenType
  */
 public class VisitableJsonElementImpl implements VisitableElement<Object> {
-  private static final String LIKE = "LIKE";
-
-  private static final String NOT = "NOT";
-
   private static final String FAKE_PROPERTY_OPERATOR = "PROPERTY";
 
   private static final String FAKE_VALUE_OPERATOR = "VALUE";
@@ -64,23 +61,23 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
           .put(FAKE_PROPERTY_OPERATOR, FilterVisitor2::visitString)
           .put(FAKE_VALUE_OPERATOR, FilterVisitor2::visitLiteralType)
           // Logical operator mapping
-          .put("AND", FilterVisitor2::visitBinaryLogicType)
-          .put("OR", FilterVisitor2::visitBinaryLogicType)
+          .put(FilterJson.Ops.AND, FilterVisitor2::visitBinaryLogicType)
+          .put(FilterJson.Ops.OR, FilterVisitor2::visitBinaryLogicType)
           // Temporal operator mapping
-          .put("BEFORE", FilterVisitor2::visitBinaryTemporalType)
-          .put("AFTER", FilterVisitor2::visitBinaryTemporalType)
+          .put(FilterJson.Ops.BEFORE, FilterVisitor2::visitBinaryTemporalType)
+          .put(FilterJson.Ops.AFTER, FilterVisitor2::visitBinaryTemporalType)
           // Spatial operator mapping
-          .put("INTERSECTS", FilterVisitor2::visitBinarySpatialType)
-          .put("DWITHIN", FilterVisitor2::visitDistanceBufferType)
+          .put(FilterJson.Ops.INTERSECTS, FilterVisitor2::visitBinarySpatialType)
+          .put(FilterJson.Ops.DWITHIN, FilterVisitor2::visitDistanceBufferType)
           // Comparison operator mapping
-          .put("=", FilterVisitor2::visitBinaryComparisonType)
-          .put("!=", FilterVisitor2::visitBinaryComparisonType)
-          .put(">", FilterVisitor2::visitBinaryComparisonType)
-          .put(">=", FilterVisitor2::visitBinaryComparisonType)
-          .put("<", FilterVisitor2::visitBinaryComparisonType)
-          .put("<=", FilterVisitor2::visitBinaryComparisonType)
-          .put("LIKE", FilterVisitor2::visitPropertyIsLikeType)
-          .put("ILIKE", FilterVisitor2::visitPropertyIsLikeType)
+          .put(FilterJson.Ops.EQ, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.NOT_EQ, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.GT, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.GT_OR_ET, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.LT, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.LT_OR_ET, FilterVisitor2::visitBinaryComparisonType)
+          .put(FilterJson.Ops.LIKE, FilterVisitor2::visitPropertyIsLikeType)
+          .put(FilterJson.Ops.ILIKE, FilterVisitor2::visitPropertyIsLikeType)
           .build();
 
   private final BiConsumer<FilterVisitor2, VisitableElement> visitMethod;
@@ -92,12 +89,12 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   }
 
   private VisitableJsonElementImpl(final FilterNode node) {
-    if (LIKE.equals(node.getOperator())) {
+    if (FilterJson.Ops.LIKE.equals(node.getOperator())) {
       throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
       // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     }
 
-    if (NOT.equals(node.getOperator())) {
+    if (FilterJson.Ops.NOT.equals(node.getOperator())) {
       throw new UnsupportedOperationException("NOT currently is `not` supported");
       // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     }

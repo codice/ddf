@@ -27,6 +27,7 @@ import org.codice.ddf.catalog.ui.filter.impl.builder.tools.NodeReducer;
 import org.codice.ddf.catalog.ui.filter.impl.builder.tools.NodeSupplier;
 import org.codice.ddf.catalog.ui.filter.impl.builder.tools.PropertyValueNodeSupplier;
 import org.codice.ddf.catalog.ui.filter.impl.builder.tools.UnboundedNodeSupplier;
+import org.codice.ddf.catalog.ui.filter.json.FilterJson;
 
 /**
  * Single-use object for constructing a filter structure that is serializable to JSON, typically for
@@ -87,13 +88,13 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
 
   @Override
   public JsonModelBuilder and() {
-    beginBinaryLogicType("AND");
+    beginBinaryLogicType(FilterJson.Ops.AND);
     return this;
   }
 
   @Override
   public JsonModelBuilder or() {
-    beginBinaryLogicType("OR");
+    beginBinaryLogicType(FilterJson.Ops.OR);
     return this;
   }
 
@@ -113,37 +114,37 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
 
   @Override
   public JsonModelBuilder isEqualTo(boolean matchCase) {
-    beginTerminalType("=");
+    beginTerminalType(FilterJson.Ops.EQ);
     return this;
   }
 
   @Override
   public JsonModelBuilder isNotEqualTo(boolean matchCase) {
-    beginTerminalType("!=");
+    beginTerminalType(FilterJson.Ops.NOT_EQ);
     return this;
   }
 
   @Override
   public JsonModelBuilder isGreaterThan(boolean matchCase) {
-    beginTerminalType(">");
+    beginTerminalType(FilterJson.Ops.GT);
     return this;
   }
 
   @Override
   public JsonModelBuilder isGreaterThanOrEqualTo(boolean matchCase) {
-    beginTerminalType(">=");
+    beginTerminalType(FilterJson.Ops.GT_OR_ET);
     return this;
   }
 
   @Override
   public JsonModelBuilder isLessThan(boolean matchCase) {
-    beginTerminalType("<");
+    beginTerminalType(FilterJson.Ops.LT);
     return this;
   }
 
   @Override
   public JsonModelBuilder isLessThanOrEqualTo(boolean matchCase) {
-    beginTerminalType("<=");
+    beginTerminalType(FilterJson.Ops.LT_OR_ET);
     return this;
   }
 
@@ -151,26 +152,26 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
   public JsonModelBuilder like(
       boolean matchCase, String wildcard, String singleChar, String escape) {
     super.like(matchCase, wildcard, singleChar, escape);
-    String operator = (matchCase) ? "LIKE" : "ILIKE";
+    String operator = (matchCase) ? FilterJson.Ops.LIKE : FilterJson.Ops.ILIKE;
     beginTerminalType(operator);
     return this;
   }
 
   @Override
   public JsonModelBuilder before() {
-    beginTerminalType("BEFORE");
+    beginTerminalType(FilterJson.Ops.BEFORE);
     return this;
   }
 
   @Override
   public JsonModelBuilder after() {
-    beginTerminalType("AFTER");
+    beginTerminalType(FilterJson.Ops.AFTER);
     return this;
   }
 
   @Override
   public JsonModelBuilder intersects() {
-    beginTerminalType("INTERSECTS");
+    beginTerminalType(FilterJson.Ops.INTERSECTS);
     return this;
   }
 
@@ -269,27 +270,29 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
   private void setProperty(String property) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    supplierInProgress.setNext(Collections.singletonMap("property", property));
+    supplierInProgress.setNext(Collections.singletonMap(FilterJson.Keys.PROPERTY, property));
   }
 
   private void setValue(Serializable value) {
     verifyResultNotYetRetrieved();
     verifyTerminalNodeInProgress();
-    supplierInProgress.setNext(Collections.singletonMap("value", value));
+    supplierInProgress.setNext(Collections.singletonMap(FilterJson.Keys.VALUE, value));
   }
 
   private Map<String, Object> reduceLogic(String op, List<Map<String, Object>> children) {
     Map<String, Object> node = new HashMap<>();
-    node.put("type", op);
-    node.put("filters", children);
+    node.put(FilterJson.Keys.TYPE, op);
+    node.put(FilterJson.Keys.FILTERS, children);
     return node;
   }
 
   private Map<String, Object> reduceFunction(String name, List<Map<String, Object>> args) {
     Map<String, Object> node = new HashMap<>();
-    node.put("type", "FILTER_FUNCTION");
-    node.put("name", name);
-    node.put("args", args.stream().map(this::selectTerminalEntity).collect(Collectors.toList()));
+    node.put(FilterJson.Keys.TYPE, FilterJson.Ops.FUNC);
+    node.put(FilterJson.Keys.NAME, name);
+    node.put(
+        FilterJson.Keys.PARAMS,
+        args.stream().map(this::selectTerminalEntity).collect(Collectors.toList()));
     return node;
   }
 
@@ -297,9 +300,9 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
     Map<String, Object> propertyExpression = children.get(0);
     Map<String, Object> valueExpression = children.get(1);
     Map<String, Object> result = new HashMap<>();
-    result.put("type", op);
-    result.put("property", selectTerminalEntity(propertyExpression));
-    result.put("value", selectTerminalEntity(valueExpression));
+    result.put(FilterJson.Keys.TYPE, op);
+    result.put(FilterJson.Keys.PROPERTY, selectTerminalEntity(propertyExpression));
+    result.put(FilterJson.Keys.VALUE, selectTerminalEntity(valueExpression));
     return result;
   }
 
@@ -322,7 +325,7 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
    *     {
    *         "type": "FILTER_FUNCTION",
    *         "name": "myFunction",
-   *         "args": [ ... ]
+   *         "params": [ ... ]
    *     }
    * </pre>
    *
@@ -333,7 +336,7 @@ public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Obj
    * @return a stream of map entries that can be combined into a Json filter.
    */
   private Object selectTerminalEntity(Map<String, Object> filter) {
-    if (filter.containsKey("type")) {
+    if (filter.containsKey(FilterJson.Keys.TYPE)) {
       return filter;
     }
     if (filter.isEmpty() || filter.size() > 1) {
