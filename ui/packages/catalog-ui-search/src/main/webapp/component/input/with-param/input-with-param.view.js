@@ -30,6 +30,11 @@ module.exports = InputView.extend({
             distance: Math.max(1, param || 0)
         };
     },
+    onAttach() {
+        const width = this.$el.find('.param-label').last().outerWidth();
+        this.$el.find('.text, .param').css('width', `calc(50% - ${width/2}px)`);
+        InputView.prototype.onAttach.call(this);
+    },
     handleValue: function(){
         var value = this.model.getValue() || {
             value: undefined,
