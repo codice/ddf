@@ -115,11 +115,13 @@ public class TemplateTransformer {
       }
 
       return metacard;
+
     } catch (JAXBException e) {
       LOGGER.error("XML generation failed for query template metacard's filter", e);
     } catch (FilterProcessingException e) {
-      LOGGER.error("Could not use filter JSON for template - {}", e.getMessage());
+      LOGGER.debug("Could not use filter JSON for template", e);
     }
+
     return null;
   }
 

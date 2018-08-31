@@ -52,6 +52,8 @@ import org.codice.ddf.catalog.ui.filter.impl.FilterProcessingException;
 public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private static final String LIKE = "LIKE";
 
+  private static final String NOT = "NOT";
+
   private static final String FAKE_PROPERTY_OPERATOR = "PROPERTY";
 
   private static final String FAKE_VALUE_OPERATOR = "VALUE";
@@ -92,6 +94,11 @@ public class VisitableJsonElementImpl implements VisitableElement<Object> {
   private VisitableJsonElementImpl(final FilterNode node) {
     if (LIKE.equals(node.getOperator())) {
       throw new UnsupportedOperationException("LIKE (case sensitive) currently is not supported");
+      // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
+    }
+
+    if (NOT.equals(node.getOperator())) {
+      throw new UnsupportedOperationException("NOT currently is `not` supported");
       // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
     }
 

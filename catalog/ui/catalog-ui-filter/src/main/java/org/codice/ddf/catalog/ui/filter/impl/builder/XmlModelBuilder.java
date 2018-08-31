@@ -40,7 +40,8 @@ import org.codice.ddf.catalog.ui.filter.impl.builder.tools.NodeSupplier;
 import org.codice.ddf.catalog.ui.filter.impl.builder.tools.PropertyValueNodeSupplier;
 import org.codice.ddf.catalog.ui.filter.impl.builder.tools.UnboundedNodeSupplier;
 
-public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
+public class XmlModelBuilder extends AbstractUnsupportedBuilder<JAXBElement>
+    implements FlatFilterBuilder<JAXBElement> {
   private static final ObjectFactory FACTORY = new ObjectFactory();
 
   /**
@@ -75,11 +76,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
       complete = true;
     }
     return Mapper.filter(rootNode);
-  }
-
-  @Override
-  public XmlModelBuilder not() {
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -147,6 +143,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   @Override
   public XmlModelBuilder like(
       boolean matchCase, String wildcard, String singleChar, String escape) {
+    super.like(matchCase, wildcard, singleChar, escape);
     if (matchCase) {
       beginTerminalType(Mapper::likeMatchCase);
       return this;
@@ -171,12 +168,6 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
   public XmlModelBuilder intersects() {
     beginTerminalType(Mapper::intersects);
     return this;
-  }
-
-  @Override
-  public XmlModelBuilder dwithin(double distance, String units) {
-    throw new UnsupportedOperationException(
-        "DWITHIN is not currently supported, use INTERSECTS instead");
   }
 
   @Override

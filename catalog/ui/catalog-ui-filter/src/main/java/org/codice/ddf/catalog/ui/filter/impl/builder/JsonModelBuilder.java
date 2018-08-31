@@ -45,7 +45,8 @@ import org.codice.ddf.catalog.ui.filter.impl.builder.tools.UnboundedNodeSupplier
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
-public class JsonModelBuilder implements FlatFilterBuilder<Map<String, Object>> {
+public class JsonModelBuilder extends AbstractUnsupportedBuilder<Map<String, Object>>
+    implements FlatFilterBuilder<Map<String, Object>> {
   private final Deque<NodeReducer<Map<String, Object>>> logicOpCache;
 
   private final Deque<List<Map<String, Object>>> depth;
@@ -82,11 +83,6 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, Object>> 
       complete = true;
     }
     return rootNode;
-  }
-
-  @Override
-  public JsonModelBuilder not() {
-    throw new UnsupportedOperationException("Not operators in JSON are 'not' yet supported");
   }
 
   @Override
@@ -154,6 +150,7 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, Object>> 
   @Override
   public JsonModelBuilder like(
       boolean matchCase, String wildcard, String singleChar, String escape) {
+    super.like(matchCase, wildcard, singleChar, escape);
     String operator = (matchCase) ? "LIKE" : "ILIKE";
     beginTerminalType(operator);
     return this;
@@ -175,11 +172,6 @@ public class JsonModelBuilder implements FlatFilterBuilder<Map<String, Object>> 
   public JsonModelBuilder intersects() {
     beginTerminalType("INTERSECTS");
     return this;
-  }
-
-  @Override
-  public JsonModelBuilder dwithin(double distance, String units) {
-    throw new UnsupportedOperationException("Distance buffers in JSON are not yet supported");
   }
 
   @Override

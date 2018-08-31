@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
 public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   private static final Map<String, Consumer<FlatFilterBuilder<?>>> OPERATORS =
       ImmutableMap.<String, Consumer<FlatFilterBuilder<?>>>builder()
+          .put("NOT", FlatFilterBuilder::not)
+          .put("Not", FlatFilterBuilder::not)
           .put("AND", FlatFilterBuilder::and)
           .put("And", FlatFilterBuilder::and)
           .put("OR", FlatFilterBuilder::or)
@@ -58,8 +60,7 @@ public class TransformVisitor<T> extends AbstractFilterVisitor2 {
           .put("BEFORE", FlatFilterBuilder::before)
           .put("Before", FlatFilterBuilder::before)
           .put("ILIKE", b -> b.like(false, "%", "_", "\\"))
-          // Ticket for adding support - https://codice.atlassian.net/browse/DDF-3829
-          //          .put("LIKE", b -> b.like(true, "%", "_", "\\"))
+          .put("LIKE", b -> b.like(true, "%", "_", "\\"))
           .put("PropertyIsLike", b -> b.like(false, "%", "_", "\\"))
           .put("=", b -> b.isEqualTo(false))
           .put("PropertyIsEqualTo", b -> b.isEqualTo(false))
