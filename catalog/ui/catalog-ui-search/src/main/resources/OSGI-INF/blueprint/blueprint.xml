@@ -455,6 +455,8 @@
         <argument ref="geoCoderService"/>
     </bean>
 
+    <!--  Search Forms Application  -->
+
     <bean id="filterWriter"
           class="org.codice.ddf.catalog.ui.filter.impl.FilterWriter">
         <argument value="true"/>
@@ -462,18 +464,18 @@
 
     <bean id="templateTransformer"
           class="org.codice.ddf.catalog.ui.forms.TemplateTransformer">
-        <argument ref="filterBuilder"/>
-        <argument ref="catalogFramework"/>
         <argument ref="filterWriter"/>
     </bean>
 
     <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication"
           init-method="setup">
-        <argument ref="filterBuilder"/>
         <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
+
+    <!--  End Search Forms  -->
 
     <reference id="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
 

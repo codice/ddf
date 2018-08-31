@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
+@SuppressWarnings("squid:S4144" /* Duplication will be addressed by DDF-3926 */)
 public abstract class AbstractFilterVisitor2 implements FilterVisitor2 {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFilterVisitor2.class);
 

@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * <p><i>This code is experimental. While it is functional and tested, it may change or be removed
  * in a future version of the library.</i>
  */
+@SuppressWarnings("squid:S4144" /* Duplication will be addressed by DDF-3926 */)
 public class TransformVisitor<T> extends AbstractFilterVisitor2 {
   private static final Map<String, Consumer<FlatFilterBuilder<?>>> OPERATORS =
       ImmutableMap.<String, Consumer<FlatFilterBuilder<?>>>builder()

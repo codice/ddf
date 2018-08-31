@@ -179,7 +179,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     }
 
     Object configObject = Boon.fromJson(payload);
-    if (!List.class.isInstance(configObject)) {
+    if (!(configObject instanceof List)) {
       LOGGER.warn(
           "Could not load forms configuration in {}, JSON should be a list of maps",
           file.getName());
@@ -252,6 +252,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     Set<String> newTags = new HashSet<>(metacard.getTags());
     newTags.add(SYSTEM_TEMPLATE);
     metacard.setTags(newTags);
+    // Static analysis isn't recognizing the above 'anyNull(...)' call, descriptors can't be null
     metacard.setGroupDescriptors(new HashSet<>(descriptors));
     return metacard;
   }
@@ -342,7 +343,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
 
   private static Consumer<? super Object> loggingConsumerFactory(File file) {
     return obj -> {
-      if (!Map.class.isInstance(obj)) {
+      if (!(obj instanceof Map)) {
         LOGGER.warn(
             "Unexpected configuration in {}, values should be maps not {}",
             file.getName(),
@@ -351,6 +352,7 @@ public class SearchFormsLoader implements Supplier<List<Metacard>> {
     };
   }
 
+  @SuppressWarnings("squid:S00112" /* Throwing RuntimeException here only for Failsafe above */)
   private static void createSystemMetacards(
       EndpointUtil util, List<Metacard> systemTemplates, CatalogFramework catalogFramework) {
     Set<String> queryTitles = titlesTransform(util.getMetacardsByFilter(QUERY_TEMPLATE_TAG));

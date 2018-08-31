@@ -65,6 +65,8 @@ import spark.servlet.SparkApplication;
 
 /** Provides an internal REST interface for working with custom form data for Intrigue. */
 public class SearchFormsApplication implements SparkApplication {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
+
   private static final ObjectMapper MAPPER =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -74,31 +76,30 @@ public class SearchFormsApplication implements SparkApplication {
               .includeDefaultValues()
               .setJsonFormatForDates(false));
 
+  private static final String RESP_MSG = "message";
+
+  private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
+
   private final CatalogFramework catalogFramework;
+
+  private final FilterBuilder filterBuilder;
 
   private final TemplateTransformer transformer;
 
   private final EndpointUtil util;
 
-  private final FilterBuilder filterBuilder;
-
   private final boolean readOnly;
 
-  private static final String RESP_MSG = "message";
-
-  private static final String SOMETHING_WENT_WRONG = "Something went wrong.";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchFormsApplication.class);
-
   public SearchFormsApplication(
-      FilterBuilder filterBuilder,
       CatalogFramework catalogFramework,
+      FilterBuilder filterBuilder,
       TemplateTransformer transformer,
       EndpointUtil util) {
     this.catalogFramework = catalogFramework;
+    this.filterBuilder = filterBuilder;
     this.transformer = transformer;
     this.util = util;
-    this.filterBuilder = filterBuilder;
+
     this.readOnly = !SearchFormsLoader.enabled();
   }
 

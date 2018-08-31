@@ -14,12 +14,10 @@
 package org.codice.ddf.catalog.ui.forms;
 
 import com.google.common.collect.ImmutableMap;
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Security;
-import ddf.catalog.filter.FilterBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -61,17 +59,12 @@ public class TemplateTransformer {
 
   private static final JsonFunctionRegistry REGISTRY = new JsonFunctionRegistry();
 
+  private static final FilterReader READER = new FilterReader();
+
   private final FilterWriter writer;
 
-  private final CatalogFramework catalogFramework;
-
-  private final FilterBuilder filterBuilder;
-
-  public TemplateTransformer(
-      FilterBuilder filterBuilder, CatalogFramework catalogFramework, FilterWriter writer) {
-    this.filterBuilder = filterBuilder;
+  public TemplateTransformer(FilterWriter writer) {
     this.writer = writer;
-    this.catalogFramework = catalogFramework;
   }
 
   public static boolean invalidFormTemplate(Metacard metacard) {
@@ -140,7 +133,6 @@ public class TemplateTransformer {
     Map<String, List<Serializable>> securityAttributes = retrieveSecurityIfPresent(metacard);
 
     try {
-      FilterReader reader = new FilterReader();
       String formsFilter = wrapped.getFormsFilter();
       if (formsFilter == null) {
         LOGGER.debug(
@@ -149,7 +141,7 @@ public class TemplateTransformer {
         return null;
       }
       JAXBElement<FilterType> root =
-          reader.unmarshalFilter(
+          READER.unmarshalFilter(
               new ByteArrayInputStream(formsFilter.getBytes(StandardCharsets.UTF_8)));
       VisitableXmlElementImpl.create(root).accept(visitor);
       return new FormTemplate(
@@ -245,11 +237,6 @@ public class TemplateTransformer {
   private static Map<String, Object> collapseFilterFunctions(Map<String, Object> filter) {
     return transformFilterFunctions(
         filter, JsonFunctionTransform::canApplyFromFunction, JsonFunctionTransform::fromFunction);
-  }
-
-  private static Map<String, Object> expandFilterFunctions(Map<String, Object> filter) {
-    return transformFilterFunctions(
-        filter, JsonFunctionTransform::canApplyToFunction, JsonFunctionTransform::toFunction);
   }
 
   /**

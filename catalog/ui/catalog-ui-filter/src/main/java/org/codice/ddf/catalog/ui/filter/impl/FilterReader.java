@@ -37,8 +37,12 @@ public class FilterReader {
 
   private final SAXParserFactory factory;
 
-  public FilterReader() throws JAXBException {
-    this.context = JAXBContext.newInstance(FilterType.class);
+  public FilterReader() {
+    try {
+      this.context = JAXBContext.newInstance(FilterType.class);
+    } catch (JAXBException e) {
+      throw new IllegalStateException("Could not initialize JAXB", e);
+    }
     this.factory = XMLUtils.getInstance().getSecureSAXParserFactory();
     this.factory.setNamespaceAware(true);
   }
