@@ -97,7 +97,11 @@ public class FilterNodeMapImpl implements FilterNode {
     if (!isLeaf()) {
       throw new IllegalStateException("No target value exists for a logical operator");
     }
-    return Objects.toString(json.get(VALUE));
+    Object obj = json.get(VALUE);
+    if (obj == null) {
+      return null;
+    }
+    return Objects.toString(obj);
   }
 
   @Override
@@ -117,6 +121,6 @@ public class FilterNodeMapImpl implements FilterNode {
   }
 
   private static boolean isValidTerminal(Map<String, Object> json) {
-    return !json.containsKey(CHILDREN) && json.containsKey(PROPERTY) && json.containsKey(VALUE);
+    return !json.containsKey(CHILDREN) && json.containsKey(PROPERTY);
   }
 }
