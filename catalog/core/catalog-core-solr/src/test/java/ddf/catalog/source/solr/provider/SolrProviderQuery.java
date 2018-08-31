@@ -938,6 +938,13 @@ public class SolrProviderQuery extends SolrProviderTestBase {
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(1, sourceResponse.getResults().size());
 
+    query =
+        new QueryImpl(
+            filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText("10160*"));
+    query.setStartIndex(1);
+    sourceResponse = provider.query(new QueryRequestImpl(query));
+    assertEquals(1, sourceResponse.getResults().size());
+
     // NEGATIVE CASES
     query =
         new QueryImpl(
@@ -946,13 +953,6 @@ public class SolrProviderQuery extends SolrProviderTestBase {
                 .is()
                 .like()
                 .caseSensitiveText("HTTP://www.flagstaffchamber.com/arizona-cardinals*"));
-    query.setStartIndex(1);
-    sourceResponse = provider.query(new QueryRequestImpl(query));
-    assertEquals(0, sourceResponse.getResults().size());
-
-    query =
-        new QueryImpl(
-            filterBuilder.attribute(Metacard.ANY_TEXT).is().like().caseSensitiveText("10160*"));
     query.setStartIndex(1);
     sourceResponse = provider.query(new QueryRequestImpl(query));
     assertEquals(0, sourceResponse.getResults().size());

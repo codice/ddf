@@ -342,30 +342,29 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private String wildcardSolrQuery(
       String searchPhrase, String propertyName, boolean isCaseSensitive) {
-    String solrQuery = "";
+    String solrQuery;
+    String tokenized = resolver.getSpecialIndexSuffix(AttributeFormat.STRING);
     if (Metacard.ANY_TEXT.equals(propertyName)) {
       solrQuery =
           resolver
               .anyTextFields()
-              .map(resolver::getWhitespaceTokenizedField)
+              .map(field -> field + tokenized)
               .map(
-                  whitespaceField -> {
+                  textField -> {
                     if (isCaseSensitive) {
-                      return resolver.getCaseSensitiveField(whitespaceField);
+                      return resolver.getCaseSensitiveField(textField);
                     } else {
-                      return whitespaceField;
+                      return textField;
                     }
                   })
               .map(field -> field + ":" + searchPhrase)
               .collect(Collectors.joining(" "));
     } else {
-      String whitespaceField =
-          resolver.getWhitespaceTokenizedField(
-              getMappedPropertyName(propertyName, AttributeFormat.STRING, true));
+      String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, true) + tokenized;
       if (isCaseSensitive) {
-        whitespaceField = resolver.getCaseSensitiveField(whitespaceField);
+        field = resolver.getCaseSensitiveField(field);
       }
-      solrQuery = whitespaceField + ":" + searchPhrase;
+      solrQuery = field + ":" + searchPhrase;
     }
     return "(" + solrQuery + ")";
   }
