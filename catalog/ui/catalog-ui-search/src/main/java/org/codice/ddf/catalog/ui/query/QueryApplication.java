@@ -95,11 +95,14 @@ public class QueryApplication implements SparkApplication, Function {
     get(
         "/cql/transforms",
         (req, res) -> {
-          List transformers =
+          List<String> transformers =
               queryResponseTransformers
                   .stream()
-                  .map(serviceReference -> serviceReference.getProperty(TRANSFORMER_ID_PROPERTY))
+                  .map(
+                      serviceReference ->
+                          serviceReference.getProperty(TRANSFORMER_ID_PROPERTY).toString())
                   .collect(Collectors.toList());
+          transformers.removeIf(StringUtils::isBlank);
           return mapper.toJson(transformers);
         });
 

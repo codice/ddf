@@ -27,6 +27,7 @@ const TableRearrange = require('./table-rearrange.view');
 const ResultsTableView = require('component/table/results/table-results.view');
 const user = require('component/singletons/user-instance');
 const properties = require('properties');
+const announcement = require('component/announcement');
 
 function saveFile (name, type, data) {
     if (data != null && navigator.msSaveBlob)
@@ -57,7 +58,7 @@ function getFilenameFromContentDisposition(header) {
 const adaptFetchData = async (response) => ({
     data: await response.text(),
     status: response.status,
-    getResponseHeader: (requestedHeader) => {
+    getFirstResponseHeader: (requestedHeader) => {
         for(const header of response.headers.entries()) {
             if (!Array.isArray(header)) {
               continue
@@ -125,14 +126,18 @@ module.exports = Marionette.LayoutView.extend({
     },
     saveExport: (data, status, xhr) => {
         if(status === 200){
-          var filename = getFilenameFromContentDisposition(xhr.getResponseHeader('Content-Disposition'))
+          var filename = getFilenameFromContentDisposition(xhr.getFirstResponseHeader('Content-Disposition'))
           if (filename === null) {
               filename = 'export' + Date.now()
           }
-          saveFile(filename, 'data:' + xhr.getResponseHeader('Content-Type'), data)
+          saveFile(filename, 'data:' + xhr.getFirstResponseHeader('Content-Type'), data)
         }
         else {
-          alert('Export failed')
+          announcement.announce({
+                title: 'Error!',
+                message: "Could not export results.",
+                type: 'error'
+            });
           console.error('Export failed with http status ' + status)
         }
     },
