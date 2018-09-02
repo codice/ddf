@@ -61,9 +61,11 @@ public interface ProcessResource {
   String getMimeType();
 
   /**
-   * Return the input stream containing the {@link ProcessResource}'s actual data content.
+   * Returns a new, independent input stream with each call containing the {@link ProcessResource}'s
+   * actual data content. {@link #close()} should be called once new input streams are no longer
+   * needed.
    *
-   * @return the {@link ProcessResource}'s input stream
+   * @return a new, independent input stream containing the {@link ProcessResource}'s data content.
    * @throws IOException if the input stream is not available
    */
   InputStream getInputStream() throws IOException;
@@ -88,9 +90,9 @@ public interface ProcessResource {
   boolean isModified();
 
   /**
-   * This is used to close the input stream.
-   *
-   * <p>Look into having the ProcessResource implement InputStream
+   * close the source of the {@link ProcessResource}'s input stream data. Once this is closed {@link
+   * #getInputStream()} will no longer return valid input streams and any existing input streams
+   * retrieved from this {@link ProcessResource} will no longer be usable.
    */
   void close();
 }

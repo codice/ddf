@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.async.data.impl;
 import static org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl.DEFAULT_MIME_TYPE;
 import static org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl.DEFAULT_NAME;
 
+import com.google.common.io.Closer;
 import ddf.catalog.resource.Resource;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.async.data.api.internal.InaccessibleResourceException;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +34,21 @@ public class LazyProcessResourceImpl implements ProcessResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LazyProcessResourceImpl.class);
 
+  private static final int FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 32 * 1024; // 32 kilobytes
+
   private URI uri;
 
   private String name = DEFAULT_NAME;
 
   private String mimeType = DEFAULT_MIME_TYPE;
 
-  private long size = UNKNOWN_SIZE;
+  private volatile long size = UNKNOWN_SIZE;
 
   private InputStream inputStream;
+
+  private TemporaryFileBackedOutputStream resourceDataCache;
+
+  private Closer streamCloser;
 
   private String qualifier;
 
@@ -84,9 +92,22 @@ public class LazyProcessResourceImpl implements ProcessResource {
    * <p>This will load the resource.
    */
   @Override
-  public InputStream getInputStream() throws IOException {
-    loadResource();
-    return inputStream;
+  public synchronized InputStream getInputStream() throws IOException {
+    if (resourceDataCache == null) {
+      loadResource();
+
+      if (inputStream == null) {
+        throw new IOException(String.format("Tried to get input stream for %s but was null", name));
+      }
+      resourceDataCache = new TemporaryFileBackedOutputStream(FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
+      IOUtils.copyLarge(inputStream, resourceDataCache);
+      IOUtils.closeQuietly(inputStream);
+      streamCloser.register(resourceDataCache);
+    }
+    InputStream newInputStream = resourceDataCache.asByteSource().openStream();
+    streamCloser.register(newInputStream);
+
+    return newInputStream;
   }
 
   /**
@@ -95,7 +116,7 @@ public class LazyProcessResourceImpl implements ProcessResource {
    * <p>This will load the resource.
    */
   @Override
-  public String getMimeType() {
+  public synchronized String getMimeType() {
     loadResource();
     return mimeType;
   }
@@ -106,7 +127,7 @@ public class LazyProcessResourceImpl implements ProcessResource {
    * <p>This will load the resource.
    */
   @Override
-  public String getName() {
+  public synchronized String getName() {
     loadResource();
     return name;
   }
@@ -159,21 +180,21 @@ public class LazyProcessResourceImpl implements ProcessResource {
   }
 
   @Override
-  public void close() {
-    IOUtils.closeQuietly(inputStream);
+  public synchronized void close() {
+    IOUtils.closeQuietly(streamCloser);
   }
 
   public void markAsModified() {
     isModified = true;
   }
 
-  private void loadResource() {
+  private synchronized void loadResource() {
     if (!isResourceLoaded) {
       populateProcessResource(resourceSupplier.get());
     }
   }
 
-  private void populateProcessResource(Resource resource) {
+  private synchronized void populateProcessResource(Resource resource) {
     if (resource == null) {
       String message =
           "Error loading resource for metacard id: "
@@ -187,6 +208,8 @@ public class LazyProcessResourceImpl implements ProcessResource {
     }
 
     this.inputStream = resource.getInputStream();
+    this.streamCloser = Closer.create();
+    this.streamCloser.register(inputStream);
 
     if (this.size == UNKNOWN_SIZE) {
       this.size = resource.getSize();
