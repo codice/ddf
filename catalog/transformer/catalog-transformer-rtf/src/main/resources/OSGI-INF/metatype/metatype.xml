@@ -15,14 +15,14 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="RTF Export Categories"
-         description="The categories that organize a metacard export to RTF"
-         id="ddf.catalog.transformer.output.rtf">
+         description="The categories, matching metacard attributes, that will be exported to RTF"
+         id="ddf.catalog.transformer.output.rtf.categories">
 
         <AD description="The title of the category in an RTF export"
             name="Category Title"
             id="title"
             type="String"
-            default="Association"/>
+            default=""/>
         <AD description="All of the attributes that will be in this category of the metacard export"
             name="Attributes"
             id="attributes"

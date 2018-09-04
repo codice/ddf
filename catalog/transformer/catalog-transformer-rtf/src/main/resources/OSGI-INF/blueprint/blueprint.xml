@@ -47,13 +47,13 @@
             factory-pid="ddf.catalog.transformer.output.rtf.categories"
             interface="ddf.catalog.transformer.output.rtf.model.RtfCategory">
 
-        <cm:managed-component class="ddf.catalog.transformer.output.rtf.model.ExportCategory" init-method="init" destroy-method="destroy">
+        <cm:managed-component class="ddf.catalog.transformer.output.rtf.model.ExportCategory">
             <property name="title" value=""/>
             <property name="attributes">
                 <list/>
             </property>
 
-            <cm:managed-properties persistent-id="" update-strategy="container-managed" update-method="refresh"/>
+            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
         </cm:managed-component>
     </cm:managed-service-factory>
 </blueprint>

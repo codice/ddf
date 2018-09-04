@@ -39,12 +39,14 @@ import javax.activation.MimeTypeParseException;
 public class RtfQueryResponseAndMetacardTransformer
     implements MetacardTransformer, QueryResponseTransformer {
 
-  private static final String MIME_TYPE = "application/rtf";
+  private final MimeType mimeType;
 
   private final List<RtfCategory> categories;
 
-  public RtfQueryResponseAndMetacardTransformer(List<RtfCategory> categories) {
+  public RtfQueryResponseAndMetacardTransformer(List<RtfCategory> categories)
+      throws MimeTypeParseException {
     this.categories = categories;
+    this.mimeType = new MimeType("application/rtf");
   }
 
   @Override
@@ -55,9 +57,12 @@ public class RtfQueryResponseAndMetacardTransformer
     }
 
     ByteArrayInputStream rtfStream =
-        Optional.of(metacard).map(this::toRtf).map(this::rtfStringToInputStream).orElse(null);
+        Optional.of(metacard)
+            .map(this::toRtf)
+            .map(this::rtfStringToInputStream)
+            .orElseThrow(this::emptyRtfException);
 
-    return createAndReturn(rtfStream);
+    return new BinaryContentImpl(rtfStream, mimeType);
   }
 
   @Override
@@ -81,23 +86,13 @@ public class RtfQueryResponseAndMetacardTransformer
             .map(Rtf::out)
             .map(Objects::toString)
             .map(this::rtfStringToInputStream)
-            .orElse(null);
+            .orElseThrow(this::emptyRtfException);
 
-    return createAndReturn(templateStream);
+    return new BinaryContentImpl(templateStream, mimeType);
   }
 
-  private BinaryContent createAndReturn(ByteArrayInputStream templateStream)
-      throws CatalogTransformerException {
-    if (templateStream == null) {
-      throw new CatalogTransformerException("RTF template is empty, nothing to export");
-    }
-
-    try {
-      return new BinaryContentImpl(templateStream, new MimeType(MIME_TYPE));
-    } catch (MimeTypeParseException e) {
-      throw new CatalogTransformerException(
-          String.format("Unable to transform to RTF: %s", e.getCause()));
-    }
+  private CatalogTransformerException emptyRtfException() {
+    return new CatalogTransformerException("RTF template is empty, nothing to export");
   }
 
   private ByteArrayInputStream rtfStringToInputStream(String rtf) {
@@ -122,7 +117,7 @@ public class RtfQueryResponseAndMetacardTransformer
 
   private Rtf toRtf(Rtf doc, Metacard metacard) {
     return new RtfTemplate.Builder()
-        .usingCategories(this.categories)
+        .withCategories(this.categories)
         .withMetacard(metacard)
         .build()
         .rtf(doc);

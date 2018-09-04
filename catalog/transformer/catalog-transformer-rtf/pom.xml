@@ -134,16 +134,14 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Import-Package>
-                            *
-                        </Import-Package>
-                        <Export-Package>
-                            ddf.catalog.transformer.output.rtf, ddf.catalog.transformer.output.rtf.model
-                        </Export-Package>
                         <Embed-Dependency>
-                            platform-util, commons-lang3, tutego.jrtf
+                            platform-util,
+                            commons-lang3,
+                            tutego.jrtf
                         </Embed-Dependency>
                         <Private-Package>
+                            ddf.catalog.transformer.output.rtf,
+                            ddf.catalog.transformer.output.rtf.model,
                             ddf.catalog.data.impl.*
                         </Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

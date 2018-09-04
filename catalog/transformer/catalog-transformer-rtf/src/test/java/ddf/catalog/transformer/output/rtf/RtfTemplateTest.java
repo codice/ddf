@@ -13,9 +13,10 @@
  */
 package ddf.catalog.transformer.output.rtf;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import com.tutego.jrtf.Rtf;
@@ -38,27 +39,12 @@ public class RtfTemplateTest extends BaseTestConfiguration {
   }
 
   @Test
-  public void testRemplateCreation() {
-    RtfTemplate template =
-        new RtfTemplate.Builder()
-            .withMetacard(mockMetacard)
-            .usingCategories(mockCategories)
-            .build();
-
-    assertThat("Template cannot be null", template, notNullValue());
-  }
-
-  @Test
   public void testBuildingRtfFromTemplate() {
     RtfTemplate template =
-        new RtfTemplate.Builder()
-            .withMetacard(mockMetacard)
-            .usingCategories(mockCategories)
-            .build();
+        new RtfTemplate.Builder().withMetacard(mockMetacard).withCategories(mockCategories).build();
 
     assertThat("Template cannot be null", template, notNullValue());
-    assertThat(
-        "There should be 4 categories", mockCategories.get(0).getAttributes().size(), equalTo(4));
+    assertThat("There should be 4 categories", mockCategories.get(0).getAttributes(), hasSize(4));
 
     Rtf doc = Rtf.rtf();
 
@@ -69,10 +55,10 @@ public class RtfTemplateTest extends BaseTestConfiguration {
     String finishedDoc = generatedTemplate.out().toString();
 
     assertThat("RTF output cannot be null", finishedDoc, notNullValue());
-    assertThat("RTF document must start with {\\rtf1", finishedDoc.startsWith("{\\rtf1"), is(true));
+    assertThat("RTF document must start with {\\rtf1", finishedDoc, startsWith("{\\rtf1"));
     assertThat(
         String.format("RTF document must contain section with title: %s", METACARD_TITLE),
-        finishedDoc.contains(METACARD_TITLE),
-        is(true));
+        finishedDoc,
+        containsString(METACARD_TITLE));
   }
 }

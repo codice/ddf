@@ -33,13 +33,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This class builds an RTF document using {@link Metacard} and a list of {@link RtfCategory}s. The
+ * resulting document consists of a main title, which comes from the {@link Metacard} title, section
+ * headings ({@link RtfCategory} title) and a table of {@link RtfCategory} property names and
+ * values.
+ */
 public class RtfTemplate {
 
   static class Builder {
     private List<RtfCategory> categories;
     private Metacard metacard;
 
-    public Builder usingCategories(List<RtfCategory> categories) {
+    public Builder withCategories(List<RtfCategory> categories) {
       this.categories = categories;
 
       return this;

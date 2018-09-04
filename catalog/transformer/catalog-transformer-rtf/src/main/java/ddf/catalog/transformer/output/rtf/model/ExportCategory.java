@@ -16,12 +16,10 @@ package ddf.catalog.transformer.output.rtf.model;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
-import java.util.Base64;
-import java.util.Collections;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang.WordUtils;
@@ -31,10 +29,10 @@ public class ExportCategory implements RtfCategory {
   private String title;
   private List<String> attributes;
 
-  public abstract class ExportValue<T, R extends ValueType> {
-    public abstract T getValue();
+  public interface ExportValue<T, R extends ValueType> {
+    T getValue();
 
-    public abstract R getType();
+    R getType();
   }
 
   public enum ValueType {
@@ -43,21 +41,19 @@ public class ExportCategory implements RtfCategory {
     EMPTY
   }
 
-  class JustValue<T> extends ExportValue {
+  class JustValue<T> implements ExportValue {
 
-    private final String value;
-    private final Function<String, T> fromString;
+    private final T value;
     private final ValueType valueType;
 
-    public JustValue(String value, ValueType type, Function<String, T> fromString) {
+    public JustValue(T value, ValueType type) {
       this.value = value;
       this.valueType = type;
-      this.fromString = fromString;
     }
 
     @Override
     public T getValue() {
-      return this.fromString.apply(this.value);
+      return this.value;
     }
 
     @Override
@@ -66,48 +62,42 @@ public class ExportCategory implements RtfCategory {
     }
   }
 
-  public ExportCategory() {}
-
-  public void init() {
-    // Thanks blueprint!
-  }
-
-  public void destroy(int code) {
-    // Thanks blueprint!
-  }
-
+  @Override
   public String getTitle() {
     return title;
   }
 
+  @Override
   public void setTitle(String title) {
     this.title = title;
   }
 
+  @Override
   public List<String> getAttributes() {
     return attributes;
   }
 
+  @Override
   public void setAttributes(List<String> attributes) {
     this.attributes = attributes;
   }
 
+  @Override
   public Map<String, ExportValue> toExportMap(Metacard metacard) {
     return attributes
         .stream()
         .map(
             key ->
-                Collections.singletonMap(
+                new AbstractMap.SimpleEntry<>(
                     attributeKeyFrom(key),
                     attributeExportValueFrom(key, metacard.getAttribute(key))))
-        .flatMap(map -> map.entrySet().stream())
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private String attributeKeyFrom(String key) {
     String formattedAttribute =
         Stream.of(key.split("\\."))
-            .map(part -> Stream.of(part.split("-")).collect(Collectors.joining(" ")))
+            .map(part -> part.replaceAll("-", " "))
             .collect(Collectors.joining(" "));
 
     return WordUtils.capitalize(formattedAttribute);
@@ -128,20 +118,16 @@ public class ExportCategory implements RtfCategory {
   }
 
   private ExportValue mediaValue(byte[] image) {
-    return new JustValue<>(
-        Base64.getEncoder().encodeToString(image),
-        ValueType.MEDIA,
-        (stringImage) -> Base64.getDecoder().decode(stringImage));
+    return new JustValue<>(image, ValueType.MEDIA);
   }
 
   private ExportValue emptyValue() {
-    return new JustValue("", ValueType.EMPTY, (empty) -> "--");
+    return new JustValue("--", ValueType.EMPTY);
   }
 
   private ExportValue simpleValue(Attribute attribute) {
     return new JustValue(
         Optional.ofNullable(attribute.getValue()).map(Object::toString).orElse(null),
-        ValueType.SIMPLE,
-        (value) -> value);
+        ValueType.SIMPLE);
   }
 }
