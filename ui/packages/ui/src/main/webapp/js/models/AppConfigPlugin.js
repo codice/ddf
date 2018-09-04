@@ -13,30 +13,32 @@
  *
  **/
 /*global define*/
-define(['backbone', 'underscore'], function(Backbone, _) {
-  var AppConfigPlugin = {}
+define([
+    'backbone',
+    'underscore'
+    ],function (Backbone, _) {
 
-  AppConfigPlugin.Model = Backbone.Model.extend({})
 
-  AppConfigPlugin.Collection = Backbone.Collection.extend({
-    model: AppConfigPlugin.Model,
-    url:
-      './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForApplication(java.lang.String)/',
-    fetchByAppName: function(appName, options) {
-      var collection = this
+    var AppConfigPlugin = {};
 
-      var newOptions = _.extend(
-        {
-          url: collection.url + appName,
+    AppConfigPlugin.Model = Backbone.Model.extend({});
+
+    AppConfigPlugin.Collection = Backbone.Collection.extend({
+        model: AppConfigPlugin.Model,
+        url: './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForApplication(java.lang.String)/',
+        fetchByAppName: function(appName, options){
+            var collection = this;
+
+            var newOptions = _.extend({
+                url: collection.url + appName
+            }, options);
+            return this.fetch(newOptions);
         },
-        options
-      )
-      return this.fetch(newOptions)
-    },
-    parse: function(resp) {
-      return resp.value
-    },
-  })
+        parse: function(resp){
+            return resp.value;
+        }
+    });
 
-  return AppConfigPlugin
-})
+    return AppConfigPlugin;
+
+});

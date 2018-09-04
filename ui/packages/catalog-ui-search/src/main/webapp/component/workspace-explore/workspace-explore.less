@@ -1,20 +1,21 @@
 @{customElementNamespace}workspace-explore {
+
   .customElement;
 
   .workspaceExplore-queries {
-    height: 100%;
+      height: 100%;
+  }
+
+}
+
+.is-medium-screen, .is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}workspace-explore {
+
   }
 }
 
-.is-medium-screen,
-.is-small-screen,
-.is-mobile-screen {
+ .is-small-screen, .is-mobile-screen {
   @{customElementNamespace}workspace-explore {
-  }
-}
 
-.is-small-screen,
-.is-mobile-screen {
-  @{customElementNamespace}workspace-explore {
   }
 }

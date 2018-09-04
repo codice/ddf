@@ -10,28 +10,28 @@
  *
  **/
 /*global define*/
-define([], function() {
-  var namespace = 'intrigue-'
+define([
+], function () {
 
-  var registry = {}
+    var namespace = 'intrigue-';
 
-  return {
-    register: function(name) {
-      if (registry[name]) {
-        throw Error(
-          'Multiple custom elements registered under the same name: ' + name
-        )
-      }
-      registry[name] = true
-      return namespace + name
-    },
-    getNamespace: function() {
-      return namespace
-    },
-    registerReact(name) {
-      name = 'react-' + name
-      registry[name] = true
-      return namespace + name
-    },
-  }
-})
+    var registry = {};
+
+    return {
+        register: function(name){
+            if (registry[name]){
+                throw Error('Multiple custom elements registered under the same name: ' + name);
+            }
+            registry[name] = true;
+            return namespace + name;
+        },
+        getNamespace: function() {
+            return namespace;
+        },
+        registerReact(name) {
+            name = 'react-' + name;
+            registry[name] = true;
+            return namespace + name;
+        }
+    };
+});

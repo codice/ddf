@@ -10,67 +10,70 @@
  *
  **/
 /*global define*/
-define([], function() {
-  var Util = {
-    /**
-     * Solution taken from stackoverflow. Link included.
-     * http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
-     * @param nTotalDiff
-     * @returns {string}
-     */
-    convertUptimeToString: function(uptime) {
-      var oDiff = {}
+define([
+],function () {
 
-      oDiff.days = Math.floor(uptime / 1000 / 60 / 60 / 24)
-      uptime -= oDiff.days * 1000 * 60 * 60 * 24
+    var Util = {
 
-      oDiff.hours = Math.floor(uptime / 1000 / 60 / 60)
-      uptime -= oDiff.hours * 1000 * 60 * 60
+        /**
+         * Solution taken from stackoverflow. Link included.
+         * http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
+         * @param nTotalDiff
+         * @returns {string}
+         */
+        convertUptimeToString: function(uptime) {
+            var oDiff = {};
 
-      oDiff.minutes = Math.floor(uptime / 1000 / 60)
-      uptime -= oDiff.minutes * 1000 * 60
+            oDiff.days = Math.floor(uptime / 1000 / 60 / 60 / 24);
+            uptime -= oDiff.days * 1000 * 60 * 60 * 24;
 
-      oDiff.seconds = Math.floor(uptime / 1000)
-      //  -------------------------------------------------------------------  //
+            oDiff.hours = Math.floor(uptime / 1000 / 60 / 60);
+            uptime -= oDiff.hours * 1000 * 60 * 60;
 
-      //  Format Duration
-      //  -------------------------------------------------------------------  //
-      //  Format Hours
-      var daystext = String(oDiff.days)
+            oDiff.minutes = Math.floor(uptime / 1000 / 60);
+            uptime -= oDiff.minutes * 1000 * 60;
 
-      var hourtext = '00'
-      if (oDiff.hours > 0) {
-        hourtext = String(oDiff.hours)
-      }
-      if (hourtext.length === 1) {
-        hourtext = '0' + hourtext
-      }
+            oDiff.seconds = Math.floor(uptime / 1000);
+            //  -------------------------------------------------------------------  //
 
-      //  Format Minutes
-      var mintext = '00'
-      if (oDiff.minutes > 0) {
-        mintext = String(oDiff.minutes)
-      }
-      if (mintext.length === 1) {
-        mintext = '0' + mintext
-      }
+            //  Format Duration
+            //  -------------------------------------------------------------------  //
+            //  Format Hours
+            var daystext = String(oDiff.days);
 
-      //  Format Seconds
-      var sectext = '00'
-      if (oDiff.seconds > 0) {
-        sectext = String(oDiff.seconds)
-      }
-      if (sectext.length === 1) {
-        sectext = '0' + sectext
-      }
+            var hourtext = '00';
+            if (oDiff.hours > 0){
+                hourtext = String(oDiff.hours);
+            }
+            if (hourtext.length === 1) {
+                hourtext = '0' + hourtext;
+            }
 
-      //  Set Duration
-      var sDuration = daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext
-      //  -------------------------------------------------------------------  //
+            //  Format Minutes
+            var mintext = '00';
+            if (oDiff.minutes > 0){
+                mintext = String(oDiff.minutes);
+            }
+            if (mintext.length === 1) {
+                mintext = '0' + mintext;
+            }
 
-      return sDuration
-    },
-  }
+            //  Format Seconds
+            var sectext = '00';
+            if (oDiff.seconds > 0) {
+                sectext = String(oDiff.seconds);
+            }
+            if (sectext.length === 1) {
+                sectext = '0' + sectext;
+            }
 
-  return Util
-})
+            //  Set Duration
+            var sDuration = daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext;
+            //  -------------------------------------------------------------------  //
+
+            return sDuration;
+        }
+    };
+
+    return Util;
+});

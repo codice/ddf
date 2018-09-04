@@ -11,66 +11,55 @@
  **/
 /*global define*/
 
-define(['jquery'], function($) {
-  'use strict'
+define([
+    'jquery'
+],function ($) {
+    'use strict';
 
-  var properties = {
-    /* these are empty until loaded from ajax */
-    ui: {},
-    admin: {},
+    var properties = {
 
-    init: function() {
-      // use this function to initialize variables that rely on others
+        /* these are empty until loaded from ajax */
+        ui: { },
+        admin: {},
 
-      var props = this
+        init : function(){
+            // use this function to initialize variables that rely on others
 
-      $.ajax({
-        async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
-        cache: false,
-        dataType: 'json',
-        url: '../services/platform/config/ui',
-      })
-        .done(function(uiConfig) {
-          props.ui = uiConfig
-          return props
-        })
-        .fail(function(jqXHR, status, errorThrown) {
-          if (console) {
-            console.log(
-              'Platform UI Configuration could not be loaded: (status: ' +
-                status +
-                ', message: ' +
-                errorThrown.message +
-                ')'
-            )
-          }
-        })
+            var props = this;
 
-      $.ajax({
-        async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
-        cache: false,
-        dataType: 'json',
-        url: '../services/admin/config',
-      })
-        .done(function(adminConfig) {
-          props.admin = adminConfig
-          return props
-        })
-        .fail(function(jqXHR, status, errorThrown) {
-          if (console) {
-            console.log(
-              'Admin UI Configuration could not be loaded: (status: ' +
-                status +
-                ', message: ' +
-                errorThrown.message +
-                ')'
-            )
-          }
-        })
+            $.ajax({
+                async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
+                cache: false,
+                dataType: 'json',
+                url: "../services/platform/config/ui"
+            }).done(function(uiConfig) {
+                props.ui = uiConfig;
+                return props;
 
-      return props
-    },
-  }
+            }).fail(function(jqXHR, status, errorThrown) {
+                if(console){
+                    console.log('Platform UI Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                }
+            });
 
-  return properties.init()
-})
+            $.ajax({
+                async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
+                cache: false,
+                dataType: 'json',
+                url: "../services/admin/config"
+            }).done(function(adminConfig) {
+                props.admin = adminConfig;
+                return props;
+
+            }).fail(function(jqXHR, status, errorThrown) {
+                if(console){
+                    console.log('Admin UI Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                }
+            });
+
+            return props;
+        }
+    };
+
+    return properties.init();
+});

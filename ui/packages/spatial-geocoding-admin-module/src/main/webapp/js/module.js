@@ -15,41 +15,43 @@
 
 /*global define*/
 define([
-  'application',
-  'js/view/Ingest.view.js',
-  'js/model/Ingest.js',
-], function(Application, IngestView, Ingest) {
-  Application.App.module('Ingest', function(
-    SourceModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var ingest = new Ingest.DetailModel()
+        'application',
+        'js/view/Ingest.view.js',
+        'js/model/Ingest.js'
+    ],
+    function(Application, IngestView, Ingest) {
 
-    var ingestPage = new IngestView.Details({ model: ingest })
+        Application.App.module('Ingest', function(SourceModule, App, Backbone, Marionette)  {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var ingest = new Ingest.DetailModel();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var ingestPage = new IngestView.Details({model: ingest});
 
-      show: function() {
-        this.region.show(ingestPage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    SourceModule.addInitializer(function() {
-      SourceModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      SourceModule.contentController.show()
-    })
-  })
-})
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(ingestPage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            SourceModule.addInitializer(function(){
+                SourceModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                SourceModule.contentController.show();
+            });
+
+
+        });
+    });

@@ -13,11 +13,12 @@
  *
  **/
 /*global define, alert*/
-define(['./Lightbox.view', './lightboxInstance'], function(
-  LightboxView,
-  lightboxInstance
-) {
-  return new LightboxView({
-    model: lightboxInstance,
-  })
-})
+define([
+    './Lightbox.view',
+    './lightboxInstance'
+], function (LightboxView, lightboxInstance) {
+
+    return new LightboxView({
+        model: lightboxInstance
+    });
+});

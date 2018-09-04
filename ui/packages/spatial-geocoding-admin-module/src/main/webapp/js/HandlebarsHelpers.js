@@ -10,22 +10,24 @@
  *
  **/
 /*global define*/
-define(['icanhaz'], function(ich) {
-  'use strict'
-  var helper,
-    helpers = {
-      is: function(value, test, options) {
-        if (value === test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-    }
+define([
+        'icanhaz'
+    ],
+    function (ich) {
+        "use strict";
+        var helper, helpers = {
+            is: function (value, test, options) {
+                if (value === test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            }
+        };
 
-  for (helper in helpers) {
-    if (helpers.hasOwnProperty(helper)) {
-      ich.addHelper(helper, helpers[helper])
-    }
-  }
-})
+        for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+                ich.addHelper(helper, helpers[helper]);
+            }
+        }
+});

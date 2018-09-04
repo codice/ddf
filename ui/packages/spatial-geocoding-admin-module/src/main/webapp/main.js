@@ -12,126 +12,128 @@
 /*global require */
 /*jslint nomen:false, -W064 */
 require.config({
-  paths: {
-    bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
-    moment: '../../webjars/moment/2.20.1/min/moment.min',
+    paths: {
 
-    // backbone
-    backbone: '../../webjars/backbone/1.1.2/backbone',
+        bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+        moment: '../../webjars/moment/2.20.1/min/moment.min',
 
-    underscore: '../../webjars/underscore/1.8.3/underscore-min',
+        // backbone
+        backbone: '../../webjars/backbone/1.1.2/backbone',
 
-    'backbone.marionette':
-      '../../webjars/marionette/2.4.5/lib/backbone.marionette.min',
+        underscore: '../../webjars/underscore/1.8.3/underscore-min',
 
-    modelbinder:
-      '../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
+        'backbone.marionette': '../../webjars/marionette/2.4.5/lib/backbone.marionette.min',
 
-    // application
-    application: 'js/application',
+        modelbinder: '../../webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
-    // jquery
-    jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
-    jqueryui: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
-    fileupload: '../../webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
+        // application
+        application: 'js/application',
 
-    // handlebars
-    handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
-    icanhaz: 'js/ich',
+        // jquery
+        jquery: '../../webjars/jquery/3.2.1/dist/jquery.min',
+        jqueryui: '../../webjars/jquery-ui/1.12.1/jquery-ui.min',
+        fileupload: '../../webjars/jquery-file-upload/9.18.0/js/jquery.fileupload',
 
-    // require plugins
-    text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
-    css: '../../webjars/require-css/0.1.10/css.min',
-  },
-  map: {
-    '*': {
-      'jquery-ui/ui/widget': 'jquery',
+        // handlebars
+        handlebars: '../../webjars/handlebars/4.0.10/handlebars.min',
+        icanhaz: 'js/ich',
+
+        // require plugins
+        text: '../../webjars/requirejs-plugins/1.0.3/lib/text',
+        css: '../../webjars/require-css/0.1.10/css.min'
+
+
     },
-  },
-  shim: {
-    backbone: {
-      deps: ['underscore', 'jquery'],
-      exports: 'Backbone',
+    map: {
+        '*': {
+            'jquery-ui/ui/widget': 'jquery'
+        }
+    },
+    shim: {
+
+        backbone: {
+            deps: ['underscore', 'jquery'],
+            exports: 'Backbone'
+        },
+
+        modelbinder: {
+            deps: ['underscore', 'jquery', 'backbone']
+        },
+
+        marionette: {
+            deps: ['jquery', 'underscore', 'backbone'],
+            exports: 'Marionette'
+        },
+
+        underscore: {
+            exports: '_'
+        },
+
+        handlebars: {
+            exports: 'Handlebars'
+        },
+
+        icanhaz: {
+            deps: ['jquery', 'handlebars'],
+            exports: 'ich'
+        },
+
+        moment: {
+            exports: 'moment'
+        },
+
+        jqueryui: ['jquery'],
+
+        fileupload: ['jqueryui'],
+
+        bootstrap: ['jquery']
     },
 
-    modelbinder: {
-      deps: ['underscore', 'jquery', 'backbone'],
-    },
+    waitSeconds: 0
+});
 
-    marionette: {
-      deps: ['jquery', 'underscore', 'backbone'],
-      exports: 'Marionette',
-    },
-
-    underscore: {
-      exports: '_',
-    },
-
-    handlebars: {
-      exports: 'Handlebars',
-    },
-
-    icanhaz: {
-      deps: ['jquery', 'handlebars'],
-      exports: 'ich',
-    },
-
-    moment: {
-      exports: 'moment',
-    },
-
-    jqueryui: ['jquery'],
-
-    fileupload: ['jqueryui'],
-
-    bootstrap: ['jquery'],
-  },
-
-  waitSeconds: 0,
-})
-
-require.onError = function(err) {
-  if (typeof console !== 'undefined') {
-    console.error('RequireJS failed to load a module', err)
-  }
-}
-
-require([
-  'jquery',
-  'backbone',
-  'backbone.marionette',
-  'application',
-  'icanhaz',
-  'js/HandlebarsHelpers',
-  'modelbinder',
-], function($, Backbone, Marionette, Application, ich) {
-  'use strict'
-  var app = Application.App
-  // Start up backbone.history.
-  app.on('initialize:after', function() {
-    Backbone.history.start()
-    //bootstrap call for tabs
-    $('tabs').tab()
-  })
-
-  Marionette.Renderer.render = function(template, data) {
-    if (!template) {
-      return ''
+require.onError = function (err) {
+    if (typeof console !== 'undefined') {
+        console.error("RequireJS failed to load a module", err);
     }
-    return ich[template](data)
-  }
+};
 
-  // https://github.com/marionettejs/backbone.marionette/issues/3077
-  // monkey-patch Marionette for compatibility with jquery 3+.
-  // jquery removed the .selector method, which was used by the original
-  // implementation here.
-  Marionette.Region.prototype.reset = function() {
-    this.empty()
-    this.el = this.options.el
-    delete this.$el
-    return this
-  }
+require(['jquery',
+        'backbone',
+        'backbone.marionette',
+        'application',
+        'icanhaz',
+        'js/HandlebarsHelpers',
+        'modelbinder'
+        ],
+    function ($, Backbone, Marionette, Application, ich) {
+        'use strict';
+        var app = Application.App;
+        // Start up backbone.history.
+        app.on('initialize:after', function () {
+            Backbone.history.start();
+            //bootstrap call for tabs
+            $('tabs').tab();
+        });
 
-  // Actually start up the application.
-  app.start()
-})
+        Marionette.Renderer.render = function (template, data) {
+            if(!template) {
+                return '';
+            }
+            return ich[template](data);
+        };
+
+        // https://github.com/marionettejs/backbone.marionette/issues/3077
+        // monkey-patch Marionette for compatibility with jquery 3+.
+        // jquery removed the .selector method, which was used by the original
+        // implementation here.
+        Marionette.Region.prototype.reset = function() {
+            this.empty();
+            this.el = this.options.el;
+            delete this.$el;
+            return this;
+        };
+            
+        // Actually start up the application.
+        app.start();
+    });

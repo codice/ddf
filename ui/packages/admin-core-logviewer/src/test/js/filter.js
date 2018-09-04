@@ -18,42 +18,36 @@ import test from 'tape'
 import filter from '../../main/webapp/js/filter'
 import random from './random-entry'
 
-const getEntry = item => item.entry
+const getEntry = (item) => item.entry
 
-test('level filter TRACE', t => {
+test('level filter TRACE', (t) => {
   t.plan(1)
 
-  const logs = [{ level: 'TRACE' }, { level: 'INFO' }, { level: 'ERROR' }].map(
-    random
-  )
+  const logs = [{ level: 'TRACE' }, { level: 'INFO' }, { level: 'ERROR' }].map(random)
   const filtered = filter({ level: 'TRACE' }, logs).map(getEntry)
 
   t.deepEqual(filtered, [logs[0], logs[1], logs[2]])
 })
 
-test('level filter WARN', t => {
+test('level filter WARN', (t) => {
   t.plan(1)
 
-  const logs = [{ level: 'INFO' }, { level: 'WARN' }, { level: 'ERROR' }].map(
-    random
-  )
+  const logs = [{ level: 'INFO' }, { level: 'WARN' }, { level: 'ERROR' }].map(random)
   const filtered = filter({ level: 'WARN' }, logs).map(getEntry)
 
   t.deepEqual(filtered, [logs[1], logs[2]])
 })
 
-test('level filter ERROR', t => {
+test('level filter ERROR', (t) => {
   t.plan(1)
 
-  const logs = [{ level: 'DEBUG' }, { level: 'WARN' }, { level: 'ERROR' }].map(
-    random
-  )
+  const logs = [{ level: 'DEBUG' }, { level: 'WARN' }, { level: 'ERROR' }].map(random)
   const filtered = filter({ level: 'ERROR' }, logs).map(getEntry)
 
   t.deepEqual(filtered, [logs[2]])
 })
 
-test('text filter', t => {
+test('text filter', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'first' }, { message: 'second' }].map(random)
@@ -62,7 +56,7 @@ test('text filter', t => {
   t.deepEqual(filtered, [logs[0]])
 })
 
-test('text filter (partial match)', t => {
+test('text filter (partial match)', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'random' }].map(random)
@@ -71,7 +65,7 @@ test('text filter (partial match)', t => {
   t.deepEqual(filtered, [logs[0]])
 })
 
-test('text filter (regex match)', t => {
+test('text filter (regex match)', (t) => {
   t.plan(1)
 
   const logs = [{ message: 'one two' }, { message: 'two one' }].map(random)
@@ -80,17 +74,15 @@ test('text filter (regex match)', t => {
   t.deepEqual(filtered, [logs[0]])
 })
 
-test('compound filter (logical AND)', t => {
+test('compound filter (logical AND)', (t) => {
   t.plan(1)
 
   const logs = [
     { level: 'DEBUG', message: 'first' },
-    { level: 'WARN', message: 'second' },
+    { level: 'WARN', message: 'second' }
   ].map(random)
 
-  const filtered = filter({ level: 'DEBUG', message: 'second' }, logs).map(
-    getEntry
-  )
+  const filtered = filter({ level: 'DEBUG', message: 'second' }, logs).map(getEntry)
 
   t.deepEqual(filtered, [logs[1]])
 })

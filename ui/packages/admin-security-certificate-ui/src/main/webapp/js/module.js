@@ -15,48 +15,49 @@
 
 /*global define*/
 define([
-  'application',
-  'js/view/Store.view',
-  'js/model/Certificate',
-  'js/model/PrivateKey',
-], function(Application, StoreView, Certificate, PrivateKey) {
-  Application.App.module('Certificate', function(
-    CertificateModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var certificateResponse = new Certificate.Response()
-    var keyResponse = new PrivateKey.Response()
-    certificateResponse.fetch()
-    keyResponse.fetch()
+        'application',
+        'js/view/Store.view',
+        'js/model/Certificate',
+        'js/model/PrivateKey'
+    ],
+    function (Application, StoreView, Certificate, PrivateKey) {
 
-    var certPage = new StoreView.CertificatePage({
-      certificate: certificateResponse,
-      privateKey: keyResponse,
-    })
+        Application.App.module('Certificate', function (CertificateModule, App, Backbone, Marionette) {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var certificateResponse = new Certificate.Response();
+            var keyResponse = new PrivateKey.Response();
+            certificateResponse.fetch();
+            keyResponse.fetch();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var certPage = new StoreView.CertificatePage({
+                certificate: certificateResponse,
+                privateKey: keyResponse
+            });
 
-      show: function() {
-        this.region.show(certPage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    CertificateModule.addInitializer(function() {
-      CertificateModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      CertificateModule.contentController.show()
-    })
-  })
-})
+                initialize: function (options) {
+                    this.region = options.region;
+                },
+
+                show: function () {
+                    this.region.show(certPage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            CertificateModule.addInitializer(function () {
+                CertificateModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                CertificateModule.contentController.show();
+            });
+
+        });
+    });

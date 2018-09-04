@@ -13,39 +13,44 @@
  *
  **/
 /* global define */
-define(['marionette'], function(Marionette) {
-  'use strict'
+define([
+    'marionette'
+],
+function (Marionette) {
+    'use strict';
 
-  /**
-   * This provides us with a base view for modals.  It contains the base close/hide and destroy functionality.
-   */
-  var BaseModal = Marionette.Layout.extend({
-    // use the Backbone constructor paradigm to allow extending of classNames
-    constructor: function() {
-      this.className = 'modal fade ' + this.className // add on modal specific classes.
-      Marionette.Layout.prototype.constructor.apply(this, arguments)
-    },
+    /**
+     * This provides us with a base view for modals.  It contains the base close/hide and destroy functionality.
+     */
+    var BaseModal = Marionette.Layout.extend({
 
-    // be default, "close" just closes the modal
-    destroy: function() {
-      var view = this
-      // we add this listener because we do not want to remove the dom before the animation completes.
-      this.$el.one('hidden.bs.modal', function() {
-        view.close()
-      })
-      this.hide()
-    },
+        // use the Backbone constructor paradigm to allow extending of classNames
+        constructor: function () {
+            this.className = 'modal fade ' + this.className; // add on modal specific classes.
+            Marionette.Layout.prototype.constructor.apply(this, arguments);
+        },
 
-    show: function() {
-      this.$el.modal({
-        backdrop: 'static',
-        keyboard: false,
-      })
-    },
+        // be default, "close" just closes the modal
+        destroy: function () {
+            var view = this;
+            // we add this listener because we do not want to remove the dom before the animation completes.
+            this.$el.one('hidden.bs.modal', function () {
+                view.close();
+            });
+            this.hide();
+        },
 
-    hide: function() {
-      this.$el.modal('hide')
-    },
-  })
-  return BaseModal
-})
+        show: function () {
+            this.$el.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+        },
+
+        hide: function () {
+            this.$el.modal('hide');
+        }
+
+    });
+    return BaseModal;
+});

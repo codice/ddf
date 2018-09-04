@@ -14,41 +14,42 @@
  **/
 /*global define*/
 define([
-  'js/application',
-  'js/view/Federation.view.js',
-  'js/model/Federation.js',
-], function(Application, FederationView, FederationModel) {
-  Application.App.module('Federation', function(
-    FederationModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var federationModel = new FederationModel()
+        'js/application',
+        'js/view/Federation.view.js',
+        'js/model/Federation.js'
+    ],
+    function (Application, FederationView, FederationModel) {
 
-    var federationPage = new FederationView({ model: federationModel })
+        Application.App.module('Federation', function (FederationModule, App, Backbone, Marionette) {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var federationModel = new FederationModel();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var federationPage = new FederationView({model:federationModel});
 
-      show: function() {
-        this.region.show(federationPage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    FederationModule.addInitializer(function() {
-      FederationModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      FederationModule.contentController.show()
-    })
-  })
-})
+                initialize: function (options) {
+                    this.region = options.region;
+                },
+
+                show: function () {
+                    this.region.show(federationPage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            FederationModule.addInitializer(function () {
+                FederationModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                FederationModule.contentController.show();
+            });
+
+        });
+    });

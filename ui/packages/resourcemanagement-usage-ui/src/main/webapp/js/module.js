@@ -15,41 +15,43 @@
 
 /*global define*/
 define([
-  'application',
-  'js/view/DataUsage.view.js',
-  'js/model/DataUsage.js',
-], function(Application, DataUsageView, DataUsage) {
-  Application.App.module('DataUsage', function(
-    SourceModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var dataUsage = new DataUsage.UsageModel()
+        'application',
+        'js/view/DataUsage.view.js',
+        'js/model/DataUsage.js'
+    ],
+    function(Application, DataUsageView, DataUsage) {
 
-    var dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage })
+        Application.App.module('DataUsage', function(SourceModule, App, Backbone, Marionette)  {
 
-    // Define a controller to run this module
-    // --------------------------------------
+            var dataUsage = new DataUsage.UsageModel();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            var dataUsagePage = new DataUsageView.UsagePage({model: dataUsage});
 
-      show: function() {
-        this.region.show(dataUsagePage)
-      },
-    })
+            // Define a controller to run this module
+            // --------------------------------------
 
-    // Initialize this module when the app starts
-    // ------------------------------------------
+            var Controller = Marionette.Controller.extend({
 
-    SourceModule.addInitializer(function() {
-      SourceModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      SourceModule.contentController.show()
-    })
-  })
-})
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(dataUsagePage);
+                }
+
+            });
+
+            // Initialize this module when the app starts
+            // ------------------------------------------
+
+            SourceModule.addInitializer(function(){
+                SourceModule.contentController = new Controller({
+                    region: App.mainRegion
+                });
+                SourceModule.contentController.show();
+            });
+
+
+        });
+    });

@@ -13,52 +13,53 @@
  *
  **/
 /*global define*/
-define(['backbone', 'js/model/Jolokia', 'backboneassociations'], function(
-  Backbone,
-  Jolokia
-) {
-  var Certificate = {}
-
-  Certificate.Model = Jolokia.extend({
-    relations: [
-      {
-        type: Backbone.One,
-        key: 'issuerDn',
-        relatedModel: Backbone.AssociatedModel,
-      },
-      {
-        type: Backbone.One,
-        key: 'subjectDn',
-        relatedModel: Backbone.AssociatedModel,
-      },
+define([
+        'backbone',
+        'js/model/Jolokia',
+        'backboneassociations'
     ],
-    idAttribute: 'alias',
-    defaults: {
-      isKey: false,
-    },
-    deleteUrl:
-      '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
-    postUrl:
-      '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
-    postOperation: 'addTrustedCertificate',
-    validate: function() {
-      var alias = this.get('alias')
-      if (alias === undefined || alias === '') {
-        return 'A certificate must have an alias.'
-      }
-    },
-  })
+    function (Backbone, Jolokia) {
 
-  Certificate.Response = Backbone.AssociatedModel.extend({
-    url:
-      '../jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Truststore',
-    relations: [
-      {
-        type: Backbone.Many,
-        key: 'value',
-        relatedModel: Certificate.Model,
-      },
-    ],
-  })
-  return Certificate
-})
+        var Certificate = {};
+
+        Certificate.Model = Jolokia.extend({
+            relations: [
+                {
+                    type: Backbone.One,
+                    key: 'issuerDn',
+                    relatedModel: Backbone.AssociatedModel
+                },
+                {
+                    type: Backbone.One,
+                    key: 'subjectDn',
+                    relatedModel: Backbone.AssociatedModel
+                }
+            ],
+            idAttribute: 'alias',
+            defaults: {
+                isKey: false
+            },
+            deleteUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/deleteTrustedCertificate/',
+            postUrl: '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
+            postOperation: 'addTrustedCertificate',
+            validate: function () {
+                var alias = this.get('alias');
+                if (alias === undefined || alias === '') {
+                    return 'A certificate must have an alias.';
+                }
+            }
+        });
+
+        Certificate.Response = Backbone.AssociatedModel.extend({
+            url: "../jolokia/read/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/Truststore",
+            relations: [
+                {
+                    type: Backbone.Many,
+                    key: 'value',
+                    relatedModel: Certificate.Model
+                }
+            ]
+        });
+        return Certificate;
+
+    });

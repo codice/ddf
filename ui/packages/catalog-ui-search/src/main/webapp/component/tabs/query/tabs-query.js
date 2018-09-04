@@ -11,38 +11,31 @@
  **/
 /*global define*/
 define([
-  'underscore',
-  '../tabs',
-  'js/store',
-  'component/query-settings/query-settings.view',
-  'component/query-status/query-status.view',
-  'component/query-schedule/query-schedule.view',
-  'component/query-editor/query-editor.view',
-  'component/query-annotations/query-annotations.view',
-], function(
-  _,
-  Tabs,
-  store,
-  QuerySettingsView,
-  QueryStatusView,
-  QueryScheduleView,
-  QueryEditorView,
-  QueryAnnotationsView
-) {
-  var WorkspaceContentTabs = Tabs.extend({
-    defaults: {
-      tabs: {
-        Search: QueryEditorView,
-        Settings: QuerySettingsView,
-        Schedule: QueryScheduleView,
-        Status: QueryStatusView,
-        Annotations: QueryAnnotationsView,
-      },
-    },
-    getAssociatedQuery: function() {
-      return store.getQuery()
-    },
-  })
+    'underscore',
+    '../tabs',
+    'js/store',
+    'component/query-settings/query-settings.view',
+    'component/query-status/query-status.view',
+    'component/query-schedule/query-schedule.view',
+    'component/query-editor/query-editor.view',
+    'component/query-annotations/query-annotations.view'
+], function (_, Tabs, store, QuerySettingsView, QueryStatusView,
+             QueryScheduleView, QueryEditorView, QueryAnnotationsView) {
 
-  return WorkspaceContentTabs
-})
+    var WorkspaceContentTabs = Tabs.extend({
+        defaults: {
+            tabs: {
+                'Search': QueryEditorView,
+                'Settings': QuerySettingsView,
+                'Schedule': QueryScheduleView,
+                'Status': QueryStatusView,
+                'Annotations' : QueryAnnotationsView
+            }
+        },
+        getAssociatedQuery: function(){
+            return store.getQuery();
+        }
+    });
+
+    return WorkspaceContentTabs;
+});

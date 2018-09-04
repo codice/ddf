@@ -29,10 +29,7 @@ const panelClass = () => {
 }
 
 const LogPanel = connect(({ filter, logs, displaySize, expandedHash }) => ({
-  filter,
-  logs,
-  displaySize,
-  expandedHash,
+  filter, logs, displaySize, expandedHash
 }))(LogViewer)
 
 export default () => {

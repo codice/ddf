@@ -10,66 +10,59 @@
  *
  **/
 define([
-  'backbone',
-  'marionette',
-  'properties',
-  'icanhaz',
-  'js/model/Filter',
-  './FilterItem.view',
-  'text!templates/filter/filter.collection.handlebars',
-], function(
-  Backbone,
-  Marionette,
-  Properties,
-  ich,
-  Filter,
-  FilterItemView,
-  filterCollectionTemplate
-) {
-  'use strict'
+    'backbone',
+    'marionette',
+    'properties',
+    'icanhaz',
+    'js/model/Filter',
+    './FilterItem.view',
+    'text!templates/filter/filter.collection.handlebars'
+],
+    function (Backbone, Marionette, Properties, ich, Filter, FilterItemView, filterCollectionTemplate) {
+        "use strict";
 
-  ich.addTemplate('filterCollectionTemplate', filterCollectionTemplate)
 
-  var FilterCollectionView = Marionette.CompositeView.extend({
-    template: 'filterCollectionTemplate',
-    childView: FilterItemView,
-    className: 'filter-collection-view',
-    childViewContainer: '.filter-items',
-    collectionEvents: {
-      removePressed: 'removePressed',
-    },
-    childViewOptions: function() {
-      return {
-        collection: this.collection,
-        fields: this.options.fields,
-      }
-    },
-    initialize: function() {
-      var view = this
-      if (!this.model.parents || this.model.parents.length === 0) {
-        return // just quit.  This is an invalid state.
-      }
-      view.queryObject = this.model.parents[0]
+        ich.addTemplate('filterCollectionTemplate',filterCollectionTemplate);
 
-      if (this.queryObject) {
-        view.collection = view.queryObject.filters
-      } else {
-        return // lets just exit.
-      }
-    },
-    removePressed: function(modelToRemove) {
-      this.collection.remove(modelToRemove)
-    },
-    addChild: function(item) {
-      var fieldName = item.get('fieldName')
-      if (fieldName !== Properties.filters.SOURCE_ID) {
-        Backbone.Marionette.CollectionView.prototype.addChild.apply(
-          this,
-          arguments
-        )
-      }
-    },
-  })
+        var FilterCollectionView = Marionette.CompositeView.extend({
+            template: 'filterCollectionTemplate',
+            childView: FilterItemView,
+            className: 'filter-collection-view',
+            childViewContainer: '.filter-items',
+            collectionEvents: {
+                'removePressed': 'removePressed'
+            },
+            childViewOptions: function(){
+                return {
+                    collection: this.collection,
+                    fields: this.options.fields
+                };
+            },
+            initialize: function(){
+                var view = this;
+                if (!this.model.parents || this.model.parents.length === 0) {
+                    return; // just quit.  This is an invalid state.
+                }
+                view.queryObject = this.model.parents[0];
 
-  return FilterCollectionView
-})
+                if(this.queryObject){
+                    view.collection = view.queryObject.filters;
+                } else {
+                    return;  // lets just exit.
+                }
+
+            },
+            removePressed: function(modelToRemove){
+                this.collection.remove(modelToRemove);
+            },
+            addChild: function(item){
+                var fieldName = item.get('fieldName');
+                if (fieldName !== Properties.filters.SOURCE_ID) {
+                    Backbone.Marionette.CollectionView.prototype.addChild.apply(this, arguments);
+                }
+            }
+        });
+
+        return FilterCollectionView;
+
+    });

@@ -9,30 +9,29 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Backbone = require('backbone')
-var _ = require('underscore')
-require('backbone-associations')
+var Backbone = require('backbone');
+var _ = require('underscore');
+require('backbone-associations');
 
-var MetacardPropertiesModel = require('js/model/MetacardProperties')
+var MetacardPropertiesModel = require('js/model/MetacardProperties');
 
 module.exports = Backbone.AssociatedModel.extend({
-  hasGeometry: function(attribute) {
-    return this.get('properties').hasGeometry(attribute)
-  },
-  getPoints: function(attribute) {
-    return this.get('properties').getPoints(attribute)
-  },
-  getGeometries: function(attribute) {
-    return this.get('properties').getGeometries(attribute)
-  },
-  relations: [
-    {
-      type: Backbone.One,
-      key: 'properties',
-      relatedModel: MetacardPropertiesModel,
+    hasGeometry: function (attribute) {
+        return this.get('properties').hasGeometry(attribute);
     },
-  ],
-  defaults: {
-    queryId: undefined,
-  },
-})
+    getPoints: function (attribute) {
+        return this.get('properties').getPoints(attribute);
+    },
+    getGeometries: function (attribute) {
+        return this.get('properties').getGeometries(attribute);
+    },
+    relations: [{
+            type: Backbone.One,
+            key: 'properties',
+            relatedModel: MetacardPropertiesModel
+        }
+    ],
+    defaults: {
+        'queryId': undefined
+    }
+});

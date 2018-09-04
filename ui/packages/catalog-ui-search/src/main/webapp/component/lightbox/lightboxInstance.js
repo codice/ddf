@@ -10,6 +10,9 @@
  *
  **/
 /*global define*/
-define(['./Lightbox'], function(Lightbox) {
-  return new Lightbox()
-})
+define([
+    './Lightbox'
+], function (Lightbox) {
+
+    return new Lightbox();
+});

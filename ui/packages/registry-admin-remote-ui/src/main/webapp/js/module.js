@@ -15,41 +15,41 @@
 
 /*global define*/
 define([
-  'js/application',
-  'js/view/Registry.view.js',
-  'js/model/Registry.js',
-  'js/model/Service.js',
-], function(Application, RegistryView, Registry, Service) {
-  Application.App.module('Remote Registries', function(
-    RegistryModule,
-    App,
-    Backbone,
-    Marionette
-  ) {
-    var serviceModel = new Service.Response()
-    serviceModel.fetch()
+    'js/application',
+    'js/view/Registry.view.js',
+    'js/model/Registry.js',
+    'js/model/Service.js'
+],
+function(Application, RegistryView, Registry, Service) {
 
-    var registryResponse = new Registry.Response({ model: serviceModel })
+    Application.App.module('Remote Registries', function(RegistryModule, App, Backbone, Marionette)  {
 
-    var registryPage = new RegistryView.RegistryPage({
-      model: registryResponse,
-    })
+        var serviceModel = new Service.Response();
+        serviceModel.fetch();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+        var registryResponse = new Registry.Response({model: serviceModel});
 
-      show: function() {
-        this.region.show(registryPage)
-      },
-    })
+        var registryPage = new RegistryView.RegistryPage({model: registryResponse});
 
-    RegistryModule.addInitializer(function() {
-      RegistryModule.contentController = new Controller({
-        region: App.mainRegion,
-      })
-      RegistryModule.contentController.show()
-    })
-  })
-})
+        var Controller = Marionette.Controller.extend({
+
+            initialize: function(options){
+                this.region = options.region;
+            },
+
+            show: function(){
+                this.region.show(registryPage);
+            }
+
+        });
+
+        RegistryModule.addInitializer(function(){
+            RegistryModule.contentController = new Controller({
+                region: App.mainRegion
+            });
+            RegistryModule.contentController.show();
+        });
+
+
+    });
+});

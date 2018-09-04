@@ -1,10 +1,6 @@
-const React = require('react')
+const React = require('react');
 
-const Label = ({ children }) => (
-  <span className="input-group-addon">
-    {children}
-    &nbsp;
-  </span>
-)
+const Label = ({ children }) =>
+    <span className="input-group-addon">{children}&nbsp;</span>;
 
-module.exports = Label
+module.exports = Label;

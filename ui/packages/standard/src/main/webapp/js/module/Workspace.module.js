@@ -10,119 +10,109 @@
  *
  **/
 /* global define */
-define([
-  'application',
-  'cometdinit',
-  'marionette',
-  'js/view/Workspace.view',
-  'js/model/Workspace',
-  'wreqr',
-  'poller',
-  'js/model/source',
-  'underscore',
-  'properties',
-  // Load non attached libs and plugins
-  'datepicker',
-  'datepickerOverride',
-  'datepickerAddon',
-  'multiselect',
-  'multiselectfilter',
-], function(
-  Application,
-  Cometd,
-  Marionette,
-  WorkspaceView,
-  Workspace,
-  wreqr,
-  poller,
-  Source,
-  _,
-  properties
-) {
-  Application.App.module('WorkspaceModule', function(WorkspaceModule) {
-    var setTypes = function() {
-      var allTypes = []
-      if (_.size(properties.typeNameMapping) > 0) {
-        _.each(properties.typeNameMapping, function(value, key) {
-          if (_.isArray(value)) {
-            allTypes.push({
-              name: key,
-              value: value.join(','),
-            })
-          }
-        })
-      } else {
-        allTypes = _.chain(
-          WorkspaceModule.sources.map(function(source) {
-            return source.get('contentTypes')
-          })
-        )
-          .flatten()
-          .filter(function(element) {
-            return element.name !== ''
-          })
-          .sortBy(function(element) {
-            return element.name.toUpperCase()
-          })
-          .uniq(false, function(type) {
-            return type.name
-          })
-          .map(function(element) {
-            element.value = element.name
-            return element
-          })
-          .value()
-      }
-      WorkspaceModule.types.set(allTypes)
-    }
+define(['application',
+        'cometdinit',
+        'marionette',
+        'js/view/Workspace.view',
+        'js/model/Workspace',
+        'wreqr',
+        'poller',
+        'js/model/source',
+        'underscore',
+        'properties',
+        // Load non attached libs and plugins
+        'datepicker',
+        'datepickerOverride',
+        'datepickerAddon',
+        'multiselect',
+        'multiselectfilter'
+    ],
+    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source, _, properties) {
 
-    WorkspaceModule.sources = new Source.Collection()
-    WorkspaceModule.sources.fetch().done(function() {
-      setTypes()
-    })
+        Application.App.module('WorkspaceModule', function(WorkspaceModule) {
 
-    WorkspaceModule.types = new Source.Types()
+            var setTypes = function () {
+                var allTypes = [];
+                if (_.size(properties.typeNameMapping) > 0) {
+                    _.each(properties.typeNameMapping, function(value, key) {
+                        if (_.isArray(value)) {
+                            allTypes.push({
+                                name: key,
+                                value: value.join(',')
+                            });
+                        }
+                    });
+                } else {
+                    allTypes = _.chain(WorkspaceModule.sources.map(function (source) {
+                        return source.get('contentTypes');
+                    }))
+                    .flatten()
+                    .filter(function (element) {
+                        return element.name !== '';
+                    })
+                    .sortBy(function (element) {
+                        return element.name.toUpperCase();
+                    })
+                    .uniq(false, function (type) {
+                        return type.name;
+                    })
+                    .map(function (element) {
+                        element.value = element.name;
+                        return element;
+                    })
+                    .value();
+                }
+                WorkspaceModule.types.set(allTypes);
+            };
 
-    // Poll the server for changes to Sources every 60 seconds -
-    // This matches the DDF SourcePoller polling interval
-    poller.get(WorkspaceModule.sources, { delay: 60000 }).start()
+            WorkspaceModule.sources = new Source.Collection();
+            WorkspaceModule.sources.fetch().done(function() {
+                setTypes();
+            });
 
-    wreqr.reqres.setHandler('workspace:getsources', function() {
-      return WorkspaceModule.sources
-    })
+            WorkspaceModule.types = new Source.Types();
 
-    this.listenTo(WorkspaceModule.sources, 'change', setTypes)
+            // Poll the server for changes to Sources every 60 seconds -
+            // This matches the DDF SourcePoller polling interval
+            poller.get(WorkspaceModule.sources, { delay: 60000 }).start();
 
-    wreqr.reqres.setHandler('workspace:gettypes', function() {
-      return WorkspaceModule.types
-    })
+            wreqr.reqres.setHandler('workspace:getsources', function () {
+                return WorkspaceModule.sources;
+            });
 
-    WorkspaceModule.workspaces = new Workspace.WorkspaceResult()
-    WorkspaceModule.workspaces.fetch()
+            this.listenTo(WorkspaceModule.sources, 'change', setTypes);
 
-    wreqr.reqres.setHandler('workspace:getworkspaces', function() {
-      return WorkspaceModule.workspaces
-    })
+            wreqr.reqres.setHandler('workspace:gettypes', function () {
+                return WorkspaceModule.types;
+            });
 
-    var workspaceView = new WorkspaceView.PanelLayout({
-      model: WorkspaceModule.workspaces,
-    })
+            WorkspaceModule.workspaces = new Workspace.WorkspaceResult();
+            WorkspaceModule.workspaces.fetch();
 
-    var Controller = Marionette.Controller.extend({
-      initialize: function(options) {
-        this.region = options.region
-      },
+            wreqr.reqres.setHandler('workspace:getworkspaces', function () {
+                return WorkspaceModule.workspaces;
+            });
 
-      show: function() {
-        this.region.show(workspaceView)
-      },
-    })
+            var workspaceView = new WorkspaceView.PanelLayout({model: WorkspaceModule.workspaces});
 
-    WorkspaceModule.addInitializer(function() {
-      WorkspaceModule.contentController = new Controller({
-        region: Application.App.controlPanelRegion,
-      })
-      WorkspaceModule.contentController.show()
-    })
-  })
-})
+            var Controller = Marionette.Controller.extend({
+
+                initialize: function(options){
+                    this.region = options.region;
+                },
+
+                show: function(){
+                    this.region.show(workspaceView);
+                }
+
+            });
+
+            WorkspaceModule.addInitializer(function(){
+                WorkspaceModule.contentController = new Controller({
+                    region: Application.App.controlPanelRegion
+                });
+                WorkspaceModule.contentController.show();
+            });
+        });
+
+    });
