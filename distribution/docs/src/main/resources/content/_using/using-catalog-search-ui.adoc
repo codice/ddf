@@ -147,7 +147,7 @@ fields must be set before uploads will be permitted.
 
 === Searching with ${catalog-ui}
 
-The Search pane has two tabs: *Search* and *Bookmarks*.
+The Search pane has two tabs: *Search* and *Lists*.
 
 .Search Pane Tabs
 image::catalog-ui-search-tabs.png[]
@@ -271,21 +271,33 @@ image::search-results-options.png[search results options]
 * *Expand Metacard View*: Navigates to a view that only focuses on this particular result.
 * *Create Search from Location*: Searches for all records that intersect the current result's location geometry.
 
-==== Bookmarks Tab
+==== Lists Tab
 
-Bookmarked results are denoted with a yellow *star* (image:bookmarked-icon.png[]) icon.
+Maybe this could be clearer as something like "Lists organize results and enable performing actions on those sets of results.
 
-. Perform any of these actions on bookmarked results:
+. Perform any of these actions on lists:
 .. Filter the result set locally (does not re-execute the search),
 .. Customize results sorting (Default: Title in Ascending Order).
 .. Toggle results view between *List* and *Gallery*.
 
-.Bookmarked Result Options
-* *Download*: Downloads the result's associated product directly to the local machine. This option is only available for results that have products.
-* *Remove from Bookmarks*: Removes the result from bookmarks.
-* *Hide from Future Searches*: Adds to a list of results that will be hidden from future searches.
-* *Expand Metacard View*: Navigates to a view that only focuses on this particular result.
-* *Create Search from Location*: Searches for all records that intersect the current result's location geometry.
+[NOTE]
+====
+Lists are not available to guest users.
+====
+
+===== Creating a List
+A new list can be created by selecting the *Lists* tab and selecting the *new list* text.
+
+image:new-list-options.png[]
+
+===== Adding/Removing Results to a List
+Results can be added to a list by selecting the *+* icon on a result.
+
+image:sample-result-view.png[]
+
+Results can be added or removed to/from a list through the result's dropdown menu.
+
+image:sample-dropdown-menu.png[]
 
 === Viewing Search Results
 
